@@ -236,6 +236,9 @@ export function WorkforceEnquiries({
                       </time>
                     </small>
                   </th>
+                  <td data-label="Customer">
+                    {row.contact?.name || "Not available in this scope"}
+                  </td>
                   <td data-label="Type">
                     {enquiryLabel(row.type, row.vehicleEnquiryIntent)}
                   </td>

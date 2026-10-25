@@ -1,4 +1,6 @@
 "use client";
+import "./care-workspace.css";
+import { CopyableValue } from "./copyable-value";
 import { enquiryLabel } from "@/lib/support/enquiry-label";
 import { NotificationRecordContext } from "./notification-record-context";
 import { SupportTimelineEntry } from "./support-timeline-entry";
@@ -508,13 +510,17 @@ export function WorkforceEnquiryDetail({
               Close selection
             </button>
           </header>
-          <WorkflowProgress workflow="enquiry" status={row.status} />
-          <SupportEmailDeliverySummary
-            page={row.emailDeliveries}
-            loading={busy}
-            error={failure}
-            onRefresh={record.refresh}
-          />
+          <div className="care-context">
+            <strong>
+              {row.contact?.name || "Customer identity not available in this scope"}
+            </strong>
+            {row.contact && (
+              <CopyableValue value={row.contact.email} label="Copy customer email" />
+            )}
+            <a className="care-next" href="#wfe-body">
+              Write a reply
+            </a>
+          </div>{" "}
           <dl className="wfe-facts">
             <div>
               <dt>Branch</dt>
@@ -702,6 +708,21 @@ export function WorkforceEnquiryDetail({
               )}
             </div>
           </div>
+          <details className="care-secondary">
+            <summary>Workflow stages</summary>
+            <WorkflowProgress workflow="enquiry" status={row.status} />
+          </details>
+          <SupportEmailDeliverySummary
+            dismissPath={
+              row.access.permissions.includes("CUSTOMER_ENQUIRIES")
+                ? "/staff/workforce/enquiries/" + row.id + "/email-deliveries/dismiss"
+                : undefined
+            }
+            page={row.emailDeliveries}
+            loading={busy}
+            error={failure}
+            onRefresh={record.refresh}
+          />
         </>
       )}
       {proposal && (

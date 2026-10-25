@@ -20,6 +20,14 @@ const complaintPriority = z.enum(["LOW", "MEDIUM", "HIGH", "URGENT"]);
 const complaintStatus = z.enum(["OPEN", "INVESTIGATING", "RESOLVED", "CLOSED"]);
 const accessSchema = workforceAccessSchema.extend({ managed: z.literal(true) });
 const rowSchema = z.object({
+  contact: z
+    .object({
+      name: z.string().nullable(),
+      email: z.string().nullable(),
+      phone: z.string().nullable(),
+      customerId: z.uuid().nullable(),
+    })
+    .optional(),
   id: z.uuid(),
   branchId: z.uuid().nullable(),
   branch: z.object({ id: z.uuid(), name: z.string() }).nullable(),

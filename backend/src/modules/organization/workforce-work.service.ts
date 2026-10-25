@@ -1,6 +1,11 @@
+import {
+  workforceCareContactSelect,
+  projectWorkforceCareContact,
+} from "./workforce-care-contact.js";
 import { enquiryScope } from "./workforce-enquiry-scope.js";
 import {
   enqueueSupportCustomerUpdate,
+  dismissSupportDeliveryNotices,
   supportEmailDeliveries,
 } from "../support/customer-email.js";
 import type { z } from "zod";
@@ -697,7 +702,12 @@ export class WorkforceWorkService {
             ...(query.status ? [{ status: query.status }] : []),
           ],
         },
-        select: workforceEnquirySelect,
+        select: {
+          ...workforceEnquirySelect,
+          ...(access.permissions.includes("CUSTOMER_ENQUIRIES")
+            ? workforceCareContactSelect
+            : {}),
+        },
       });
       await audit(
         tx,
@@ -712,7 +722,7 @@ export class WorkforceWorkService {
         true,
       );
       return {
-        ...page(rows, query.limit),
+        ...page(rows.map(projectWorkforceCareContact), query.limit),
         access,
         generatedAt: new Date().toISOString(),
       };
@@ -744,7 +754,10 @@ export class WorkforceWorkService {
         },
         true,
       );
-      return { ...result, emailDeliveries: await supportEmailDeliveries(tx, id) };
+      return {
+        ...result,
+        emailDeliveries: await supportEmailDeliveries(tx, id, actor.userId),
+      };
     });
   }
   complaints(
@@ -766,7 +779,7 @@ export class WorkforceWorkService {
             ...complaintSearchFilters(query.q),
           ],
         },
-        select: workforceComplaintSelect,
+        select: { ...workforceComplaintSelect, ...workforceCareContactSelect },
       });
       await audit(
         tx,
@@ -781,7 +794,7 @@ export class WorkforceWorkService {
         true,
       );
       return {
-        ...page(rows, query.limit),
+        ...page(rows.map(projectWorkforceCareContact), query.limit),
         access,
         generatedAt: new Date().toISOString(),
       };
@@ -814,7 +827,44 @@ export class WorkforceWorkService {
         },
         true,
       );
-      return { ...result, emailDeliveries: await supportEmailDeliveries(tx, id) };
+      return {
+        ...result,
+        emailDeliveries: await supportEmailDeliveries(tx, id, actor.userId),
+      };
+    });
+  }
+  dismissDeliveryNotices(
+    actor: AuthenticatedActor,
+    kind: "enquiries" | "complaints",
+    id: string,
+    body: unknown,
+    context: RequestSecurityContext,
+  ) {
+    return this.run(actor, async (tx, access) => {
+      if (
+        !access.permissions.includes(
+          kind === "enquiries" ? "CUSTOMER_ENQUIRIES" : "COMPLAINTS",
+        )
+      )
+        workforceDenied();
+      if (kind === "enquiries")
+        await readWorkforceEnquiry(tx, access, id, enquiryScope(access), { limit: 20 });
+      else {
+        if (!access.permissions.includes("COMPLAINTS")) workforceDenied();
+        await readWorkforceComplaint(tx, access, id, branchesFor(access, "COMPLAINTS"), {
+          limit: 20,
+        });
+      }
+      const page = await dismissSupportDeliveryNotices(tx, actor.userId, id, body);
+      await audit(
+        tx,
+        actor,
+        context,
+        kind === "enquiries" ? "ENQUIRY" : "COMPLAINT",
+        id,
+        { workforceAction: "DISMISS_OWN_DELIVERY_NOTICES" },
+      );
+      return page;
     });
   }
   reply(

@@ -26,6 +26,7 @@ export const errorCodes = {
   mfaRequired: "MFA_REQUIRED",
   tokenInvalid: "TOKEN_INVALID",
   accountLocked: "ACCOUNT_LOCKED",
+  accountSuspended: "ACCOUNT_SUSPENDED",
   forbidden: "FORBIDDEN",
   notFound: "NOT_FOUND",
   conflict: "CONFLICT",

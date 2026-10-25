@@ -312,6 +312,7 @@
                   "MFA_REQUIRED",
                   "TOKEN_INVALID",
                   "ACCOUNT_LOCKED",
+                  "ACCOUNT_SUSPENDED",
                   "FORBIDDEN",
                   "NOT_FOUND",
                   "CONFLICT",
@@ -10156,6 +10157,304 @@
         "x-access-boundary": "authenticated-customer",
         "x-required-roles": [
           "CUSTOMER"
+        ],
+        "x-csrf-required": true,
+        "x-idempotency-required": false
+      }
+    },
+    "/admin/customers/{customerId}/account-status": {
+      "post": {
+        "tags": [
+          "Customers"
+        ],
+        "summary": "Suspend or reactivate a current customer account",
+        "description": "MFA-verified administrator, current actor/session/target role revalidated transactionally. CSRF required. Expected status guards stale/concurrent changes; DEACTIVATED and non-customer targets are excluded. Suspension revokes sessions and unused reset/verification tokens. Reactivation never revives revoked credentials. Actor, target, reason, time and transition audited. No financial/history or outbound email side effects. Suspend or reactivate a current customer account. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Identifier of the customer resource; ownership is resolved server-side."
+            },
+            "required": true,
+            "name": "customerId",
+            "in": "path",
+            "description": "Identifier selecting the customer resource.",
+            "example": "00000000-0000-4000-8000-000000000001"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+            },
+            "required": true,
+            "name": "x-csrf-token",
+            "in": "header",
+            "description": "Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.",
+            "example": "synthetic-token-value-not-a-real-secret"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "expectedStatus": {
+                    "type": "string",
+                    "enum": [
+                      "ACTIVE",
+                      "SUSPENDED"
+                    ],
+                    "description": "Expected Status validated by this operation's strict request contract."
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "ACTIVE",
+                      "SUSPENDED"
+                    ],
+                    "description": "Requested or filtered lifecycle state from the documented enum."
+                  },
+                  "reason": {
+                    "type": "string",
+                    "minLength": 10,
+                    "maxLength": 1000,
+                    "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                  }
+                },
+                "required": [
+                  "expectedStatus",
+                  "status",
+                  "reason"
+                ],
+                "additionalProperties": false,
+                "description": "Request Body validated by this operation's strict request contract."
+              },
+              "example": {
+                "expectedStatus": "ACTIVE",
+                "status": "ACTIVE",
+                "reason": "synthetic-reason"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success: Suspend or reactivate a current customer account.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ],
+                      "description": "Success validated by this operation's strict request contract."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "customerId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "description": "Identifier of the customer resource; ownership is resolved server-side."
+                        },
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "ACTIVE",
+                            "SUSPENDED"
+                          ],
+                          "description": "Requested or filtered lifecycle state from the documented enum."
+                        },
+                        "revokedSessions": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "description": "Revoked Sessions validated by this operation's strict request contract."
+                        }
+                      },
+                      "required": [
+                        "customerId",
+                        "status",
+                        "revokedSessions"
+                      ],
+                      "description": "Data validated by this operation's strict request contract."
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string",
+                          "description": "Identifier of the request resource; ownership is resolved server-side."
+                        },
+                        "serverTime": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        }
+                      },
+                      "required": [
+                        "requestId",
+                        "serverTime"
+                      ],
+                      "description": "Meta validated by this operation's strict request contract."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "data",
+                    "meta"
+                  ],
+                  "description": "Response validated by this operation's strict request contract."
+                },
+                "example": {
+                  "success": true,
+                  "message": "Suspend or reactivate a current customer account",
+                  "data": {
+                    "customerId": "00000000-0000-4000-8000-000000000001",
+                    "status": "ACTIVE",
+                    "revokedSessions": 0
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is malformed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request is malformed.",
+                  "error": {
+                    "code": "BAD_REQUEST"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "A valid session and required assurance are missing.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A valid session and required assurance are missing.",
+                  "error": {
+                    "code": "UNAUTHORIZED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorised"
+          },
+          "404": {
+            "description": "Current customer unavailable"
+          },
+          "409": {
+            "description": "Account state changed"
+          },
+          "422": {
+            "description": "Invalid fields"
+          },
+          "429": {
+            "description": "The route-specific request limit was exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The route-specific request limit was exceeded.",
+                  "error": {
+                    "code": "RATE_LIMITED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                  "error": {
+                    "code": "INTERNAL_ERROR"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                  "error": {
+                    "code": "DATABASE_UNAVAILABLE"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "postAdminCustomersByCustomerIdAccountStatus",
+        "x-access-boundary": "mfa-verified-admin",
+        "x-required-roles": [
+          "ADMIN",
+          "SUPER_ADMIN"
         ],
         "x-csrf-required": true,
         "x-idempotency-required": false
@@ -95838,6 +96137,954 @@
         "x-idempotency-required": false
       }
     },
+    "/staff/support/enquiries/{supportId}/email-deliveries/dismiss": {
+      "post": {
+        "tags": [
+          "Support"
+        ],
+        "summary": "Dismiss eligible visible delivery notices for this operator",
+        "description": "Current case/branch access required. Atomic explicit batch of 1–20 stable revisions. Idempotent per operator and revision. Stale/ineligible/foreign notices conflict. Retains all delivery history/status and grants no retry authority. Dismiss eligible visible delivery notices for this operator. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Identifier of the support resource; ownership is resolved server-side."
+            },
+            "required": true,
+            "name": "supportId",
+            "in": "path",
+            "description": "Identifier selecting the support resource.",
+            "example": "00000000-0000-4000-8000-000000000001"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+            },
+            "required": true,
+            "name": "x-csrf-token",
+            "in": "header",
+            "description": "Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.",
+            "example": "synthetic-token-value-not-a-real-secret"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "notices": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "description": "Identifier of the id resource; ownership is resolved server-side."
+                        },
+                        "revision": {
+                          "type": "string",
+                          "pattern": "^[a-f0-9]{64}$",
+                          "description": "Revision validated by this operation's strict request contract."
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "revision"
+                      ],
+                      "additionalProperties": false,
+                      "description": "Notices Item validated by this operation's strict request contract."
+                    },
+                    "minItems": 1,
+                    "maxItems": 20,
+                    "description": "Notices validated by this operation's strict request contract."
+                  }
+                },
+                "required": [
+                  "notices"
+                ],
+                "additionalProperties": false,
+                "description": "Request Body validated by this operation's strict request contract."
+              },
+              "example": {
+                "notices": [
+                  {
+                    "id": "00000000-0000-4000-8000-000000000001",
+                    "revision": "synthetic-revision"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success: Dismiss eligible visible delivery notices for this operator.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "description": "Success validated by this operation's strict request contract."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "noticeRevision": {
+                                "type": "string",
+                                "pattern": "^[a-f0-9]{64}$",
+                                "description": "Notice Revision validated by this operation's strict request contract."
+                              },
+                              "noticeEligible": {
+                                "type": "boolean",
+                                "description": "Notice Eligible validated by this operation's strict request contract."
+                              },
+                              "noticeDismissed": {
+                                "type": "boolean",
+                                "description": "Notice Dismissed validated by this operation's strict request contract."
+                              },
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "description": "Identifier of the id resource; ownership is resolved server-side."
+                              },
+                              "status": {
+                                "type": "string",
+                                "enum": [
+                                  "QUEUED",
+                                  "SENDING",
+                                  "SENT",
+                                  "RETRYING",
+                                  "FAILED",
+                                  "NOT_SENT"
+                                ],
+                                "description": "Requested or filtered lifecycle state from the documented enum."
+                              },
+                              "reason": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "enum": [
+                                  "CHANNEL_DISABLED",
+                                  "CONSENT_WITHDRAWN",
+                                  "NO_RECIPIENT",
+                                  "SUPPORT_REPLY_ADDRESS_MISSING",
+                                  "STAGING_RECIPIENT_NOT_ALLOWLISTED",
+                                  "SUPPORT_EMAIL_FAILED",
+                                  "PROVIDER_REJECTED",
+                                  "RETRY_EXHAUSTED",
+                                  null
+                                ],
+                                "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                              },
+                              "createdAt": {
+                                "type": "string",
+                                "format": "date-time",
+                                "description": "ISO 8601 timestamp interpreted and validated by the server."
+                              },
+                              "sentAt": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "format": "date-time",
+                                "description": "ISO 8601 timestamp interpreted and validated by the server."
+                              },
+                              "attempts": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "description": "Attempts validated by this operation's strict request contract."
+                              },
+                              "nextRetryAt": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "format": "date-time",
+                                "description": "ISO 8601 timestamp interpreted and validated by the server."
+                              },
+                              "providerStatus": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "enum": [
+                                  "DELIVERED",
+                                  "DELAYED",
+                                  "BOUNCED",
+                                  "COMPLAINED",
+                                  "FAILED",
+                                  "SUPPRESSED",
+                                  null
+                                ],
+                                "description": "Provider Status validated by this operation's strict request contract."
+                              },
+                              "providerUpdatedAt": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "format": "date-time",
+                                "description": "ISO 8601 timestamp interpreted and validated by the server."
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "status",
+                              "reason",
+                              "createdAt",
+                              "sentAt",
+                              "attempts",
+                              "nextRetryAt",
+                              "providerStatus",
+                              "providerUpdatedAt"
+                            ],
+                            "description": "Items Item validated by this operation's strict request contract."
+                          },
+                          "maxItems": 20,
+                          "description": "Items validated by this operation's strict request contract."
+                        }
+                      },
+                      "required": [
+                        "items"
+                      ],
+                      "description": "Data validated by this operation's strict request contract."
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string",
+                          "description": "Identifier of the request resource; ownership is resolved server-side."
+                        }
+                      },
+                      "required": [
+                        "requestId"
+                      ],
+                      "description": "Meta validated by this operation's strict request contract."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "data",
+                    "meta"
+                  ],
+                  "description": "Response validated by this operation's strict request contract."
+                },
+                "example": {
+                  "success": true,
+                  "message": "Dismiss eligible visible delivery notices for this operator",
+                  "data": {
+                    "items": [
+                      {
+                        "id": "00000000-0000-4000-8000-000000000001",
+                        "status": "QUEUED",
+                        "reason": "CHANNEL_DISABLED",
+                        "createdAt": "2030-01-15T10:00:00.000Z",
+                        "sentAt": "2030-01-15T10:00:00.000Z",
+                        "attempts": 0,
+                        "nextRetryAt": "2030-01-15T10:00:00.000Z",
+                        "providerStatus": "DELIVERED",
+                        "providerUpdatedAt": "2030-01-15T10:00:00.000Z"
+                      }
+                    ]
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is malformed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request is malformed.",
+                  "error": {
+                    "code": "BAD_REQUEST"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "A valid session and required assurance are missing.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A valid session and required assurance are missing.",
+                  "error": {
+                    "code": "UNAUTHORIZED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The actor is not authorized for this resource or action.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The actor is not authorized for this resource or action.",
+                  "error": {
+                    "code": "FORBIDDEN"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource is not available.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The requested resource is not available.",
+                  "error": {
+                    "code": "NOT_FOUND"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The request conflicts with current state or idempotency.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request conflicts with current state or idempotency.",
+                  "error": {
+                    "code": "CONFLICT"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "One or more request fields are invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "One or more request fields are invalid.",
+                  "error": {
+                    "code": "VALIDATION_FAILED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The route-specific request limit was exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The route-specific request limit was exceeded.",
+                  "error": {
+                    "code": "RATE_LIMITED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                  "error": {
+                    "code": "INTERNAL_ERROR"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                  "error": {
+                    "code": "DATABASE_UNAVAILABLE"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "postStaffSupportEnquiriesBySupportIdEmailDeliveriesDismiss",
+        "x-access-boundary": "mfa-verified-staff",
+        "x-required-roles": [
+          "STAFF",
+          "ADMIN",
+          "SUPER_ADMIN"
+        ],
+        "x-csrf-required": true,
+        "x-idempotency-required": false
+      }
+    },
+    "/staff/support/complaints/{supportId}/email-deliveries/dismiss": {
+      "post": {
+        "tags": [
+          "Support"
+        ],
+        "summary": "Dismiss eligible visible delivery notices for this operator",
+        "description": "Current case/branch access required. Atomic explicit batch of 1–20 stable revisions. Idempotent per operator and revision. Stale/ineligible/foreign notices conflict. Retains all delivery history/status and grants no retry authority. Dismiss eligible visible delivery notices for this operator. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Identifier of the support resource; ownership is resolved server-side."
+            },
+            "required": true,
+            "name": "supportId",
+            "in": "path",
+            "description": "Identifier selecting the support resource.",
+            "example": "00000000-0000-4000-8000-000000000001"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+            },
+            "required": true,
+            "name": "x-csrf-token",
+            "in": "header",
+            "description": "Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.",
+            "example": "synthetic-token-value-not-a-real-secret"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "notices": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "description": "Identifier of the id resource; ownership is resolved server-side."
+                        },
+                        "revision": {
+                          "type": "string",
+                          "pattern": "^[a-f0-9]{64}$",
+                          "description": "Revision validated by this operation's strict request contract."
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "revision"
+                      ],
+                      "additionalProperties": false,
+                      "description": "Notices Item validated by this operation's strict request contract."
+                    },
+                    "minItems": 1,
+                    "maxItems": 20,
+                    "description": "Notices validated by this operation's strict request contract."
+                  }
+                },
+                "required": [
+                  "notices"
+                ],
+                "additionalProperties": false,
+                "description": "Request Body validated by this operation's strict request contract."
+              },
+              "example": {
+                "notices": [
+                  {
+                    "id": "00000000-0000-4000-8000-000000000001",
+                    "revision": "synthetic-revision"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success: Dismiss eligible visible delivery notices for this operator.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "description": "Success validated by this operation's strict request contract."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "noticeRevision": {
+                                "type": "string",
+                                "pattern": "^[a-f0-9]{64}$",
+                                "description": "Notice Revision validated by this operation's strict request contract."
+                              },
+                              "noticeEligible": {
+                                "type": "boolean",
+                                "description": "Notice Eligible validated by this operation's strict request contract."
+                              },
+                              "noticeDismissed": {
+                                "type": "boolean",
+                                "description": "Notice Dismissed validated by this operation's strict request contract."
+                              },
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "description": "Identifier of the id resource; ownership is resolved server-side."
+                              },
+                              "status": {
+                                "type": "string",
+                                "enum": [
+                                  "QUEUED",
+                                  "SENDING",
+                                  "SENT",
+                                  "RETRYING",
+                                  "FAILED",
+                                  "NOT_SENT"
+                                ],
+                                "description": "Requested or filtered lifecycle state from the documented enum."
+                              },
+                              "reason": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "enum": [
+                                  "CHANNEL_DISABLED",
+                                  "CONSENT_WITHDRAWN",
+                                  "NO_RECIPIENT",
+                                  "SUPPORT_REPLY_ADDRESS_MISSING",
+                                  "STAGING_RECIPIENT_NOT_ALLOWLISTED",
+                                  "SUPPORT_EMAIL_FAILED",
+                                  "PROVIDER_REJECTED",
+                                  "RETRY_EXHAUSTED",
+                                  null
+                                ],
+                                "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                              },
+                              "createdAt": {
+                                "type": "string",
+                                "format": "date-time",
+                                "description": "ISO 8601 timestamp interpreted and validated by the server."
+                              },
+                              "sentAt": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "format": "date-time",
+                                "description": "ISO 8601 timestamp interpreted and validated by the server."
+                              },
+                              "attempts": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "description": "Attempts validated by this operation's strict request contract."
+                              },
+                              "nextRetryAt": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "format": "date-time",
+                                "description": "ISO 8601 timestamp interpreted and validated by the server."
+                              },
+                              "providerStatus": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "enum": [
+                                  "DELIVERED",
+                                  "DELAYED",
+                                  "BOUNCED",
+                                  "COMPLAINED",
+                                  "FAILED",
+                                  "SUPPRESSED",
+                                  null
+                                ],
+                                "description": "Provider Status validated by this operation's strict request contract."
+                              },
+                              "providerUpdatedAt": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "format": "date-time",
+                                "description": "ISO 8601 timestamp interpreted and validated by the server."
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "status",
+                              "reason",
+                              "createdAt",
+                              "sentAt",
+                              "attempts",
+                              "nextRetryAt",
+                              "providerStatus",
+                              "providerUpdatedAt"
+                            ],
+                            "description": "Items Item validated by this operation's strict request contract."
+                          },
+                          "maxItems": 20,
+                          "description": "Items validated by this operation's strict request contract."
+                        }
+                      },
+                      "required": [
+                        "items"
+                      ],
+                      "description": "Data validated by this operation's strict request contract."
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string",
+                          "description": "Identifier of the request resource; ownership is resolved server-side."
+                        }
+                      },
+                      "required": [
+                        "requestId"
+                      ],
+                      "description": "Meta validated by this operation's strict request contract."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "data",
+                    "meta"
+                  ],
+                  "description": "Response validated by this operation's strict request contract."
+                },
+                "example": {
+                  "success": true,
+                  "message": "Dismiss eligible visible delivery notices for this operator",
+                  "data": {
+                    "items": [
+                      {
+                        "id": "00000000-0000-4000-8000-000000000001",
+                        "status": "QUEUED",
+                        "reason": "CHANNEL_DISABLED",
+                        "createdAt": "2030-01-15T10:00:00.000Z",
+                        "sentAt": "2030-01-15T10:00:00.000Z",
+                        "attempts": 0,
+                        "nextRetryAt": "2030-01-15T10:00:00.000Z",
+                        "providerStatus": "DELIVERED",
+                        "providerUpdatedAt": "2030-01-15T10:00:00.000Z"
+                      }
+                    ]
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is malformed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request is malformed.",
+                  "error": {
+                    "code": "BAD_REQUEST"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "A valid session and required assurance are missing.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A valid session and required assurance are missing.",
+                  "error": {
+                    "code": "UNAUTHORIZED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The actor is not authorized for this resource or action.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The actor is not authorized for this resource or action.",
+                  "error": {
+                    "code": "FORBIDDEN"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource is not available.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The requested resource is not available.",
+                  "error": {
+                    "code": "NOT_FOUND"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The request conflicts with current state or idempotency.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request conflicts with current state or idempotency.",
+                  "error": {
+                    "code": "CONFLICT"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "One or more request fields are invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "One or more request fields are invalid.",
+                  "error": {
+                    "code": "VALIDATION_FAILED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The route-specific request limit was exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The route-specific request limit was exceeded.",
+                  "error": {
+                    "code": "RATE_LIMITED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                  "error": {
+                    "code": "INTERNAL_ERROR"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                  "error": {
+                    "code": "DATABASE_UNAVAILABLE"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "postStaffSupportComplaintsBySupportIdEmailDeliveriesDismiss",
+        "x-access-boundary": "mfa-verified-staff",
+        "x-required-roles": [
+          "STAFF",
+          "ADMIN",
+          "SUPER_ADMIN"
+        ],
+        "x-csrf-required": true,
+        "x-idempotency-required": false
+      }
+    },
     "/staff/support/complaints/{supportId}/email-deliveries": {
       "get": {
         "tags": [
@@ -95888,6 +97135,19 @@
                           "items": {
                             "type": "object",
                             "properties": {
+                              "noticeRevision": {
+                                "type": "string",
+                                "pattern": "^[a-f0-9]{64}$",
+                                "description": "Notice Revision validated by this operation's strict request contract."
+                              },
+                              "noticeEligible": {
+                                "type": "boolean",
+                                "description": "Notice Eligible validated by this operation's strict request contract."
+                              },
+                              "noticeDismissed": {
+                                "type": "boolean",
+                                "description": "Notice Dismissed validated by this operation's strict request contract."
+                              },
                               "id": {
                                 "type": "string",
                                 "format": "uuid",
@@ -96265,6 +97525,19 @@
                           "items": {
                             "type": "object",
                             "properties": {
+                              "noticeRevision": {
+                                "type": "string",
+                                "pattern": "^[a-f0-9]{64}$",
+                                "description": "Notice Revision validated by this operation's strict request contract."
+                              },
+                              "noticeEligible": {
+                                "type": "boolean",
+                                "description": "Notice Eligible validated by this operation's strict request contract."
+                              },
+                              "noticeDismissed": {
+                                "type": "boolean",
+                                "description": "Notice Dismissed validated by this operation's strict request contract."
+                              },
                               "id": {
                                 "type": "string",
                                 "format": "uuid",
@@ -147251,6 +148524,834 @@
         "x-idempotency-required": false
       }
     },
+    "/staff/workforce/enquiries/{id}/email-deliveries/dismiss": {
+      "post": {
+        "tags": [
+          "Workforce"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "summary": "Responsibility-based workspace: enquiryDeliveryDismiss",
+        "description": "Explicit enrollment required for operational queues. Current assignments, branch, field projections and state are enforced in a transaction. Access changes require MFA, current password, target/version review and an owner-configured delegation envelope. No financial execution, exports or collection release authority is conferred by a title. Responsibility-based workspace: enquiryDeliveryDismiss. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Identifier of the id resource; ownership is resolved server-side."
+            },
+            "required": true,
+            "name": "id",
+            "in": "path",
+            "description": "Identifier selecting the id resource.",
+            "example": "00000000-0000-4000-8000-000000000001"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+            },
+            "required": true,
+            "name": "x-csrf-token",
+            "in": "header",
+            "description": "Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.",
+            "example": "synthetic-token-value-not-a-real-secret"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "notices": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "description": "Identifier of the id resource; ownership is resolved server-side."
+                        },
+                        "revision": {
+                          "type": "string",
+                          "pattern": "^[a-f0-9]{64}$",
+                          "description": "Revision validated by this operation's strict request contract."
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "revision"
+                      ],
+                      "additionalProperties": false,
+                      "description": "Notices Item validated by this operation's strict request contract."
+                    },
+                    "minItems": 1,
+                    "maxItems": 20,
+                    "description": "Notices validated by this operation's strict request contract."
+                  }
+                },
+                "required": [
+                  "notices"
+                ],
+                "additionalProperties": false,
+                "description": "Request Body validated by this operation's strict request contract."
+              },
+              "example": {
+                "notices": [
+                  {
+                    "id": "00000000-0000-4000-8000-000000000001",
+                    "revision": "synthetic-revision"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success: Responsibility-based workspace: enquiryDeliveryDismiss.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ],
+                      "description": "Success validated by this operation's strict request contract."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "noticeRevision": {
+                                "type": "string",
+                                "pattern": "^[a-f0-9]{64}$",
+                                "description": "Notice Revision validated by this operation's strict request contract."
+                              },
+                              "noticeEligible": {
+                                "type": "boolean",
+                                "description": "Notice Eligible validated by this operation's strict request contract."
+                              },
+                              "noticeDismissed": {
+                                "type": "boolean",
+                                "description": "Notice Dismissed validated by this operation's strict request contract."
+                              },
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "description": "Identifier of the id resource; ownership is resolved server-side."
+                              },
+                              "status": {
+                                "type": "string",
+                                "enum": [
+                                  "QUEUED",
+                                  "SENDING",
+                                  "SENT",
+                                  "RETRYING",
+                                  "FAILED",
+                                  "NOT_SENT"
+                                ],
+                                "description": "Requested or filtered lifecycle state from the documented enum."
+                              },
+                              "reason": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "enum": [
+                                  "CHANNEL_DISABLED",
+                                  "CONSENT_WITHDRAWN",
+                                  "NO_RECIPIENT",
+                                  "SUPPORT_REPLY_ADDRESS_MISSING",
+                                  "STAGING_RECIPIENT_NOT_ALLOWLISTED",
+                                  "SUPPORT_EMAIL_FAILED",
+                                  "PROVIDER_REJECTED",
+                                  "RETRY_EXHAUSTED",
+                                  null
+                                ],
+                                "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                              },
+                              "createdAt": {
+                                "type": "string",
+                                "format": "date-time",
+                                "description": "ISO 8601 timestamp interpreted and validated by the server."
+                              },
+                              "sentAt": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "format": "date-time",
+                                "description": "ISO 8601 timestamp interpreted and validated by the server."
+                              },
+                              "attempts": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "description": "Attempts validated by this operation's strict request contract."
+                              },
+                              "nextRetryAt": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "format": "date-time",
+                                "description": "ISO 8601 timestamp interpreted and validated by the server."
+                              },
+                              "providerStatus": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "enum": [
+                                  "DELIVERED",
+                                  "DELAYED",
+                                  "BOUNCED",
+                                  "COMPLAINED",
+                                  "FAILED",
+                                  "SUPPRESSED",
+                                  null
+                                ],
+                                "description": "Provider Status validated by this operation's strict request contract."
+                              },
+                              "providerUpdatedAt": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "format": "date-time",
+                                "description": "ISO 8601 timestamp interpreted and validated by the server."
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "status",
+                              "reason",
+                              "createdAt",
+                              "sentAt",
+                              "attempts",
+                              "nextRetryAt",
+                              "providerStatus",
+                              "providerUpdatedAt"
+                            ],
+                            "description": "Items Item validated by this operation's strict request contract."
+                          },
+                          "maxItems": 20,
+                          "description": "Items validated by this operation's strict request contract."
+                        }
+                      },
+                      "required": [
+                        "items"
+                      ],
+                      "description": "Data validated by this operation's strict request contract."
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string",
+                          "description": "Identifier of the request resource; ownership is resolved server-side."
+                        },
+                        "serverTime": {
+                          "type": "string",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        }
+                      },
+                      "required": [
+                        "requestId",
+                        "serverTime"
+                      ],
+                      "description": "Meta validated by this operation's strict request contract."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "data",
+                    "meta"
+                  ],
+                  "description": "Response validated by this operation's strict request contract."
+                },
+                "example": {
+                  "success": true,
+                  "message": "Responsibility-based workspace: enquiryDeliveryDismiss",
+                  "data": {
+                    "items": [
+                      {
+                        "id": "00000000-0000-4000-8000-000000000001",
+                        "status": "QUEUED",
+                        "reason": "CHANNEL_DISABLED",
+                        "createdAt": "2030-01-15T10:00:00.000Z",
+                        "sentAt": "2030-01-15T10:00:00.000Z",
+                        "attempts": 0,
+                        "nextRetryAt": "2030-01-15T10:00:00.000Z",
+                        "providerStatus": "DELIVERED",
+                        "providerUpdatedAt": "2030-01-15T10:00:00.000Z"
+                      }
+                    ]
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is malformed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request is malformed.",
+                  "error": {
+                    "code": "BAD_REQUEST"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "A valid session and required assurance are missing.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A valid session and required assurance are missing.",
+                  "error": {
+                    "code": "UNAUTHORIZED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Current access does not permit this request"
+          },
+          "404": {
+            "description": "Record unavailable in permitted scope"
+          },
+          "409": {
+            "description": "Stale version or invalid state"
+          },
+          "422": {
+            "description": "Invalid fields"
+          },
+          "429": {
+            "description": "The route-specific request limit was exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The route-specific request limit was exceeded.",
+                  "error": {
+                    "code": "RATE_LIMITED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                  "error": {
+                    "code": "INTERNAL_ERROR"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                  "error": {
+                    "code": "DATABASE_UNAVAILABLE"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "postStaffWorkforceEnquiriesByIdEmailDeliveriesDismiss",
+        "x-access-boundary": "mfa-verified-staff",
+        "x-required-roles": [
+          "STAFF",
+          "ADMIN",
+          "SUPER_ADMIN"
+        ],
+        "x-csrf-required": true,
+        "x-idempotency-required": false
+      }
+    },
+    "/staff/workforce/complaints/{id}/email-deliveries/dismiss": {
+      "post": {
+        "tags": [
+          "Workforce"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "summary": "Responsibility-based workspace: complaintDeliveryDismiss",
+        "description": "Explicit enrollment required for operational queues. Current assignments, branch, field projections and state are enforced in a transaction. Access changes require MFA, current password, target/version review and an owner-configured delegation envelope. No financial execution, exports or collection release authority is conferred by a title. Responsibility-based workspace: complaintDeliveryDismiss. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Identifier of the id resource; ownership is resolved server-side."
+            },
+            "required": true,
+            "name": "id",
+            "in": "path",
+            "description": "Identifier selecting the id resource.",
+            "example": "00000000-0000-4000-8000-000000000001"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+            },
+            "required": true,
+            "name": "x-csrf-token",
+            "in": "header",
+            "description": "Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.",
+            "example": "synthetic-token-value-not-a-real-secret"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "notices": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "description": "Identifier of the id resource; ownership is resolved server-side."
+                        },
+                        "revision": {
+                          "type": "string",
+                          "pattern": "^[a-f0-9]{64}$",
+                          "description": "Revision validated by this operation's strict request contract."
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "revision"
+                      ],
+                      "additionalProperties": false,
+                      "description": "Notices Item validated by this operation's strict request contract."
+                    },
+                    "minItems": 1,
+                    "maxItems": 20,
+                    "description": "Notices validated by this operation's strict request contract."
+                  }
+                },
+                "required": [
+                  "notices"
+                ],
+                "additionalProperties": false,
+                "description": "Request Body validated by this operation's strict request contract."
+              },
+              "example": {
+                "notices": [
+                  {
+                    "id": "00000000-0000-4000-8000-000000000001",
+                    "revision": "synthetic-revision"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success: Responsibility-based workspace: complaintDeliveryDismiss.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ],
+                      "description": "Success validated by this operation's strict request contract."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "noticeRevision": {
+                                "type": "string",
+                                "pattern": "^[a-f0-9]{64}$",
+                                "description": "Notice Revision validated by this operation's strict request contract."
+                              },
+                              "noticeEligible": {
+                                "type": "boolean",
+                                "description": "Notice Eligible validated by this operation's strict request contract."
+                              },
+                              "noticeDismissed": {
+                                "type": "boolean",
+                                "description": "Notice Dismissed validated by this operation's strict request contract."
+                              },
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "description": "Identifier of the id resource; ownership is resolved server-side."
+                              },
+                              "status": {
+                                "type": "string",
+                                "enum": [
+                                  "QUEUED",
+                                  "SENDING",
+                                  "SENT",
+                                  "RETRYING",
+                                  "FAILED",
+                                  "NOT_SENT"
+                                ],
+                                "description": "Requested or filtered lifecycle state from the documented enum."
+                              },
+                              "reason": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "enum": [
+                                  "CHANNEL_DISABLED",
+                                  "CONSENT_WITHDRAWN",
+                                  "NO_RECIPIENT",
+                                  "SUPPORT_REPLY_ADDRESS_MISSING",
+                                  "STAGING_RECIPIENT_NOT_ALLOWLISTED",
+                                  "SUPPORT_EMAIL_FAILED",
+                                  "PROVIDER_REJECTED",
+                                  "RETRY_EXHAUSTED",
+                                  null
+                                ],
+                                "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                              },
+                              "createdAt": {
+                                "type": "string",
+                                "format": "date-time",
+                                "description": "ISO 8601 timestamp interpreted and validated by the server."
+                              },
+                              "sentAt": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "format": "date-time",
+                                "description": "ISO 8601 timestamp interpreted and validated by the server."
+                              },
+                              "attempts": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "description": "Attempts validated by this operation's strict request contract."
+                              },
+                              "nextRetryAt": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "format": "date-time",
+                                "description": "ISO 8601 timestamp interpreted and validated by the server."
+                              },
+                              "providerStatus": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "enum": [
+                                  "DELIVERED",
+                                  "DELAYED",
+                                  "BOUNCED",
+                                  "COMPLAINED",
+                                  "FAILED",
+                                  "SUPPRESSED",
+                                  null
+                                ],
+                                "description": "Provider Status validated by this operation's strict request contract."
+                              },
+                              "providerUpdatedAt": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "format": "date-time",
+                                "description": "ISO 8601 timestamp interpreted and validated by the server."
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "status",
+                              "reason",
+                              "createdAt",
+                              "sentAt",
+                              "attempts",
+                              "nextRetryAt",
+                              "providerStatus",
+                              "providerUpdatedAt"
+                            ],
+                            "description": "Items Item validated by this operation's strict request contract."
+                          },
+                          "maxItems": 20,
+                          "description": "Items validated by this operation's strict request contract."
+                        }
+                      },
+                      "required": [
+                        "items"
+                      ],
+                      "description": "Data validated by this operation's strict request contract."
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string",
+                          "description": "Identifier of the request resource; ownership is resolved server-side."
+                        },
+                        "serverTime": {
+                          "type": "string",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        }
+                      },
+                      "required": [
+                        "requestId",
+                        "serverTime"
+                      ],
+                      "description": "Meta validated by this operation's strict request contract."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "data",
+                    "meta"
+                  ],
+                  "description": "Response validated by this operation's strict request contract."
+                },
+                "example": {
+                  "success": true,
+                  "message": "Responsibility-based workspace: complaintDeliveryDismiss",
+                  "data": {
+                    "items": [
+                      {
+                        "id": "00000000-0000-4000-8000-000000000001",
+                        "status": "QUEUED",
+                        "reason": "CHANNEL_DISABLED",
+                        "createdAt": "2030-01-15T10:00:00.000Z",
+                        "sentAt": "2030-01-15T10:00:00.000Z",
+                        "attempts": 0,
+                        "nextRetryAt": "2030-01-15T10:00:00.000Z",
+                        "providerStatus": "DELIVERED",
+                        "providerUpdatedAt": "2030-01-15T10:00:00.000Z"
+                      }
+                    ]
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is malformed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request is malformed.",
+                  "error": {
+                    "code": "BAD_REQUEST"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "A valid session and required assurance are missing.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A valid session and required assurance are missing.",
+                  "error": {
+                    "code": "UNAUTHORIZED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Current access does not permit this request"
+          },
+          "404": {
+            "description": "Record unavailable in permitted scope"
+          },
+          "409": {
+            "description": "Stale version or invalid state"
+          },
+          "422": {
+            "description": "Invalid fields"
+          },
+          "429": {
+            "description": "The route-specific request limit was exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The route-specific request limit was exceeded.",
+                  "error": {
+                    "code": "RATE_LIMITED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                  "error": {
+                    "code": "INTERNAL_ERROR"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                  "error": {
+                    "code": "DATABASE_UNAVAILABLE"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "postStaffWorkforceComplaintsByIdEmailDeliveriesDismiss",
+        "x-access-boundary": "mfa-verified-staff",
+        "x-required-roles": [
+          "STAFF",
+          "ADMIN",
+          "SUPER_ADMIN"
+        ],
+        "x-csrf-required": true,
+        "x-idempotency-required": false
+      }
+    },
     "/staff/workforce/jobs/{id}/assignees": {
       "get": {
         "tags": [
@@ -153725,6 +155826,47 @@
                           "format": "date-time",
                           "description": "ISO 8601 timestamp interpreted and validated by the server."
                         },
+                        "contact": {
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "description": "Name validated by this operation's strict request contract."
+                            },
+                            "email": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "description": "Normalized account email address."
+                            },
+                            "phone": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "description": "Customer or business phone number in international format."
+                            },
+                            "customerId": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "uuid",
+                              "description": "Identifier of the customer resource; ownership is resolved server-side."
+                            }
+                          },
+                          "required": [
+                            "name",
+                            "email",
+                            "phone",
+                            "customerId"
+                          ],
+                          "description": "Contact validated by this operation's strict request contract."
+                        },
                         "branchId": {
                           "type": [
                             "string",
@@ -154138,6 +156280,19 @@
                               "items": {
                                 "type": "object",
                                 "properties": {
+                                  "noticeRevision": {
+                                    "type": "string",
+                                    "pattern": "^[a-f0-9]{64}$",
+                                    "description": "Notice Revision validated by this operation's strict request contract."
+                                  },
+                                  "noticeEligible": {
+                                    "type": "boolean",
+                                    "description": "Notice Eligible validated by this operation's strict request contract."
+                                  },
+                                  "noticeDismissed": {
+                                    "type": "boolean",
+                                    "description": "Notice Dismissed validated by this operation's strict request contract."
+                                  },
                                   "id": {
                                     "type": "string",
                                     "format": "uuid",
@@ -156987,6 +159142,47 @@
                                 "format": "date-time",
                                 "description": "ISO 8601 timestamp interpreted and validated by the server."
                               },
+                              "contact": {
+                                "type": "object",
+                                "properties": {
+                                  "name": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ],
+                                    "description": "Name validated by this operation's strict request contract."
+                                  },
+                                  "email": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ],
+                                    "description": "Normalized account email address."
+                                  },
+                                  "phone": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ],
+                                    "description": "Customer or business phone number in international format."
+                                  },
+                                  "customerId": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ],
+                                    "format": "uuid",
+                                    "description": "Identifier of the customer resource; ownership is resolved server-side."
+                                  }
+                                },
+                                "required": [
+                                  "name",
+                                  "email",
+                                  "phone",
+                                  "customerId"
+                                ],
+                                "description": "Contact validated by this operation's strict request contract."
+                              },
                               "branchId": {
                                 "type": [
                                   "string",
@@ -158318,6 +160514,47 @@
                                 "format": "date-time",
                                 "description": "ISO 8601 timestamp interpreted and validated by the server."
                               },
+                              "contact": {
+                                "type": "object",
+                                "properties": {
+                                  "name": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ],
+                                    "description": "Name validated by this operation's strict request contract."
+                                  },
+                                  "email": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ],
+                                    "description": "Normalized account email address."
+                                  },
+                                  "phone": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ],
+                                    "description": "Customer or business phone number in international format."
+                                  },
+                                  "customerId": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ],
+                                    "format": "uuid",
+                                    "description": "Identifier of the customer resource; ownership is resolved server-side."
+                                  }
+                                },
+                                "required": [
+                                  "name",
+                                  "email",
+                                  "phone",
+                                  "customerId"
+                                ],
+                                "description": "Contact validated by this operation's strict request contract."
+                              },
                               "branchId": {
                                 "type": [
                                   "string",
@@ -158924,6 +161161,47 @@
                           "format": "date-time",
                           "description": "ISO 8601 timestamp interpreted and validated by the server."
                         },
+                        "contact": {
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "description": "Name validated by this operation's strict request contract."
+                            },
+                            "email": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "description": "Normalized account email address."
+                            },
+                            "phone": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "description": "Customer or business phone number in international format."
+                            },
+                            "customerId": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "uuid",
+                              "description": "Identifier of the customer resource; ownership is resolved server-side."
+                            }
+                          },
+                          "required": [
+                            "name",
+                            "email",
+                            "phone",
+                            "customerId"
+                          ],
+                          "description": "Contact validated by this operation's strict request contract."
+                        },
                         "branchId": {
                           "type": [
                             "string",
@@ -159337,6 +161615,19 @@
                               "items": {
                                 "type": "object",
                                 "properties": {
+                                  "noticeRevision": {
+                                    "type": "string",
+                                    "pattern": "^[a-f0-9]{64}$",
+                                    "description": "Notice Revision validated by this operation's strict request contract."
+                                  },
+                                  "noticeEligible": {
+                                    "type": "boolean",
+                                    "description": "Notice Eligible validated by this operation's strict request contract."
+                                  },
+                                  "noticeDismissed": {
+                                    "type": "boolean",
+                                    "description": "Notice Dismissed validated by this operation's strict request contract."
+                                  },
                                   "id": {
                                     "type": "string",
                                     "format": "uuid",

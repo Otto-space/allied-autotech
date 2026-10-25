@@ -6,6 +6,7 @@ import { prisma } from "../../src/config/database.js";
 import { env } from "../../src/config/env.js";
 import { hashToken } from "../../src/common/security/session-tokens.js";
 import { sessionCookieName } from "../../src/common/security/cookies.js";
+import { assertIsolatedLoopbackDatabase } from "../helpers/isolated-database.js";
 
 const app = createApp({ checkReadiness: async () => undefined, rateLimit: 10000 });
 describe.skipIf(process.env.RUN_SUPPORT_TIMELINE_TESTS !== "true")(
@@ -84,12 +85,7 @@ describe.skipIf(process.env.RUN_SUPPORT_TIMELINE_TESTS !== "true")(
         },
       });
     beforeAll(async () => {
-      if (
-        env.NODE_ENV !== "test" ||
-        env.DB_HOST !== "127.0.0.1" ||
-        env.DB_NAME !== "allied_support_timeline_20261022_ci"
-      )
-        throw Error("Requires isolated timeline test target");
+      await assertIsolatedLoopbackDatabase();
       const actual = await prisma.$queryRaw<
         { name: string }[]
       >`SELECT current_database() AS name`;

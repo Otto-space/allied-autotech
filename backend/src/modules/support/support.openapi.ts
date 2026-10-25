@@ -1,4 +1,7 @@
-import { supportEmailDeliveryPageSchema } from "./customer-email.js";
+import {
+  supportEmailDeliveryPageSchema,
+  supportDeliveryDismissSchema,
+} from "./customer-email.js";
 import {
   extendZodWithOpenApi,
   type OpenAPIRegistry,
@@ -204,6 +207,18 @@ export function registerSupportOpenApi(registry: OpenAPIRegistry): void {
     },
   });
   const routes: Route[] = [
+    ...(["enquiries", "complaints"] as const).map((kind): Route => ({
+      method: "post",
+      path: `/staff/support/${kind}/{supportId}/email-deliveries/dismiss`,
+      summary: "Dismiss eligible visible delivery notices for this operator",
+      description:
+        "Current case/branch access required. Atomic explicit batch of 1–20 stable revisions. Idempotent per operator and revision. Stale/ineligible/foreign notices conflict. Retains all delivery history/status and grants no retry authority.",
+      security: true,
+      params: supportIdParamsSchema,
+      body: supportDeliveryDismissSchema,
+      mutate: true,
+      data: supportEmailDeliveryPageSchema,
+    })),
     {
       method: "get",
       path: "/staff/support/complaints/{supportId}/email-deliveries",

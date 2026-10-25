@@ -18,3 +18,4 @@ backend/prisma/migrations/20261025134000_preserve_alphabetic_search_codes/migrat
 frontend/docs/Allied_AutoTech_Continuous_UI_UX_Codex_Prompt.md -text
 
 frontend/docs/Allied_AutoTech_Home_Parts_Vehicles_Codex_Prompt.md -text
+backend/prisma/migrations/20261025170000_support_delivery_notice_dismissal/migration.sql text eol=lf

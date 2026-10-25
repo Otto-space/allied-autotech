@@ -1,4 +1,6 @@
 export const messages: Readonly<Record<string, string>> = {
+  ACCOUNT_SUSPENDED:
+    "Your account is suspended. Contact Customer Care through the Contact page for assistance.",
   MEDIA_LAST_PUBLISHED_IMAGE:
     "Keep at least one photo while this vehicle has an available or reserved listing. Replace the photo, or update the listing before removing it.",
   MEDIA_MANAGED_URL_IMMUTABLE:

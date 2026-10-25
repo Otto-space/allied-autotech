@@ -1,4 +1,5 @@
 "use client";
+import "./care-workspace.css";
 import Link from "next/link";
 import { useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -19,6 +20,10 @@ import {
 import { formatStockInstant } from "@/lib/admin/work-vehicle-detail";
 import { useAccountSession, useOwnStaffPermissions } from "./dashboard-shell";
 import { Feedback } from "./feedback";
+import { CopyableValue } from "./copyable-value";
+import { CustomerAccountAction } from "./customer-account-action";
+import { StatusBadge } from "./status-progress";
+import { customersQuery } from "@/lib/admin/work-customers";
 export function WorkCustomerDetail({ customerId }: { customerId: string }) {
   const session = useAccountSession();
   if (!session) return null;
@@ -76,6 +81,24 @@ function CustomerDetailAccess({
   return <CustomerDetailWorkspace id={id} />;
 }
 function CustomerDetailWorkspace({ id }: { id: string }) {
+  const router = useRouter(),
+    session = useAccountSession();
+  function goBack(event: React.MouseEvent<HTMLAnchorElement>) {
+    try {
+      const saved = JSON.parse(
+        sessionStorage.getItem(`aat:customer-return:${session?.user.id}`) ?? "null",
+      );
+      if (saved?.id === id && typeof saved.params === "string") {
+        const parsed = customersQuery(new URLSearchParams(saved.params));
+        if (!parsed.invalid) {
+          event.preventDefault();
+          router.push(
+            "/admin/customers" + (parsed.params.size ? "?" + parsed.params : ""),
+          );
+        }
+      }
+    } catch {}
+  }
   const parse = useCallback((value: unknown) => parseWorkCustomerDetail(value, id), [id]),
     detail = useResource(`/admin/customers/${id}`, parse),
     r = detail.data,
@@ -89,29 +112,30 @@ function CustomerDetailWorkspace({ id }: { id: string }) {
       <nav className="wi-breadcrumb" aria-label="Breadcrumb">
         <Link href="/admin">Overview</Link>
         <ChevronRight size={14} aria-hidden="true" />
-        <Link href="/admin/customers">Customers</Link>
+        <Link href="/admin/customers" onClick={goBack}>
+          Customers
+        </Link>
         <ChevronRight size={14} aria-hidden="true" />
         <span aria-current="page">{name}</span>
       </nav>
       <header className="wi-header">
         <div>
           <h1>{name}</h1>
-          {r && (
-            <span className="status" data-status={r.status}>
-              {
-                { ACTIVE: "Active", SUSPENDED: "Suspended", DEACTIVATED: "Deactivated" }[
-                  r.status
-                ]
-              }
-            </span>
-          )}
+          {r && <StatusBadge status={r.status} />}
         </div>
         <div className="wcd-actions">
+          {r && (
+            <CustomerAccountAction
+              customer={r}
+              disabled={busy || !!error}
+              onChanged={detail.refresh}
+            />
+          )}
           <button className="button secondary" disabled={busy} onClick={detail.refresh}>
             <RefreshCw size={16} aria-hidden="true" />
             Refresh customer
           </button>
-          <Link className="button secondary" href="/admin/customers">
+          <Link className="button secondary" href="/admin/customers" onClick={goBack}>
             <ArrowLeft size={16} aria-hidden="true" />
             Back to customers
           </Link>
@@ -142,8 +166,6 @@ function CustomerDetailWorkspace({ id }: { id: string }) {
               <h2>Contact and account</h2>
               <dl className="wcd-facts">
                 {[
-                  ["Customer ID", r.id],
-                  ["Full name", name],
                   ["Email", r.email],
                   ["Phone", r.phone],
                   ["Email verification", r.emailVerified ? "Verified" : "Not verified"],
@@ -152,13 +174,25 @@ function CustomerDetailWorkspace({ id }: { id: string }) {
                 ].map(([label, value]) => (
                   <div key={label}>
                     <dt>{label}</dt>
-                    <dd>{value || "Not provided"}</dd>
+                    <dd>
+                      {label === "Email" || label === "Phone" ? (
+                        <CopyableValue
+                          value={value}
+                          label={`Copy customer ${label.toLowerCase()}`}
+                        />
+                      ) : (
+                        value || "Not provided"
+                      )}
+                    </dd>
                   </div>
                 ))}
               </dl>
             </section>
-            <section className="wi-card">
-              <h2>Address</h2>
+            <details className="wi-card">
+              <summary>Address and technical reference</summary>
+              <p>
+                <CopyableValue value={r.id} label="Copy customer reference" />
+              </p>
               <dl className="wcd-facts">
                 {[
                   ["Street", r.address],
@@ -172,7 +206,7 @@ function CustomerDetailWorkspace({ id }: { id: string }) {
                   </div>
                 ))}
               </dl>
-            </section>
+            </details>
           </div>
           <CustomerActivityWorkspace id={id} disabled={busy || !!error} />
         </>
@@ -337,20 +371,24 @@ function ActivityRecord({
             r.title || "Untitled record"
           )}
         </h3>
-        <p className="wc-reference">Reference: {r.id}</p>
+        <CopyableValue value={r.id} label="Copy activity reference" />
       </div>
-      <dl>
-        <div>
-          <dt>Status</dt>
-          <dd>{r.status?.replaceAll("_", " ") || "Not applicable"}</dd>
-        </div>
-      </dl>
-      <dl>
-        <div>
-          <dt>Recorded amount</dt>
-          <dd>{customerActivityAmount(r)}</dd>
-        </div>
-      </dl>
+      {kind !== "vehicles" && (
+        <dl>
+          <div>
+            <dt>Status</dt>
+            <dd>{r.status?.replaceAll("_", " ") || "Not applicable"}</dd>
+          </div>
+        </dl>
+      )}
+      {r.amountKobo !== null && (
+        <dl>
+          <div>
+            <dt>Recorded amount</dt>
+            <dd>{customerActivityAmount(r)}</dd>
+          </div>
+        </dl>
+      )}
       <dl>
         <div>
           <dt>Created</dt>

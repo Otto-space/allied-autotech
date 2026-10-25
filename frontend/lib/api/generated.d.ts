@@ -504,6 +504,26 @@ export interface paths {
         patch: operations["patchCustomersVehiclesByVehicleId"];
         trace?: never;
     };
+    "/admin/customers/{customerId}/account-status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Suspend or reactivate a current customer account
+         * @description MFA-verified administrator, current actor/session/target role revalidated transactionally. CSRF required. Expected status guards stale/concurrent changes; DEACTIVATED and non-customer targets are excluded. Suspension revokes sessions and unused reset/verification tokens. Reactivation never revives revoked credentials. Actor, target, reason, time and transition audited. No financial/history or outbound email side effects. Suspend or reactivate a current customer account. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         */
+        post: operations["postAdminCustomersByCustomerIdAccountStatus"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/admin/customers": {
         parameters: {
             query?: never;
@@ -4540,6 +4560,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/staff/support/enquiries/{supportId}/email-deliveries/dismiss": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Dismiss eligible visible delivery notices for this operator
+         * @description Current case/branch access required. Atomic explicit batch of 1–20 stable revisions. Idempotent per operator and revision. Stale/ineligible/foreign notices conflict. Retains all delivery history/status and grants no retry authority. Dismiss eligible visible delivery notices for this operator. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         */
+        post: operations["postStaffSupportEnquiriesBySupportIdEmailDeliveriesDismiss"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/staff/support/complaints/{supportId}/email-deliveries/dismiss": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Dismiss eligible visible delivery notices for this operator
+         * @description Current case/branch access required. Atomic explicit batch of 1–20 stable revisions. Idempotent per operator and revision. Stale/ineligible/foreign notices conflict. Retains all delivery history/status and grants no retry authority. Dismiss eligible visible delivery notices for this operator. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         */
+        post: operations["postStaffSupportComplaintsBySupportIdEmailDeliveriesDismiss"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/staff/support/complaints/{supportId}/email-deliveries": {
         parameters: {
             query?: never;
@@ -6656,6 +6716,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/staff/workforce/enquiries/{id}/email-deliveries/dismiss": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Responsibility-based workspace: enquiryDeliveryDismiss
+         * @description Explicit enrollment required for operational queues. Current assignments, branch, field projections and state are enforced in a transaction. Access changes require MFA, current password, target/version review and an owner-configured delegation envelope. No financial execution, exports or collection release authority is conferred by a title. Responsibility-based workspace: enquiryDeliveryDismiss. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         */
+        post: operations["postStaffWorkforceEnquiriesByIdEmailDeliveriesDismiss"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/staff/workforce/complaints/{id}/email-deliveries/dismiss": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Responsibility-based workspace: complaintDeliveryDismiss
+         * @description Explicit enrollment required for operational queues. Current assignments, branch, field projections and state are enforced in a transaction. Access changes require MFA, current password, target/version review and an owner-configured delegation envelope. No financial execution, exports or collection release authority is conferred by a title. Responsibility-based workspace: complaintDeliveryDismiss. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         */
+        post: operations["postStaffWorkforceComplaintsByIdEmailDeliveriesDismiss"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/staff/workforce/jobs/{id}/assignees": {
         parameters: {
             query?: never;
@@ -7285,7 +7385,7 @@ export interface components {
                  * @description Stable application error code.
                  * @enum {string}
                  */
-                code: "BAD_REQUEST" | "MEDIA_INVALID" | "MEDIA_UNSUPPORTED_FORMAT" | "MEDIA_TOO_LARGE" | "MEDIA_INVALID_DIMENSIONS" | "MEDIA_CHECKSUM_MISMATCH" | "MEDIA_OBJECT_MISSING" | "MEDIA_TICKET_EXPIRED" | "MEDIA_TICKET_CONSUMED" | "MEDIA_TICKET_INVALID" | "MEDIA_WRONG_OWNER" | "MEDIA_WRONG_PURPOSE" | "MEDIA_WRONG_RESOURCE" | "MEDIA_COUNT_LIMIT" | "MEDIA_LAST_PUBLISHED_IMAGE" | "MEDIA_MANAGED_URL_IMMUTABLE" | "MEDIA_STORAGE_UNAVAILABLE" | "VALIDATION_FAILED" | "MALFORMED_JSON" | "PAYLOAD_TOO_LARGE" | "UNAUTHORIZED" | "AUTHENTICATION_FAILED" | "SESSION_EXPIRED" | "CSRF_INVALID" | "MFA_REQUIRED" | "TOKEN_INVALID" | "ACCOUNT_LOCKED" | "FORBIDDEN" | "NOT_FOUND" | "CONFLICT" | "IDEMPOTENCY_CONFLICT" | "IDEMPOTENCY_EXPIRED" | "PAYMENT_ATTEMPT_PENDING" | "PAYMENT_TARGET_PENDING" | "INSUFFICIENT_STOCK" | "STALE_VERSION" | "INVALID_TRANSITION" | "SCHEDULE_CONFLICT" | "RATE_LIMITED" | "DATABASE_UNAVAILABLE" | "PROVIDER_UNAVAILABLE" | "REQUEST_TIMEOUT" | "INTERNAL_ERROR";
+                code: "BAD_REQUEST" | "MEDIA_INVALID" | "MEDIA_UNSUPPORTED_FORMAT" | "MEDIA_TOO_LARGE" | "MEDIA_INVALID_DIMENSIONS" | "MEDIA_CHECKSUM_MISMATCH" | "MEDIA_OBJECT_MISSING" | "MEDIA_TICKET_EXPIRED" | "MEDIA_TICKET_CONSUMED" | "MEDIA_TICKET_INVALID" | "MEDIA_WRONG_OWNER" | "MEDIA_WRONG_PURPOSE" | "MEDIA_WRONG_RESOURCE" | "MEDIA_COUNT_LIMIT" | "MEDIA_LAST_PUBLISHED_IMAGE" | "MEDIA_MANAGED_URL_IMMUTABLE" | "MEDIA_STORAGE_UNAVAILABLE" | "VALIDATION_FAILED" | "MALFORMED_JSON" | "PAYLOAD_TOO_LARGE" | "UNAUTHORIZED" | "AUTHENTICATION_FAILED" | "SESSION_EXPIRED" | "CSRF_INVALID" | "MFA_REQUIRED" | "TOKEN_INVALID" | "ACCOUNT_LOCKED" | "ACCOUNT_SUSPENDED" | "FORBIDDEN" | "NOT_FOUND" | "CONFLICT" | "IDEMPOTENCY_CONFLICT" | "IDEMPOTENCY_EXPIRED" | "PAYMENT_ATTEMPT_PENDING" | "PAYMENT_TARGET_PENDING" | "INSUFFICIENT_STOCK" | "STALE_VERSION" | "INVALID_TRANSITION" | "SCHEDULE_CONFLICT" | "RATE_LIMITED" | "DATABASE_UNAVAILABLE" | "PROVIDER_UNAVAILABLE" | "REQUEST_TIMEOUT" | "INTERNAL_ERROR";
                 /** @description Optional validation messages keyed by field path. */
                 fields?: {
                     [key: string]: string[];
@@ -14655,6 +14755,242 @@ export interface operations {
                      */
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    postAdminCustomersByCustomerIdAccountStatus: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+                 * @example synthetic-token-value-not-a-real-secret
+                 */
+                "x-csrf-token": string;
+            };
+            path: {
+                /**
+                 * @description Identifier selecting the customer resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                customerId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "expectedStatus": "ACTIVE",
+                 *       "status": "ACTIVE",
+                 *       "reason": "synthetic-reason"
+                 *     }
+                 */
+                "application/json": {
+                    /**
+                     * @description Expected Status validated by this operation's strict request contract.
+                     * @enum {string}
+                     */
+                    expectedStatus: "ACTIVE" | "SUSPENDED";
+                    /**
+                     * @description Requested or filtered lifecycle state from the documented enum.
+                     * @enum {string}
+                     */
+                    status: "ACTIVE" | "SUSPENDED";
+                    /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                    reason: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Success: Suspend or reactivate a current customer account. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Suspend or reactivate a current customer account",
+                     *       "data": {
+                     *         "customerId": "00000000-0000-4000-8000-000000000001",
+                     *         "status": "ACTIVE",
+                     *         "revokedSessions": 0
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /**
+                         * @description Success validated by this operation's strict request contract.
+                         * @enum {boolean}
+                         */
+                        success: true;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the customer resource; ownership is resolved server-side.
+                             */
+                            customerId: string;
+                            /**
+                             * @description Requested or filtered lifecycle state from the documented enum.
+                             * @enum {string}
+                             */
+                            status: "ACTIVE" | "SUSPENDED";
+                            /** @description Revoked Sessions validated by this operation's strict request contract. */
+                            revokedSessions: number;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            serverTime: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A valid session and required assurance are missing. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A valid session and required assurance are missing.",
+                     *       "error": {
+                     *         "code": "UNAUTHORIZED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not authorised */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Current customer unavailable */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Account state changed */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid fields */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description The route-specific request limit was exceeded. */
             429: {
@@ -76995,6 +77331,674 @@ export interface operations {
             };
         };
     };
+    postStaffSupportEnquiriesBySupportIdEmailDeliveriesDismiss: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+                 * @example synthetic-token-value-not-a-real-secret
+                 */
+                "x-csrf-token": string;
+            };
+            path: {
+                /**
+                 * @description Identifier selecting the support resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                supportId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "notices": [
+                 *         {
+                 *           "id": "00000000-0000-4000-8000-000000000001",
+                 *           "revision": "synthetic-revision"
+                 *         }
+                 *       ]
+                 *     }
+                 */
+                "application/json": {
+                    /** @description Notices validated by this operation's strict request contract. */
+                    notices: {
+                        /**
+                         * Format: uuid
+                         * @description Identifier of the id resource; ownership is resolved server-side.
+                         */
+                        id: string;
+                        /** @description Revision validated by this operation's strict request contract. */
+                        revision: string;
+                    }[];
+                };
+            };
+        };
+        responses: {
+            /** @description Success: Dismiss eligible visible delivery notices for this operator. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Dismiss eligible visible delivery notices for this operator",
+                     *       "data": {
+                     *         "items": [
+                     *           {
+                     *             "id": "00000000-0000-4000-8000-000000000001",
+                     *             "status": "QUEUED",
+                     *             "reason": "CHANNEL_DISABLED",
+                     *             "createdAt": "2030-01-15T10:00:00.000Z",
+                     *             "sentAt": "2030-01-15T10:00:00.000Z",
+                     *             "attempts": 0,
+                     *             "nextRetryAt": "2030-01-15T10:00:00.000Z",
+                     *             "providerStatus": "DELIVERED",
+                     *             "providerUpdatedAt": "2030-01-15T10:00:00.000Z"
+                     *           }
+                     *         ]
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /** @description Items validated by this operation's strict request contract. */
+                            items: {
+                                /** @description Notice Revision validated by this operation's strict request contract. */
+                                noticeRevision?: string;
+                                /** @description Notice Eligible validated by this operation's strict request contract. */
+                                noticeEligible?: boolean;
+                                /** @description Notice Dismissed validated by this operation's strict request contract. */
+                                noticeDismissed?: boolean;
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
+                                 */
+                                id: string;
+                                /**
+                                 * @description Requested or filtered lifecycle state from the documented enum.
+                                 * @enum {string}
+                                 */
+                                status: "QUEUED" | "SENDING" | "SENT" | "RETRYING" | "FAILED" | "NOT_SENT";
+                                /**
+                                 * @description Plain-text business context; HTML is not accepted or rendered as trusted markup.
+                                 * @enum {string|null}
+                                 */
+                                reason: "CHANNEL_DISABLED" | "CONSENT_WITHDRAWN" | "NO_RECIPIENT" | "SUPPORT_REPLY_ADDRESS_MISSING" | "STAGING_RECIPIENT_NOT_ALLOWLISTED" | "SUPPORT_EMAIL_FAILED" | "PROVIDER_REJECTED" | "RETRY_EXHAUSTED" | null;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                createdAt: string;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                sentAt: string | null;
+                                /** @description Attempts validated by this operation's strict request contract. */
+                                attempts: number;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                nextRetryAt: string | null;
+                                /**
+                                 * @description Provider Status validated by this operation's strict request contract.
+                                 * @enum {string|null}
+                                 */
+                                providerStatus: "DELIVERED" | "DELAYED" | "BOUNCED" | "COMPLAINED" | "FAILED" | "SUPPRESSED" | null;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                providerUpdatedAt: string | null;
+                            }[];
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A valid session and required assurance are missing. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A valid session and required assurance are missing.",
+                     *       "error": {
+                     *         "code": "UNAUTHORIZED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The actor is not authorized for this resource or action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The actor is not authorized for this resource or action.",
+                     *       "error": {
+                     *         "code": "FORBIDDEN"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The requested resource is not available. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The requested resource is not available.",
+                     *       "error": {
+                     *         "code": "NOT_FOUND"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The request conflicts with current state or idempotency. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request conflicts with current state or idempotency.",
+                     *       "error": {
+                     *         "code": "CONFLICT"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description One or more request fields are invalid. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "One or more request fields are invalid.",
+                     *       "error": {
+                     *         "code": "VALIDATION_FAILED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    postStaffSupportComplaintsBySupportIdEmailDeliveriesDismiss: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+                 * @example synthetic-token-value-not-a-real-secret
+                 */
+                "x-csrf-token": string;
+            };
+            path: {
+                /**
+                 * @description Identifier selecting the support resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                supportId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "notices": [
+                 *         {
+                 *           "id": "00000000-0000-4000-8000-000000000001",
+                 *           "revision": "synthetic-revision"
+                 *         }
+                 *       ]
+                 *     }
+                 */
+                "application/json": {
+                    /** @description Notices validated by this operation's strict request contract. */
+                    notices: {
+                        /**
+                         * Format: uuid
+                         * @description Identifier of the id resource; ownership is resolved server-side.
+                         */
+                        id: string;
+                        /** @description Revision validated by this operation's strict request contract. */
+                        revision: string;
+                    }[];
+                };
+            };
+        };
+        responses: {
+            /** @description Success: Dismiss eligible visible delivery notices for this operator. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Dismiss eligible visible delivery notices for this operator",
+                     *       "data": {
+                     *         "items": [
+                     *           {
+                     *             "id": "00000000-0000-4000-8000-000000000001",
+                     *             "status": "QUEUED",
+                     *             "reason": "CHANNEL_DISABLED",
+                     *             "createdAt": "2030-01-15T10:00:00.000Z",
+                     *             "sentAt": "2030-01-15T10:00:00.000Z",
+                     *             "attempts": 0,
+                     *             "nextRetryAt": "2030-01-15T10:00:00.000Z",
+                     *             "providerStatus": "DELIVERED",
+                     *             "providerUpdatedAt": "2030-01-15T10:00:00.000Z"
+                     *           }
+                     *         ]
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /** @description Items validated by this operation's strict request contract. */
+                            items: {
+                                /** @description Notice Revision validated by this operation's strict request contract. */
+                                noticeRevision?: string;
+                                /** @description Notice Eligible validated by this operation's strict request contract. */
+                                noticeEligible?: boolean;
+                                /** @description Notice Dismissed validated by this operation's strict request contract. */
+                                noticeDismissed?: boolean;
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
+                                 */
+                                id: string;
+                                /**
+                                 * @description Requested or filtered lifecycle state from the documented enum.
+                                 * @enum {string}
+                                 */
+                                status: "QUEUED" | "SENDING" | "SENT" | "RETRYING" | "FAILED" | "NOT_SENT";
+                                /**
+                                 * @description Plain-text business context; HTML is not accepted or rendered as trusted markup.
+                                 * @enum {string|null}
+                                 */
+                                reason: "CHANNEL_DISABLED" | "CONSENT_WITHDRAWN" | "NO_RECIPIENT" | "SUPPORT_REPLY_ADDRESS_MISSING" | "STAGING_RECIPIENT_NOT_ALLOWLISTED" | "SUPPORT_EMAIL_FAILED" | "PROVIDER_REJECTED" | "RETRY_EXHAUSTED" | null;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                createdAt: string;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                sentAt: string | null;
+                                /** @description Attempts validated by this operation's strict request contract. */
+                                attempts: number;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                nextRetryAt: string | null;
+                                /**
+                                 * @description Provider Status validated by this operation's strict request contract.
+                                 * @enum {string|null}
+                                 */
+                                providerStatus: "DELIVERED" | "DELAYED" | "BOUNCED" | "COMPLAINED" | "FAILED" | "SUPPRESSED" | null;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                providerUpdatedAt: string | null;
+                            }[];
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A valid session and required assurance are missing. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A valid session and required assurance are missing.",
+                     *       "error": {
+                     *         "code": "UNAUTHORIZED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The actor is not authorized for this resource or action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The actor is not authorized for this resource or action.",
+                     *       "error": {
+                     *         "code": "FORBIDDEN"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The requested resource is not available. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The requested resource is not available.",
+                     *       "error": {
+                     *         "code": "NOT_FOUND"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The request conflicts with current state or idempotency. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request conflicts with current state or idempotency.",
+                     *       "error": {
+                     *         "code": "CONFLICT"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description One or more request fields are invalid. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "One or more request fields are invalid.",
+                     *       "error": {
+                     *         "code": "VALIDATION_FAILED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     getStaffSupportComplaintsBySupportIdEmailDeliveries: {
         parameters: {
             query?: never;
@@ -77049,6 +78053,12 @@ export interface operations {
                         data: {
                             /** @description Items validated by this operation's strict request contract. */
                             items: {
+                                /** @description Notice Revision validated by this operation's strict request contract. */
+                                noticeRevision?: string;
+                                /** @description Notice Eligible validated by this operation's strict request contract. */
+                                noticeEligible?: boolean;
+                                /** @description Notice Dismissed validated by this operation's strict request contract. */
+                                noticeDismissed?: boolean;
                                 /**
                                  * Format: uuid
                                  * @description Identifier of the id resource; ownership is resolved server-side.
@@ -77325,6 +78335,12 @@ export interface operations {
                         data: {
                             /** @description Items validated by this operation's strict request contract. */
                             items: {
+                                /** @description Notice Revision validated by this operation's strict request contract. */
+                                noticeRevision?: string;
+                                /** @description Notice Eligible validated by this operation's strict request contract. */
+                                noticeEligible?: boolean;
+                                /** @description Notice Dismissed validated by this operation's strict request contract. */
+                                noticeDismissed?: boolean;
                                 /**
                                  * Format: uuid
                                  * @description Identifier of the id resource; ownership is resolved server-side.
@@ -113749,6 +114765,572 @@ export interface operations {
             };
         };
     };
+    postStaffWorkforceEnquiriesByIdEmailDeliveriesDismiss: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+                 * @example synthetic-token-value-not-a-real-secret
+                 */
+                "x-csrf-token": string;
+            };
+            path: {
+                /**
+                 * @description Identifier selecting the id resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "notices": [
+                 *         {
+                 *           "id": "00000000-0000-4000-8000-000000000001",
+                 *           "revision": "synthetic-revision"
+                 *         }
+                 *       ]
+                 *     }
+                 */
+                "application/json": {
+                    /** @description Notices validated by this operation's strict request contract. */
+                    notices: {
+                        /**
+                         * Format: uuid
+                         * @description Identifier of the id resource; ownership is resolved server-side.
+                         */
+                        id: string;
+                        /** @description Revision validated by this operation's strict request contract. */
+                        revision: string;
+                    }[];
+                };
+            };
+        };
+        responses: {
+            /** @description Success: Responsibility-based workspace: enquiryDeliveryDismiss. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Responsibility-based workspace: enquiryDeliveryDismiss",
+                     *       "data": {
+                     *         "items": [
+                     *           {
+                     *             "id": "00000000-0000-4000-8000-000000000001",
+                     *             "status": "QUEUED",
+                     *             "reason": "CHANNEL_DISABLED",
+                     *             "createdAt": "2030-01-15T10:00:00.000Z",
+                     *             "sentAt": "2030-01-15T10:00:00.000Z",
+                     *             "attempts": 0,
+                     *             "nextRetryAt": "2030-01-15T10:00:00.000Z",
+                     *             "providerStatus": "DELIVERED",
+                     *             "providerUpdatedAt": "2030-01-15T10:00:00.000Z"
+                     *           }
+                     *         ]
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /**
+                         * @description Success validated by this operation's strict request contract.
+                         * @enum {boolean}
+                         */
+                        success: true;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /** @description Items validated by this operation's strict request contract. */
+                            items: {
+                                /** @description Notice Revision validated by this operation's strict request contract. */
+                                noticeRevision?: string;
+                                /** @description Notice Eligible validated by this operation's strict request contract. */
+                                noticeEligible?: boolean;
+                                /** @description Notice Dismissed validated by this operation's strict request contract. */
+                                noticeDismissed?: boolean;
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
+                                 */
+                                id: string;
+                                /**
+                                 * @description Requested or filtered lifecycle state from the documented enum.
+                                 * @enum {string}
+                                 */
+                                status: "QUEUED" | "SENDING" | "SENT" | "RETRYING" | "FAILED" | "NOT_SENT";
+                                /**
+                                 * @description Plain-text business context; HTML is not accepted or rendered as trusted markup.
+                                 * @enum {string|null}
+                                 */
+                                reason: "CHANNEL_DISABLED" | "CONSENT_WITHDRAWN" | "NO_RECIPIENT" | "SUPPORT_REPLY_ADDRESS_MISSING" | "STAGING_RECIPIENT_NOT_ALLOWLISTED" | "SUPPORT_EMAIL_FAILED" | "PROVIDER_REJECTED" | "RETRY_EXHAUSTED" | null;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                createdAt: string;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                sentAt: string | null;
+                                /** @description Attempts validated by this operation's strict request contract. */
+                                attempts: number;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                nextRetryAt: string | null;
+                                /**
+                                 * @description Provider Status validated by this operation's strict request contract.
+                                 * @enum {string|null}
+                                 */
+                                providerStatus: "DELIVERED" | "DELAYED" | "BOUNCED" | "COMPLAINED" | "FAILED" | "SUPPRESSED" | null;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                providerUpdatedAt: string | null;
+                            }[];
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                            /** @description ISO 8601 timestamp interpreted and validated by the server. */
+                            serverTime: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A valid session and required assurance are missing. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A valid session and required assurance are missing.",
+                     *       "error": {
+                     *         "code": "UNAUTHORIZED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Current access does not permit this request */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Record unavailable in permitted scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Stale version or invalid state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid fields */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    postStaffWorkforceComplaintsByIdEmailDeliveriesDismiss: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+                 * @example synthetic-token-value-not-a-real-secret
+                 */
+                "x-csrf-token": string;
+            };
+            path: {
+                /**
+                 * @description Identifier selecting the id resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "notices": [
+                 *         {
+                 *           "id": "00000000-0000-4000-8000-000000000001",
+                 *           "revision": "synthetic-revision"
+                 *         }
+                 *       ]
+                 *     }
+                 */
+                "application/json": {
+                    /** @description Notices validated by this operation's strict request contract. */
+                    notices: {
+                        /**
+                         * Format: uuid
+                         * @description Identifier of the id resource; ownership is resolved server-side.
+                         */
+                        id: string;
+                        /** @description Revision validated by this operation's strict request contract. */
+                        revision: string;
+                    }[];
+                };
+            };
+        };
+        responses: {
+            /** @description Success: Responsibility-based workspace: complaintDeliveryDismiss. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Responsibility-based workspace: complaintDeliveryDismiss",
+                     *       "data": {
+                     *         "items": [
+                     *           {
+                     *             "id": "00000000-0000-4000-8000-000000000001",
+                     *             "status": "QUEUED",
+                     *             "reason": "CHANNEL_DISABLED",
+                     *             "createdAt": "2030-01-15T10:00:00.000Z",
+                     *             "sentAt": "2030-01-15T10:00:00.000Z",
+                     *             "attempts": 0,
+                     *             "nextRetryAt": "2030-01-15T10:00:00.000Z",
+                     *             "providerStatus": "DELIVERED",
+                     *             "providerUpdatedAt": "2030-01-15T10:00:00.000Z"
+                     *           }
+                     *         ]
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /**
+                         * @description Success validated by this operation's strict request contract.
+                         * @enum {boolean}
+                         */
+                        success: true;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /** @description Items validated by this operation's strict request contract. */
+                            items: {
+                                /** @description Notice Revision validated by this operation's strict request contract. */
+                                noticeRevision?: string;
+                                /** @description Notice Eligible validated by this operation's strict request contract. */
+                                noticeEligible?: boolean;
+                                /** @description Notice Dismissed validated by this operation's strict request contract. */
+                                noticeDismissed?: boolean;
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
+                                 */
+                                id: string;
+                                /**
+                                 * @description Requested or filtered lifecycle state from the documented enum.
+                                 * @enum {string}
+                                 */
+                                status: "QUEUED" | "SENDING" | "SENT" | "RETRYING" | "FAILED" | "NOT_SENT";
+                                /**
+                                 * @description Plain-text business context; HTML is not accepted or rendered as trusted markup.
+                                 * @enum {string|null}
+                                 */
+                                reason: "CHANNEL_DISABLED" | "CONSENT_WITHDRAWN" | "NO_RECIPIENT" | "SUPPORT_REPLY_ADDRESS_MISSING" | "STAGING_RECIPIENT_NOT_ALLOWLISTED" | "SUPPORT_EMAIL_FAILED" | "PROVIDER_REJECTED" | "RETRY_EXHAUSTED" | null;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                createdAt: string;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                sentAt: string | null;
+                                /** @description Attempts validated by this operation's strict request contract. */
+                                attempts: number;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                nextRetryAt: string | null;
+                                /**
+                                 * @description Provider Status validated by this operation's strict request contract.
+                                 * @enum {string|null}
+                                 */
+                                providerStatus: "DELIVERED" | "DELAYED" | "BOUNCED" | "COMPLAINED" | "FAILED" | "SUPPRESSED" | null;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                providerUpdatedAt: string | null;
+                            }[];
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                            /** @description ISO 8601 timestamp interpreted and validated by the server. */
+                            serverTime: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A valid session and required assurance are missing. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A valid session and required assurance are missing.",
+                     *       "error": {
+                     *         "code": "UNAUTHORIZED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Current access does not permit this request */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Record unavailable in permitted scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Stale version or invalid state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid fields */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     getStaffWorkforceJobsByIdAssignees: {
         parameters: {
             query?: {
@@ -118167,6 +119749,20 @@ export interface operations {
                              * @description ISO 8601 timestamp interpreted and validated by the server.
                              */
                             createdAt: string;
+                            /** @description Contact validated by this operation's strict request contract. */
+                            contact?: {
+                                /** @description Name validated by this operation's strict request contract. */
+                                name: string | null;
+                                /** @description Normalized account email address. */
+                                email: string | null;
+                                /** @description Customer or business phone number in international format. */
+                                phone: string | null;
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the customer resource; ownership is resolved server-side.
+                                 */
+                                customerId: string | null;
+                            };
                             /**
                              * Format: uuid
                              * @description Identifier of the branch resource; ownership is resolved server-side.
@@ -118372,6 +119968,12 @@ export interface operations {
                             emailDeliveries: {
                                 /** @description Items validated by this operation's strict request contract. */
                                 items: {
+                                    /** @description Notice Revision validated by this operation's strict request contract. */
+                                    noticeRevision?: string;
+                                    /** @description Notice Eligible validated by this operation's strict request contract. */
+                                    noticeEligible?: boolean;
+                                    /** @description Notice Dismissed validated by this operation's strict request contract. */
+                                    noticeDismissed?: boolean;
                                     /**
                                      * Format: uuid
                                      * @description Identifier of the id resource; ownership is resolved server-side.
@@ -120147,6 +121749,20 @@ export interface operations {
                                  * @description ISO 8601 timestamp interpreted and validated by the server.
                                  */
                                 createdAt: string;
+                                /** @description Contact validated by this operation's strict request contract. */
+                                contact?: {
+                                    /** @description Name validated by this operation's strict request contract. */
+                                    name: string | null;
+                                    /** @description Normalized account email address. */
+                                    email: string | null;
+                                    /** @description Customer or business phone number in international format. */
+                                    phone: string | null;
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the customer resource; ownership is resolved server-side.
+                                     */
+                                    customerId: string | null;
+                                };
                                 /**
                                  * Format: uuid
                                  * @description Identifier of the branch resource; ownership is resolved server-side.
@@ -121009,6 +122625,20 @@ export interface operations {
                                  * @description ISO 8601 timestamp interpreted and validated by the server.
                                  */
                                 createdAt: string;
+                                /** @description Contact validated by this operation's strict request contract. */
+                                contact?: {
+                                    /** @description Name validated by this operation's strict request contract. */
+                                    name: string | null;
+                                    /** @description Normalized account email address. */
+                                    email: string | null;
+                                    /** @description Customer or business phone number in international format. */
+                                    phone: string | null;
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the customer resource; ownership is resolved server-side.
+                                     */
+                                    customerId: string | null;
+                                };
                                 /**
                                  * Format: uuid
                                  * @description Identifier of the branch resource; ownership is resolved server-side.
@@ -121447,6 +123077,20 @@ export interface operations {
                              * @description ISO 8601 timestamp interpreted and validated by the server.
                              */
                             createdAt: string;
+                            /** @description Contact validated by this operation's strict request contract. */
+                            contact?: {
+                                /** @description Name validated by this operation's strict request contract. */
+                                name: string | null;
+                                /** @description Normalized account email address. */
+                                email: string | null;
+                                /** @description Customer or business phone number in international format. */
+                                phone: string | null;
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the customer resource; ownership is resolved server-side.
+                                 */
+                                customerId: string | null;
+                            };
                             /**
                              * Format: uuid
                              * @description Identifier of the branch resource; ownership is resolved server-side.
@@ -121657,6 +123301,12 @@ export interface operations {
                             emailDeliveries: {
                                 /** @description Items validated by this operation's strict request contract. */
                                 items: {
+                                    /** @description Notice Revision validated by this operation's strict request contract. */
+                                    noticeRevision?: string;
+                                    /** @description Notice Eligible validated by this operation's strict request contract. */
+                                    noticeEligible?: boolean;
+                                    /** @description Notice Dismissed validated by this operation's strict request contract. */
+                                    noticeDismissed?: boolean;
                                     /**
                                      * Format: uuid
                                      * @description Identifier of the id resource; ownership is resolved server-side.

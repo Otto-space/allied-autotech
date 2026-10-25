@@ -20,6 +20,7 @@ import {
 } from "../../common/security/passwords.js";
 import { generateRecoveryCodes } from "../../common/security/recovery-codes.js";
 import { generateOpaqueToken, hashToken } from "../../common/security/session-tokens.js";
+import { AppError } from "../../common/errors/app-error.js";
 import { normalizeEmail } from "../../common/security/email.js";
 import { createTotpEnrollment, verifyTotp } from "../../common/security/totp.js";
 import {
@@ -261,6 +262,12 @@ export class IdentityService {
       user.emailVerifiedAt !== null &&
       (user.lockedUntil === null || user.lockedUntil <= now);
 
+    if (passwordValid && user?.status === "SUSPENDED")
+      throw new AppError({
+        code: "ACCOUNT_SUSPENDED",
+        statusCode: 401,
+        message: "Your account is suspended. Contact Customer Care for assistance.",
+      });
     if (!passwordValid || !eligible || user === null) {
       await this.recordFailedLogin(user?.id, throttleHashes, context);
       throw invalidAuthentication();
@@ -497,6 +504,9 @@ export class IdentityService {
     const passwordHash = await hashPassword(password);
     const now = new Date();
     await this.database.$transaction(async (tx) => {
+      // Same identity-first order as suspension; a reset cannot bypass a current
+      // account restriction or deadlock by consuming its token before the user lock.
+      await this.lockMfaAccount(tx, token.userId);
       const consumed = await tx.passwordResetToken.updateMany({
         where: {
           id: token.id,
@@ -1042,6 +1052,13 @@ export class IdentityService {
 
     await this.database.$transaction(async (tx) => {
       await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${user.id}, 0))`;
+      await tx.$queryRaw`SELECT "id" FROM "User" WHERE "id" = ${user.id}::uuid FOR NO KEY UPDATE`;
+      const current = await tx.user.findUnique({
+        where: { id: user.id },
+        select: { status: true, role: true },
+      });
+      if (!current || current.status !== "ACTIVE" || current.role !== user.role)
+        throw invalidAuthentication();
       const active = await tx.session.findMany({
         where: {
           userId: user.id,

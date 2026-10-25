@@ -74,9 +74,9 @@ describe("workflow progress and delivery clarity", () => {
     );
     expect(screen.getAllByText(/inbox placement/).length).toBeGreaterThan(0);
     expect(screen.getByText(/Provider accepted/)).toBeTruthy();
-    expect(screen.getByText(/Recorded .*10:00.*Nigeria time/)).toBeTruthy();
+    expect(screen.getByText(/recorded .*10:00.*Nigeria time/)).toBeTruthy();
     expect(screen.getByText(/Send attempts: 2/)).toBeTruthy();
-    expect(screen.getByText(/Do not send the same reply again/)).toBeTruthy();
-    expect(screen.getByText("Sent")).toBeTruthy();
+    expect(screen.getByText(/Do not send a duplicate/)).toBeTruthy();
+    expect(screen.queryByText("Sent")).toBeNull();
   });
 });

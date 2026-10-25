@@ -1,3 +1,7 @@
+import {
+  workforceCareContactSelect,
+  projectWorkforceCareContact,
+} from "./workforce-care-contact.js";
 import type { Prisma } from "../../generated/prisma/client.js";
 import type { WorkforceSnapshot } from "./workforce.policy.js";
 import { workforceNotFound } from "./workforce.policy.js";
@@ -57,7 +61,12 @@ export async function readWorkforceEnquiry(
   await tx.$queryRaw`SELECT "id" FROM "Enquiry" WHERE "id" = ${id}::uuid FOR SHARE`;
   const row = await tx.enquiry.findFirst({
     where: { AND: [{ id }, scope] },
-    select: workforceEnquirySelect,
+    select: {
+      ...workforceEnquirySelect,
+      ...(access.permissions.includes("CUSTOMER_ENQUIRIES")
+        ? workforceCareContactSelect
+        : {}),
+    },
   });
   if (!row) workforceNotFound();
   const anchor = query.messageId ?? query.cursor;
@@ -91,7 +100,7 @@ export async function readWorkforceEnquiry(
     isOwn: authorUserId === access.userId,
   }));
   return {
-    ...row,
+    ...projectWorkforceCareContact(row),
     latestMessageId: latest?.id ?? null,
     messages: {
       items,

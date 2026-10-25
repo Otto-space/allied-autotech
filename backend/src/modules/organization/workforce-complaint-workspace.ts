@@ -1,3 +1,7 @@
+import {
+  workforceCareContactSelect,
+  projectWorkforceCareContact,
+} from "./workforce-care-contact.js";
 import type { Prisma } from "../../generated/prisma/client.js";
 import type { WorkforceSnapshot } from "./workforce.policy.js";
 import { workforceNotFound } from "./workforce.policy.js";
@@ -55,6 +59,7 @@ export async function readWorkforceComplaint(
     where: { id, branchId: { in: branchIds } },
     select: {
       ...workforceComplaintSelect,
+      ...workforceCareContactSelect,
       acknowledgedAt: true,
       acknowledgementDueAt: true,
       escalatedAt: true,
@@ -95,7 +100,7 @@ export async function readWorkforceComplaint(
     isOwn: authorUserId === access.userId,
   }));
   return {
-    ...row,
+    ...projectWorkforceCareContact(row),
     latestMessageId: latest?.id ?? null,
     messages: {
       items,

@@ -4,6 +4,17 @@ import { extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
 extendZodWithOpenApi(z);
 
 export const directoryParamsSchema = z.object({ customerId: z.uuid() }).strict();
+export const customerAccountStatusSchema = z
+  .object({
+    expectedStatus: z.enum(["ACTIVE", "SUSPENDED"]),
+    status: z.enum(["ACTIVE", "SUSPENDED"]),
+    reason: z.string().trim().min(10).max(1000),
+  })
+  .strict()
+  .refine((v) => v.status !== v.expectedStatus, {
+    message: "Choose a different account status",
+    path: ["status"],
+  });
 export const directoryListQuerySchema = z
   .object({
     search: z

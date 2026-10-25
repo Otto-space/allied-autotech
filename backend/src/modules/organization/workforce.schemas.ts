@@ -1,4 +1,5 @@
 import { supportEmailDeliveryPageSchema } from "../support/customer-email.js";
+export { supportDeliveryDismissSchema } from "../support/customer-email.js";
 import { z } from "zod";
 import { positionSchema, templateSchema } from "./workforce.policy.js";
 
@@ -277,6 +278,14 @@ const bookingRow = z.object({
   customer: z.object({ firstName: z.string(), lastName: z.string(), phone: z.string() }),
 });
 const enquiryRow = queueBase.extend({
+  contact: z
+    .object({
+      name: z.string().nullable(),
+      email: z.string().nullable(),
+      phone: z.string().nullable(),
+      customerId: z.uuid().nullable(),
+    })
+    .optional(),
   branchId: z.uuid().nullable(),
   branch: z.object({ id: z.uuid(), name: z.string() }).nullable(),
   assignedStaff: z
@@ -308,6 +317,14 @@ const enquiryReceiptBase = z.object({
   access: workforceOwnResponseSchema,
 });
 const complaintRow = queueBase.extend({
+  contact: z
+    .object({
+      name: z.string().nullable(),
+      email: z.string().nullable(),
+      phone: z.string().nullable(),
+      customerId: z.uuid().nullable(),
+    })
+    .optional(),
   branchId: z.uuid().nullable(),
   branch: z.object({ id: z.uuid(), name: z.string() }).nullable(),
   updatedAt: timestamp,
@@ -384,6 +401,9 @@ export const workforceFinanceQuerySchema = workforceListSchema.extend({
 });
 export function workforceResponseSchema(action: string): z.ZodType {
   switch (action) {
+    case "enquiryDeliveryDismiss":
+    case "complaintDeliveryDismiss":
+      return supportEmailDeliveryPageSchema;
     case "jobAssignees":
       return z.object({
         items: z.array(

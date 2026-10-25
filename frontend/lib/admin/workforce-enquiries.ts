@@ -34,6 +34,14 @@ const personSchema = z.object({
   lastName: z.string(),
 });
 const rowSchema = z.object({
+  contact: z
+    .object({
+      name: z.string().nullable(),
+      email: z.string().nullable(),
+      phone: z.string().nullable(),
+      customerId: z.uuid().nullable(),
+    })
+    .optional(),
   id: z.uuid(),
   branchId: z.uuid().nullable(),
   assignedStaffId: z.uuid().nullable(),

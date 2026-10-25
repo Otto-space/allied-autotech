@@ -11616,6 +11616,134 @@ Success: HTTP 200.
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required provider or database is temporarily unavailable.
 
+### POST `/staff/support/enquiries/{supportId}/email-deliveries/dismiss`
+
+- Operation ID: `postStaffSupportEnquiriesBySupportIdEmailDeliveriesDismiss`
+- Purpose: Current case/branch access required. Atomic explicit batch of 1–20 stable revisions. Idempotent per operator and revision. Stale/ineligible/foreign notices conflict. Retains all delivery history/status and grants no retry authority. Dismiss eligible visible delivery notices for this operator. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `supportId` | path | string (uuid) | Yes | Identifier selecting the support resource. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `notices` | array<object> | Yes | Notices validated by this operation's strict request contract. |
+
+Synthetic request example:
+
+```json
+{
+  "notices": [
+    {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "revision": "synthetic-revision"
+    }
+  ]
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Dismiss eligible visible delivery notices for this operator",
+  "data": {
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "status": "QUEUED",
+        "reason": "CHANNEL_DISABLED",
+        "createdAt": "2030-01-15T10:00:00.000Z",
+        "sentAt": "2030-01-15T10:00:00.000Z",
+        "attempts": 0,
+        "nextRetryAt": "2030-01-15T10:00:00.000Z",
+        "providerStatus": "DELIVERED",
+        "providerUpdatedAt": "2030-01-15T10:00:00.000Z"
+      }
+    ]
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### POST `/staff/support/complaints/{supportId}/email-deliveries/dismiss`
+
+- Operation ID: `postStaffSupportComplaintsBySupportIdEmailDeliveriesDismiss`
+- Purpose: Current case/branch access required. Atomic explicit batch of 1–20 stable revisions. Idempotent per operator and revision. Stale/ineligible/foreign notices conflict. Retains all delivery history/status and grants no retry authority. Dismiss eligible visible delivery notices for this operator. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `supportId` | path | string (uuid) | Yes | Identifier selecting the support resource. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `notices` | array<object> | Yes | Notices validated by this operation's strict request contract. |
+
+Synthetic request example:
+
+```json
+{
+  "notices": [
+    {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "revision": "synthetic-revision"
+    }
+  ]
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Dismiss eligible visible delivery notices for this operator",
+  "data": {
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "status": "QUEUED",
+        "reason": "CHANNEL_DISABLED",
+        "createdAt": "2030-01-15T10:00:00.000Z",
+        "sentAt": "2030-01-15T10:00:00.000Z",
+        "attempts": 0,
+        "nextRetryAt": "2030-01-15T10:00:00.000Z",
+        "providerStatus": "DELIVERED",
+        "providerUpdatedAt": "2030-01-15T10:00:00.000Z"
+      }
+    ]
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
 ### GET `/staff/support/complaints/{supportId}/email-deliveries`
 
 - Operation ID: `getStaffSupportComplaintsBySupportIdEmailDeliveries`
@@ -14823,6 +14951,134 @@ Success: HTTP 200.
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
+### POST `/staff/workforce/enquiries/{id}/email-deliveries/dismiss`
+
+- Operation ID: `postStaffWorkforceEnquiriesByIdEmailDeliveriesDismiss`
+- Purpose: Explicit enrollment required for operational queues. Current assignments, branch, field projections and state are enforced in a transaction. Access changes require MFA, current password, target/version review and an owner-configured delegation envelope. No financial execution, exports or collection release authority is conferred by a title. Responsibility-based workspace: enquiryDeliveryDismiss. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `notices` | array<object> | Yes | Notices validated by this operation's strict request contract. |
+
+Synthetic request example:
+
+```json
+{
+  "notices": [
+    {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "revision": "synthetic-revision"
+    }
+  ]
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Responsibility-based workspace: enquiryDeliveryDismiss",
+  "data": {
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "status": "QUEUED",
+        "reason": "CHANNEL_DISABLED",
+        "createdAt": "2030-01-15T10:00:00.000Z",
+        "sentAt": "2030-01-15T10:00:00.000Z",
+        "attempts": 0,
+        "nextRetryAt": "2030-01-15T10:00:00.000Z",
+        "providerStatus": "DELIVERED",
+        "providerUpdatedAt": "2030-01-15T10:00:00.000Z"
+      }
+    ]
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 Current access does not permit this request; 404 Record unavailable in permitted scope; 409 Stale version or invalid state; 422 Invalid fields; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### POST `/staff/workforce/complaints/{id}/email-deliveries/dismiss`
+
+- Operation ID: `postStaffWorkforceComplaintsByIdEmailDeliveriesDismiss`
+- Purpose: Explicit enrollment required for operational queues. Current assignments, branch, field projections and state are enforced in a transaction. Access changes require MFA, current password, target/version review and an owner-configured delegation envelope. No financial execution, exports or collection release authority is conferred by a title. Responsibility-based workspace: complaintDeliveryDismiss. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `notices` | array<object> | Yes | Notices validated by this operation's strict request contract. |
+
+Synthetic request example:
+
+```json
+{
+  "notices": [
+    {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "revision": "synthetic-revision"
+    }
+  ]
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Responsibility-based workspace: complaintDeliveryDismiss",
+  "data": {
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "status": "QUEUED",
+        "reason": "CHANNEL_DISABLED",
+        "createdAt": "2030-01-15T10:00:00.000Z",
+        "sentAt": "2030-01-15T10:00:00.000Z",
+        "attempts": 0,
+        "nextRetryAt": "2030-01-15T10:00:00.000Z",
+        "providerStatus": "DELIVERED",
+        "providerUpdatedAt": "2030-01-15T10:00:00.000Z"
+      }
+    ]
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 Current access does not permit this request; 404 Record unavailable in permitted scope; 409 Stale version or invalid state; 422 Invalid fields; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
 ### GET `/staff/workforce/jobs/{id}/assignees`
 
 - Operation ID: `getStaffWorkforceJobsByIdAssignees`
@@ -17034,6 +17290,59 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 
 ## Administration
+
+### POST `/admin/customers/{customerId}/account-status`
+
+- Operation ID: `postAdminCustomersByCustomerIdAccountStatus`
+- Purpose: MFA-verified administrator, current actor/session/target role revalidated transactionally. CSRF required. Expected status guards stale/concurrent changes; DEACTIVATED and non-customer targets are excluded. Suspension revokes sessions and unused reset/verification tokens. Reactivation never revives revoked credentials. Actor, target, reason, time and transition audited. No financial/history or outbound email side effects. Suspend or reactivate a current customer account. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `customerId` | path | string (uuid) | Yes | Identifier selecting the customer resource. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `expectedStatus` | ACTIVE / SUSPENDED | Yes | Expected Status validated by this operation's strict request contract. |
+| `status` | ACTIVE / SUSPENDED | Yes | Requested or filtered lifecycle state from the documented enum. |
+| `reason` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+
+Synthetic request example:
+
+```json
+{
+  "expectedStatus": "ACTIVE",
+  "status": "ACTIVE",
+  "reason": "synthetic-reason"
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Suspend or reactivate a current customer account",
+  "data": {
+    "customerId": "00000000-0000-4000-8000-000000000001",
+    "status": "ACTIVE",
+    "revokedSessions": 0
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 Not authorised; 404 Current customer unavailable; 409 Account state changed; 422 Invalid fields; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/admin/customers`
 

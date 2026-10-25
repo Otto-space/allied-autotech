@@ -46,6 +46,14 @@ export function authenticate(options: AuthenticateOptions = {}) {
         },
       });
 
+      if (session?.user.status === "SUSPENDED") {
+        clearSessionCookie(res);
+        throw new AppError({
+          code: "ACCOUNT_SUSPENDED",
+          statusCode: 401,
+          message: "Your account is suspended. Contact Customer Care for assistance.",
+        });
+      }
       if (
         session?.revokedAt !== null ||
         session.expiresAt <= now ||
