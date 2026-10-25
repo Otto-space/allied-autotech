@@ -1688,14 +1688,14 @@ export interface paths {
         post?: never;
         /**
          * Delete compatibility
-         * @description Delete compatibility. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         * @description Retires an unreviewed legacy draft and preserves version history. Optional expectedVersion is checked under the product lock; a stale version returns 409 without a write or audit. New editors should send the version from the administrator product read. Delete compatibility. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
          */
         delete: operations["deleteAdminCatalogProductsByProductIdCompatibilitiesByCompatibilityId"];
         options?: never;
         head?: never;
         /**
          * Update compatibility
-         * @description Update compatibility. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         * @description Legacy draft compatibility only. Optional expectedVersion is checked under the product lock; a stale version returns 409 without a write or audit. New editors should send the version from the administrator product read. Reviewed fitment rules use the separate technical-review workspace. Update compatibility. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
          */
         patch: operations["patchAdminCatalogProductsByProductIdCompatibilitiesByCompatibilityId"];
         trace?: never;
@@ -3261,7 +3261,7 @@ export interface paths {
         };
         /**
          * List branch vehicle inventory; acquisition costs are administrator-only
-         * @description Private, no-store staff stock discovery. Existing active assigned-branch Staff and cross-branch Admin/Super Admin/MFA policy is unchanged. Search is a literal case-insensitive substring across stock number, make, model and VIN; exact make/model matching also treats percent, underscore and backslash literally. Optional listed=true selects records with any listing; listed=false selects records with none and cannot be combined with status. Listing status matches any stored listing on a record, including history. Existing createdAt/ID descending cursor paging is retained. The stock UI uses search, exact make/model, year, branch and listing filters only; inherited public-discovery price/specification/sort parameters require a separate stock-query contract audit. List branch vehicle inventory; acquisition costs are administrator-only. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+         * @description Private, no-store staff stock discovery. Existing active assigned-branch Staff and cross-branch Admin/Super Admin/MFA policy is unchanged. Search is a literal case-insensitive substring across stock number, make, model and VIN; exact make/model matching also treats percent, underscore and backslash literally. Optional listed=true selects records with any listing; listed=false selects records with none and cannot be combined with listing-specific filters. Status, featured and price bounds must match the same stored listing, including history. Newest, year and mileage sorts use an ID tie-breaker and cursor paging; price sorting is not accepted because a stock record can have multiple historical listing prices. The stock UI currently exposes search, exact make/model, year, branch and listing filters. List branch vehicle inventory; acquisition costs are administrator-only. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
          */
         get: operations["getStaffVehicles"];
         put?: never;
@@ -32259,7 +32259,8 @@ export interface operations {
                      *                 "bodyType": "synthetic-bodytype",
                      *                 "transmission": "synthetic-transmission",
                      *                 "generation": "synthetic-generation",
-                     *                 "chassisCode": "synthetic-chassiscode"
+                     *                 "chassisCode": "synthetic-chassiscode",
+                     *                 "version": 0
                      *               }
                      *             ],
                      *             "availability": [
@@ -32468,6 +32469,8 @@ export interface operations {
                                     generation: string | null;
                                     /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
                                     chassisCode: string | null;
+                                    /** @description Version validated by this operation's strict request contract. */
+                                    version: number;
                                 }[];
                                 /** @description Availability validated by this operation's strict request contract. */
                                 availability: {
@@ -32798,7 +32801,8 @@ export interface operations {
                      *             "bodyType": "synthetic-bodytype",
                      *             "transmission": "synthetic-transmission",
                      *             "generation": "synthetic-generation",
-                     *             "chassisCode": "synthetic-chassiscode"
+                     *             "chassisCode": "synthetic-chassiscode",
+                     *             "version": 0
                      *           }
                      *         ],
                      *         "availability": [
@@ -33002,6 +33006,8 @@ export interface operations {
                                 generation: string | null;
                                 /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
                                 chassisCode: string | null;
+                                /** @description Version validated by this operation's strict request contract. */
+                                version: number;
                             }[];
                             /** @description Availability validated by this operation's strict request contract. */
                             availability: {
@@ -33284,7 +33290,8 @@ export interface operations {
                      *             "bodyType": "synthetic-bodytype",
                      *             "transmission": "synthetic-transmission",
                      *             "generation": "synthetic-generation",
-                     *             "chassisCode": "synthetic-chassiscode"
+                     *             "chassisCode": "synthetic-chassiscode",
+                     *             "version": 0
                      *           }
                      *         ],
                      *         "availability": [
@@ -33488,6 +33495,8 @@ export interface operations {
                                 generation: string | null;
                                 /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
                                 chassisCode: string | null;
+                                /** @description Version validated by this operation's strict request contract. */
+                                version: number;
                             }[];
                             /** @description Availability validated by this operation's strict request contract. */
                             availability: {
@@ -33829,7 +33838,8 @@ export interface operations {
                      *             "bodyType": "synthetic-bodytype",
                      *             "transmission": "synthetic-transmission",
                      *             "generation": "synthetic-generation",
-                     *             "chassisCode": "synthetic-chassiscode"
+                     *             "chassisCode": "synthetic-chassiscode",
+                     *             "version": 0
                      *           }
                      *         ],
                      *         "availability": [
@@ -34033,6 +34043,8 @@ export interface operations {
                                 generation: string | null;
                                 /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
                                 chassisCode: string | null;
+                                /** @description Version validated by this operation's strict request contract. */
+                                version: number;
                             }[];
                             /** @description Availability validated by this operation's strict request contract. */
                             availability: {
@@ -34555,7 +34567,19 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "expectedVersion": 0
+                 *     }
+                 */
+                "application/json": {
+                    /** @description Last server version observed by the client; stale writes are rejected. */
+                    expectedVersion?: number;
+                };
+            };
+        };
         responses: {
             /** @description Success: Delete compatibility. */
             200: {
@@ -34806,6 +34830,7 @@ export interface operations {
             content: {
                 /**
                  * @example {
+                 *       "expectedVersion": 0,
                  *       "make": "synthetic-make",
                  *       "model": "synthetic-model",
                  *       "yearFrom": "synthetic-yearfrom",
@@ -34814,6 +34839,8 @@ export interface operations {
                  *     }
                  */
                 "application/json": {
+                    /** @description Last server version observed by the client; stale writes are rejected. */
+                    expectedVersion?: number;
                     /** @description Make validated by this operation's strict request contract. */
                     make?: string;
                     /** @description Model validated by this operation's strict request contract. */
@@ -58486,7 +58513,7 @@ export interface operations {
                  * @description Sort used to constrain this request.
                  * @example newest
                  */
-                sort?: "newest" | "price_asc" | "price_desc" | "year_desc" | "year_asc" | "mileage_asc" | "mileage_desc";
+                sort?: "newest" | "year_desc" | "year_asc" | "mileage_asc" | "mileage_desc";
                 /**
                  * @description Status used to constrain this request.
                  * @example DRAFT

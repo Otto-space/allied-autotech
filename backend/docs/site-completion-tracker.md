@@ -1074,3 +1074,31 @@ anonymous staff vehicles returned 401. The 25 October managed backup and earlier
 separate restore rehearsal were reviewed; this API-only release did not apply a
 migration or write application data. Hosted authenticated staff-filter acceptance
 is still open. Item 6 remains open for real catalogue publication.
+
+25 October 2026 - legacy product compatibility concurrency correction in progress:
+implementation source `C:/Users/PC/.codex/worktrees/allied-compatibility-concurrency-20261025`,
+branch `fix/compatibility-concurrency-20261025`, integrating the verified homepage
+source `a69b4397` and stock-query source `ff42b0e2`. The API's administrator
+compatibility update and retirement now optionally require the child's current
+version and compare it inside the existing product mutation lock. New editor
+clients always supply the version; versionless old responses cannot be edited or
+retired by that editor. Public product fields remain limited. A stale write is a
+409 before mutation/history, and the review disables repeat confirmation while
+retaining the draft for explicit reload. Bare legacy DELETE remains compatible.
+
+Verification: all 65 migrations replayed in a new isolated loopback `_test`
+PostgreSQL database with no schema diff. Nine focused backend integration cases
+passed against a restricted non-owning role; the concurrent-write case recorded
+one success, one conflict, a single history increment, and stale-retirement
+rejection. No schema change or application database write. Backend typecheck,
+lint, OpenAPI (347 paths), route coverage (407 documented operations), format,
+build and generated client passed. Frontend types, lint and optimized build passed.
+All 13 Edge/Playwright product-editor cases passed locally, including the mobile
+write-time conflict and accessibility checks; the follow-up no-repeat assertion
+passed. Final-source formatting, release identity and deployment checks remain
+open. The temporary test container was removed by Docker `--rm`; useful shared
+images/caches, other tasks' containers, data volumes and existing backups were
+retained. No production mutation, migration or deployment has occurred in this
+correction yet. Hosted authenticated acceptance requires an authorised QA session;
+do not infer it from mocked browser data. Item 6 and the broader site goal remain
+open.

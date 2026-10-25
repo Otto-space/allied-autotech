@@ -975,3 +975,39 @@ This completes the owner's focused homepage correction. Further business-approve
 inventory and authentic customer reviews remain content inputs, not fixtures to
 publish. Existing broader role/device/manual acceptance and settled Item 6 retain
 their recorded scope; no further redesign is implied by the previous audit.
+
+## Cycle 6: Product compatibility concurrent edits — 25 October 2026
+
+Route `/admin/products`, administrator product detail editor. The reproduced problem
+was a second editor changing a legacy compatibility between the first editor's
+freshness read and write. A read-only preflight could not prevent the older draft
+from overwriting the newer record. The editor now sends the child's version for
+update and retirement; the API checks it under the existing product mutation lock
+and rejects a stale version with 409 before any history or record mutation.
+
+The administrator response exposes the child version while public product data
+retains its limited projection. Existing bare DELETE clients remain accepted during
+the transition. If an older response lacks a child version, the new editor disables
+edit/retire and explains that a refresh is needed. A rejected review disables repeat
+confirmation, preserves the draft, refreshes the record, and allows an explicit
+reload to the newest values. The form draft key includes the child version so the
+reload does not restore the obsolete draft from session storage.
+
+Evidence: all 9 focused isolated PostgreSQL integration tests passed using a new
+`_test` database on 127.0.0.1:55581 with a non-owning runtime role; concurrent
+same-version writes produced one success and one 409, a stale retirement was
+rejected, history advanced once, and admin/public projections were checked. All
+65 migrations replayed on the isolated target with no schema diff; no application
+database was written. All 13 local Edge/Playwright product-extras cases passed,
+including a 320px write-time conflict, draft recovery, no horizontal overflow and
+automated WCAG 2.2 AA rule checks; the one-case follow-up confirmed that a
+rejected confirmation cannot be resent. Frontend/backend types, lint, backend
+formatting and builds passed; final formatting and release checks are tracked in
+the site-completion tracker. The mobile screenshot is
+`%TEMP%/allied-compatibility-conflict-mobile.png`.
+
+This is isolated/mock-rendered acceptance, not an authenticated production editor
+session. Real device and screen-reader speech checks remain untested. The
+`browse_enquiries` launch restriction and genuine catalogue content requirements
+are unchanged. The next cycle should use a real authorised admin QA session on the
+matching release and continue the per-page operational backlog.

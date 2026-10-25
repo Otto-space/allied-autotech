@@ -77,6 +77,7 @@ export function ProductExtrasEditor({
         ...next.facts,
       ],
       onUncertain,
+      retryAfterRejection: false,
       submit: async () => {
         try {
           await checkProductExtras(sourcePath, expected);
@@ -282,7 +283,13 @@ export function ProductExtrasEditor({
                 { label: "Final year", value: value.yearTo || "Not specified" },
                 { label: "Notes", value: value.notes || "Not recorded" },
               ],
-              submit: () => saveProductCompatibility(productId, editor.item?.id, value),
+              submit: () =>
+                saveProductCompatibility(
+                  productId,
+                  editor.item?.id,
+                  value,
+                  editor.item?.version,
+                ),
             })
           }
         />
@@ -387,12 +394,18 @@ export function ProductExtrasEditor({
                     </Link>
                   </p>
                 )}
+                {item.version === undefined && (
+                  <p className="notice">
+                    Refresh this product before editing its compatibility.
+                  </p>
+                )}
                 <div className="actions">
                   <button
                     className="button secondary"
                     disabled={
                       disabled ||
                       !!editor ||
+                      item.version === undefined ||
                       !!item.vehicleModelId ||
                       (!!item.reviewStatus && item.reviewStatus !== "DRAFT")
                     }
@@ -413,6 +426,7 @@ export function ProductExtrasEditor({
                     disabled={
                       disabled ||
                       !!editor ||
+                      item.version === undefined ||
                       !!item.vehicleModelId ||
                       (!!item.reviewStatus && item.reviewStatus !== "DRAFT")
                     }
@@ -433,7 +447,12 @@ export function ProductExtrasEditor({
                           { label: "Record reference", value: item.id },
                         ],
                         submit: () =>
-                          removeProductExtra(productId, "compatibilities", item.id),
+                          removeProductExtra(
+                            productId,
+                            "compatibilities",
+                            item.id,
+                            item.version,
+                          ),
                       })
                     }
                   >

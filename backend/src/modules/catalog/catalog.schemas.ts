@@ -223,6 +223,7 @@ export const compatibilityCreateBodySchema = z
   .refine(validYearRange, { path: ["yearTo"], message: "Must not precede yearFrom" });
 export const compatibilityUpdateBodySchema = z
   .object({
+    expectedVersion: z.number().int().nonnegative().optional(),
     make: compatibilityFields.make.optional(),
     model: compatibilityFields.model,
     yearFrom: compatibilityFields.yearFrom,
@@ -230,8 +231,15 @@ export const compatibilityUpdateBodySchema = z
     notes: compatibilityFields.notes,
   })
   .strict()
-  .refine((value) => Object.keys(value).length > 0, "At least one field is required")
+  .refine(
+    (value) => Object.keys(value).some((key) => key !== "expectedVersion"),
+    "At least one compatibility field is required",
+  )
   .refine(validYearRange, { path: ["yearTo"], message: "Must not precede yearFrom" });
+export const compatibilityDeleteBodySchema = z
+  .object({ expectedVersion: z.number().int().nonnegative().optional() })
+  .strict()
+  .default({});
 
 const publicImageUrl = z
   .url()

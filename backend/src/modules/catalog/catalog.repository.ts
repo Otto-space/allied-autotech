@@ -68,6 +68,7 @@ export const productSelect = {
       model: true,
       yearFrom: true,
       yearTo: true,
+      version: true,
       reviewStatus: true,
       effect: true,
       notes: true,

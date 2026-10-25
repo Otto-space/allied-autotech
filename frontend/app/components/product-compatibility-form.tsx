@@ -29,7 +29,11 @@ export function ProductCompatibilityForm({
   });
   return (
     <form
-      data-draft-key={JSON.stringify(["product-compatibility-form:1", item?.id])}
+      data-draft-key={JSON.stringify([
+        "product-compatibility-form:2",
+        item?.id,
+        item?.version,
+      ])}
       noValidate
       onSubmit={form.handleSubmit((value) => {
         if (!disabled) onReview(value);

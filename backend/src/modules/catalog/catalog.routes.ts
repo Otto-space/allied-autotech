@@ -22,6 +22,7 @@ import {
   categoryParamsSchema,
   categoryUpdateBodySchema,
   compatibilityCreateBodySchema,
+  compatibilityDeleteBodySchema,
   compatibilityParamsSchema,
   compatibilityUpdateBodySchema,
   favouriteListQuerySchema,
@@ -212,7 +213,7 @@ export function createAdminCatalogRouter(): Router {
     validate({
       params: compatibilityParamsSchema,
       query: catalogEmptyQuerySchema,
-      body: catalogEmptyBodySchema,
+      body: compatibilityDeleteBodySchema,
     }),
     controller.deleteCompatibility,
   );
