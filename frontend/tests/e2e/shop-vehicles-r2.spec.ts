@@ -54,7 +54,14 @@ test.beforeEach(async ({ page }) => {
     if (req.method() === "POST") {
       expect(url.pathname).toBe("/api/v1/public/support/enquiries");
       posted.push(req.postDataJSON());
-      return route.fulfill({ status: 201, json: success({ id: demoId(900) }) });
+      return route.fulfill({
+        status: 201,
+        json: success({
+          id: demoId(900),
+          status: "OPEN",
+          createdAt: "2026-10-25T11:00:00.000Z",
+        }),
+      });
     }
     if (mode === "error")
       return route.fulfill({
@@ -112,6 +119,10 @@ for (const width of [360, 390, 768, 1024, 1440]) {
     await expect(
       page.getByRole("radio", { name: "Search all products", exact: true }),
     ).toBeChecked();
+    // Hosted SSR correctly contains real empty data. Trigger a client search to
+    // exercise isolated populated rendering without changing production data.
+    await page.getByLabel("Search products", { exact: true }).fill("DEMO");
+    await page.getByLabel("Search products", { exact: true }).press("Enter");
     await expect(page.locator(".shop-product-card")).toHaveCount(12);
     await page.getByRole("button", { name: /^Filters/ }).click();
     await page.getByLabel("Product family", { exact: true }).selectOption("ENGINE_OIL");
@@ -138,8 +149,15 @@ for (const width of [360, 390, 768, 1024, 1440]) {
     ).not.toBeVisible();
     await page.getByRole("button", { name: "Apply filters", exact: true }).click();
     await expect(page).not.toHaveURL(/oilViscosityGrade|packVolumeMl/);
-    await page.goto(
-      "/vehicles?search=Toyota+Corolla&conditions=FOREIGN_USED&maxPriceKobo=1500000000",
+    await page.goto("/vehicles");
+    await page.getByLabel("Search vehicles", { exact: true }).fill("Toyota Corolla");
+    await page.getByLabel("Search vehicles", { exact: true }).press("Enter");
+    await page.evaluate(() =>
+      history.pushState(
+        null,
+        "",
+        "/vehicles?search=Toyota+Corolla&conditions=FOREIGN_USED&maxPriceKobo=1500000000",
+      ),
     );
     await expect(page.locator(".vehicle-card")).toHaveCount(1);
     await healthy(page, "vehicles", width);
