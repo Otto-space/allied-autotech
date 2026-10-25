@@ -2308,7 +2308,14 @@
         "widths": [360, 390, 768, 1024, 1440],
         "states": ["selected contacts", "directory refresh"],
         "scope": "Contact refresh region only; policy publication not exercised",
-        "details": "Cycle 6 in UI_UX_QUALITY_REGISTER.md; unlisted aspects remain unverified. Real roles/devices/submissions and optimized hosted acceptance are not claimed."
+        "details": "Cycle 6 in UI_UX_QUALITY_REGISTER.md; unlisted aspects remain unverified. Real roles/devices/submissions and optimized hosted acceptance are not claimed.",
+        "hostedAcceptance": {
+          "deployment": "dpl_5vyykAdQnDsAshfCKRU9KNkePJgb",
+          "runtimeSource": "e9f48ef525b80cc215f340015b0553e5b1e3af73",
+          "harnessCommit": "8b5fe871",
+          "suite": "34/34 audit scenarios on optimized protected candidate; browser-isolated fixtures",
+          "limits": "Existing local-only recovery/denied-role states are not all reclassified as hosted or real-account acceptance."
+        }
       }
     },
     {
@@ -2430,7 +2437,14 @@
         "widths": [360, 390, 768, 1024, 1440],
         "states": ["selected contacts", "directory refresh"],
         "scope": "Contact refresh region only; policy publication not exercised",
-        "details": "Cycle 6 in UI_UX_QUALITY_REGISTER.md; unlisted aspects remain unverified. Real roles/devices/submissions and optimized hosted acceptance are not claimed."
+        "details": "Cycle 6 in UI_UX_QUALITY_REGISTER.md; unlisted aspects remain unverified. Real roles/devices/submissions and optimized hosted acceptance are not claimed.",
+        "hostedAcceptance": {
+          "deployment": "dpl_5vyykAdQnDsAshfCKRU9KNkePJgb",
+          "runtimeSource": "e9f48ef525b80cc215f340015b0553e5b1e3af73",
+          "harnessCommit": "8b5fe871",
+          "suite": "34/34 audit scenarios on optimized protected candidate; browser-isolated fixtures",
+          "limits": "Existing local-only recovery/denied-role states are not all reclassified as hosted or real-account acceptance."
+        }
       }
     },
     {
@@ -2776,7 +2790,14 @@
         "widths": [1280],
         "states": ["finance return navigation"],
         "scope": "Verified finance backlink destination; overall operational layout not re-audited",
-        "details": "Cycle 6 in UI_UX_QUALITY_REGISTER.md; unlisted aspects remain unverified. Real roles/devices/submissions and optimized hosted acceptance are not claimed."
+        "details": "Cycle 6 in UI_UX_QUALITY_REGISTER.md; unlisted aspects remain unverified. Real roles/devices/submissions and optimized hosted acceptance are not claimed.",
+        "hostedAcceptance": {
+          "deployment": "dpl_5vyykAdQnDsAshfCKRU9KNkePJgb",
+          "runtimeSource": "e9f48ef525b80cc215f340015b0553e5b1e3af73",
+          "harnessCommit": "8b5fe871",
+          "suite": "34/34 audit scenarios on optimized protected candidate; browser-isolated fixtures",
+          "limits": "Existing local-only recovery/denied-role states are not all reclassified as hosted or real-account acceptance."
+        }
       }
     },
     {
@@ -2814,7 +2835,14 @@
         "widths": [1280],
         "states": ["permitted return"],
         "scope": "Overview return link only; dispute operations not exercised",
-        "details": "Cycle 6 in UI_UX_QUALITY_REGISTER.md; unlisted aspects remain unverified. Real roles/devices/submissions and optimized hosted acceptance are not claimed."
+        "details": "Cycle 6 in UI_UX_QUALITY_REGISTER.md; unlisted aspects remain unverified. Real roles/devices/submissions and optimized hosted acceptance are not claimed.",
+        "hostedAcceptance": {
+          "deployment": "dpl_5vyykAdQnDsAshfCKRU9KNkePJgb",
+          "runtimeSource": "e9f48ef525b80cc215f340015b0553e5b1e3af73",
+          "harnessCommit": "8b5fe871",
+          "suite": "34/34 audit scenarios on optimized protected candidate; browser-isolated fixtures",
+          "limits": "Existing local-only recovery/denied-role states are not all reclassified as hosted or real-account acceptance."
+        }
       }
     },
     {
@@ -2880,7 +2908,14 @@
         "widths": [1280],
         "states": ["permitted return", "denied data reads"],
         "scope": "Return link and existing mocked denied-role data boundaries only",
-        "details": "Cycle 6 in UI_UX_QUALITY_REGISTER.md; unlisted aspects remain unverified. Real roles/devices/submissions and optimized hosted acceptance are not claimed."
+        "details": "Cycle 6 in UI_UX_QUALITY_REGISTER.md; unlisted aspects remain unverified. Real roles/devices/submissions and optimized hosted acceptance are not claimed.",
+        "hostedAcceptance": {
+          "deployment": "dpl_5vyykAdQnDsAshfCKRU9KNkePJgb",
+          "runtimeSource": "e9f48ef525b80cc215f340015b0553e5b1e3af73",
+          "harnessCommit": "8b5fe871",
+          "suite": "34/34 audit scenarios on optimized protected candidate; browser-isolated fixtures",
+          "limits": "Existing local-only recovery/denied-role states are not all reclassified as hosted or real-account acceptance."
+        }
       }
     },
     {
@@ -3516,7 +3551,14 @@
           "doubled text"
         ],
         "scope": "Reply audience region and selected recovery safeguards; mocked scoped roles, no real sends",
-        "details": "Cycle 6 in UI_UX_QUALITY_REGISTER.md; unlisted aspects remain unverified. Real roles/devices/submissions and optimized hosted acceptance are not claimed."
+        "details": "Cycle 6 in UI_UX_QUALITY_REGISTER.md; unlisted aspects remain unverified. Real roles/devices/submissions and optimized hosted acceptance are not claimed.",
+        "hostedAcceptance": {
+          "deployment": "dpl_5vyykAdQnDsAshfCKRU9KNkePJgb",
+          "runtimeSource": "e9f48ef525b80cc215f340015b0553e5b1e3af73",
+          "harnessCommit": "8b5fe871",
+          "suite": "34/34 audit scenarios on optimized protected candidate; browser-isolated fixtures",
+          "limits": "Existing local-only recovery/denied-role states are not all reclassified as hosted or real-account acceptance."
+        }
       }
     },
     {
@@ -4063,7 +4105,14 @@
           "release restrictions"
         ],
         "scope": "Customer overview and its navigation; authentication fixture, not real account acceptance",
-        "details": "Cycle 6 in UI_UX_QUALITY_REGISTER.md; unlisted aspects remain unverified. Real roles/devices/submissions and optimized hosted acceptance are not claimed."
+        "details": "Cycle 6 in UI_UX_QUALITY_REGISTER.md; unlisted aspects remain unverified. Real roles/devices/submissions and optimized hosted acceptance are not claimed.",
+        "hostedAcceptance": {
+          "deployment": "dpl_5vyykAdQnDsAshfCKRU9KNkePJgb",
+          "runtimeSource": "e9f48ef525b80cc215f340015b0553e5b1e3af73",
+          "harnessCommit": "8b5fe871",
+          "suite": "34/34 audit scenarios on optimized protected candidate; browser-isolated fixtures",
+          "limits": "Existing local-only recovery/denied-role states are not all reclassified as hosted or real-account acceptance."
+        }
       }
     },
     {
@@ -4185,7 +4234,14 @@
         "widths": [390, 1440],
         "states": ["existing profile", "photo disclosure"],
         "scope": "Identity/photo disclosure only; existing profile edit/upload workflows retain prior evidence",
-        "details": "Cycle 6 in UI_UX_QUALITY_REGISTER.md; unlisted aspects remain unverified. Real roles/devices/submissions and optimized hosted acceptance are not claimed."
+        "details": "Cycle 6 in UI_UX_QUALITY_REGISTER.md; unlisted aspects remain unverified. Real roles/devices/submissions and optimized hosted acceptance are not claimed.",
+        "hostedAcceptance": {
+          "deployment": "dpl_5vyykAdQnDsAshfCKRU9KNkePJgb",
+          "runtimeSource": "e9f48ef525b80cc215f340015b0553e5b1e3af73",
+          "harnessCommit": "8b5fe871",
+          "suite": "34/34 audit scenarios on optimized protected candidate; browser-isolated fixtures",
+          "limits": "Existing local-only recovery/denied-role states are not all reclassified as hosted or real-account acceptance."
+        }
       }
     },
     {
@@ -4251,7 +4307,14 @@
         "widths": [390, 1440],
         "states": ["existing submissions", "review form disclosure"],
         "scope": "Public-identity guidance only; existing review moderation/submission safeguards unchanged",
-        "details": "Cycle 6 in UI_UX_QUALITY_REGISTER.md; unlisted aspects remain unverified. Real roles/devices/submissions and optimized hosted acceptance are not claimed."
+        "details": "Cycle 6 in UI_UX_QUALITY_REGISTER.md; unlisted aspects remain unverified. Real roles/devices/submissions and optimized hosted acceptance are not claimed.",
+        "hostedAcceptance": {
+          "deployment": "dpl_5vyykAdQnDsAshfCKRU9KNkePJgb",
+          "runtimeSource": "e9f48ef525b80cc215f340015b0553e5b1e3af73",
+          "harnessCommit": "8b5fe871",
+          "suite": "34/34 audit scenarios on optimized protected candidate; browser-isolated fixtures",
+          "limits": "Existing local-only recovery/denied-role states are not all reclassified as hosted or real-account acceptance."
+        }
       }
     },
     {
@@ -4289,7 +4352,14 @@
         "widths": [1280],
         "states": ["direct navigation", "current destination"],
         "scope": "Saved-items label/destination only; collection CRUD is outside this cycle",
-        "details": "Cycle 6 in UI_UX_QUALITY_REGISTER.md; unlisted aspects remain unverified. Real roles/devices/submissions and optimized hosted acceptance are not claimed."
+        "details": "Cycle 6 in UI_UX_QUALITY_REGISTER.md; unlisted aspects remain unverified. Real roles/devices/submissions and optimized hosted acceptance are not claimed.",
+        "hostedAcceptance": {
+          "deployment": "dpl_5vyykAdQnDsAshfCKRU9KNkePJgb",
+          "runtimeSource": "e9f48ef525b80cc215f340015b0553e5b1e3af73",
+          "harnessCommit": "8b5fe871",
+          "suite": "34/34 audit scenarios on optimized protected candidate; browser-isolated fixtures",
+          "limits": "Existing local-only recovery/denied-role states are not all reclassified as hosted or real-account acceptance."
+        }
       }
     },
     {
@@ -4725,7 +4795,14 @@
           "late preflight"
         ],
         "scope": "Saved-vehicle controls only; populated/empty product layouts retain prior-cycle coverage",
-        "details": "Cycle 6 in UI_UX_QUALITY_REGISTER.md; unlisted aspects remain unverified. Real roles/devices/submissions and optimized hosted acceptance are not claimed."
+        "details": "Cycle 6 in UI_UX_QUALITY_REGISTER.md; unlisted aspects remain unverified. Real roles/devices/submissions and optimized hosted acceptance are not claimed.",
+        "hostedAcceptance": {
+          "deployment": "dpl_5vyykAdQnDsAshfCKRU9KNkePJgb",
+          "runtimeSource": "e9f48ef525b80cc215f340015b0553e5b1e3af73",
+          "harnessCommit": "8b5fe871",
+          "suite": "34/34 audit scenarios on optimized protected candidate; browser-isolated fixtures",
+          "limits": "Existing local-only recovery/denied-role states are not all reclassified as hosted or real-account acceptance."
+        }
       }
     },
     {
@@ -4791,7 +4868,14 @@
         "widths": [390, 1440],
         "states": ["accounts and enquiries notice"],
         "scope": "Accounts/reviews disclosure only; no legal-policy rewrite or whole-document readability acceptance",
-        "details": "Cycle 6 in UI_UX_QUALITY_REGISTER.md; unlisted aspects remain unverified. Real roles/devices/submissions and optimized hosted acceptance are not claimed."
+        "details": "Cycle 6 in UI_UX_QUALITY_REGISTER.md; unlisted aspects remain unverified. Real roles/devices/submissions and optimized hosted acceptance are not claimed.",
+        "hostedAcceptance": {
+          "deployment": "dpl_5vyykAdQnDsAshfCKRU9KNkePJgb",
+          "runtimeSource": "e9f48ef525b80cc215f340015b0553e5b1e3af73",
+          "harnessCommit": "8b5fe871",
+          "suite": "34/34 audit scenarios on optimized protected candidate; browser-isolated fixtures",
+          "limits": "Existing local-only recovery/denied-role states are not all reclassified as hosted or real-account acceptance."
+        }
       }
     },
     {

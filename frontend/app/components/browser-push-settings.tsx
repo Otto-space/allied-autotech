@@ -9,18 +9,28 @@ const schema = z.object({
   available: z.boolean(),
   publicKey: z.string().nullable(),
   enabled: z.boolean(),
+  endpointHashes: z.array(z.string().regex(/^[a-f0-9]{64}$/)).optional(),
 });
 const parse = (value: unknown) => schema.parse(value);
-export function BrowserPushSettings({ role }: { role: string }) {
+async function endpointFingerprint(endpoint: string) {
+  const bytes = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(endpoint));
+  return [...new Uint8Array(bytes)]
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
+}
+export function BrowserPushSettings({ role, userId }: { role: string; userId: string }) {
   const base = `/${role === "CUSTOMER" ? "customers" : "staff"}/notifications/push`;
   const settings = useResource(base, parse);
   const [supported, setSupported] = useState<boolean | null>(null);
-  const [localEnabled, setLocalEnabled] = useState(false);
+  const [localFingerprint, setLocalFingerprint] = useState<string | null>(null);
+  const [permission, setPermission] = useState<NotificationPermission>("default");
+  const [online, setOnline] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>();
   const [message, setMessage] = useState<string>();
   useEffect(() => {
     let active = true;
+    let checkVersion = 0;
     const supported =
       window.isSecureContext &&
       "serviceWorker" in navigator &&
@@ -29,40 +39,83 @@ export function BrowserPushSettings({ role }: { role: string }) {
     queueMicrotask(() => {
       if (active) setSupported(supported);
     });
-    if (supported)
-      void navigator.serviceWorker
-        .getRegistration("/")
-        .then(async (registration) => {
-          const sub = await registration?.pushManager.getSubscription();
-          if (active) setLocalEnabled(!!sub && Notification.permission === "granted");
-        })
-        .catch(() => {
-          if (active) setError("Unable to check this browser’s notification settings.");
-        });
+    async function check() {
+      if (!active) return;
+      const version = ++checkVersion;
+      setOnline(navigator.onLine);
+      if (supported) {
+        setPermission(Notification.permission);
+        await navigator.serviceWorker
+          .getRegistration("/")
+          .then(async (registration) => {
+            const sub = await registration?.pushManager.getSubscription();
+            const worker = registration?.active ?? registration?.waiting;
+            const fingerprint =
+              sub &&
+              !!worker &&
+              new URL(worker.scriptURL).pathname === "/push-sw.js" &&
+              Notification.permission === "granted"
+                ? await endpointFingerprint(sub.endpoint)
+                : null;
+            if (active && version === checkVersion) setLocalFingerprint(fingerprint);
+          })
+          .catch(() => {
+            if (active && version === checkVersion) {
+              setLocalFingerprint(null);
+              setError("Unable to check this browser’s notification settings.");
+            }
+          });
+      }
+    }
+    void check();
+    window.addEventListener("focus", check);
+    window.addEventListener("online", check);
+    window.addEventListener("offline", check);
     const clear = () => {
-      setLocalEnabled(false);
+      checkVersion++;
+      setLocalFingerprint(null);
     };
     window.addEventListener(SESSION_CHANGED, clear);
     return () => {
       active = false;
       window.removeEventListener(SESSION_CHANGED, clear);
+      window.removeEventListener("focus", check);
+      window.removeEventListener("online", check);
+      window.removeEventListener("offline", check);
     };
   }, []);
-  const enabled = localEnabled || settings.data?.enabled;
+  const enabled =
+    !!localFingerprint &&
+    permission === "granted" &&
+    settings.data?.enabled === true &&
+    settings.data.endpointHashes?.includes(localFingerprint) === true;
   async function enable() {
     setError(undefined);
     setMessage(undefined);
     setBusy(true);
     try {
       // Permission is requested only after this explicit button click.
-      const permission = await Notification.requestPermission();
-      if (permission !== "granted") {
+      const result =
+        Notification.permission === "granted"
+          ? "granted"
+          : await Notification.requestPermission();
+      setPermission(result);
+      if (result !== "granted") {
         setMessage(
           "Notifications are blocked or were dismissed. You can change this in your browser’s site settings.",
         );
         return;
       }
       if (!settings.data?.available || !settings.data.publicKey) return;
+      const session = z
+        .object({ user: z.object({ id: z.string(), role: z.string() }) })
+        .parse((await apiRequest("/auth/session")).data);
+      if (session.user.id !== userId || session.user.role !== role)
+        throw new Error("Account changed");
+      const previous = await navigator.serviceWorker.getRegistration("/");
+      const worker = previous?.active ?? previous?.waiting ?? previous?.installing;
+      if (worker && new URL(worker.scriptURL).pathname !== "/push-sw.js")
+        throw new Error("Existing site worker must be preserved");
       await clearBrowserPush();
       await navigator.serviceWorker.register("/push-sw.js", {
         scope: "/",
@@ -78,18 +131,29 @@ export function BrowserPushSettings({ role }: { role: string }) {
         userVisibleOnly: true,
         applicationServerKey: bytes,
       });
+      let fingerprint: string;
       try {
+        fingerprint = await endpointFingerprint(subscription.endpoint);
         const json = subscription.toJSON();
-        await apiRequest(base, {
+        const response = await apiRequest(base, {
           method: "PUT",
           csrf: true,
           body: { endpoint: json.endpoint, keys: json.keys },
         });
+        z.object({ enabled: z.literal(true) }).parse(response.data);
+        const confirmed = parse((await apiRequest(base)).data);
+        if (
+          !confirmed.enabled ||
+          !confirmed.available ||
+          !confirmed.endpointHashes?.includes(fingerprint) ||
+          Notification.permission !== "granted"
+        )
+          throw new Error("Device binding not confirmed");
       } catch (error) {
         await subscription.unsubscribe();
         throw error;
       }
-      setLocalEnabled(true);
+      setLocalFingerprint(fingerprint);
       settings.refresh();
       setMessage("Browser notifications are on for this signed-in device.");
     } catch (error) {
@@ -109,9 +173,11 @@ export function BrowserPushSettings({ role }: { role: string }) {
     try {
       await apiRequest(base, { method: "DELETE", csrf: true, body: {} });
       await clearBrowserPush();
-      setLocalEnabled(false);
+      setLocalFingerprint(null);
       settings.refresh();
-      setMessage("Browser notifications are off on this device.");
+      setMessage(
+        "Browser notifications are off on this device. Your browser’s site permission is unchanged.",
+      );
     } catch (error) {
       setError(
         error instanceof ApiError
@@ -126,8 +192,10 @@ export function BrowserPushSettings({ role }: { role: string }) {
     <section className="cn-browser-push" aria-labelledby="browser-push-heading">
       <h3 id="browser-push-heading">Browser notifications</h3>
       <p>
-        Get a discreet alert when there’s an update. Message contents stay inside your
-        account. This setting applies to this browser and turns off when you sign out.
+        Browser alerts use Web Push where supported. Delivery depends on this browser,
+        your permission and your signed-in session. Message contents stay inside your
+        account. This applies to this signed-in browser session and stops when you sign
+        out or the session expires.
       </p>
       <Feedback message={error ?? settings.error} />
       {message && <p role="status">{message}</p>}
@@ -138,21 +206,57 @@ export function BrowserPushSettings({ role }: { role: string }) {
         </p>
       ) : settings.data?.available === false ? (
         <p>
-          Browser notifications are not available yet. Your in-app inbox will continue to
-          receive updates.
+          Background push is not configured for this environment. While this site is open,
+          the bell checks for updates. Your in-app inbox remains available.
         </p>
       ) : (
-        <button
-          className="button secondary"
-          disabled={busy || !supported || !settings.data}
-          onClick={() => void (enabled ? disable() : enable())}
-        >
-          {busy
-            ? "Updating…"
-            : enabled
-              ? "Turn off on this device"
-              : "Enable on this device"}
-        </button>
+        <>
+          <p role="status">
+            {!online
+              ? "You’re offline. Reconnect to update this device."
+              : permission === "denied"
+                ? "Blocked in this browser. Change notification permission in site settings; we will not ask again."
+                : enabled
+                  ? "On for this signed-in browser."
+                  : settings.data?.enabled
+                    ? "This browser’s permission or subscription changed. Reconnect it or turn off the saved binding."
+                    : permission === "granted"
+                      ? "Permission granted. Enable this account on this browser to receive alerts."
+                      : "Off. Your browser will ask for permission only when you choose Enable."}
+          </p>
+          <button
+            className="button secondary"
+            disabled={
+              busy ||
+              !online ||
+              !supported ||
+              !settings.data ||
+              !!settings.error ||
+              !!settings.refreshError ||
+              (permission === "denied" && !settings.data.enabled)
+            }
+            onClick={() =>
+              void (enabled || (permission === "denied" && settings.data?.enabled)
+                ? disable()
+                : enable())
+            }
+          >
+            {busy
+              ? "Updating…"
+              : enabled || (permission === "denied" && settings.data?.enabled)
+                ? "Turn off on this device"
+                : "Enable on this device"}
+          </button>
+          {!enabled && settings.data?.enabled && permission !== "denied" && (
+            <button
+              className="button secondary"
+              disabled={busy || !online}
+              onClick={() => void disable()}
+            >
+              Turn off saved device binding
+            </button>
+          )}
+        </>
       )}
     </section>
   );

@@ -1,4 +1,6 @@
+import { showNotificationSettings } from "../fixtures/notification-settings";
 import { expect, test } from "@playwright/test";
+import { createHash } from "node:crypto";
 import {
   notificationsFixture,
   notificationItem,
@@ -23,7 +25,7 @@ for (const role of ["STAFF", "ADMIN", "SUPER_ADMIN"])
     await page.setViewportSize({ width: 1440, height: 1000 });
     await page.goto("/admin/notifications");
     await expect(
-      page.getByRole("link", { name: "Open notifications, 1 unread", exact: true }),
+      page.getByRole("button", { name: "Open notifications, 1 unread", exact: true }),
     ).toBeVisible();
     const nav = page.locator("#dashboard-navigation");
     await nav
@@ -70,6 +72,9 @@ test("browser push waits for opt-in, uses CSRF and offers device opt-out", async
   let enabled = false;
   const writes: string[] = [];
   const publicKey = "B" + "A".repeat(86);
+  const endpointHash = createHash("sha256")
+    .update("https://fcm.googleapis.com/fcm/send/synthetic")
+    .digest("hex");
   await page.route("**/api/v1/customers/notifications/push", async (route) => {
     if (route.request().method() !== "GET") {
       expect(route.request().headers()["x-csrf-token"]).toBeTruthy();
@@ -81,7 +86,12 @@ test("browser push waits for opt-in, uses CSRF and offers device opt-out", async
         success: true,
         message: "Synthetic push settings",
         meta: { requestId: "push-test" },
-        data: { available: true, publicKey, enabled },
+        data: {
+          available: true,
+          publicKey,
+          enabled,
+          endpointHashes: enabled ? [endpointHash] : [],
+        },
       },
     });
   });
@@ -96,6 +106,7 @@ test("browser push waits for opt-in, uses CSRF and offers device opt-out", async
       },
     });
     const sub = {
+      endpoint: "https://fcm.googleapis.com/fcm/send/synthetic",
       toJSON: () => ({
         endpoint: "https://fcm.googleapis.com/fcm/send/synthetic",
         keys: { p256dh: "synthetic", auth: "synthetic" },
@@ -113,6 +124,7 @@ test("browser push waits for opt-in, uses CSRF and offers device opt-out", async
     };
   });
   await page.goto("/dashboard/notifications");
+  await showNotificationSettings(page);
   const enable = page.getByRole("button", { name: "Enable on this device", exact: true });
   await expect(enable).toBeEnabled();
   expect(await page.locator("html").getAttribute("data-push-prompts")).toBeNull();
@@ -120,7 +132,7 @@ test("browser push waits for opt-in, uses CSRF and offers device opt-out", async
   await expect(
     page.getByRole("button", { name: "Turn off on this device", exact: true }),
   ).toBeVisible();
-  await expect(page.locator("html")).toHaveAttribute("data-push-prompts", "1");
+  await expect(page.locator("html")).not.toHaveAttribute("data-push-prompts", "1");
   await page
     .getByRole("button", { name: "Turn off on this device", exact: true })
     .click();

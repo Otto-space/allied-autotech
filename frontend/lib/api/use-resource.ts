@@ -33,6 +33,10 @@ export function useResource<T>(
     backgroundRefresh.current = false;
     setRevision((value) => value + 1);
   }, []);
+  const revalidate = useCallback(() => {
+    backgroundRefresh.current = true;
+    setRevision((value) => value + 1);
+  }, []);
   useEffect(() => {
     if (!path) return;
     const controller = new AbortController();
@@ -103,10 +107,6 @@ export function useResource<T>(
     function visible() {
       if (document.visibilityState === "visible") revalidate();
     }
-    function revalidate() {
-      backgroundRefresh.current = true;
-      setRevision((value) => value + 1);
-    }
     window.addEventListener(SESSION_CHANGED, discard);
     window.addEventListener("online", revalidate);
     document.addEventListener("visibilitychange", visible);
@@ -117,7 +117,7 @@ export function useResource<T>(
       window.removeEventListener("online", revalidate);
       document.removeEventListener("visibilitychange", visible);
     };
-  }, [path, parse, revision, refresh, options?.refreshKey]);
+  }, [path, parse, revision, refresh, revalidate, options?.refreshKey]);
   const current = state?.path === path ? state : null;
   return {
     denied: current?.denied ?? false,
@@ -127,6 +127,7 @@ export function useResource<T>(
     refreshing: current?.status === "refreshing",
     loading: !!path && (!current || current.status === "loading"),
     refresh,
+    revalidate,
     settledRevision:
       current &&
       !current.refreshError &&

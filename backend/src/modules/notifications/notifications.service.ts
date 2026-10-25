@@ -1,4 +1,5 @@
 import { resolveNotificationTargets } from "./notification-targets.js";
+import { projectNotification } from "./notification-projection.js";
 import { notificationSelect } from "./notifications.repository.js";
 import { lockWorkforce } from "../organization/workforce-access.service.js";
 import { lockAccessActor } from "../organization/team-access-security.js";
@@ -189,7 +190,7 @@ export class NotificationsService {
         const rows = await this.repository.list(actor.userId, query, tx);
         const targets = await resolveNotificationTargets(tx, actor, rows);
         return notificationPage(
-          rows.map((row) => ({ ...row, destination: targets.get(row.id) ?? null })),
+          rows.map((row) => projectNotification(row, targets)),
           query.limit,
         );
       },
@@ -204,7 +205,7 @@ export class NotificationsService {
         if (!item || (item.expiresAt && item.expiresAt <= new Date()))
           throw notificationNotFound();
         const targets = await resolveNotificationTargets(tx, actor, [item]);
-        return { ...item, destination: targets.get(id) ?? null };
+        return projectNotification(item, targets);
       },
       { isolationLevel: "RepeatableRead" },
     );
@@ -247,11 +248,25 @@ export class NotificationsService {
           { section: string; count: number; records: Set<string>; first: string }
         >();
         for (const row of rows) {
-          const key = JSON.stringify([row.resourceType, row.type, row.category]);
+          const unavailable =
+            !targets.has(row.id) &&
+            !!(row.resourceType || row.resourceId || row.supportMessageId);
+          const visible = unavailable
+            ? {
+                resourceType: null,
+                type: "SYSTEM" as const,
+                category: "OPERATIONAL" as const,
+              }
+            : row;
+          const key = JSON.stringify([
+            visible.resourceType,
+            visible.type,
+            visible.category,
+          ]);
           const group = grouped.get(key) ?? {
-            resourceType: row.resourceType,
-            type: row.type,
-            category: row.category,
+            resourceType: visible.resourceType,
+            type: visible.type,
+            category: visible.category,
             count: 0,
           };
           group.count++;
@@ -386,30 +401,38 @@ export class NotificationsService {
     });
   }
 
-  async markRead(actor: AuthenticatedActor, id: string) {
+  async markRead(actor: AuthenticatedActor, id: string, read = true) {
     assertNotificationActor(actor);
     return this.database.$transaction(async (transaction) => {
       const owned = await this.repository.owned(id, actor.userId, transaction);
       if (owned === null) throw notificationNotFound();
-      await this.repository.markRead(actor.userId, id, transaction);
+      if (read) await this.repository.markRead(actor.userId, id, transaction);
+      else await this.repository.markUnread(actor.userId, id, transaction);
       const updated = await this.repository.owned(id, actor.userId, transaction);
       if (updated === null) throw notificationNotFound();
-      return updated;
+      const targets = await resolveNotificationTargets(transaction, actor, [updated]);
+      return projectNotification(updated, targets);
     });
   }
 
   async markAllRead(actor: AuthenticatedActor) {
     assertNotificationActor(actor);
+    const cutoff = new Date();
     const changed = await this.database.$transaction((transaction) =>
-      this.repository.markAllRead(actor.userId, transaction),
+      this.repository.markAllRead(actor.userId, transaction, cutoff),
     );
-    return { updated: changed.count };
+    return { updated: changed.count, cutoff: cutoff.toISOString() };
   }
 
   async preferences(actor: AuthenticatedActor) {
     assertNotificationActor(actor);
     return {
       immutableCategories: ["SECURITY", "TRANSACTIONAL"],
+      channels: {
+        email: env.EMAIL_DELIVERY_ENABLED,
+        sms: env.SMS_DELIVERY_ENABLED,
+        marketing: false,
+      },
       preferences: await this.repository.preferences(actor.userId),
     };
   }

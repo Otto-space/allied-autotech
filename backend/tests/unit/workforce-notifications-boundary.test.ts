@@ -35,6 +35,7 @@ describe("managed workforce personal notification boundary", () => {
         "/read-context",
         "/read-all",
         `/${notification}/read`,
+        `/${notification}/unread`,
         `/${notification}/read/`,
       ])
         await expect(

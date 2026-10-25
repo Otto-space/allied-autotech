@@ -112,6 +112,9 @@ export const parseNotificationPreferences = (value: unknown) =>
         .array(z.enum(["SECURITY", "TRANSACTIONAL"]))
         .length(2)
         .refine((items) => new Set(items).size === 2),
+      channels: z
+        .object({ email: z.boolean(), sms: z.boolean(), marketing: z.boolean() })
+        .optional(),
       preferences: z
         .array(preferenceSchema)
         .max(4)

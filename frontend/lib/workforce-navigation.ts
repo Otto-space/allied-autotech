@@ -91,7 +91,7 @@ export function workforceNavigation(access: WorkforceAccess): DashboardGroup[] {
     ]),
     group("settings", "Settings", Settings, [
       { href: "/admin/security", label: "My account security", allowed: true },
-      { href: "/admin/notifications", label: "My notifications", allowed: true },
+      { href: "/admin/notifications", label: "Notifications", allowed: true },
     ]),
   ].filter((g) => g.links.length);
 }

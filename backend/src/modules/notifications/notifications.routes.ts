@@ -23,6 +23,10 @@ function routes(): Router {
   const router = Router();
   const controller = new NotificationsController();
   const push = new PushService();
+  router.use((_req, res, next) => {
+    res.setHeader("Cache-Control", "private, no-store");
+    next();
+  });
   router.get(
     "/push",
     validate({ query: notificationsEmptyQuerySchema }),
@@ -101,6 +105,16 @@ function routes(): Router {
       query: notificationsEmptyQuerySchema,
     }),
     controller.markAllRead,
+  );
+  router.post(
+    "/:notificationId/unread",
+    requireCsrf,
+    validate({
+      params: notificationParamsSchema,
+      body: notificationsEmptyBodySchema,
+      query: notificationsEmptyQuerySchema,
+    }),
+    controller.markUnread,
   );
   router.post(
     "/:notificationId/read",

@@ -1,3 +1,4 @@
+import { showNotificationSettings } from "../fixtures/notification-settings";
 import { expect, test, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import {
@@ -14,6 +15,7 @@ async function ready(page: Page) {
   const state = await workforceNotificationsFixture(page);
   await page.goto(route);
   await expect(mark(page)).toBeEnabled();
+  await showNotificationSettings(page);
   return state;
 }
 
@@ -24,11 +26,11 @@ for (const width of [360, 390, 430, 768, 1024, 1280, 1440])
     page.on("pageerror", (error) => errors.push(error.message));
     await ready(page);
     await expect(
-      page.getByRole("heading", { name: "My notifications", exact: true }),
+      page.getByRole("heading", { name: "Notifications", exact: true }),
     ).toBeVisible();
     if (width > 900) {
       await expect(
-        page.getByRole("link", { name: "Open notifications", exact: true }),
+        page.getByRole("button", { name: /^Open notifications(?:,.*)?$/ }),
       ).toBeVisible();
     } else {
       await page
@@ -37,7 +39,7 @@ for (const width of [360, 390, 430, 768, 1024, 1280, 1440])
       await expect(
         page
           .getByRole("dialog")
-          .getByRole("link", { name: "My notifications", exact: true }),
+          .getByRole("link", { name: /^Notifications(?:, \d+ unread updates)?$/ }),
       ).toBeVisible();
       await page.keyboard.press("Escape");
     }
@@ -51,10 +53,7 @@ for (const width of [360, 390, 430, 768, 1024, 1280, 1440])
           .analyze()
       ).violations,
     ).toEqual([]);
-    const opener = page.getByRole("button", {
-      name: "Enable marketing email",
-      exact: true,
-    });
+    const opener = page.getByRole("switch", { name: "Marketing by email", exact: true });
     await opener.click();
     await expect(
       page.getByRole("button", { name: "Go back", exact: true }),
@@ -87,7 +86,7 @@ for (const template of Object.keys(notificationResponsibilities) as Array<
     await expect(mark(page)).toBeEnabled();
     const nav = page.getByRole("navigation", { name: "Administration", exact: true });
     await expect(
-      nav.getByRole("link", { name: "My notifications", exact: true }),
+      nav.getByRole("link", { name: /^Notifications(?:, \d+ unread updates)?$/ }),
     ).toBeVisible();
     const links = await nav
       .locator("a")
@@ -98,6 +97,8 @@ for (const template of Object.keys(notificationResponsibilities) as Array<
           href === "/admin" ||
           href === "/admin/security" ||
           href === route ||
+          (href === "/admin/fitment" &&
+            ["OPERATIONS", "SALES_SUPERVISOR", "WORKSHOP_LEAD"].includes(template)) ||
           href?.startsWith("/admin/workforce/"),
       ),
     ).toBe(true);
@@ -126,8 +127,8 @@ test("read marker and preference use existing account endpoints and exact payloa
     endpoint: `/staff/notifications/${state.notifications.items[0].id}/read`,
     body: {},
   });
-  const opener = page.getByRole("button", {
-    name: "Disable operational email",
+  const opener = page.getByRole("switch", {
+    name: "Service updates by email",
     exact: true,
   });
   await opener.click();
@@ -136,7 +137,7 @@ test("read marker and preference use existing account endpoints and exact payloa
   await opener.click();
   await confirm(page).click();
   await expect(
-    page.getByRole("button", { name: "Enable operational email", exact: true }),
+    page.getByRole("switch", { name: "Service updates by email", exact: true }),
   ).toBeEnabled();
   expect(state.notifications.writes).toHaveLength(2);
   expect(state.notifications.writes[1]).toMatchObject({
@@ -160,7 +161,7 @@ test("initial workforce verification gates all notification reads and navigation
   await page.goto(route);
   await expect(page.getByRole("button", { name: "Retry access check" })).toBeVisible();
   expect(state.notifications.reads).toEqual([]);
-  await expect(page.getByRole("link", { name: "Open notifications" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Open notifications" })).toHaveCount(0);
   state.hold = false;
   state.release?.();
   await expect(mark(page)).toBeEnabled();
@@ -178,7 +179,7 @@ test("denied and different-account workforce snapshots cannot mount the inbox", 
   state.access.userId = "b4000000-0000-4000-8000-000000000099";
   await page.getByRole("button", { name: "Retry access check" }).click();
   await expect(
-    page.getByRole("heading", { name: "My notifications", exact: true }),
+    page.getByRole("heading", { name: "Notifications", exact: true }),
   ).toHaveCount(0);
   expect(state.notifications.reads).toEqual([]);
   state.access.userId = state.notifications.sessionUserId;
@@ -199,7 +200,8 @@ test("active account without assignments retains only personal access", async ({
     page.getByRole("heading", { name: "Access unavailable", exact: true }),
   ).toBeVisible();
   expect(state.requests).not.toContain("/staff/workforce/jobs");
-  await page.getByRole("link", { name: "Open notifications", exact: true }).click();
+  await page.getByRole("button", { name: /^Open notifications(?:,.*)?$/ }).click();
+  await page.getByRole("link", { name: "View all notifications", exact: true }).click();
   await expect(mark(page)).toBeEnabled();
 });
 
@@ -207,11 +209,11 @@ test("account switch detected during confirmation sends no preference mutation",
   page,
 }) => {
   const state = await ready(page);
-  await page.getByRole("button", { name: "Enable marketing email", exact: true }).click();
+  await page.getByRole("switch", { name: "Marketing by email", exact: true }).click();
   state.notifications.sessionUserId = "b4000000-0000-4000-8000-000000000099";
   await confirm(page).click();
   await expect(
-    page.getByRole("heading", { name: "My notifications", exact: true }),
+    page.getByRole("heading", { name: "Notifications", exact: true }),
   ).toHaveCount(0);
   await expect(page.getByRole("dialog")).toHaveCount(0);
   expect(state.notifications.writes).toEqual([]);
@@ -227,7 +229,7 @@ test("mobile page search navigates to personal notifications", async ({ page }) 
     .fill("notifications");
   await page
     .locator(".dashboard-search-results")
-    .getByRole("link", { name: /My notifications/ })
+    .getByRole("link", { name: /Notifications/ })
     .click();
   await expect(mark(page)).toBeEnabled();
   expect(

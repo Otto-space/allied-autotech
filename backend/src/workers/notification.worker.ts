@@ -166,14 +166,22 @@ export class NotificationDeliveryWorker {
         throw new Error("Staging recipient is not allowlisted");
       }
       if (payload.channel === "EMAIL") {
-        if (this.email === null) throw new Error("Email channel is disabled");
+        if (this.email === null) {
+          code = "CHANNEL_DISABLED";
+          terminal = true;
+          throw new Error("Email channel is disabled");
+        }
         await this.email.send({
           to: payload.recipient,
           ...renderNotificationEmail(payload),
           idempotencyKey: event.eventId,
         });
       } else {
-        if (this.sms === null) throw new Error("SMS channel is disabled");
+        if (this.sms === null) {
+          code = "CHANNEL_DISABLED";
+          terminal = true;
+          throw new Error("SMS channel is disabled");
+        }
         await this.sms.send({
           to: payload.recipient,
           text: payload.message,

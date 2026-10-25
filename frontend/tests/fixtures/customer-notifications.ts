@@ -79,6 +79,15 @@ export async function notificationsFixture(page: Page, role = "CUSTOMER") {
         mfaRequired: state.role !== "CUSTOMER",
         mfaVerifiedAt: state.role === "CUSTOMER" ? null : time,
       });
+    if (endpoint === "/staff/profile" && role !== "CUSTOMER")
+      return reply(route, {
+        id: state.sessionUserId,
+        email: "notifications@example.test",
+        role: state.role,
+        status: "ACTIVE",
+        staffProfile: null,
+        capabilities: [],
+      });
     if (endpoint === "/auth/csrf")
       return reply(route, { csrfToken: "isolated-notification-csrf-".repeat(3) });
     const base = `/${role === "CUSTOMER" ? "customers" : "staff"}/notifications`;
@@ -156,7 +165,7 @@ export async function notificationsFixture(page: Page, role = "CUSTOMER") {
           (url.searchParams.get("unreadOnly") !== "true" || !row.readAt),
       );
       return reply(route, {
-        items: selected,
+        items: selected.slice(0, Number(url.searchParams.get("limit") ?? 25)),
         ...(state.paginate && !url.searchParams.has("cursor")
           ? { nextCursor: id(1) }
           : {}),
@@ -252,7 +261,7 @@ export async function notificationsFixture(page: Page, role = "CUSTOMER") {
     }
     const row = state.items.find((row) => endpoint.includes(row.id));
     if (row) {
-      row.readAt = time;
+      row.readAt = endpoint.endsWith("/unread") ? null : time;
       return reply(route, state.wrongResponse ? { ...row, id: id(999) } : row);
     }
     return fail(route, 403);

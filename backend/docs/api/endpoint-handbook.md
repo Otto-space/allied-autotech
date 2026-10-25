@@ -6641,7 +6641,10 @@ Success: HTTP 200.
   "data": {
     "available": true,
     "publicKey": "synthetic-publickey",
-    "enabled": true
+    "enabled": true,
+    "endpointHashes": [
+      "synthetic-endpointhashes-item"
+    ]
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -6833,7 +6836,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### POST `/customers/notifications/read-all`
 
 - Operation ID: `postCustomersNotificationsReadAll`
-- Purpose: Mark all own notifications as read. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: Marks the whole owned inbox, independent of filters and pagination, through the returned server cutoff. Notifications created after that cutoff remain unread. Does not change business records or send messages. Mark all own notifications as read. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
 - Roles: CUSTOMER
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -6852,8 +6855,8 @@ Success: HTTP 200.
   "success": true,
   "message": "Mark all own notifications as read",
   "data": {
-    "id": "00000000-0000-4000-8000-000000000001",
-    "status": "synthetic-status"
+    "updated": "2030-01-15T10:00:00.000Z",
+    "cutoff": "2030-01-15T10:00:00.000Z"
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -6862,6 +6865,54 @@ Success: HTTP 200.
 ```
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### POST `/customers/notifications/{notificationId}/unread`
+
+- Operation ID: `postCustomersNotificationsByNotificationIdUnread`
+- Purpose: Idempotently mark one owned notification unread without changing its source. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: CUSTOMER
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `notificationId` | path | string (uuid) | Yes | Identifier selecting the notification resource. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Idempotently mark one owned notification unread without changing its source",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "destination": {
+      "section": "synthetic-section",
+      "href": "synthetic-href",
+      "label": "synthetic-label"
+    },
+    "type": "synthetic-type",
+    "category": "synthetic-category",
+    "title": "synthetic-title",
+    "message": "synthetic-message",
+    "resourceType": "synthetic-resourcetype",
+    "resourceId": "synthetic-resourceid",
+    "supportMessageId": "00000000-0000-4000-8000-000000000001",
+    "readAt": "2030-01-15T10:00:00.000Z",
+    "expiresAt": "2030-01-15T10:00:00.000Z",
+    "createdAt": "2030-01-15T10:00:00.000Z"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 Notification not owned; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/customers/notifications/{notificationId}/read`
 
@@ -6887,7 +6938,21 @@ Success: HTTP 200.
   "message": "Mark one owned notification as read",
   "data": {
     "id": "00000000-0000-4000-8000-000000000001",
-    "status": "synthetic-status"
+    "destination": {
+      "section": "synthetic-section",
+      "href": "synthetic-href",
+      "label": "synthetic-label"
+    },
+    "type": "synthetic-type",
+    "category": "synthetic-category",
+    "title": "synthetic-title",
+    "message": "synthetic-message",
+    "resourceType": "synthetic-resourcetype",
+    "resourceId": "synthetic-resourceid",
+    "supportMessageId": "00000000-0000-4000-8000-000000000001",
+    "readAt": "2030-01-15T10:00:00.000Z",
+    "expiresAt": "2030-01-15T10:00:00.000Z",
+    "createdAt": "2030-01-15T10:00:00.000Z"
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -6916,6 +6981,11 @@ Success: HTTP 200.
     "immutableCategories": [
       "SECURITY"
     ],
+    "channels": {
+      "email": "customer@example.test",
+      "sms": true,
+      "marketing": false
+    },
     "preferences": [
       {
         "category": "OPERATIONAL",
@@ -12788,7 +12858,10 @@ Success: HTTP 200.
   "data": {
     "available": true,
     "publicKey": "synthetic-publickey",
-    "enabled": true
+    "enabled": true,
+    "endpointHashes": [
+      "synthetic-endpointhashes-item"
+    ]
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -12980,7 +13053,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### POST `/staff/notifications/read-all`
 
 - Operation ID: `postStaffNotificationsReadAll`
-- Purpose: Mark all own notifications as read. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: Marks the whole owned inbox, independent of filters and pagination, through the returned server cutoff. Notifications created after that cutoff remain unread. Does not change business records or send messages. Mark all own notifications as read. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
 - Roles: STAFF, ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -12999,8 +13072,8 @@ Success: HTTP 200.
   "success": true,
   "message": "Mark all own notifications as read",
   "data": {
-    "id": "00000000-0000-4000-8000-000000000001",
-    "status": "synthetic-status"
+    "updated": "2030-01-15T10:00:00.000Z",
+    "cutoff": "2030-01-15T10:00:00.000Z"
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -13009,6 +13082,54 @@ Success: HTTP 200.
 ```
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### POST `/staff/notifications/{notificationId}/unread`
+
+- Operation ID: `postStaffNotificationsByNotificationIdUnread`
+- Purpose: Idempotently mark one owned notification unread without changing its source. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `notificationId` | path | string (uuid) | Yes | Identifier selecting the notification resource. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Idempotently mark one owned notification unread without changing its source",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "destination": {
+      "section": "synthetic-section",
+      "href": "synthetic-href",
+      "label": "synthetic-label"
+    },
+    "type": "synthetic-type",
+    "category": "synthetic-category",
+    "title": "synthetic-title",
+    "message": "synthetic-message",
+    "resourceType": "synthetic-resourcetype",
+    "resourceId": "synthetic-resourceid",
+    "supportMessageId": "00000000-0000-4000-8000-000000000001",
+    "readAt": "2030-01-15T10:00:00.000Z",
+    "expiresAt": "2030-01-15T10:00:00.000Z",
+    "createdAt": "2030-01-15T10:00:00.000Z"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 Notification not owned; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/staff/notifications/{notificationId}/read`
 
@@ -13034,7 +13155,21 @@ Success: HTTP 200.
   "message": "Mark one owned notification as read",
   "data": {
     "id": "00000000-0000-4000-8000-000000000001",
-    "status": "synthetic-status"
+    "destination": {
+      "section": "synthetic-section",
+      "href": "synthetic-href",
+      "label": "synthetic-label"
+    },
+    "type": "synthetic-type",
+    "category": "synthetic-category",
+    "title": "synthetic-title",
+    "message": "synthetic-message",
+    "resourceType": "synthetic-resourcetype",
+    "resourceId": "synthetic-resourceid",
+    "supportMessageId": "00000000-0000-4000-8000-000000000001",
+    "readAt": "2030-01-15T10:00:00.000Z",
+    "expiresAt": "2030-01-15T10:00:00.000Z",
+    "createdAt": "2030-01-15T10:00:00.000Z"
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -13063,6 +13198,11 @@ Success: HTTP 200.
     "immutableCategories": [
       "SECURITY"
     ],
+    "channels": {
+      "email": "customer@example.test",
+      "sms": true,
+      "marketing": false
+    },
     "preferences": [
       {
         "category": "OPERATIONAL",
