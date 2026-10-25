@@ -523,6 +523,27 @@
 .home-page .home-preview-empty p {
   margin-bottom: 8px;
 }
+.home-page
+  :is(
+    .partner-layout,
+    .home-services__layout,
+    .trust-layout,
+    .shop-editorial,
+    .equipment-story,
+    .home-faq
+  )
+  > * {
+  min-width: 0;
+}
+.home-page :is(h1, h2, h3, .text-link) {
+  overflow-wrap: anywhere;
+}
+.home-page .text-link {
+  max-width: 100%;
+}
+.home-page .text-link svg {
+  flex-shrink: 0;
+}
 @media (max-width: 700px) {
   .home-page .hero-caption {
     display: none;

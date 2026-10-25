@@ -875,5 +875,35 @@ The development browser run was stopped after duplicate-fetch assertions failed
 under React development effects (first case also exceeded its cold compilation
 timeout). This is not counted as release acceptance. Automatic approval review
 blocked optimized loopback startup with “blocked by policy”; no alternate startup
-was used. Hosted rendered verification is pending. Browser plugin not available;
-existing Playwright and installed Edge are used without downloads.
+was used. Browser plugin not available; existing Playwright and installed Edge
+are used without downloads.
+
+Hosted review passed 16 focused real/fixture scenarios on preview `80a967e3`,
+then all 16 passed again on the production-configured `3b0c353c` candidate while
+main/www remained on the existing release. The existing public-review suite
+passed all 23 cases at 320–1536px: filters, cursor reset, empty states, error and
+malformed recovery, stale requests, four synthetic roles, private-field exclusion
+and untrusted text. No real sign-in or review submission was made. The suite's
+separate access-cleanup wrapper initially returned failure because another
+completed review had already revoked its own temporary key; both owned keys were
+revoked and the provider state was rechecked. Existing protection was retained.
+Initial preview anonymous account lookup was unavailable with preview settings;
+production-configured review uses the existing production forwarding settings.
+Expected 401/404 and deliberately injected 503 responses are not page exceptions.
+
+Final polish gives the illustration caption a dark contrast surface. Additional
+normal-motion checks found identical hero heights across all four slides at five
+widths, visible keyboard focus and lab load layout-shift observations below 0.027.
+These are lab/emulation results, not field performance. Doubling Home text at
+320x568 reproduced min-content overflow in the parts/equipment grids. Scoped
+zero minimum widths, breakable headings/links and stable icons corrected it in
+browser-injected proposed styles; a permanent regression is added. Final hosted
+acceptance must verify the committed CSS without injected styles before promotion.
+
+Read-only rollout review at 07:53 UTC confirmed the unchanged active API,
+database online, nine managed backups (latest 05:22:10 UTC) and the existing
+06:48:38 UTC successful separate restore rehearsal across 89 tables/65 migrations,
+with original rows unchanged and no production write. Existing encrypted
+off-device retention/PITR evidence remains applicable. No new database command,
+backup, restore, migration, role/grant change or Docker build is needed for this
+frontend correction. Settled Item 6 and launch restrictions remain unchanged.

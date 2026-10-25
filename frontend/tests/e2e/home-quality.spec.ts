@@ -399,6 +399,37 @@ test("Home passes the scoped automated accessibility check", async ({ page }) =>
   expect(report.violations).toEqual([]);
 });
 
+test("homepage sections reflow when text is doubled on a narrow screen", async ({
+  page,
+}) => {
+  await fixture(page);
+  await page.setViewportSize({ width: 320, height: 568 });
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await ready(page);
+  await page.evaluate(() => {
+    const text = Array.from(
+      document.querySelectorAll<HTMLElement>(
+        "main h1, main h2, main h3, main p, main summary, main a, main button",
+      ),
+    ).map(
+      (element) => [element, parseFloat(getComputedStyle(element).fontSize)] as const,
+    );
+    for (const [element, size] of text) {
+      element.style.fontSize = `${size * 2}px`;
+      element.style.lineHeight = "1.5";
+    }
+  });
+  for (const selector of [
+    ".home-shop",
+    ".equipment-story",
+    ".home-feedback",
+    ".home-faq",
+  ]) {
+    await page.locator(selector).scrollIntoViewIfNeeded();
+    await noOverflow(page);
+  }
+});
+
 test("mobile menu, touch carousel and paused autoplay remain usable", async ({
   page,
 }) => {
