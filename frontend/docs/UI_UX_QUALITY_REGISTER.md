@@ -1101,3 +1101,65 @@ after its isolated rerun passed; retained screenshots, small receipts and useful
 current build/cache. Other concurrent free-space changes are not attributed to this
 batch. Earlier explicitly approved folder deletions remain subject to their recorded
 automatic-review rejections; no deletion workaround was used.
+
+### Production rollout — 25 October 2026
+
+Owner explicitly requested production deployment after the local batch checkpoint.
+Runtime `e9f48ef525b80cc215f340015b0553e5b1e3af73` is READY on Vercel
+`dpl_5vyykAdQnDsAshfCKRU9KNkePJgb`. Both actual main/www aliases independently
+matched at 11:13:48 UTC / 12:13:48 Lagos. This is a frontend-only promotion;
+DigitalOcean remains ACTIVE `f9239c36-d4b7-4ef0-b8ba-479cda926a13`, source `ff42b0e2`.
+No backend image, database migration, business-data write or permission change was
+performed. The separate Shop/Vehicles revision-2 worktree remains in progress.
+Future source selection must retain this release's audit fixes rather than deploy
+its older frontend base over them.
+
+Exact runtime-source CI passed: frontend release checks `40186973452`, backend
+safety `40186973448`, secret guard `40186973443`. The locked-dependency hosted
+candidate passed all 34 audit scenarios at 360/390/768/1024/1440px plus short-phone
+validation/doubled-text checks, including zero-warning/error console health. The
+first hosted attempt exposed a development-only test assumption: negated text
+assertions still required Next's development portal to exist. Test-only commit
+`8b5fe871` now asserts zero error portals while correctly accepting their absence.
+Its frontend CI `40187506046` and secret guard `40187506070` passed. This commit
+changes no deployed runtime input; Vercel excludes tests/docs, so the already verified
+candidate was reused without another application build.
+
+All nine real-data candidate checks passed: restored Home at 320/390/768/1024/1440,
+loaded imagery, mobile menu, FAQ, carousel keyboard/touch/pause/play, service/quotation
+links, public reviews and actual /demo 404. Scoped axe checks and page exceptions
+passed. All nine real-data public scenarios passed again on production after promotion, with zero page exceptions. Expected anonymous-session 401 responses and the intentionally visited /demo 404 are recorded separately from application exceptions. The
+34 dashboard scenarios used browser-isolated fixtures against the optimized candidate;
+no fictitious record, real sign-in, reply, policy approval or transaction was submitted.
+Physical devices, screen-reader speech and real authenticated operational acceptance
+retain their stated limits.
+
+Read-only preflight/postflight confirmed the database online, nine automated managed
+backups (latest 05:22:10 UTC), existing encrypted off-device seven-day/PITR safeguards,
+and today's successful 06:48:38 UTC separate 89-table/65-migration restore rehearsal,
+original rows unchanged. No new database command, backup or restore was needed or run
+for this frontend-only release. Backend origin, browse/enquiries mode, disabled private
+testing and existing deployment protection were retained. Temporary hosted QA keys were
+revoked and their absence verified before promotion. Immediate frontend rollback is
+`dpl_Hspe97LQ9MsxdKoNwaiqURvKFQPU`; preserve the current backend and migration 65.
+
+Evidence: `%TEMP%/allied-audit-deploy-20261025/` holds scoped preflight/postflight,
+`hosted-suite.json` and `candidate-public/hosted-qa.json` plus desktop/mobile captures.
+Hosted audit screenshots refresh the existing `allied-audit-actions-20261025/after-*`
+files; the before captures remain intact. Production captures use a separate directory.
+
+Production completion: live Privacy copy matched the new profile first/last-name
+and current-photo disclosure on both main and www; the restricted customer Orders
+URL still redirected to Contact. These three additional read-only checks passed
+at 11:15:50 UTC / 12:15:50 Lagos, without writes or page exceptions. All browser
+contexts are closed. Exact-source CI, 34 hosted fixture scenarios, 9 candidate
+public scenarios, 9 production public scenarios and the 3 changed-copy/restriction
+checks are complete. Real-account operational submissions remain untested.
+
+Disk completion: reserve checks passed before CLI upload, browser QA and final
+handoff; final C: free space was 23.83 GiB. No local rebuild, dependency installation,
+image archive, extra worktree or editor profile was created for this rollout.
+Docker remained at 38 images/11.84GB, 14 containers, 14 volumes/1.012GB and 87 cache
+entries/6.715GB. No task-owned redundant Docker resource existed to remove; useful
+current/rollback/other-task resources and evidence were retained. Main-checkout
+uncommitted edits and the independent R2 work remain untouched.

@@ -1156,3 +1156,28 @@ The build preflight passed at 24.52 GiB free against a 21 GiB threshold. No
 Docker resource, duplicate worktree/dependency installation or editor profile
 was created. Only a resolved 1,581,764-byte task diagnostic trace was removed;
 current build/cache, source, records, backups and other tasks were retained.
+
+25 October 2026, 12:13 Lagos - audit A01-A07 frontend promoted:
+Owner-authorised runtime e9f48ef525b80cc215f340015b0553e5b1e3af73 is READY on
+Vercel dpl_5vyykAdQnDsAshfCKRU9KNkePJgb. Actual main/www aliases independently
+matched at 11:13:48 UTC. Frontend/database-safety/secret CI passed on the runtime;
+test-only 8b5fe871 fixes production absence of the development error portal, with
+its frontend/secret CI also passing and no runtime-input difference. Hosted
+optimized acceptance passed 34/34 isolated audit scenarios and 9/9 real-data
+public candidate checks. All 9 production public scenarios subsequently passed, plus 3 live Privacy/restriction checks on main/www, with zero page exceptions; expected anonymous-session 401 and intentional demo 404 remain distinct.
+Backend remains ACTIVE f9239c36-d4b7-4ef0-b8ba-479cda926a13 / ff42b0e2; no image,
+migration, business-data write, permission, policy approval or real message/payment
+was changed. Fresh managed backup inventory and today's separate 89-table,
+65-migration restore receipt were reviewed; no new DB command or restore ran.
+Existing restrictions/protection remain, temporary hosted QA keys were revoked.
+Rollback frontend: dpl_Hspe97LQ9MsxdKoNwaiqURvKFQPU. The separate R2 worktree is
+still in progress and must retain the new audit frontend before a later rollout.
+Exact acceptance and limitations: Cycle 6 of the quality register.
+
+
+Audit rollout completion: additional production checks finished 11:15:50 UTC /
+12:15:50 Lagos. All candidate/production checks passed. Real operational-account
+submissions remain untested; no fabricated data was published. Browsers are closed,
+owned temporary QA keys revoked, existing protection preserved, and final C: reserve
+check passed at 23.83 GiB free. Docker totals unchanged; no task images/volumes,
+local rebuild, dependency copy, additional worktree or editor profile created.
