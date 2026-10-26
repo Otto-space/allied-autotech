@@ -200,3 +200,63 @@ same-top-edge assertion at 1440px and the existing keyboard/preview/reflow actio
 This CSS-only follow-up reruns five of the 48 distinct acceptance cases above; it is
 not an additional five distinct journeys. Review Images screenshots were refreshed.
 The owned preview was stopped again; no production operation occurred.
+
+## Production release - 26 October 2026
+
+Runtime **a28753ab20773b61e4c177f62f222691824c8bf7** is live:
+
+- Frontend **dpl_CucTTefbZ71ApHiWsYA8P9JrPoH9**, READY; apex/www aliases independently verified.
+- Backend **caeac741-805b-47a5-bb2d-d9e703cdff77**, ACTIVE, no pending rollout.
+  All four digest-pinned images match the release manifest. Update-spec proposal
+  passed; only the four image digests changed. Backend readiness preceded promotion.
+- Locked backend, frontend and secret CI passed (40321414796, 40321414674,
+  40321414795). Vercel built **Next.js 16.4.3**, resolving the local-version gap.
+  Nine image/runtime contract cases passed, including non-root/TLS/native media.
+
+Production read-only db:check passed before/after at **71 migrations**. Actual
+host/port/database, strict TLS, separate identities, runtime non-ownership and
+absence of administrative/schema CREATE/TRUNCATE privileges were verified.
+Three checked notification/identity worker heartbeats were current without error.
+Temporary exact-IP diagnostic access was removed; original app-only firewall
+verified after both checks. The deployment's read-only predeploy database gate passed.
+No migration, grant change, seed, production business DML, real upload/review/enquiry
+or outbound message ran. Configuration, permissions and browse/enquiries stay intact.
+
+Eight managed off-device backups were listed; newest **2026-10-26 05:22:11 UTC**.
+Existing encryption/retention/PITR records and successful separate **2026-10-25
+18:03:19 UTC** production-archive rehearsal reviewed: 89 original tables and ledger
+preserved, forward rehearsal through migration 71 passed. No new restore or physical
+managed PITR test ran during this release. This is reused recovery evidence.
+
+Thirteen anonymous read-only Edge journeys passed at **390/1440px**: Home, reviews,
+vehicles, fitment/product admin authentication redirects, /demo 404 and www reviews.
+Home-to-Parts navigation, visible image loading, wrapping and overflow passed;
+desktop/mobile captures inspected. No page runtime errors or attempted API writes.
+Console resource errors were expected unauthenticated 401s and intentional /demo 404.
+Browser plugin not available; repository Playwright with installed Edge used.
+Evidence: %TEMP%/allied-fitment-media-production-20261026/receipt.json and PNGs;
+ignored private provider/CI/health receipts use the fitment- prefix.
+
+The CLI refreshed expired Vercel access. Initial registry authentication stopped
+before a push; verified login and guarded retry passed. An initial health probe
+used /health/live and stopped promotion on 404; the configured /api/v1/health/live
+and /ready then passed. Domain promotion was paused until matching backend readiness.
+
+**Still unverified:** authenticated production fitment saves, independent review,
+actual object-storage uploads, physical devices, native zoom and full screen-reader
+acceptance. Earlier isolated real API/database and compiled browser checks are
+separate evidence. Business must supply authentic photos/evidence and explicitly
+reconcile actual legacy rules. Broader site-completion Item 6 remains open.
+
+Rollback retained: frontend dpl_JD4ffNmmmo2W7dgrzBHN4evwNd6u, backend
+98401193-fb85-48d9-8c51-462dcadd6d19 and preceding customer-care resources.
+Revert frontend before an API without reorder support. Preserve migration 71 and
+a history-aware checker; never restore over live or downgrade its data for rollback.
+
+Existing desktop-linux builder/cache reused; no new worktree/dependency install,
+image archive, persistent test container or volume. Contract containers auto-removed.
+All 13 existing containers, 14 volumes, current/rollback/pending/other-task images
+and recent useful caches retained; no speculative pruning. Docker reported images
+12.06 -> 12.14 GB and cache 7.316 -> 7.488 GB. C: postflight **29.82 GiB free**;
+reserve checks are preflights, not a machine-wide quota. Pending Help/Learn,
+customer-table and staff-revision work was not bundled.

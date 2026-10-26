@@ -1513,3 +1513,13 @@ free at measurement. Docker daemon unavailable; no Docker resources created or p
 Gallery alignment follow-up: removed an inherited sibling margin, rebuilt and passed
 all five populated-gallery widths again with an actual desktop alignment assertion.
 Current review captures reflect the follow-up; no production release or new scope.
+
+Fitment/media production checkpoint - 26 October: runtime a28753ab is live in
+frontend dpl_CucTTefbZ71ApHiWsYA8P9JrPoH9/backend caeac741-805b-47a5-bb2d-d9e703cdff77.
+Locked CI and hosted Next 16.4.3 passed, closing the local dependency-version gap.
+Thirteen read-only Edge journeys at 390/1440 passed; both aliases verified, no page
+runtime errors/overflow, Home-to-Parts and authentication redirects retained.
+Captures: %TEMP%/allied-fitment-media-production-20261026/. Read-only production
+schema/privilege/heartbeat checks passed; no migration/business write. Real signed-in
+fitment/review/provider upload, physical and screen-reader acceptance remain open.
+See backend evidence for rollout, recovery/rollback and disk-retention receipts.

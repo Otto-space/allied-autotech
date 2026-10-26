@@ -1477,3 +1477,19 @@ or additional worktree created; databases/current cache/other tasks preserved.
 Final gallery spacing follow-up rebuilt successfully and passed all five gallery
 width cases again; current screenshots updated and preview stopped. Functional
 48-case acceptance above remains the baseline; this is a bounded CSS correction.
+
+26 October 2026 - owner-authorised fitment/product-media runtime a28753ab is live.
+Frontend dpl_CucTTefbZ71ApHiWsYA8P9JrPoH9 READY on apex/www; backend
+caeac741-805b-47a5-bb2d-d9e703cdff77 ACTIVE, all four manifest digests verified.
+Backend-first rollout retained configuration, browse/enquiries and permission rules.
+Three locked CI workflows and nine image cases passed; hosted Next 16.4.3 verified.
+Read-only production db:check passed before/after at 71; least privilege and three
+worker heartbeats passed; original app-only firewall restored. Fresh managed backup
+inventory and existing separate 89-table restore rehearsal reviewed. No migration,
+business DML, real upload/review/message or grant change. Thirteen read-only Edge
+journeys passed at 390/1440; captures inspected. Real-role/provider/device acceptance
+remains separate. See backend/docs/fitment-product-media-20261026.md and
+%TEMP%/allied-fitment-media-production-20261026/. Current/rollback/pending resources,
+all containers/volumes and useful caches retained; C: 29.82 GiB free. Unrelated
+Help/Learn, customer-table and staff-revision work not bundled. Main tracker existing
+bytes preserved by append-only update. Broader Item 6 remains open.
