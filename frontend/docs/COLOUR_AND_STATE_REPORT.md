@@ -1,5 +1,11 @@
 # Allied colour and interaction system — 26 October 2026
 
+Production update: the owner subsequently authorised deployment. Runtime `d6d8534d`
+is live with the newer workforce release preserved. See the
+[release record](../../backend/docs/colour-production-20261026.md) for exact CI,
+hosted/live checks, harness corrections and rollback identity. The local implementation
+record below remains historical evidence for the original colour batch.
+
 ## Scope and source
 
 Branch: `feat/colour-states-20261026`, based on `3cea520f` (deployed runtime

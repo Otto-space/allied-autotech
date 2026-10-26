@@ -1712,3 +1712,18 @@ colour-browser-coverage.json. No push/deploy under this brief. Other worktrees,
 Desktop edits and the separate workforce/Allie scope are preserved. Broader site
 completion Item 6 remains open. Task servers stopped after checks; no Docker
 resources created/deleted; final disk preflight 28.15 GiB free.
+
+26 October 2026 - owner-authorised colour/state release deployed.
+Runtime d6d8534d preserves deployed workforce/payment source c4e0005d and adds the
+black/red/white presentation. Vercel dpl_9YTq9gSNUnb3XuHKry5MgCVvigdD READY;
+both apex/www aliases verified. Backend 707a200f-17c3-4947-a0bd-21b39496cf6a
+remains ACTIVE and unchanged. All three exact-source CI gates passed, including
+1,057 units, zero production audit vulnerabilities and isolated 72-migration
+replay/db:check. 39 hosted fixture cases and 12 post-promotion public checks passed;
+independent www and backend health reads passed. Formatting/hydration harness
+corrections and explicit device/native/three cart-drawer limits are documented in
+backend/docs/colour-production-20261026.md. Managed backups and retained populated
+restore proof verified; no new restore, production DB command or business write.
+Prior frontend dpl_GRVrwacMhYkrqktFvGRChY5LB2Ln retained for compatible rollback.
+Other worktrees and Desktop edits preserved; no Docker cleanup; C: 27.86 GiB free.
+Broader site completion Item 6 and the separate workforce/Allie roadmap remain open.

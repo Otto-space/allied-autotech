@@ -8,7 +8,8 @@ that every route or state has passed review. Work proceeds in finite batches.
 Current bounded implementation: the owner's complete colour/state brief, branch
 `feat/colour-states-20261026` in the reused `allied-shop-vehicles-r2-20261025`
 worktree, based on `3cea520f` / released runtime `8c11c3a0`. Shared black/red/white
-tokens and contextual states are implemented and locally verified; not deployed.
+tokens and contextual states are deployed as runtime `d6d8534d`, preserving the
+newer workforce release. See [production evidence](../../backend/docs/colour-production-20261026.md).
 See [colour/state report](COLOUR_AND_STATE_REPORT.md) for the exact evidence and
 remaining native/platform and three cart-drawer verification gaps. The prior
 customer-table cycle is retained below. Separate workforce work, permissions,
@@ -1739,3 +1740,18 @@ colour-browser-coverage.json. No push/deploy under this brief. Other worktrees,
 Desktop edits and the separate workforce/Allie scope are preserved. Broader site
 completion Item 6 remains open. Task servers stopped after checks; no Docker
 resources created/deleted; final disk preflight 28.15 GiB free.
+
+26 October 2026 - owner-authorised colour/state release deployed.
+Runtime d6d8534d preserves deployed workforce/payment source c4e0005d and adds the
+black/red/white presentation. Vercel dpl_9YTq9gSNUnb3XuHKry5MgCVvigdD READY;
+both apex/www aliases verified. Backend 707a200f-17c3-4947-a0bd-21b39496cf6a
+remains ACTIVE and unchanged. All three exact-source CI gates passed, including
+1,057 units, zero production audit vulnerabilities and isolated 72-migration
+replay/db:check. 39 hosted fixture cases and 12 post-promotion public checks passed;
+independent www and backend health reads passed. Formatting/hydration harness
+corrections and explicit device/native/three cart-drawer limits are documented in
+backend/docs/colour-production-20261026.md. Managed backups and retained populated
+restore proof verified; no new restore, production DB command or business write.
+Prior frontend dpl_GRVrwacMhYkrqktFvGRChY5LB2Ln retained for compatible rollback.
+Other worktrees and Desktop edits preserved; no Docker cleanup; C: 27.86 GiB free.
+Broader site completion Item 6 and the separate workforce/Allie roadmap remain open.
