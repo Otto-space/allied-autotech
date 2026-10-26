@@ -547,6 +547,16 @@
     padding: 24px 0 0;
   }
 }
+@media (max-width: 480px) {
+  .about-hero-copy .about-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .about-hero-copy .about-actions .button {
+    justify-content: center;
+  }
+}
 @media (prefers-reduced-motion: reduce) {
   .about-page *,
   .about-page *::before,

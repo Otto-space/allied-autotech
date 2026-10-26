@@ -1814,5 +1814,29 @@ checks. Tyre Change selector hit-testing passed at 320px and Allie opened and
 closed. Backend stayed ACTIVE and unchanged; no form, customer or payment
 submission occurred. Exact proof and remaining physical-device, actual zoom,
 screen-reader and role acceptance limits are in BRAND_ASSETS_R2_REPORT.md.
-The next P1 item remains public enquiry draft/account switching and uncertain
-submission recovery; broader route/state completion remains open.
+The next P1 item was revalidated against the exact released source on 27 October:
+public enquiry and complaint forms already clear private fields, review and receipt
+on account invalidation while retaining the duplicate-prevention lock for an
+uncertain anonymous send. Ten existing browser cases cover both request kinds at
+draft, review, pending, unknown and completed stages; another covers validation
+racing invalidation. The production deployment `dpl_A8CLYwBc6h4tYAwNqconFJTXfQFZ`
+was re-inspected on both domains. No application change or repeat test run was
+needed for this resolved item. Next independent P1 review: wider public forms,
+actual mobile keyboard/text enlargement and measured performance, reproducing a
+specific defect before editing. Real API and cross-device acceptance remain open.
+
+27 October 2026 - About mobile hero layout shift, P2. Fresh read-only Edge
+contexts at 390x844 reproduced the same CLS contribution, 0.0832804 in three
+loads. Layout-shift attribution showed the second hero CTA moving to a new row
+when the approved Quicksand font loaded, pushing the campaign artwork down
+57.09px. Five other sampled public routes had no comparable shift; those
+single-run lab samples are not field Core Web Vitals. The scoped CSS change
+stacks the two CTAs through 480px, so fallback and final font geometries agree.
+An optimized local build passed TypeScript and packaging. Three fresh 390px
+candidate loads measured CLS about 0.0000056 each. At 320, 414, 480, 481,
+768, 1024 and 1440px, the About page had no horizontal overflow or page
+exceptions; sampled 320/390/481/1440 Axe scans had no violations and the
+campaign image loaded. The local reused Next installation is 16.3.8 while the
+project requests 16.4.3, so locked CI and an exact-version hosted candidate
+remain required before release. The local preview's unrelated authentication
+proxy aimed at absent localhost:5000; no account or API mutation was tested.
