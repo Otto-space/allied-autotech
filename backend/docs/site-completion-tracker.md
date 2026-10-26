@@ -1749,3 +1749,19 @@ cases, five identity unit cases, types, targeted lint and format passed.
 No schema/frontend change or production deployment has yet occurred for this
 candidate. See `password-change-atomicity-20261026.md`; real-role/browser
 acceptance and the separate sign-in challenge rotation gap remain open.
+
+26 October 2026 - password-change atomicity correction deployed.
+Runtime 3ec9c822, backend deployment 96ffc790-f572-49f4-9047-3ae6cb30469e
+ACTIVE. The four image digests match the release manifest; the non-image app
+spec is unchanged. Exact-source backend check passed 577 default tests (1,117
+intentional database skips), with focused isolated transaction/HTTP cases
+separately passed; nine image checks and a packaged isolated migration/restore
+check passed. Production PRE_DEPLOY database checker and all component steps
+succeeded. Direct and domain liveness/readiness returned 200, anonymous session
+401, /shop 308 to /parts, /parts 200. Eight managed backups through 26 October
+and the retained separate populated 90-table restore evidence were reviewed.
+No schema migration, grant, production business write or frontend release.
+Authenticated role/device acceptance and sign-in challenge rotation remain open.
+Release detail: backend/docs/password-change-atomicity-20261026.md in the
+compatibility release worktree. Previous deployment 707a200f remains the
+immediate rollback candidate subject to compatibility review.
