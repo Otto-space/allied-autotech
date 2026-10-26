@@ -2,6 +2,7 @@ import Link from "next/link";
 import { business } from "@/lib/business";
 import { Brand } from "./brand";
 import { catalogueOnly } from "@/lib/public-launch";
+import { learningEnabled } from "@/lib/learning/contracts";
 
 export function SiteFooter() {
   return (
@@ -43,6 +44,11 @@ export function SiteFooter() {
             <Link href="/help" className="hover:text-white transition-colors">
               Help Centre
             </Link>
+            {learningEnabled() && (
+              <Link href="/learn" className="hover:text-white transition-colors">
+                Help &amp; Learn
+              </Link>
+            )}
             <Link href="/contact" className="hover:text-white transition-colors">
               Customer Care
             </Link>

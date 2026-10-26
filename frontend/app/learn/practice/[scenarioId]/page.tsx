@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { SiteHeader } from "../../../components/site-header";
 import { SiteFooter } from "../../../components/site-footer";
 import { LearningPractice } from "../../../components/learning/learning-practice";
@@ -19,7 +20,9 @@ export default async function PracticePage({
       <main id="main" className="public-site learning-page">
         <h1>Safe practice</h1>
         {learningEnabled() ? (
-          <LearningPractice id={scenarioId} />
+          <Suspense fallback={<p role="status">Checking practice access…</p>}>
+            <LearningPractice id={scenarioId} />
+          </Suspense>
         ) : (
           <p>
             Practice is not enabled. <Link href="/help">Visit the Help Centre</Link>.

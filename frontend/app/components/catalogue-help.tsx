@@ -4,6 +4,8 @@ import { SiteHeader } from "./site-header";
 import { SiteFooter } from "./site-footer";
 import { ChevronRight, Mail, MapPin, Phone } from "lucide-react";
 import "./catalogue-help.css";
+import { learningEnabled } from "@/lib/learning/contracts";
+import { HelpLearningCard } from "./learning/help-learning-card";
 
 export function CatalogueHelp() {
   return (
@@ -28,6 +30,7 @@ export function CatalogueHelp() {
             </p>
           </div>
         </header>
+        {learningEnabled() && <HelpLearningCard />}
         <div className="help-wrap catalogue-help-layout">
           <section className="catalogue-help-answers" aria-label="Common questions">
             <article className="catalogue-help-answer">

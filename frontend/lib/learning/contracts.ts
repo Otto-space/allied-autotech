@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { matchesLearning } from "./search";
 export const learningEnabled = () =>
   process.env.NEXT_PUBLIC_HELP_LEARN_ENABLED === "true";
 const id = z.string().regex(/^[a-z][a-z0-9-]{0,63}$/);
@@ -111,28 +112,18 @@ export type PracticeDefinition = z.infer<typeof practiceSchema>;
 export function learningPage(path: string) {
   if (path === "/parts") return "parts";
   if (path === "/vehicles") return "vehicles";
-  if (path === "/dashboard/support") return "customer-care";
-  if (path === "/admin/workforce/enquiries" || path === "/admin/support")
+  if (/^\/dashboard\/support(?:\/|$)/.test(path)) return "customer-care";
+  if (/^\/admin\/(?:workforce\/(?:enquiries|complaints)|support)(?:\/|$)/.test(path))
     return "staff-care";
   if (/^\/(?:admin|staff)(?:\/|$)/.test(path)) return "work";
   return "other";
 }
 export function learningMatches(article: LearningArticle, query: string) {
-  const aliases: Record<string, string> = {
-    shop: "parts",
-    quotation: "quote",
-    appointment: "booking",
-    cash: "payment",
-    login: "access",
-  };
-  const words = (v: string) =>
-    v
-      .toLowerCase()
-      .split(/[^\p{L}\p{N}-]+/u)
-      .filter(Boolean)
-      .map((w) => aliases[w] ?? w);
-  const content = words(
-    [article.title, article.summary, article.keywords, ...article.steps].join(" "),
-  ).join(" ");
-  return words(query.slice(0, 120)).every((word) => content.includes(word));
+  return matchesLearning(
+    query,
+    article.title,
+    article.summary,
+    article.keywords,
+    ...article.steps,
+  );
 }

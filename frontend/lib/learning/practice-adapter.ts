@@ -87,6 +87,10 @@ export function createPracticeAdapter(
               changed.add(dependent.id);
             }
       } else if (command.type === "example") {
+        if (!definition.fields.length)
+          throw new Error(
+            "Choice-only exercises use a hint; there are no sample fields to fill",
+          );
         if (Object.values(state.values).some(Boolean) && !command.replace)
           throw new Error("Review replacement before filling the fictional example");
         state = {

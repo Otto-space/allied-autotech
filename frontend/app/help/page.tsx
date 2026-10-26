@@ -9,6 +9,7 @@ import "./help.css";
 import { browseEnquiriesOnly, catalogueOnly } from "@/lib/public-launch";
 import { learningEnabled } from "@/lib/learning/contracts";
 import { CatalogueHelp } from "../components/catalogue-help";
+import { HelpLearningCard } from "../components/learning/help-learning-card";
 export async function generateMetadata({
   searchParams,
 }: {
@@ -55,13 +56,7 @@ export default async function HelpPage({
             </p>
           </div>
         </header>
-        {learningEnabled() && (
-          <p className="help-wrap">
-            <Link href="/learn">
-              Help & Learn: role-aware instructions, optional guides and safe practice
-            </Link>
-          </p>
-        )}
+        {learningEnabled() && <HelpLearningCard />}
         <HelpCentre
           key={`${query}\u0000${topic}`}
           initialQuery={query}

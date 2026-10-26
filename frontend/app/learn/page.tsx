@@ -14,12 +14,12 @@ export default function LearnPage() {
       <SiteHeader />
       <main id="main" className="public-site learning-page">
         <header>
-          <p className="learning-eyebrow">Understand · Follow · Practise</p>
           <h1>Help & Learn</h1>
+          <p>Answers, a little guidance and room to practise.</p>
         </header>
         {learningEnabled() ? (
           <Suspense fallback={<p role="status">Loading available learning…</p>}>
-            <LearningPanel full />
+            <LearningPanel />
           </Suspense>
         ) : (
           <p>

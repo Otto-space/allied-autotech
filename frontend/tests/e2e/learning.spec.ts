@@ -37,18 +37,20 @@ test("public help, deterministic search, direct private denial and back navigati
   const seen = observe(page);
   await page.goto("/learn");
   await expect(
-    page.getByRole("status").filter({ hasText: "5 available topics" }),
+    page.getByRole("status").filter({ hasText: "5 available tasks" }),
   ).toBeVisible();
-  const input = page.getByRole("searchbox", { name: "Find an answer" });
+  const input = page.getByRole("searchbox", { name: "What would you like to do?" });
   await input.fill("shop compatibility");
   await expect(
-    page.getByText("1 available topic matching your search", { exact: true }),
+    page.getByText("3 available tasks matching your search", { exact: true }),
   ).toBeVisible();
   await page
     .getByRole("link", { name: "Find a part and understand compatibility", exact: true })
     .click();
   await expect(
-    page.getByRole("heading", { name: "Find a part and understand compatibility" }),
+    page
+      .locator(".learning-article")
+      .getByRole("heading", { name: "Find a part and understand compatibility" }),
   ).toBeVisible();
   await page.goBack();
   await expect(input).toHaveValue("shop compatibility");
@@ -60,26 +62,22 @@ test("public help, deterministic search, direct private denial and back navigati
     page.getByText("This learning item is unavailable.", { exact: false }),
   ).toBeVisible();
   await expect(
-    page.getByRole("heading", { name: "Use the approved privileged recovery procedure" }),
+    page.getByRole("heading", { name: "Use the approved account recovery process" }),
   ).toHaveCount(0);
   expect(seen.writes).toEqual([]);
   expect(seen.errors).toEqual([]);
 });
 for (const [role, allowed, denied] of [
-  [
-    "customer",
-    "Follow your own Customer Care request",
-    "Triage a scoped Customer Care case",
-  ],
+  ["customer", "Follow your own Customer Care request", "Handle a Customer Care request"],
   [
     "care",
-    "Triage a scoped Customer Care case",
+    "Handle a Customer Care request",
     "Interpret payment records without assuming receipt",
   ],
   [
     "finance",
     "Interpret payment records without assuming receipt",
-    "Triage a scoped Customer Care case",
+    "Handle a Customer Care request",
   ],
   [
     "technician",
@@ -89,11 +87,11 @@ for (const [role, allowed, denied] of [
   [
     "admin",
     "Review a customer account restriction",
-    "Use the approved privileged recovery procedure",
+    "Use the approved account recovery process",
   ],
   [
     "owner",
-    "Use the approved privileged recovery procedure",
+    "Use the approved account recovery process",
     "Interpret payment records without assuming receipt",
   ],
 ])
@@ -113,8 +111,9 @@ for (const [role, allowed, denied] of [
     const seen = observe(page);
     await page.goto("/learn/practice/" + scenario[role]);
     await expect(page.locator(".learning-practice-session")).toBeVisible();
-    const fill = page.getByRole("button", { name: "Fill fictional example" });
-    await fill.click();
+    const fill = page.getByRole("button", { name: "Fill sample data" });
+    if (await fill.count()) await fill.click();
+    else await page.getByRole("button", { name: "Show hint" }).click();
     await page.getByRole("radio").first().check();
     await page.getByRole("button", { name: "Review fictional work" }).click();
     await expect(
@@ -138,7 +137,7 @@ for (const width of [320, 390, 768, 1440])
     await expect(page.locator("main [role=alert]")).toContainText(
       "Check the fictional exercise",
     );
-    await page.getByRole("button", { name: "Fill fictional example" }).click();
+    await page.getByRole("button", { name: "Fill sample data" }).click();
     const search = page.getByLabel("Part search (fictional)");
     await expect(search).toHaveValue("Brake pads");
     await page.getByRole("button", { name: "Search fictional catalogue" }).click();
@@ -150,11 +149,11 @@ for (const width of [320, 390, 768, 1440])
       }),
     ).toBeVisible();
     await search.fill("Fictional edited pads");
-    await page.getByRole("button", { name: "Fill fictional example" }).click();
+    await page.getByRole("button", { name: "Fill sample data" }).click();
     await expect(page.getByRole("dialog")).toBeVisible();
     await page.getByRole("button", { name: "Keep my practice entries" }).click();
     await expect(search).toHaveValue("Fictional edited pads");
-    await page.getByRole("button", { name: "Fill fictional example" }).click();
+    await page.getByRole("button", { name: "Fill sample data" }).click();
     await page.getByRole("button", { name: "Replace with example" }).click();
     await expect(search).toHaveValue("Brake pads");
     await page.getByRole("button", { name: "Search fictional catalogue" }).click();
@@ -199,10 +198,11 @@ test("companion keyboard close restores focus and context without changing live 
   page,
 }) => {
   await page.goto("/parts?q=brake");
-  const trigger = page.getByRole("button", { name: "Help & Learn", exact: true });
+  const trigger = page.getByRole("button", { name: "Ask Allie", exact: true });
   await trigger.click();
-  await expect(page.getByRole("dialog", { name: "Help & Learn" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Start optional guide" })).toBeVisible();
+  await expect(page.getByRole("dialog", { name: "Allie" })).toBeVisible();
+  await page.getByRole("button", { name: "Show me the steps" }).click();
+  await expect(page.getByRole("button", { name: "Find the right part" })).toBeVisible();
   expect(
     (await new AxeBuilder({ page }).include(".learning-dialog[open]").analyze())
       .violations,
@@ -217,25 +217,33 @@ test("actual guide events, pause, restart, replay and missing-target fallback", 
   const seen = observe(page);
   await page.goto("/parts#learn=parts-find");
   const guide = page.getByRole("complementary", { name: "Optional guide" });
-  await expect(guide).toContainText("Find a candidate part");
+  await expect(guide).toContainText("Find the right part");
   await expect(guide.getByRole("button", { name: "Next step" })).toBeDisabled();
   await page.locator('[data-learning-target="parts-search"]').fill("Synthetic");
   await expect(guide.getByRole("button", { name: "Next step" })).toBeEnabled();
+  if (!(await guide.getByRole("button", { name: "Pause guide" }).isVisible()))
+    await guide.getByText("Guide options", { exact: true }).click();
   await guide.getByRole("button", { name: "Pause guide" }).click();
   await expect(guide).toContainText("Guide paused");
   await guide.getByRole("button", { name: "Resume guide" }).click();
+  if (!(await guide.getByRole("button", { name: "Restart guide" }).isVisible()))
+    await guide.getByText("Guide options", { exact: true }).click();
   await guide.getByRole("button", { name: "Restart guide" }).click();
   await page.locator('[data-learning-target="parts-search"]').fill("Synthetic changed");
   await guide.getByRole("button", { name: "Next step" }).click();
   if (
     await guide.getByText("This control is unavailable", { exact: false }).isVisible()
   ) {
+    if (!(await guide.getByRole("button", { name: "Use written steps" }).isVisible()))
+      await guide.getByText("Guide options", { exact: true }).click();
     await guide.getByRole("button", { name: "Use written steps" }).click();
     await guide.getByRole("button", { name: "Mark step read" }).click();
   } else {
     await guide.getByRole("button", { name: "Next step" }).click();
   }
   await expect(guide).toContainText("Guide complete");
+  if (!(await guide.getByRole("button", { name: "Restart guide" }).isVisible()))
+    await guide.getByText("Guide options", { exact: true }).click();
   await guide.getByRole("button", { name: "Restart guide" }).click();
   await guide.getByRole("button", { name: "Exit guide" }).click();
   await expect(guide).toHaveCount(0);
@@ -248,6 +256,8 @@ test("actual guide events, pause, restart, replay and missing-target fallback", 
     );
   });
   await expect(guide).toContainText("Use the written steps", { timeout: 9000 });
+  if (!(await guide.getByRole("button", { name: "Use written steps" }).isVisible()))
+    await guide.getByText("Guide options", { exact: true }).click();
   await guide.getByRole("button", { name: "Use written steps" }).click();
   await expect(guide.getByRole("button", { name: "Mark step read" })).toBeEnabled();
   expect(seen.writes).toEqual([]);
@@ -266,11 +276,13 @@ test("customer guide preserves a dirty real form and identity change clears priv
   await guide.getByRole("button", { name: "Next step" }).click();
   const subject = page.locator("#support-subject");
   await subject.fill("Synthetic unsent live draft");
+  if (!(await guide.getByRole("button", { name: "Pause guide" }).isVisible()))
+    await guide.getByText("Guide options", { exact: true }).click();
   await guide.getByRole("button", { name: "Pause guide" }).click();
   await guide.getByRole("button", { name: "Exit guide" }).click();
   await expect(subject).toHaveValue("Synthetic unsent live draft");
   await page.goto("/learn/practice/enquiry-draft");
-  await page.getByRole("button", { name: "Fill fictional example" }).click();
+  await page.getByRole("button", { name: "Fill sample data" }).click();
   await context.clearCookies();
   await page.evaluate(() => window.dispatchEvent(new Event("aat:session-changed")));
   await expect(
@@ -291,7 +303,8 @@ test("unavailable learning fails closed with retry, mobile hub renders without o
   await expect(page.locator("main [role=alert]")).toContainText("could not be verified");
   await page.unroute("**/api/v1/**learning/**");
   await page.getByRole("button", { name: "Retry learning" }).click();
-  await expect(page.getByText("5 available topics", { exact: true })).toBeVisible();
+  await page.getByRole("link", { name: "Back to results" }).click();
+  await expect(page.getByText("5 available tasks", { exact: true })).toBeVisible();
   for (const width of [390, 1440]) {
     await page.setViewportSize({ width, height: 1000 });
     expect(
@@ -315,13 +328,15 @@ test("guide layout fallback, current-page pause and metadata survive safely", as
   const guide = page.getByRole("complementary", { name: "Optional guide" });
   await expect(guide).toContainText("Written mode");
   await guide.getByRole("button", { name: "Mark step read" }).click();
+  if (!(await guide.getByRole("button", { name: "Pause guide" }).isVisible()))
+    await guide.getByText("Guide options", { exact: true }).click();
   await guide.getByRole("button", { name: "Pause guide" }).click();
   await page.reload();
   await expect(guide).toContainText("Guide paused");
   await guide.getByRole("button", { name: "Exit guide" }).click();
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/parts#learn=parts-find");
-  await expect(guide).toContainText("Find a candidate part");
+  await expect(guide).toContainText("Find the right part");
   await page.evaluate(() => {
     history.pushState(null, "", "/learn");
     window.dispatchEvent(new PopStateEvent("popstate"));
@@ -365,7 +380,7 @@ test("dashboard learning entry remains usable at narrow widths", async ({
     const trigger = page.locator("[data-learning-entry]");
     await expect(trigger).toBeVisible();
     await trigger.click();
-    await expect(page.getByRole("dialog", { name: "Help & Learn" })).toBeVisible();
+    await expect(page.getByRole("dialog", { name: "Allie" })).toBeVisible();
     await page.keyboard.press("Escape");
     await expect(trigger).toBeFocused();
     expect(

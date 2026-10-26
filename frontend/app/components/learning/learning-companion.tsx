@@ -6,8 +6,15 @@ import { learningEnabled } from "@/lib/learning/contracts";
 import { clearLearningProgress } from "@/lib/learning/progress";
 import { LEARNING_SESSION_CHANGED } from "@/lib/learning/read";
 import { OPEN_LEARNING, START_LEARNING_GUIDE } from "./learning-entry";
+import {
+  assistantName,
+  ASSISTANT_HIDDEN_KEY,
+  ASSISTANT_VISIBILITY,
+} from "@/lib/learning/search";
+import { AllieAvatar } from "./allie-avatar";
+import { X } from "lucide-react";
 const Panel = lazy(() =>
-  import("./learning-panel").then((m) => ({ default: m.LearningPanel })),
+  import("./allie-panel").then((m) => ({ default: m.AlliePanel })),
 );
 const Runner = lazy(() =>
   import("./learning-guide").then((m) => ({ default: m.LearningGuideRunner })),
@@ -22,12 +29,18 @@ export function LearningCompanion() {
   function close() {
     dialog.current?.close();
     setOpen(false);
-    if (launcher.current?.isConnected) launcher.current.focus();
+    if (launcher.current?.isConnected) launcher.current.focus({ preventScroll: true });
   }
   useEffect(() => {
     if (!learningEnabled()) return;
     function show() {
       launcher.current = document.activeElement as HTMLElement;
+      try {
+        sessionStorage.removeItem(ASSISTANT_HIDDEN_KEY);
+      } catch {
+        /* Assistance remains available without storage. */
+      }
+      window.dispatchEvent(new Event(ASSISTANT_VISIBILITY));
       setOpen(true);
     }
     function start(event: Event) {
@@ -50,7 +63,10 @@ export function LearningCompanion() {
     }
     function escape(event: KeyboardEvent) {
       if (event.key === "Escape") {
+        if (dialog.current?.open) return;
         setGuide(null);
+        if (location.hash.startsWith("#learn="))
+          history.replaceState(null, "", location.pathname + location.search);
       }
     }
     hash();
@@ -74,16 +90,20 @@ export function LearningCompanion() {
   return (
     <>
       <dialog
-        className="learning-dialog"
+        className="learning-dialog allie-dialog"
         ref={dialog}
         aria-labelledby="learning-dialog-title"
         onKeyDown={containDialogFocus}
         onClose={close}
       >
         <header className="learning-dialog-head">
-          <h2 id="learning-dialog-title">Help & Learn</h2>
-          <button className="button secondary" onClick={close}>
-            Close help
+          <AllieAvatar state={open ? "helpful" : "idle"} />
+          <div>
+            <h2 id="learning-dialog-title">{assistantName}</h2>
+            <p>Your website guide</p>
+          </div>
+          <button className="learning-close" aria-label="Close help" onClick={close}>
+            <X size={20} aria-hidden="true" />
           </button>
         </header>
         {open && (
@@ -91,6 +111,18 @@ export function LearningCompanion() {
             <Panel onNavigate={close} />
           </Suspense>
         )}
+        <button
+          className="allie-hide learning-text-button"
+          onClick={() => {
+            try {
+              sessionStorage.setItem(ASSISTANT_HIDDEN_KEY, "true");
+            } catch {}
+            window.dispatchEvent(new Event(ASSISTANT_VISIBILITY));
+            close();
+          }}
+        >
+          Hide floating help for this session
+        </button>
       </dialog>
       {guide && (
         <Suspense fallback={<p role="status">Loading optional guide…</p>}>
@@ -100,7 +132,8 @@ export function LearningCompanion() {
               setGuide(null);
               if (location.hash.startsWith("#learn="))
                 history.replaceState(null, "", location.pathname + location.search);
-              if (launcher.current?.isConnected) launcher.current.focus();
+              if (launcher.current?.isConnected)
+                launcher.current.focus({ preventScroll: true });
             }}
           />
         </Suspense>

@@ -1,6 +1,8 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { learningReturn } from "@/lib/learning/search";
 import { practiceSchema, type PracticeDefinition } from "@/lib/learning/contracts";
 import { readLearning, useLearningCatalogue } from "@/lib/learning/read";
 import {
@@ -9,6 +11,11 @@ import {
 } from "@/lib/learning/practice-adapter";
 
 export function LearningPractice({ id }: { id: string }) {
+  const params = useSearchParams();
+  const returnHref =
+    params.has("q") || params.has("mode")
+      ? learningReturn(params)
+      : "/learn?mode=practice";
   const resource = useLearningCatalogue();
   const scenario = resource.data?.scenarios.find((s) => s.id === id);
   return (
@@ -28,6 +35,7 @@ export function LearningPractice({ id }: { id: string }) {
             <Definition
               key={resource.data.accessKey + ":" + id + ":" + scenario.version}
               id={id}
+              returnHref={returnHref}
             />
           ) : (
             <p role="status">
@@ -40,7 +48,7 @@ export function LearningPractice({ id }: { id: string }) {
     </>
   );
 }
-function Definition({ id }: { id: string }) {
+function Definition({ id, returnHref }: { id: string; returnHref: string }) {
   const [resource, setResource] = useState<{
     definition?: PracticeDefinition;
     error?: string;
@@ -84,12 +92,18 @@ function Definition({ id }: { id: string }) {
       </div>
     );
   return resource.definition ? (
-    <PracticeSession definition={resource.definition} />
+    <PracticeSession definition={resource.definition} returnHref={returnHref} />
   ) : (
     <p role="status">Loading fictional scenario…</p>
   );
 }
-export function PracticeSession({ definition }: { definition: PracticeDefinition }) {
+export function PracticeSession({
+  definition,
+  returnHref = "/learn?mode=practice",
+}: {
+  definition: PracticeDefinition;
+  returnHref?: string;
+}) {
   const [session] = useState(() => {
     const nonce = crypto.randomUUID();
     return { nonce, adapter: createPracticeAdapter(definition, nonce) };
@@ -97,6 +111,7 @@ export function PracticeSession({ definition }: { definition: PracticeDefinition
   const [state, setState] = useState(() => session.adapter.snapshot()),
     [choice, setChoice] = useState(""),
     [replace, setReplace] = useState(false);
+  const [hint, setHint] = useState(false);
   const errors = useRef<HTMLDivElement>(null),
     example = useRef<HTMLButtonElement>(null),
     confirm = useRef<HTMLDialogElement>(null);
@@ -115,46 +130,61 @@ export function PracticeSession({ definition }: { definition: PracticeDefinition
   }
   return (
     <section className="learning-practice-session" aria-labelledby="practice-title">
-      <div className="learning-fiction" role="note">
-        <strong>Practice mode · Fictional data only</strong>
-        <p>
-          This simulation cannot send messages, change records, create bookings, take
-          payment or grant access. Inputs stay in this page’s memory and clear when you
-          leave.
-        </p>
+      <div className="learning-mode-label">
+        <strong>Practice · Sample data</strong>
+        <Link href={returnHref}>Exit practice</Link>
       </div>
-      <p className="learning-mode-label">Practice mode &middot; Fictional data only</p>
-      <p className="learning-eyebrow">Local simulation · version {definition.version}</p>
+      <p className="learning-practice-boundary">
+        Local simulation. Inputs clear when you leave; nothing is sent or changed in live
+        work.
+      </p>
       <h2 id="practice-title">{definition.title}</h2>
       <p>{definition.objective}</p>
-      <p>
-        Use invented information only. Completion means you reviewed this exercise; it is
-        not an assessment or permission to perform live work.
-      </p>
       <div className="learning-actions">
         <button
           ref={example}
           className="button secondary"
           onClick={() => {
+            if (!definition.fields.length) {
+              setHint((v) => !v);
+              return;
+            }
             if (Object.values(state.values).some(Boolean)) {
               setReplace(true);
               confirm.current?.showModal();
             } else fill();
           }}
         >
-          Fill fictional example
+          {definition.fields.length
+            ? "Fill sample data"
+            : hint
+              ? "Hide hint"
+              : "Show hint"}
         </button>
         <button
           className="button secondary"
           onClick={() => {
             execute({ type: "reset", nonce: session.nonce });
             setChoice("");
+            setHint(false);
           }}
         >
           Reset this practice
         </button>
-        <Link href="/learn">Leave practice</Link>
       </div>
+      {hint && (
+        <div className="learning-feedback" role="note">
+          <strong>Look for the missing evidence</strong>
+          <p>{definition.objective}</p>
+          <p>
+            Which choice keeps the unknown facts and your permissions clear? Read the
+            related answer if you need another clue.
+          </p>
+          <Link href={"/learn?article=" + definition.articleId}>
+            Read the related answer
+          </Link>
+        </div>
+      )}
       <dialog
         ref={confirm}
         className="learning-dialog"
@@ -324,16 +354,30 @@ export function PracticeSession({ definition }: { definition: PracticeDefinition
       {state.feedback && (
         <div className="learning-feedback" role="status">
           <h3>{state.completed ? "Practice review complete" : "Practice feedback"}</h3>
+          {state.reviewed && (
+            <p>
+              <strong>You chose:</strong>{" "}
+              {definition.choices.find((c) => c.id === choice)?.label}
+            </p>
+          )}
           <p>{state.feedback}</p>
           {state.completed && <p>{definition.outcome}</p>}
-          <strong>Practice only. No real work was submitted.</strong>
+          <p>
+            Learning review only; this does not assess competence or grant permission.
+            Free text is checked for required length, not factual accuracy.
+          </p>
         </div>
       )}
       <p className="learning-scope">
         Ready for real work? Leave practice deliberately and check your current
         permissions and actual facts.
       </p>
-      <Link href={definition.liveHref}>Leave practice and open the real page</Link>
+      <div className="learning-actions">
+        <Link href={"/learn?article=" + definition.articleId}>
+          Read the related answer
+        </Link>
+        <Link href={definition.liveHref}>Leave practice and open the real page</Link>
+      </div>
     </section>
   );
 }

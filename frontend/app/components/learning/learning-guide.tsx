@@ -88,6 +88,9 @@ function Guide({
     [side, setSide] = useState("right"),
     [edge, setEdge] = useState("bottom"),
     [storage, setStorage] = useState(true);
+  // Learning interaction evidence only. No form values or record identifiers.
+  const completedInteractions = useRef(new Set<string>());
+  const [waiting, setWaiting] = useState(false);
   const panel = useRef<HTMLElement>(null),
     current = guide.steps[step];
   useEffect(() => {
@@ -99,6 +102,31 @@ function Guide({
       dispose = () => {},
       disposed = false;
     const narrow = matchMedia("(max-width: 767px)");
+    function completed(event: Event) {
+      const source = event.target;
+      if (
+        !(source instanceof HTMLElement) ||
+        !source.closest(`[data-learning-target="${current.target}"]`)
+      )
+        return;
+      if (
+        current.event === "input" &&
+        (!(
+          source instanceof HTMLInputElement ||
+          source instanceof HTMLTextAreaElement ||
+          source instanceof HTMLSelectElement
+        ) ||
+          source.value.trim().length < 2)
+      )
+        return;
+      if (
+        current.event === "read" ||
+        event.type !== (current.event === "input" ? "input" : "click")
+      )
+        return;
+      completedInteractions.current.add(current.id);
+      setReady(true);
+    }
     function attach() {
       if (disposed) return;
       if (narrow.matches) {
@@ -108,11 +136,37 @@ function Guide({
       const found = document.querySelector<HTMLElement>(
         `[data-learning-target="${current.target}"]`,
       );
-      if (!found?.getClientRects().length || found.closest("[hidden], [inert]")) return;
+      if (!found?.getClientRects().length || found.closest("[hidden], [inert]")) {
+        if (target) {
+          dispose();
+          target = null;
+          setMissing(true);
+        }
+        return;
+      }
+      const busy = !!found.closest('[aria-busy="true"]');
+      setWaiting(busy);
+      if (target === found) {
+        if (current.event === "read") setReady(!busy);
+        return;
+      }
+      dispose();
       target = found;
       target.classList.add("learning-highlight");
       setMissing(false);
-      setReady(current.event === "read");
+      // A server-rendered same-page search may replace the input between input
+      // and hydration. Reconcile its current user-entered state without storing it.
+      if (
+        current.event === "input" &&
+        (found instanceof HTMLInputElement ||
+          found instanceof HTMLTextAreaElement ||
+          found instanceof HTMLSelectElement) &&
+        found.value.trim().length >= 2
+      )
+        completedInteractions.current.add(current.id);
+      setReady(
+        current.event === "read" ? !busy : completedInteractions.current.has(current.id),
+      );
       function updatePosition() {
         const bounds = found!.getBoundingClientRect(),
           box = panel.current?.getBoundingClientRect();
@@ -146,23 +200,6 @@ function Guide({
           found!.classList.remove("learning-highlight");
         }
       }
-      function completed(event: Event) {
-        if (current.event === "input") {
-          const control = event.target;
-          if (
-            !(
-              control instanceof HTMLInputElement ||
-              control instanceof HTMLTextAreaElement ||
-              control instanceof HTMLSelectElement
-            ) ||
-            control.value.trim().length < 2
-          )
-            return;
-        }
-        setReady(true);
-      }
-      const event = current.event === "input" ? "input" : "click";
-      if (current.event !== "read") found.addEventListener(event, completed);
       updatePosition();
       const resize = new ResizeObserver(updatePosition);
       if (panel.current) resize.observe(panel.current);
@@ -171,29 +208,34 @@ function Guide({
       dispose = () => {
         resize.disconnect();
         found.classList.remove("learning-highlight");
-        found.removeEventListener(event, completed);
         window.removeEventListener("resize", updatePosition);
         window.removeEventListener("scroll", updatePosition);
       };
     }
     const frame = requestAnimationFrame(() => {
-      setReady(false);
+      setReady(completedInteractions.current.has(current.id));
       setMissing(false);
       attach();
     });
-    const observer = new MutationObserver(() => {
-      if (!target) attach();
+    const observer = new MutationObserver(attach);
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["aria-busy", "hidden", "inert"],
     });
-    observer.observe(document.body, { childList: true, subtree: true });
+    document.addEventListener("input", completed, true);
+    document.addEventListener("click", completed, true);
     const timeout = setTimeout(() => {
       if (!target && !narrow.matches) setMissing(true);
-      observer.disconnect();
     }, 5000);
     return () => {
       disposed = true;
       cancelAnimationFrame(frame);
       clearTimeout(timeout);
       observer.disconnect();
+      document.removeEventListener("input", completed, true);
+      document.removeEventListener("click", completed, true);
       dispose();
     };
   }, [checking, current, guide.page, page, status, written]);
@@ -268,48 +310,43 @@ function Guide({
               Written mode. Mark steps as read; this does not certify a live action.
             </p>
           )}
+          {!written && !missing && !ready && (
+            <p id="learning-step-condition" className="learning-condition" role="status">
+              {waiting
+                ? "Wait for the results to finish loading, then review them."
+                : current.event === "input"
+                  ? "Enter at least two characters in the highlighted field to continue."
+                  : current.event === "click"
+                    ? "Open the highlighted control yourself to continue."
+                    : "Wait for this step’s control to become available."}
+            </p>
+          )}
         </>
       )}
       <div className="learning-actions">
         {status === "active" && page === guide.page && !missing && (
-          <button className="button" disabled={!written && !ready} onClick={next}>
+          <button
+            className="button"
+            disabled={!written && !ready}
+            aria-describedby={!written && !ready ? "learning-step-condition" : undefined}
+            onClick={next}
+          >
             {written ? "Mark step read" : "Next step"}
           </button>
         )}
-        {status !== "completed" && page === guide.page && (
+        {status === "active" && step > 0 && (
           <button
             className="button secondary"
             onClick={() => {
-              const nextStatus = status === "active" ? "paused" : "active";
-              setStatus(nextStatus);
-              persist(nextStatus);
+              setStep(step - 1);
+              persist("active", step - 1);
             }}
           >
-            {status === "active" ? "Pause guide" : "Resume guide"}
+            Back
           </button>
         )}
         <button
-          className="button secondary"
-          onClick={() => {
-            setStep(0);
-            setStatus("active");
-            setReady(false);
-            persist("active", 0);
-          }}
-        >
-          Restart guide
-        </button>
-        <button
-          className="button secondary"
-          onClick={() => {
-            setWritten((v) => !v);
-            setMissing(false);
-          }}
-        >
-          {written ? "Try page controls" : "Use written steps"}
-        </button>
-        <button
-          className="button secondary"
+          className="learning-text-button"
           onClick={() => {
             persist("dismissed");
             onClose();
@@ -318,6 +355,44 @@ function Guide({
           Exit guide
         </button>
       </div>
+      <details className="learning-guide-options">
+        <summary>Guide options</summary>
+        <div className="learning-actions">
+          {status !== "completed" && page === guide.page && (
+            <button
+              className="button secondary"
+              onClick={() => {
+                const nextStatus = status === "active" ? "paused" : "active";
+                setStatus(nextStatus);
+                persist(nextStatus);
+              }}
+            >
+              {status === "active" ? "Pause guide" : "Resume guide"}
+            </button>
+          )}
+          <button
+            className="button secondary"
+            onClick={() => {
+              setStep(0);
+              completedInteractions.current.clear();
+              setStatus("active");
+              setReady(false);
+              persist("active", 0);
+            }}
+          >
+            Restart guide
+          </button>
+          <button
+            className="button secondary"
+            onClick={() => {
+              setWritten((v) => !v);
+              setMissing(false);
+            }}
+          >
+            {written ? "Try page controls" : "Use written steps"}
+          </button>
+        </div>
+      </details>
       {page !== guide.page && (
         <Link href={`${guide.href}#learn=${guide.id}`}>
           Open the guide page when ready
