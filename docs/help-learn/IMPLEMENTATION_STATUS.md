@@ -1,5 +1,9 @@
 # Implementation checkpoint
 
+Latest refinement: [Allie implementation checkpoint](ALLIE_IMPLEMENTATION.md).
+That refinement's code and acceptance are separate from the frozen production
+release recorded below; consult its current status before choosing release source.
+
 26 October 2026. BUILD NOW, Phases 0-3. Subsequently deployed to production under
 the owner's explicit deployment instruction. Current release evidence and remaining
 acceptance limits: [PRODUCTION_RELEASE.md](PRODUCTION_RELEASE.md).

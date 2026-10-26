@@ -1527,3 +1527,35 @@ Removed only four never-deployed superseded task-local bb9dea4d images without f
 current/rollback resources and all 13 containers/14 volumes retained, no cache prune.
 C: measured 29.81 GiB before/after cleanup; reserve passed, no physical-reclaim claim.
 Main tracker updated append-only with original bytes preserved. Item 6 remains open.
+
+
+26 October 2026 - Help, Help & Learn and Allie refinement implemented and verified.
+Runtime candidate aa54fba8378d879e50ca99750dd7cf6e9fa2195e on
+feat/help-allie-20261026 in reused allied-shop-vehicles-r2-20261025, preserving
+adef02f9 and unrelated worktrees. Backend batch 38e7df62, frontend d0272949,
+final bounded practice polish aa54fba8. Feature branch pushed for locked CI;
+no main merge, new production deployment or shared/application database write.
+Help entry now a branded card; hub has three modes/all-kind search and coherent
+article/back navigation. Allie is a native SVG/content-based website guide using
+reviewed eligible help, with source/action/fallback and honest no-live-record/no-AI
+boundaries. No provider, paid resource, new permission, schema or operational API.
+Reproduced oil-filter Next timing failure; fixed retained interaction evidence,
+retargeting, loading explanation and compact guide controls. Practice has one mode
+indicator, editable care-reply sample, honest choice-only hints, specific feedback
+and no obstructing floating toolbar. Practice remains in memory, with no business
+mutations, external requests, uploads, messaging, approvals or dummy live-field fill.
+Local 1,039 frontend tests, seven authenticated API cases, lint/types/build/postbuild,
+OpenAPI/types/424-operation contracts and restricted-runtime checks passed. New
+exact-loopback help_allie_21a045ec5c_ci replayed 71 migrations and db:check passed.
+Compiled browse/enquiries: 29/29 browser cases plus six final-polish rechecks passed;
+360/390/768/1024/1440 Help/hub/Allie, 320/390/768/1440 practice, keyboard/Escape/
+return, scoped Axe, reflow/reduced-motion, role/identity/failure/guide transitions.
+All three exact-runtime CI workflows passed with locked dependencies. Screenshots
+and limits: docs/help-learn/ALLIE_IMPLEMENTATION.md; local index
+%TEMP%/allied-allie-20261026/index.md. Real production roles, physical devices,
+native keyboards/zoom and full screen-reader acceptance remain unverified.
+Task previews stopped; Docker unchanged (67 images, 13 stopped containers, same
+14 volumes, warm cache retained), no pruning or dependency/profile duplication.
+C: postflight measured 28.85 GiB free; no machine-wide space guarantee.
+Main tracker original bytes preserved append-only. Production remains separately
+recorded adef02f9; broader site-completion Item 6 remains open.
