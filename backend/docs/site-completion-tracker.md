@@ -1448,7 +1448,6 @@ Production deployment and real signed-in acceptance are pending; existing custom
 care and notification releases must be preserved. The broader Item 6 and site
 acceptance remain open.
 
-
 26 October 2026 - Help, Learn and Practice Phases 0-3 completed locally.
 Branch feat/help-learn-practice-20261026 reuses allied-shop-vehicles-r2-20261025
 from released runtime 76377d43. Backend contract commit e33c9e3e and frontend
@@ -1668,7 +1667,6 @@ volumes were retained, and C: postflight was 28.14 GiB free. This does not chang
 the release or live-provider acceptance status. The next step is backend image,
 release and hosted readiness verification against the latest active deployment.
 
-
 26 October 2026 ? campaign artwork and committed W1/W2 changes deployed.
 Runtime 8c11c3a0, backend b1c75306-9ea7-4f5a-97cc-156ddf412d67 ACTIVE, frontend
 dpl_7mLXWniyi5uZoMPivAPtaWQPeK56 READY on both apex/www. Homepage/About use the
@@ -1746,3 +1744,19 @@ See frontend/docs/BRAND_ASSETS_R2_REPORT.md and brand-assets-r2-coverage.json fo
 exact evidence, missing clean recaptures, platform limits and reused dependency
 version discrepancy. Both live domains still dpl_9YTq9gSNUnb3XuHKry5MgCVvigdD.
 Other worktrees and unrelated edits preserved; broader Item 6 remains open.
+
+27 October 2026 - brand assets and mobile support placement deployed.
+Final frontend source 8433ff57, Vercel dpl_A8CLYwBc6h4tYAwNqconFJTXfQFZ
+READY on both apex/www; previous dpl_9YTq9gSNUnb3XuHKry5MgCVvigdD retained
+for rollback. Owner-supplied transparent marks and three truthful artworks are
+live; Ad 4 remains withheld because nationwide delivery is not approved. The
+fixed mobile support dock previously covered 31px of the Tyre Change branch
+field at 320px; live field hit-testing and Allie open/close now pass with an
+in-flow support strip. Locked frontend and secret CI, protected hosted
+artwork/role fixtures, seven public read-only production route samples,
+backend readiness and exact alias identity passed. Backend 50b5f5d1 remains
+ACTIVE; no schema, payment, business write or provider change. Managed backups
+and the prior separate populated 90-table restore receipt were reviewed.
+Details and limits: frontend/docs/BRAND_ASSETS_R2_REPORT.md. Physical devices,
+actual zoom, screen reader, authenticated role acceptance and broader Item 6
+remain open. Docker resources retained; C: postflight 27.08 GiB free.

@@ -1,9 +1,13 @@
 # Revision 2 brand assets and interaction verification
 
+Current status: the final source was deployed to both production domains on
+27 October 2026. The initial local checkpoint and later protected-candidate
+evidence below remain historical; see the production release section at the end.
+
 Implementation: `feat/brand-assets-r2-20261026`, in the existing
 `allied-shop-vehicles-r2-20261025` worktree, based on `ce3121b8` / released runtime
-`d6d8534d`. Both production domains were read independently and still identify
-`dpl_9YTq9gSNUnb3XuHKry5MgCVvigdD`. This revision is local, not deployed.
+`d6d8534d`. At that initial checkpoint, both production domains identified
+`dpl_9YTq9gSNUnb3XuHKry5MgCVvigdD` and the revision was not yet deployed.
 Other worktrees, including newer workforce work and Desktop tracker edits, are
 preserved. No database or operational-policy change is part of this revision.
 
@@ -190,3 +194,51 @@ All three pushed commit `e67a576d` GitHub workflows passed: frontend locked
 release checks, backend isolated database safety, and redacted secret guard.
 This follow-up is candidate evidence. Production promotion, exact final-source
 checks and post-promotion domain verification remain separate.
+
+## Production release — 27 October 2026
+
+Final source `8433ff57ff80f27bec7c3eebda36aecb1d156a8f` was deployed with
+the existing production Vercel configuration as
+`dpl_A8CLYwBc6h4tYAwNqconFJTXfQFZ` (READY). Both `alliedautotech.com`
+and `www.alliedautotech.com` independently resolve to this exact deployment;
+www redirects to the apex. The previous frontend deployment
+`dpl_9YTq9gSNUnb3XuHKry5MgCVvigdD` remains the rollback candidate, subject
+to normal compatibility review. Vercel's production deployment attached both
+custom domains upon readiness, so no separate promotion command was run.
+
+The exact final commit passed [locked frontend release checks](https://github.com/Otto-space/allied-autotech/actions/runs/40418559308)
+and the [redacted secret guard](https://github.com/Otto-space/allied-autotech/actions/runs/40418559298).
+The preceding `e67a576d` commit also passed backend isolated database safety;
+the final commit changed only frontend tests and documentation. Local app-source
+checks passed 1,057 units, lint, types, optimized build/postbuild and format.
+The protected candidate exercised the supplied artwork at 360, 390, 768,
+1024 and 1440px, failure/recovery and keyboard states, mobile navigation,
+Allie/practice, and the corrected 720px reflow approximation. The restricted
+Review Cart case retains its earlier isolated full-mode fixture evidence.
+
+Read-only post-release Edge checks returned 200 with meaningful titles/H1s and
+no page exceptions, API mutations or horizontal overflow on Home, About,
+Services, Parts and Help at 390px, Tyre Change detail at 320px and Home at
+1440px. The red header mark, white footer mark, About artwork and Home trust
+artwork loaded from `/brand/r2/`. At 320px the branch field was visible and
+received pointer hit-testing; the support strip followed the footer, and
+Ask Allie opened/closed. `/shop` still redirects to `/parts`. Backend readiness
+returned 200; backend deployment `50b5f5d1-50f6-4bf2-a9d0-f0c4975e02b3`
+was ACTIVE without a pending rollout. No backend image, migration, grant,
+application record, payment or provider setting was changed by this frontend
+release.
+
+Eight managed backups were listed, newest 26 October 05:22:11 UTC. The
+retained separate populated 90-table migration-72 restore receipt passed with
+unchanged original row hashes; no new restore was performed for this release.
+The backup and restore evidence is a release preflight, not proof of a new
+physical point-in-time recovery exercise. Current/rollback/other-task Docker
+resources were retained: 87 images, 13 stopped containers, 14 volumes and
+195 build-cache records; no cleanup deletion occurred. C: postflight had
+27.08 GiB free, a point-in-time reading above the 25 GiB preflight threshold.
+
+Ad 4 remains withheld because its nationwide-delivery claim conflicts with
+workshop collection. Real product/vehicle publication, production-role
+mutations, actual browser zoom, physical devices, native pickers, Firefox,
+WebKit and complete screen-reader acceptance remain open. This release does
+not close the broader site-completion goal.

@@ -1804,3 +1804,15 @@ No form submission, real customer data mutation or production frontend release.
 Actual device/browser zoom, screen reader and live authenticated-role checks
 remain open. The next P1 review is public enquiry draft/account switching and
 uncertain-submit recovery, already identified in release-blockers.md.
+
+27 October 2026 - the brand/support batch is deployed. Final frontend source
+8433ff57, Vercel dpl_A8CLYwBc6h4tYAwNqconFJTXfQFZ READY on both apex/www;
+the previous dpl_9YTq9gSNUnb3XuHKry5MgCVvigdD is retained for rollback.
+Locked frontend/secret CI passed. Seven read-only production routes at sampled
+320/390/1440 widths passed title/H1, page-error, overflow, logo and action
+checks. Tyre Change selector hit-testing passed at 320px and Allie opened and
+closed. Backend stayed ACTIVE and unchanged; no form, customer or payment
+submission occurred. Exact proof and remaining physical-device, actual zoom,
+screen-reader and role acceptance limits are in BRAND_ASSETS_R2_REPORT.md.
+The next P1 item remains public enquiry draft/account switching and uncertain
+submission recovery; broader route/state completion remains open.

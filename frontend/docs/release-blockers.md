@@ -43,8 +43,6 @@ Payment review and refund findings (September 17):
 
 ## Frontend implementation still required
 
-- Mobile floating-support placement still needs correction. The 320px public service account-recovery capture shows the help control over the lower-right part of the workshop branch selector at that scroll position; inspection text can also pass underneath the controls. Review a mobile placement/reserved-space approach across public detail forms and on-screen keyboard states. Axe and page-overflow checks do not cover control overlap.
-
 - Public detail account-mutation results now reset in ServiceDetail, ProductActions and VehicleActions, with cancellation/stale-result guards, cleared consent/fields and fresh booking keys after account changes. Real API ownership and multi-session integration still need verification. Continue the public contact/support draft audit: PublicEnquiryForm and public SupportCreateForm currently have no session-change reset for manually entered name/email/message or a review proposal. Anonymous uncertain submissions must keep their duplicate-prevention lock when drafts are cleared, since changing accounts does not change ownership of an anonymous support submission. Existing support account-isolation browser coverage targets private conversations.
 
 - Complete manual payment evidence/refunds, operational exceptions/audit and staff account/invitation management. Vehicle stock, listings, photo/private-document attachment, document assessment/access, condition-report creation and inspection scheduling/status management are implemented alongside inventory/reservations, billing, purchase progress and handover evidence. Real staff API and storage verification remain required.
@@ -56,6 +54,8 @@ Payment review and refund findings (September 17):
 - Reconcile all 231 OpenAPI operations and operational route groups in the coverage ledger. Implemented code, fixture tests and real API verification must remain distinct.
 
 ## Verification still required
+
+- Mobile support placement was corrected in frontend runtime `8433ff57`: the narrow/short-screen Help and WhatsApp actions now follow page content. Live Tyre Change selector hit-testing and protected-candidate checks passed at 320, 390, 768 and 900x400 coarse-pointer; 1024px desktop remained unobstructed. Physical mobile keyboards, device safe-area variants and other long public detail forms still need manual acceptance. See `BRAND_ASSETS_R2_REPORT.md`.
 
 - Inspection contracts: there is no individual staff inspection GET or vehicle ID in the list's nested stock projection. Management uses the paged records; the report workflow resolves eligible completed inspections against a selected stock record's listing IDs. All status changes require the acting account to have a staff profile; STAFF changes force assignment to that account. Scheduling checks date ordering but does not validate capacity, opening hours or staff calendar conflicts. The UI asks staff to confirm availability and does not claim a reserved workshop slot. A condition report older than the latest inspection time is not retrievable through the stock summary; uncertain older creation requires backend verification. These are backend capabilities to coordinate, not frontend authorization guarantees.
 
