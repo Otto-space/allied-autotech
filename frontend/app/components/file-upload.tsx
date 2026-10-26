@@ -179,12 +179,19 @@ export function FileUpload({
           type="file"
           accept={accept}
           disabled={disabled || busy || !hosts.length}
-          aria-describedby={`${uploadId}-hint`}
-          onChange={(event) => select(event.target.files?.[0] ?? null)}
+          aria-describedby={`${uploadId}-hint${error ? ` ${uploadId}-error` : ""}`}
+          aria-invalid={!!error}
+          onChange={(event) => {
+            const next = event.target.files?.[0] ?? null;
+            event.currentTarget.value = "";
+            select(next);
+          }}
         />
       </div>
       {file && valid && <SelectedFilePreview file={file} />}
-      <Feedback message={error} />
+      <div id={`${uploadId}-error`}>
+        <Feedback message={error} />
+      </div>
       {busy && (
         <div role="status">
           <p>

@@ -89,6 +89,92 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         },
         context,
       );
+    it("atomically reorders tied positions, preserving main selection and audit", async () => {
+      const { actor, id } = await fixture();
+      const a = await hosted(actor, id, true, 0);
+      const b = await hosted(actor, id, false, 1);
+      const c = await hosted(actor, id, false, 2);
+      const imageIds = [c.id, a.id, b.id];
+      expect(
+        await service.reorder(actor, id, { expectedVersion: 3, imageIds }, context),
+      ).toEqual({ version: 4, imageIds });
+      const rows = await prisma.productImage.findMany({
+        where: { productId: id },
+        orderBy: [{ sortOrder: "asc" }, { id: "asc" }],
+      });
+      expect(rows.map((row) => row.id)).toEqual(imageIds);
+      expect(rows.map((row) => row.sortOrder)).toEqual([0, 1, 2]);
+      expect(rows.filter((row) => row.isPrimary).map((row) => row.id)).toEqual([a.id]);
+      expect(
+        await prisma.auditLog.count({ where: { entityId: id, action: "UPDATE" } }),
+      ).toBeGreaterThan(0);
+    });
+    it("rejects stale, incomplete and cross-product orders without changes", async () => {
+      const a = await fixture(),
+        b = await fixture();
+      const first = await hosted(a.actor, a.id, true, 0);
+      const second = await hosted(a.actor, a.id, false, 1);
+      const foreign = await hosted(b.actor, b.id, true, 0);
+      for (const input of [
+        { expectedVersion: 1, imageIds: [second.id, first.id] },
+        { expectedVersion: 2, imageIds: [first.id] },
+        { expectedVersion: 2, imageIds: [first.id, foreign.id] },
+      ])
+        await expect(
+          service.reorder(a.actor, a.id, input, context),
+        ).rejects.toMatchObject({ code: "STALE_VERSION" });
+      expect(
+        (await prisma.product.findUniqueOrThrow({ where: { id: a.id } })).mediaVersion,
+      ).toBe(2);
+      expect(
+        (await prisma.productImage.findUniqueOrThrow({ where: { id: first.id } }))
+          .isPrimary,
+      ).toBe(true);
+    });
+    it("serializes concurrent gallery changes and rejects unpermitted roles", async () => {
+      const { actor, id } = await fixture();
+      const a = await hosted(actor, id, false, 0),
+        b = await hosted(actor, id, true, 1);
+      for (const role of ["STAFF", "CUSTOMER"] as const)
+        await expect(
+          service.reorder(
+            { ...actor, role },
+            id,
+            { expectedVersion: 2, imageIds: [b.id, a.id] },
+            context,
+          ),
+        ).rejects.toMatchObject({ code: "FORBIDDEN" });
+      await expect(
+        service.reorder(
+          { ...actor, mfaVerifiedAt: null },
+          id,
+          { expectedVersion: 2, imageIds: [b.id, a.id] },
+          context,
+        ),
+      ).rejects.toMatchObject({ code: "FORBIDDEN" });
+      const results = await Promise.allSettled([
+        service.reorder(
+          actor,
+          id,
+          { expectedVersion: 2, imageIds: [b.id, a.id] },
+          context,
+        ),
+        catalog.updateImage(
+          actor,
+          id,
+          a.id,
+          { expectedVersion: 2, isPrimary: true },
+          context,
+        ),
+      ]);
+      expect(results.filter((result) => result.status === "fulfilled")).toHaveLength(1);
+      expect(results.filter((result) => result.status === "rejected")).toMatchObject([
+        { reason: { code: "STALE_VERSION" } },
+      ]);
+      expect(
+        (await prisma.product.findUniqueOrThrow({ where: { id } })).mediaVersion,
+      ).toBe(3);
+    });
     it.each(["CUSTOMER", "STAFF"] as const)(
       "denies %s upload management",
       async (role) => {

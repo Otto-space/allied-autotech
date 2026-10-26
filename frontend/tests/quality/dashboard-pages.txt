@@ -145,3 +145,8 @@ dashboard-page-recovery.spec.ts
 help-launch-quality.spec.ts
 # Cycle 6: audit A01-A07, local isolated fixtures; no real operations acceptance.
 audit-actions.spec.ts
+parts-fitment-workspace.spec.ts > legacy Toyota Camry remains visible and requires deliberate catalogue reconciliation without an unchanged write
+parts-fitment-workspace.spec.ts > oil-filter application, evidence, keyboard and reflow at 390px
+parts-fitment-workspace.spec.ts > oil-filter application, evidence, keyboard and reflow at 1440px
+product-extras.spec.ts > populated gallery moves, main selection and preview keyboard at 390px
+product-extras.spec.ts > populated gallery moves, main selection and preview keyboard at 1440px

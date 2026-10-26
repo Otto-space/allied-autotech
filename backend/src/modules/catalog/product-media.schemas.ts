@@ -12,6 +12,21 @@ export const productImageConfirmSchema = mediaConfirmSchema
   })
   .strict();
 export type ProductImageConfirm = z.infer<typeof productImageConfirmSchema>;
+export const productImageOrderSchema = z
+  .object({
+    expectedVersion: z.number().int().nonnegative(),
+    imageIds: z
+      .array(z.uuid())
+      .min(1)
+      .max(100)
+      .refine((ids) => new Set(ids).size === ids.length, "Each image must appear once"),
+  })
+  .strict();
+export const productImageOrderResultSchema = z.object({
+  version: z.number().int().nonnegative(),
+  imageIds: z.array(z.uuid()),
+});
+export type ProductImageOrder = z.infer<typeof productImageOrderSchema>;
 export const productImageResponseSchema = z.object({
   id: z.uuid(),
   url: z.string(),

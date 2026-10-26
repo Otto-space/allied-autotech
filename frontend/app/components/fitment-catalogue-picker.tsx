@@ -138,6 +138,7 @@ export function FitmentCataloguePicker({
         aria-invalid={invalid || undefined}
         aria-describedby={`${id}-hint`}
         autoComplete="off"
+        data-no-draft
         disabled={disabled}
         maxLength={100}
         value={

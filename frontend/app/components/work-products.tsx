@@ -53,7 +53,7 @@ function ProductWorkspace({ owner }: { owner: string }) {
   const busy = resource.loading || resource.refreshing,
     blocked = invalid || busy || !!error || !!resource.refreshError || !data;
   const listParams = new URLSearchParams(params);
-  for (const key of ["edit", "media", "view"]) listParams.delete(key);
+  for (const key of ["edit", "media", "view", "tab"]) listParams.delete(key);
   const filterParams = new URLSearchParams(listParams);
   filterParams.delete("cursor");
   filterParams.delete("_trail");
@@ -74,7 +74,17 @@ function ProductWorkspace({ owner }: { owner: string }) {
     else next.set(kind, id!);
     navigate(next, "products-title");
   }
-  const close = () => navigate(listParams, "products-title");
+  const close = () => {
+    if (
+      document.querySelector(".product-media-edit-panel form") &&
+      !window.confirm("Close and discard this unsaved product edit?")
+    )
+      return;
+    document
+      .querySelectorAll(".product-media-edit-panel form")
+      .forEach((form) => form.dispatchEvent(new Event("reset", { bubbles: true })));
+    navigate(listParams, "products-title");
+  };
   const refresh = () => {
     resource.refresh();
     setEditorRefresh((v) => v + 1);
@@ -101,7 +111,9 @@ function ProductWorkspace({ owner }: { owner: string }) {
               <ChevronRight size={14} aria-hidden="true" />
               <span aria-current="page">
                 {media
-                  ? "Compatibility & images"
+                  ? params.get("tab") === "compatibility"
+                    ? "Compatibility"
+                    : "Images"
                   : edit
                     ? "Edit product"
                     : "Create product"}
@@ -114,7 +126,9 @@ function ProductWorkspace({ owner }: { owner: string }) {
         <div>
           <h1 id="products-title" tabIndex={-1}>
             {media
-              ? "Product records"
+              ? params.get("tab") === "compatibility"
+                ? "Product compatibility"
+                : "Product images"
               : edit
                 ? "Edit product"
                 : creating
@@ -149,7 +163,9 @@ function ProductWorkspace({ owner }: { owner: string }) {
         </div>
       </header>
       <Feedback message={message} tone="success" toast={message} />
-      {media ? (
+      {invalid && workspace ? (
+        <Feedback message="This product link contains conflicting or invalid context. Return to products and select the record again." />
+      ) : media ? (
         <WorkProductMedia
           key={media}
           id={media}

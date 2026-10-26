@@ -1,5 +1,6 @@
 import { qualifiersShape, qualifierKeys } from "../fitment/fitment.schemas.js";
 import { z } from "zod";
+import { isDurablePublicImageUrl } from "./image-url.js";
 import {
   productFamilySchema,
   oilGradeSchema,
@@ -281,9 +282,17 @@ const publicImageUrl = z
   .url()
   .max(2_048)
   .refine((value) => {
-    const url = new URL(value);
-    return url.protocol === "https:" && url.username === "" && url.password === "";
-  }, "Use a public HTTPS URL without credentials");
+    try {
+      const url = new URL(value);
+      return url.protocol === "https:" && url.username === "" && url.password === "";
+    } catch {
+      return false;
+    }
+  }, "Use a public HTTPS URL without credentials")
+  .refine(
+    isDurablePublicImageUrl,
+    "Use a durable public image URL, without private hosts, ports or expiring access tokens",
+  );
 export const imageCreateBodySchema = z
   .object({
     expectedVersion: z.number().int().min(0).max(2147483647).optional(),

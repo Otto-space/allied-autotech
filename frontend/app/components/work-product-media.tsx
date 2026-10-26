@@ -83,6 +83,7 @@ export function WorkProductMedia({
         </div>
       )}
       <ProductExtrasEditor
+        showClose={false}
         key={`${id}:${epoch}`}
         productId={id}
         sourcePath={`/admin/catalog/products/${id}`}
