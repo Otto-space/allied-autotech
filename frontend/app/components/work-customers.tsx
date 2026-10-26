@@ -220,6 +220,27 @@ function CustomerWorkspace() {
               role="region"
               aria-label="Customer results"
               tabIndex={0}
+              onFocusCapture={(event) => {
+                const region = event.currentTarget;
+                const target = event.target;
+                if (target === region || !(target instanceof HTMLElement)) return;
+                // Keep keyboard focus clear of the pinned identity column and
+                // clipped edges, including browsers that only reveal part of a cell.
+                const bounds = region.getBoundingClientRect();
+                const cell = target.closest("th, td");
+                const identity = cell?.parentElement?.firstElementChild;
+                const pinned =
+                  identity instanceof HTMLElement &&
+                  identity !== cell &&
+                  getComputedStyle(identity).position === "sticky";
+                const left = pinned
+                  ? identity.getBoundingClientRect().right + 8
+                  : bounds.left + 8;
+                const right = bounds.right - 8;
+                const focused = target.getBoundingClientRect();
+                if (focused.right > right) region.scrollLeft += focused.right - right;
+                else if (focused.left < left) region.scrollLeft -= left - focused.left;
+              }}
             >
               <table className="care-table">
                 <colgroup>
@@ -509,7 +530,7 @@ function CustomerRecord({
         </time>
       </td>
       <td>
-        <div className="care-row-actions">
+        <div className="care-row-controls">
           <Link className="text-link" href={href} onClick={remember}>
             View details <ChevronRight size={14} aria-hidden="true" />
             <span className="sr-only"> for {name}</span>

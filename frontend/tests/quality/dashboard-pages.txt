@@ -145,3 +145,5 @@ dashboard-page-recovery.spec.ts
 help-launch-quality.spec.ts
 # Cycle 6: audit A01-A07, local isolated fixtures; no real operations acceptance.
 audit-actions.spec.ts
+# Cycle 13: table density, hidden scrollbar tracks and keyboard/touch reachability.
+customer-table-responsive.spec.ts
