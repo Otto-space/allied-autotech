@@ -4,6 +4,166 @@
  */
 
 export interface paths {
+    "/public/learning/catalogue": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read eligible catalogue
+         * @description Read-only versioned learning content. Public routes always omit restricted titles, bodies, guides and fixtures. Protected reads resolve current identity, MFA and effective assignments server-side; client roles/owner IDs are not accepted. All responses are private/no-store and vary by Cookie. No AI, account lookup, progress mutation or training/live operational writes. Read eligible catalogue. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+         */
+        get: operations["getPublicLearningCatalogue"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/public/learning/articles/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read eligible articles
+         * @description Read-only versioned learning content. Public routes always omit restricted titles, bodies, guides and fixtures. Protected reads resolve current identity, MFA and effective assignments server-side; client roles/owner IDs are not accepted. All responses are private/no-store and vary by Cookie. No AI, account lookup, progress mutation or training/live operational writes. Read eligible articles. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+         */
+        get: operations["getPublicLearningArticlesById"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/public/learning/guides/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read eligible guides
+         * @description Read-only versioned learning content. Public routes always omit restricted titles, bodies, guides and fixtures. Protected reads resolve current identity, MFA and effective assignments server-side; client roles/owner IDs are not accepted. All responses are private/no-store and vary by Cookie. No AI, account lookup, progress mutation or training/live operational writes. Read eligible guides. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+         */
+        get: operations["getPublicLearningGuidesById"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/public/learning/scenarios/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read eligible scenarios
+         * @description Read-only versioned learning content. Public routes always omit restricted titles, bodies, guides and fixtures. Protected reads resolve current identity, MFA and effective assignments server-side; client roles/owner IDs are not accepted. All responses are private/no-store and vary by Cookie. No AI, account lookup, progress mutation or training/live operational writes. Read eligible scenarios. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+         */
+        get: operations["getPublicLearningScenariosById"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/learning/catalogue": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read eligible catalogue
+         * @description Read-only versioned learning content. Public routes always omit restricted titles, bodies, guides and fixtures. Protected reads resolve current identity, MFA and effective assignments server-side; client roles/owner IDs are not accepted. All responses are private/no-store and vary by Cookie. No AI, account lookup, progress mutation or training/live operational writes. Read eligible catalogue. Access boundary: authenticated-user. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+         */
+        get: operations["getLearningCatalogue"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/learning/articles/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read eligible articles
+         * @description Read-only versioned learning content. Public routes always omit restricted titles, bodies, guides and fixtures. Protected reads resolve current identity, MFA and effective assignments server-side; client roles/owner IDs are not accepted. All responses are private/no-store and vary by Cookie. No AI, account lookup, progress mutation or training/live operational writes. Read eligible articles. Access boundary: authenticated-user. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+         */
+        get: operations["getLearningArticlesById"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/learning/guides/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read eligible guides
+         * @description Read-only versioned learning content. Public routes always omit restricted titles, bodies, guides and fixtures. Protected reads resolve current identity, MFA and effective assignments server-side; client roles/owner IDs are not accepted. All responses are private/no-store and vary by Cookie. No AI, account lookup, progress mutation or training/live operational writes. Read eligible guides. Access boundary: authenticated-user. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+         */
+        get: operations["getLearningGuidesById"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/learning/scenarios/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read eligible scenarios
+         * @description Read-only versioned learning content. Public routes always omit restricted titles, bodies, guides and fixtures. Protected reads resolve current identity, MFA and effective assignments server-side; client roles/owner IDs are not accepted. All responses are private/no-store and vary by Cookie. No AI, account lookup, progress mutation or training/live operational writes. Read eligible scenarios. Access boundary: authenticated-user. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+         */
+        get: operations["getLearningScenariosById"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/register": {
         parameters: {
             query?: never;
@@ -7445,6 +7605,2002 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    getPublicLearningCatalogue: {
+        parameters: {
+            query?: {
+                /**
+                 * @description Q used to constrain this request.
+                 * @example synthetic-q
+                 */
+                q?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success: Read eligible catalogue. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Read eligible catalogue",
+                     *       "data": {
+                     *         "accessKey": "synthetic-accesskey",
+                     *         "audience": "public",
+                     *         "contentVersion": 1,
+                     *         "mode": "full",
+                     *         "flags": {
+                     *           "guides": true,
+                     *           "practice": true,
+                     *           "ai": false
+                     *         },
+                     *         "articles": [
+                     *           {
+                     *             "id": "synthetic-id",
+                     *             "title": "synthetic-title",
+                     *             "summary": "synthetic-summary",
+                     *             "prerequisites": "synthetic-prerequisites",
+                     *             "steps": [
+                     *               "synthetic-steps-item"
+                     *             ],
+                     *             "outcome": "synthetic-outcome",
+                     *             "recovery": "synthetic-recovery",
+                     *             "keywords": "synthetic-keywords",
+                     *             "page": "synthetic-page",
+                     *             "href": "synthetic-href",
+                     *             "source": "synthetic-source",
+                     *             "version": 1,
+                     *             "status": "published",
+                     *             "reviewedAt": "2030-01-15T10:00:00.000Z"
+                     *           }
+                     *         ],
+                     *         "guides": [
+                     *           {
+                     *             "id": "synthetic-id",
+                     *             "title": "synthetic-title",
+                     *             "version": 1,
+                     *             "articleId": "synthetic-articleid",
+                     *             "page": "synthetic-page",
+                     *             "href": "synthetic-href",
+                     *             "steps": [
+                     *               {
+                     *                 "id": "synthetic-id",
+                     *                 "target": "parts-search",
+                     *                 "text": "synthetic-text",
+                     *                 "event": "input"
+                     *               }
+                     *             ]
+                     *           }
+                     *         ],
+                     *         "scenarios": [
+                     *           {
+                     *             "id": "synthetic-id",
+                     *             "title": "synthetic-title",
+                     *             "version": 1,
+                     *             "articleId": "synthetic-articleid",
+                     *             "objective": "synthetic-objective"
+                     *           }
+                     *         ]
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /**
+                         * @description Success validated by this operation's strict request contract.
+                         * @enum {boolean}
+                         */
+                        success: true;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /** @description Access Key validated by this operation's strict request contract. */
+                            accessKey: string;
+                            /**
+                             * @description Audience validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            audience: "public" | "customer" | "work";
+                            /**
+                             * @description Content Version validated by this operation's strict request contract.
+                             * @enum {number}
+                             */
+                            contentVersion: 1;
+                            /**
+                             * @description Mode validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            mode: "full" | "browse_enquiries" | "catalogue";
+                            /** @description Flags validated by this operation's strict request contract. */
+                            flags: {
+                                /** @description Guides validated by this operation's strict request contract. */
+                                guides: boolean;
+                                /** @description Practice validated by this operation's strict request contract. */
+                                practice: boolean;
+                                /**
+                                 * @description Ai validated by this operation's strict request contract.
+                                 * @enum {boolean}
+                                 */
+                                ai: false;
+                            };
+                            /** @description Articles validated by this operation's strict request contract. */
+                            articles: {
+                                /** @description Identifier of the id resource; ownership is resolved server-side. */
+                                id: string;
+                                /** @description Title validated by this operation's strict request contract. */
+                                title: string;
+                                /** @description Summary validated by this operation's strict request contract. */
+                                summary: string;
+                                /** @description Prerequisites validated by this operation's strict request contract. */
+                                prerequisites: string;
+                                /** @description Steps validated by this operation's strict request contract. */
+                                steps: string[];
+                                /** @description Outcome validated by this operation's strict request contract. */
+                                outcome: string;
+                                /** @description Recovery validated by this operation's strict request contract. */
+                                recovery: string;
+                                /** @description Keywords validated by this operation's strict request contract. */
+                                keywords: string;
+                                /** @description Page validated by this operation's strict request contract. */
+                                page: string;
+                                /** @description Href validated by this operation's strict request contract. */
+                                href: string;
+                                /** @description Source validated by this operation's strict request contract. */
+                                source: string;
+                                /** @description Version validated by this operation's strict request contract. */
+                                version: number;
+                                /**
+                                 * @description Requested or filtered lifecycle state from the documented enum.
+                                 * @enum {string}
+                                 */
+                                status: "published";
+                                /** @description ISO 8601 timestamp interpreted and validated by the server. */
+                                reviewedAt: string;
+                            }[];
+                            /** @description Guides validated by this operation's strict request contract. */
+                            guides: {
+                                /** @description Identifier of the id resource; ownership is resolved server-side. */
+                                id: string;
+                                /** @description Title validated by this operation's strict request contract. */
+                                title: string;
+                                /** @description Version validated by this operation's strict request contract. */
+                                version: number;
+                                /** @description Identifier of the article resource; ownership is resolved server-side. */
+                                articleId: string;
+                                /** @description Page validated by this operation's strict request contract. */
+                                page: string;
+                                /** @description Href validated by this operation's strict request contract. */
+                                href: string;
+                                /** @description Steps validated by this operation's strict request contract. */
+                                steps: {
+                                    /** @description Identifier of the id resource; ownership is resolved server-side. */
+                                    id: string;
+                                    /**
+                                     * @description Target validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    target: "parts-search" | "parts-results" | "support-start" | "support-subject" | "care-search" | "care-results";
+                                    /** @description Text validated by this operation's strict request contract. */
+                                    text: string;
+                                    /**
+                                     * @description Event validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    event: "input" | "click" | "read";
+                                }[];
+                            }[];
+                            /** @description Scenarios validated by this operation's strict request contract. */
+                            scenarios: {
+                                /** @description Identifier of the id resource; ownership is resolved server-side. */
+                                id: string;
+                                /** @description Title validated by this operation's strict request contract. */
+                                title: string;
+                                /** @description Version validated by this operation's strict request contract. */
+                                version: number;
+                                /** @description Identifier of the article resource; ownership is resolved server-side. */
+                                articleId: string;
+                                /** @description Objective validated by this operation's strict request contract. */
+                                objective: string;
+                            }[];
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                            /** @description ISO 8601 timestamp interpreted and validated by the server. */
+                            serverTime: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Current session required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Current assurance/access unavailable */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Disabled, unpublished or unavailable; no restricted existence disclosure */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid query or definition ID */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getPublicLearningArticlesById: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description Identifier selecting the id resource.
+                 * @example synthetic-id
+                 */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success: Read eligible articles. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Read eligible articles",
+                     *       "data": {
+                     *         "id": "synthetic-id",
+                     *         "title": "synthetic-title",
+                     *         "summary": "synthetic-summary",
+                     *         "prerequisites": "synthetic-prerequisites",
+                     *         "steps": [
+                     *           "synthetic-steps-item"
+                     *         ],
+                     *         "outcome": "synthetic-outcome",
+                     *         "recovery": "synthetic-recovery",
+                     *         "keywords": "synthetic-keywords",
+                     *         "page": "synthetic-page",
+                     *         "href": "synthetic-href",
+                     *         "source": "synthetic-source",
+                     *         "version": 1,
+                     *         "status": "published",
+                     *         "reviewedAt": "2030-01-15T10:00:00.000Z"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /**
+                         * @description Success validated by this operation's strict request contract.
+                         * @enum {boolean}
+                         */
+                        success: true;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /** @description Identifier of the id resource; ownership is resolved server-side. */
+                            id: string;
+                            /** @description Title validated by this operation's strict request contract. */
+                            title: string;
+                            /** @description Summary validated by this operation's strict request contract. */
+                            summary: string;
+                            /** @description Prerequisites validated by this operation's strict request contract. */
+                            prerequisites: string;
+                            /** @description Steps validated by this operation's strict request contract. */
+                            steps: string[];
+                            /** @description Outcome validated by this operation's strict request contract. */
+                            outcome: string;
+                            /** @description Recovery validated by this operation's strict request contract. */
+                            recovery: string;
+                            /** @description Keywords validated by this operation's strict request contract. */
+                            keywords: string;
+                            /** @description Page validated by this operation's strict request contract. */
+                            page: string;
+                            /** @description Href validated by this operation's strict request contract. */
+                            href: string;
+                            /** @description Source validated by this operation's strict request contract. */
+                            source: string;
+                            /** @description Version validated by this operation's strict request contract. */
+                            version: number;
+                            /**
+                             * @description Requested or filtered lifecycle state from the documented enum.
+                             * @enum {string}
+                             */
+                            status: "published";
+                            /** @description ISO 8601 timestamp interpreted and validated by the server. */
+                            reviewedAt: string;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                            /** @description ISO 8601 timestamp interpreted and validated by the server. */
+                            serverTime: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Current session required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Current assurance/access unavailable */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Disabled, unpublished or unavailable; no restricted existence disclosure */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid query or definition ID */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getPublicLearningGuidesById: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description Identifier selecting the id resource.
+                 * @example synthetic-id
+                 */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success: Read eligible guides. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Read eligible guides",
+                     *       "data": {
+                     *         "id": "synthetic-id",
+                     *         "title": "synthetic-title",
+                     *         "version": 1,
+                     *         "articleId": "synthetic-articleid",
+                     *         "page": "synthetic-page",
+                     *         "href": "synthetic-href",
+                     *         "steps": [
+                     *           {
+                     *             "id": "synthetic-id",
+                     *             "target": "parts-search",
+                     *             "text": "synthetic-text",
+                     *             "event": "input"
+                     *           }
+                     *         ]
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /**
+                         * @description Success validated by this operation's strict request contract.
+                         * @enum {boolean}
+                         */
+                        success: true;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /** @description Identifier of the id resource; ownership is resolved server-side. */
+                            id: string;
+                            /** @description Title validated by this operation's strict request contract. */
+                            title: string;
+                            /** @description Version validated by this operation's strict request contract. */
+                            version: number;
+                            /** @description Identifier of the article resource; ownership is resolved server-side. */
+                            articleId: string;
+                            /** @description Page validated by this operation's strict request contract. */
+                            page: string;
+                            /** @description Href validated by this operation's strict request contract. */
+                            href: string;
+                            /** @description Steps validated by this operation's strict request contract. */
+                            steps: {
+                                /** @description Identifier of the id resource; ownership is resolved server-side. */
+                                id: string;
+                                /**
+                                 * @description Target validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                target: "parts-search" | "parts-results" | "support-start" | "support-subject" | "care-search" | "care-results";
+                                /** @description Text validated by this operation's strict request contract. */
+                                text: string;
+                                /**
+                                 * @description Event validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                event: "input" | "click" | "read";
+                            }[];
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                            /** @description ISO 8601 timestamp interpreted and validated by the server. */
+                            serverTime: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Current session required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Current assurance/access unavailable */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Disabled, unpublished or unavailable; no restricted existence disclosure */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid query or definition ID */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getPublicLearningScenariosById: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description Identifier selecting the id resource.
+                 * @example synthetic-id
+                 */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success: Read eligible scenarios. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Read eligible scenarios",
+                     *       "data": {
+                     *         "id": "synthetic-id",
+                     *         "title": "synthetic-title",
+                     *         "version": 1,
+                     *         "articleId": "synthetic-articleid",
+                     *         "objective": "synthetic-objective",
+                     *         "kind": "fitment",
+                     *         "fields": [
+                     *           {
+                     *             "id": "synthetic-id",
+                     *             "label": "synthetic-label",
+                     *             "example": "synthetic-example",
+                     *             "min": 1,
+                     *             "max": 1,
+                     *             "options": [
+                     *               "synthetic-options-item"
+                     *             ],
+                     *             "dependsOn": "synthetic-dependson"
+                     *           }
+                     *         ],
+                     *         "choices": [
+                     *           {
+                     *             "id": "synthetic-id",
+                     *             "label": "synthetic-label",
+                     *             "feedback": "synthetic-feedback"
+                     *           }
+                     *         ],
+                     *         "expected": "synthetic-expected",
+                     *         "outcome": "synthetic-outcome",
+                     *         "liveHref": "synthetic-livehref"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /**
+                         * @description Success validated by this operation's strict request contract.
+                         * @enum {boolean}
+                         */
+                        success: true;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /** @description Identifier of the id resource; ownership is resolved server-side. */
+                            id: string;
+                            /** @description Title validated by this operation's strict request contract. */
+                            title: string;
+                            /** @description Version validated by this operation's strict request contract. */
+                            version: number;
+                            /** @description Identifier of the article resource; ownership is resolved server-side. */
+                            articleId: string;
+                            /** @description Objective validated by this operation's strict request contract. */
+                            objective: string;
+                            /**
+                             * @description Kind validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            kind: "fitment" | "draft" | "decision";
+                            /** @description Fields validated by this operation's strict request contract. */
+                            fields: {
+                                /** @description Identifier of the id resource; ownership is resolved server-side. */
+                                id: string;
+                                /** @description Label validated by this operation's strict request contract. */
+                                label: string;
+                                /** @description Example validated by this operation's strict request contract. */
+                                example: string;
+                                /** @description Min validated by this operation's strict request contract. */
+                                min: number;
+                                /** @description Max validated by this operation's strict request contract. */
+                                max: number;
+                                /** @description Options validated by this operation's strict request contract. */
+                                options?: string[];
+                                /** @description Depends On validated by this operation's strict request contract. */
+                                dependsOn?: string;
+                            }[];
+                            /** @description Choices validated by this operation's strict request contract. */
+                            choices: {
+                                /** @description Identifier of the id resource; ownership is resolved server-side. */
+                                id: string;
+                                /** @description Label validated by this operation's strict request contract. */
+                                label: string;
+                                /** @description Feedback validated by this operation's strict request contract. */
+                                feedback: string;
+                            }[];
+                            /** @description Expected validated by this operation's strict request contract. */
+                            expected: string;
+                            /** @description Outcome validated by this operation's strict request contract. */
+                            outcome: string;
+                            /** @description Live Href validated by this operation's strict request contract. */
+                            liveHref: string;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                            /** @description ISO 8601 timestamp interpreted and validated by the server. */
+                            serverTime: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Current session required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Current assurance/access unavailable */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Disabled, unpublished or unavailable; no restricted existence disclosure */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid query or definition ID */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getLearningCatalogue: {
+        parameters: {
+            query?: {
+                /**
+                 * @description Q used to constrain this request.
+                 * @example synthetic-q
+                 */
+                q?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success: Read eligible catalogue. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Read eligible catalogue",
+                     *       "data": {
+                     *         "accessKey": "synthetic-accesskey",
+                     *         "audience": "public",
+                     *         "contentVersion": 1,
+                     *         "mode": "full",
+                     *         "flags": {
+                     *           "guides": true,
+                     *           "practice": true,
+                     *           "ai": false
+                     *         },
+                     *         "articles": [
+                     *           {
+                     *             "id": "synthetic-id",
+                     *             "title": "synthetic-title",
+                     *             "summary": "synthetic-summary",
+                     *             "prerequisites": "synthetic-prerequisites",
+                     *             "steps": [
+                     *               "synthetic-steps-item"
+                     *             ],
+                     *             "outcome": "synthetic-outcome",
+                     *             "recovery": "synthetic-recovery",
+                     *             "keywords": "synthetic-keywords",
+                     *             "page": "synthetic-page",
+                     *             "href": "synthetic-href",
+                     *             "source": "synthetic-source",
+                     *             "version": 1,
+                     *             "status": "published",
+                     *             "reviewedAt": "2030-01-15T10:00:00.000Z"
+                     *           }
+                     *         ],
+                     *         "guides": [
+                     *           {
+                     *             "id": "synthetic-id",
+                     *             "title": "synthetic-title",
+                     *             "version": 1,
+                     *             "articleId": "synthetic-articleid",
+                     *             "page": "synthetic-page",
+                     *             "href": "synthetic-href",
+                     *             "steps": [
+                     *               {
+                     *                 "id": "synthetic-id",
+                     *                 "target": "parts-search",
+                     *                 "text": "synthetic-text",
+                     *                 "event": "input"
+                     *               }
+                     *             ]
+                     *           }
+                     *         ],
+                     *         "scenarios": [
+                     *           {
+                     *             "id": "synthetic-id",
+                     *             "title": "synthetic-title",
+                     *             "version": 1,
+                     *             "articleId": "synthetic-articleid",
+                     *             "objective": "synthetic-objective"
+                     *           }
+                     *         ]
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /**
+                         * @description Success validated by this operation's strict request contract.
+                         * @enum {boolean}
+                         */
+                        success: true;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /** @description Access Key validated by this operation's strict request contract. */
+                            accessKey: string;
+                            /**
+                             * @description Audience validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            audience: "public" | "customer" | "work";
+                            /**
+                             * @description Content Version validated by this operation's strict request contract.
+                             * @enum {number}
+                             */
+                            contentVersion: 1;
+                            /**
+                             * @description Mode validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            mode: "full" | "browse_enquiries" | "catalogue";
+                            /** @description Flags validated by this operation's strict request contract. */
+                            flags: {
+                                /** @description Guides validated by this operation's strict request contract. */
+                                guides: boolean;
+                                /** @description Practice validated by this operation's strict request contract. */
+                                practice: boolean;
+                                /**
+                                 * @description Ai validated by this operation's strict request contract.
+                                 * @enum {boolean}
+                                 */
+                                ai: false;
+                            };
+                            /** @description Articles validated by this operation's strict request contract. */
+                            articles: {
+                                /** @description Identifier of the id resource; ownership is resolved server-side. */
+                                id: string;
+                                /** @description Title validated by this operation's strict request contract. */
+                                title: string;
+                                /** @description Summary validated by this operation's strict request contract. */
+                                summary: string;
+                                /** @description Prerequisites validated by this operation's strict request contract. */
+                                prerequisites: string;
+                                /** @description Steps validated by this operation's strict request contract. */
+                                steps: string[];
+                                /** @description Outcome validated by this operation's strict request contract. */
+                                outcome: string;
+                                /** @description Recovery validated by this operation's strict request contract. */
+                                recovery: string;
+                                /** @description Keywords validated by this operation's strict request contract. */
+                                keywords: string;
+                                /** @description Page validated by this operation's strict request contract. */
+                                page: string;
+                                /** @description Href validated by this operation's strict request contract. */
+                                href: string;
+                                /** @description Source validated by this operation's strict request contract. */
+                                source: string;
+                                /** @description Version validated by this operation's strict request contract. */
+                                version: number;
+                                /**
+                                 * @description Requested or filtered lifecycle state from the documented enum.
+                                 * @enum {string}
+                                 */
+                                status: "published";
+                                /** @description ISO 8601 timestamp interpreted and validated by the server. */
+                                reviewedAt: string;
+                            }[];
+                            /** @description Guides validated by this operation's strict request contract. */
+                            guides: {
+                                /** @description Identifier of the id resource; ownership is resolved server-side. */
+                                id: string;
+                                /** @description Title validated by this operation's strict request contract. */
+                                title: string;
+                                /** @description Version validated by this operation's strict request contract. */
+                                version: number;
+                                /** @description Identifier of the article resource; ownership is resolved server-side. */
+                                articleId: string;
+                                /** @description Page validated by this operation's strict request contract. */
+                                page: string;
+                                /** @description Href validated by this operation's strict request contract. */
+                                href: string;
+                                /** @description Steps validated by this operation's strict request contract. */
+                                steps: {
+                                    /** @description Identifier of the id resource; ownership is resolved server-side. */
+                                    id: string;
+                                    /**
+                                     * @description Target validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    target: "parts-search" | "parts-results" | "support-start" | "support-subject" | "care-search" | "care-results";
+                                    /** @description Text validated by this operation's strict request contract. */
+                                    text: string;
+                                    /**
+                                     * @description Event validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    event: "input" | "click" | "read";
+                                }[];
+                            }[];
+                            /** @description Scenarios validated by this operation's strict request contract. */
+                            scenarios: {
+                                /** @description Identifier of the id resource; ownership is resolved server-side. */
+                                id: string;
+                                /** @description Title validated by this operation's strict request contract. */
+                                title: string;
+                                /** @description Version validated by this operation's strict request contract. */
+                                version: number;
+                                /** @description Identifier of the article resource; ownership is resolved server-side. */
+                                articleId: string;
+                                /** @description Objective validated by this operation's strict request contract. */
+                                objective: string;
+                            }[];
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                            /** @description ISO 8601 timestamp interpreted and validated by the server. */
+                            serverTime: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Current session required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Current assurance/access unavailable */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Disabled, unpublished or unavailable; no restricted existence disclosure */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid query or definition ID */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getLearningArticlesById: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description Identifier selecting the id resource.
+                 * @example synthetic-id
+                 */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success: Read eligible articles. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Read eligible articles",
+                     *       "data": {
+                     *         "id": "synthetic-id",
+                     *         "title": "synthetic-title",
+                     *         "summary": "synthetic-summary",
+                     *         "prerequisites": "synthetic-prerequisites",
+                     *         "steps": [
+                     *           "synthetic-steps-item"
+                     *         ],
+                     *         "outcome": "synthetic-outcome",
+                     *         "recovery": "synthetic-recovery",
+                     *         "keywords": "synthetic-keywords",
+                     *         "page": "synthetic-page",
+                     *         "href": "synthetic-href",
+                     *         "source": "synthetic-source",
+                     *         "version": 1,
+                     *         "status": "published",
+                     *         "reviewedAt": "2030-01-15T10:00:00.000Z"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /**
+                         * @description Success validated by this operation's strict request contract.
+                         * @enum {boolean}
+                         */
+                        success: true;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /** @description Identifier of the id resource; ownership is resolved server-side. */
+                            id: string;
+                            /** @description Title validated by this operation's strict request contract. */
+                            title: string;
+                            /** @description Summary validated by this operation's strict request contract. */
+                            summary: string;
+                            /** @description Prerequisites validated by this operation's strict request contract. */
+                            prerequisites: string;
+                            /** @description Steps validated by this operation's strict request contract. */
+                            steps: string[];
+                            /** @description Outcome validated by this operation's strict request contract. */
+                            outcome: string;
+                            /** @description Recovery validated by this operation's strict request contract. */
+                            recovery: string;
+                            /** @description Keywords validated by this operation's strict request contract. */
+                            keywords: string;
+                            /** @description Page validated by this operation's strict request contract. */
+                            page: string;
+                            /** @description Href validated by this operation's strict request contract. */
+                            href: string;
+                            /** @description Source validated by this operation's strict request contract. */
+                            source: string;
+                            /** @description Version validated by this operation's strict request contract. */
+                            version: number;
+                            /**
+                             * @description Requested or filtered lifecycle state from the documented enum.
+                             * @enum {string}
+                             */
+                            status: "published";
+                            /** @description ISO 8601 timestamp interpreted and validated by the server. */
+                            reviewedAt: string;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                            /** @description ISO 8601 timestamp interpreted and validated by the server. */
+                            serverTime: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Current session required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Current assurance/access unavailable */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Disabled, unpublished or unavailable; no restricted existence disclosure */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid query or definition ID */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getLearningGuidesById: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description Identifier selecting the id resource.
+                 * @example synthetic-id
+                 */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success: Read eligible guides. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Read eligible guides",
+                     *       "data": {
+                     *         "id": "synthetic-id",
+                     *         "title": "synthetic-title",
+                     *         "version": 1,
+                     *         "articleId": "synthetic-articleid",
+                     *         "page": "synthetic-page",
+                     *         "href": "synthetic-href",
+                     *         "steps": [
+                     *           {
+                     *             "id": "synthetic-id",
+                     *             "target": "parts-search",
+                     *             "text": "synthetic-text",
+                     *             "event": "input"
+                     *           }
+                     *         ]
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /**
+                         * @description Success validated by this operation's strict request contract.
+                         * @enum {boolean}
+                         */
+                        success: true;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /** @description Identifier of the id resource; ownership is resolved server-side. */
+                            id: string;
+                            /** @description Title validated by this operation's strict request contract. */
+                            title: string;
+                            /** @description Version validated by this operation's strict request contract. */
+                            version: number;
+                            /** @description Identifier of the article resource; ownership is resolved server-side. */
+                            articleId: string;
+                            /** @description Page validated by this operation's strict request contract. */
+                            page: string;
+                            /** @description Href validated by this operation's strict request contract. */
+                            href: string;
+                            /** @description Steps validated by this operation's strict request contract. */
+                            steps: {
+                                /** @description Identifier of the id resource; ownership is resolved server-side. */
+                                id: string;
+                                /**
+                                 * @description Target validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                target: "parts-search" | "parts-results" | "support-start" | "support-subject" | "care-search" | "care-results";
+                                /** @description Text validated by this operation's strict request contract. */
+                                text: string;
+                                /**
+                                 * @description Event validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                event: "input" | "click" | "read";
+                            }[];
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                            /** @description ISO 8601 timestamp interpreted and validated by the server. */
+                            serverTime: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Current session required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Current assurance/access unavailable */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Disabled, unpublished or unavailable; no restricted existence disclosure */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid query or definition ID */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getLearningScenariosById: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description Identifier selecting the id resource.
+                 * @example synthetic-id
+                 */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success: Read eligible scenarios. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Read eligible scenarios",
+                     *       "data": {
+                     *         "id": "synthetic-id",
+                     *         "title": "synthetic-title",
+                     *         "version": 1,
+                     *         "articleId": "synthetic-articleid",
+                     *         "objective": "synthetic-objective",
+                     *         "kind": "fitment",
+                     *         "fields": [
+                     *           {
+                     *             "id": "synthetic-id",
+                     *             "label": "synthetic-label",
+                     *             "example": "synthetic-example",
+                     *             "min": 1,
+                     *             "max": 1,
+                     *             "options": [
+                     *               "synthetic-options-item"
+                     *             ],
+                     *             "dependsOn": "synthetic-dependson"
+                     *           }
+                     *         ],
+                     *         "choices": [
+                     *           {
+                     *             "id": "synthetic-id",
+                     *             "label": "synthetic-label",
+                     *             "feedback": "synthetic-feedback"
+                     *           }
+                     *         ],
+                     *         "expected": "synthetic-expected",
+                     *         "outcome": "synthetic-outcome",
+                     *         "liveHref": "synthetic-livehref"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /**
+                         * @description Success validated by this operation's strict request contract.
+                         * @enum {boolean}
+                         */
+                        success: true;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /** @description Identifier of the id resource; ownership is resolved server-side. */
+                            id: string;
+                            /** @description Title validated by this operation's strict request contract. */
+                            title: string;
+                            /** @description Version validated by this operation's strict request contract. */
+                            version: number;
+                            /** @description Identifier of the article resource; ownership is resolved server-side. */
+                            articleId: string;
+                            /** @description Objective validated by this operation's strict request contract. */
+                            objective: string;
+                            /**
+                             * @description Kind validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            kind: "fitment" | "draft" | "decision";
+                            /** @description Fields validated by this operation's strict request contract. */
+                            fields: {
+                                /** @description Identifier of the id resource; ownership is resolved server-side. */
+                                id: string;
+                                /** @description Label validated by this operation's strict request contract. */
+                                label: string;
+                                /** @description Example validated by this operation's strict request contract. */
+                                example: string;
+                                /** @description Min validated by this operation's strict request contract. */
+                                min: number;
+                                /** @description Max validated by this operation's strict request contract. */
+                                max: number;
+                                /** @description Options validated by this operation's strict request contract. */
+                                options?: string[];
+                                /** @description Depends On validated by this operation's strict request contract. */
+                                dependsOn?: string;
+                            }[];
+                            /** @description Choices validated by this operation's strict request contract. */
+                            choices: {
+                                /** @description Identifier of the id resource; ownership is resolved server-side. */
+                                id: string;
+                                /** @description Label validated by this operation's strict request contract. */
+                                label: string;
+                                /** @description Feedback validated by this operation's strict request contract. */
+                                feedback: string;
+                            }[];
+                            /** @description Expected validated by this operation's strict request contract. */
+                            expected: string;
+                            /** @description Outcome validated by this operation's strict request contract. */
+                            outcome: string;
+                            /** @description Live Href validated by this operation's strict request contract. */
+                            liveHref: string;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                            /** @description ISO 8601 timestamp interpreted and validated by the server. */
+                            serverTime: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Current session required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Current assurance/access unavailable */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Disabled, unpublished or unavailable; no restricted existence disclosure */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid query or definition ID */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     postAuthRegister: {
         parameters: {
             query?: never;

@@ -1,4 +1,5 @@
 import { registerFitmentOpenApi } from "../modules/fitment/fitment.openapi.js";
+import { registerLearningOpenApi } from "../modules/learning/learning.openapi.js";
 import { OpenApiGeneratorV31, OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 
 import { registerIdentityOpenApi } from "../modules/identity/identity.openapi.js";
@@ -34,6 +35,7 @@ export interface OpenApiDocumentOptions {
 
 export function createOpenApiDocument(options: OpenApiDocumentOptions) {
   const registry = new OpenAPIRegistry();
+  registerLearningOpenApi(registry);
   registerIdentityOpenApi(registry, options.sessionCookieName);
   registerCustomersOpenApi(registry);
   registerCustomerDirectoryOpenApi(registry);

@@ -64,6 +64,245 @@ Paystack calls the DigitalOcean API origin directly; Monnify remains disabled, n
 
 ## Public API
 
+### GET `/public/learning/catalogue`
+
+- Operation ID: `getPublicLearningCatalogue`
+- Purpose: Read-only versioned learning content. Public routes always omit restricted titles, bodies, guides and fixtures. Protected reads resolve current identity, MFA and effective assignments server-side; client roles/owner IDs are not accepted. All responses are private/no-store and vary by Cookie. No AI, account lookup, progress mutation or training/live operational writes. Read eligible catalogue. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: PUBLIC
+- Authentication: None
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `q` | query | string | No | Q used to constrain this request. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Read eligible catalogue",
+  "data": {
+    "accessKey": "synthetic-accesskey",
+    "audience": "public",
+    "contentVersion": 1,
+    "mode": "full",
+    "flags": {
+      "guides": true,
+      "practice": true,
+      "ai": false
+    },
+    "articles": [
+      {
+        "id": "synthetic-id",
+        "title": "synthetic-title",
+        "summary": "synthetic-summary",
+        "prerequisites": "synthetic-prerequisites",
+        "steps": [
+          "synthetic-steps-item"
+        ],
+        "outcome": "synthetic-outcome",
+        "recovery": "synthetic-recovery",
+        "keywords": "synthetic-keywords",
+        "page": "synthetic-page",
+        "href": "synthetic-href",
+        "source": "synthetic-source",
+        "version": 1,
+        "status": "published",
+        "reviewedAt": "2030-01-15T10:00:00.000Z"
+      }
+    ],
+    "guides": [
+      {
+        "id": "synthetic-id",
+        "title": "synthetic-title",
+        "version": 1,
+        "articleId": "synthetic-articleid",
+        "page": "synthetic-page",
+        "href": "synthetic-href",
+        "steps": [
+          {
+            "id": "synthetic-id",
+            "target": "parts-search",
+            "text": "synthetic-text",
+            "event": "input"
+          }
+        ]
+      }
+    ],
+    "scenarios": [
+      {
+        "id": "synthetic-id",
+        "title": "synthetic-title",
+        "version": 1,
+        "articleId": "synthetic-articleid",
+        "objective": "synthetic-objective"
+      }
+    ]
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current session required; 403 Current assurance/access unavailable; 404 Disabled, unpublished or unavailable; no restricted existence disclosure; 422 Invalid query or definition ID; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/public/learning/articles/{id}`
+
+- Operation ID: `getPublicLearningArticlesById`
+- Purpose: Read-only versioned learning content. Public routes always omit restricted titles, bodies, guides and fixtures. Protected reads resolve current identity, MFA and effective assignments server-side; client roles/owner IDs are not accepted. All responses are private/no-store and vary by Cookie. No AI, account lookup, progress mutation or training/live operational writes. Read eligible articles. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: PUBLIC
+- Authentication: None
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `id` | path | string | Yes | Identifier selecting the id resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Read eligible articles",
+  "data": {
+    "id": "synthetic-id",
+    "title": "synthetic-title",
+    "summary": "synthetic-summary",
+    "prerequisites": "synthetic-prerequisites",
+    "steps": [
+      "synthetic-steps-item"
+    ],
+    "outcome": "synthetic-outcome",
+    "recovery": "synthetic-recovery",
+    "keywords": "synthetic-keywords",
+    "page": "synthetic-page",
+    "href": "synthetic-href",
+    "source": "synthetic-source",
+    "version": 1,
+    "status": "published",
+    "reviewedAt": "2030-01-15T10:00:00.000Z"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current session required; 403 Current assurance/access unavailable; 404 Disabled, unpublished or unavailable; no restricted existence disclosure; 422 Invalid query or definition ID; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/public/learning/guides/{id}`
+
+- Operation ID: `getPublicLearningGuidesById`
+- Purpose: Read-only versioned learning content. Public routes always omit restricted titles, bodies, guides and fixtures. Protected reads resolve current identity, MFA and effective assignments server-side; client roles/owner IDs are not accepted. All responses are private/no-store and vary by Cookie. No AI, account lookup, progress mutation or training/live operational writes. Read eligible guides. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: PUBLIC
+- Authentication: None
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `id` | path | string | Yes | Identifier selecting the id resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Read eligible guides",
+  "data": {
+    "id": "synthetic-id",
+    "title": "synthetic-title",
+    "version": 1,
+    "articleId": "synthetic-articleid",
+    "page": "synthetic-page",
+    "href": "synthetic-href",
+    "steps": [
+      {
+        "id": "synthetic-id",
+        "target": "parts-search",
+        "text": "synthetic-text",
+        "event": "input"
+      }
+    ]
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current session required; 403 Current assurance/access unavailable; 404 Disabled, unpublished or unavailable; no restricted existence disclosure; 422 Invalid query or definition ID; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/public/learning/scenarios/{id}`
+
+- Operation ID: `getPublicLearningScenariosById`
+- Purpose: Read-only versioned learning content. Public routes always omit restricted titles, bodies, guides and fixtures. Protected reads resolve current identity, MFA and effective assignments server-side; client roles/owner IDs are not accepted. All responses are private/no-store and vary by Cookie. No AI, account lookup, progress mutation or training/live operational writes. Read eligible scenarios. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: PUBLIC
+- Authentication: None
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `id` | path | string | Yes | Identifier selecting the id resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Read eligible scenarios",
+  "data": {
+    "id": "synthetic-id",
+    "title": "synthetic-title",
+    "version": 1,
+    "articleId": "synthetic-articleid",
+    "objective": "synthetic-objective",
+    "kind": "fitment",
+    "fields": [
+      {
+        "id": "synthetic-id",
+        "label": "synthetic-label",
+        "example": "synthetic-example",
+        "min": 1,
+        "max": 1,
+        "options": [
+          "synthetic-options-item"
+        ],
+        "dependsOn": "synthetic-dependson"
+      }
+    ],
+    "choices": [
+      {
+        "id": "synthetic-id",
+        "label": "synthetic-label",
+        "feedback": "synthetic-feedback"
+      }
+    ],
+    "expected": "synthetic-expected",
+    "outcome": "synthetic-outcome",
+    "liveHref": "synthetic-livehref"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current session required; 403 Current assurance/access unavailable; 404 Disabled, unpublished or unavailable; no restricted existence disclosure; 422 Invalid query or definition ID; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
 ### GET `/public/media/images/{imageId}`
 
 - Operation ID: `getPublicMediaImagesByImageId`
@@ -22985,4 +23224,242 @@ Relevant errors: 400 The request is malformed.; 401 Invalid signature; 409 The r
 
 ## Operational
 
+### GET `/learning/catalogue`
+
+- Operation ID: `getLearningCatalogue`
+- Purpose: Read-only versioned learning content. Public routes always omit restricted titles, bodies, guides and fixtures. Protected reads resolve current identity, MFA and effective assignments server-side; client roles/owner IDs are not accepted. All responses are private/no-store and vary by Cookie. No AI, account lookup, progress mutation or training/live operational writes. Read eligible catalogue. Access boundary: authenticated-user. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: AUTHENTICATED
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `q` | query | string | No | Q used to constrain this request. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Read eligible catalogue",
+  "data": {
+    "accessKey": "synthetic-accesskey",
+    "audience": "public",
+    "contentVersion": 1,
+    "mode": "full",
+    "flags": {
+      "guides": true,
+      "practice": true,
+      "ai": false
+    },
+    "articles": [
+      {
+        "id": "synthetic-id",
+        "title": "synthetic-title",
+        "summary": "synthetic-summary",
+        "prerequisites": "synthetic-prerequisites",
+        "steps": [
+          "synthetic-steps-item"
+        ],
+        "outcome": "synthetic-outcome",
+        "recovery": "synthetic-recovery",
+        "keywords": "synthetic-keywords",
+        "page": "synthetic-page",
+        "href": "synthetic-href",
+        "source": "synthetic-source",
+        "version": 1,
+        "status": "published",
+        "reviewedAt": "2030-01-15T10:00:00.000Z"
+      }
+    ],
+    "guides": [
+      {
+        "id": "synthetic-id",
+        "title": "synthetic-title",
+        "version": 1,
+        "articleId": "synthetic-articleid",
+        "page": "synthetic-page",
+        "href": "synthetic-href",
+        "steps": [
+          {
+            "id": "synthetic-id",
+            "target": "parts-search",
+            "text": "synthetic-text",
+            "event": "input"
+          }
+        ]
+      }
+    ],
+    "scenarios": [
+      {
+        "id": "synthetic-id",
+        "title": "synthetic-title",
+        "version": 1,
+        "articleId": "synthetic-articleid",
+        "objective": "synthetic-objective"
+      }
+    ]
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current session required; 403 Current assurance/access unavailable; 404 Disabled, unpublished or unavailable; no restricted existence disclosure; 422 Invalid query or definition ID; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/learning/articles/{id}`
+
+- Operation ID: `getLearningArticlesById`
+- Purpose: Read-only versioned learning content. Public routes always omit restricted titles, bodies, guides and fixtures. Protected reads resolve current identity, MFA and effective assignments server-side; client roles/owner IDs are not accepted. All responses are private/no-store and vary by Cookie. No AI, account lookup, progress mutation or training/live operational writes. Read eligible articles. Access boundary: authenticated-user. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: AUTHENTICATED
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `id` | path | string | Yes | Identifier selecting the id resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Read eligible articles",
+  "data": {
+    "id": "synthetic-id",
+    "title": "synthetic-title",
+    "summary": "synthetic-summary",
+    "prerequisites": "synthetic-prerequisites",
+    "steps": [
+      "synthetic-steps-item"
+    ],
+    "outcome": "synthetic-outcome",
+    "recovery": "synthetic-recovery",
+    "keywords": "synthetic-keywords",
+    "page": "synthetic-page",
+    "href": "synthetic-href",
+    "source": "synthetic-source",
+    "version": 1,
+    "status": "published",
+    "reviewedAt": "2030-01-15T10:00:00.000Z"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current session required; 403 Current assurance/access unavailable; 404 Disabled, unpublished or unavailable; no restricted existence disclosure; 422 Invalid query or definition ID; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/learning/guides/{id}`
+
+- Operation ID: `getLearningGuidesById`
+- Purpose: Read-only versioned learning content. Public routes always omit restricted titles, bodies, guides and fixtures. Protected reads resolve current identity, MFA and effective assignments server-side; client roles/owner IDs are not accepted. All responses are private/no-store and vary by Cookie. No AI, account lookup, progress mutation or training/live operational writes. Read eligible guides. Access boundary: authenticated-user. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: AUTHENTICATED
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `id` | path | string | Yes | Identifier selecting the id resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Read eligible guides",
+  "data": {
+    "id": "synthetic-id",
+    "title": "synthetic-title",
+    "version": 1,
+    "articleId": "synthetic-articleid",
+    "page": "synthetic-page",
+    "href": "synthetic-href",
+    "steps": [
+      {
+        "id": "synthetic-id",
+        "target": "parts-search",
+        "text": "synthetic-text",
+        "event": "input"
+      }
+    ]
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current session required; 403 Current assurance/access unavailable; 404 Disabled, unpublished or unavailable; no restricted existence disclosure; 422 Invalid query or definition ID; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/learning/scenarios/{id}`
+
+- Operation ID: `getLearningScenariosById`
+- Purpose: Read-only versioned learning content. Public routes always omit restricted titles, bodies, guides and fixtures. Protected reads resolve current identity, MFA and effective assignments server-side; client roles/owner IDs are not accepted. All responses are private/no-store and vary by Cookie. No AI, account lookup, progress mutation or training/live operational writes. Read eligible scenarios. Access boundary: authenticated-user. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: AUTHENTICATED
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `id` | path | string | Yes | Identifier selecting the id resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Read eligible scenarios",
+  "data": {
+    "id": "synthetic-id",
+    "title": "synthetic-title",
+    "version": 1,
+    "articleId": "synthetic-articleid",
+    "objective": "synthetic-objective",
+    "kind": "fitment",
+    "fields": [
+      {
+        "id": "synthetic-id",
+        "label": "synthetic-label",
+        "example": "synthetic-example",
+        "min": 1,
+        "max": 1,
+        "options": [
+          "synthetic-options-item"
+        ],
+        "dependsOn": "synthetic-dependson"
+      }
+    ],
+    "choices": [
+      {
+        "id": "synthetic-id",
+        "label": "synthetic-label",
+        "feedback": "synthetic-feedback"
+      }
+    ],
+    "expected": "synthetic-expected",
+    "outcome": "synthetic-outcome",
+    "liveHref": "synthetic-livehref"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current session required; 403 Current assurance/access unavailable; 404 Disabled, unpublished or unavailable; no restricted existence disclosure; 422 Invalid query or definition ID; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 

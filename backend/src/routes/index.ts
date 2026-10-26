@@ -1,4 +1,5 @@
 import { createFitmentRouter } from "../modules/fitment/fitment.routes.js";
+import { createLearningRouter } from "../modules/learning/learning.routes.js";
 import { createServiceDiscoveryRouter } from "../modules/service-operations/service-discovery.routes.js";
 import { createOrderAftercareRouter } from "../modules/orders/order-aftercare.routes.js";
 import { createPrivacyRouter } from "../modules/policies/privacy.routes.js";
@@ -106,6 +107,7 @@ import { createDisputesRouter } from "../modules/payments/disputes.routes.js";
 export function createApiRouter(options: ApiRouterOptions): Router {
   const apiRouter = Router();
   apiRouter.use(publicLaunch(env.PUBLIC_LAUNCH_MODE));
+  apiRouter.use(createLearningRouter());
   apiRouter.use(createWorkforceRouter());
   apiRouter.use(createPoliciesRouter());
   apiRouter.use(createPrivacyRouter());

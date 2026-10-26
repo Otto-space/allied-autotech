@@ -376,6 +376,2884 @@
     "parameters": {}
   },
   "paths": {
+    "/public/learning/catalogue": {
+      "get": {
+        "tags": [
+          "Help & Learn"
+        ],
+        "summary": "Read eligible catalogue",
+        "description": "Read-only versioned learning content. Public routes always omit restricted titles, bodies, guides and fixtures. Protected reads resolve current identity, MFA and effective assignments server-side; client roles/owner IDs are not accepted. All responses are private/no-store and vary by Cookie. No AI, account lookup, progress mutation or training/live operational writes. Read eligible catalogue. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 120,
+              "description": "Q validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "q",
+            "in": "query",
+            "description": "Q used to constrain this request.",
+            "example": "synthetic-q"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success: Read eligible catalogue.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ],
+                      "description": "Success validated by this operation's strict request contract."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "accessKey": {
+                          "type": "string",
+                          "description": "Access Key validated by this operation's strict request contract."
+                        },
+                        "audience": {
+                          "type": "string",
+                          "enum": [
+                            "public",
+                            "customer",
+                            "work"
+                          ],
+                          "description": "Audience validated by this operation's strict request contract."
+                        },
+                        "contentVersion": {
+                          "type": "number",
+                          "enum": [
+                            1
+                          ],
+                          "description": "Content Version validated by this operation's strict request contract."
+                        },
+                        "mode": {
+                          "type": "string",
+                          "enum": [
+                            "full",
+                            "browse_enquiries",
+                            "catalogue"
+                          ],
+                          "description": "Mode validated by this operation's strict request contract."
+                        },
+                        "flags": {
+                          "type": "object",
+                          "properties": {
+                            "guides": {
+                              "type": "boolean",
+                              "description": "Guides validated by this operation's strict request contract."
+                            },
+                            "practice": {
+                              "type": "boolean",
+                              "description": "Practice validated by this operation's strict request contract."
+                            },
+                            "ai": {
+                              "type": "boolean",
+                              "enum": [
+                                false
+                              ],
+                              "description": "Ai validated by this operation's strict request contract."
+                            }
+                          },
+                          "required": [
+                            "guides",
+                            "practice",
+                            "ai"
+                          ],
+                          "description": "Flags validated by this operation's strict request contract."
+                        },
+                        "articles": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "description": "Identifier of the id resource; ownership is resolved server-side."
+                              },
+                              "title": {
+                                "type": "string",
+                                "description": "Title validated by this operation's strict request contract."
+                              },
+                              "summary": {
+                                "type": "string",
+                                "description": "Summary validated by this operation's strict request contract."
+                              },
+                              "prerequisites": {
+                                "type": "string",
+                                "description": "Prerequisites validated by this operation's strict request contract."
+                              },
+                              "steps": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string",
+                                  "description": "Steps Item validated by this operation's strict request contract."
+                                },
+                                "description": "Steps validated by this operation's strict request contract."
+                              },
+                              "outcome": {
+                                "type": "string",
+                                "description": "Outcome validated by this operation's strict request contract."
+                              },
+                              "recovery": {
+                                "type": "string",
+                                "description": "Recovery validated by this operation's strict request contract."
+                              },
+                              "keywords": {
+                                "type": "string",
+                                "description": "Keywords validated by this operation's strict request contract."
+                              },
+                              "page": {
+                                "type": "string",
+                                "description": "Page validated by this operation's strict request contract."
+                              },
+                              "href": {
+                                "type": "string",
+                                "description": "Href validated by this operation's strict request contract."
+                              },
+                              "source": {
+                                "type": "string",
+                                "description": "Source validated by this operation's strict request contract."
+                              },
+                              "version": {
+                                "type": "integer",
+                                "description": "Version validated by this operation's strict request contract."
+                              },
+                              "status": {
+                                "type": "string",
+                                "enum": [
+                                  "published"
+                                ],
+                                "description": "Requested or filtered lifecycle state from the documented enum."
+                              },
+                              "reviewedAt": {
+                                "type": "string",
+                                "description": "ISO 8601 timestamp interpreted and validated by the server."
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "title",
+                              "summary",
+                              "prerequisites",
+                              "steps",
+                              "outcome",
+                              "recovery",
+                              "keywords",
+                              "page",
+                              "href",
+                              "source",
+                              "version",
+                              "status",
+                              "reviewedAt"
+                            ],
+                            "description": "Articles Item validated by this operation's strict request contract."
+                          },
+                          "description": "Articles validated by this operation's strict request contract."
+                        },
+                        "guides": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "description": "Identifier of the id resource; ownership is resolved server-side."
+                              },
+                              "title": {
+                                "type": "string",
+                                "description": "Title validated by this operation's strict request contract."
+                              },
+                              "version": {
+                                "type": "integer",
+                                "description": "Version validated by this operation's strict request contract."
+                              },
+                              "articleId": {
+                                "type": "string",
+                                "description": "Identifier of the article resource; ownership is resolved server-side."
+                              },
+                              "page": {
+                                "type": "string",
+                                "description": "Page validated by this operation's strict request contract."
+                              },
+                              "href": {
+                                "type": "string",
+                                "description": "Href validated by this operation's strict request contract."
+                              },
+                              "steps": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "id": {
+                                      "type": "string",
+                                      "description": "Identifier of the id resource; ownership is resolved server-side."
+                                    },
+                                    "target": {
+                                      "type": "string",
+                                      "enum": [
+                                        "parts-search",
+                                        "parts-results",
+                                        "support-start",
+                                        "support-subject",
+                                        "care-search",
+                                        "care-results"
+                                      ],
+                                      "description": "Target validated by this operation's strict request contract."
+                                    },
+                                    "text": {
+                                      "type": "string",
+                                      "description": "Text validated by this operation's strict request contract."
+                                    },
+                                    "event": {
+                                      "type": "string",
+                                      "enum": [
+                                        "input",
+                                        "click",
+                                        "read"
+                                      ],
+                                      "description": "Event validated by this operation's strict request contract."
+                                    }
+                                  },
+                                  "required": [
+                                    "id",
+                                    "target",
+                                    "text",
+                                    "event"
+                                  ],
+                                  "description": "Steps Item validated by this operation's strict request contract."
+                                },
+                                "description": "Steps validated by this operation's strict request contract."
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "title",
+                              "version",
+                              "articleId",
+                              "page",
+                              "href",
+                              "steps"
+                            ],
+                            "description": "Guides Item validated by this operation's strict request contract."
+                          },
+                          "description": "Guides validated by this operation's strict request contract."
+                        },
+                        "scenarios": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "description": "Identifier of the id resource; ownership is resolved server-side."
+                              },
+                              "title": {
+                                "type": "string",
+                                "description": "Title validated by this operation's strict request contract."
+                              },
+                              "version": {
+                                "type": "integer",
+                                "description": "Version validated by this operation's strict request contract."
+                              },
+                              "articleId": {
+                                "type": "string",
+                                "description": "Identifier of the article resource; ownership is resolved server-side."
+                              },
+                              "objective": {
+                                "type": "string",
+                                "description": "Objective validated by this operation's strict request contract."
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "title",
+                              "version",
+                              "articleId",
+                              "objective"
+                            ],
+                            "description": "Scenarios Item validated by this operation's strict request contract."
+                          },
+                          "description": "Scenarios validated by this operation's strict request contract."
+                        }
+                      },
+                      "required": [
+                        "accessKey",
+                        "audience",
+                        "contentVersion",
+                        "mode",
+                        "flags",
+                        "articles",
+                        "guides",
+                        "scenarios"
+                      ],
+                      "description": "Data validated by this operation's strict request contract."
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string",
+                          "description": "Identifier of the request resource; ownership is resolved server-side."
+                        },
+                        "serverTime": {
+                          "type": "string",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        }
+                      },
+                      "required": [
+                        "requestId",
+                        "serverTime"
+                      ],
+                      "description": "Meta validated by this operation's strict request contract."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "data",
+                    "meta"
+                  ],
+                  "description": "Response validated by this operation's strict request contract."
+                },
+                "example": {
+                  "success": true,
+                  "message": "Read eligible catalogue",
+                  "data": {
+                    "accessKey": "synthetic-accesskey",
+                    "audience": "public",
+                    "contentVersion": 1,
+                    "mode": "full",
+                    "flags": {
+                      "guides": true,
+                      "practice": true,
+                      "ai": false
+                    },
+                    "articles": [
+                      {
+                        "id": "synthetic-id",
+                        "title": "synthetic-title",
+                        "summary": "synthetic-summary",
+                        "prerequisites": "synthetic-prerequisites",
+                        "steps": [
+                          "synthetic-steps-item"
+                        ],
+                        "outcome": "synthetic-outcome",
+                        "recovery": "synthetic-recovery",
+                        "keywords": "synthetic-keywords",
+                        "page": "synthetic-page",
+                        "href": "synthetic-href",
+                        "source": "synthetic-source",
+                        "version": 1,
+                        "status": "published",
+                        "reviewedAt": "2030-01-15T10:00:00.000Z"
+                      }
+                    ],
+                    "guides": [
+                      {
+                        "id": "synthetic-id",
+                        "title": "synthetic-title",
+                        "version": 1,
+                        "articleId": "synthetic-articleid",
+                        "page": "synthetic-page",
+                        "href": "synthetic-href",
+                        "steps": [
+                          {
+                            "id": "synthetic-id",
+                            "target": "parts-search",
+                            "text": "synthetic-text",
+                            "event": "input"
+                          }
+                        ]
+                      }
+                    ],
+                    "scenarios": [
+                      {
+                        "id": "synthetic-id",
+                        "title": "synthetic-title",
+                        "version": 1,
+                        "articleId": "synthetic-articleid",
+                        "objective": "synthetic-objective"
+                      }
+                    ]
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is malformed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request is malformed.",
+                  "error": {
+                    "code": "BAD_REQUEST"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Current session required"
+          },
+          "403": {
+            "description": "Current assurance/access unavailable"
+          },
+          "404": {
+            "description": "Disabled, unpublished or unavailable; no restricted existence disclosure"
+          },
+          "422": {
+            "description": "Invalid query or definition ID"
+          },
+          "429": {
+            "description": "The route-specific request limit was exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The route-specific request limit was exceeded.",
+                  "error": {
+                    "code": "RATE_LIMITED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                  "error": {
+                    "code": "INTERNAL_ERROR"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                  "error": {
+                    "code": "DATABASE_UNAVAILABLE"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getPublicLearningCatalogue",
+        "x-access-boundary": "public",
+        "x-required-roles": [
+          "PUBLIC"
+        ],
+        "x-csrf-required": false,
+        "x-idempotency-required": false
+      }
+    },
+    "/public/learning/articles/{id}": {
+      "get": {
+        "tags": [
+          "Help & Learn"
+        ],
+        "summary": "Read eligible articles",
+        "description": "Read-only versioned learning content. Public routes always omit restricted titles, bodies, guides and fixtures. Protected reads resolve current identity, MFA and effective assignments server-side; client roles/owner IDs are not accepted. All responses are private/no-store and vary by Cookie. No AI, account lookup, progress mutation or training/live operational writes. Read eligible articles. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9-]{0,63}$",
+              "description": "Identifier of the id resource; ownership is resolved server-side."
+            },
+            "required": true,
+            "name": "id",
+            "in": "path",
+            "description": "Identifier selecting the id resource.",
+            "example": "synthetic-id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success: Read eligible articles.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ],
+                      "description": "Success validated by this operation's strict request contract."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "Identifier of the id resource; ownership is resolved server-side."
+                        },
+                        "title": {
+                          "type": "string",
+                          "description": "Title validated by this operation's strict request contract."
+                        },
+                        "summary": {
+                          "type": "string",
+                          "description": "Summary validated by this operation's strict request contract."
+                        },
+                        "prerequisites": {
+                          "type": "string",
+                          "description": "Prerequisites validated by this operation's strict request contract."
+                        },
+                        "steps": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "description": "Steps Item validated by this operation's strict request contract."
+                          },
+                          "description": "Steps validated by this operation's strict request contract."
+                        },
+                        "outcome": {
+                          "type": "string",
+                          "description": "Outcome validated by this operation's strict request contract."
+                        },
+                        "recovery": {
+                          "type": "string",
+                          "description": "Recovery validated by this operation's strict request contract."
+                        },
+                        "keywords": {
+                          "type": "string",
+                          "description": "Keywords validated by this operation's strict request contract."
+                        },
+                        "page": {
+                          "type": "string",
+                          "description": "Page validated by this operation's strict request contract."
+                        },
+                        "href": {
+                          "type": "string",
+                          "description": "Href validated by this operation's strict request contract."
+                        },
+                        "source": {
+                          "type": "string",
+                          "description": "Source validated by this operation's strict request contract."
+                        },
+                        "version": {
+                          "type": "integer",
+                          "description": "Version validated by this operation's strict request contract."
+                        },
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "published"
+                          ],
+                          "description": "Requested or filtered lifecycle state from the documented enum."
+                        },
+                        "reviewedAt": {
+                          "type": "string",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "title",
+                        "summary",
+                        "prerequisites",
+                        "steps",
+                        "outcome",
+                        "recovery",
+                        "keywords",
+                        "page",
+                        "href",
+                        "source",
+                        "version",
+                        "status",
+                        "reviewedAt"
+                      ],
+                      "description": "Data validated by this operation's strict request contract."
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string",
+                          "description": "Identifier of the request resource; ownership is resolved server-side."
+                        },
+                        "serverTime": {
+                          "type": "string",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        }
+                      },
+                      "required": [
+                        "requestId",
+                        "serverTime"
+                      ],
+                      "description": "Meta validated by this operation's strict request contract."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "data",
+                    "meta"
+                  ],
+                  "description": "Response validated by this operation's strict request contract."
+                },
+                "example": {
+                  "success": true,
+                  "message": "Read eligible articles",
+                  "data": {
+                    "id": "synthetic-id",
+                    "title": "synthetic-title",
+                    "summary": "synthetic-summary",
+                    "prerequisites": "synthetic-prerequisites",
+                    "steps": [
+                      "synthetic-steps-item"
+                    ],
+                    "outcome": "synthetic-outcome",
+                    "recovery": "synthetic-recovery",
+                    "keywords": "synthetic-keywords",
+                    "page": "synthetic-page",
+                    "href": "synthetic-href",
+                    "source": "synthetic-source",
+                    "version": 1,
+                    "status": "published",
+                    "reviewedAt": "2030-01-15T10:00:00.000Z"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is malformed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request is malformed.",
+                  "error": {
+                    "code": "BAD_REQUEST"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Current session required"
+          },
+          "403": {
+            "description": "Current assurance/access unavailable"
+          },
+          "404": {
+            "description": "Disabled, unpublished or unavailable; no restricted existence disclosure"
+          },
+          "422": {
+            "description": "Invalid query or definition ID"
+          },
+          "429": {
+            "description": "The route-specific request limit was exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The route-specific request limit was exceeded.",
+                  "error": {
+                    "code": "RATE_LIMITED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                  "error": {
+                    "code": "INTERNAL_ERROR"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                  "error": {
+                    "code": "DATABASE_UNAVAILABLE"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getPublicLearningArticlesById",
+        "x-access-boundary": "public",
+        "x-required-roles": [
+          "PUBLIC"
+        ],
+        "x-csrf-required": false,
+        "x-idempotency-required": false
+      }
+    },
+    "/public/learning/guides/{id}": {
+      "get": {
+        "tags": [
+          "Help & Learn"
+        ],
+        "summary": "Read eligible guides",
+        "description": "Read-only versioned learning content. Public routes always omit restricted titles, bodies, guides and fixtures. Protected reads resolve current identity, MFA and effective assignments server-side; client roles/owner IDs are not accepted. All responses are private/no-store and vary by Cookie. No AI, account lookup, progress mutation or training/live operational writes. Read eligible guides. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9-]{0,63}$",
+              "description": "Identifier of the id resource; ownership is resolved server-side."
+            },
+            "required": true,
+            "name": "id",
+            "in": "path",
+            "description": "Identifier selecting the id resource.",
+            "example": "synthetic-id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success: Read eligible guides.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ],
+                      "description": "Success validated by this operation's strict request contract."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "Identifier of the id resource; ownership is resolved server-side."
+                        },
+                        "title": {
+                          "type": "string",
+                          "description": "Title validated by this operation's strict request contract."
+                        },
+                        "version": {
+                          "type": "integer",
+                          "description": "Version validated by this operation's strict request contract."
+                        },
+                        "articleId": {
+                          "type": "string",
+                          "description": "Identifier of the article resource; ownership is resolved server-side."
+                        },
+                        "page": {
+                          "type": "string",
+                          "description": "Page validated by this operation's strict request contract."
+                        },
+                        "href": {
+                          "type": "string",
+                          "description": "Href validated by this operation's strict request contract."
+                        },
+                        "steps": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "description": "Identifier of the id resource; ownership is resolved server-side."
+                              },
+                              "target": {
+                                "type": "string",
+                                "enum": [
+                                  "parts-search",
+                                  "parts-results",
+                                  "support-start",
+                                  "support-subject",
+                                  "care-search",
+                                  "care-results"
+                                ],
+                                "description": "Target validated by this operation's strict request contract."
+                              },
+                              "text": {
+                                "type": "string",
+                                "description": "Text validated by this operation's strict request contract."
+                              },
+                              "event": {
+                                "type": "string",
+                                "enum": [
+                                  "input",
+                                  "click",
+                                  "read"
+                                ],
+                                "description": "Event validated by this operation's strict request contract."
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "target",
+                              "text",
+                              "event"
+                            ],
+                            "description": "Steps Item validated by this operation's strict request contract."
+                          },
+                          "description": "Steps validated by this operation's strict request contract."
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "title",
+                        "version",
+                        "articleId",
+                        "page",
+                        "href",
+                        "steps"
+                      ],
+                      "description": "Data validated by this operation's strict request contract."
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string",
+                          "description": "Identifier of the request resource; ownership is resolved server-side."
+                        },
+                        "serverTime": {
+                          "type": "string",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        }
+                      },
+                      "required": [
+                        "requestId",
+                        "serverTime"
+                      ],
+                      "description": "Meta validated by this operation's strict request contract."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "data",
+                    "meta"
+                  ],
+                  "description": "Response validated by this operation's strict request contract."
+                },
+                "example": {
+                  "success": true,
+                  "message": "Read eligible guides",
+                  "data": {
+                    "id": "synthetic-id",
+                    "title": "synthetic-title",
+                    "version": 1,
+                    "articleId": "synthetic-articleid",
+                    "page": "synthetic-page",
+                    "href": "synthetic-href",
+                    "steps": [
+                      {
+                        "id": "synthetic-id",
+                        "target": "parts-search",
+                        "text": "synthetic-text",
+                        "event": "input"
+                      }
+                    ]
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is malformed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request is malformed.",
+                  "error": {
+                    "code": "BAD_REQUEST"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Current session required"
+          },
+          "403": {
+            "description": "Current assurance/access unavailable"
+          },
+          "404": {
+            "description": "Disabled, unpublished or unavailable; no restricted existence disclosure"
+          },
+          "422": {
+            "description": "Invalid query or definition ID"
+          },
+          "429": {
+            "description": "The route-specific request limit was exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The route-specific request limit was exceeded.",
+                  "error": {
+                    "code": "RATE_LIMITED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                  "error": {
+                    "code": "INTERNAL_ERROR"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                  "error": {
+                    "code": "DATABASE_UNAVAILABLE"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getPublicLearningGuidesById",
+        "x-access-boundary": "public",
+        "x-required-roles": [
+          "PUBLIC"
+        ],
+        "x-csrf-required": false,
+        "x-idempotency-required": false
+      }
+    },
+    "/public/learning/scenarios/{id}": {
+      "get": {
+        "tags": [
+          "Help & Learn"
+        ],
+        "summary": "Read eligible scenarios",
+        "description": "Read-only versioned learning content. Public routes always omit restricted titles, bodies, guides and fixtures. Protected reads resolve current identity, MFA and effective assignments server-side; client roles/owner IDs are not accepted. All responses are private/no-store and vary by Cookie. No AI, account lookup, progress mutation or training/live operational writes. Read eligible scenarios. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9-]{0,63}$",
+              "description": "Identifier of the id resource; ownership is resolved server-side."
+            },
+            "required": true,
+            "name": "id",
+            "in": "path",
+            "description": "Identifier selecting the id resource.",
+            "example": "synthetic-id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success: Read eligible scenarios.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ],
+                      "description": "Success validated by this operation's strict request contract."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "Identifier of the id resource; ownership is resolved server-side."
+                        },
+                        "title": {
+                          "type": "string",
+                          "description": "Title validated by this operation's strict request contract."
+                        },
+                        "version": {
+                          "type": "integer",
+                          "description": "Version validated by this operation's strict request contract."
+                        },
+                        "articleId": {
+                          "type": "string",
+                          "description": "Identifier of the article resource; ownership is resolved server-side."
+                        },
+                        "objective": {
+                          "type": "string",
+                          "description": "Objective validated by this operation's strict request contract."
+                        },
+                        "kind": {
+                          "type": "string",
+                          "enum": [
+                            "fitment",
+                            "draft",
+                            "decision"
+                          ],
+                          "description": "Kind validated by this operation's strict request contract."
+                        },
+                        "fields": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "description": "Identifier of the id resource; ownership is resolved server-side."
+                              },
+                              "label": {
+                                "type": "string",
+                                "description": "Label validated by this operation's strict request contract."
+                              },
+                              "example": {
+                                "type": "string",
+                                "description": "Example validated by this operation's strict request contract."
+                              },
+                              "min": {
+                                "type": "number",
+                                "description": "Min validated by this operation's strict request contract."
+                              },
+                              "max": {
+                                "type": "number",
+                                "description": "Max validated by this operation's strict request contract."
+                              },
+                              "options": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string",
+                                  "description": "Options Item validated by this operation's strict request contract."
+                                },
+                                "description": "Options validated by this operation's strict request contract."
+                              },
+                              "dependsOn": {
+                                "type": "string",
+                                "description": "Depends On validated by this operation's strict request contract."
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "label",
+                              "example",
+                              "min",
+                              "max"
+                            ],
+                            "description": "Fields Item validated by this operation's strict request contract."
+                          },
+                          "description": "Fields validated by this operation's strict request contract."
+                        },
+                        "choices": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "description": "Identifier of the id resource; ownership is resolved server-side."
+                              },
+                              "label": {
+                                "type": "string",
+                                "description": "Label validated by this operation's strict request contract."
+                              },
+                              "feedback": {
+                                "type": "string",
+                                "description": "Feedback validated by this operation's strict request contract."
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "label",
+                              "feedback"
+                            ],
+                            "description": "Choices Item validated by this operation's strict request contract."
+                          },
+                          "description": "Choices validated by this operation's strict request contract."
+                        },
+                        "expected": {
+                          "type": "string",
+                          "description": "Expected validated by this operation's strict request contract."
+                        },
+                        "outcome": {
+                          "type": "string",
+                          "description": "Outcome validated by this operation's strict request contract."
+                        },
+                        "liveHref": {
+                          "type": "string",
+                          "description": "Live Href validated by this operation's strict request contract."
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "title",
+                        "version",
+                        "articleId",
+                        "objective",
+                        "kind",
+                        "fields",
+                        "choices",
+                        "expected",
+                        "outcome",
+                        "liveHref"
+                      ],
+                      "description": "Data validated by this operation's strict request contract."
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string",
+                          "description": "Identifier of the request resource; ownership is resolved server-side."
+                        },
+                        "serverTime": {
+                          "type": "string",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        }
+                      },
+                      "required": [
+                        "requestId",
+                        "serverTime"
+                      ],
+                      "description": "Meta validated by this operation's strict request contract."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "data",
+                    "meta"
+                  ],
+                  "description": "Response validated by this operation's strict request contract."
+                },
+                "example": {
+                  "success": true,
+                  "message": "Read eligible scenarios",
+                  "data": {
+                    "id": "synthetic-id",
+                    "title": "synthetic-title",
+                    "version": 1,
+                    "articleId": "synthetic-articleid",
+                    "objective": "synthetic-objective",
+                    "kind": "fitment",
+                    "fields": [
+                      {
+                        "id": "synthetic-id",
+                        "label": "synthetic-label",
+                        "example": "synthetic-example",
+                        "min": 1,
+                        "max": 1,
+                        "options": [
+                          "synthetic-options-item"
+                        ],
+                        "dependsOn": "synthetic-dependson"
+                      }
+                    ],
+                    "choices": [
+                      {
+                        "id": "synthetic-id",
+                        "label": "synthetic-label",
+                        "feedback": "synthetic-feedback"
+                      }
+                    ],
+                    "expected": "synthetic-expected",
+                    "outcome": "synthetic-outcome",
+                    "liveHref": "synthetic-livehref"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is malformed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request is malformed.",
+                  "error": {
+                    "code": "BAD_REQUEST"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Current session required"
+          },
+          "403": {
+            "description": "Current assurance/access unavailable"
+          },
+          "404": {
+            "description": "Disabled, unpublished or unavailable; no restricted existence disclosure"
+          },
+          "422": {
+            "description": "Invalid query or definition ID"
+          },
+          "429": {
+            "description": "The route-specific request limit was exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The route-specific request limit was exceeded.",
+                  "error": {
+                    "code": "RATE_LIMITED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                  "error": {
+                    "code": "INTERNAL_ERROR"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                  "error": {
+                    "code": "DATABASE_UNAVAILABLE"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getPublicLearningScenariosById",
+        "x-access-boundary": "public",
+        "x-required-roles": [
+          "PUBLIC"
+        ],
+        "x-csrf-required": false,
+        "x-idempotency-required": false
+      }
+    },
+    "/learning/catalogue": {
+      "get": {
+        "tags": [
+          "Help & Learn"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "summary": "Read eligible catalogue",
+        "description": "Read-only versioned learning content. Public routes always omit restricted titles, bodies, guides and fixtures. Protected reads resolve current identity, MFA and effective assignments server-side; client roles/owner IDs are not accepted. All responses are private/no-store and vary by Cookie. No AI, account lookup, progress mutation or training/live operational writes. Read eligible catalogue. Access boundary: authenticated-user. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 120,
+              "description": "Q validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "q",
+            "in": "query",
+            "description": "Q used to constrain this request.",
+            "example": "synthetic-q"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success: Read eligible catalogue.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ],
+                      "description": "Success validated by this operation's strict request contract."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "accessKey": {
+                          "type": "string",
+                          "description": "Access Key validated by this operation's strict request contract."
+                        },
+                        "audience": {
+                          "type": "string",
+                          "enum": [
+                            "public",
+                            "customer",
+                            "work"
+                          ],
+                          "description": "Audience validated by this operation's strict request contract."
+                        },
+                        "contentVersion": {
+                          "type": "number",
+                          "enum": [
+                            1
+                          ],
+                          "description": "Content Version validated by this operation's strict request contract."
+                        },
+                        "mode": {
+                          "type": "string",
+                          "enum": [
+                            "full",
+                            "browse_enquiries",
+                            "catalogue"
+                          ],
+                          "description": "Mode validated by this operation's strict request contract."
+                        },
+                        "flags": {
+                          "type": "object",
+                          "properties": {
+                            "guides": {
+                              "type": "boolean",
+                              "description": "Guides validated by this operation's strict request contract."
+                            },
+                            "practice": {
+                              "type": "boolean",
+                              "description": "Practice validated by this operation's strict request contract."
+                            },
+                            "ai": {
+                              "type": "boolean",
+                              "enum": [
+                                false
+                              ],
+                              "description": "Ai validated by this operation's strict request contract."
+                            }
+                          },
+                          "required": [
+                            "guides",
+                            "practice",
+                            "ai"
+                          ],
+                          "description": "Flags validated by this operation's strict request contract."
+                        },
+                        "articles": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "description": "Identifier of the id resource; ownership is resolved server-side."
+                              },
+                              "title": {
+                                "type": "string",
+                                "description": "Title validated by this operation's strict request contract."
+                              },
+                              "summary": {
+                                "type": "string",
+                                "description": "Summary validated by this operation's strict request contract."
+                              },
+                              "prerequisites": {
+                                "type": "string",
+                                "description": "Prerequisites validated by this operation's strict request contract."
+                              },
+                              "steps": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string",
+                                  "description": "Steps Item validated by this operation's strict request contract."
+                                },
+                                "description": "Steps validated by this operation's strict request contract."
+                              },
+                              "outcome": {
+                                "type": "string",
+                                "description": "Outcome validated by this operation's strict request contract."
+                              },
+                              "recovery": {
+                                "type": "string",
+                                "description": "Recovery validated by this operation's strict request contract."
+                              },
+                              "keywords": {
+                                "type": "string",
+                                "description": "Keywords validated by this operation's strict request contract."
+                              },
+                              "page": {
+                                "type": "string",
+                                "description": "Page validated by this operation's strict request contract."
+                              },
+                              "href": {
+                                "type": "string",
+                                "description": "Href validated by this operation's strict request contract."
+                              },
+                              "source": {
+                                "type": "string",
+                                "description": "Source validated by this operation's strict request contract."
+                              },
+                              "version": {
+                                "type": "integer",
+                                "description": "Version validated by this operation's strict request contract."
+                              },
+                              "status": {
+                                "type": "string",
+                                "enum": [
+                                  "published"
+                                ],
+                                "description": "Requested or filtered lifecycle state from the documented enum."
+                              },
+                              "reviewedAt": {
+                                "type": "string",
+                                "description": "ISO 8601 timestamp interpreted and validated by the server."
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "title",
+                              "summary",
+                              "prerequisites",
+                              "steps",
+                              "outcome",
+                              "recovery",
+                              "keywords",
+                              "page",
+                              "href",
+                              "source",
+                              "version",
+                              "status",
+                              "reviewedAt"
+                            ],
+                            "description": "Articles Item validated by this operation's strict request contract."
+                          },
+                          "description": "Articles validated by this operation's strict request contract."
+                        },
+                        "guides": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "description": "Identifier of the id resource; ownership is resolved server-side."
+                              },
+                              "title": {
+                                "type": "string",
+                                "description": "Title validated by this operation's strict request contract."
+                              },
+                              "version": {
+                                "type": "integer",
+                                "description": "Version validated by this operation's strict request contract."
+                              },
+                              "articleId": {
+                                "type": "string",
+                                "description": "Identifier of the article resource; ownership is resolved server-side."
+                              },
+                              "page": {
+                                "type": "string",
+                                "description": "Page validated by this operation's strict request contract."
+                              },
+                              "href": {
+                                "type": "string",
+                                "description": "Href validated by this operation's strict request contract."
+                              },
+                              "steps": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "id": {
+                                      "type": "string",
+                                      "description": "Identifier of the id resource; ownership is resolved server-side."
+                                    },
+                                    "target": {
+                                      "type": "string",
+                                      "enum": [
+                                        "parts-search",
+                                        "parts-results",
+                                        "support-start",
+                                        "support-subject",
+                                        "care-search",
+                                        "care-results"
+                                      ],
+                                      "description": "Target validated by this operation's strict request contract."
+                                    },
+                                    "text": {
+                                      "type": "string",
+                                      "description": "Text validated by this operation's strict request contract."
+                                    },
+                                    "event": {
+                                      "type": "string",
+                                      "enum": [
+                                        "input",
+                                        "click",
+                                        "read"
+                                      ],
+                                      "description": "Event validated by this operation's strict request contract."
+                                    }
+                                  },
+                                  "required": [
+                                    "id",
+                                    "target",
+                                    "text",
+                                    "event"
+                                  ],
+                                  "description": "Steps Item validated by this operation's strict request contract."
+                                },
+                                "description": "Steps validated by this operation's strict request contract."
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "title",
+                              "version",
+                              "articleId",
+                              "page",
+                              "href",
+                              "steps"
+                            ],
+                            "description": "Guides Item validated by this operation's strict request contract."
+                          },
+                          "description": "Guides validated by this operation's strict request contract."
+                        },
+                        "scenarios": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "description": "Identifier of the id resource; ownership is resolved server-side."
+                              },
+                              "title": {
+                                "type": "string",
+                                "description": "Title validated by this operation's strict request contract."
+                              },
+                              "version": {
+                                "type": "integer",
+                                "description": "Version validated by this operation's strict request contract."
+                              },
+                              "articleId": {
+                                "type": "string",
+                                "description": "Identifier of the article resource; ownership is resolved server-side."
+                              },
+                              "objective": {
+                                "type": "string",
+                                "description": "Objective validated by this operation's strict request contract."
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "title",
+                              "version",
+                              "articleId",
+                              "objective"
+                            ],
+                            "description": "Scenarios Item validated by this operation's strict request contract."
+                          },
+                          "description": "Scenarios validated by this operation's strict request contract."
+                        }
+                      },
+                      "required": [
+                        "accessKey",
+                        "audience",
+                        "contentVersion",
+                        "mode",
+                        "flags",
+                        "articles",
+                        "guides",
+                        "scenarios"
+                      ],
+                      "description": "Data validated by this operation's strict request contract."
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string",
+                          "description": "Identifier of the request resource; ownership is resolved server-side."
+                        },
+                        "serverTime": {
+                          "type": "string",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        }
+                      },
+                      "required": [
+                        "requestId",
+                        "serverTime"
+                      ],
+                      "description": "Meta validated by this operation's strict request contract."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "data",
+                    "meta"
+                  ],
+                  "description": "Response validated by this operation's strict request contract."
+                },
+                "example": {
+                  "success": true,
+                  "message": "Read eligible catalogue",
+                  "data": {
+                    "accessKey": "synthetic-accesskey",
+                    "audience": "public",
+                    "contentVersion": 1,
+                    "mode": "full",
+                    "flags": {
+                      "guides": true,
+                      "practice": true,
+                      "ai": false
+                    },
+                    "articles": [
+                      {
+                        "id": "synthetic-id",
+                        "title": "synthetic-title",
+                        "summary": "synthetic-summary",
+                        "prerequisites": "synthetic-prerequisites",
+                        "steps": [
+                          "synthetic-steps-item"
+                        ],
+                        "outcome": "synthetic-outcome",
+                        "recovery": "synthetic-recovery",
+                        "keywords": "synthetic-keywords",
+                        "page": "synthetic-page",
+                        "href": "synthetic-href",
+                        "source": "synthetic-source",
+                        "version": 1,
+                        "status": "published",
+                        "reviewedAt": "2030-01-15T10:00:00.000Z"
+                      }
+                    ],
+                    "guides": [
+                      {
+                        "id": "synthetic-id",
+                        "title": "synthetic-title",
+                        "version": 1,
+                        "articleId": "synthetic-articleid",
+                        "page": "synthetic-page",
+                        "href": "synthetic-href",
+                        "steps": [
+                          {
+                            "id": "synthetic-id",
+                            "target": "parts-search",
+                            "text": "synthetic-text",
+                            "event": "input"
+                          }
+                        ]
+                      }
+                    ],
+                    "scenarios": [
+                      {
+                        "id": "synthetic-id",
+                        "title": "synthetic-title",
+                        "version": 1,
+                        "articleId": "synthetic-articleid",
+                        "objective": "synthetic-objective"
+                      }
+                    ]
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is malformed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request is malformed.",
+                  "error": {
+                    "code": "BAD_REQUEST"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Current session required"
+          },
+          "403": {
+            "description": "Current assurance/access unavailable"
+          },
+          "404": {
+            "description": "Disabled, unpublished or unavailable; no restricted existence disclosure"
+          },
+          "422": {
+            "description": "Invalid query or definition ID"
+          },
+          "429": {
+            "description": "The route-specific request limit was exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The route-specific request limit was exceeded.",
+                  "error": {
+                    "code": "RATE_LIMITED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                  "error": {
+                    "code": "INTERNAL_ERROR"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                  "error": {
+                    "code": "DATABASE_UNAVAILABLE"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getLearningCatalogue",
+        "x-access-boundary": "authenticated-user",
+        "x-required-roles": [
+          "AUTHENTICATED"
+        ],
+        "x-csrf-required": false,
+        "x-idempotency-required": false
+      }
+    },
+    "/learning/articles/{id}": {
+      "get": {
+        "tags": [
+          "Help & Learn"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "summary": "Read eligible articles",
+        "description": "Read-only versioned learning content. Public routes always omit restricted titles, bodies, guides and fixtures. Protected reads resolve current identity, MFA and effective assignments server-side; client roles/owner IDs are not accepted. All responses are private/no-store and vary by Cookie. No AI, account lookup, progress mutation or training/live operational writes. Read eligible articles. Access boundary: authenticated-user. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9-]{0,63}$",
+              "description": "Identifier of the id resource; ownership is resolved server-side."
+            },
+            "required": true,
+            "name": "id",
+            "in": "path",
+            "description": "Identifier selecting the id resource.",
+            "example": "synthetic-id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success: Read eligible articles.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ],
+                      "description": "Success validated by this operation's strict request contract."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "Identifier of the id resource; ownership is resolved server-side."
+                        },
+                        "title": {
+                          "type": "string",
+                          "description": "Title validated by this operation's strict request contract."
+                        },
+                        "summary": {
+                          "type": "string",
+                          "description": "Summary validated by this operation's strict request contract."
+                        },
+                        "prerequisites": {
+                          "type": "string",
+                          "description": "Prerequisites validated by this operation's strict request contract."
+                        },
+                        "steps": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "description": "Steps Item validated by this operation's strict request contract."
+                          },
+                          "description": "Steps validated by this operation's strict request contract."
+                        },
+                        "outcome": {
+                          "type": "string",
+                          "description": "Outcome validated by this operation's strict request contract."
+                        },
+                        "recovery": {
+                          "type": "string",
+                          "description": "Recovery validated by this operation's strict request contract."
+                        },
+                        "keywords": {
+                          "type": "string",
+                          "description": "Keywords validated by this operation's strict request contract."
+                        },
+                        "page": {
+                          "type": "string",
+                          "description": "Page validated by this operation's strict request contract."
+                        },
+                        "href": {
+                          "type": "string",
+                          "description": "Href validated by this operation's strict request contract."
+                        },
+                        "source": {
+                          "type": "string",
+                          "description": "Source validated by this operation's strict request contract."
+                        },
+                        "version": {
+                          "type": "integer",
+                          "description": "Version validated by this operation's strict request contract."
+                        },
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "published"
+                          ],
+                          "description": "Requested or filtered lifecycle state from the documented enum."
+                        },
+                        "reviewedAt": {
+                          "type": "string",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "title",
+                        "summary",
+                        "prerequisites",
+                        "steps",
+                        "outcome",
+                        "recovery",
+                        "keywords",
+                        "page",
+                        "href",
+                        "source",
+                        "version",
+                        "status",
+                        "reviewedAt"
+                      ],
+                      "description": "Data validated by this operation's strict request contract."
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string",
+                          "description": "Identifier of the request resource; ownership is resolved server-side."
+                        },
+                        "serverTime": {
+                          "type": "string",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        }
+                      },
+                      "required": [
+                        "requestId",
+                        "serverTime"
+                      ],
+                      "description": "Meta validated by this operation's strict request contract."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "data",
+                    "meta"
+                  ],
+                  "description": "Response validated by this operation's strict request contract."
+                },
+                "example": {
+                  "success": true,
+                  "message": "Read eligible articles",
+                  "data": {
+                    "id": "synthetic-id",
+                    "title": "synthetic-title",
+                    "summary": "synthetic-summary",
+                    "prerequisites": "synthetic-prerequisites",
+                    "steps": [
+                      "synthetic-steps-item"
+                    ],
+                    "outcome": "synthetic-outcome",
+                    "recovery": "synthetic-recovery",
+                    "keywords": "synthetic-keywords",
+                    "page": "synthetic-page",
+                    "href": "synthetic-href",
+                    "source": "synthetic-source",
+                    "version": 1,
+                    "status": "published",
+                    "reviewedAt": "2030-01-15T10:00:00.000Z"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is malformed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request is malformed.",
+                  "error": {
+                    "code": "BAD_REQUEST"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Current session required"
+          },
+          "403": {
+            "description": "Current assurance/access unavailable"
+          },
+          "404": {
+            "description": "Disabled, unpublished or unavailable; no restricted existence disclosure"
+          },
+          "422": {
+            "description": "Invalid query or definition ID"
+          },
+          "429": {
+            "description": "The route-specific request limit was exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The route-specific request limit was exceeded.",
+                  "error": {
+                    "code": "RATE_LIMITED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                  "error": {
+                    "code": "INTERNAL_ERROR"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                  "error": {
+                    "code": "DATABASE_UNAVAILABLE"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getLearningArticlesById",
+        "x-access-boundary": "authenticated-user",
+        "x-required-roles": [
+          "AUTHENTICATED"
+        ],
+        "x-csrf-required": false,
+        "x-idempotency-required": false
+      }
+    },
+    "/learning/guides/{id}": {
+      "get": {
+        "tags": [
+          "Help & Learn"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "summary": "Read eligible guides",
+        "description": "Read-only versioned learning content. Public routes always omit restricted titles, bodies, guides and fixtures. Protected reads resolve current identity, MFA and effective assignments server-side; client roles/owner IDs are not accepted. All responses are private/no-store and vary by Cookie. No AI, account lookup, progress mutation or training/live operational writes. Read eligible guides. Access boundary: authenticated-user. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9-]{0,63}$",
+              "description": "Identifier of the id resource; ownership is resolved server-side."
+            },
+            "required": true,
+            "name": "id",
+            "in": "path",
+            "description": "Identifier selecting the id resource.",
+            "example": "synthetic-id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success: Read eligible guides.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ],
+                      "description": "Success validated by this operation's strict request contract."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "Identifier of the id resource; ownership is resolved server-side."
+                        },
+                        "title": {
+                          "type": "string",
+                          "description": "Title validated by this operation's strict request contract."
+                        },
+                        "version": {
+                          "type": "integer",
+                          "description": "Version validated by this operation's strict request contract."
+                        },
+                        "articleId": {
+                          "type": "string",
+                          "description": "Identifier of the article resource; ownership is resolved server-side."
+                        },
+                        "page": {
+                          "type": "string",
+                          "description": "Page validated by this operation's strict request contract."
+                        },
+                        "href": {
+                          "type": "string",
+                          "description": "Href validated by this operation's strict request contract."
+                        },
+                        "steps": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "description": "Identifier of the id resource; ownership is resolved server-side."
+                              },
+                              "target": {
+                                "type": "string",
+                                "enum": [
+                                  "parts-search",
+                                  "parts-results",
+                                  "support-start",
+                                  "support-subject",
+                                  "care-search",
+                                  "care-results"
+                                ],
+                                "description": "Target validated by this operation's strict request contract."
+                              },
+                              "text": {
+                                "type": "string",
+                                "description": "Text validated by this operation's strict request contract."
+                              },
+                              "event": {
+                                "type": "string",
+                                "enum": [
+                                  "input",
+                                  "click",
+                                  "read"
+                                ],
+                                "description": "Event validated by this operation's strict request contract."
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "target",
+                              "text",
+                              "event"
+                            ],
+                            "description": "Steps Item validated by this operation's strict request contract."
+                          },
+                          "description": "Steps validated by this operation's strict request contract."
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "title",
+                        "version",
+                        "articleId",
+                        "page",
+                        "href",
+                        "steps"
+                      ],
+                      "description": "Data validated by this operation's strict request contract."
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string",
+                          "description": "Identifier of the request resource; ownership is resolved server-side."
+                        },
+                        "serverTime": {
+                          "type": "string",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        }
+                      },
+                      "required": [
+                        "requestId",
+                        "serverTime"
+                      ],
+                      "description": "Meta validated by this operation's strict request contract."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "data",
+                    "meta"
+                  ],
+                  "description": "Response validated by this operation's strict request contract."
+                },
+                "example": {
+                  "success": true,
+                  "message": "Read eligible guides",
+                  "data": {
+                    "id": "synthetic-id",
+                    "title": "synthetic-title",
+                    "version": 1,
+                    "articleId": "synthetic-articleid",
+                    "page": "synthetic-page",
+                    "href": "synthetic-href",
+                    "steps": [
+                      {
+                        "id": "synthetic-id",
+                        "target": "parts-search",
+                        "text": "synthetic-text",
+                        "event": "input"
+                      }
+                    ]
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is malformed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request is malformed.",
+                  "error": {
+                    "code": "BAD_REQUEST"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Current session required"
+          },
+          "403": {
+            "description": "Current assurance/access unavailable"
+          },
+          "404": {
+            "description": "Disabled, unpublished or unavailable; no restricted existence disclosure"
+          },
+          "422": {
+            "description": "Invalid query or definition ID"
+          },
+          "429": {
+            "description": "The route-specific request limit was exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The route-specific request limit was exceeded.",
+                  "error": {
+                    "code": "RATE_LIMITED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                  "error": {
+                    "code": "INTERNAL_ERROR"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                  "error": {
+                    "code": "DATABASE_UNAVAILABLE"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getLearningGuidesById",
+        "x-access-boundary": "authenticated-user",
+        "x-required-roles": [
+          "AUTHENTICATED"
+        ],
+        "x-csrf-required": false,
+        "x-idempotency-required": false
+      }
+    },
+    "/learning/scenarios/{id}": {
+      "get": {
+        "tags": [
+          "Help & Learn"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "summary": "Read eligible scenarios",
+        "description": "Read-only versioned learning content. Public routes always omit restricted titles, bodies, guides and fixtures. Protected reads resolve current identity, MFA and effective assignments server-side; client roles/owner IDs are not accepted. All responses are private/no-store and vary by Cookie. No AI, account lookup, progress mutation or training/live operational writes. Read eligible scenarios. Access boundary: authenticated-user. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9-]{0,63}$",
+              "description": "Identifier of the id resource; ownership is resolved server-side."
+            },
+            "required": true,
+            "name": "id",
+            "in": "path",
+            "description": "Identifier selecting the id resource.",
+            "example": "synthetic-id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success: Read eligible scenarios.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ],
+                      "description": "Success validated by this operation's strict request contract."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "Identifier of the id resource; ownership is resolved server-side."
+                        },
+                        "title": {
+                          "type": "string",
+                          "description": "Title validated by this operation's strict request contract."
+                        },
+                        "version": {
+                          "type": "integer",
+                          "description": "Version validated by this operation's strict request contract."
+                        },
+                        "articleId": {
+                          "type": "string",
+                          "description": "Identifier of the article resource; ownership is resolved server-side."
+                        },
+                        "objective": {
+                          "type": "string",
+                          "description": "Objective validated by this operation's strict request contract."
+                        },
+                        "kind": {
+                          "type": "string",
+                          "enum": [
+                            "fitment",
+                            "draft",
+                            "decision"
+                          ],
+                          "description": "Kind validated by this operation's strict request contract."
+                        },
+                        "fields": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "description": "Identifier of the id resource; ownership is resolved server-side."
+                              },
+                              "label": {
+                                "type": "string",
+                                "description": "Label validated by this operation's strict request contract."
+                              },
+                              "example": {
+                                "type": "string",
+                                "description": "Example validated by this operation's strict request contract."
+                              },
+                              "min": {
+                                "type": "number",
+                                "description": "Min validated by this operation's strict request contract."
+                              },
+                              "max": {
+                                "type": "number",
+                                "description": "Max validated by this operation's strict request contract."
+                              },
+                              "options": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string",
+                                  "description": "Options Item validated by this operation's strict request contract."
+                                },
+                                "description": "Options validated by this operation's strict request contract."
+                              },
+                              "dependsOn": {
+                                "type": "string",
+                                "description": "Depends On validated by this operation's strict request contract."
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "label",
+                              "example",
+                              "min",
+                              "max"
+                            ],
+                            "description": "Fields Item validated by this operation's strict request contract."
+                          },
+                          "description": "Fields validated by this operation's strict request contract."
+                        },
+                        "choices": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "description": "Identifier of the id resource; ownership is resolved server-side."
+                              },
+                              "label": {
+                                "type": "string",
+                                "description": "Label validated by this operation's strict request contract."
+                              },
+                              "feedback": {
+                                "type": "string",
+                                "description": "Feedback validated by this operation's strict request contract."
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "label",
+                              "feedback"
+                            ],
+                            "description": "Choices Item validated by this operation's strict request contract."
+                          },
+                          "description": "Choices validated by this operation's strict request contract."
+                        },
+                        "expected": {
+                          "type": "string",
+                          "description": "Expected validated by this operation's strict request contract."
+                        },
+                        "outcome": {
+                          "type": "string",
+                          "description": "Outcome validated by this operation's strict request contract."
+                        },
+                        "liveHref": {
+                          "type": "string",
+                          "description": "Live Href validated by this operation's strict request contract."
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "title",
+                        "version",
+                        "articleId",
+                        "objective",
+                        "kind",
+                        "fields",
+                        "choices",
+                        "expected",
+                        "outcome",
+                        "liveHref"
+                      ],
+                      "description": "Data validated by this operation's strict request contract."
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string",
+                          "description": "Identifier of the request resource; ownership is resolved server-side."
+                        },
+                        "serverTime": {
+                          "type": "string",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        }
+                      },
+                      "required": [
+                        "requestId",
+                        "serverTime"
+                      ],
+                      "description": "Meta validated by this operation's strict request contract."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "data",
+                    "meta"
+                  ],
+                  "description": "Response validated by this operation's strict request contract."
+                },
+                "example": {
+                  "success": true,
+                  "message": "Read eligible scenarios",
+                  "data": {
+                    "id": "synthetic-id",
+                    "title": "synthetic-title",
+                    "version": 1,
+                    "articleId": "synthetic-articleid",
+                    "objective": "synthetic-objective",
+                    "kind": "fitment",
+                    "fields": [
+                      {
+                        "id": "synthetic-id",
+                        "label": "synthetic-label",
+                        "example": "synthetic-example",
+                        "min": 1,
+                        "max": 1,
+                        "options": [
+                          "synthetic-options-item"
+                        ],
+                        "dependsOn": "synthetic-dependson"
+                      }
+                    ],
+                    "choices": [
+                      {
+                        "id": "synthetic-id",
+                        "label": "synthetic-label",
+                        "feedback": "synthetic-feedback"
+                      }
+                    ],
+                    "expected": "synthetic-expected",
+                    "outcome": "synthetic-outcome",
+                    "liveHref": "synthetic-livehref"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is malformed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request is malformed.",
+                  "error": {
+                    "code": "BAD_REQUEST"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Current session required"
+          },
+          "403": {
+            "description": "Current assurance/access unavailable"
+          },
+          "404": {
+            "description": "Disabled, unpublished or unavailable; no restricted existence disclosure"
+          },
+          "422": {
+            "description": "Invalid query or definition ID"
+          },
+          "429": {
+            "description": "The route-specific request limit was exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The route-specific request limit was exceeded.",
+                  "error": {
+                    "code": "RATE_LIMITED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                  "error": {
+                    "code": "INTERNAL_ERROR"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                  "error": {
+                    "code": "DATABASE_UNAVAILABLE"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getLearningScenariosById",
+        "x-access-boundary": "authenticated-user",
+        "x-required-roles": [
+          "AUTHENTICATED"
+        ],
+        "x-csrf-required": false,
+        "x-idempotency-required": false
+      }
+    },
     "/auth/register": {
       "post": {
         "tags": [

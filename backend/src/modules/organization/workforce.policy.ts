@@ -229,6 +229,9 @@ export async function enforceWorkforceBoundary(
     workforceDenied();
   }
   if (
+    /^\/api\/v1\/learning\/(?:catalogue|(?:articles|guides|scenarios)\/[a-z][a-z0-9-]{0,63})$/.test(
+      path,
+    ) ||
     path.startsWith("/api/v1/auth/") ||
     path === "/api/v1/staff/profile" ||
     isPersonalNotificationPath(path) ||
