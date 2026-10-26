@@ -1771,3 +1771,5 @@ reconciliation before publication. Disk preflight stopped a low-headroom build;
 space recovered without deletion. Reviewed obsolete dev-output deletion was blocked
 by automatic approval review; no alternate removal attempted. Browser batches kept
 at least 27.074 GiB in accepted receipts. No Docker resources created/pruned.
+
+Revision 4 W6 (27 October): backend-only provider/retrieval core passed 51 contract/unit and 10 native learning cases with the provider mocked. No frontend interaction or source inventory changed; W5 rendered evidence above remains the UI checkpoint. Allie UI is still reviewed search, not an enabled conversation. See `docs/help-learn/ALLIE_PROVIDER_CORE_W6.md` for actual checks, provisional data flow and unfinished state/quota/endpoint/UI/provider evaluation. No new visual acceptance or deployment claimed.

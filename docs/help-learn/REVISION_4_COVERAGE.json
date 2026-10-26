@@ -586,12 +586,14 @@
         "backend/tests/integration/workforce-session-policy.test.ts",
         "frontend/tests/unit/workforce-registry.test.ts",
         "frontend/tests/unit/workforce-invalidation.test.tsx",
-        "frontend/tests/e2e/workforce-session-revocation.spec.ts"
+        "frontend/tests/e2e/workforce-session-revocation.spec.ts",
+        "docs/help-learn/ALLIE_PROVIDER_CORE_W6.md"
       ],
       "gaps": [
         "Complete legacy/owner route-specific learning and walkthrough/practice decisions remain open.",
         "Actual hosted role changes, physical devices and full screen-reader acceptance remain open.",
-        "W5 evidence covers managed-workforce boundaries; real conversational AI and staffed chat are not implemented."
+        "W5 evidence covers managed-workforce boundaries; real conversational AI and staffed chat are not implemented.",
+        "W6 server-only AI core is isolated-tested; shared conversation ownership/quota/state, exposed endpoint/UI and actual configured-provider evaluation are unfinished."
       ],
       "subviews": []
     },
@@ -1305,12 +1307,14 @@
         "backend/tests/integration/workforce-session-policy.test.ts",
         "frontend/tests/unit/workforce-registry.test.ts",
         "frontend/tests/unit/workforce-invalidation.test.tsx",
-        "frontend/tests/e2e/workforce-session-revocation.spec.ts"
+        "frontend/tests/e2e/workforce-session-revocation.spec.ts",
+        "docs/help-learn/ALLIE_PROVIDER_CORE_W6.md"
       ],
       "gaps": [
         "Full independent-grant/baseline composition and real chat subscription authorisation remain open; W5 verifies the managed-workforce registry and HTTP/session invalidation only.",
         "Completely unknown historical template/scope display and actual hosted role mutations remain unverified.",
-        "Allie conversation, complete page-context guidance, walkthrough/practice mode decisions and full Revision 4 task-state acceptance remain open."
+        "Allie conversation, complete page-context guidance, walkthrough/practice mode decisions and full Revision 4 task-state acceptance remain open.",
+        "W6 server-only AI core is isolated-tested; shared conversation ownership/quota/state, exposed endpoint/UI and actual configured-provider evaluation are unfinished."
       ],
       "subviews": [
         {
@@ -1989,9 +1993,10 @@
       "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
       "fixture": "Identify the permitted role/scope and realistic state for this route.",
       "verification": "pending",
-      "evidence": [],
+      "evidence": ["docs/help-learn/ALLIE_PROVIDER_CORE_W6.md"],
       "gaps": [
-        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4.",
+        "W6 server-only AI core is isolated-tested; shared conversation ownership/quota/state, exposed endpoint/UI and actual configured-provider evaluation are unfinished."
       ],
       "subviews": []
     },
@@ -2010,9 +2015,10 @@
       "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
       "fixture": "Identify the permitted role/scope and realistic state for this route.",
       "verification": "pending",
-      "evidence": [],
+      "evidence": ["docs/help-learn/ALLIE_PROVIDER_CORE_W6.md"],
       "gaps": [
-        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4.",
+        "W6 server-only AI core is isolated-tested; shared conversation ownership/quota/state, exposed endpoint/UI and actual configured-provider evaluation are unfinished."
       ],
       "subviews": []
     },

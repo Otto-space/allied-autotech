@@ -1745,3 +1745,21 @@ reconciliation before publication. Disk preflight stopped a low-headroom build;
 space recovered without deletion. Reviewed obsolete dev-output deletion was blocked
 by automatic approval review; no alternate removal attempted. Browser batches kept
 at least 27.074 GiB in accepted receipts. No Docker resources created/pruned.
+
+
+27 October 2026 - Revision 4 W6 local backend dependency: actual configurable
+Responses HTTP adapter, bounded reviewed eligible retrieval and follow-up context,
+plain-text/source/action validation, secret screening and current access/content
+recheck after generation. No new assistant endpoint or customer-facing AI enabled;
+existing UI remains reviewed search and flags.ai=false. No schema or migration.
+51 focused unit/contract cases passed; 10 native learning HTTP/DB cases passed on
+the W4 synthetic CI target, with actual current role/MFA/expiry/session checks and
+isolated mocked provider. Backend lint/types passed. An initial secret-screening
+false positive and control-regex lint warning were corrected. No real model call,
+answer-quality score, >=100-case evaluation or full conversational acceptance.
+Evidence: docs/help-learn/ALLIE_PROVIDER_CORE_W6.md. Shared encrypted state, quotas,
+idempotent turns, endpoint/UI, provider configuration/evaluation and final data-flow
+review remain required. Reviewed persisted Customer Care handoff, gated staffed
+chat and complete route learning remain open. No deployment, install, Docker or
+cleanup operation. Preview 3167 retains W5 frontend; C: approximately 27.10 GiB free.
+Full Revision 4 and broader Item 6 remain open; unrelated worktrees preserved.
