@@ -127,6 +127,15 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       expect((await read(admin, "/learning/articles/care-triage")).body.data.href).toBe(
         "/admin/support",
       );
+      const accessReview = await read(f.scopedAdmin, "/learning/articles/access-review");
+      expect(accessReview.status).toBe(200);
+      expect(accessReview.body.data).toMatchObject({ version: 3 });
+      expect(accessReview.body.data.steps.join(" ")).toContain(
+        "review access added, removed and retained",
+      );
+      expect(accessReview.body.data.steps.join(" ")).toContain(
+        "Scheduled assignments supply no access before their start",
+      );
     });
     it("removes revoked/expired assignments and session assurance on the next read", async () => {
       const person = await f.account("ACCOUNTANT");

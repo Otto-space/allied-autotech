@@ -22943,7 +22943,8 @@ Success: HTTP 200.
       "templates": [
         "OPERATIONS"
       ],
-      "branchIds": "synthetic-branchids"
+      "branchIds": "synthetic-branchids",
+      "delegationCapabilities": "synthetic-delegationcapabilities"
     },
     "access": {
       "userId": "00000000-0000-4000-8000-000000000001",
@@ -22981,6 +22982,31 @@ Success: HTTP 200.
     "activeAssignmentIds": [
       "00000000-0000-4000-8000-000000000001"
     ],
+    "effectiveAccess": {
+      "baseline": "OWNER",
+      "visibility": "FULL",
+      "evaluatedAt": "2030-01-15T10:00:00.000Z",
+      "grants": [
+        {
+          "capability": "synthetic-capability",
+          "label": "synthetic-label",
+          "branch": {
+            "id": "00000000-0000-4000-8000-000000000001",
+            "name": "synthetic-name"
+          },
+          "scope": "BRANCH",
+          "sources": [
+            {
+              "assignmentId": "00000000-0000-4000-8000-000000000001",
+              "label": "synthetic-label",
+              "scope": "BRANCH",
+              "kind": "ASSIGNMENT"
+            }
+          ]
+        }
+      ],
+      "responsibilityGrantsOnly": true
+    },
     "templatesVersion": 1,
     "assignmentDefinitions": {},
     "templates": {}
@@ -23059,6 +23085,117 @@ Success: HTTP 200.
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 Current access does not permit this request; 404 Record unavailable in permitted scope; 409 Stale version or invalid state; 422 Invalid fields; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
+### POST `/admin/workforce/accounts/{userId}/access-preview`
+
+- Operation ID: `postAdminWorkforceAccountsByUserIdAccessPreview`
+- Purpose: Explicit enrollment required for operational queues. Current assignments, branch, field projections and state are enforced in a transaction. Access changes require MFA, current password, target/version review and an owner-configured delegation envelope. No financial execution, exports or collection release authority is conferred by a title. Responsibility-based workspace: accessPreview. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `userId` | path | string (uuid) | Yes | Identifier selecting the user resource. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+Synthetic request example:
+
+```json
+{
+  "operation": "assign",
+  "expectedVersion": 0,
+  "expectedTemplateVersion": 1,
+  "template": "OPERATIONS",
+  "branchId": "00000000-0000-4000-8000-000000000001",
+  "startsAt": "2030-01-15T10:00:00.000Z",
+  "expiresAt": "2030-01-15T10:00:00.000Z"
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Responsibility-based workspace: accessPreview",
+  "data": {
+    "userId": "00000000-0000-4000-8000-000000000001",
+    "expectedVersion": 0,
+    "operation": "assign",
+    "evaluatedAt": "2030-01-15T10:00:00.000Z",
+    "scheduled": true,
+    "visibility": "FULL",
+    "fingerprint": "synthetic-fingerprint",
+    "added": [
+      {
+        "capability": "synthetic-capability",
+        "label": "synthetic-label",
+        "branch": {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "name": "synthetic-name"
+        },
+        "scope": "BRANCH",
+        "sources": [
+          {
+            "assignmentId": "00000000-0000-4000-8000-000000000001",
+            "label": "synthetic-label",
+            "scope": "BRANCH",
+            "kind": "ASSIGNMENT"
+          }
+        ]
+      }
+    ],
+    "removed": [
+      {
+        "capability": "synthetic-capability",
+        "label": "synthetic-label",
+        "branch": {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "name": "synthetic-name"
+        },
+        "scope": "BRANCH",
+        "sources": [
+          {
+            "assignmentId": "00000000-0000-4000-8000-000000000001",
+            "label": "synthetic-label",
+            "scope": "BRANCH",
+            "kind": "ASSIGNMENT"
+          }
+        ]
+      }
+    ],
+    "retained": [
+      {
+        "capability": "synthetic-capability",
+        "label": "synthetic-label",
+        "branch": {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "name": "synthetic-name"
+        },
+        "scope": "BRANCH",
+        "sources": [
+          {
+            "assignmentId": "00000000-0000-4000-8000-000000000001",
+            "label": "synthetic-label",
+            "scope": "BRANCH",
+            "kind": "ASSIGNMENT"
+          }
+        ]
+      }
+    ],
+    "responsibilityGrantsOnly": true
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 Current access does not permit this request; 404 Record unavailable in permitted scope; 409 Stale version or invalid state; 422 Invalid fields; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
 ### POST `/admin/workforce/accounts/{userId}/assignments`
 
 - Operation ID: `postAdminWorkforceAccountsByUserIdAssignments`
@@ -23080,6 +23217,7 @@ JSON request fields:
 | Field | Type | Required | Purpose |
 | --- | --- | --- | --- |
 | `receiptVersion` | 2 | No | Receipt Version validated by this operation's strict request contract. |
+| `expectedAccessPreview` | string | No | Expected Access Preview validated by this operation's strict request contract. |
 | `template` | OPERATIONS / CUSTOMER_SERVICE / SALES_SUPERVISOR / SALES_CASHIER / ACCOUNTANT / WORKSHOP_LEAD / ELECTRICAL_TECHNICIAN / MECHANICAL_TECHNICIAN | Yes | Template validated by this operation's strict request contract. |
 | `expectedTemplateVersion` | integer | No | Expected Template Version validated by this operation's strict request contract. |
 | `branchId` | string (uuid) | Yes | Identifier of the branch resource; ownership is resolved server-side. |
@@ -23157,6 +23295,7 @@ JSON request fields:
 | Field | Type | Required | Purpose |
 | --- | --- | --- | --- |
 | `receiptVersion` | 2 | No | Receipt Version validated by this operation's strict request contract. |
+| `expectedAccessPreview` | string | No | Expected Access Preview validated by this operation's strict request contract. |
 | `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
 | `reason` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
 | `currentPassword` | string | Yes | Sensitive password value sent only over HTTPS and never logged or persisted by the client. |
@@ -23166,6 +23305,7 @@ Synthetic request example:
 ```json
 {
   "receiptVersion": 2,
+  "expectedAccessPreview": "synthetic-expectedaccesspreview",
   "expectedVersion": 0,
   "reason": "synthetic-reason",
   "currentPassword": "correct horse battery staple"

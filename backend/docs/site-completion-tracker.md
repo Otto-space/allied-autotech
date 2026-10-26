@@ -1696,3 +1696,26 @@ Operator harness/timeout qualifications and compatible recovery composition are
 in backend/docs/workforce-versions-production-20261026.md. Other worktrees and
 uncommitted edits preserved; no speculative Docker cleanup; C: 27.71 GiB free.
 Full Revision 4 implementation and broader Item 6 remain open.
+
+
+26 October 2026 - Revision 4 W4A local checkpoint: server-derived responsibility
+capabilities/branch/scope/provenance and assign/revoke added/removed/retained preview.
+Delegated hidden-source and maximum-scope redaction retained; optional impact digest
+is recomputed inside the existing locked mutation, rejecting stale/expired reviews
+without partial writes. Position, baseline, independent grants and approval rules
+are unchanged; full effective-policy/nav/session/subscription composition is open.
+Fresh synthetic native CI target replayed 72 migrations, schema/db:check and runtime
+least-privilege checks passed. 56 workforce plus seven learning integrations, 12
+backend units, 1,066 frontend units, final lint/types/contracts and optimized build
+passed; 24 focused units rechecked the final lifecycle correction. 77 distinct local
+fixture browser cases accepted at 320-1920px, impact review 390/1440px with Axe,
+keyboard, overflow and inspected screenshots. An initial raw-503 fixture expectation
+was corrected to the existing safe generic error; no product safety was weakened.
+The exact prepared preview script started on 127.0.0.1:3167 after fresh explicit
+owner approval. All browser APIs were intercepted; no real submissions/deployment.
+Evidence: docs/help-learn/WORKFORCE_EFFECTIVE_ACCESS_W4.md. The 106-route completion
+gate remains unmet; actual AI/provider evaluation, full learning, persisted Customer
+Care handoff and staffed/gated live chat remain required. C: postflight 27.85 GiB;
+no Docker/worktree/profile/install duplication or speculative pruning. Other active
+worktree changes/releases are preserved and require reconciliation before any rollout.
+Full Revision 4 and Item 6 remain open.

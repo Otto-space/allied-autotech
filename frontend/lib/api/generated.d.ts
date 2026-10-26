@@ -7484,6 +7484,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/admin/workforce/accounts/{userId}/access-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Responsibility-based workspace: accessPreview
+         * @description Explicit enrollment required for operational queues. Current assignments, branch, field projections and state are enforced in a transaction. Access changes require MFA, current password, target/version review and an owner-configured delegation envelope. No financial execution, exports or collection release authority is conferred by a title. Responsibility-based workspace: accessPreview. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         */
+        post: operations["postAdminWorkforceAccountsByUserIdAccessPreview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/admin/workforce/accounts/{userId}/assignments": {
         parameters: {
             query?: never;
@@ -129432,7 +129452,8 @@ export interface operations {
                      *           "templates": [
                      *             "OPERATIONS"
                      *           ],
-                     *           "branchIds": "synthetic-branchids"
+                     *           "branchIds": "synthetic-branchids",
+                     *           "delegationCapabilities": "synthetic-delegationcapabilities"
                      *         },
                      *         "access": {
                      *           "userId": "00000000-0000-4000-8000-000000000001",
@@ -129470,6 +129491,31 @@ export interface operations {
                      *         "activeAssignmentIds": [
                      *           "00000000-0000-4000-8000-000000000001"
                      *         ],
+                     *         "effectiveAccess": {
+                     *           "baseline": "OWNER",
+                     *           "visibility": "FULL",
+                     *           "evaluatedAt": "2030-01-15T10:00:00.000Z",
+                     *           "grants": [
+                     *             {
+                     *               "capability": "synthetic-capability",
+                     *               "label": "synthetic-label",
+                     *               "branch": {
+                     *                 "id": "00000000-0000-4000-8000-000000000001",
+                     *                 "name": "synthetic-name"
+                     *               },
+                     *               "scope": "BRANCH",
+                     *               "sources": [
+                     *                 {
+                     *                   "assignmentId": "00000000-0000-4000-8000-000000000001",
+                     *                   "label": "synthetic-label",
+                     *                   "scope": "BRANCH",
+                     *                   "kind": "ASSIGNMENT"
+                     *                 }
+                     *               ]
+                     *             }
+                     *           ],
+                     *           "responsibilityGrantsOnly": true
+                     *         },
                      *         "templatesVersion": 1,
                      *         "assignmentDefinitions": {},
                      *         "templates": {}
@@ -129524,6 +129570,16 @@ export interface operations {
                                 templates: ("OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN")[];
                                 /** @description Branch Ids validated by this operation's strict request contract. */
                                 branchIds: string[] | null;
+                                /** @description Delegation Capabilities validated by this operation's strict request contract. */
+                                delegationCapabilities: {
+                                    /** @description Capability validated by this operation's strict request contract. */
+                                    capability: string;
+                                    /**
+                                     * @description Scope validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    scope: "BRANCH" | "ASSIGNED";
+                                }[] | null;
                             };
                             /** @description Access validated by this operation's strict request contract. */
                             access: {
@@ -129624,6 +129680,71 @@ export interface operations {
                             }[];
                             /** @description Active Assignment Ids validated by this operation's strict request contract. */
                             activeAssignmentIds: string[];
+                            /** @description Effective Access validated by this operation's strict request contract. */
+                            effectiveAccess: {
+                                /**
+                                 * @description Baseline validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                baseline: "OWNER" | "LEGACY" | "MANAGED" | "INACTIVE";
+                                /**
+                                 * @description Visibility validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                visibility: "FULL" | "DELEGATED";
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                evaluatedAt: string;
+                                /** @description Grants validated by this operation's strict request contract. */
+                                grants: {
+                                    /** @description Capability validated by this operation's strict request contract. */
+                                    capability: string;
+                                    /** @description Label validated by this operation's strict request contract. */
+                                    label: string;
+                                    /** @description Branch validated by this operation's strict request contract. */
+                                    branch: {
+                                        /**
+                                         * Format: uuid
+                                         * @description Identifier of the id resource; ownership is resolved server-side.
+                                         */
+                                        id: string;
+                                        /** @description Name validated by this operation's strict request contract. */
+                                        name: string;
+                                    };
+                                    /**
+                                     * @description Scope validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    scope: "BRANCH" | "ASSIGNED";
+                                    /** @description Sources validated by this operation's strict request contract. */
+                                    sources: {
+                                        /**
+                                         * Format: uuid
+                                         * @description Identifier of the assignment resource; ownership is resolved server-side.
+                                         */
+                                        assignmentId: string | null;
+                                        /** @description Label validated by this operation's strict request contract. */
+                                        label: string;
+                                        /**
+                                         * @description Scope validated by this operation's strict request contract.
+                                         * @enum {string}
+                                         */
+                                        scope: "BRANCH" | "ASSIGNED";
+                                        /**
+                                         * @description Kind validated by this operation's strict request contract.
+                                         * @enum {string}
+                                         */
+                                        kind: "ASSIGNMENT" | "PROPOSED" | "OTHER";
+                                    }[];
+                                }[];
+                                /**
+                                 * @description Responsibility Grants Only validated by this operation's strict request contract.
+                                 * @enum {boolean}
+                                 */
+                                responsibilityGrantsOnly: true;
+                            };
                             /** @description Templates Version validated by this operation's strict request contract. */
                             templatesVersion: number;
                             /** @description Assignment Definitions validated by this operation's strict request contract. */
@@ -130054,6 +130175,480 @@ export interface operations {
             };
         };
     };
+    postAdminWorkforceAccountsByUserIdAccessPreview: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+                 * @example synthetic-token-value-not-a-real-secret
+                 */
+                "x-csrf-token": string;
+            };
+            path: {
+                /**
+                 * @description Identifier selecting the user resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                userId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "operation": "assign",
+                 *       "expectedVersion": 0,
+                 *       "expectedTemplateVersion": 1,
+                 *       "template": "OPERATIONS",
+                 *       "branchId": "00000000-0000-4000-8000-000000000001",
+                 *       "startsAt": "2030-01-15T10:00:00.000Z",
+                 *       "expiresAt": "2030-01-15T10:00:00.000Z"
+                 *     }
+                 */
+                "application/json": {
+                    /**
+                     * @description Operation validated by this operation's strict request contract.
+                     * @enum {string}
+                     */
+                    operation: "assign";
+                    /** @description Last server version observed by the client; stale writes are rejected. */
+                    expectedVersion: number;
+                    /** @description Expected Template Version validated by this operation's strict request contract. */
+                    expectedTemplateVersion: number;
+                    /**
+                     * @description Template validated by this operation's strict request contract.
+                     * @enum {string}
+                     */
+                    template: "OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN";
+                    /**
+                     * Format: uuid
+                     * @description Identifier of the branch resource; ownership is resolved server-side.
+                     */
+                    branchId: string;
+                    /**
+                     * Format: date-time
+                     * @description ISO 8601 timestamp interpreted and validated by the server.
+                     */
+                    startsAt: string;
+                    /**
+                     * Format: date-time
+                     * @description ISO 8601 timestamp interpreted and validated by the server.
+                     */
+                    expiresAt: string | null;
+                } | {
+                    /**
+                     * @description Operation validated by this operation's strict request contract.
+                     * @enum {string}
+                     */
+                    operation: "revoke";
+                    /** @description Last server version observed by the client; stale writes are rejected. */
+                    expectedVersion: number;
+                    /**
+                     * Format: uuid
+                     * @description Identifier of the assignment resource; ownership is resolved server-side.
+                     */
+                    assignmentId: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Success: Responsibility-based workspace: accessPreview. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Responsibility-based workspace: accessPreview",
+                     *       "data": {
+                     *         "userId": "00000000-0000-4000-8000-000000000001",
+                     *         "expectedVersion": 0,
+                     *         "operation": "assign",
+                     *         "evaluatedAt": "2030-01-15T10:00:00.000Z",
+                     *         "scheduled": true,
+                     *         "visibility": "FULL",
+                     *         "fingerprint": "synthetic-fingerprint",
+                     *         "added": [
+                     *           {
+                     *             "capability": "synthetic-capability",
+                     *             "label": "synthetic-label",
+                     *             "branch": {
+                     *               "id": "00000000-0000-4000-8000-000000000001",
+                     *               "name": "synthetic-name"
+                     *             },
+                     *             "scope": "BRANCH",
+                     *             "sources": [
+                     *               {
+                     *                 "assignmentId": "00000000-0000-4000-8000-000000000001",
+                     *                 "label": "synthetic-label",
+                     *                 "scope": "BRANCH",
+                     *                 "kind": "ASSIGNMENT"
+                     *               }
+                     *             ]
+                     *           }
+                     *         ],
+                     *         "removed": [
+                     *           {
+                     *             "capability": "synthetic-capability",
+                     *             "label": "synthetic-label",
+                     *             "branch": {
+                     *               "id": "00000000-0000-4000-8000-000000000001",
+                     *               "name": "synthetic-name"
+                     *             },
+                     *             "scope": "BRANCH",
+                     *             "sources": [
+                     *               {
+                     *                 "assignmentId": "00000000-0000-4000-8000-000000000001",
+                     *                 "label": "synthetic-label",
+                     *                 "scope": "BRANCH",
+                     *                 "kind": "ASSIGNMENT"
+                     *               }
+                     *             ]
+                     *           }
+                     *         ],
+                     *         "retained": [
+                     *           {
+                     *             "capability": "synthetic-capability",
+                     *             "label": "synthetic-label",
+                     *             "branch": {
+                     *               "id": "00000000-0000-4000-8000-000000000001",
+                     *               "name": "synthetic-name"
+                     *             },
+                     *             "scope": "BRANCH",
+                     *             "sources": [
+                     *               {
+                     *                 "assignmentId": "00000000-0000-4000-8000-000000000001",
+                     *                 "label": "synthetic-label",
+                     *                 "scope": "BRANCH",
+                     *                 "kind": "ASSIGNMENT"
+                     *               }
+                     *             ]
+                     *           }
+                     *         ],
+                     *         "responsibilityGrantsOnly": true
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /**
+                         * @description Success validated by this operation's strict request contract.
+                         * @enum {boolean}
+                         */
+                        success: true;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the user resource; ownership is resolved server-side.
+                             */
+                            userId: string;
+                            /** @description Last server version observed by the client; stale writes are rejected. */
+                            expectedVersion: number;
+                            /**
+                             * @description Operation validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            operation: "assign" | "revoke";
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            evaluatedAt: string;
+                            /** @description Scheduled validated by this operation's strict request contract. */
+                            scheduled: boolean;
+                            /**
+                             * @description Visibility validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            visibility: "FULL" | "DELEGATED";
+                            /** @description Fingerprint validated by this operation's strict request contract. */
+                            fingerprint: string;
+                            /** @description Added validated by this operation's strict request contract. */
+                            added: {
+                                /** @description Capability validated by this operation's strict request contract. */
+                                capability: string;
+                                /** @description Label validated by this operation's strict request contract. */
+                                label: string;
+                                /** @description Branch validated by this operation's strict request contract. */
+                                branch: {
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the id resource; ownership is resolved server-side.
+                                     */
+                                    id: string;
+                                    /** @description Name validated by this operation's strict request contract. */
+                                    name: string;
+                                };
+                                /**
+                                 * @description Scope validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                scope: "BRANCH" | "ASSIGNED";
+                                /** @description Sources validated by this operation's strict request contract. */
+                                sources: {
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the assignment resource; ownership is resolved server-side.
+                                     */
+                                    assignmentId: string | null;
+                                    /** @description Label validated by this operation's strict request contract. */
+                                    label: string;
+                                    /**
+                                     * @description Scope validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    scope: "BRANCH" | "ASSIGNED";
+                                    /**
+                                     * @description Kind validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    kind: "ASSIGNMENT" | "PROPOSED" | "OTHER";
+                                }[];
+                            }[];
+                            /** @description Removed validated by this operation's strict request contract. */
+                            removed: {
+                                /** @description Capability validated by this operation's strict request contract. */
+                                capability: string;
+                                /** @description Label validated by this operation's strict request contract. */
+                                label: string;
+                                /** @description Branch validated by this operation's strict request contract. */
+                                branch: {
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the id resource; ownership is resolved server-side.
+                                     */
+                                    id: string;
+                                    /** @description Name validated by this operation's strict request contract. */
+                                    name: string;
+                                };
+                                /**
+                                 * @description Scope validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                scope: "BRANCH" | "ASSIGNED";
+                                /** @description Sources validated by this operation's strict request contract. */
+                                sources: {
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the assignment resource; ownership is resolved server-side.
+                                     */
+                                    assignmentId: string | null;
+                                    /** @description Label validated by this operation's strict request contract. */
+                                    label: string;
+                                    /**
+                                     * @description Scope validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    scope: "BRANCH" | "ASSIGNED";
+                                    /**
+                                     * @description Kind validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    kind: "ASSIGNMENT" | "PROPOSED" | "OTHER";
+                                }[];
+                            }[];
+                            /** @description Retained validated by this operation's strict request contract. */
+                            retained: {
+                                /** @description Capability validated by this operation's strict request contract. */
+                                capability: string;
+                                /** @description Label validated by this operation's strict request contract. */
+                                label: string;
+                                /** @description Branch validated by this operation's strict request contract. */
+                                branch: {
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the id resource; ownership is resolved server-side.
+                                     */
+                                    id: string;
+                                    /** @description Name validated by this operation's strict request contract. */
+                                    name: string;
+                                };
+                                /**
+                                 * @description Scope validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                scope: "BRANCH" | "ASSIGNED";
+                                /** @description Sources validated by this operation's strict request contract. */
+                                sources: {
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the assignment resource; ownership is resolved server-side.
+                                     */
+                                    assignmentId: string | null;
+                                    /** @description Label validated by this operation's strict request contract. */
+                                    label: string;
+                                    /**
+                                     * @description Scope validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    scope: "BRANCH" | "ASSIGNED";
+                                    /**
+                                     * @description Kind validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    kind: "ASSIGNMENT" | "PROPOSED" | "OTHER";
+                                }[];
+                            }[];
+                            /**
+                             * @description Responsibility Grants Only validated by this operation's strict request contract.
+                             * @enum {boolean}
+                             */
+                            responsibilityGrantsOnly: true;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                            /** @description ISO 8601 timestamp interpreted and validated by the server. */
+                            serverTime: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A valid session and required assurance are missing. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A valid session and required assurance are missing.",
+                     *       "error": {
+                     *         "code": "UNAUTHORIZED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Current access does not permit this request */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Record unavailable in permitted scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Stale version or invalid state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid fields */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     postAdminWorkforceAccountsByUserIdAssignments: {
         parameters: {
             query?: never;
@@ -130093,6 +130688,8 @@ export interface operations {
                      * @enum {number}
                      */
                     receiptVersion?: 2;
+                    /** @description Expected Access Preview validated by this operation's strict request contract. */
+                    expectedAccessPreview?: string;
                     /**
                      * @description Template validated by this operation's strict request contract.
                      * @enum {string}
@@ -130409,6 +131006,7 @@ export interface operations {
                 /**
                  * @example {
                  *       "receiptVersion": 2,
+                 *       "expectedAccessPreview": "synthetic-expectedaccesspreview",
                  *       "expectedVersion": 0,
                  *       "reason": "synthetic-reason",
                  *       "currentPassword": "correct horse battery staple"
@@ -130420,6 +131018,8 @@ export interface operations {
                      * @enum {number}
                      */
                     receiptVersion?: 2;
+                    /** @description Expected Access Preview validated by this operation's strict request contract. */
+                    expectedAccessPreview?: string;
                     /** @description Last server version observed by the client; stale writes are rejected. */
                     expectedVersion: number;
                     /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */

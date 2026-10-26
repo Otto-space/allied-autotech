@@ -33,6 +33,10 @@ export function workforceBody(action: WorkforceAction, input: unknown) {
         expectedVersion: z.number().int().nonnegative(),
         template: workforceTemplateSchema,
         expectedTemplateVersion: z.number().int().positive().default(1),
+        expectedAccessPreview: z
+          .string()
+          .regex(/^[a-f0-9]{64}$/)
+          .optional(),
         branchId: z.uuid(),
         temporary: z.boolean(),
         startsAt: z.iso.datetime(),
@@ -56,9 +60,32 @@ export function workforceBody(action: WorkforceAction, input: unknown) {
       .strict()
       .parse(input);
   return base
-    .extend({ expectedVersion: z.number().int().nonnegative() })
+    .extend({
+      expectedVersion: z.number().int().nonnegative(),
+      expectedAccessPreview: z
+        .string()
+        .regex(/^[a-f0-9]{64}$/)
+        .optional(),
+    })
     .strict()
     .parse(input);
+}
+export function workforcePreviewBody(
+  action: "assign" | "revoke",
+  body: Record<string, unknown>,
+  assignmentId?: string,
+) {
+  const shared = { operation: action, expectedVersion: body.expectedVersion };
+  return action === "revoke"
+    ? { ...shared, assignmentId }
+    : {
+        ...shared,
+        expectedTemplateVersion: body.expectedTemplateVersion,
+        template: body.template,
+        branchId: body.branchId,
+        startsAt: body.startsAt,
+        expiresAt: body.expiresAt,
+      };
 }
 const equalSet = (a: readonly string[], b: readonly string[]) =>
   new Set(a).size === a.length &&

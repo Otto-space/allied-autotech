@@ -11,8 +11,11 @@ import type { ModerationChange } from "@/lib/admin/work-review-moderation";
 import type { PaymentChange } from "@/lib/admin/work-payments";
 import type { ExceptionChange } from "@/lib/admin/work-payment-exceptions";
 import type { HandlingChange } from "@/lib/admin/work-dispute-handling";
+import type { WorkforceAccessPreview } from "@/lib/api/workforce-effective-access";
+import { WorkforceAccessChange } from "./workforce-effective-access";
 
 export type MutationProposal = {
+  workforceAccessChange?: WorkforceAccessPreview;
   stockChange?: StockChange;
   inspectionChange?: InspectionChange;
   saleChange?: SaleChange;
@@ -132,6 +135,9 @@ export function MutationReview({
             </div>
           ))}
         </dl>
+        {proposal.workforceAccessChange && (
+          <WorkforceAccessChange value={proposal.workforceAccessChange} />
+        )}
       </div>
       <Feedback message={error} />
       <div className="actions">

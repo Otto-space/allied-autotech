@@ -5,13 +5,14 @@ that every route or state has passed review. Work proceeds in finite batches.
 
 ## Standing responsibility and source
 
-Current bounded implementation: customer-table sidebar responsiveness and the
-owner-requested removal of visible table/sidebar scrollbars, branch
-`fix/customer-table-responsive-20261026` in the reused
-`allied-shop-vehicles-r2-20261025` worktree, based on released `76377d43`.
-Status: implemented and locally verified, including the optimized build; not
-deployed. See Cycle 13. Unrelated worktrees, pending staff-revision changes,
-permissions, data and the released 71-migration history are preserved.
+Current bounded implementation: Revision 4 W4A workforce responsibility provenance
+and reviewed access impact, branch `feat/workforce-effective-access-20261026` in
+the reused `allied-home-restoration-20261025` worktree, based on `24a386c1`.
+Status: local isolated and rendered fixture acceptance passed; not deployed.
+Full policy composition, session/subscription transitions, Allie, human handoff
+and route-learning completion remain open. Evidence:
+`docs/help-learn/WORKFORCE_EFFECTIVE_ACCESS_W4.md`. Earlier customer-table/sidebar
+responsiveness remains documented in Cycle 13; other worktrees are preserved.
 
 Notification Cycle 8 was deployed on 25 October 2026 from runtime source `345847d5` after locked
 Next 16.4.3 CI and optimized hosted acceptance. Genuine native delivery/click
@@ -43,8 +44,8 @@ collection only; no fabricated stock, fitment evidence, products or vehicles.
 
 ## Route, role and state inventory
 
-[Machine-readable source inventory](ui-quality-inventory.json) lists all 104
-`app/**/page.tsx` route patterns, dynamic segments, role families and 320 source
+[Machine-readable source inventory](ui-quality-inventory.json) lists all 106
+`app/**/page.tsx` route patterns, dynamic segments, role families and 338 source
 files with form, table, disclosure, select, file input, dialog, feedback or
 boundary signals. Regenerate with `node scripts/ui-quality-inventory.mjs` from
 `frontend`. These are source signals, not proofs that a route exposes a control,
@@ -1722,3 +1723,26 @@ Operator harness/timeout qualifications and compatible recovery composition are
 in backend/docs/workforce-versions-production-20261026.md. Other worktrees and
 uncommitted edits preserved; no speculative Docker cleanup; C: 27.71 GiB free.
 Full Revision 4 implementation and broader Item 6 remain open.
+
+
+26 October 2026 - Revision 4 W4A local checkpoint: server-derived responsibility
+capabilities/branch/scope/provenance and assign/revoke added/removed/retained preview.
+Delegated hidden-source and maximum-scope redaction retained; optional impact digest
+is recomputed inside the existing locked mutation, rejecting stale/expired reviews
+without partial writes. Position, baseline, independent grants and approval rules
+are unchanged; full effective-policy/nav/session/subscription composition is open.
+Fresh synthetic native CI target replayed 72 migrations, schema/db:check and runtime
+least-privilege checks passed. 56 workforce plus seven learning integrations, 12
+backend units, 1,066 frontend units, final lint/types/contracts and optimized build
+passed; 24 focused units rechecked the final lifecycle correction. 77 distinct local
+fixture browser cases accepted at 320-1920px, impact review 390/1440px with Axe,
+keyboard, overflow and inspected screenshots. An initial raw-503 fixture expectation
+was corrected to the existing safe generic error; no product safety was weakened.
+The exact prepared preview script started on 127.0.0.1:3167 after fresh explicit
+owner approval. All browser APIs were intercepted; no real submissions/deployment.
+Evidence: docs/help-learn/WORKFORCE_EFFECTIVE_ACCESS_W4.md. The 106-route completion
+gate remains unmet; actual AI/provider evaluation, full learning, persisted Customer
+Care handoff and staffed/gated live chat remain required. C: postflight 27.85 GiB;
+no Docker/worktree/profile/install duplication or speculative pruning. Other active
+worktree changes/releases are preserved and require reconciliation before any rollout.
+Full Revision 4 and Item 6 remain open.

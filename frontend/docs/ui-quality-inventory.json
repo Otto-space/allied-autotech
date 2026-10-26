@@ -13,7 +13,7 @@
     {
       "source": "app/about/page.tsx",
       "nativeButtons": 0,
-      "nativeAnchors": 6,
+      "nativeAnchors": 5,
       "textLinkButtons": 0,
       "review": "source census; semantics and utility duplication require per-consumer review"
     },
@@ -5302,7 +5302,7 @@
   "surfaces": [
     {
       "source": "app/about/page.tsx",
-      "sourceSignals": ["nativeAnchor", "disclosure"],
+      "sourceSignals": ["nativeAnchor"],
       "review": "not independently rendered unless recorded in register"
     },
     {
@@ -6854,6 +6854,11 @@
     {
       "source": "app/components/workforce-directory.tsx",
       "sourceSignals": ["nativeButton", "form", "table", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/workforce-effective-access.tsx",
+      "sourceSignals": ["disclosure"],
       "review": "not independently rendered unless recorded in register"
     },
     {

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { workforceEffectiveAccessSchema } from "./workforce-effective-access";
 export const parseWorkforceAssignees = (value: unknown) =>
   z
     .object({
@@ -186,6 +187,10 @@ export const workforceAccountSchema = z.object({
     canDelegate: z.boolean(),
     templates: z.array(workforceTemplateSchema),
     branchIds: z.array(z.uuid()).nullable(),
+    delegationCapabilities: z
+      .array(z.object({ capability: z.string(), scope: z.enum(["BRANCH", "ASSIGNED"]) }))
+      .nullable()
+      .optional(),
   }),
   access: z
     .object({
@@ -201,6 +206,7 @@ export const workforceAccountSchema = z.object({
   assignments: z.array(assignmentSchema),
   activeAssignmentIds: z.array(z.uuid()),
   templatesVersion: z.number().int().positive().optional(),
+  effectiveAccess: workforceEffectiveAccessSchema.optional(),
   assignmentDefinitions: z
     .record(
       z.uuid(),
@@ -250,5 +256,48 @@ export const parseWorkforceAccount = (value: unknown) => {
         r.activeAssignmentIds.some((id) => !r.assignmentDefinitions![id])))
   )
     throw Error("Unexpected responsibility account scope");
+  if (r.effectiveAccess) {
+    const e = r.effectiveAccess;
+    if (
+      (r.management.branchIds === null ? "FULL" : "DELEGATED") !== e.visibility ||
+      (e.baseline === "INACTIVE" && (e.grants.length || r.activeAssignmentIds.length)) ||
+      e.grants.some(
+        (grant) =>
+          (e.visibility === "DELEGATED" &&
+            (!r.management.delegationCapabilities?.some(
+              (c) => c.capability === grant.capability,
+            ) ||
+              (grant.scope === "BRANCH" &&
+                r.management.delegationCapabilities.find(
+                  (c) => c.capability === grant.capability,
+                )?.scope !== "BRANCH"))) ||
+          !r.branches.some(
+            (b) => b.id === grant.branch.id && b.isActive && b.name === grant.branch.name,
+          ) ||
+          (r.management.branchIds !== null &&
+            !r.management.branchIds.includes(grant.branch.id)) ||
+          grant.sources.some((source) => {
+            if (source.kind === "OTHER")
+              return (
+                e.visibility !== "DELEGATED" ||
+                (source.scope === "BRANCH" &&
+                  r.management.delegationCapabilities?.find(
+                    (c) => c.capability === grant.capability,
+                  )?.scope !== "BRANCH")
+              );
+            if (source.kind !== "ASSIGNMENT") return true;
+            const a = r.assignments.find((a) => a.id === source.assignmentId);
+            return (
+              !a ||
+              !r.activeAssignmentIds.includes(a.id) ||
+              a.branchId !== grant.branch.id ||
+              a.scope !== source.scope ||
+              !r.assignmentDefinitions?.[a.id]?.actions.includes(grant.capability)
+            );
+          }),
+      )
+    )
+      throw Error("Unexpected effective access scope");
+  }
   return r;
 };

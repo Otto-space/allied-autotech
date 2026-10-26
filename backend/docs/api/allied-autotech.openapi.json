@@ -170749,6 +170749,35 @@
                                 "description": "Branch Ids Item validated by this operation's strict request contract."
                               },
                               "description": "Branch Ids validated by this operation's strict request contract."
+                            },
+                            "delegationCapabilities": {
+                              "type": [
+                                "array",
+                                "null"
+                              ],
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "capability": {
+                                    "type": "string",
+                                    "description": "Capability validated by this operation's strict request contract."
+                                  },
+                                  "scope": {
+                                    "type": "string",
+                                    "enum": [
+                                      "BRANCH",
+                                      "ASSIGNED"
+                                    ],
+                                    "description": "Scope validated by this operation's strict request contract."
+                                  }
+                                },
+                                "required": [
+                                  "capability",
+                                  "scope"
+                                ],
+                                "description": "Delegation Capabilities Item validated by this operation's strict request contract."
+                              },
+                              "description": "Delegation Capabilities validated by this operation's strict request contract."
                             }
                           },
                           "required": [
@@ -170757,7 +170786,8 @@
                             "canRevoke",
                             "canDelegate",
                             "templates",
-                            "branchIds"
+                            "branchIds",
+                            "delegationCapabilities"
                           ],
                           "description": "Management validated by this operation's strict request contract."
                         },
@@ -170969,6 +170999,146 @@
                           },
                           "description": "Active Assignment Ids validated by this operation's strict request contract."
                         },
+                        "effectiveAccess": {
+                          "type": "object",
+                          "properties": {
+                            "baseline": {
+                              "type": "string",
+                              "enum": [
+                                "OWNER",
+                                "LEGACY",
+                                "MANAGED",
+                                "INACTIVE"
+                              ],
+                              "description": "Baseline validated by this operation's strict request contract."
+                            },
+                            "visibility": {
+                              "type": "string",
+                              "enum": [
+                                "FULL",
+                                "DELEGATED"
+                              ],
+                              "description": "Visibility validated by this operation's strict request contract."
+                            },
+                            "evaluatedAt": {
+                              "type": "string",
+                              "format": "date-time",
+                              "description": "ISO 8601 timestamp interpreted and validated by the server."
+                            },
+                            "grants": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "capability": {
+                                    "type": "string",
+                                    "description": "Capability validated by this operation's strict request contract."
+                                  },
+                                  "label": {
+                                    "type": "string",
+                                    "description": "Label validated by this operation's strict request contract."
+                                  },
+                                  "branch": {
+                                    "type": "object",
+                                    "properties": {
+                                      "id": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "description": "Identifier of the id resource; ownership is resolved server-side."
+                                      },
+                                      "name": {
+                                        "type": "string",
+                                        "description": "Name validated by this operation's strict request contract."
+                                      }
+                                    },
+                                    "required": [
+                                      "id",
+                                      "name"
+                                    ],
+                                    "description": "Branch validated by this operation's strict request contract."
+                                  },
+                                  "scope": {
+                                    "type": "string",
+                                    "enum": [
+                                      "BRANCH",
+                                      "ASSIGNED"
+                                    ],
+                                    "description": "Scope validated by this operation's strict request contract."
+                                  },
+                                  "sources": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "object",
+                                      "properties": {
+                                        "assignmentId": {
+                                          "type": [
+                                            "string",
+                                            "null"
+                                          ],
+                                          "format": "uuid",
+                                          "description": "Identifier of the assignment resource; ownership is resolved server-side."
+                                        },
+                                        "label": {
+                                          "type": "string",
+                                          "description": "Label validated by this operation's strict request contract."
+                                        },
+                                        "scope": {
+                                          "type": "string",
+                                          "enum": [
+                                            "BRANCH",
+                                            "ASSIGNED"
+                                          ],
+                                          "description": "Scope validated by this operation's strict request contract."
+                                        },
+                                        "kind": {
+                                          "type": "string",
+                                          "enum": [
+                                            "ASSIGNMENT",
+                                            "PROPOSED",
+                                            "OTHER"
+                                          ],
+                                          "description": "Kind validated by this operation's strict request contract."
+                                        }
+                                      },
+                                      "required": [
+                                        "assignmentId",
+                                        "label",
+                                        "scope",
+                                        "kind"
+                                      ],
+                                      "description": "Sources Item validated by this operation's strict request contract."
+                                    },
+                                    "description": "Sources validated by this operation's strict request contract."
+                                  }
+                                },
+                                "required": [
+                                  "capability",
+                                  "label",
+                                  "branch",
+                                  "scope",
+                                  "sources"
+                                ],
+                                "description": "Grants Item validated by this operation's strict request contract."
+                              },
+                              "description": "Grants validated by this operation's strict request contract."
+                            },
+                            "responsibilityGrantsOnly": {
+                              "type": "boolean",
+                              "enum": [
+                                true
+                              ],
+                              "description": "Responsibility Grants Only validated by this operation's strict request contract."
+                            }
+                          },
+                          "required": [
+                            "baseline",
+                            "visibility",
+                            "evaluatedAt",
+                            "grants",
+                            "responsibilityGrantsOnly"
+                          ],
+                          "description": "Effective Access validated by this operation's strict request contract."
+                        },
                         "templatesVersion": {
                           "type": "integer",
                           "exclusiveMinimum": 0,
@@ -171046,6 +171216,7 @@
                         "access",
                         "assignments",
                         "activeAssignmentIds",
+                        "effectiveAccess",
                         "templatesVersion",
                         "assignmentDefinitions",
                         "templates"
@@ -171101,7 +171272,8 @@
                       "templates": [
                         "OPERATIONS"
                       ],
-                      "branchIds": "synthetic-branchids"
+                      "branchIds": "synthetic-branchids",
+                      "delegationCapabilities": "synthetic-delegationcapabilities"
                     },
                     "access": {
                       "userId": "00000000-0000-4000-8000-000000000001",
@@ -171139,6 +171311,31 @@
                     "activeAssignmentIds": [
                       "00000000-0000-4000-8000-000000000001"
                     ],
+                    "effectiveAccess": {
+                      "baseline": "OWNER",
+                      "visibility": "FULL",
+                      "evaluatedAt": "2030-01-15T10:00:00.000Z",
+                      "grants": [
+                        {
+                          "capability": "synthetic-capability",
+                          "label": "synthetic-label",
+                          "branch": {
+                            "id": "00000000-0000-4000-8000-000000000001",
+                            "name": "synthetic-name"
+                          },
+                          "scope": "BRANCH",
+                          "sources": [
+                            {
+                              "assignmentId": "00000000-0000-4000-8000-000000000001",
+                              "label": "synthetic-label",
+                              "scope": "BRANCH",
+                              "kind": "ASSIGNMENT"
+                            }
+                          ]
+                        }
+                      ],
+                      "responsibilityGrantsOnly": true
+                    },
                     "templatesVersion": 1,
                     "assignmentDefinitions": {},
                     "templates": {}
@@ -171643,6 +171840,762 @@
         "x-idempotency-required": false
       }
     },
+    "/admin/workforce/accounts/{userId}/access-preview": {
+      "post": {
+        "tags": [
+          "Workforce"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "summary": "Responsibility-based workspace: accessPreview",
+        "description": "Explicit enrollment required for operational queues. Current assignments, branch, field projections and state are enforced in a transaction. Access changes require MFA, current password, target/version review and an owner-configured delegation envelope. No financial execution, exports or collection release authority is conferred by a title. Responsibility-based workspace: accessPreview. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Identifier of the user resource; ownership is resolved server-side."
+            },
+            "required": true,
+            "name": "userId",
+            "in": "path",
+            "description": "Identifier selecting the user resource.",
+            "example": "00000000-0000-4000-8000-000000000001"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+            },
+            "required": true,
+            "name": "x-csrf-token",
+            "in": "header",
+            "description": "Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.",
+            "example": "synthetic-token-value-not-a-real-secret"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "operation": {
+                        "type": "string",
+                        "enum": [
+                          "assign"
+                        ],
+                        "description": "Operation validated by this operation's strict request contract."
+                      },
+                      "expectedVersion": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "description": "Last server version observed by the client; stale writes are rejected."
+                      },
+                      "expectedTemplateVersion": {
+                        "type": "integer",
+                        "exclusiveMinimum": 0,
+                        "description": "Expected Template Version validated by this operation's strict request contract."
+                      },
+                      "template": {
+                        "type": "string",
+                        "enum": [
+                          "OPERATIONS",
+                          "CUSTOMER_SERVICE",
+                          "SALES_SUPERVISOR",
+                          "SALES_CASHIER",
+                          "ACCOUNTANT",
+                          "WORKSHOP_LEAD",
+                          "ELECTRICAL_TECHNICIAN",
+                          "MECHANICAL_TECHNICIAN"
+                        ],
+                        "description": "Template validated by this operation's strict request contract."
+                      },
+                      "branchId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Identifier of the branch resource; ownership is resolved server-side."
+                      },
+                      "startsAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "ISO 8601 timestamp interpreted and validated by the server."
+                      },
+                      "expiresAt": {
+                        "type": [
+                          "string",
+                          "null"
+                        ],
+                        "format": "date-time",
+                        "description": "ISO 8601 timestamp interpreted and validated by the server."
+                      }
+                    },
+                    "required": [
+                      "operation",
+                      "expectedVersion",
+                      "expectedTemplateVersion",
+                      "template",
+                      "branchId",
+                      "startsAt",
+                      "expiresAt"
+                    ],
+                    "additionalProperties": false,
+                    "description": "Request Body validated by this operation's strict request contract."
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "operation": {
+                        "type": "string",
+                        "enum": [
+                          "revoke"
+                        ],
+                        "description": "Operation validated by this operation's strict request contract."
+                      },
+                      "expectedVersion": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "description": "Last server version observed by the client; stale writes are rejected."
+                      },
+                      "assignmentId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Identifier of the assignment resource; ownership is resolved server-side."
+                      }
+                    },
+                    "required": [
+                      "operation",
+                      "expectedVersion",
+                      "assignmentId"
+                    ],
+                    "additionalProperties": false,
+                    "description": "Request Body validated by this operation's strict request contract."
+                  }
+                ],
+                "description": "Request Body validated by this operation's strict request contract."
+              },
+              "example": {
+                "operation": "assign",
+                "expectedVersion": 0,
+                "expectedTemplateVersion": 1,
+                "template": "OPERATIONS",
+                "branchId": "00000000-0000-4000-8000-000000000001",
+                "startsAt": "2030-01-15T10:00:00.000Z",
+                "expiresAt": "2030-01-15T10:00:00.000Z"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success: Responsibility-based workspace: accessPreview.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ],
+                      "description": "Success validated by this operation's strict request contract."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "userId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "description": "Identifier of the user resource; ownership is resolved server-side."
+                        },
+                        "expectedVersion": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "description": "Last server version observed by the client; stale writes are rejected."
+                        },
+                        "operation": {
+                          "type": "string",
+                          "enum": [
+                            "assign",
+                            "revoke"
+                          ],
+                          "description": "Operation validated by this operation's strict request contract."
+                        },
+                        "evaluatedAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        },
+                        "scheduled": {
+                          "type": "boolean",
+                          "description": "Scheduled validated by this operation's strict request contract."
+                        },
+                        "visibility": {
+                          "type": "string",
+                          "enum": [
+                            "FULL",
+                            "DELEGATED"
+                          ],
+                          "description": "Visibility validated by this operation's strict request contract."
+                        },
+                        "fingerprint": {
+                          "type": "string",
+                          "pattern": "^[a-f0-9]{64}$",
+                          "description": "Fingerprint validated by this operation's strict request contract."
+                        },
+                        "added": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "capability": {
+                                "type": "string",
+                                "description": "Capability validated by this operation's strict request contract."
+                              },
+                              "label": {
+                                "type": "string",
+                                "description": "Label validated by this operation's strict request contract."
+                              },
+                              "branch": {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "description": "Identifier of the id resource; ownership is resolved server-side."
+                                  },
+                                  "name": {
+                                    "type": "string",
+                                    "description": "Name validated by this operation's strict request contract."
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "name"
+                                ],
+                                "description": "Branch validated by this operation's strict request contract."
+                              },
+                              "scope": {
+                                "type": "string",
+                                "enum": [
+                                  "BRANCH",
+                                  "ASSIGNED"
+                                ],
+                                "description": "Scope validated by this operation's strict request contract."
+                              },
+                              "sources": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "assignmentId": {
+                                      "type": [
+                                        "string",
+                                        "null"
+                                      ],
+                                      "format": "uuid",
+                                      "description": "Identifier of the assignment resource; ownership is resolved server-side."
+                                    },
+                                    "label": {
+                                      "type": "string",
+                                      "description": "Label validated by this operation's strict request contract."
+                                    },
+                                    "scope": {
+                                      "type": "string",
+                                      "enum": [
+                                        "BRANCH",
+                                        "ASSIGNED"
+                                      ],
+                                      "description": "Scope validated by this operation's strict request contract."
+                                    },
+                                    "kind": {
+                                      "type": "string",
+                                      "enum": [
+                                        "ASSIGNMENT",
+                                        "PROPOSED",
+                                        "OTHER"
+                                      ],
+                                      "description": "Kind validated by this operation's strict request contract."
+                                    }
+                                  },
+                                  "required": [
+                                    "assignmentId",
+                                    "label",
+                                    "scope",
+                                    "kind"
+                                  ],
+                                  "description": "Sources Item validated by this operation's strict request contract."
+                                },
+                                "description": "Sources validated by this operation's strict request contract."
+                              }
+                            },
+                            "required": [
+                              "capability",
+                              "label",
+                              "branch",
+                              "scope",
+                              "sources"
+                            ],
+                            "description": "Added Item validated by this operation's strict request contract."
+                          },
+                          "description": "Added validated by this operation's strict request contract."
+                        },
+                        "removed": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "capability": {
+                                "type": "string",
+                                "description": "Capability validated by this operation's strict request contract."
+                              },
+                              "label": {
+                                "type": "string",
+                                "description": "Label validated by this operation's strict request contract."
+                              },
+                              "branch": {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "description": "Identifier of the id resource; ownership is resolved server-side."
+                                  },
+                                  "name": {
+                                    "type": "string",
+                                    "description": "Name validated by this operation's strict request contract."
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "name"
+                                ],
+                                "description": "Branch validated by this operation's strict request contract."
+                              },
+                              "scope": {
+                                "type": "string",
+                                "enum": [
+                                  "BRANCH",
+                                  "ASSIGNED"
+                                ],
+                                "description": "Scope validated by this operation's strict request contract."
+                              },
+                              "sources": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "assignmentId": {
+                                      "type": [
+                                        "string",
+                                        "null"
+                                      ],
+                                      "format": "uuid",
+                                      "description": "Identifier of the assignment resource; ownership is resolved server-side."
+                                    },
+                                    "label": {
+                                      "type": "string",
+                                      "description": "Label validated by this operation's strict request contract."
+                                    },
+                                    "scope": {
+                                      "type": "string",
+                                      "enum": [
+                                        "BRANCH",
+                                        "ASSIGNED"
+                                      ],
+                                      "description": "Scope validated by this operation's strict request contract."
+                                    },
+                                    "kind": {
+                                      "type": "string",
+                                      "enum": [
+                                        "ASSIGNMENT",
+                                        "PROPOSED",
+                                        "OTHER"
+                                      ],
+                                      "description": "Kind validated by this operation's strict request contract."
+                                    }
+                                  },
+                                  "required": [
+                                    "assignmentId",
+                                    "label",
+                                    "scope",
+                                    "kind"
+                                  ],
+                                  "description": "Sources Item validated by this operation's strict request contract."
+                                },
+                                "description": "Sources validated by this operation's strict request contract."
+                              }
+                            },
+                            "required": [
+                              "capability",
+                              "label",
+                              "branch",
+                              "scope",
+                              "sources"
+                            ],
+                            "description": "Removed Item validated by this operation's strict request contract."
+                          },
+                          "description": "Removed validated by this operation's strict request contract."
+                        },
+                        "retained": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "capability": {
+                                "type": "string",
+                                "description": "Capability validated by this operation's strict request contract."
+                              },
+                              "label": {
+                                "type": "string",
+                                "description": "Label validated by this operation's strict request contract."
+                              },
+                              "branch": {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "description": "Identifier of the id resource; ownership is resolved server-side."
+                                  },
+                                  "name": {
+                                    "type": "string",
+                                    "description": "Name validated by this operation's strict request contract."
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "name"
+                                ],
+                                "description": "Branch validated by this operation's strict request contract."
+                              },
+                              "scope": {
+                                "type": "string",
+                                "enum": [
+                                  "BRANCH",
+                                  "ASSIGNED"
+                                ],
+                                "description": "Scope validated by this operation's strict request contract."
+                              },
+                              "sources": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "assignmentId": {
+                                      "type": [
+                                        "string",
+                                        "null"
+                                      ],
+                                      "format": "uuid",
+                                      "description": "Identifier of the assignment resource; ownership is resolved server-side."
+                                    },
+                                    "label": {
+                                      "type": "string",
+                                      "description": "Label validated by this operation's strict request contract."
+                                    },
+                                    "scope": {
+                                      "type": "string",
+                                      "enum": [
+                                        "BRANCH",
+                                        "ASSIGNED"
+                                      ],
+                                      "description": "Scope validated by this operation's strict request contract."
+                                    },
+                                    "kind": {
+                                      "type": "string",
+                                      "enum": [
+                                        "ASSIGNMENT",
+                                        "PROPOSED",
+                                        "OTHER"
+                                      ],
+                                      "description": "Kind validated by this operation's strict request contract."
+                                    }
+                                  },
+                                  "required": [
+                                    "assignmentId",
+                                    "label",
+                                    "scope",
+                                    "kind"
+                                  ],
+                                  "description": "Sources Item validated by this operation's strict request contract."
+                                },
+                                "description": "Sources validated by this operation's strict request contract."
+                              }
+                            },
+                            "required": [
+                              "capability",
+                              "label",
+                              "branch",
+                              "scope",
+                              "sources"
+                            ],
+                            "description": "Retained Item validated by this operation's strict request contract."
+                          },
+                          "description": "Retained validated by this operation's strict request contract."
+                        },
+                        "responsibilityGrantsOnly": {
+                          "type": "boolean",
+                          "enum": [
+                            true
+                          ],
+                          "description": "Responsibility Grants Only validated by this operation's strict request contract."
+                        }
+                      },
+                      "required": [
+                        "userId",
+                        "expectedVersion",
+                        "operation",
+                        "evaluatedAt",
+                        "scheduled",
+                        "visibility",
+                        "fingerprint",
+                        "added",
+                        "removed",
+                        "retained",
+                        "responsibilityGrantsOnly"
+                      ],
+                      "description": "Data validated by this operation's strict request contract."
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string",
+                          "description": "Identifier of the request resource; ownership is resolved server-side."
+                        },
+                        "serverTime": {
+                          "type": "string",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        }
+                      },
+                      "required": [
+                        "requestId",
+                        "serverTime"
+                      ],
+                      "description": "Meta validated by this operation's strict request contract."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "data",
+                    "meta"
+                  ],
+                  "description": "Response validated by this operation's strict request contract."
+                },
+                "example": {
+                  "success": true,
+                  "message": "Responsibility-based workspace: accessPreview",
+                  "data": {
+                    "userId": "00000000-0000-4000-8000-000000000001",
+                    "expectedVersion": 0,
+                    "operation": "assign",
+                    "evaluatedAt": "2030-01-15T10:00:00.000Z",
+                    "scheduled": true,
+                    "visibility": "FULL",
+                    "fingerprint": "synthetic-fingerprint",
+                    "added": [
+                      {
+                        "capability": "synthetic-capability",
+                        "label": "synthetic-label",
+                        "branch": {
+                          "id": "00000000-0000-4000-8000-000000000001",
+                          "name": "synthetic-name"
+                        },
+                        "scope": "BRANCH",
+                        "sources": [
+                          {
+                            "assignmentId": "00000000-0000-4000-8000-000000000001",
+                            "label": "synthetic-label",
+                            "scope": "BRANCH",
+                            "kind": "ASSIGNMENT"
+                          }
+                        ]
+                      }
+                    ],
+                    "removed": [
+                      {
+                        "capability": "synthetic-capability",
+                        "label": "synthetic-label",
+                        "branch": {
+                          "id": "00000000-0000-4000-8000-000000000001",
+                          "name": "synthetic-name"
+                        },
+                        "scope": "BRANCH",
+                        "sources": [
+                          {
+                            "assignmentId": "00000000-0000-4000-8000-000000000001",
+                            "label": "synthetic-label",
+                            "scope": "BRANCH",
+                            "kind": "ASSIGNMENT"
+                          }
+                        ]
+                      }
+                    ],
+                    "retained": [
+                      {
+                        "capability": "synthetic-capability",
+                        "label": "synthetic-label",
+                        "branch": {
+                          "id": "00000000-0000-4000-8000-000000000001",
+                          "name": "synthetic-name"
+                        },
+                        "scope": "BRANCH",
+                        "sources": [
+                          {
+                            "assignmentId": "00000000-0000-4000-8000-000000000001",
+                            "label": "synthetic-label",
+                            "scope": "BRANCH",
+                            "kind": "ASSIGNMENT"
+                          }
+                        ]
+                      }
+                    ],
+                    "responsibilityGrantsOnly": true
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is malformed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request is malformed.",
+                  "error": {
+                    "code": "BAD_REQUEST"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "A valid session and required assurance are missing.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A valid session and required assurance are missing.",
+                  "error": {
+                    "code": "UNAUTHORIZED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Current access does not permit this request"
+          },
+          "404": {
+            "description": "Record unavailable in permitted scope"
+          },
+          "409": {
+            "description": "Stale version or invalid state"
+          },
+          "422": {
+            "description": "Invalid fields"
+          },
+          "429": {
+            "description": "The route-specific request limit was exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The route-specific request limit was exceeded.",
+                  "error": {
+                    "code": "RATE_LIMITED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                  "error": {
+                    "code": "INTERNAL_ERROR"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                  "error": {
+                    "code": "DATABASE_UNAVAILABLE"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "postAdminWorkforceAccountsByUserIdAccessPreview",
+        "x-access-boundary": "mfa-verified-admin",
+        "x-required-roles": [
+          "ADMIN",
+          "SUPER_ADMIN"
+        ],
+        "x-csrf-required": true,
+        "x-idempotency-required": false
+      }
+    },
     "/admin/workforce/accounts/{userId}/assignments": {
       "post": {
         "tags": [
@@ -171694,6 +172647,11 @@
                       2
                     ],
                     "description": "Receipt Version validated by this operation's strict request contract."
+                  },
+                  "expectedAccessPreview": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$",
+                    "description": "Expected Access Preview validated by this operation's strict request contract."
                   },
                   "template": {
                     "type": "string",
@@ -172158,6 +173116,11 @@
                     ],
                     "description": "Receipt Version validated by this operation's strict request contract."
                   },
+                  "expectedAccessPreview": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$",
+                    "description": "Expected Access Preview validated by this operation's strict request contract."
+                  },
                   "expectedVersion": {
                     "type": "integer",
                     "minimum": 0,
@@ -172186,6 +173149,7 @@
               },
               "example": {
                 "receiptVersion": 2,
+                "expectedAccessPreview": "synthetic-expectedaccesspreview",
                 "expectedVersion": 0,
                 "reason": "synthetic-reason",
                 "currentPassword": "correct horse battery staple"

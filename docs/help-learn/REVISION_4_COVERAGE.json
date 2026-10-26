@@ -261,9 +261,7 @@
       "decision": "pending",
       "purpose": null,
       "contextualAnswer": null,
-      "articleIds": [
-        "customer-account-review"
-      ],
+      "articleIds": ["customer-account-review"],
       "guideIds": [],
       "practiceIds": [],
       "statusDefinitions": [],
@@ -919,9 +917,7 @@
       "decision": "pending",
       "purpose": null,
       "contextualAnswer": null,
-      "articleIds": [
-        "privileged-recovery"
-      ],
+      "articleIds": ["privileged-recovery"],
       "guideIds": [],
       "practiceIds": [],
       "statusDefinitions": [],
@@ -1026,28 +1022,34 @@
       "decision": "pending",
       "purpose": "Review one authorised staff account, its tier/status, workforce grants and separately controlled financial capabilities.",
       "contextualAnswer": "For an owner-authorised demotion, select the new active branch, supply a reason, inspect removed delegation and retained scoped duties, then confirm. If either account or workforce revision changed, refresh and review again.",
-      "articleIds": [],
+      "articleIds": ["access-review"],
       "guideIds": [],
       "practiceIds": [],
       "statusDefinitions": [],
       "recovery": [],
       "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
-      "fixture": "W2 workforceFixture and staff-role-review component fixtures; isolated target only.",
-      "verification": "source-only",
+      "fixture": "W4 synthetic native 72-migration CI target plus intercepted owner/delegated browser fixtures; staff, invitations and responsibility regressions at 320-1920px, impact review at 390/1440px; no real submissions.",
+      "verification": "isolated",
       "evidence": [
         "docs/help-learn/WORKFORCE_ROLE_DEPENDENCIES_W2.md",
         "backend/tests/integration/workforce-role-transition.test.ts",
-        "frontend/tests/unit/staff-role-review.test.tsx"
+        "frontend/tests/unit/staff-role-review.test.tsx",
+        "docs/help-learn/WORKFORCE_EFFECTIVE_ACCESS_W4.md",
+        "backend/docs/workforce-versions-production-20261026.md",
+        "backend/tests/integration/workforce-effective-access.test.ts",
+        "frontend/tests/unit/workforce-access-preview.test.tsx",
+        "frontend/tests/e2e/work-staff-workforce.spec.ts"
       ],
       "gaps": [
-        "W2 new role-reason/impact controls require rendered acceptance.",
-        "Full detail guidance/practice and effective access provenance/versioning remain unverified."
+        "Full account-baseline/independent-grant policy composition and canonical navigation/action/session/subscription transitions remain incomplete; W4 covers responsibility-grant provenance and reviewed assign/revoke impact only.",
+        "Completely unknown historical template/scope display and actual hosted role mutations remain unverified.",
+        "Allie conversation, complete page-context guidance, walkthrough/practice mode decisions and full Revision 4 task-state acceptance remain open."
       ],
       "subviews": [
         {
           "pattern": "owner account-role change",
           "task": "Atomic account/workforce dependency review and retained duties",
-          "verification": "Six isolated HTTP/DB and four DOM cases; updated browser spec not rerun"
+          "verification": "Six isolated HTTP/DB and four DOM cases; updated browser spec not rerun; W3 hosted fixture release evidence and W4 local impact/role regression accepted; full route learning remains open"
         }
       ]
     },
@@ -1247,7 +1249,7 @@
       "decision": "pending",
       "purpose": "Discover permitted workforce accounts and review their separate role, business position and responsibility grants.",
       "contextualAnswer": "Find a person, select View/manage, inspect the current permitted grants and use the reviewed change controls. A recorded business position grants no access.",
-      "articleIds": [],
+      "articleIds": ["access-review"],
       "guideIds": [],
       "practiceIds": [],
       "statusDefinitions": [
@@ -1260,30 +1262,35 @@
         "Ask the owner to review an unsupported delegation or definition; authorised revocation preserves history."
       ],
       "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
-      "fixture": "W1 isolated workforceFixture plus intercepted owner/delegated browser account fixtures; no published inventory or operational writes.",
-      "verification": "source-only",
+      "fixture": "W4 synthetic native 72-migration CI target plus intercepted owner/delegated browser fixtures; staff, invitations and responsibility regressions at 320-1920px, impact review at 390/1440px; no real submissions.",
+      "verification": "isolated",
       "evidence": [
         "docs/help-learn/WORKFORCE_DIRECTORY_W1.md",
         "backend/tests/integration/workforce-directory.test.ts",
         "frontend/tests/e2e/workforce-directory.spec.ts",
         "frontend/tests/unit/workforce-directory.test.tsx",
-        "docs/help-learn/WORKFORCE_TEMPLATE_VERSIONS_W3.md"
+        "docs/help-learn/WORKFORCE_TEMPLATE_VERSIONS_W3.md",
+        "docs/help-learn/WORKFORCE_EFFECTIVE_ACCESS_W4.md",
+        "backend/docs/workforce-versions-production-20261026.md",
+        "backend/tests/integration/workforce-effective-access.test.ts",
+        "frontend/tests/unit/workforce-access-preview.test.tsx",
+        "frontend/tests/e2e/work-staff-workforce.spec.ts"
       ],
       "gaps": [
-        "Effective-access provenance and added/removed/retained change preview remain incomplete.",
-        "Complete canonical navigation/action/session/subscription transitions and mode decisions remain unverified.",
-        "W3 version notices and new fitment guard require rendered acceptance; unrecognised historical template/scope display is not proven."
+        "Full account-baseline/independent-grant policy composition and canonical navigation/action/session/subscription transitions remain incomplete; W4 covers responsibility-grant provenance and reviewed assign/revoke impact only.",
+        "Completely unknown historical template/scope display and actual hosted role mutations remain unverified.",
+        "Allie conversation, complete page-context guidance, walkthrough/practice mode decisions and full Revision 4 task-state acceptance remain open."
       ],
       "subviews": [
         {
           "pattern": "/admin/workforce/access",
           "task": "Scoped workforce account directory",
-          "verification": "W1: isolated HTTP, component and rendered browser checks passed; see W1 evidence"
+          "verification": "W1: isolated HTTP, component and rendered browser checks passed; see W1 evidence; W3 hosted fixture release evidence and W4 local impact/role regression accepted; full route learning remains open"
         },
         {
           "pattern": "/admin/workforce/access/[userId]",
           "task": "Existing reviewed position/responsibility editor",
-          "verification": "W1: existing editor enrollment/assignment/revocation/delegation/recovery regression passed; full effective-access foundation still pending"
+          "verification": "W1: existing editor enrollment/assignment/revocation/delegation/recovery regression passed; full effective-access foundation still pending; W3 hosted fixture release evidence and W4 local impact/role regression accepted; full route learning remains open"
         }
       ]
     },
@@ -1735,12 +1742,8 @@
       "decision": "pending",
       "purpose": null,
       "contextualAnswer": null,
-      "articleIds": [
-        "own-conversation"
-      ],
-      "guideIds": [
-        "own-request"
-      ],
+      "articleIds": ["own-conversation"],
+      "guideIds": ["own-request"],
       "practiceIds": [],
       "statusDefinitions": [],
       "recovery": [],
@@ -1844,9 +1847,7 @@
       "decision": "pending",
       "purpose": null,
       "contextualAnswer": null,
-      "articleIds": [
-        "security-basics"
-      ],
+      "articleIds": ["security-basics"],
       "guideIds": [],
       "practiceIds": [],
       "statusDefinitions": [],
@@ -1888,9 +1889,7 @@
       "decision": "pending",
       "purpose": null,
       "contextualAnswer": null,
-      "articleIds": [
-        "no-live-lookup"
-      ],
+      "articleIds": ["no-live-lookup"],
       "guideIds": [],
       "practiceIds": [],
       "statusDefinitions": [],
@@ -2037,12 +2036,8 @@
       "decision": "pending",
       "purpose": null,
       "contextualAnswer": null,
-      "articleIds": [
-        "parts-fitment"
-      ],
-      "guideIds": [
-        "parts-find"
-      ],
+      "articleIds": ["parts-fitment"],
+      "guideIds": ["parts-find"],
       "practiceIds": [],
       "statusDefinitions": [],
       "recovery": [],
@@ -2188,9 +2183,7 @@
       "decision": "pending",
       "purpose": null,
       "contextualAnswer": null,
-      "articleIds": [
-        "service-request"
-      ],
+      "articleIds": ["service-request"],
       "guideIds": [],
       "practiceIds": [],
       "statusDefinitions": [],
@@ -2253,9 +2246,7 @@
       "decision": "pending",
       "purpose": null,
       "contextualAnswer": null,
-      "articleIds": [
-        "vehicle-enquiry"
-      ],
+      "articleIds": ["vehicle-enquiry"],
       "guideIds": [],
       "practiceIds": [],
       "statusDefinitions": [],

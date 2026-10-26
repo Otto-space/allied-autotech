@@ -193,6 +193,13 @@ export const workforceRouteDefinitions = [
   ],
   [
     "post",
+    "/admin/workforce/accounts/:userId/access-preview",
+    "accessPreview",
+    schemas.workforceAccessPreviewSchema,
+    schemas.workforceAccountParams,
+  ],
+  [
+    "post",
     "/admin/workforce/accounts/:userId/assignments",
     "assign",
     schemas.workforceAssignmentSchema,
@@ -407,6 +414,14 @@ export function createWorkforceRouter(): Router {
           break;
         case "inspect":
           data = await access.inspect(actor, userId, ctx);
+          break;
+        case "accessPreview":
+          data = await access.preview(
+            actor,
+            userId,
+            schemas.workforceAccessPreviewSchema.parse(body),
+            ctx,
+          );
           break;
         case "enroll":
           data = await access.enroll(

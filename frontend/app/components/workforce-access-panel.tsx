@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useState, type FormEvent } from "react";
+import { useCallback, useLayoutEffect, useRef, useState, type FormEvent } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { z } from "zod";
 import { ApiError, apiRequest } from "@/lib/api/client";
@@ -14,6 +14,7 @@ import {
   verifyWorkforceReceipt,
   workforceBody,
   workforceLocalTime,
+  workforcePreviewBody,
   type WorkforceAction,
 } from "@/lib/admin/work-staff-workforce";
 import { formatBusinessDate } from "@/lib/format/date";
@@ -25,6 +26,11 @@ import {
   useStaffChangeCoordinator,
 } from "./staff-change-coordinator";
 import "./workforce-access-panel.css";
+import { WorkforceEffectiveAccess } from "./workforce-effective-access";
+import {
+  parseWorkforceAccessPreview,
+  type WorkforceAccessPreview,
+} from "@/lib/api/workforce-effective-access";
 
 function PasswordReason({ prefix }: { prefix: string }) {
   const [shown, setShown] = useState(false);
@@ -72,8 +78,12 @@ function PasswordReason({ prefix }: { prefix: string }) {
 }
 export function WorkforceAccessPanel({ userId }: { userId: string }) {
   const coordinator = useStaffChangeCoordinator();
+  const session = useAccountSession();
   return coordinator ? (
-    <WorkforcePanel userId={userId} />
+    <WorkforcePanel
+      key={`${session?.id}:${session?.user.id}:${session?.user.role}:${userId}`}
+      userId={userId}
+    />
   ) : (
     <StandaloneWorkforce userId={userId} />
   );
@@ -126,7 +136,10 @@ function StandaloneWorkforce({ userId }: { userId: string }) {
       {(change, recovery) => (
         <>
           {recovery}
-          <WorkforcePanel key={`${userId}:${change.epoch}`} userId={userId} />
+          <WorkforcePanel
+            key={`${session.id}:${userId}:${change.epoch}`}
+            userId={userId}
+          />
         </>
       )}
     </StaffChangeCoordinator>
@@ -147,16 +160,91 @@ function WorkforcePanel({ userId }: { userId: string }) {
     data = record.data;
   const [message, setMessage] = useState<string>(),
     [epoch, setEpoch] = useState(0);
+  const [preparing, setPreparing] = useState(false),
+    [previewError, setPreviewError] = useState<string>();
+  const mounted = useRef(true),
+    previewRequest = useRef<AbortController | null>(null);
+  useLayoutEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+      previewRequest.current?.abort();
+    };
+  }, []);
   const busy = record.loading || record.refreshing,
     error = record.error || record.refreshError;
-  const locked = coordinator.locked || busy || !!error || !data;
+  const locked = coordinator.locked || busy || preparing || !!error || !data;
+  const current = useRef({ data, coordinator, busy, error });
+  useLayoutEffect(() => {
+    current.current = { data, coordinator, busy, error };
+  }, [data, coordinator, busy, error]);
   function review(
     action: WorkforceAction,
     body: Record<string, unknown>,
     facts: { label: string; value: string }[],
     assignmentId?: string,
   ) {
-    if (locked || !data || !session) return;
+    if (locked || previewRequest.current || !data || !session) return;
+    if (action !== "assign" && action !== "revoke")
+      return openReview(action, body, facts, assignmentId);
+    const controller = new AbortController();
+    previewRequest.current = controller;
+    setPreparing(true);
+    setPreviewError(undefined);
+    setMessage(undefined);
+    void apiRequest(`/admin/workforce/accounts/${userId}/access-preview`, {
+      method: "POST",
+      csrf: true,
+      signal: controller.signal,
+      body: workforcePreviewBody(action, body, assignmentId),
+    })
+      .then((response) => {
+        controller.signal.throwIfAborted();
+        if (!mounted.current) return;
+        const preview = parseWorkforceAccessPreview(response.data, {
+          userId,
+          expectedVersion: body.expectedVersion,
+          operation: action,
+          account: data,
+          input: workforcePreviewBody(action, body, assignmentId),
+        });
+        const latest = current.current;
+        if (
+          latest.coordinator.locked ||
+          latest.busy ||
+          latest.error ||
+          latest.data?.access?.version !== body.expectedVersion
+        )
+          throw new ApiError(409, { error: { code: "STALE_VERSION" } });
+        openReview(
+          action,
+          { ...body, expectedAccessPreview: preview.fingerprint },
+          facts,
+          assignmentId,
+          preview,
+        );
+      })
+      .catch((error) => {
+        if (mounted.current && !controller.signal.aborted)
+          setPreviewError(
+            error instanceof ApiError
+              ? error.message
+              : "The access change could not be checked. Refresh responsibility access and review it again.",
+          );
+      })
+      .finally(() => {
+        if (previewRequest.current === controller) previewRequest.current = null;
+        if (mounted.current) setPreparing(false);
+      });
+  }
+  function openReview(
+    action: WorkforceAction,
+    body: Record<string, unknown>,
+    facts: { label: string; value: string }[],
+    assignmentId?: string,
+    preview?: WorkforceAccessPreview,
+  ) {
+    if (!data || !session) return;
     const suffix =
       action === "enroll"
         ? ""
@@ -175,6 +263,7 @@ function WorkforcePanel({ userId }: { userId: string }) {
     coordinator.review(
       {
         title,
+        workforceAccessChange: preview,
         description:
           action === "enroll" && !data.access
             ? "Enrollment replaces broad legacy operational access with explicit responsibilities and revokes existing sessions. No assignments are created automatically. Existing financial grants and business histories are retained. Review previously approved duties before confirming."
@@ -217,6 +306,32 @@ function WorkforcePanel({ userId }: { userId: string }) {
               !current.assignments.some((a) => a.id === assignmentId && !a.revokedAt))
           )
             throw new ApiError(409, { error: { code: "STALE_VERSION" } });
+          if (preview && (action === "assign" || action === "revoke")) {
+            try {
+              const latest = parseWorkforceAccessPreview(
+                (
+                  await apiRequest(`/admin/workforce/accounts/${userId}/access-preview`, {
+                    method: "POST",
+                    csrf: true,
+                    body: workforcePreviewBody(action, body, assignmentId),
+                  })
+                ).data,
+                {
+                  userId,
+                  expectedVersion: body.expectedVersion,
+                  operation: action,
+                  account: current,
+                  input: workforcePreviewBody(action, body, assignmentId),
+                },
+              );
+              if (latest.fingerprint !== preview.fingerprint)
+                throw new ApiError(409, { error: { code: "STALE_VERSION" } });
+            } catch (error) {
+              if (error instanceof ApiError && error.status >= 400 && error.status < 500)
+                throw error;
+              throw new ApiError(409, { error: { code: "PRECONDITION_UNAVAILABLE" } });
+            }
+          }
           const result = await apiRequest(
             `/admin/workforce/accounts/${userId}${suffix}`,
             {
@@ -259,6 +374,8 @@ function WorkforcePanel({ userId }: { userId: string }) {
       </div>
       <Feedback message={error} />
       <Feedback message={message} tone="success" />
+      <Feedback message={previewError} />
+      {preparing && <p role="status">Checking what access will change…</p>}
       {busy && <p role="status">Checking responsibility access…</p>}
       {error && data && (
         <p className="notice">
@@ -282,6 +399,7 @@ function WorkforcePanel({ userId }: { userId: string }) {
               access.
             </p>
           )}
+          <WorkforceEffectiveAccess value={data.effectiveAccess} />
           <WorkforceEditors
             key={`${userId}:${epoch}`}
             data={data}

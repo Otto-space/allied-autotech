@@ -25,6 +25,10 @@ export const workforceEnrollmentSchema = z.strictObject({
 export const workforceAssignmentSchema = z
   .strictObject({
     receiptVersion: z.literal(2).optional(),
+    expectedAccessPreview: z
+      .string()
+      .regex(/^[a-f0-9]{64}$/)
+      .optional(),
     template: templateSchema,
     expectedTemplateVersion: z.number().int().positive().default(1),
     branchId: z.uuid(),
@@ -41,15 +45,76 @@ export const workforceAssignmentSchema = z
   });
 export const workforceRevocationSchema = z.strictObject({
   receiptVersion: z.literal(2).optional(),
+  expectedAccessPreview: z
+    .string()
+    .regex(/^[a-f0-9]{64}$/)
+    .optional(),
   expectedVersion: version,
   reason,
   currentPassword: z.string().min(1).max(256),
 });
-export const workforceDelegationSchema = workforceRevocationSchema.extend({
-  expectedPolicyVersion: z.number().int().positive().default(1),
-  allowAdminInvitations: z.boolean().default(false),
-  templates: z.array(templateSchema).max(8),
-  branchIds: z.array(z.uuid()).max(20),
+export const workforceDelegationSchema = workforceRevocationSchema
+  .omit({ expectedAccessPreview: true })
+  .extend({
+    expectedPolicyVersion: z.number().int().positive().default(1),
+    allowAdminInvitations: z.boolean().default(false),
+    templates: z.array(templateSchema).max(8),
+    branchIds: z.array(z.uuid()).max(20),
+  });
+export const workforceAccessPreviewSchema = z.discriminatedUnion("operation", [
+  z
+    .strictObject({
+      operation: z.literal("assign"),
+      expectedVersion: version,
+      expectedTemplateVersion: z.number().int().positive(),
+      template: templateSchema,
+      branchId: z.uuid(),
+      startsAt: z.iso.datetime({ offset: true }),
+      expiresAt: z.iso.datetime({ offset: true }).nullable(),
+    })
+    .refine((v) => !v.expiresAt || new Date(v.expiresAt) > new Date(v.startsAt), {
+      message: "Expiry must follow the start time",
+      path: ["expiresAt"],
+    }),
+  z.strictObject({
+    operation: z.literal("revoke"),
+    expectedVersion: version,
+    assignmentId: z.uuid(),
+  }),
+]);
+const effectiveGrant = z.object({
+  capability: z.string(),
+  label: z.string(),
+  branch: z.object({ id: z.uuid(), name: z.string() }),
+  scope: z.enum(["BRANCH", "ASSIGNED"]),
+  sources: z.array(
+    z.object({
+      assignmentId: z.uuid().nullable(),
+      label: z.string(),
+      scope: z.enum(["BRANCH", "ASSIGNED"]),
+      kind: z.enum(["ASSIGNMENT", "PROPOSED", "OTHER"]),
+    }),
+  ),
+});
+export const workforceEffectiveAccessSchema = z.object({
+  baseline: z.enum(["OWNER", "LEGACY", "MANAGED", "INACTIVE"]),
+  visibility: z.enum(["FULL", "DELEGATED"]),
+  evaluatedAt: z.iso.datetime(),
+  grants: z.array(effectiveGrant),
+  responsibilityGrantsOnly: z.literal(true),
+});
+export const workforceAccessPreviewResponseSchema = z.object({
+  userId: z.uuid(),
+  expectedVersion: version,
+  operation: z.enum(["assign", "revoke"]),
+  evaluatedAt: z.iso.datetime(),
+  scheduled: z.boolean(),
+  visibility: z.enum(["FULL", "DELEGATED"]),
+  fingerprint: z.string().regex(/^[a-f0-9]{64}$/),
+  added: z.array(effectiveGrant),
+  removed: z.array(effectiveGrant),
+  retained: z.array(effectiveGrant),
+  responsibilityGrantsOnly: z.literal(true),
 });
 export const workforceListSchema = z.strictObject({
   limit: z.coerce.number().int().min(1).max(50).default(25),
@@ -462,6 +527,8 @@ export const workforceFinanceQuerySchema = workforceListSchema.extend({
 });
 export function workforceResponseSchema(action: string): z.ZodType {
   switch (action) {
+    case "accessPreview":
+      return workforceAccessPreviewResponseSchema;
     case "directory":
       return workforceDirectoryResponseSchema;
     case "enquiryDeliveryDismiss":
@@ -620,10 +687,16 @@ export function workforceResponseSchema(action: string): z.ZodType {
           canDelegate: z.boolean(),
           templates: z.array(templateSchema),
           branchIds: z.array(z.uuid()).nullable(),
+          delegationCapabilities: z
+            .array(
+              z.object({ capability: z.string(), scope: z.enum(["BRANCH", "ASSIGNED"]) }),
+            )
+            .nullable(),
         }),
         access: accessRecord.nullable(),
         assignments: z.array(workforceAssignmentResponseSchema),
         activeAssignmentIds: z.array(z.uuid()),
+        effectiveAccess: workforceEffectiveAccessSchema,
         templatesVersion: z.number().int().positive(),
         assignmentDefinitions: z.record(
           z.uuid(),
