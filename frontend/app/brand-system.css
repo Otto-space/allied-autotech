@@ -867,8 +867,7 @@
   border-radius: 6px;
 }
 .dashboard .dashboard-navigation-container {
-  scrollbar-width: thin;
-  scrollbar-color: #40515c transparent;
+  scrollbar-width: none;
 }
 .dashboard .dashboard-search {
   border-color: var(--line);
@@ -1048,8 +1047,10 @@
   overflow-y: auto;
   overscroll-behavior: contain;
   padding-bottom: 20px;
-  scrollbar-width: thin;
-  scrollbar-color: #52616a transparent;
+  scrollbar-width: none;
+}
+.dashboard-drawer-content::-webkit-scrollbar {
+  display: none;
 }
 .dashboard-drawer-logout {
   display: flex;

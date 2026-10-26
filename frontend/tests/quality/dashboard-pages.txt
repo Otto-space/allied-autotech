@@ -150,3 +150,6 @@ parts-fitment-workspace.spec.ts > oil-filter application, evidence, keyboard and
 parts-fitment-workspace.spec.ts > oil-filter application, evidence, keyboard and reflow at 1440px
 product-extras.spec.ts > populated gallery moves, main selection and preview keyboard at 390px
 product-extras.spec.ts > populated gallery moves, main selection and preview keyboard at 1440px
+
+# Cycle 13: table density, hidden scrollbar tracks and keyboard/touch reachability.
+customer-table-responsive.spec.ts

@@ -1,19 +1,19 @@
 # UI and UX quality register
 
-Updated 25 October 2026. This is the ongoing quality register, not an assertion
+Updated 26 October 2026. This is the ongoing quality register, not an assertion
 that every route or state has passed review. Work proceeds in finite batches.
 
 ## Standing responsibility and source
 
-Current bounded implementation: notifications only, branch
-`feat/notifications-experience-20261025` in the reused
-`allied-home-restoration-20261025` worktree. Customer and work inboxes, bell,
-preview, read/unread state, preferences, device flow, producer privacy and delivery
-reliability are the current cycle. Homepage, catalogue and unrelated dashboards
-remain outside the new implementation scope. Released Shop/Vehicles source
-`71d3f60d` was merged and its 70 migrations and existing behaviour preserved.
+Current bounded implementation: customer-table sidebar responsiveness and the
+owner-requested removal of visible table/sidebar scrollbars, branch
+`fix/customer-table-responsive-20261026` in the reused
+`allied-shop-vehicles-r2-20261025` worktree, based on released `76377d43`.
+Status: implemented and locally verified, including the optimized build; not
+deployed. See Cycle 13. Unrelated worktrees, pending staff-revision changes,
+permissions, data and the released 71-migration history are preserved.
 
-Status: deployed on 25 October 2026 from runtime source `345847d5` after locked
+Notification Cycle 8 was deployed on 25 October 2026 from runtime source `345847d5` after locked
 Next 16.4.3 CI and optimized hosted acceptance. Genuine native delivery/click
 acceptance remains open.
 See Cycle 8 and [notification contracts/evidence](../../backend/docs/notifications-experience-20261025.md).
@@ -1596,3 +1596,54 @@ Fresh isolated database tests passed, including competing mutations. Seven
 compiled browser fixtures passed at 320px and 1280px. These are mocked browser
 flows, not real signed-in role, physical-device or screen-reader acceptance.
 Production release and hosted verification remain open.
+
+## Cycle 13: Customer table and sidebar responsiveness - 26 October 2026
+
+Owner screenshots showed customer rows stacking their actions when the sidebar
+expanded. Reproduced at 1200 CSS px: approximately 105px rows expanded versus 57px
+collapsed, with table overflow. The shared dashboard suffix-based action selector
+overrode the intended no-wrap rule. Dedicated row controls now keep both actions
+together. Stable identity/status/date/action column widths, compact horizontal
+padding and a flexible email column keep all six columns visible at 1184-1920px
+in either sidebar state. Long identities remain complete and wrap naturally.
+
+The requested table, desktop navigation and mobile-drawer scrollbar tracks are
+hidden. Overflow remains scrollable with touch/wheel/keyboard; the page scrollbar
+is unchanged. The pinned identity column becomes static on phones. Focus capture
+reveals whole controls clear of the pinned column and table edges; this fixes an
+observed 1024px Edge case where native Tab focus left an action partially clipped.
+Existing account review/sending safeguards, search, sort, paging and permissions
+are unchanged. No real customer/account, database or external-message writes.
+
+Final compiled local Edge run: 22/22 browser cases in one complete run (13 new
+responsive/navigation cases plus nine existing care regressions). Six desktop
+widths 1184/1200/1280/1366/1440/1920, narrow widths 320/390/768/1024, short sidebar,
+customer/admin navigation and mobile Escape focus passed. Copy/manual fallback,
+touch emulation, filters/detail return/paging, long content, sampled Axe/contrast,
+and 200% reflow emulation passed. Four related units, targeted ESLint, TypeScript,
+formatting, optimized build and standalone postbuild passed.
+
+Initial failures were retained: cold dev compilation exceeded its first navigation
+wait; a two-pixel desktop overflow and wrapping status label were corrected; native
+keyboard focus exposed the clipping defect fixed above. Navigation test locators
+were made stable while disclosure state changed. The final compiled run is green.
+
+Evidence: %TEMP%/allied-customer-table-20261026/ contains before/after screenshots,
+row metrics and traces. %TEMP%/allied-customer-table-compiled.log records 22 passes;
+allied-customer-table-build.log and allied-customer-table-final-types.log retain
+build/type results. Browser plugin unavailable; installed Edge/Playwright used.
+Fixtures use synthetic example.test records and intercepted APIs, not published data.
+
+Dependencies were reused (installed Next 16.3.8; lockfile 16.4.3). Exact locked CI,
+hosted acceptance, authenticated real-role, physical devices and full screen-reader
+testing remain unverified. Vercel management read returned 403; no access protection
+was changed. The last recorded frontend release remains dpl_JD4ffNmmmo2W7dgrzBHN4evwNd6u;
+DigitalOcean was read-only verified ACTIVE at 98401193-fb85-48d9-8c51-462dcadd6d19.
+No production rollout was requested/performed in this cycle. Item 6 stays open.
+
+Local-artifact postflight: owned development and compiled preview servers stopped;
+C: measured 29.99 GiB free (30.30 GiB before work). Browser evidence totals about
+8.4 MiB. Reused dependencies/worktree and useful compiled build/cache retained;
+no install, extra worktree, profile copy, image archive or Docker resource created.
+Docker inventory was unavailable because its daemon was stopped; no Docker cleanup
+was attempted. Source, unrelated work, histories, backups and databases retained.

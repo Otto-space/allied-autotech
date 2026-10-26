@@ -90,28 +90,42 @@
 }
 .dashboard .work-customers .care-table {
   table-layout: fixed;
-  min-width: 920px;
+  min-width: 54rem;
+}
+.dashboard .work-customers .care-table :is(th, td) {
+  padding-inline: 8px;
 }
 .care-customer-col {
-  width: 18%;
+  width: 12.5rem;
 }
 .care-email-col {
-  width: 20%;
+  width: auto;
 }
 .care-phone-col {
-  width: 14%;
+  width: 6.5rem;
 }
-.care-status-col,
+.care-status-col {
+  width: 8rem;
+}
 .care-joined-col {
-  width: 13%;
+  width: 7rem;
 }
 .care-action-col {
-  width: 22%;
+  width: 12.5rem;
 }
-.dashboard .work-customers .care-row-actions {
+.work-customers .care-table [data-status] {
+  white-space: nowrap;
+}
+/* Table controls stay on one line; generic dashboard action groups may wrap. */
+.care-row-controls {
   display: flex;
   flex-flow: row nowrap;
+  align-items: center;
   gap: 8px;
+}
+.care-row-controls > :is(.text-link, .care-account-menu) {
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 .dashboard .work-customers .care-table :is(th, td):first-child {
   position: sticky;
@@ -181,10 +195,7 @@
   border-color: #9f1239;
   color: #881337;
 }
-.work-customers .care-row-actions {
-  flex-wrap: nowrap;
-}
-.care-row-actions .button {
+:is(.care-row-actions, .care-row-controls) .button {
   font-size: 12px;
   padding: 6px 10px;
   min-height: 36px;
@@ -201,6 +212,14 @@
 .care-table-region:focus-visible {
   outline: 3px solid #075579;
   outline-offset: 2px;
+}
+.work-customers .care-table-region {
+  overflow-x: auto;
+  scrollbar-width: none;
+  scroll-padding-inline: 13rem 1rem;
+}
+.work-customers .care-table-region::-webkit-scrollbar {
+  display: none;
 }
 .work-support tr.wsu-record,
 .customer-care tr.cc-record {
@@ -336,7 +355,15 @@
   border-bottom: 1px solid #d5dfe8;
 }
 @media (max-width: 600px) {
+  /* A pinned identity column would cover row controls on narrow phones. */
+  .dashboard .work-customers .care-table :is(th, td):first-child {
+    position: static;
+  }
+  .work-customers .care-table-region {
+    scroll-padding-inline: 1rem;
+  }
   .care-row-actions .button,
+  .care-row-controls .button,
   .care-table .text-link {
     min-height: 44px;
   }

@@ -1360,7 +1360,6 @@ are pending final CI and compiled responsive acceptance. See the task evidence d
 and UI quality Cycle 10; do not treat the remaining real-role/device acceptance or
 the broader site-completion Item 6 as completed by mocked role fixtures.
 
-
 25 October 2026 - legacy compatibility concurrency release candidate:
 branch `fix/compatibility-release-20261025` applies the isolated compatibility
 correction to the actual 70-migration notification release source, preserving its
@@ -1392,13 +1391,12 @@ retry only when no write was sent and disables it once a write has been attempte
 The preflight, write-time conflict and mobile accessibility cases all passed on
 the rebuilt final source. No synthetic customer or catalogue data was published.
 
-
 ## Customers and Customer Care production release - 25 October 2026, 19:32 UTC
 
 Runtime source dc0322f0fd68df99c45971ea325036dc397e2b2f, branch
 feat/customers-care-20261025 in C:/Users/PC/.codex/worktrees/allied-shop-vehicles-r2-20261025.
 Backend 9ed4a4f2-683a-41f2-ab43-39673783a4a5 ACTIVE; frontend
- dpl_JAEZULBoPpBYEhTSywcqCSVYVWig READY on main/www. Preserves notification
+dpl_JAEZULBoPpBYEhTSywcqCSVYVWig READY on main/www. Preserves notification
 release 17bc43fc and the concurrent compatibility correction 313c4f9c: production
 change was detected, then merged and artifacts rebuilt before promotion.
 
@@ -1425,7 +1423,6 @@ Owned Docker tmpfs fixture and superseded candidate tags removed; all 14 volume
 identities, backups, current/rollback/tool/base images and other tasks retained.
 C: postflight 28.77 GiB free at measurement. Existing main-checkout content was
 preserved by append-only continuity updates; no unrelated source was overwritten.
-
 
 25 October 2026, 19:44 UTC - final customer-detail refinement released.
 Frontend fd19aabc9d0a0843857821cf2eb12651f2ce505c /
@@ -1564,3 +1561,19 @@ integration tests, seven compiled dashboard fixtures, type/lint/format and
 API contract checks passed. See `staff-revision-required-20261025.md`.
 Production rollout and real signed-in role acceptance remain open. This does
 not close Item 6 or the wider site goal.
+
+26 October 2026 - customer table/sidebar responsive correction implemented locally.
+Branch fix/customer-table-responsive-20261026 reuses allied-shop-vehicles-r2-20261025
+from released 76377d43. Expanded/collapsed rows now keep matching compact actions;
+desktop columns fit, visible table/sidebar/drawer scrollbars are removed, and
+necessary scrolling plus keyboard focus remain usable. The 1024px partially clipped
+focus case is fixed. Permissions, account safeguards, data and unrelated work retained.
+Final optimized local Edge acceptance: 22/22 browser cases; four related units,
+TypeScript/lint/format/build/postbuild passed. See UI quality Cycle 13 and
+%TEMP%/allied-customer-table-20261026/ for screenshots, metrics and honest limits.
+Installed Next 16.3.8 differs from locked 16.4.3; locked CI/hosted/real-role/device
+acceptance remains separate. Vercel management read returned 403; no production
+deployment or database/business write was performed. Item 6 remains open.
+
+Task preview servers stopped. C: postflight 29.99 GiB; useful build/cache and 8.4 MiB
+review evidence retained. No Docker resource/duplicate install/worktree created.
