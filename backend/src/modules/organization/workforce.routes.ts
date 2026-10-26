@@ -8,6 +8,7 @@ import { createSensitiveRateLimit } from "../../common/middleware/rate-limits.js
 import { validate } from "../../common/middleware/validate.js";
 import { successResponse } from "../../common/http/api-response.js";
 import { WorkforceAccessService } from "./workforce-access.service.js";
+import { WorkforceDirectoryService } from "./workforce-directory.service.js";
 import { WorkforceWorkService } from "./workforce-work.service.js";
 import * as schemas from "./workforce.schemas.js";
 
@@ -22,6 +23,13 @@ const context = (req: Request) => ({
 const empty = z.strictObject({});
 // Route definitions are shared with OpenAPI, so every new contract is documented.
 export const workforceRouteDefinitions = [
+  [
+    "get",
+    "/admin/workforce/accounts",
+    "directory",
+    schemas.workforceDirectoryQuerySchema,
+    empty,
+  ],
   [
     "post",
     "/staff/workforce/enquiries/:id/email-deliveries/dismiss",
@@ -211,7 +219,10 @@ export function createWorkforceRouter(): Router {
     work = new WorkforceWorkService();
   for (const [method, path, action, schema, params] of workforceRouteDefinitions) {
     const handler = async (req: Request, res: Response) => {
-      if (path.startsWith("/admin/workforce/accounts/"))
+      if (
+        path === "/admin/workforce/accounts" ||
+        path.startsWith("/admin/workforce/accounts/")
+      )
         res.set("Cache-Control", "private, no-store");
       const actor = req.actor!,
         ctx = context(req),
@@ -228,6 +239,7 @@ export function createWorkforceRouter(): Router {
                   "complaints",
                   "orders",
                   "finance",
+                  "directory",
                 ].includes(action)
               ? schemas.workforceListSchema.parse({})
               : schemas.workforceListSchema.parse(req.query);
@@ -238,6 +250,12 @@ export function createWorkforceRouter(): Router {
       } = req.params as Record<string, string>;
       let data: unknown;
       switch (action) {
+        case "directory":
+          data = await new WorkforceDirectoryService().list(
+            actor,
+            schemas.workforceDirectoryQuerySchema.parse(req.query),
+          );
+          break;
         case "enquiryDeliveryDismiss":
         case "complaintDeliveryDismiss":
           data = await work.dismissDeliveryNotices(

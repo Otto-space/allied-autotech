@@ -34,6 +34,30 @@ async function setup(page: Page, enrolled = false, admin = false, role = "SUPER_
     mode: "normal",
     reads: 0,
   };
+  await page.route(/\/api\/v1\/admin\/workforce\/accounts(?:\?.*)?$/, (r) =>
+    r.fulfill(
+      ok({
+        items: [
+          {
+            userId: f.member.id,
+            name: "Ada Okoro",
+            email: f.member.email,
+            role: f.member.role,
+            status: "ACTIVE",
+            verified: true,
+            managed: enrolled,
+            position: enrolled ? "WORKSHOP_LEAD" : null,
+            version: enrolled ? 0 : null,
+            accountBranch: null,
+            responsibilities: [],
+            responsibilitiesMore: false,
+            canInspect: true,
+          },
+        ],
+        generatedAt: stamp,
+      }),
+    ),
+  );
   await page.route("**/api/v1/admin/workforce/accounts/**", async (r) => {
     if (r.request().method() === "GET") {
       state.reads++;
@@ -303,7 +327,7 @@ for (const width of [430, 1440])
       fullPage: true,
     });
   });
-test("owner responsibility lookup reuses verified account and hides protected actions", async ({
+test("owner responsibility directory reuses verified account and hides protected actions", async ({
   page,
 }) => {
   const s = await setup(page);
@@ -314,8 +338,7 @@ test("owner responsibility lookup reuses verified account and hides protected ac
     canDelegate: false,
   });
   await page.goto("/admin/workforce");
-  await page.getByLabel("Staff user reference", { exact: true }).fill(s.f.member.id);
-  await page.getByRole("button", { name: "Review staff responsibilities" }).click();
+  await page.getByRole("link", { name: "View/manage Ada Okoro", exact: true }).click();
   await expect(
     section(page).getByText(/Responsibility changes are unavailable/),
   ).toBeVisible();
@@ -379,8 +402,7 @@ test("delegated responsibility workspace assigns through scoped APIs without leg
     ),
   );
   await page.goto("/admin/workforce/access");
-  await page.getByLabel("Staff user reference", { exact: true }).fill(s.f.member.id);
-  await page.getByRole("button", { name: "Review account", exact: true }).click();
+  await page.getByRole("link", { name: "View/manage Ada Okoro", exact: true }).click();
   await section(page).getByText("Assign responsibility", { exact: true }).click();
   const form = section(page).locator("form");
   await expect(

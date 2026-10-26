@@ -1578,20 +1578,69 @@ deployment or database/business write was performed. Item 6 remains open.
 Task preview servers stopped. C: postflight 29.99 GiB; useful build/cache and 8.4 MiB
 review evidence retained. No Docker resource/duplicate install/worktree created.
 
-26 October 2026 - the three pending functional batches are live at source
-`3ccee21a`: required staff revisions, current Help/Allie and customer table/sidebar
-responsiveness. Backend `e8c5297d-93f5-41e0-97bd-0c7851fa5daa` is ACTIVE;
-frontend `dpl_5hGWpdJyGqQgG69dcumqFQ2RU7HQ` is READY on apex/www. The
-release record is `pending-commits-production-20261026.md`; real-role and
-physical-device acceptance remain open.
+26 October 2026 - all three identified pending functional batches deployed together.
+Runtime 3ccee21a includes customer table/sidebar 3500b3a0, required staff revisions
+1aaa39a9 and Help/Allie 38e7df62/d0272949/aa54fba8, preserving actual preceding
+adef02f9 and all earlier releases. Backend e8c5297d-93f5-41e0-97bd-0c7851fa5daa ACTIVE;
+Vercel dpl_5hGWpdJyGqQgG69dcumqFQ2RU7HQ READY, apex/www exact aliases verified.
+Only four backend image digests changed; schema remains 71, no migration/grant/
+production business submission. All three exact-source CI workflows, 1,039 units,
+nine image cases, fresh isolated replay/db:check, 41 integrations, 57 hosted-candidate
+fixture browser cases and 22 recorded live read-only checks passed. Three provisioned
+cases skipped. Local preview policy rejection resolved via protected hosted candidate,
+with isolated API/page fixtures and writes blocked; host/identity harness adjustments
+are documented. Real-role mutations, physical and screen-reader acceptance remain open.
+Production schema/privileges and three worker heartbeats passed; original app-only
+firewall restored. Latest managed backups and retained separate restore/archive hash
+verified; no new restore. Temporary source/cookie files removed, owned API stopped;
+current/rollback/data/other-task resources retained. C: 28.16 GiB free. Evidence and
+rollback: backend/docs/pending-commits-production-20261026.md. Main tracker existing
+bytes preserved append-only. Broader site-completion Item 6 remains open.
 
-26 October 2026 - payment-source concurrency candidate on
-`fix/payment-expiry-race-20261026`, based on live runtime `3ccee21a`.
+Revision 4 implementation is active on feat/workforce-allie-r4-20261026, based on
+verified production runtime 3ccee21a (documentation HEAD 9b1728fe). Canonical brief:
+docs/help-learn/REVISION_4_BRIEF.md. Its precedence replaces the older optional-AI
+completion criterion. Workforce access is the first dependency. Existing account
+tiers, eight responsibility templates plus CEO position, legacy reviewed enrollment
+and protected owner/promotion policies are retained. W1 adds a real scoped workforce
+directory in place of the UUID-first lookup; implementation is under verification.
+Remaining: complete effective-access provenance/versioning, atomic role/delegation
+changes, full navigation/session/subscription coverage, actual conversational AI,
+all-dashboard learning coverage, reviewed persisted handoff and gated human chat.
+Do not mark the goal complete from this first batch. No new production publication,
+purchase, invitation or real customer communication is authorised by this revision.
+
+Revision 4 W1 local acceptance: directory and existing editor verified with 31
+restricted-runtime isolated HTTP/DB cases, 14 focused units and 18 distinct
+fixture browser scenarios. No schema change or shared/application DB write.
+Full evidence/limits: docs/help-learn/WORKFORCE_DIRECTORY_W1.md. Effective-access
+provenance, template evolution and role dependencies remain the next foundation
+batch. Actual AI, full learning matrix, human handoff/chat and evaluations remain
+required. No new production publication. Broader Item 6 stays open.
+
+Revision 4 W2 local checkpoint: owner demotion atomically removes role-dependent
+delegation, advances workforce version and records reason without deleting valid
+scoped duties, independent financial grants or histories. Invitation acceptance
+cannot revive dormant delegation. The review submits both account/workforce
+revisions. All 37 isolated HTTP/DB tests, 1,053 frontend units and optimized build
+passed. Updated W2 browser specification is not rerun: compiled preview start was
+blocked by automatic approval review; no alternate startup. W1 browser evidence
+is separate. No schema migration, production rollout or real communication.
+Evidence: docs/help-learn/WORKFORCE_ROLE_DEPENDENCIES_W2.md. Remaining foundation,
+actual AI, all-route learning, handoff/live chat and evaluations stay required.
+
+26 October 2026 - current backend was rechecked as ACTIVE deployment
+`b1c75306-9ea7-4f5a-97cc-156ddf412d67`, image source `8c11c3a0`, with no
+pending rollout. Its ancestry includes the earlier `3ccee21a` release.
+
+Payment-source concurrency candidate `fix/payment-expiry-race-20261026` was
+initially tested against `3ccee21a` and then merged with current `8c11c3a0`.
 An isolated order expiry schedule reproduced creation of an intent from a stale
-payable read. Payment intent, online initialization and manual submission now
-lock the owned source before validating status/amount/deadline. A fresh `_test`
-database replayed 71 migrations with no schema difference and passed db:check;
-eight integration files passed 48 cases, including three source-cancellation
-races. Backend types, lint and format passed. No provider transaction, schema or
-financial policy changed. See `payment-source-concurrency-20261026.md`.
+payable read. Intent creation, online initialization and manual submission now
+lock the owned source before validating status, amount and deadline. A fresh
+`_test` database replayed 71 migrations with no schema difference and passed
+db:check; eight integration files passed 48 cases, including three
+source-cancellation races. Backend types, lint and format passed. The exact
+merged source still requires revalidation before release. No provider transaction,
+schema or financial policy changed. See `payment-source-concurrency-20261026.md`.
 Production release and real provider/role acceptance remain open; Item 6 is unchanged.

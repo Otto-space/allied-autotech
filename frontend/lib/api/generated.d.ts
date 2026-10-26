@@ -6936,6 +6936,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/admin/workforce/accounts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Responsibility-based workspace: directory
+         * @description Explicit enrollment required for operational queues. Current assignments, branch, field projections and state are enforced in a transaction. Access changes require MFA, current password, target/version review and an owner-configured delegation envelope. No financial execution, exports or collection release authority is conferred by a title. Responsibility-based workspace: directory. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+         */
+        get: operations["getAdminWorkforceAccounts"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/staff/workforce/enquiries/{id}/email-deliveries/dismiss": {
         parameters: {
             query?: never;
@@ -28402,7 +28422,9 @@ export interface operations {
                  * @example {
                  *       "role": "STAFF",
                  *       "branchId": "00000000-0000-4000-8000-000000000001",
-                 *       "expectedRevision": "synthetic-expectedrevision"
+                 *       "expectedRevision": "synthetic-expectedrevision",
+                 *       "reason": "synthetic-reason",
+                 *       "expectedWorkforceVersion": "synthetic-expectedworkforceversion"
                  *     }
                  */
                 "application/json": {
@@ -28418,6 +28440,10 @@ export interface operations {
                     branchId: string;
                     /** @description Required account revision derived from updatedAt, role, status, profile updatedAt and branchId joined with colons. Checked atomically while the account and profile are locked. */
                     expectedRevision: string;
+                    /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                    reason?: string;
+                    /** @description Required for an enrolled account; null for a reviewed account without workforce enrollment. Checked atomically with the role change. */
+                    expectedWorkforceVersion?: number | null;
                 };
             };
         };
@@ -117986,6 +118012,353 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getAdminWorkforceAccounts: {
+        parameters: {
+            query?: {
+                /**
+                 * @description Maximum number of records to return, bounded by the API.
+                 * @example 1
+                 */
+                limit?: number;
+                /**
+                 * @description Opaque cursor returned by the preceding page.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                cursor?: string;
+                /**
+                 * @description Q used to constrain this request.
+                 * @example synthetic-q
+                 */
+                q?: string;
+                /**
+                 * @description Role used to constrain this request.
+                 * @example STAFF
+                 */
+                role?: "STAFF" | "ADMIN" | "SUPER_ADMIN";
+                /**
+                 * @description Status used to constrain this request.
+                 * @example ACTIVE
+                 */
+                status?: "ACTIVE" | "SUSPENDED" | "DEACTIVATED";
+                /**
+                 * @description Position used to constrain this request.
+                 * @example CEO_MD
+                 */
+                position?: "CEO_MD" | "OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN";
+                /**
+                 * @description Branch Id used to constrain this request.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                branchId?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success: Responsibility-based workspace: directory. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Responsibility-based workspace: directory",
+                     *       "data": {
+                     *         "items": [
+                     *           {
+                     *             "userId": "00000000-0000-4000-8000-000000000001",
+                     *             "name": "synthetic-name",
+                     *             "email": "customer@example.test",
+                     *             "role": "STAFF",
+                     *             "status": "ACTIVE",
+                     *             "verified": true,
+                     *             "managed": true,
+                     *             "position": "CEO_MD",
+                     *             "version": "synthetic-version",
+                     *             "accountBranch": {
+                     *               "id": "00000000-0000-4000-8000-000000000001",
+                     *               "name": "synthetic-name",
+                     *               "isActive": true
+                     *             },
+                     *             "responsibilities": [
+                     *               {
+                     *                 "assignmentId": "00000000-0000-4000-8000-000000000001",
+                     *                 "template": "OPERATIONS",
+                     *                 "branch": {
+                     *                   "id": "00000000-0000-4000-8000-000000000001",
+                     *                   "name": "synthetic-name"
+                     *                 },
+                     *                 "scope": "BRANCH",
+                     *                 "temporary": true,
+                     *                 "expiresAt": "2030-01-15T10:00:00.000Z"
+                     *               }
+                     *             ],
+                     *             "canInspect": true,
+                     *             "responsibilitiesMore": true
+                     *           }
+                     *         ],
+                     *         "nextCursor": "00000000-0000-4000-8000-000000000001",
+                     *         "generatedAt": "2030-01-15T10:00:00.000Z"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /**
+                         * @description Success validated by this operation's strict request contract.
+                         * @enum {boolean}
+                         */
+                        success: true;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /** @description Items validated by this operation's strict request contract. */
+                            items: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the user resource; ownership is resolved server-side.
+                                 */
+                                userId: string;
+                                /** @description Name validated by this operation's strict request contract. */
+                                name: string;
+                                /** @description Normalized account email address. */
+                                email: string;
+                                /**
+                                 * @description Role validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                role: "STAFF" | "ADMIN" | "SUPER_ADMIN";
+                                /**
+                                 * @description Requested or filtered lifecycle state from the documented enum.
+                                 * @enum {string}
+                                 */
+                                status: "ACTIVE" | "SUSPENDED" | "DEACTIVATED";
+                                /** @description Verified validated by this operation's strict request contract. */
+                                verified: boolean;
+                                /** @description Managed validated by this operation's strict request contract. */
+                                managed: boolean;
+                                /**
+                                 * @description Position validated by this operation's strict request contract.
+                                 * @enum {string|null}
+                                 */
+                                position: "CEO_MD" | "OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN" | null;
+                                /** @description Version validated by this operation's strict request contract. */
+                                version: number | null;
+                                /** @description Account Branch validated by this operation's strict request contract. */
+                                accountBranch: {
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the id resource; ownership is resolved server-side.
+                                     */
+                                    id: string;
+                                    /** @description Name validated by this operation's strict request contract. */
+                                    name: string;
+                                    /** @description Boolean control for is active; authorization is still enforced server-side. */
+                                    isActive: boolean;
+                                } | null;
+                                /** @description Responsibilities validated by this operation's strict request contract. */
+                                responsibilities: {
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the assignment resource; ownership is resolved server-side.
+                                     */
+                                    assignmentId: string;
+                                    /**
+                                     * @description Template validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    template: "OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN";
+                                    /** @description Branch validated by this operation's strict request contract. */
+                                    branch: {
+                                        /**
+                                         * Format: uuid
+                                         * @description Identifier of the id resource; ownership is resolved server-side.
+                                         */
+                                        id: string;
+                                        /** @description Name validated by this operation's strict request contract. */
+                                        name: string;
+                                    };
+                                    /**
+                                     * @description Scope validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    scope: "BRANCH" | "ASSIGNED";
+                                    /** @description Temporary validated by this operation's strict request contract. */
+                                    temporary: boolean;
+                                    /**
+                                     * Format: date-time
+                                     * @description ISO 8601 timestamp interpreted and validated by the server.
+                                     */
+                                    expiresAt: string | null;
+                                }[];
+                                /** @description Can Inspect validated by this operation's strict request contract. */
+                                canInspect: boolean;
+                                /** @description Responsibilities More validated by this operation's strict request contract. */
+                                responsibilitiesMore: boolean;
+                            }[];
+                            /**
+                             * Format: uuid
+                             * @description Next Cursor validated by this operation's strict request contract.
+                             */
+                            nextCursor?: string;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            generatedAt: string;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                            /** @description ISO 8601 timestamp interpreted and validated by the server. */
+                            serverTime: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A valid session and required assurance are missing. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A valid session and required assurance are missing.",
+                     *       "error": {
+                     *         "code": "UNAUTHORIZED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Current access does not permit this request */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Record unavailable in permitted scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Stale version or invalid state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid fields */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
             };
             /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
             503: {

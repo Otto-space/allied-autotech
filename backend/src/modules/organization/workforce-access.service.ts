@@ -107,6 +107,8 @@ export class WorkforceAccessService {
       await lockWorkforce(tx);
       await lockAccessActor(tx, actor);
       if (!["ADMIN", "SUPER_ADMIN"].includes(actor.role)) workforceDenied();
+      // Discovery and a copied/deep-linked detail URL require the same live authority.
+      if (!(await workforceSnapshot(tx, actor)).canManageAssignments) workforceDenied();
       const target = await tx.user.findUnique({
         where: { id: userId },
         select: {

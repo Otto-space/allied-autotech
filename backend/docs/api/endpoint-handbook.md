@@ -19246,6 +19246,8 @@ JSON request fields:
 | `role` | STAFF | Yes | Role validated by this operation's strict request contract. |
 | `branchId` | string (uuid) | Yes | Identifier of the branch resource; ownership is resolved server-side. |
 | `expectedRevision` | string | Yes | Required account revision derived from updatedAt, role, status, profile updatedAt and branchId joined with colons. Checked atomically while the account and profile are locked. |
+| `reason` | string | No | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| `expectedWorkforceVersion` | integer / null | No | Required for an enrolled account; null for a reviewed account without workforce enrollment. Checked atomically with the role change. |
 
 Synthetic request example:
 
@@ -19253,7 +19255,9 @@ Synthetic request example:
 {
   "role": "STAFF",
   "branchId": "00000000-0000-4000-8000-000000000001",
-  "expectedRevision": "synthetic-expectedrevision"
+  "expectedRevision": "synthetic-expectedrevision",
+  "reason": "synthetic-reason",
+  "expectedWorkforceVersion": "synthetic-expectedworkforceversion"
 }
 ```
 
@@ -22741,6 +22745,78 @@ Success: HTTP 200.
 ```
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/admin/workforce/accounts`
+
+- Operation ID: `getAdminWorkforceAccounts`
+- Purpose: Explicit enrollment required for operational queues. Current assignments, branch, field projections and state are enforced in a transaction. Access changes require MFA, current password, target/version review and an owner-configured delegation envelope. No financial execution, exports or collection release authority is conferred by a title. Responsibility-based workspace: directory. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
+| `q` | query | string | No | Q used to constrain this request. |
+| `role` | query | STAFF / ADMIN / SUPER_ADMIN | No | Role used to constrain this request. |
+| `status` | query | ACTIVE / SUSPENDED / DEACTIVATED | No | Status used to constrain this request. |
+| `position` | query | CEO_MD / OPERATIONS / CUSTOMER_SERVICE / SALES_SUPERVISOR / SALES_CASHIER / ACCOUNTANT / WORKSHOP_LEAD / ELECTRICAL_TECHNICIAN / MECHANICAL_TECHNICIAN | No | Position used to constrain this request. |
+| `branchId` | query | string (uuid) | No | Branch Id used to constrain this request. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Responsibility-based workspace: directory",
+  "data": {
+    "items": [
+      {
+        "userId": "00000000-0000-4000-8000-000000000001",
+        "name": "synthetic-name",
+        "email": "customer@example.test",
+        "role": "STAFF",
+        "status": "ACTIVE",
+        "verified": true,
+        "managed": true,
+        "position": "CEO_MD",
+        "version": "synthetic-version",
+        "accountBranch": {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "name": "synthetic-name",
+          "isActive": true
+        },
+        "responsibilities": [
+          {
+            "assignmentId": "00000000-0000-4000-8000-000000000001",
+            "template": "OPERATIONS",
+            "branch": {
+              "id": "00000000-0000-4000-8000-000000000001",
+              "name": "synthetic-name"
+            },
+            "scope": "BRANCH",
+            "temporary": true,
+            "expiresAt": "2030-01-15T10:00:00.000Z"
+          }
+        ],
+        "canInspect": true,
+        "responsibilitiesMore": true
+      }
+    ],
+    "nextCursor": "00000000-0000-4000-8000-000000000001",
+    "generatedAt": "2030-01-15T10:00:00.000Z"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 Current access does not permit this request; 404 Record unavailable in permitted scope; 409 Stale version or invalid state; 422 Invalid fields; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/admin/workforce/invitations`
 

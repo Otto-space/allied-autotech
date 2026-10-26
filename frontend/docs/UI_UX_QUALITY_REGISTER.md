@@ -1647,3 +1647,37 @@ C: measured 29.99 GiB free (30.30 GiB before work). Browser evidence totals abou
 no install, extra worktree, profile copy, image archive or Docker resource created.
 Docker inventory was unavailable because its daemon was stopped; no Docker cleanup
 was attempted. Source, unrelated work, histories, backups and databases retained.
+
+26 October combined production checkpoint: runtime 3ccee21a publishes the pending
+customer table/sidebar, required staff-revision and Help/Allie batches together.
+Backend e8c5297d-93f5-41e0-97bd-0c7851fa5daa ACTIVE; frontend
+dpl_5hGWpdJyGqQgG69dcumqFQ2RU7HQ READY on main/www. Exact-source locked CI,
+1,039 units, 41 isolated integrations, nine image cases, 57 hosted-candidate fixture
+browser cases and 22 live read-only checks passed. Captures:
+%TEMP%/allied-pending-release-production-20261026/ (real public reads), plus existing
+allied-customer-table-20261026 and allied-allie-20261026 folders (synthetic fixtures).
+Provider-cookie/identity/timing harness qualifications, three skipped provisioned
+cases and remaining actual-role/device/screen-reader limits are explicit in
+backend/docs/pending-commits-production-20261026.md. No business submissions or
+schema migration. Broader Item 6 remains open; other worktrees preserved.
+
+Revision 4 W1 local checkpoint: real workforce account directory replaces UUID-first lookup.
+Scoped backend projection and copied-detail authorization, URL filters/pagination,
+cleared failure states and existing reviewed editor retained. 31 isolated database/HTTP
+tests, 14 focused units and 18 distinct fixture browser scenarios passed across
+320/390/768/1024/1440 plus existing 430px editor coverage; exact reruns and initial
+fixture/locator/reflow corrections are in docs/help-learn/WORKFORCE_DIRECTORY_W1.md.
+No production writes/publication. Installed Next 16.3.8 differs from lock 16.4.3;
+hosted/actual-role/device/screen-reader acceptance and full Revision 4 foundation
+remain open. The 106-route structural coverage baseline is not completion.
+
+Revision 4 W2 local checkpoint: owner demotion atomically removes role-dependent
+delegation, advances workforce version and records reason without deleting valid
+scoped duties, independent financial grants or histories. Invitation acceptance
+cannot revive dormant delegation. The review submits both account/workforce
+revisions. All 37 isolated HTTP/DB tests, 1,053 frontend units and optimized build
+passed. Updated W2 browser specification is not rerun: compiled preview start was
+blocked by automatic approval review; no alternate startup. W1 browser evidence
+is separate. No schema migration, production rollout or real communication.
+Evidence: docs/help-learn/WORKFORCE_ROLE_DEPENDENCIES_W2.md. Remaining foundation,
+actual AI, all-route learning, handoff/live chat and evaluations stay required.
