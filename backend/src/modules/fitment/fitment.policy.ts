@@ -1,20 +1,18 @@
 import type { AuthenticatedActor } from "../../common/contracts/actor.js";
 import type { Prisma } from "../../generated/prisma/client.js";
-import { workforceDenied, workforceSnapshot } from "../organization/workforce.policy.js";
+import {
+  branchesFor,
+  workforceDenied,
+  workforceSnapshot,
+} from "../organization/workforce.policy.js";
 
 export async function fitmentAccess(
   tx: Prisma.TransactionClient,
   actor: AuthenticatedActor,
 ) {
   const snapshot = await workforceSnapshot(tx, actor);
-  const authorBranches = snapshot.assignments
-    .filter((assignment) =>
-      ["OPERATIONS", "SALES_SUPERVISOR"].includes(assignment.template),
-    )
-    .map((assignment) => assignment.branchId);
-  const reviewBranches = snapshot.assignments
-    .filter((assignment) => assignment.template === "WORKSHOP_LEAD")
-    .map((assignment) => assignment.branchId);
+  const authorBranches = branchesFor(snapshot, "FITMENT_AUTHOR");
+  const reviewBranches = branchesFor(snapshot, "FITMENT_REVIEW");
   const globalAuthor =
     actor.role === "SUPER_ADMIN" || (actor.role === "ADMIN" && !snapshot.managed);
   const globalReviewer = actor.role === "SUPER_ADMIN";

@@ -119012,6 +119012,7 @@ export interface operations {
                      *               "id": "00000000-0000-4000-8000-000000000001",
                      *               "userId": "00000000-0000-4000-8000-000000000001",
                      *               "template": "OPERATIONS",
+                     *               "templateVersion": 1,
                      *               "branchId": "00000000-0000-4000-8000-000000000001",
                      *               "scope": "BRANCH",
                      *               "temporary": true,
@@ -119113,6 +119114,8 @@ export interface operations {
                                      * @enum {string}
                                      */
                                     template: "OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN";
+                                    /** @description Template Version validated by this operation's strict request contract. */
+                                    templateVersion: number;
                                     /**
                                      * Format: uuid
                                      * @description Identifier of the branch resource; ownership is resolved server-side.
@@ -119393,6 +119396,7 @@ export interface operations {
                      *               "id": "00000000-0000-4000-8000-000000000001",
                      *               "userId": "00000000-0000-4000-8000-000000000001",
                      *               "template": "OPERATIONS",
+                     *               "templateVersion": 1,
                      *               "branchId": "00000000-0000-4000-8000-000000000001",
                      *               "scope": "BRANCH",
                      *               "temporary": true,
@@ -119494,6 +119498,8 @@ export interface operations {
                                      * @enum {string}
                                      */
                                     template: "OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN";
+                                    /** @description Template Version validated by this operation's strict request contract. */
+                                    templateVersion: number;
                                     /**
                                      * Format: uuid
                                      * @description Identifier of the branch resource; ownership is resolved server-side.
@@ -119781,6 +119787,7 @@ export interface operations {
                      *               "id": "00000000-0000-4000-8000-000000000001",
                      *               "userId": "00000000-0000-4000-8000-000000000001",
                      *               "template": "OPERATIONS",
+                     *               "templateVersion": 1,
                      *               "branchId": "00000000-0000-4000-8000-000000000001",
                      *               "scope": "BRANCH",
                      *               "temporary": true,
@@ -119891,6 +119898,8 @@ export interface operations {
                                      * @enum {string}
                                      */
                                     template: "OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN";
+                                    /** @description Template Version validated by this operation's strict request contract. */
+                                    templateVersion: number;
                                     /**
                                      * Format: uuid
                                      * @description Identifier of the branch resource; ownership is resolved server-side.
@@ -120210,6 +120219,7 @@ export interface operations {
                      *               "id": "00000000-0000-4000-8000-000000000001",
                      *               "userId": "00000000-0000-4000-8000-000000000001",
                      *               "template": "OPERATIONS",
+                     *               "templateVersion": 1,
                      *               "branchId": "00000000-0000-4000-8000-000000000001",
                      *               "scope": "BRANCH",
                      *               "temporary": true,
@@ -120314,6 +120324,8 @@ export interface operations {
                                      * @enum {string}
                                      */
                                     template: "OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN";
+                                    /** @description Template Version validated by this operation's strict request contract. */
+                                    templateVersion: number;
                                     /**
                                      * Format: uuid
                                      * @description Identifier of the branch resource; ownership is resolved server-side.
@@ -120850,6 +120862,7 @@ export interface operations {
                      *             "id": "00000000-0000-4000-8000-000000000001",
                      *             "userId": "00000000-0000-4000-8000-000000000001",
                      *             "template": "OPERATIONS",
+                     *             "templateVersion": 1,
                      *             "branchId": "00000000-0000-4000-8000-000000000001",
                      *             "scope": "BRANCH",
                      *             "temporary": true,
@@ -120923,6 +120936,8 @@ export interface operations {
                                  * @enum {string}
                                  */
                                 template: "OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN";
+                                /** @description Template Version validated by this operation's strict request contract. */
+                                templateVersion: number;
                                 /**
                                  * Format: uuid
                                  * @description Identifier of the branch resource; ownership is resolved server-side.
@@ -121161,6 +121176,7 @@ export interface operations {
                      *               "id": "00000000-0000-4000-8000-000000000001",
                      *               "userId": "00000000-0000-4000-8000-000000000001",
                      *               "template": "OPERATIONS",
+                     *               "templateVersion": 1,
                      *               "branchId": "00000000-0000-4000-8000-000000000001",
                      *               "scope": "BRANCH",
                      *               "temporary": true,
@@ -121252,6 +121268,8 @@ export interface operations {
                                      * @enum {string}
                                      */
                                     template: "OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN";
+                                    /** @description Template Version validated by this operation's strict request contract. */
+                                    templateVersion: number;
                                     /**
                                      * Format: uuid
                                      * @description Identifier of the branch resource; ownership is resolved server-side.
@@ -121555,6 +121573,7 @@ export interface operations {
                      *               "id": "00000000-0000-4000-8000-000000000001",
                      *               "userId": "00000000-0000-4000-8000-000000000001",
                      *               "template": "OPERATIONS",
+                     *               "templateVersion": 1,
                      *               "branchId": "00000000-0000-4000-8000-000000000001",
                      *               "scope": "BRANCH",
                      *               "temporary": true,
@@ -121716,6 +121735,8 @@ export interface operations {
                                      * @enum {string}
                                      */
                                     template: "OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN";
+                                    /** @description Template Version validated by this operation's strict request contract. */
+                                    templateVersion: number;
                                     /**
                                      * Format: uuid
                                      * @description Identifier of the branch resource; ownership is resolved server-side.
@@ -122002,6 +122023,7 @@ export interface operations {
                      *               "id": "00000000-0000-4000-8000-000000000001",
                      *               "userId": "00000000-0000-4000-8000-000000000001",
                      *               "template": "OPERATIONS",
+                     *               "templateVersion": 1,
                      *               "branchId": "00000000-0000-4000-8000-000000000001",
                      *               "scope": "BRANCH",
                      *               "temporary": true,
@@ -122141,6 +122163,8 @@ export interface operations {
                                      * @enum {string}
                                      */
                                     template: "OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN";
+                                    /** @description Template Version validated by this operation's strict request contract. */
+                                    templateVersion: number;
                                     /**
                                      * Format: uuid
                                      * @description Identifier of the branch resource; ownership is resolved server-side.
@@ -122419,6 +122443,7 @@ export interface operations {
                      *               "id": "00000000-0000-4000-8000-000000000001",
                      *               "userId": "00000000-0000-4000-8000-000000000001",
                      *               "template": "OPERATIONS",
+                     *               "templateVersion": 1,
                      *               "branchId": "00000000-0000-4000-8000-000000000001",
                      *               "scope": "BRANCH",
                      *               "temporary": true,
@@ -122581,6 +122606,8 @@ export interface operations {
                                      * @enum {string}
                                      */
                                     template: "OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN";
+                                    /** @description Template Version validated by this operation's strict request contract. */
+                                    templateVersion: number;
                                     /**
                                      * Format: uuid
                                      * @description Identifier of the branch resource; ownership is resolved server-side.
@@ -122869,6 +122896,7 @@ export interface operations {
                      *               "id": "00000000-0000-4000-8000-000000000001",
                      *               "userId": "00000000-0000-4000-8000-000000000001",
                      *               "template": "OPERATIONS",
+                     *               "templateVersion": 1,
                      *               "branchId": "00000000-0000-4000-8000-000000000001",
                      *               "scope": "BRANCH",
                      *               "temporary": true,
@@ -123000,6 +123028,8 @@ export interface operations {
                                      * @enum {string}
                                      */
                                     template: "OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN";
+                                    /** @description Template Version validated by this operation's strict request contract. */
+                                    templateVersion: number;
                                     /**
                                      * Format: uuid
                                      * @description Identifier of the branch resource; ownership is resolved server-side.
@@ -123284,6 +123314,7 @@ export interface operations {
                      *               "id": "00000000-0000-4000-8000-000000000001",
                      *               "userId": "00000000-0000-4000-8000-000000000001",
                      *               "template": "OPERATIONS",
+                     *               "templateVersion": 1,
                      *               "branchId": "00000000-0000-4000-8000-000000000001",
                      *               "scope": "BRANCH",
                      *               "temporary": true,
@@ -123469,6 +123500,8 @@ export interface operations {
                                      * @enum {string}
                                      */
                                     template: "OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN";
+                                    /** @description Template Version validated by this operation's strict request contract. */
+                                    templateVersion: number;
                                     /**
                                      * Format: uuid
                                      * @description Identifier of the branch resource; ownership is resolved server-side.
@@ -123880,6 +123913,7 @@ export interface operations {
                      *               "id": "00000000-0000-4000-8000-000000000001",
                      *               "userId": "00000000-0000-4000-8000-000000000001",
                      *               "template": "OPERATIONS",
+                     *               "templateVersion": 1,
                      *               "branchId": "00000000-0000-4000-8000-000000000001",
                      *               "scope": "BRANCH",
                      *               "temporary": true,
@@ -124042,6 +124076,8 @@ export interface operations {
                                      * @enum {string}
                                      */
                                     template: "OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN";
+                                    /** @description Template Version validated by this operation's strict request contract. */
+                                    templateVersion: number;
                                     /**
                                      * Format: uuid
                                      * @description Identifier of the branch resource; ownership is resolved server-side.
@@ -124358,6 +124394,7 @@ export interface operations {
                      *               "id": "00000000-0000-4000-8000-000000000001",
                      *               "userId": "00000000-0000-4000-8000-000000000001",
                      *               "template": "OPERATIONS",
+                     *               "templateVersion": 1,
                      *               "branchId": "00000000-0000-4000-8000-000000000001",
                      *               "scope": "BRANCH",
                      *               "temporary": true,
@@ -124520,6 +124557,8 @@ export interface operations {
                                      * @enum {string}
                                      */
                                     template: "OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN";
+                                    /** @description Template Version validated by this operation's strict request contract. */
+                                    templateVersion: number;
                                     /**
                                      * Format: uuid
                                      * @description Identifier of the branch resource; ownership is resolved server-side.
@@ -124842,6 +124881,7 @@ export interface operations {
                      *               "id": "00000000-0000-4000-8000-000000000001",
                      *               "userId": "00000000-0000-4000-8000-000000000001",
                      *               "template": "OPERATIONS",
+                     *               "templateVersion": 1,
                      *               "branchId": "00000000-0000-4000-8000-000000000001",
                      *               "scope": "BRANCH",
                      *               "temporary": true,
@@ -125004,6 +125044,8 @@ export interface operations {
                                      * @enum {string}
                                      */
                                     template: "OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN";
+                                    /** @description Template Version validated by this operation's strict request contract. */
+                                    templateVersion: number;
                                     /**
                                      * Format: uuid
                                      * @description Identifier of the branch resource; ownership is resolved server-side.
@@ -125314,6 +125356,7 @@ export interface operations {
                      *               "id": "00000000-0000-4000-8000-000000000001",
                      *               "userId": "00000000-0000-4000-8000-000000000001",
                      *               "template": "OPERATIONS",
+                     *               "templateVersion": 1,
                      *               "branchId": "00000000-0000-4000-8000-000000000001",
                      *               "scope": "BRANCH",
                      *               "temporary": true,
@@ -125475,6 +125518,8 @@ export interface operations {
                                      * @enum {string}
                                      */
                                     template: "OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN";
+                                    /** @description Template Version validated by this operation's strict request contract. */
+                                    templateVersion: number;
                                     /**
                                      * Format: uuid
                                      * @description Identifier of the branch resource; ownership is resolved server-side.
@@ -125755,6 +125800,7 @@ export interface operations {
                      *               "id": "00000000-0000-4000-8000-000000000001",
                      *               "userId": "00000000-0000-4000-8000-000000000001",
                      *               "template": "OPERATIONS",
+                     *               "templateVersion": 1,
                      *               "branchId": "00000000-0000-4000-8000-000000000001",
                      *               "scope": "BRANCH",
                      *               "temporary": true,
@@ -125865,6 +125911,8 @@ export interface operations {
                                      * @enum {string}
                                      */
                                     template: "OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN";
+                                    /** @description Template Version validated by this operation's strict request contract. */
+                                    templateVersion: number;
                                     /**
                                      * Format: uuid
                                      * @description Identifier of the branch resource; ownership is resolved server-side.
@@ -126190,6 +126238,7 @@ export interface operations {
                      *               "id": "00000000-0000-4000-8000-000000000001",
                      *               "userId": "00000000-0000-4000-8000-000000000001",
                      *               "template": "OPERATIONS",
+                     *               "templateVersion": 1,
                      *               "branchId": "00000000-0000-4000-8000-000000000001",
                      *               "scope": "BRANCH",
                      *               "temporary": true,
@@ -126329,6 +126378,8 @@ export interface operations {
                                      * @enum {string}
                                      */
                                     template: "OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN";
+                                    /** @description Template Version validated by this operation's strict request contract. */
+                                    templateVersion: number;
                                     /**
                                      * Format: uuid
                                      * @description Identifier of the branch resource; ownership is resolved server-side.
@@ -126612,6 +126663,7 @@ export interface operations {
                      *               "id": "00000000-0000-4000-8000-000000000001",
                      *               "userId": "00000000-0000-4000-8000-000000000001",
                      *               "template": "OPERATIONS",
+                     *               "templateVersion": 1,
                      *               "branchId": "00000000-0000-4000-8000-000000000001",
                      *               "scope": "BRANCH",
                      *               "temporary": true,
@@ -126802,6 +126854,8 @@ export interface operations {
                                      * @enum {string}
                                      */
                                     template: "OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN";
+                                    /** @description Template Version validated by this operation's strict request contract. */
+                                    templateVersion: number;
                                     /**
                                      * Format: uuid
                                      * @description Identifier of the branch resource; ownership is resolved server-side.
@@ -127200,6 +127254,7 @@ export interface operations {
                      *               "id": "00000000-0000-4000-8000-000000000001",
                      *               "userId": "00000000-0000-4000-8000-000000000001",
                      *               "template": "OPERATIONS",
+                     *               "templateVersion": 1,
                      *               "branchId": "00000000-0000-4000-8000-000000000001",
                      *               "scope": "BRANCH",
                      *               "temporary": true,
@@ -127343,6 +127398,8 @@ export interface operations {
                                      * @enum {string}
                                      */
                                     template: "OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN";
+                                    /** @description Template Version validated by this operation's strict request contract. */
+                                    templateVersion: number;
                                     /**
                                      * Format: uuid
                                      * @description Identifier of the branch resource; ownership is resolved server-side.
@@ -127618,6 +127675,7 @@ export interface operations {
                      *               "id": "00000000-0000-4000-8000-000000000001",
                      *               "userId": "00000000-0000-4000-8000-000000000001",
                      *               "template": "OPERATIONS",
+                     *               "templateVersion": 1,
                      *               "branchId": "00000000-0000-4000-8000-000000000001",
                      *               "scope": "BRANCH",
                      *               "temporary": true,
@@ -127778,6 +127836,8 @@ export interface operations {
                                      * @enum {string}
                                      */
                                     template: "OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN";
+                                    /** @description Template Version validated by this operation's strict request contract. */
+                                    templateVersion: number;
                                     /**
                                      * Format: uuid
                                      * @description Identifier of the branch resource; ownership is resolved server-side.
@@ -128080,6 +128140,7 @@ export interface operations {
                      *               "id": "00000000-0000-4000-8000-000000000001",
                      *               "userId": "00000000-0000-4000-8000-000000000001",
                      *               "template": "OPERATIONS",
+                     *               "templateVersion": 1,
                      *               "branchId": "00000000-0000-4000-8000-000000000001",
                      *               "scope": "BRANCH",
                      *               "temporary": true,
@@ -128245,6 +128306,8 @@ export interface operations {
                                      * @enum {string}
                                      */
                                     template: "OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN";
+                                    /** @description Template Version validated by this operation's strict request contract. */
+                                    templateVersion: number;
                                     /**
                                      * Format: uuid
                                      * @description Identifier of the branch resource; ownership is resolved server-side.
@@ -128555,6 +128618,7 @@ export interface operations {
                      *               "id": "00000000-0000-4000-8000-000000000001",
                      *               "userId": "00000000-0000-4000-8000-000000000001",
                      *               "template": "OPERATIONS",
+                     *               "templateVersion": 1,
                      *               "branchId": "00000000-0000-4000-8000-000000000001",
                      *               "scope": "BRANCH",
                      *               "temporary": true,
@@ -128691,6 +128755,8 @@ export interface operations {
                                      * @enum {string}
                                      */
                                     template: "OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN";
+                                    /** @description Template Version validated by this operation's strict request contract. */
+                                    templateVersion: number;
                                     /**
                                      * Format: uuid
                                      * @description Identifier of the branch resource; ownership is resolved server-side.
@@ -128961,6 +129027,7 @@ export interface operations {
                      *               "id": "00000000-0000-4000-8000-000000000001",
                      *               "userId": "00000000-0000-4000-8000-000000000001",
                      *               "template": "OPERATIONS",
+                     *               "templateVersion": 1,
                      *               "branchId": "00000000-0000-4000-8000-000000000001",
                      *               "scope": "BRANCH",
                      *               "temporary": true,
@@ -129109,6 +129176,8 @@ export interface operations {
                                      * @enum {string}
                                      */
                                     template: "OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN";
+                                    /** @description Template Version validated by this operation's strict request contract. */
+                                    templateVersion: number;
                                     /**
                                      * Format: uuid
                                      * @description Identifier of the branch resource; ownership is resolved server-side.
@@ -129376,13 +129445,15 @@ export interface operations {
                      *           ],
                      *           "delegatedBranchIds": [
                      *             "00000000-0000-4000-8000-000000000001"
-                     *           ]
+                     *           ],
+                     *           "delegationPolicyVersion": 1
                      *         },
                      *         "assignments": [
                      *           {
                      *             "id": "00000000-0000-4000-8000-000000000001",
                      *             "userId": "00000000-0000-4000-8000-000000000001",
                      *             "template": "OPERATIONS",
+                     *             "templateVersion": 1,
                      *             "branchId": "00000000-0000-4000-8000-000000000001",
                      *             "scope": "BRANCH",
                      *             "temporary": true,
@@ -129399,6 +129470,8 @@ export interface operations {
                      *         "activeAssignmentIds": [
                      *           "00000000-0000-4000-8000-000000000001"
                      *         ],
+                     *         "templatesVersion": 1,
+                     *         "assignmentDefinitions": {},
                      *         "templates": {}
                      *       },
                      *       "meta": {
@@ -129480,6 +129553,8 @@ export interface operations {
                                 delegatedTemplates: string[];
                                 /** @description Delegated Branch Ids validated by this operation's strict request contract. */
                                 delegatedBranchIds: string[];
+                                /** @description Delegation Policy Version validated by this operation's strict request contract. */
+                                delegationPolicyVersion: number;
                             } | null;
                             /** @description Assignments validated by this operation's strict request contract. */
                             assignments: {
@@ -129498,6 +129573,8 @@ export interface operations {
                                  * @enum {string}
                                  */
                                 template: "OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN";
+                                /** @description Template Version validated by this operation's strict request contract. */
+                                templateVersion: number;
                                 /**
                                  * Format: uuid
                                  * @description Identifier of the branch resource; ownership is resolved server-side.
@@ -129547,6 +129624,17 @@ export interface operations {
                             }[];
                             /** @description Active Assignment Ids validated by this operation's strict request contract. */
                             activeAssignmentIds: string[];
+                            /** @description Templates Version validated by this operation's strict request contract. */
+                            templatesVersion: number;
+                            /** @description Assignment Definitions validated by this operation's strict request contract. */
+                            assignmentDefinitions: {
+                                [key: string]: {
+                                    label: string;
+                                    department: string;
+                                    scope: string;
+                                    actions: string[];
+                                } | null;
+                            };
                             /** @description Templates validated by this operation's strict request contract. */
                             templates: {
                                 [key: string]: {
@@ -129725,6 +129813,7 @@ export interface operations {
             content: {
                 /**
                  * @example {
+                 *       "receiptVersion": 2,
                  *       "position": "CEO_MD",
                  *       "expectedVersion": "synthetic-expectedversion",
                  *       "currentPassword": "correct horse battery staple",
@@ -129732,6 +129821,11 @@ export interface operations {
                  *     }
                  */
                 "application/json": {
+                    /**
+                     * @description Opt in to pinned-definition metadata; omission preserves the published legacy mutation receipt.
+                     * @enum {number}
+                     */
+                    receiptVersion?: 2;
                     /**
                      * @description Position validated by this operation's strict request contract.
                      * @enum {string}
@@ -129768,7 +129862,8 @@ export interface operations {
                      *         ],
                      *         "delegatedBranchIds": [
                      *           "00000000-0000-4000-8000-000000000001"
-                     *         ]
+                     *         ],
+                     *         "delegationPolicyVersion": 1
                      *       },
                      *       "meta": {
                      *         "requestId": "req_0000000000000001"
@@ -129811,6 +129906,8 @@ export interface operations {
                             delegatedTemplates: string[];
                             /** @description Delegated Branch Ids validated by this operation's strict request contract. */
                             delegatedBranchIds: string[];
+                            /** @description Present when the request opts in with receiptVersion 2. */
+                            delegationPolicyVersion?: number;
                         };
                         /** @description Meta validated by this operation's strict request contract. */
                         meta: {
@@ -129992,10 +130089,20 @@ export interface operations {
                  */
                 "application/json": {
                     /**
+                     * @description Receipt Version validated by this operation's strict request contract.
+                     * @enum {number}
+                     */
+                    receiptVersion?: 2;
+                    /**
                      * @description Template validated by this operation's strict request contract.
                      * @enum {string}
                      */
                     template: "OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN";
+                    /**
+                     * @description Expected Template Version validated by this operation's strict request contract.
+                     * @default 1
+                     */
+                    expectedTemplateVersion?: number;
                     /**
                      * Format: uuid
                      * @description Identifier of the branch resource; ownership is resolved server-side.
@@ -130079,6 +130186,8 @@ export interface operations {
                              * @enum {string}
                              */
                             template: "OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN";
+                            /** @description Present when the request opts in with receiptVersion 2. */
+                            templateVersion?: number;
                             /**
                              * Format: uuid
                              * @description Identifier of the branch resource; ownership is resolved server-side.
@@ -130299,12 +130408,18 @@ export interface operations {
             content: {
                 /**
                  * @example {
+                 *       "receiptVersion": 2,
                  *       "expectedVersion": 0,
                  *       "reason": "synthetic-reason",
                  *       "currentPassword": "correct horse battery staple"
                  *     }
                  */
                 "application/json": {
+                    /**
+                     * @description Receipt Version validated by this operation's strict request contract.
+                     * @enum {number}
+                     */
+                    receiptVersion?: 2;
                     /** @description Last server version observed by the client; stale writes are rejected. */
                     expectedVersion: number;
                     /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
@@ -130371,6 +130486,8 @@ export interface operations {
                              * @enum {string}
                              */
                             template: "OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN";
+                            /** @description Present when the request opts in with receiptVersion 2. */
+                            templateVersion?: number;
                             /**
                              * Format: uuid
                              * @description Identifier of the branch resource; ownership is resolved server-side.
@@ -130586,9 +130703,11 @@ export interface operations {
             content: {
                 /**
                  * @example {
+                 *       "receiptVersion": 2,
                  *       "expectedVersion": 0,
                  *       "reason": "synthetic-reason",
                  *       "currentPassword": "correct horse battery staple",
+                 *       "expectedPolicyVersion": 1,
                  *       "allowAdminInvitations": true,
                  *       "templates": [
                  *         "OPERATIONS"
@@ -130599,12 +130718,22 @@ export interface operations {
                  *     }
                  */
                 "application/json": {
+                    /**
+                     * @description Receipt Version validated by this operation's strict request contract.
+                     * @enum {number}
+                     */
+                    receiptVersion?: 2;
                     /** @description Last server version observed by the client; stale writes are rejected. */
                     expectedVersion: number;
                     /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
                     reason: string;
                     /** @description Sensitive password value sent only over HTTPS and never logged or persisted by the client. */
                     currentPassword: string;
+                    /**
+                     * @description Expected Policy Version validated by this operation's strict request contract.
+                     * @default 1
+                     */
+                    expectedPolicyVersion?: number;
                     /**
                      * @description Boolean control for allow admin invitations; authorization is still enforced server-side.
                      * @default false
@@ -130639,7 +130768,8 @@ export interface operations {
                      *         ],
                      *         "delegatedBranchIds": [
                      *           "00000000-0000-4000-8000-000000000001"
-                     *         ]
+                     *         ],
+                     *         "delegationPolicyVersion": 1
                      *       },
                      *       "meta": {
                      *         "requestId": "req_0000000000000001"
@@ -130682,6 +130812,8 @@ export interface operations {
                             delegatedTemplates: string[];
                             /** @description Delegated Branch Ids validated by this operation's strict request contract. */
                             delegatedBranchIds: string[];
+                            /** @description Present when the request opts in with receiptVersion 2. */
+                            delegationPolicyVersion?: number;
                         };
                         /** @description Meta validated by this operation's strict request contract. */
                         meta: {

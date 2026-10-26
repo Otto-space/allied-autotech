@@ -154569,6 +154569,11 @@
                                     ],
                                     "description": "Template validated by this operation's strict request contract."
                                   },
+                                  "templateVersion": {
+                                    "type": "integer",
+                                    "exclusiveMinimum": 0,
+                                    "description": "Template Version validated by this operation's strict request contract."
+                                  },
                                   "branchId": {
                                     "type": "string",
                                     "format": "uuid",
@@ -154641,6 +154646,7 @@
                                   "id",
                                   "userId",
                                   "template",
+                                  "templateVersion",
                                   "branchId",
                                   "scope",
                                   "temporary",
@@ -154767,6 +154773,7 @@
                           "id": "00000000-0000-4000-8000-000000000001",
                           "userId": "00000000-0000-4000-8000-000000000001",
                           "template": "OPERATIONS",
+                          "templateVersion": 1,
                           "branchId": "00000000-0000-4000-8000-000000000001",
                           "scope": "BRANCH",
                           "temporary": true,
@@ -155125,6 +155132,11 @@
                                     ],
                                     "description": "Template validated by this operation's strict request contract."
                                   },
+                                  "templateVersion": {
+                                    "type": "integer",
+                                    "exclusiveMinimum": 0,
+                                    "description": "Template Version validated by this operation's strict request contract."
+                                  },
                                   "branchId": {
                                     "type": "string",
                                     "format": "uuid",
@@ -155197,6 +155209,7 @@
                                   "id",
                                   "userId",
                                   "template",
+                                  "templateVersion",
                                   "branchId",
                                   "scope",
                                   "temporary",
@@ -155323,6 +155336,7 @@
                           "id": "00000000-0000-4000-8000-000000000001",
                           "userId": "00000000-0000-4000-8000-000000000001",
                           "template": "OPERATIONS",
+                          "templateVersion": 1,
                           "branchId": "00000000-0000-4000-8000-000000000001",
                           "scope": "BRANCH",
                           "temporary": true,
@@ -155685,6 +155699,11 @@
                                     ],
                                     "description": "Template validated by this operation's strict request contract."
                                   },
+                                  "templateVersion": {
+                                    "type": "integer",
+                                    "exclusiveMinimum": 0,
+                                    "description": "Template Version validated by this operation's strict request contract."
+                                  },
                                   "branchId": {
                                     "type": "string",
                                     "format": "uuid",
@@ -155757,6 +155776,7 @@
                                   "id",
                                   "userId",
                                   "template",
+                                  "templateVersion",
                                   "branchId",
                                   "scope",
                                   "temporary",
@@ -155954,6 +155974,7 @@
                           "id": "00000000-0000-4000-8000-000000000001",
                           "userId": "00000000-0000-4000-8000-000000000001",
                           "template": "OPERATIONS",
+                          "templateVersion": 1,
                           "branchId": "00000000-0000-4000-8000-000000000001",
                           "scope": "BRANCH",
                           "temporary": true,
@@ -156323,6 +156344,11 @@
                                     ],
                                     "description": "Template validated by this operation's strict request contract."
                                   },
+                                  "templateVersion": {
+                                    "type": "integer",
+                                    "exclusiveMinimum": 0,
+                                    "description": "Template Version validated by this operation's strict request contract."
+                                  },
                                   "branchId": {
                                     "type": "string",
                                     "format": "uuid",
@@ -156395,6 +156421,7 @@
                                   "id",
                                   "userId",
                                   "template",
+                                  "templateVersion",
                                   "branchId",
                                   "scope",
                                   "temporary",
@@ -156544,6 +156571,7 @@
                           "id": "00000000-0000-4000-8000-000000000001",
                           "userId": "00000000-0000-4000-8000-000000000001",
                           "template": "OPERATIONS",
+                          "templateVersion": 1,
                           "branchId": "00000000-0000-4000-8000-000000000001",
                           "scope": "BRANCH",
                           "temporary": true,
@@ -157168,6 +157196,11 @@
                                 ],
                                 "description": "Template validated by this operation's strict request contract."
                               },
+                              "templateVersion": {
+                                "type": "integer",
+                                "exclusiveMinimum": 0,
+                                "description": "Template Version validated by this operation's strict request contract."
+                              },
                               "branchId": {
                                 "type": "string",
                                 "format": "uuid",
@@ -157240,6 +157273,7 @@
                               "id",
                               "userId",
                               "template",
+                              "templateVersion",
                               "branchId",
                               "scope",
                               "temporary",
@@ -157335,6 +157369,7 @@
                         "id": "00000000-0000-4000-8000-000000000001",
                         "userId": "00000000-0000-4000-8000-000000000001",
                         "template": "OPERATIONS",
+                        "templateVersion": 1,
                         "branchId": "00000000-0000-4000-8000-000000000001",
                         "scope": "BRANCH",
                         "temporary": true,
@@ -157613,6 +157648,11 @@
                                     ],
                                     "description": "Template validated by this operation's strict request contract."
                                   },
+                                  "templateVersion": {
+                                    "type": "integer",
+                                    "exclusiveMinimum": 0,
+                                    "description": "Template Version validated by this operation's strict request contract."
+                                  },
                                   "branchId": {
                                     "type": "string",
                                     "format": "uuid",
@@ -157685,6 +157725,7 @@
                                   "id",
                                   "userId",
                                   "template",
+                                  "templateVersion",
                                   "branchId",
                                   "scope",
                                   "temporary",
@@ -157815,6 +157856,7 @@
                           "id": "00000000-0000-4000-8000-000000000001",
                           "userId": "00000000-0000-4000-8000-000000000001",
                           "template": "OPERATIONS",
+                          "templateVersion": 1,
                           "branchId": "00000000-0000-4000-8000-000000000001",
                           "scope": "BRANCH",
                           "temporary": true,
@@ -158346,6 +158388,11 @@
                                     ],
                                     "description": "Template validated by this operation's strict request contract."
                                   },
+                                  "templateVersion": {
+                                    "type": "integer",
+                                    "exclusiveMinimum": 0,
+                                    "description": "Template Version validated by this operation's strict request contract."
+                                  },
                                   "branchId": {
                                     "type": "string",
                                     "format": "uuid",
@@ -158418,6 +158465,7 @@
                                   "id",
                                   "userId",
                                   "template",
+                                  "templateVersion",
                                   "branchId",
                                   "scope",
                                   "temporary",
@@ -158557,6 +158605,7 @@
                           "id": "00000000-0000-4000-8000-000000000001",
                           "userId": "00000000-0000-4000-8000-000000000001",
                           "template": "OPERATIONS",
+                          "templateVersion": 1,
                           "branchId": "00000000-0000-4000-8000-000000000001",
                           "scope": "BRANCH",
                           "temporary": true,
@@ -159032,6 +159081,11 @@
                                     ],
                                     "description": "Template validated by this operation's strict request contract."
                                   },
+                                  "templateVersion": {
+                                    "type": "integer",
+                                    "exclusiveMinimum": 0,
+                                    "description": "Template Version validated by this operation's strict request contract."
+                                  },
                                   "branchId": {
                                     "type": "string",
                                     "format": "uuid",
@@ -159104,6 +159158,7 @@
                                   "id",
                                   "userId",
                                   "template",
+                                  "templateVersion",
                                   "branchId",
                                   "scope",
                                   "temporary",
@@ -159241,6 +159296,7 @@
                           "id": "00000000-0000-4000-8000-000000000001",
                           "userId": "00000000-0000-4000-8000-000000000001",
                           "template": "OPERATIONS",
+                          "templateVersion": 1,
                           "branchId": "00000000-0000-4000-8000-000000000001",
                           "scope": "BRANCH",
                           "temporary": true,
@@ -159693,6 +159749,11 @@
                                     ],
                                     "description": "Template validated by this operation's strict request contract."
                                   },
+                                  "templateVersion": {
+                                    "type": "integer",
+                                    "exclusiveMinimum": 0,
+                                    "description": "Template Version validated by this operation's strict request contract."
+                                  },
                                   "branchId": {
                                     "type": "string",
                                     "format": "uuid",
@@ -159765,6 +159826,7 @@
                                   "id",
                                   "userId",
                                   "template",
+                                  "templateVersion",
                                   "branchId",
                                   "scope",
                                   "temporary",
@@ -159959,6 +160021,7 @@
                           "id": "00000000-0000-4000-8000-000000000001",
                           "userId": "00000000-0000-4000-8000-000000000001",
                           "template": "OPERATIONS",
+                          "templateVersion": 1,
                           "branchId": "00000000-0000-4000-8000-000000000001",
                           "scope": "BRANCH",
                           "temporary": true,
@@ -160370,6 +160433,11 @@
                                     ],
                                     "description": "Template validated by this operation's strict request contract."
                                   },
+                                  "templateVersion": {
+                                    "type": "integer",
+                                    "exclusiveMinimum": 0,
+                                    "description": "Template Version validated by this operation's strict request contract."
+                                  },
                                   "branchId": {
                                     "type": "string",
                                     "format": "uuid",
@@ -160442,6 +160510,7 @@
                                   "id",
                                   "userId",
                                   "template",
+                                  "templateVersion",
                                   "branchId",
                                   "scope",
                                   "temporary",
@@ -160582,6 +160651,7 @@
                           "id": "00000000-0000-4000-8000-000000000001",
                           "userId": "00000000-0000-4000-8000-000000000001",
                           "template": "OPERATIONS",
+                          "templateVersion": 1,
                           "branchId": "00000000-0000-4000-8000-000000000001",
                           "scope": "BRANCH",
                           "temporary": true,
@@ -161055,6 +161125,11 @@
                                     ],
                                     "description": "Template validated by this operation's strict request contract."
                                   },
+                                  "templateVersion": {
+                                    "type": "integer",
+                                    "exclusiveMinimum": 0,
+                                    "description": "Template Version validated by this operation's strict request contract."
+                                  },
                                   "branchId": {
                                     "type": "string",
                                     "format": "uuid",
@@ -161127,6 +161202,7 @@
                                   "id",
                                   "userId",
                                   "template",
+                                  "templateVersion",
                                   "branchId",
                                   "scope",
                                   "temporary",
@@ -161501,6 +161577,7 @@
                           "id": "00000000-0000-4000-8000-000000000001",
                           "userId": "00000000-0000-4000-8000-000000000001",
                           "template": "OPERATIONS",
+                          "templateVersion": 1,
                           "branchId": "00000000-0000-4000-8000-000000000001",
                           "scope": "BRANCH",
                           "temporary": true,
@@ -162046,6 +162123,11 @@
                                     ],
                                     "description": "Template validated by this operation's strict request contract."
                                   },
+                                  "templateVersion": {
+                                    "type": "integer",
+                                    "exclusiveMinimum": 0,
+                                    "description": "Template Version validated by this operation's strict request contract."
+                                  },
                                   "branchId": {
                                     "type": "string",
                                     "format": "uuid",
@@ -162118,6 +162200,7 @@
                                   "id",
                                   "userId",
                                   "template",
+                                  "templateVersion",
                                   "branchId",
                                   "scope",
                                   "temporary",
@@ -162312,6 +162395,7 @@
                           "id": "00000000-0000-4000-8000-000000000001",
                           "userId": "00000000-0000-4000-8000-000000000001",
                           "template": "OPERATIONS",
+                          "templateVersion": 1,
                           "branchId": "00000000-0000-4000-8000-000000000001",
                           "scope": "BRANCH",
                           "temporary": true,
@@ -162817,6 +162901,11 @@
                                     ],
                                     "description": "Template validated by this operation's strict request contract."
                                   },
+                                  "templateVersion": {
+                                    "type": "integer",
+                                    "exclusiveMinimum": 0,
+                                    "description": "Template Version validated by this operation's strict request contract."
+                                  },
                                   "branchId": {
                                     "type": "string",
                                     "format": "uuid",
@@ -162889,6 +162978,7 @@
                                   "id",
                                   "userId",
                                   "template",
+                                  "templateVersion",
                                   "branchId",
                                   "scope",
                                   "temporary",
@@ -163083,6 +163173,7 @@
                           "id": "00000000-0000-4000-8000-000000000001",
                           "userId": "00000000-0000-4000-8000-000000000001",
                           "template": "OPERATIONS",
+                          "templateVersion": 1,
                           "branchId": "00000000-0000-4000-8000-000000000001",
                           "scope": "BRANCH",
                           "temporary": true,
@@ -163595,6 +163686,11 @@
                                     ],
                                     "description": "Template validated by this operation's strict request contract."
                                   },
+                                  "templateVersion": {
+                                    "type": "integer",
+                                    "exclusiveMinimum": 0,
+                                    "description": "Template Version validated by this operation's strict request contract."
+                                  },
                                   "branchId": {
                                     "type": "string",
                                     "format": "uuid",
@@ -163667,6 +163763,7 @@
                                   "id",
                                   "userId",
                                   "template",
+                                  "templateVersion",
                                   "branchId",
                                   "scope",
                                   "temporary",
@@ -163861,6 +163958,7 @@
                           "id": "00000000-0000-4000-8000-000000000001",
                           "userId": "00000000-0000-4000-8000-000000000001",
                           "template": "OPERATIONS",
+                          "templateVersion": 1,
                           "branchId": "00000000-0000-4000-8000-000000000001",
                           "scope": "BRANCH",
                           "temporary": true,
@@ -164396,6 +164494,11 @@
                                     ],
                                     "description": "Template validated by this operation's strict request contract."
                                   },
+                                  "templateVersion": {
+                                    "type": "integer",
+                                    "exclusiveMinimum": 0,
+                                    "description": "Template Version validated by this operation's strict request contract."
+                                  },
                                   "branchId": {
                                     "type": "string",
                                     "format": "uuid",
@@ -164468,6 +164571,7 @@
                                   "id",
                                   "userId",
                                   "template",
+                                  "templateVersion",
                                   "branchId",
                                   "scope",
                                   "temporary",
@@ -164602,6 +164706,7 @@
                           "id": "00000000-0000-4000-8000-000000000001",
                           "userId": "00000000-0000-4000-8000-000000000001",
                           "template": "OPERATIONS",
+                          "templateVersion": 1,
                           "branchId": "00000000-0000-4000-8000-000000000001",
                           "scope": "BRANCH",
                           "temporary": true,
@@ -164962,6 +165067,11 @@
                                     ],
                                     "description": "Template validated by this operation's strict request contract."
                                   },
+                                  "templateVersion": {
+                                    "type": "integer",
+                                    "exclusiveMinimum": 0,
+                                    "description": "Template Version validated by this operation's strict request contract."
+                                  },
                                   "branchId": {
                                     "type": "string",
                                     "format": "uuid",
@@ -165034,6 +165144,7 @@
                                   "id",
                                   "userId",
                                   "template",
+                                  "templateVersion",
                                   "branchId",
                                   "scope",
                                   "temporary",
@@ -165231,6 +165342,7 @@
                           "id": "00000000-0000-4000-8000-000000000001",
                           "userId": "00000000-0000-4000-8000-000000000001",
                           "template": "OPERATIONS",
+                          "templateVersion": 1,
                           "branchId": "00000000-0000-4000-8000-000000000001",
                           "scope": "BRANCH",
                           "temporary": true,
@@ -165718,6 +165830,11 @@
                                     ],
                                     "description": "Template validated by this operation's strict request contract."
                                   },
+                                  "templateVersion": {
+                                    "type": "integer",
+                                    "exclusiveMinimum": 0,
+                                    "description": "Template Version validated by this operation's strict request contract."
+                                  },
                                   "branchId": {
                                     "type": "string",
                                     "format": "uuid",
@@ -165790,6 +165907,7 @@
                                   "id",
                                   "userId",
                                   "template",
+                                  "templateVersion",
                                   "branchId",
                                   "scope",
                                   "temporary",
@@ -165917,6 +166035,7 @@
                           "id": "00000000-0000-4000-8000-000000000001",
                           "userId": "00000000-0000-4000-8000-000000000001",
                           "template": "OPERATIONS",
+                          "templateVersion": 1,
                           "branchId": "00000000-0000-4000-8000-000000000001",
                           "scope": "BRANCH",
                           "temporary": true,
@@ -166390,6 +166509,11 @@
                                     ],
                                     "description": "Template validated by this operation's strict request contract."
                                   },
+                                  "templateVersion": {
+                                    "type": "integer",
+                                    "exclusiveMinimum": 0,
+                                    "description": "Template Version validated by this operation's strict request contract."
+                                  },
                                   "branchId": {
                                     "type": "string",
                                     "format": "uuid",
@@ -166462,6 +166586,7 @@
                                   "id",
                                   "userId",
                                   "template",
+                                  "templateVersion",
                                   "branchId",
                                   "scope",
                                   "temporary",
@@ -166838,6 +166963,7 @@
                           "id": "00000000-0000-4000-8000-000000000001",
                           "userId": "00000000-0000-4000-8000-000000000001",
                           "template": "OPERATIONS",
+                          "templateVersion": 1,
                           "branchId": "00000000-0000-4000-8000-000000000001",
                           "scope": "BRANCH",
                           "temporary": true,
@@ -167358,6 +167484,11 @@
                                     ],
                                     "description": "Template validated by this operation's strict request contract."
                                   },
+                                  "templateVersion": {
+                                    "type": "integer",
+                                    "exclusiveMinimum": 0,
+                                    "description": "Template Version validated by this operation's strict request contract."
+                                  },
                                   "branchId": {
                                     "type": "string",
                                     "format": "uuid",
@@ -167430,6 +167561,7 @@
                                   "id",
                                   "userId",
                                   "template",
+                                  "templateVersion",
                                   "branchId",
                                   "scope",
                                   "temporary",
@@ -167566,6 +167698,7 @@
                           "id": "00000000-0000-4000-8000-000000000001",
                           "userId": "00000000-0000-4000-8000-000000000001",
                           "template": "OPERATIONS",
+                          "templateVersion": 1,
                           "branchId": "00000000-0000-4000-8000-000000000001",
                           "scope": "BRANCH",
                           "temporary": true,
@@ -168004,6 +168137,11 @@
                                     ],
                                     "description": "Template validated by this operation's strict request contract."
                                   },
+                                  "templateVersion": {
+                                    "type": "integer",
+                                    "exclusiveMinimum": 0,
+                                    "description": "Template Version validated by this operation's strict request contract."
+                                  },
                                   "branchId": {
                                     "type": "string",
                                     "format": "uuid",
@@ -168076,6 +168214,7 @@
                                   "id",
                                   "userId",
                                   "template",
+                                  "templateVersion",
                                   "branchId",
                                   "scope",
                                   "temporary",
@@ -168228,6 +168367,7 @@
                           "id": "00000000-0000-4000-8000-000000000001",
                           "userId": "00000000-0000-4000-8000-000000000001",
                           "template": "OPERATIONS",
+                          "templateVersion": 1,
                           "branchId": "00000000-0000-4000-8000-000000000001",
                           "scope": "BRANCH",
                           "temporary": true,
@@ -168719,6 +168859,11 @@
                                     ],
                                     "description": "Template validated by this operation's strict request contract."
                                   },
+                                  "templateVersion": {
+                                    "type": "integer",
+                                    "exclusiveMinimum": 0,
+                                    "description": "Template Version validated by this operation's strict request contract."
+                                  },
                                   "branchId": {
                                     "type": "string",
                                     "format": "uuid",
@@ -168791,6 +168936,7 @@
                                   "id",
                                   "userId",
                                   "template",
+                                  "templateVersion",
                                   "branchId",
                                   "scope",
                                   "temporary",
@@ -168979,6 +169125,7 @@
                           "id": "00000000-0000-4000-8000-000000000001",
                           "userId": "00000000-0000-4000-8000-000000000001",
                           "template": "OPERATIONS",
+                          "templateVersion": 1,
                           "branchId": "00000000-0000-4000-8000-000000000001",
                           "scope": "BRANCH",
                           "temporary": true,
@@ -169462,6 +169609,11 @@
                                     ],
                                     "description": "Template validated by this operation's strict request contract."
                                   },
+                                  "templateVersion": {
+                                    "type": "integer",
+                                    "exclusiveMinimum": 0,
+                                    "description": "Template Version validated by this operation's strict request contract."
+                                  },
                                   "branchId": {
                                     "type": "string",
                                     "format": "uuid",
@@ -169534,6 +169686,7 @@
                                   "id",
                                   "userId",
                                   "template",
+                                  "templateVersion",
                                   "branchId",
                                   "scope",
                                   "temporary",
@@ -169666,6 +169819,7 @@
                           "id": "00000000-0000-4000-8000-000000000001",
                           "userId": "00000000-0000-4000-8000-000000000001",
                           "template": "OPERATIONS",
+                          "templateVersion": 1,
                           "branchId": "00000000-0000-4000-8000-000000000001",
                           "scope": "BRANCH",
                           "temporary": true,
@@ -170082,6 +170236,11 @@
                                     ],
                                     "description": "Template validated by this operation's strict request contract."
                                   },
+                                  "templateVersion": {
+                                    "type": "integer",
+                                    "exclusiveMinimum": 0,
+                                    "description": "Template Version validated by this operation's strict request contract."
+                                  },
                                   "branchId": {
                                     "type": "string",
                                     "format": "uuid",
@@ -170154,6 +170313,7 @@
                                   "id",
                                   "userId",
                                   "template",
+                                  "templateVersion",
                                   "branchId",
                                   "scope",
                                   "temporary",
@@ -170297,6 +170457,7 @@
                           "id": "00000000-0000-4000-8000-000000000001",
                           "userId": "00000000-0000-4000-8000-000000000001",
                           "template": "OPERATIONS",
+                          "templateVersion": 1,
                           "branchId": "00000000-0000-4000-8000-000000000001",
                           "scope": "BRANCH",
                           "temporary": true,
@@ -170657,6 +170818,11 @@
                                 "description": "Delegated Branch Ids Item validated by this operation's strict request contract."
                               },
                               "description": "Delegated Branch Ids validated by this operation's strict request contract."
+                            },
+                            "delegationPolicyVersion": {
+                              "type": "integer",
+                              "exclusiveMinimum": 0,
+                              "description": "Delegation Policy Version validated by this operation's strict request contract."
                             }
                           },
                           "required": [
@@ -170666,7 +170832,8 @@
                             "updatedByUserId",
                             "version",
                             "delegatedTemplates",
-                            "delegatedBranchIds"
+                            "delegatedBranchIds",
+                            "delegationPolicyVersion"
                           ],
                           "description": "Access validated by this operation's strict request contract."
                         },
@@ -170698,6 +170865,11 @@
                                   "MECHANICAL_TECHNICIAN"
                                 ],
                                 "description": "Template validated by this operation's strict request contract."
+                              },
+                              "templateVersion": {
+                                "type": "integer",
+                                "exclusiveMinimum": 0,
+                                "description": "Template Version validated by this operation's strict request contract."
                               },
                               "branchId": {
                                 "type": "string",
@@ -170771,6 +170943,7 @@
                               "id",
                               "userId",
                               "template",
+                              "templateVersion",
                               "branchId",
                               "scope",
                               "temporary",
@@ -170795,6 +170968,44 @@
                             "description": "Active Assignment Ids Item validated by this operation's strict request contract."
                           },
                           "description": "Active Assignment Ids validated by this operation's strict request contract."
+                        },
+                        "templatesVersion": {
+                          "type": "integer",
+                          "exclusiveMinimum": 0,
+                          "description": "Templates Version validated by this operation's strict request contract."
+                        },
+                        "assignmentDefinitions": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": [
+                              "object",
+                              "null"
+                            ],
+                            "properties": {
+                              "label": {
+                                "type": "string"
+                              },
+                              "department": {
+                                "type": "string"
+                              },
+                              "scope": {
+                                "type": "string"
+                              },
+                              "actions": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "required": [
+                              "label",
+                              "department",
+                              "scope",
+                              "actions"
+                            ]
+                          },
+                          "description": "Assignment Definitions validated by this operation's strict request contract."
                         },
                         "templates": {
                           "type": "object",
@@ -170835,6 +171046,8 @@
                         "access",
                         "assignments",
                         "activeAssignmentIds",
+                        "templatesVersion",
+                        "assignmentDefinitions",
                         "templates"
                       ],
                       "description": "Data validated by this operation's strict request contract."
@@ -170901,13 +171114,15 @@
                       ],
                       "delegatedBranchIds": [
                         "00000000-0000-4000-8000-000000000001"
-                      ]
+                      ],
+                      "delegationPolicyVersion": 1
                     },
                     "assignments": [
                       {
                         "id": "00000000-0000-4000-8000-000000000001",
                         "userId": "00000000-0000-4000-8000-000000000001",
                         "template": "OPERATIONS",
+                        "templateVersion": 1,
                         "branchId": "00000000-0000-4000-8000-000000000001",
                         "scope": "BRANCH",
                         "temporary": true,
@@ -170924,6 +171139,8 @@
                     "activeAssignmentIds": [
                       "00000000-0000-4000-8000-000000000001"
                     ],
+                    "templatesVersion": 1,
+                    "assignmentDefinitions": {},
                     "templates": {}
                   },
                   "meta": {
@@ -171099,6 +171316,13 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "receiptVersion": {
+                    "type": "number",
+                    "enum": [
+                      2
+                    ],
+                    "description": "Opt in to pinned-definition metadata; omission preserves the published legacy mutation receipt."
+                  },
                   "position": {
                     "type": "string",
                     "enum": [
@@ -171145,6 +171369,7 @@
                 "description": "Request Body validated by this operation's strict request contract."
               },
               "example": {
+                "receiptVersion": 2,
                 "position": "CEO_MD",
                 "expectedVersion": "synthetic-expectedversion",
                 "currentPassword": "correct horse battery staple",
@@ -171226,6 +171451,11 @@
                             "description": "Delegated Branch Ids Item validated by this operation's strict request contract."
                           },
                           "description": "Delegated Branch Ids validated by this operation's strict request contract."
+                        },
+                        "delegationPolicyVersion": {
+                          "type": "integer",
+                          "exclusiveMinimum": 0,
+                          "description": "Present when the request opts in with receiptVersion 2."
                         }
                       },
                       "required": [
@@ -171280,7 +171510,8 @@
                     ],
                     "delegatedBranchIds": [
                       "00000000-0000-4000-8000-000000000001"
-                    ]
+                    ],
+                    "delegationPolicyVersion": 1
                   },
                   "meta": {
                     "requestId": "req_0000000000000001"
@@ -171457,6 +171688,13 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "receiptVersion": {
+                    "type": "number",
+                    "enum": [
+                      2
+                    ],
+                    "description": "Receipt Version validated by this operation's strict request contract."
+                  },
                   "template": {
                     "type": "string",
                     "enum": [
@@ -171470,6 +171708,12 @@
                       "MECHANICAL_TECHNICIAN"
                     ],
                     "description": "Template validated by this operation's strict request contract."
+                  },
+                  "expectedTemplateVersion": {
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "default": 1,
+                    "description": "Expected Template Version validated by this operation's strict request contract."
                   },
                   "branchId": {
                     "type": "string",
@@ -171582,6 +171826,11 @@
                             "MECHANICAL_TECHNICIAN"
                           ],
                           "description": "Template validated by this operation's strict request contract."
+                        },
+                        "templateVersion": {
+                          "type": "integer",
+                          "exclusiveMinimum": 0,
+                          "description": "Present when the request opts in with receiptVersion 2."
                         },
                         "branchId": {
                           "type": "string",
@@ -171902,6 +172151,13 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "receiptVersion": {
+                    "type": "number",
+                    "enum": [
+                      2
+                    ],
+                    "description": "Receipt Version validated by this operation's strict request contract."
+                  },
                   "expectedVersion": {
                     "type": "integer",
                     "minimum": 0,
@@ -171929,6 +172185,7 @@
                 "description": "Request Body validated by this operation's strict request contract."
               },
               "example": {
+                "receiptVersion": 2,
                 "expectedVersion": 0,
                 "reason": "synthetic-reason",
                 "currentPassword": "correct horse battery staple"
@@ -171981,6 +172238,11 @@
                             "MECHANICAL_TECHNICIAN"
                           ],
                           "description": "Template validated by this operation's strict request contract."
+                        },
+                        "templateVersion": {
+                          "type": "integer",
+                          "exclusiveMinimum": 0,
+                          "description": "Present when the request opts in with receiptVersion 2."
                         },
                         "branchId": {
                           "type": "string",
@@ -172289,6 +172551,13 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "receiptVersion": {
+                    "type": "number",
+                    "enum": [
+                      2
+                    ],
+                    "description": "Receipt Version validated by this operation's strict request contract."
+                  },
                   "expectedVersion": {
                     "type": "integer",
                     "minimum": 0,
@@ -172305,6 +172574,12 @@
                     "minLength": 1,
                     "maxLength": 256,
                     "description": "Sensitive password value sent only over HTTPS and never logged or persisted by the client."
+                  },
+                  "expectedPolicyVersion": {
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "default": 1,
+                    "description": "Expected Policy Version validated by this operation's strict request contract."
                   },
                   "allowAdminInvitations": {
                     "type": "boolean",
@@ -172352,9 +172627,11 @@
                 "description": "Request Body validated by this operation's strict request contract."
               },
               "example": {
+                "receiptVersion": 2,
                 "expectedVersion": 0,
                 "reason": "synthetic-reason",
                 "currentPassword": "correct horse battery staple",
+                "expectedPolicyVersion": 1,
                 "allowAdminInvitations": true,
                 "templates": [
                   "OPERATIONS"
@@ -172439,6 +172716,11 @@
                             "description": "Delegated Branch Ids Item validated by this operation's strict request contract."
                           },
                           "description": "Delegated Branch Ids validated by this operation's strict request contract."
+                        },
+                        "delegationPolicyVersion": {
+                          "type": "integer",
+                          "exclusiveMinimum": 0,
+                          "description": "Present when the request opts in with receiptVersion 2."
                         }
                       },
                       "required": [
@@ -172493,7 +172775,8 @@
                     ],
                     "delegatedBranchIds": [
                       "00000000-0000-4000-8000-000000000001"
-                    ]
+                    ],
+                    "delegationPolicyVersion": 1
                   },
                   "meta": {
                     "requestId": "req_0000000000000001"

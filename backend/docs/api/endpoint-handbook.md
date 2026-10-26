@@ -15527,6 +15527,7 @@ Success: HTTP 200.
           "id": "00000000-0000-4000-8000-000000000001",
           "userId": "00000000-0000-4000-8000-000000000001",
           "template": "OPERATIONS",
+          "templateVersion": 1,
           "branchId": "00000000-0000-4000-8000-000000000001",
           "scope": "BRANCH",
           "temporary": true,
@@ -15605,6 +15606,7 @@ Success: HTTP 200.
           "id": "00000000-0000-4000-8000-000000000001",
           "userId": "00000000-0000-4000-8000-000000000001",
           "template": "OPERATIONS",
+          "templateVersion": 1,
           "branchId": "00000000-0000-4000-8000-000000000001",
           "scope": "BRANCH",
           "temporary": true,
@@ -15695,6 +15697,7 @@ Success: HTTP 200.
           "id": "00000000-0000-4000-8000-000000000001",
           "userId": "00000000-0000-4000-8000-000000000001",
           "template": "OPERATIONS",
+          "templateVersion": 1,
           "branchId": "00000000-0000-4000-8000-000000000001",
           "scope": "BRANCH",
           "temporary": true,
@@ -15794,6 +15797,7 @@ Success: HTTP 200.
           "id": "00000000-0000-4000-8000-000000000001",
           "userId": "00000000-0000-4000-8000-000000000001",
           "template": "OPERATIONS",
+          "templateVersion": 1,
           "branchId": "00000000-0000-4000-8000-000000000001",
           "scope": "BRANCH",
           "temporary": true,
@@ -15856,6 +15860,7 @@ Success: HTTP 200.
         "id": "00000000-0000-4000-8000-000000000001",
         "userId": "00000000-0000-4000-8000-000000000001",
         "template": "OPERATIONS",
+        "templateVersion": 1,
         "branchId": "00000000-0000-4000-8000-000000000001",
         "scope": "BRANCH",
         "temporary": true,
@@ -15914,6 +15919,7 @@ Success: HTTP 200.
           "id": "00000000-0000-4000-8000-000000000001",
           "userId": "00000000-0000-4000-8000-000000000001",
           "template": "OPERATIONS",
+          "templateVersion": 1,
           "branchId": "00000000-0000-4000-8000-000000000001",
           "scope": "BRANCH",
           "temporary": true,
@@ -16021,6 +16027,7 @@ Success: HTTP 200.
           "id": "00000000-0000-4000-8000-000000000001",
           "userId": "00000000-0000-4000-8000-000000000001",
           "template": "OPERATIONS",
+          "templateVersion": 1,
           "branchId": "00000000-0000-4000-8000-000000000001",
           "scope": "BRANCH",
           "temporary": true,
@@ -16115,6 +16122,7 @@ Success: HTTP 200.
           "id": "00000000-0000-4000-8000-000000000001",
           "userId": "00000000-0000-4000-8000-000000000001",
           "template": "OPERATIONS",
+          "templateVersion": 1,
           "branchId": "00000000-0000-4000-8000-000000000001",
           "scope": "BRANCH",
           "temporary": true,
@@ -16209,6 +16217,7 @@ Success: HTTP 200.
           "id": "00000000-0000-4000-8000-000000000001",
           "userId": "00000000-0000-4000-8000-000000000001",
           "template": "OPERATIONS",
+          "templateVersion": 1,
           "branchId": "00000000-0000-4000-8000-000000000001",
           "scope": "BRANCH",
           "temporary": true,
@@ -16304,6 +16313,7 @@ Success: HTTP 200.
           "id": "00000000-0000-4000-8000-000000000001",
           "userId": "00000000-0000-4000-8000-000000000001",
           "template": "OPERATIONS",
+          "templateVersion": 1,
           "branchId": "00000000-0000-4000-8000-000000000001",
           "scope": "BRANCH",
           "temporary": true,
@@ -16391,6 +16401,7 @@ Success: HTTP 200.
           "id": "00000000-0000-4000-8000-000000000001",
           "userId": "00000000-0000-4000-8000-000000000001",
           "template": "OPERATIONS",
+          "templateVersion": 1,
           "branchId": "00000000-0000-4000-8000-000000000001",
           "scope": "BRANCH",
           "temporary": true,
@@ -16538,6 +16549,7 @@ Success: HTTP 200.
           "id": "00000000-0000-4000-8000-000000000001",
           "userId": "00000000-0000-4000-8000-000000000001",
           "template": "OPERATIONS",
+          "templateVersion": 1,
           "branchId": "00000000-0000-4000-8000-000000000001",
           "scope": "BRANCH",
           "temporary": true,
@@ -16657,6 +16669,7 @@ Success: HTTP 200.
           "id": "00000000-0000-4000-8000-000000000001",
           "userId": "00000000-0000-4000-8000-000000000001",
           "template": "OPERATIONS",
+          "templateVersion": 1,
           "branchId": "00000000-0000-4000-8000-000000000001",
           "scope": "BRANCH",
           "temporary": true,
@@ -16778,6 +16791,7 @@ Success: HTTP 200.
           "id": "00000000-0000-4000-8000-000000000001",
           "userId": "00000000-0000-4000-8000-000000000001",
           "template": "OPERATIONS",
+          "templateVersion": 1,
           "branchId": "00000000-0000-4000-8000-000000000001",
           "scope": "BRANCH",
           "temporary": true,
@@ -16879,6 +16893,7 @@ Success: HTTP 200.
           "id": "00000000-0000-4000-8000-000000000001",
           "userId": "00000000-0000-4000-8000-000000000001",
           "template": "OPERATIONS",
+          "templateVersion": 1,
           "branchId": "00000000-0000-4000-8000-000000000001",
           "scope": "BRANCH",
           "temporary": true,
@@ -16967,6 +16982,7 @@ Success: HTTP 200.
           "id": "00000000-0000-4000-8000-000000000001",
           "userId": "00000000-0000-4000-8000-000000000001",
           "template": "OPERATIONS",
+          "templateVersion": 1,
           "branchId": "00000000-0000-4000-8000-000000000001",
           "scope": "BRANCH",
           "temporary": true,
@@ -17064,6 +17080,7 @@ Success: HTTP 200.
           "id": "00000000-0000-4000-8000-000000000001",
           "userId": "00000000-0000-4000-8000-000000000001",
           "template": "OPERATIONS",
+          "templateVersion": 1,
           "branchId": "00000000-0000-4000-8000-000000000001",
           "scope": "BRANCH",
           "temporary": true,
@@ -17150,6 +17167,7 @@ Success: HTTP 200.
           "id": "00000000-0000-4000-8000-000000000001",
           "userId": "00000000-0000-4000-8000-000000000001",
           "template": "OPERATIONS",
+          "templateVersion": 1,
           "branchId": "00000000-0000-4000-8000-000000000001",
           "scope": "BRANCH",
           "temporary": true,
@@ -17277,6 +17295,7 @@ Success: HTTP 200.
           "id": "00000000-0000-4000-8000-000000000001",
           "userId": "00000000-0000-4000-8000-000000000001",
           "template": "OPERATIONS",
+          "templateVersion": 1,
           "branchId": "00000000-0000-4000-8000-000000000001",
           "scope": "BRANCH",
           "temporary": true,
@@ -17368,6 +17387,7 @@ Success: HTTP 200.
           "id": "00000000-0000-4000-8000-000000000001",
           "userId": "00000000-0000-4000-8000-000000000001",
           "template": "OPERATIONS",
+          "templateVersion": 1,
           "branchId": "00000000-0000-4000-8000-000000000001",
           "scope": "BRANCH",
           "temporary": true,
@@ -17478,6 +17498,7 @@ Success: HTTP 200.
           "id": "00000000-0000-4000-8000-000000000001",
           "userId": "00000000-0000-4000-8000-000000000001",
           "template": "OPERATIONS",
+          "templateVersion": 1,
           "branchId": "00000000-0000-4000-8000-000000000001",
           "scope": "BRANCH",
           "temporary": true,
@@ -17574,6 +17595,7 @@ Success: HTTP 200.
           "id": "00000000-0000-4000-8000-000000000001",
           "userId": "00000000-0000-4000-8000-000000000001",
           "template": "OPERATIONS",
+          "templateVersion": 1,
           "branchId": "00000000-0000-4000-8000-000000000001",
           "scope": "BRANCH",
           "temporary": true,
@@ -17660,6 +17682,7 @@ Success: HTTP 200.
           "id": "00000000-0000-4000-8000-000000000001",
           "userId": "00000000-0000-4000-8000-000000000001",
           "template": "OPERATIONS",
+          "templateVersion": 1,
           "branchId": "00000000-0000-4000-8000-000000000001",
           "scope": "BRANCH",
           "temporary": true,
@@ -22933,13 +22956,15 @@ Success: HTTP 200.
       ],
       "delegatedBranchIds": [
         "00000000-0000-4000-8000-000000000001"
-      ]
+      ],
+      "delegationPolicyVersion": 1
     },
     "assignments": [
       {
         "id": "00000000-0000-4000-8000-000000000001",
         "userId": "00000000-0000-4000-8000-000000000001",
         "template": "OPERATIONS",
+        "templateVersion": 1,
         "branchId": "00000000-0000-4000-8000-000000000001",
         "scope": "BRANCH",
         "temporary": true,
@@ -22956,6 +22981,8 @@ Success: HTTP 200.
     "activeAssignmentIds": [
       "00000000-0000-4000-8000-000000000001"
     ],
+    "templatesVersion": 1,
+    "assignmentDefinitions": {},
     "templates": {}
   },
   "meta": {
@@ -22986,6 +23013,7 @@ JSON request fields:
 
 | Field | Type | Required | Purpose |
 | --- | --- | --- | --- |
+| `receiptVersion` | 2 | No | Opt in to pinned-definition metadata; omission preserves the published legacy mutation receipt. |
 | `position` | CEO_MD / OPERATIONS / CUSTOMER_SERVICE / SALES_SUPERVISOR / SALES_CASHIER / ACCOUNTANT / WORKSHOP_LEAD / ELECTRICAL_TECHNICIAN / MECHANICAL_TECHNICIAN | Yes | Position validated by this operation's strict request contract. |
 | `expectedVersion` | integer / null | Yes | Last server version observed by the client; stale writes are rejected. |
 | `currentPassword` | string | Yes | Sensitive password value sent only over HTTPS and never logged or persisted by the client. |
@@ -22995,6 +23023,7 @@ Synthetic request example:
 
 ```json
 {
+  "receiptVersion": 2,
   "position": "CEO_MD",
   "expectedVersion": "synthetic-expectedversion",
   "currentPassword": "correct horse battery staple",
@@ -23019,7 +23048,8 @@ Success: HTTP 200.
     ],
     "delegatedBranchIds": [
       "00000000-0000-4000-8000-000000000001"
-    ]
+    ],
+    "delegationPolicyVersion": 1
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -23049,7 +23079,9 @@ JSON request fields:
 
 | Field | Type | Required | Purpose |
 | --- | --- | --- | --- |
+| `receiptVersion` | 2 | No | Receipt Version validated by this operation's strict request contract. |
 | `template` | OPERATIONS / CUSTOMER_SERVICE / SALES_SUPERVISOR / SALES_CASHIER / ACCOUNTANT / WORKSHOP_LEAD / ELECTRICAL_TECHNICIAN / MECHANICAL_TECHNICIAN | Yes | Template validated by this operation's strict request contract. |
+| `expectedTemplateVersion` | integer | No | Expected Template Version validated by this operation's strict request contract. |
 | `branchId` | string (uuid) | Yes | Identifier of the branch resource; ownership is resolved server-side. |
 | `temporary` | boolean | Yes | Temporary validated by this operation's strict request contract. |
 | `startsAt` | string (date-time) | Yes | ISO 8601 timestamp interpreted and validated by the server. |
@@ -23124,6 +23156,7 @@ JSON request fields:
 
 | Field | Type | Required | Purpose |
 | --- | --- | --- | --- |
+| `receiptVersion` | 2 | No | Receipt Version validated by this operation's strict request contract. |
 | `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
 | `reason` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
 | `currentPassword` | string | Yes | Sensitive password value sent only over HTTPS and never logged or persisted by the client. |
@@ -23132,6 +23165,7 @@ Synthetic request example:
 
 ```json
 {
+  "receiptVersion": 2,
   "expectedVersion": 0,
   "reason": "synthetic-reason",
   "currentPassword": "correct horse battery staple"
@@ -23188,9 +23222,11 @@ JSON request fields:
 
 | Field | Type | Required | Purpose |
 | --- | --- | --- | --- |
+| `receiptVersion` | 2 | No | Receipt Version validated by this operation's strict request contract. |
 | `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
 | `reason` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
 | `currentPassword` | string | Yes | Sensitive password value sent only over HTTPS and never logged or persisted by the client. |
+| `expectedPolicyVersion` | integer | No | Expected Policy Version validated by this operation's strict request contract. |
 | `allowAdminInvitations` | boolean | No | Boolean control for allow admin invitations; authorization is still enforced server-side. |
 | `templates` | array<OPERATIONS / CUSTOMER_SERVICE / SALES_SUPERVISOR / SALES_CASHIER / ACCOUNTANT / WORKSHOP_LEAD / ELECTRICAL_TECHNICIAN / MECHANICAL_TECHNICIAN> | Yes | Templates validated by this operation's strict request contract. |
 | `branchIds` | array<string (uuid)> | Yes | Branch Ids validated by this operation's strict request contract. |
@@ -23199,9 +23235,11 @@ Synthetic request example:
 
 ```json
 {
+  "receiptVersion": 2,
   "expectedVersion": 0,
   "reason": "synthetic-reason",
   "currentPassword": "correct horse battery staple",
+  "expectedPolicyVersion": 1,
   "allowAdminInvitations": true,
   "templates": [
     "OPERATIONS"
@@ -23229,7 +23267,8 @@ Success: HTTP 200.
     ],
     "delegatedBranchIds": [
       "00000000-0000-4000-8000-000000000001"
-    ]
+    ],
+    "delegationPolicyVersion": 1
   },
   "meta": {
     "requestId": "req_0000000000000001"

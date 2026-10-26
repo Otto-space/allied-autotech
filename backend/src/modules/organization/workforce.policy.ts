@@ -3,56 +3,17 @@ import type { AuthenticatedActor } from "../../common/contracts/actor.js";
 import { AppError } from "../../common/errors/app-error.js";
 import type { Prisma } from "../../generated/prisma/client.js";
 
-export const workforceTemplates = {
-  OPERATIONS: {
-    label: "Operations Supervisor",
-    department: "Strategy",
-    scope: "BRANCH",
-    actions: ["BOOKINGS_READ", "ORDERS_READ", "ORDERS_PREPARE"],
-  },
-  CUSTOMER_SERVICE: {
-    label: "Customer Service Officer",
-    department: "Customer Service",
-    scope: "BRANCH",
-    actions: ["BOOKINGS_READ", "CUSTOMER_ENQUIRIES", "COMPLAINTS", "ORDERS_READ"],
-  },
-  SALES_SUPERVISOR: {
-    label: "Sales Supervisor",
-    department: "Sales",
-    scope: "BRANCH",
-    actions: ["SALES_ENQUIRIES", "ENQUIRIES_ASSIGN", "ORDERS_READ"],
-  },
-  SALES_CASHIER: {
-    label: "Sales Representative / Cashier",
-    department: "Sales",
-    scope: "ASSIGNED",
-    actions: ["SALES_ENQUIRIES"],
-  },
-  ACCOUNTANT: {
-    label: "Accountant",
-    department: "Accounts",
-    scope: "BRANCH",
-    actions: ["FINANCE_READ"],
-  },
-  WORKSHOP_LEAD: {
-    label: "Workshop / Quality Service Lead",
-    department: "Services",
-    scope: "BRANCH",
-    actions: ["JOBS_READ", "JOBS_ASSIGN", "JOBS_UPDATE", "QUALITY_APPROVE"],
-  },
-  ELECTRICAL_TECHNICIAN: {
-    label: "Electrical / Diagnostics Technician",
-    department: "Services",
-    scope: "ASSIGNED",
-    actions: ["JOBS_READ", "JOBS_UPDATE"],
-  },
-  MECHANICAL_TECHNICIAN: {
-    label: "Mechanical Technician",
-    department: "Services",
-    scope: "ASSIGNED",
-    actions: ["JOBS_READ", "JOBS_UPDATE"],
-  },
-} as const;
+export { workforceTemplates } from "./workforce-catalogue.js";
+import {
+  workforceTemplates,
+  definitionForAssignment,
+  assignmentAllows,
+  isKnownWorkforcePolicyVersion,
+  isSupportedDelegationTemplate,
+  type WorkforceAction,
+} from "./workforce-catalogue.js";
+export type { WorkforceAction } from "./workforce-catalogue.js";
+
 export const templateSchema = z.enum(
   Object.keys(workforceTemplates) as [
     keyof typeof workforceTemplates,
@@ -60,8 +21,6 @@ export const templateSchema = z.enum(
   ],
 );
 export const positionSchema = z.enum(["CEO_MD", ...templateSchema.options]);
-export type WorkforceAction =
-  (typeof workforceTemplates)[keyof typeof workforceTemplates]["actions"][number];
 export type Template = z.infer<typeof templateSchema>;
 export function workforceDenied(
   message = "This action is unavailable for your current responsibilities",
@@ -113,14 +72,11 @@ export async function workforceSnapshot(
   )
     workforceDenied();
   const access = user.workforceAccess;
-  const assignments = (access?.assignments ?? []).filter((a) => {
-    const template = templateSchema.safeParse(a.template);
-    return template.success && a.scope === workforceTemplates[template.data].scope;
-  });
+  const assignments = (access?.assignments ?? []).filter(
+    (a) => definitionForAssignment(a) !== undefined,
+  );
   const permissions = [
-    ...new Set(
-      assignments.flatMap((a) => [...workforceTemplates[a.template as Template].actions]),
-    ),
+    ...new Set(assignments.flatMap((a) => [...definitionForAssignment(a)!.actions])),
   ].sort();
   return {
     managed: access !== null,
@@ -139,10 +95,16 @@ export async function workforceSnapshot(
     canManageAssignments:
       actor.role === "SUPER_ADMIN" ||
       (actor.role === "ADMIN" &&
-        !!access?.delegatedTemplates.length &&
+        !!access &&
+        isKnownWorkforcePolicyVersion(access.delegationPolicyVersion) &&
+        access.delegatedTemplates.some((template) =>
+          isSupportedDelegationTemplate(template, access.delegationPolicyVersion),
+        ) &&
         !!access.delegatedBranchIds.length),
     canInviteAdmins:
       actor.role === "ADMIN" &&
+      !!access &&
+      isKnownWorkforcePolicyVersion(access.delegationPolicyVersion) &&
       !!access?.delegatedTemplates.includes("ADMIN_INVITE") &&
       !!access.delegatedBranchIds.length,
     serverTime: now.toISOString(),
@@ -157,11 +119,7 @@ export function branchesFor(
   return [
     ...new Set(
       snapshot.assignments
-        .filter((a) =>
-          (
-            workforceTemplates[a.template as Template].actions as readonly string[]
-          ).includes(action),
-        )
+        .filter((a) => assignmentAllows(a, action))
         .map((a) => a.branchId),
     ),
   ];
@@ -170,11 +128,7 @@ export function bookingScope(
   snapshot: WorkforceSnapshot,
   action: WorkforceAction,
 ): Prisma.BookingWhereInput {
-  const assignments = snapshot.assignments.filter((a) =>
-    (workforceTemplates[a.template as Template].actions as readonly string[]).includes(
-      action,
-    ),
-  );
+  const assignments = snapshot.assignments.filter((a) => assignmentAllows(a, action));
   if (!assignments.length) workforceDenied();
   return {
     OR: assignments.map((a) => ({

@@ -153,3 +153,6 @@ product-extras.spec.ts > populated gallery moves, main selection and preview key
 
 # Cycle 13: table density, hidden scrollbar tracks and keyboard/touch reachability.
 customer-table-responsive.spec.ts
+
+# Revision 4: scoped workforce discovery, filters, failure and access invalidation.
+workforce-directory.spec.ts
