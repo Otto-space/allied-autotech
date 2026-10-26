@@ -1774,3 +1774,18 @@ See frontend/docs/BRAND_ASSETS_R2_REPORT.md and brand-assets-r2-coverage.json fo
 exact evidence, missing clean recaptures, platform limits and reused dependency
 version discrepancy. Both live domains still dpl_9YTq9gSNUnb3XuHKry5MgCVvigdD.
 Other worktrees and unrelated edits preserved; broader Item 6 remains open.
+
+26 October 2026 - mobile public support placement, P1 local correction. Live
+Tyre Change detail at 320x640 reproduced the fixed support dock overlapping
+31px of the handling-branch field during ordinary scrolling. This was a real
+unfocused field obstruction, not a screenshot artifact. The shared narrow/short
+viewport rule now presents Help and WhatsApp as an in-flow support strip after
+the page content, retaining 48px-or-larger targets, safe-area padding and the
+existing header Help route. Desktop floating controls remain as before. A
+read-only browser style preview showed the field fully visible and the support
+strip after the footer; no application record or message was submitted. The
+exact local source passed frontend lint, typecheck, 1,057 units, optimized
+build/postbuild and formatting. Exact hosted-candidate interaction, 390px,
+short-landscape and adjacent-page checks remain before publication. Browser
+plugin unavailable; installed Edge/Playwright provided the live baseline and
+style preview. Prior rejected local preview startup was not retried.

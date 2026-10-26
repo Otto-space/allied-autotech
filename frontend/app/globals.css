@@ -2582,23 +2582,16 @@ address {
 
 @media (max-width: 850px),
   (max-width: 1023px) and (max-height: 500px) and (pointer: coarse) {
-  html:has(.support-controls) {
-    scroll-padding-bottom: calc(88px + env(safe-area-inset-bottom));
-  }
-  body:has(.support-controls) {
-    padding-bottom: calc(72px + env(safe-area-inset-bottom));
-  }
-  body:has(.support-controls) main :is(input, select, textarea, button, a, summary) {
-    scroll-margin-bottom: calc(88px + env(safe-area-inset-bottom));
-  }
   .support-controls {
-    inset: auto 0 0;
+    position: static;
+    width: 100%;
+    z-index: auto;
     flex-direction: row;
     justify-content: center;
-    padding: 8px 14px calc(8px + env(safe-area-inset-bottom));
+    padding: 14px 16px calc(14px + env(safe-area-inset-bottom));
     background: var(--white);
     border-top: 1px solid var(--line);
-    box-shadow: 0 -3px 12px #0714220a;
+    box-shadow: none;
   }
   .support-controls :is(.support-trigger, .whatsapp-control) {
     width: auto;
