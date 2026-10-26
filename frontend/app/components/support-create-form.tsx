@@ -775,6 +775,7 @@ export function SupportCreateForm({
             <label htmlFor="support-subject">Subject</label>
             <input
               id="support-subject"
+              data-learning-target="support-subject"
               required={isContact}
               maxLength={160}
               {...form.register("subject")}

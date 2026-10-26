@@ -1451,6 +1451,31 @@ Production deployment and real signed-in acceptance are pending; existing custom
 care and notification releases must be preserved. The broader Item 6 and site
 acceptance remain open.
 
+
+26 October 2026 - Help, Learn and Practice Phases 0-3 completed locally.
+Branch feat/help-learn-practice-20261026 reuses allied-shop-vehicles-r2-20261025
+from released runtime 76377d43. Backend contract commit e33c9e3e and frontend
+implementation 6b83a4d6 add 17 server-filtered articles, three optional guides and
+11 isolated fictional scenarios; no schema migration, AI or operational action tool.
+Current permissions, launch restrictions, drafts and unrelated branches are retained.
+The separate customer-table responsive branch remains untouched and unbundled.
+
+Final evidence: 1,032 frontend units, 77 backend checks, 18 compiled Edge cases,
+71-migration fresh isolated replay/db:check, runtime privilege verification, types,
+lint, format, build/postbuild, API contracts and private-bundle checks passed.
+Practice produced no operational/external requests. Source flags default off.
+See docs/help-learn/IMPLEMENTATION_STATUS.md and UI quality Cycle 14 in that
+worktree; screenshots %TEMP%/allied-help-learn-20261026/. Local proxy/crypto/pg
+notices and physical-device/screen-reader/locked-CI/hosted limitations are explicit.
+
+This brief explicitly limits deployment to local/test. No push, production or
+preview publication, shared-database write or real business submission occurred.
+Task servers stopped; Docker daemon unavailable, all existing resources retained.
+C: measured 29.84 GiB free after work. Existing main-checkout tracker bytes are
+preserved by append-only update. Site completion Item 6 remains open.
+Next separately scoped action: business-copy review and current-release/locked-CI
+reconciliation before any publication request; generative AI remains deferred.
+
 26 October 2026 - fitment and product-media local implementation candidate.
 Branch feat/fitment-media-20261026 in reused allied-home-restoration-20261025,
 based on recorded release 76377d43. No reset or whole-commit revert. The local
@@ -1493,3 +1518,28 @@ remains separate. See backend/docs/fitment-product-media-20261026.md and
 all containers/volumes and useful caches retained; C: 29.82 GiB free. Unrelated
 Help/Learn, customer-table and staff-revision work not bundled. Main tracker existing
 bytes preserved by append-only update. Broader Item 6 remains open.
+
+26 October 2026 - Help, Learn and Practice production deployment completed.
+Owner explicitly authorised publication after the original local/test milestone.
+Frozen runtime adef02f9d7d0d23818b8dbfcae9e938a27a40ee4, branch
+feat/help-learn-practice-20261026 in reused allied-shop-vehicles-r2-20261025.
+Merged actual preceding production a28753ab before rollout, preserving fitment and
+product media; separate staff/customer-table branches and other worktrees preserved.
+Backend 1dbceb73-075e-4f41-bd76-deb3daf71354 ACTIVE; Vercel
+dpl_EqRCL8GvHPvwXxMB2brqSgtdYKcD READY, both main/www aliases verified to it.
+API learning/guides/practice flags and frontend build flag enabled; AI remains off.
+All three exact-source CI workflows passed; locked Next 16.4.3, 1,036 frontend tests,
+production dependency audit zero findings (three existing development findings).
+Merged local regression 26/26, deployment spec 32/32, packaged contracts 10/10 passed.
+Production readiness, public catalogue/scenario and private-denial reads passed.
+No schema changes/migrations or production business submissions. Existing read-only
+predeploy check job SUCCESS. Eight managed backups present, latest 26 Oct 05:22Z;
+retained separate 25 Oct logical restore receipt/archive checksum verified. No new
+cloud restore/PITR rehearsal; packaged isolated synthetic restore is separate evidence.
+Hosted authenticated-role, physical-device, full screen-reader and production UI
+acceptance remain open. Full identifiers, rollback, CI links and precise evidence:
+docs/help-learn/PRODUCTION_RELEASE.md in the release worktree.
+Removed only four never-deployed superseded task-local bb9dea4d images without force;
+current/rollback resources and all 13 containers/14 volumes retained, no cache prune.
+C: measured 29.81 GiB before/after cleanup; reserve passed, no physical-reclaim claim.
+Main tracker updated append-only with original bytes preserved. Item 6 remains open.

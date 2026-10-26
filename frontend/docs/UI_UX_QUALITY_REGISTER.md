@@ -1466,6 +1466,40 @@ isolated 71-migration replay and two backend integration files passed. Actual
 production customer carts were not mutated for acceptance. Release and real-role
 checks remain open; the per-page dashboard backlog is unchanged.
 
+## Cycle 14: Help, Learn and safe practice - local 26 October 2026
+
+Selected brief Phases 0-3 implemented in feat/help-learn-practice-20261026 from
+released 76377d43. Public Help/Quick help and dashboard entry points now reach
+server-filtered, versioned learning: 17 articles, three semantic-target guides and
+11 fictional local exercises. Source flags remain off for publication. No AI,
+operational lookup/action tools, new schema or unrelated dashboard redesign.
+
+Actual isolated API/session fixtures cover visitor/customer/Admin/owner and all
+workforce templates, combined/delegated access and CEO_MD scope. Managed Admin
+does not gain legacy administration. Private titles/bodies/guide/scenario content
+stay on the backend; 191 final client chunks contain none of 94 restricted markers.
+Real live-page guides observe user events, preserve dirty support inputs and offer
+written mode for missing, obstructed or narrow targets. Local practice validates
+editable examples, confirms replacement, searches fictional part evidence, reviews
+and resets only its own memory. It has no operational mutation adapter.
+
+Final local checks: 1,032/1,032 frontend units, 77/77 backend checks and 18/18
+optimized Edge browser cases; types, lint, format, build/postbuild and API contract
+checks pass. Browser practice traffic contains no writes or external requests.
+320/390/768/1440 practice and dashboard-entry overflow checks and scoped Axe pass;
+keyboard modal exit/focus restoration, refresh/pause, route and identity transitions
+are exercised. A new 7px entry overflow at 320 was fixed with an accessible 44px
+icon button. Desktop/mobile captures were visually inspected.
+
+Evidence/checkpoint: docs/help-learn/IMPLEMENTATION_STATUS.md, content register,
+capability map and operations guide; screenshots %TEMP%/allied-help-learn-20261026/.
+Playwright/installed Edge used because Browser plugin was unavailable. API/browser
+fixtures, intercepted failure/hostile-content cases and actual production acceptance
+remain distinct. Physical devices, full screen readers, other browsers, locked CI
+and hosted acceptance are unverified. Installed Next 16.3.8 differs from lock16.4.3.
+No production deployment or real customer/business write occurred; existing site
+completion Item 6 and the broader dashboard backlog remain open.
+
 ## Fitment and product media - 26 October 2026 local candidate
 
 Scope: `/admin/fitment` (permitted Sales/Operations authors, independent technical
@@ -1523,3 +1557,26 @@ Captures: %TEMP%/allied-fitment-media-production-20261026/. Read-only production
 schema/privilege/heartbeat checks passed; no migration/business write. Real signed-in
 fitment/review/provider upload, physical and screen-reader acceptance remain open.
 See backend evidence for rollout, recovery/rollback and disk-retention receipts.
+
+## Cycle 14 production addendum - 26 October 2026
+
+The owner subsequently authorised deployment of Help, Learn and Practice Phases 0-3.
+Frozen runtime `adef02f9` includes the actual preceding fitment/media release
+`a28753ab`; broader redesigns and separate pending branches remain outside scope.
+Both domains point to Vercel `dpl_EqRCL8GvHPvwXxMB2brqSgtdYKcD` (READY);
+backend `1dbceb73-075e-4f41-bd76-deb3daf71354` is ACTIVE. Learning, guides and
+safe local practice are enabled, AI remains disabled and browse/enquiries mode is
+preserved. All three exact-source CI workflows passed, including locked Next 16.4.3
+and 1,036 frontend tests; production dependency audit zero vulnerabilities.
+Merged learning/media regression 26/26, deployment specs 32/32 and packaged contracts
+10/10 passed. Read-only production public catalogue/practice and private-denial
+probes passed. Frontend provider READY/alias evidence does not establish hosted UI
+or authenticated-role acceptance. Physical-device, full screen-reader and actual
+production-role journeys remain unverified; earlier local fixture/browser evidence
+retains its stated boundaries. No business record or message was submitted.
+
+Full release, rollback, backup/restore and disk evidence:
+[Help/Learn production record](../../docs/help-learn/PRODUCTION_RELEASE.md).
+Original Cycle 14 no-publication/locked-CI limitations describe the historical local
+milestone and are superseded only by the explicit evidence in this addendum.
+Site-completion Item 6, business policies and unrelated pages remain open.

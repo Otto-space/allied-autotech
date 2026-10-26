@@ -66,6 +66,7 @@ export function ProductSearch({
       <label htmlFor="product-search">Search products</label>
       <input
         id="product-search"
+        data-learning-target="parts-search"
         type="search"
         placeholder="Search engine oil, brake pads, a brand or part number"
         maxLength={100}

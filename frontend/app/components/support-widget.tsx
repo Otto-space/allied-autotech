@@ -6,13 +6,34 @@ import { CircleHelp, MessageCircle, X } from "lucide-react";
 import { answerFaq, business, faqs } from "@/lib/business";
 import { HelpAccountAction } from "./help-account-action";
 import { SESSION_CHANGED } from "@/lib/api/client";
+import { learningEnabled } from "@/lib/learning/contracts";
+import { OPEN_LEARNING } from "./learning/learning-entry";
 import { containDialogFocus } from "@/lib/dialog-focus";
+import { AllieAvatar } from "./learning/allie-avatar";
+import {
+  assistantName,
+  ASSISTANT_HIDDEN_KEY,
+  ASSISTANT_VISIBILITY,
+} from "@/lib/learning/search";
 export function SupportWidget() {
   const pathname = usePathname();
   const dialog = useRef<HTMLDialogElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
   const questionForm = useRef<HTMLFormElement>(null);
   const [answer, setAnswer] = useState<ReturnType<typeof answerFaq> | undefined>();
+  const [helpHidden, setHelpHidden] = useState(false);
+  useEffect(() => {
+    function visibility() {
+      try {
+        setHelpHidden(sessionStorage.getItem(ASSISTANT_HIDDEN_KEY) === "true");
+      } catch {
+        setHelpHidden(false);
+      }
+    }
+    visibility();
+    window.addEventListener(ASSISTANT_VISIBILITY, visibility);
+    return () => window.removeEventListener(ASSISTANT_VISIBILITY, visibility);
+  }, []);
   useEffect(() => {
     function discard() {
       dialog.current?.close();
@@ -59,6 +80,7 @@ export function SupportWidget() {
     pathname.startsWith("/admin") ||
     pathname.startsWith("/staff") ||
     pathname.startsWith("/dashboard/support") ||
+    pathname.startsWith("/learn/practice/") ||
     pathname === "/dashboard/notifications" ||
     [
       "/login",
@@ -73,19 +95,31 @@ export function SupportWidget() {
   return (
     <>
       <nav className="support-controls" aria-label="Customer support">
-        <button
-          ref={trigger}
-          className="support-trigger"
-          onClick={() => dialog.current?.showModal()}
-          aria-haspopup="dialog"
-          aria-label="Quick help"
-          title="Quick help"
-        >
-          <CircleHelp size={22} aria-hidden="true" />
-          <span className="support-control-label" aria-hidden="true">
-            Help
-          </span>
-        </button>
+        {!(learningEnabled() && helpHidden) && (
+          <button
+            ref={trigger}
+            className={
+              learningEnabled() ? "support-trigger allie-trigger" : "support-trigger"
+            }
+            onClick={() =>
+              learningEnabled()
+                ? window.dispatchEvent(new Event(OPEN_LEARNING))
+                : dialog.current?.showModal()
+            }
+            aria-haspopup="dialog"
+            aria-label={learningEnabled() ? `Ask ${assistantName}` : "Quick help"}
+            title={learningEnabled() ? `Ask ${assistantName}` : "Quick help"}
+          >
+            {learningEnabled() ? (
+              <AllieAvatar />
+            ) : (
+              <CircleHelp size={22} aria-hidden="true" />
+            )}
+            <span className="support-control-label" aria-hidden="true">
+              {learningEnabled() ? `Ask ${assistantName}` : "Help"}
+            </span>
+          </button>
+        )}
         <a
           className="whatsapp-control"
           href={business.whatsapp}

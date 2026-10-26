@@ -91,3 +91,11 @@ Keep source-only, launch-restricted, mocked and real acceptance distinct.
   volumes, backups and application data are outside routine cleanup authority.
 - Use explicit reviewed targets and native Docker cleanup, recheck them immediately
   before deletion, and report measured before/after space plus what was retained.
+
+## Help, Learn & Practice maintenance
+
+When a covered workflow, permission, policy or semantic guide target changes, update
+the versioned backend learning definitions, eligibility checks and acceptance tests,
+and the content/checkpoint records in `docs/help-learn/` (relative to repository root).
+Keep restricted content server-side, practice in memory, and all feature flags off
+until a separately reviewed publication. Never make tutorials grant permissions.
