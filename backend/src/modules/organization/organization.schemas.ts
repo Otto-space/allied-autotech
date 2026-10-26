@@ -154,7 +154,35 @@ export const staffBranchBodySchema = z
   .object({ branchId: z.uuid(), expectedRevision })
   .strict();
 export const staffRoleBodySchema = z
-  .object({ role: z.literal("STAFF"), branchId: z.uuid(), expectedRevision })
+  .object({
+    role: z.literal("STAFF"),
+    branchId: z.uuid(),
+    expectedRevision,
+    reason: z
+      .string()
+      .trim()
+      .min(10)
+      .max(1000)
+      .refine(
+        (value) =>
+          [...value].every(
+            (character) =>
+              [9, 10, 13].includes(character.charCodeAt(0)) ||
+              (character.charCodeAt(0) > 31 && character.charCodeAt(0) !== 127),
+          ),
+        "Contains invalid control characters",
+      )
+      .optional(),
+    expectedWorkforceVersion: z
+      .number()
+      .int()
+      .nonnegative()
+      .nullable()
+      .optional()
+      .describe(
+        "Required for an enrolled account; null for a reviewed account without workforce enrollment. Checked atomically with the role change.",
+      ),
+  })
   .strict();
 export const organizationEmptyQuerySchema = z.object({}).strict().default({});
 export const organizationEmptyBodySchema = z.object({}).strict().default({});

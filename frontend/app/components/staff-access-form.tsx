@@ -16,6 +16,11 @@ import {
 } from "@/lib/api/staff-admin-schemas";
 import { AdminBranchPicker } from "./admin-branch-picker";
 import type { MutationProposal } from "./mutation-review";
+import {
+  parseWorkforceAccount,
+  type WorkforceAccount,
+} from "@/lib/api/workforce-schemas";
+import { Feedback } from "./feedback";
 async function recheckStaff(path: string, id: string, revision: string) {
   let latest: StaffMember;
   try {
@@ -36,8 +41,15 @@ const schema = z
     status: z.enum(["", ...staffStatuses]),
     role: z.literal("STAFF"),
     branchId: z.union([z.literal(""), z.uuid()]),
+    reason: z.string().trim().max(1000),
   })
   .superRefine((value, context) => {
+    if (value.kind === "role" && value.reason.length < 10)
+      context.addIssue({
+        code: "custom",
+        path: ["reason"],
+        message: "Explain the role change in at least 10 characters.",
+      });
     if (value.kind === "status" && !value.status)
       context.addIssue({
         code: "custom",
@@ -69,11 +81,13 @@ export function StaffAccessForm({
 }) {
   const [draftRevision, setDraftRevision] = useState(staffRevision(member));
   const [branchLabel, setBranchLabel] = useState("");
+  const [reviewError, setReviewError] = useState<string>();
   const defaults = {
     kind: "status" as const,
     status: "" as const,
     role: "STAFF" as const,
     branchId: "",
+    reason: "",
   };
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
@@ -86,7 +100,7 @@ export function StaffAccessForm({
     <form
       data-draft-key={JSON.stringify(["staff-access-form:1", member?.id])}
       noValidate
-      onSubmit={form.handleSubmit((value) => {
+      onSubmit={form.handleSubmit(async (value) => {
         if (disabled || uncertain || changed) return;
         const expected = staffRevision(member);
         const basePath = `/admin/staff/${member.id}`;
@@ -110,9 +124,25 @@ export function StaffAccessForm({
           return;
         }
         const action = value.kind;
+        let workforce: WorkforceAccount | undefined;
+        setReviewError(undefined);
+        if (action === "role") {
+          try {
+            workforce = parseWorkforceAccount(
+              (await apiRequest(`/admin/workforce/accounts/${member.id}`)).data,
+            );
+            if (workforce.userId !== member.id)
+              throw Error("Unexpected workforce account");
+          } catch {
+            setReviewError(
+              "We could not verify the responsibilities affected by this role change. Refresh access and review again before saving.",
+            );
+            return;
+          }
+        }
         onReview({
           title: `Review account ${action} change`,
-          description: `This changes access for ${staffName(member)} and revokes their existing sessions. ${action === "status" && value.status !== "ACTIVE" ? "The account will no longer be able to sign in while this status applies." : action === "status" ? "The account can sign in again, subject to its security and branch requirements." : "Future sign-ins use the new branch scope. Existing booking assignments are not automatically reassigned by this action."}`,
+          description: `This changes access for ${staffName(member)} and revokes their existing sessions. ${action === "role" ? "Management delegation and invitation authority will be removed atomically. Existing operational responsibilities keep their approved scopes; independent financial grants remain subject to their existing policy. No case or booking is automatically reassigned." : action === "status" && value.status !== "ACTIVE" ? "The account will no longer be able to sign in while this status applies." : action === "status" ? "The account can sign in again, subject to its security and branch requirements." : "Future sign-ins use the new branch scope. Existing booking assignments are not automatically reassigned by this action."}`,
           facts: [
             { label: "Account", value: member.email },
             { label: "User reference", value: member.id },
@@ -135,6 +165,21 @@ export function StaffAccessForm({
             },
             ...(action === "branch" || (action === "role" && value.role === "STAFF")
               ? [{ label: "New branch", value: `${branchLabel} (${value.branchId})` }]
+              : []),
+            ...(action === "role"
+              ? [
+                  { label: "Reason", value: value.reason },
+                  {
+                    label: "Removed management authority",
+                    value: workforce?.access?.delegatedTemplates.length
+                      ? `${workforce.access.delegatedTemplates.length} delegation entries across ${workforce.access.delegatedBranchIds.length} approved branches`
+                      : "No recorded delegation",
+                  },
+                  {
+                    label: "Retained operational responsibilities",
+                    value: `${workforce?.activeAssignmentIds.length ?? 0} active assignments, with their existing scopes`,
+                  },
+                ]
               : []),
           ],
           submit: async () => {
@@ -179,6 +224,8 @@ export function StaffAccessForm({
                 role: "STAFF",
                 branchId: value.branchId,
                 expectedRevision: expected,
+                expectedWorkforceVersion: workforce?.access?.version ?? null,
+                reason: value.reason,
               };
               const result = parseStaffMember(
                 (
@@ -200,6 +247,7 @@ export function StaffAccessForm({
         });
       })}
     >
+      <Feedback message={reviewError} />
       {uncertain && (
         <p className="notice" role="status">
           The previous change could not be confirmed. Refresh the account and reconcile
@@ -227,7 +275,10 @@ export function StaffAccessForm({
           </button>
         </div>
       )}
-      <fieldset className="handover-fields" disabled={disabled || changed || uncertain}>
+      <fieldset
+        className="handover-fields"
+        disabled={disabled || changed || uncertain || form.formState.isSubmitting}
+      >
         <div className="field">
           <label htmlFor="staff-change-kind">Account change</label>
           <select id="staff-change-kind" {...form.register("kind")}>
@@ -268,12 +319,31 @@ export function StaffAccessForm({
           </div>
         )}
         {kind === "role" && (
-          <div className="field">
-            <label htmlFor="staff-new-role">New account role</label>
-            <select id="staff-new-role" {...form.register("role")}>
-              <option value="STAFF">STAFF</option>
-            </select>
-          </div>
+          <>
+            <div className="field">
+              <label htmlFor="staff-new-role">New account role</label>
+              <select id="staff-new-role" {...form.register("role")}>
+                <option value="STAFF">STAFF</option>
+              </select>
+            </div>
+            <div className="field">
+              <label htmlFor="staff-role-reason">Reason for role change</label>
+              <textarea
+                id="staff-role-reason"
+                {...form.register("reason")}
+                maxLength={1000}
+                aria-invalid={!!form.formState.errors.reason}
+                aria-describedby={
+                  form.formState.errors.reason ? "staff-role-reason-error" : undefined
+                }
+              />
+              {form.formState.errors.reason && (
+                <p className="field-error" id="staff-role-reason-error" role="alert">
+                  {form.formState.errors.reason.message}
+                </p>
+              )}
+            </div>
+          </>
         )}
         {(kind === "branch" || (kind === "role" && role === "STAFF")) && (
           <div className="field">

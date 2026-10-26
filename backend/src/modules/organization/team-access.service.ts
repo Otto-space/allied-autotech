@@ -20,6 +20,7 @@ import {
 } from "./organization.policy.js";
 import { safeStaffSelect } from "./organization.repository.js";
 import { assertWorkforceInvitationDelegation } from "./workforce-invitations.js";
+import { reconcileWorkforceRoleChange } from "./workforce-role-transition.js";
 import type {
   InvitationListQuery,
   PrivilegedInvitationAcceptInput,
@@ -331,6 +332,13 @@ export class TeamAccessService {
         data: { usedAt: new Date() },
       });
       if (consumed.count !== 1) throw invalidInvitation();
+      // Re-promotion cannot resurrect a historical administrator's old delegation.
+      const workforceChange = await reconcileWorkforceRoleChange(tx, {
+        userId: actor.userId,
+        actorUserId: actor.userId,
+        reason: "Recipient accepted the reviewed administrator invitation",
+        requireReviewedVersion: false,
+      });
       await tx.user.update({ where: { id: actor.userId }, data: { role: "ADMIN" } });
       await tx.staffProfile.update({
         where: { userId: actor.userId },
@@ -354,7 +362,16 @@ export class TeamAccessService {
         entityType: "USER",
         entityId: actor.userId,
         oldValues: { role: "STAFF", branchId: recipient.staffProfile.branchId },
-        newValues: { role: "ADMIN", invitationId: invitation.id, branchId: null },
+        newValues: {
+          role: "ADMIN",
+          invitationId: invitation.id,
+          branchId: null,
+          reason: "Recipient accepted the reviewed administrator invitation",
+          removedDelegationTemplates: workforceChange.templates.join(","),
+          removedDelegationBranchIds: workforceChange.branches.join(","),
+          workforceVersion: workforceChange.version,
+          operationalAssignments: "RETAINED_WITH_EXISTING_SCOPE",
+        },
         context,
       });
       return { role: "ADMIN" as const, signInRequired: true };

@@ -1024,21 +1024,32 @@
       "audience": "work",
       "accessPredicate": "server-enforced role and capability; per-route confirmation required",
       "decision": "pending",
-      "purpose": null,
-      "contextualAnswer": null,
+      "purpose": "Review one authorised staff account, its tier/status, workforce grants and separately controlled financial capabilities.",
+      "contextualAnswer": "For an owner-authorised demotion, select the new active branch, supply a reason, inspect removed delegation and retained scoped duties, then confirm. If either account or workforce revision changed, refresh and review again.",
       "articleIds": [],
       "guideIds": [],
       "practiceIds": [],
       "statusDefinitions": [],
       "recovery": [],
       "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
-      "fixture": "Identify the permitted role/scope and realistic state for this route.",
-      "verification": "pending",
-      "evidence": [],
-      "gaps": [
-        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      "fixture": "W2 workforceFixture and staff-role-review component fixtures; isolated target only.",
+      "verification": "source-only",
+      "evidence": [
+        "docs/help-learn/WORKFORCE_ROLE_DEPENDENCIES_W2.md",
+        "backend/tests/integration/workforce-role-transition.test.ts",
+        "frontend/tests/unit/staff-role-review.test.tsx"
       ],
-      "subviews": []
+      "gaps": [
+        "W2 new role-reason/impact controls require rendered acceptance.",
+        "Full detail guidance/practice and effective access provenance/versioning remain unverified."
+      ],
+      "subviews": [
+        {
+          "pattern": "owner account-role change",
+          "task": "Atomic account/workforce dependency review and retained duties",
+          "verification": "Six isolated HTTP/DB and four DOM cases; updated browser spec not rerun"
+        }
+      ]
     },
     "/admin/staff/invite": {
       "source": "app/admin/staff/invite/page.tsx",

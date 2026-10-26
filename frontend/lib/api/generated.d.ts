@@ -28422,7 +28422,9 @@ export interface operations {
                  * @example {
                  *       "role": "STAFF",
                  *       "branchId": "00000000-0000-4000-8000-000000000001",
-                 *       "expectedRevision": "synthetic-expectedrevision"
+                 *       "expectedRevision": "synthetic-expectedrevision",
+                 *       "reason": "synthetic-reason",
+                 *       "expectedWorkforceVersion": "synthetic-expectedworkforceversion"
                  *     }
                  */
                 "application/json": {
@@ -28438,6 +28440,10 @@ export interface operations {
                     branchId: string;
                     /** @description Required account revision derived from updatedAt, role, status, profile updatedAt and branchId joined with colons. Checked atomically while the account and profile are locked. */
                     expectedRevision: string;
+                    /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                    reason?: string;
+                    /** @description Required for an enrolled account; null for a reviewed account without workforce enrollment. Checked atomically with the role change. */
+                    expectedWorkforceVersion?: number | null;
                 };
             };
         };

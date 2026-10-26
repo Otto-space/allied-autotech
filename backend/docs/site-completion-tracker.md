@@ -1617,3 +1617,14 @@ Full evidence/limits: docs/help-learn/WORKFORCE_DIRECTORY_W1.md. Effective-acces
 provenance, template evolution and role dependencies remain the next foundation
 batch. Actual AI, full learning matrix, human handoff/chat and evaluations remain
 required. No new production publication. Broader Item 6 stays open.
+
+Revision 4 W2 local checkpoint: owner demotion atomically removes role-dependent
+delegation, advances workforce version and records reason without deleting valid
+scoped duties, independent financial grants or histories. Invitation acceptance
+cannot revive dormant delegation. The review submits both account/workforce
+revisions. All 37 isolated HTTP/DB tests, 1,053 frontend units and optimized build
+passed. Updated W2 browser specification is not rerun: compiled preview start was
+blocked by automatic approval review; no alternate startup. W1 browser evidence
+is separate. No schema migration, production rollout or real communication.
+Evidence: docs/help-learn/WORKFORCE_ROLE_DEPENDENCIES_W2.md. Remaining foundation,
+actual AI, all-route learning, handoff/live chat and evaluations stay required.

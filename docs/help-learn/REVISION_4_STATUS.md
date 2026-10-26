@@ -13,6 +13,7 @@ release. Other worktrees and their uncommitted work remain preserved.
 | Reconcile supplied workforce definitions, account tier, position and independent grants | Source inspected | Existing WorkforceAccess/WorkforceAssignment, controlled eight-template catalogue plus CEO position; no automatic staffing or grants |
 | W1 scoped management directory | Implemented; bounded isolated checks passed | GET /admin/workforce/accounts, bounded scoped rows and responsibility summaries; existing editor reused; role/position/status/search filters |
 | Effective access, provenance, scope, immutable template evolution, atomic promotion/demotion, active sessions and subscriptions | Incomplete | Existing transactional scope and 30-second UI revalidation are foundations; complete Revision 4 negative and transition acceptance is still required |
+| W2 role/delegation dependencies | Server and DOM verified; rendered acceptance open | Atomic delegation removal and reason/revisions; no dormant authority on invitation acceptance; WORKFORCE_ROLE_DEPENDENCIES_W2.md |
 | Complete website/dashboard matrix | Baseline recorded; incomplete | REVISION_4_COVERAGE.json overlays the maintained source inventory; entries remain pending until exact role/state evidence exists |
 | Canonical conversational retrieval and actual AI provider | Not implemented | Current Allie is reviewed search only, not completed conversational AI; provider/model/quotas/data-flow/evaluation work remains required |
 | All-dashboard reviewed topics, guides and isolated practice | Incomplete | Preserve current working content; extend and verify per-page decisions and actual task states |
@@ -34,6 +35,8 @@ outside the operator's delegation. Active expiry/revocation and invalid scopes g
 nothing. The directory exposes no customer profiles or security credentials.
 
 W1 evidence: [directory implementation and checks](WORKFORCE_DIRECTORY_W1.md).
+
+W2 evidence: [role dependency implementation and checks](WORKFORCE_ROLE_DEPENDENCIES_W2.md).
 
 Next: complete effective-access provenance,
 versioned template semantics, role-change dependencies and live-session continuity

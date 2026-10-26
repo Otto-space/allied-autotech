@@ -695,6 +695,9 @@ test("owner demotion requires an active branch and confirms the returned staff a
     page.getByLabel("New account role").locator('option[value="ADMIN"]'),
   ).toHaveCount(0);
   await page.getByLabel("New active branch").selectOption(id(20));
+  await page
+    .getByLabel("Reason for role change")
+    .fill("Reviewed owner demotion and management handover");
   await page.getByRole("button", { name: "Review account change" }).click();
   expect(writes).toEqual([]);
   await confirm(page).click();
@@ -704,6 +707,8 @@ test("owner demotion requires an active branch and confirms the returned staff a
       role: "STAFF",
       branchId: id(20),
       expectedRevision: staffRevision({ ...memberFixture(), role: "ADMIN" }),
+      expectedWorkforceVersion: null,
+      reason: "Reviewed owner demotion and management handover",
     },
   ]);
   await expect(page.getByRole("dialog")).toHaveCount(0);

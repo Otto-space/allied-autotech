@@ -1670,3 +1670,14 @@ fixture/locator/reflow corrections are in docs/help-learn/WORKFORCE_DIRECTORY_W1
 No production writes/publication. Installed Next 16.3.8 differs from lock 16.4.3;
 hosted/actual-role/device/screen-reader acceptance and full Revision 4 foundation
 remain open. The 106-route structural coverage baseline is not completion.
+
+Revision 4 W2 local checkpoint: owner demotion atomically removes role-dependent
+delegation, advances workforce version and records reason without deleting valid
+scoped duties, independent financial grants or histories. Invitation acceptance
+cannot revive dormant delegation. The review submits both account/workforce
+revisions. All 37 isolated HTTP/DB tests, 1,053 frontend units and optimized build
+passed. Updated W2 browser specification is not rerun: compiled preview start was
+blocked by automatic approval review; no alternate startup. W1 browser evidence
+is separate. No schema migration, production rollout or real communication.
+Evidence: docs/help-learn/WORKFORCE_ROLE_DEPENDENCIES_W2.md. Remaining foundation,
+actual AI, all-route learning, handoff/live chat and evaluations stay required.

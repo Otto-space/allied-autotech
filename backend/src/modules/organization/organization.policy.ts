@@ -31,14 +31,22 @@ export function assertCanManagePrivilegedUser(
   if (actor.role === "ADMIN" && targetRole !== "STAFF") deny();
 }
 
+export function assertCanReviewRoleChange(
+  actor: AuthenticatedActor,
+  targetUserId: string,
+  currentRole: UserRole,
+): void {
+  if (actor.role !== "SUPER_ADMIN" || actor.mfaVerifiedAt === null) deny();
+  if (actor.userId === targetUserId || currentRole === "SUPER_ADMIN") deny();
+}
+
 export function assertCanChangeRole(
   actor: AuthenticatedActor,
   targetUserId: string,
   currentRole: UserRole,
   nextRole: UserRole,
 ): void {
-  if (actor.role !== "SUPER_ADMIN" || actor.mfaVerifiedAt === null) deny();
-  if (actor.userId === targetUserId || currentRole === "SUPER_ADMIN") deny();
+  assertCanReviewRoleChange(actor, targetUserId, currentRole);
   if (currentRole !== "ADMIN" || nextRole !== "STAFF") deny();
 }
 

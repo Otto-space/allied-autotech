@@ -19246,6 +19246,8 @@ JSON request fields:
 | `role` | STAFF | Yes | Role validated by this operation's strict request contract. |
 | `branchId` | string (uuid) | Yes | Identifier of the branch resource; ownership is resolved server-side. |
 | `expectedRevision` | string | Yes | Required account revision derived from updatedAt, role, status, profile updatedAt and branchId joined with colons. Checked atomically while the account and profile are locked. |
+| `reason` | string | No | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| `expectedWorkforceVersion` | integer / null | No | Required for an enrolled account; null for a reviewed account without workforce enrollment. Checked atomically with the role change. |
 
 Synthetic request example:
 
@@ -19253,7 +19255,9 @@ Synthetic request example:
 {
   "role": "STAFF",
   "branchId": "00000000-0000-4000-8000-000000000001",
-  "expectedRevision": "synthetic-expectedrevision"
+  "expectedRevision": "synthetic-expectedrevision",
+  "reason": "synthetic-reason",
+  "expectedWorkforceVersion": "synthetic-expectedworkforceversion"
 }
 ```
 
