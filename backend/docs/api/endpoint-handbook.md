@@ -15546,6 +15546,15 @@ Success: HTTP 200.
       ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
+      "accessRevision": "synthetic-accessrevision",
+      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+      "capabilityScopes": [
+        {
+          "capability": "synthetic-capability",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH"
+        }
+      ],
       "serverTime": "2030-01-15T10:00:00.000Z"
     },
     "jobId": "00000000-0000-4000-8000-000000000001",
@@ -15625,6 +15634,15 @@ Success: HTTP 200.
       ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
+      "accessRevision": "synthetic-accessrevision",
+      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+      "capabilityScopes": [
+        {
+          "capability": "synthetic-capability",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH"
+        }
+      ],
       "serverTime": "2030-01-15T10:00:00.000Z"
     },
     "enquiryId": "00000000-0000-4000-8000-000000000001",
@@ -15716,6 +15734,15 @@ Success: HTTP 200.
       ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
+      "accessRevision": "synthetic-accessrevision",
+      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+      "capabilityScopes": [
+        {
+          "capability": "synthetic-capability",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH"
+        }
+      ],
       "serverTime": "2030-01-15T10:00:00.000Z"
     },
     "action": "reply",
@@ -15816,6 +15843,15 @@ Success: HTTP 200.
       ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
+      "accessRevision": "synthetic-accessrevision",
+      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+      "capabilityScopes": [
+        {
+          "capability": "synthetic-capability",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH"
+        }
+      ],
       "serverTime": "2030-01-15T10:00:00.000Z"
     },
     "action": "assignment",
@@ -15879,6 +15915,15 @@ Success: HTTP 200.
     ],
     "canManageAssignments": true,
     "canInviteAdmins": true,
+    "accessRevision": "synthetic-accessrevision",
+    "nextChangeAt": "2030-01-15T10:00:00.000Z",
+    "capabilityScopes": [
+      {
+        "capability": "synthetic-capability",
+        "branchId": "00000000-0000-4000-8000-000000000001",
+        "scope": "BRANCH"
+      }
+    ],
     "serverTime": "2030-01-15T10:00:00.000Z"
   },
   "meta": {
@@ -15938,6 +15983,15 @@ Success: HTTP 200.
       ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
+      "accessRevision": "synthetic-accessrevision",
+      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+      "capabilityScopes": [
+        {
+          "capability": "synthetic-capability",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH"
+        }
+      ],
       "serverTime": "2030-01-15T10:00:00.000Z"
     },
     "branches": [
@@ -16046,6 +16100,15 @@ Success: HTTP 200.
       ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
+      "accessRevision": "synthetic-accessrevision",
+      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+      "capabilityScopes": [
+        {
+          "capability": "synthetic-capability",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH"
+        }
+      ],
       "serverTime": "2030-01-15T10:00:00.000Z"
     }
   },
@@ -16141,6 +16204,15 @@ Success: HTTP 200.
       ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
+      "accessRevision": "synthetic-accessrevision",
+      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+      "capabilityScopes": [
+        {
+          "capability": "synthetic-capability",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH"
+        }
+      ],
       "serverTime": "2030-01-15T10:00:00.000Z"
     },
     "generatedAt": "2030-01-15T10:00:00.000Z"
@@ -16236,6 +16308,15 @@ Success: HTTP 200.
       ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
+      "accessRevision": "synthetic-accessrevision",
+      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+      "capabilityScopes": [
+        {
+          "capability": "synthetic-capability",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH"
+        }
+      ],
       "serverTime": "2030-01-15T10:00:00.000Z"
     },
     "branch": {
@@ -16332,6 +16413,15 @@ Success: HTTP 200.
       ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
+      "accessRevision": "synthetic-accessrevision",
+      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+      "capabilityScopes": [
+        {
+          "capability": "synthetic-capability",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH"
+        }
+      ],
       "serverTime": "2030-01-15T10:00:00.000Z"
     },
     "generatedAt": "2030-01-15T10:00:00.000Z"
@@ -16420,6 +16510,15 @@ Success: HTTP 200.
       ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
+      "accessRevision": "synthetic-accessrevision",
+      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+      "capabilityScopes": [
+        {
+          "capability": "synthetic-capability",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH"
+        }
+      ],
       "serverTime": "2030-01-15T10:00:00.000Z"
     },
     "generatedAt": "2030-01-15T10:00:00.000Z",
@@ -16568,6 +16667,15 @@ Success: HTTP 200.
       ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
+      "accessRevision": "synthetic-accessrevision",
+      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+      "capabilityScopes": [
+        {
+          "capability": "synthetic-capability",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH"
+        }
+      ],
       "serverTime": "2030-01-15T10:00:00.000Z"
     },
     "branch": {
@@ -16688,6 +16796,15 @@ Success: HTTP 200.
       ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
+      "accessRevision": "synthetic-accessrevision",
+      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+      "capabilityScopes": [
+        {
+          "capability": "synthetic-capability",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH"
+        }
+      ],
       "serverTime": "2030-01-15T10:00:00.000Z"
     },
     "branch": {
@@ -16810,6 +16927,15 @@ Success: HTTP 200.
       ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
+      "accessRevision": "synthetic-accessrevision",
+      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+      "capabilityScopes": [
+        {
+          "capability": "synthetic-capability",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH"
+        }
+      ],
       "serverTime": "2030-01-15T10:00:00.000Z"
     },
     "branch": {
@@ -16912,6 +17038,15 @@ Success: HTTP 200.
       ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
+      "accessRevision": "synthetic-accessrevision",
+      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+      "capabilityScopes": [
+        {
+          "capability": "synthetic-capability",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH"
+        }
+      ],
       "serverTime": "2030-01-15T10:00:00.000Z"
     },
     "generatedAt": "2030-01-15T10:00:00.000Z"
@@ -17001,6 +17136,15 @@ Success: HTTP 200.
       ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
+      "accessRevision": "synthetic-accessrevision",
+      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+      "capabilityScopes": [
+        {
+          "capability": "synthetic-capability",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH"
+        }
+      ],
       "serverTime": "2030-01-15T10:00:00.000Z"
     },
     "action": "reply",
@@ -17099,6 +17243,15 @@ Success: HTTP 200.
       ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
+      "accessRevision": "synthetic-accessrevision",
+      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+      "capabilityScopes": [
+        {
+          "capability": "synthetic-capability",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH"
+        }
+      ],
       "serverTime": "2030-01-15T10:00:00.000Z"
     },
     "generatedAt": "2030-01-15T10:00:00.000Z"
@@ -17186,6 +17339,15 @@ Success: HTTP 200.
       ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
+      "accessRevision": "synthetic-accessrevision",
+      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+      "capabilityScopes": [
+        {
+          "capability": "synthetic-capability",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH"
+        }
+      ],
       "serverTime": "2030-01-15T10:00:00.000Z"
     },
     "generatedAt": "2030-01-15T10:00:00.000Z",
@@ -17314,6 +17476,15 @@ Success: HTTP 200.
       ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
+      "accessRevision": "synthetic-accessrevision",
+      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+      "capabilityScopes": [
+        {
+          "capability": "synthetic-capability",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH"
+        }
+      ],
       "serverTime": "2030-01-15T10:00:00.000Z"
     },
     "generatedAt": "2030-01-15T10:00:00.000Z"
@@ -17406,6 +17577,15 @@ Success: HTTP 200.
       ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
+      "accessRevision": "synthetic-accessrevision",
+      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+      "capabilityScopes": [
+        {
+          "capability": "synthetic-capability",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH"
+        }
+      ],
       "serverTime": "2030-01-15T10:00:00.000Z"
     },
     "generatedAt": "2030-01-15T10:00:00.000Z"
@@ -17517,6 +17697,15 @@ Success: HTTP 200.
       ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
+      "accessRevision": "synthetic-accessrevision",
+      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+      "capabilityScopes": [
+        {
+          "capability": "synthetic-capability",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH"
+        }
+      ],
       "serverTime": "2030-01-15T10:00:00.000Z"
     },
     "generatedAt": "2030-01-15T10:00:00.000Z",
@@ -17614,6 +17803,15 @@ Success: HTTP 200.
       ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
+      "accessRevision": "synthetic-accessrevision",
+      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+      "capabilityScopes": [
+        {
+          "capability": "synthetic-capability",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH"
+        }
+      ],
       "serverTime": "2030-01-15T10:00:00.000Z"
     },
     "generatedAt": "2030-01-15T10:00:00.000Z"
@@ -17701,6 +17899,15 @@ Success: HTTP 200.
       ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
+      "accessRevision": "synthetic-accessrevision",
+      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+      "capabilityScopes": [
+        {
+          "capability": "synthetic-capability",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH"
+        }
+      ],
       "serverTime": "2030-01-15T10:00:00.000Z"
     },
     "generatedAt": "2030-01-15T10:00:00.000Z"

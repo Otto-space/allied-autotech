@@ -9,86 +9,39 @@ import {
 } from "lucide-react";
 import type { DashboardGroup } from "./dashboard-navigation";
 import type { WorkforceAccess } from "./api/workforce-schemas";
-import { canUseWorkforceFitment } from "./workforce-access";
+import {
+  permittedWorkforceDestinations,
+  workforceDestinationAllowed,
+} from "./workforce-registry";
+
 export function workforceNavigation(access: WorkforceAccess): DashboardGroup[] {
-  const can = (permission: string) => access.permissions.includes(permission);
-  const group = (
-    id: string,
-    label: string,
-    icon: DashboardGroup["icon"],
-    links: Array<{ href: string; label: string; allowed: boolean }>,
-  ): DashboardGroup => ({
-    id,
-    label,
-    icon,
-    links: links.filter((l) => l.allowed).map(({ href, label }) => ({ href, label })),
-  });
-  return [
-    group("overview", "Overview", Home, [
-      { href: "/admin", label: "Overview", allowed: true },
-    ]),
-    group(
-      "workshop",
-      can("JOBS_READ") && !can("JOBS_ASSIGN") && !can("BOOKINGS_READ")
-        ? "My work"
-        : "Workshop",
-      CalendarDays,
-      [
-        {
-          href: "/admin/workforce/jobs",
-          label: can("JOBS_ASSIGN") ? "Workshop jobs" : "My jobs",
-          allowed: can("JOBS_READ"),
-        },
-        {
-          href: "/admin/workforce/bookings",
-          label: "Bookings",
-          allowed: can("BOOKINGS_READ"),
-        },
-      ],
-    ),
-    group("support", "Customers & Enquiries", MessageSquare, [
-      {
-        href: "/admin/workforce/enquiries",
-        label: "Enquiries",
-        allowed: can("CUSTOMER_ENQUIRIES") || can("SALES_ENQUIRIES"),
-      },
-      {
-        href: "/admin/workforce/complaints",
-        label: "Complaints",
-        allowed: can("COMPLAINTS"),
-      },
-    ]),
-    group("catalogue", "Parts catalogue", Package, [
-      {
-        href: "/admin/fitment",
-        label: "Fitment evidence & review",
-        allowed: canUseWorkforceFitment(access),
-      },
-    ]),
-    group("orders", "Sales & Orders", Package, [
-      {
-        href: "/admin/workforce/orders",
-        label: "Order progress",
-        allowed: can("ORDERS_READ"),
-      },
-    ]),
-    group("finance", "Finance", CreditCard, [
-      {
-        href: "/admin/workforce/finance",
-        label: "Payment records",
-        allowed: can("FINANCE_READ"),
-      },
-    ]),
-    group("team", "Team & Access", Users, [
-      {
-        href: "/admin/workforce/access",
-        label: "Responsibility assignments",
-        allowed: access.canManageAssignments,
-      },
-    ]),
-    group("settings", "Settings", Settings, [
-      { href: "/admin/security", label: "My account security", allowed: true },
-      { href: "/admin/notifications", label: "Notifications", allowed: true },
-    ]),
-  ].filter((g) => g.links.length);
+  const myWork =
+    workforceDestinationAllowed(access, "jobs") &&
+    !access.permissions.includes("JOBS_ASSIGN") &&
+    !workforceDestinationAllowed(access, "bookings");
+  const groups: { id: string; label: string; icon: DashboardGroup["icon"] }[] = [
+    { id: "overview", label: "Overview", icon: Home },
+    { id: "workshop", label: myWork ? "My work" : "Workshop", icon: CalendarDays },
+    { id: "support", label: "Customers & Enquiries", icon: MessageSquare },
+    { id: "catalogue", label: "Parts catalogue", icon: Package },
+    { id: "orders", label: "Sales & Orders", icon: Package },
+    { id: "finance", label: "Finance", icon: CreditCard },
+    { id: "team", label: "Team & Access", icon: Users },
+    { id: "settings", label: "Settings", icon: Settings },
+  ];
+  const eligible = permittedWorkforceDestinations(access);
+  return groups
+    .map((group) => ({
+      ...group,
+      links: eligible
+        .filter((entry) => entry.group === group.id)
+        .map((entry) => ({
+          href: entry.href,
+          label:
+            entry.id === "jobs" && access.permissions.includes("JOBS_ASSIGN")
+              ? "Workshop jobs"
+              : entry.label,
+        })),
+    }))
+    .filter((group) => group.links.length > 0);
 }

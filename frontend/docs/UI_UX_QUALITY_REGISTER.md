@@ -5,14 +5,15 @@ that every route or state has passed review. Work proceeds in finite batches.
 
 ## Standing responsibility and source
 
-Current bounded implementation: Revision 4 W4A workforce responsibility provenance
-and reviewed access impact, branch `feat/workforce-effective-access-20261026` in
-the reused `allied-home-restoration-20261025` worktree, based on `24a386c1`.
+Current bounded implementation: Revision 4 W5 navigation and active-workspace
+boundaries, branch `feat/workforce-navigation-policy-20261026`, based on local
+W4A `76719cc1` in the reused `allied-home-restoration-20261025` worktree.
 Status: local isolated and rendered fixture acceptance passed; not deployed.
-Full policy composition, session/subscription transitions, Allie, human handoff
-and route-learning completion remain open. Evidence:
-`docs/help-learn/WORKFORCE_EFFECTIVE_ACCESS_W4.md`. Earlier customer-table/sidebar
-responsiveness remains documented in Cycle 13; other worktrees are preserved.
+Full baseline/independent-grant composition, actual Allie conversation, persisted
+human handoff, real chat subscriptions and all-route learning remain open.
+Evidence: `docs/help-learn/WORKFORCE_NAVIGATION_SESSIONS_W5.md` and the retained W4
+impact review evidence. Earlier customer-table/sidebar responsiveness remains in
+Cycle 13; unrelated worktrees and newer release branches are preserved.
 
 Notification Cycle 8 was deployed on 25 October 2026 from runtime source `345847d5` after locked
 Next 16.4.3 CI and optimized hosted acceptance. Genuine native delivery/click
@@ -1724,7 +1725,6 @@ in backend/docs/workforce-versions-production-20261026.md. Other worktrees and
 uncommitted edits preserved; no speculative Docker cleanup; C: 27.71 GiB free.
 Full Revision 4 implementation and broader Item 6 remain open.
 
-
 26 October 2026 - Revision 4 W4A local checkpoint: server-derived responsibility
 capabilities/branch/scope/provenance and assign/revoke added/removed/retained preview.
 Delegated hidden-source and maximum-scope redaction retained; optional impact digest
@@ -1746,3 +1746,28 @@ Care handoff and staffed/gated live chat remain required. C: postflight 27.85 Gi
 no Docker/worktree/profile/install duplication or speculative pruning. Other active
 worktree changes/releases are preserved and require reconciliation before any rollout.
 Full Revision 4 and Item 6 remain open.
+
+26 October 2026 - Revision 4 W5 local checkpoint: canonical managed-workforce
+navigation/page/action predicates, scoped revision metadata and server-relative
+activation/expiry rechecks. Access loss discards stale reads, protected drafts,
+learning and staff notification previews; forbidden pages return to the permitted
+overview with an explanation. Owner baseline preserved even with a business-position
+record, including the current-role guarded legacy invitation helper. No authority,
+commerce, schema or real messaging capability added. Existing unknown-save recovery,
+MFA, branch/assigned scope and independent approvals retained.
+75 distinct native HTTP/DB cases accepted across bounded runs on the W4 synthetic
+CI target; db:check and runtime restrictions reverified. Full 1,086 frontend units,
+then 29 route/draft and 16 final preview cases passed; lint/types/contracts and the
+final optimized build passed. 87 distinct intercepted browser cases accepted in
+12 bounded batches, plus two console/Axe/overflow screenshot rechecks at 390/1440px.
+Mobile/desktop images visually inspected; real roles, physical devices and full
+screen-reader acceptance remain open. Tests exposed/fixed notification cache and
+record-navigation draft regressions; harness qualifications are documented.
+Evidence: docs/help-learn/WORKFORCE_NAVIGATION_SESSIONS_W5.md. The full Revision 4
+and 106-route completion gate remain open: independent policy composition, real AI,
+persisted reviewed handoff, gated staffed chat and provider evaluation are required.
+No W4/W5 deployment. Other active worktree changes/releases retained and need
+reconciliation before publication. Disk preflight stopped a low-headroom build;
+space recovered without deletion. Reviewed obsolete dev-output deletion was blocked
+by automatic approval review; no alternate removal attempted. Browser batches kept
+at least 27.074 GiB in accepted receipts. No Docker resources created/pruned.

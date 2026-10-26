@@ -1,6 +1,7 @@
 import { supportEmailDeliveryPageSchema } from "../api/support-email-schemas";
 import { z } from "zod";
 import { workforceAccessSchema, type WorkforceAccess } from "../api/workforce-schemas";
+import { workforceAllows, workforceActionPredicates } from "../workforce-registry";
 import { sameWorkforceScope } from "./workforce-overview";
 export { inspectionPageParams as workforceEnquiriesPageParams } from "./work-inspections";
 
@@ -27,7 +28,7 @@ const enquiryType = z.enum([
   "QUOTATION",
 ]);
 const enquiryStatus = z.enum(["OPEN", "IN_PROGRESS", "RESOLVED", "CLOSED"]);
-const accessSchema = workforceAccessSchema.extend({ managed: z.literal(true) });
+const accessSchema = workforceAccessSchema.safeExtend({ managed: z.literal(true) });
 const personSchema = z.object({
   id: z.uuid(),
   firstName: z.string(),
@@ -245,7 +246,7 @@ export function canAssignEnquiry(row: WorkforceEnquiryRow, access: WorkforceAcce
     enquiryInScope(row, access) &&
     ["OPEN", "IN_PROGRESS"].includes(row.status) &&
     ["PRODUCT", "VEHICLE"].includes(row.type) &&
-    access.permissions.includes("ENQUIRIES_ASSIGN") &&
+    workforceAllows(access, workforceActionPredicates.enquiryAssign, row) &&
     access.assignments.some(
       (a) =>
         activeAssignment(a, access) &&

@@ -196,8 +196,12 @@ test("active account without assignments retains only personal access", async ({
   await page.goto(route);
   await expect(mark(page)).toBeEnabled();
   await page.goto("/admin/workforce/jobs");
+  await expect(page).toHaveURL(/\/admin\?workAccess=updated$/);
   await expect(
-    page.getByRole("heading", { name: "Access unavailable", exact: true }),
+    page.getByText(
+      "Your current responsibilities do not permit that page. You can continue with the tools available here.",
+      { exact: true },
+    ),
   ).toBeVisible();
   expect(state.requests).not.toContain("/staff/workforce/jobs");
   await page.getByRole("button", { name: /^Open notifications(?:,.*)?$/ }).click();

@@ -36,6 +36,33 @@ export function clearAccountDrafts() {
 export function draftKey(owner: string, path: string, form: string) {
   return `${PREFIX}${JSON.stringify([owner, path, form])}`;
 }
+export function clearWorkforceDrafts(userId: string) {
+  if (typeof window === "undefined") return;
+  try {
+    for (const key of Object.keys(sessionStorage)) {
+      if (!key.startsWith(PREFIX)) continue;
+      let parts: unknown;
+      try {
+        parts = JSON.parse(key.slice(PREFIX.length));
+      } catch {
+        continue;
+      }
+      if (
+        !Array.isArray(parts) ||
+        typeof parts[0] !== "string" ||
+        typeof parts[1] !== "string"
+      )
+        continue;
+      const [owner, path] = parts as [string, string];
+      if (!owner.startsWith(`${userId}:`) || !path.startsWith("/admin/")) continue;
+      if (path === "/admin/security" || path === "/admin/notifications") continue;
+      sessionStorage.removeItem(key);
+      if (submission?.key === key) submission = null;
+    }
+  } catch {
+    /* A storage failure never becomes an operational fallback. */
+  }
+}
 
 export type DraftValue = string | boolean | string[];
 export type DraftFields = Record<string, DraftValue>;

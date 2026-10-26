@@ -136,6 +136,12 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       expect(accessReview.body.data.steps.join(" ")).toContain(
         "Scheduled assignments supply no access before their start",
       );
+      const workAccess = await read(f.care, "/learning/articles/work-access");
+      expect(workAccess.status).toBe(200);
+      expect(workAccess.body.data.version).toBe(3);
+      expect(workAccess.body.data.steps.join(" ")).toContain(
+        "Protected unsent work is discarded, never sent automatically",
+      );
     });
     it("removes revoked/expired assignments and session assurance on the next read", async () => {
       const person = await f.account("ACCOUNTANT");

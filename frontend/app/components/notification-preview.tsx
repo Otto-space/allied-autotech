@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { Bell, X } from "lucide-react";
 import { apiRequest } from "@/lib/api/client";
+import { WORKFORCE_ACCESS_CHANGED } from "@/lib/workforce-invalidation";
 import {
   parseNotifications,
   type InboxNotification,
@@ -30,6 +31,15 @@ export function NotificationPreview({
   const trigger = useRef<HTMLButtonElement>(null);
   const dialog = useRef<HTMLDialogElement>(null);
   const inbox = customer ? "/dashboard/notifications" : "/admin/notifications";
+  useEffect(() => {
+    if (customer) return;
+    const changed = () => {
+      setOpen(false);
+      setState({});
+    };
+    window.addEventListener(WORKFORCE_ACCESS_CHANGED, changed);
+    return () => window.removeEventListener(WORKFORCE_ACCESS_CHANGED, changed);
+  }, [customer]);
   useEffect(() => {
     if (!open) return;
     const element = dialog.current!;

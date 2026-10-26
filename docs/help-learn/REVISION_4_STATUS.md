@@ -16,6 +16,7 @@ release. Other worktrees and their uncommitted work remain preserved.
 | W2 role/delegation dependencies                                                                                                 | Released; hosted fixture acceptance passed; actual-role mutations open                 | Atomic delegation removal and reason/revisions; no dormant authority on invitation acceptance; WORKFORCE_ROLE_DEPENDENCIES_W2.md                                                                                        |
 | W3 pinned template/delegation versions and canonical fitment/recipient eligibility                                              | Released at migration 72; hosted fixture acceptance passed; actual-role mutations open | Forward migration 72, fresh replay/schema check, populated reduced fixture; WORKFORCE_TEMPLATE_VERSIONS_W3.md                                                                                                           |
 | W4A responsibility provenance and reviewed assignment/revocation impact                                                         | Implemented locally; isolated integration and rendered fixture acceptance passed       | Scoped added/removed/retained preview, hidden-source redaction, in-transaction impact fingerprint; WORKFORCE_EFFECTIVE_ACCESS_W4.md. Account baseline/independent grants are explicitly outside this partial projection |
+| W5 canonical navigation and active workspace invalidation                                                                       | Implemented locally; native and rendered fixture acceptance passed                     | Shared predicates, owner baseline, stale read/draft/learning/notification disposal and safe redirect; WORKFORCE_NAVIGATION_SESSIONS_W5.md; full policy/chat composition remains open                                    |
 | Complete website/dashboard matrix                                                                                               | Baseline recorded; incomplete                                                          | REVISION_4_COVERAGE.json overlays the maintained source inventory; entries remain pending until exact role/state evidence exists                                                                                        |
 | Canonical conversational retrieval and actual AI provider                                                                       | Not implemented                                                                        | Current Allie is reviewed search only, not completed conversational AI; provider/model/quotas/data-flow/evaluation work remains required                                                                                |
 | All-dashboard reviewed topics, guides and isolated practice                                                                     | Incomplete                                                                             | Preserve current working content; extend and verify per-page decisions and actual task states                                                                                                                           |
@@ -44,9 +45,15 @@ W3 evidence: [versioned definitions, scope fix and compatibility](WORKFORCE_TEMP
 
 W4A uses `feat/workforce-effective-access-20261026` in the existing release worktree,
 based on evidence commit `24a386c1`. Responsibility provenance and assign/revoke
-impact are verified locally; canonical full effective access and live-session
-continuity remain incomplete. Next: reconcile the navigation/page/action registry,
-baseline and independent grants, current-page access-loss redirect and subscription
-revocation before basing conversational AI or human-chat assignment on that foundation.
+impact are verified locally. W5 advances the managed navigation and live HTTP
+session boundary below; canonical full baseline/independent policy composition and
+real chat subscriptions remain incomplete.
 
-Production checkpoint: runtime c4e0005d, backend 707a200f-17c3-4947-a0bd-21b39496cf6a, frontend dpl_GRVrwacMhYkrqktFvGRChY5LB2Ln; both custom domains verified. Full evidence, qualifications and compatible recovery: backend/docs/workforce-versions-production-20261026.md. The full Revision 4 goal remains incomplete.
+W5 follows on `feat/workforce-navigation-policy-20261026`, based on local W4A
+commit `76719cc1`. The navigation/page/action registry and HTTP session invalidation
+are implemented with explicit remaining boundaries. Baseline/independent-grant
+composition, historical unknown definitions, conversational AI and actual chat
+subscriptions remain open. See `WORKFORCE_NAVIGATION_SESSIONS_W5.md` for current
+evidence; neither W4 nor W5 has been published.
+
+Historical production checkpoint: runtime c4e0005d, backend 707a200f-17c3-4947-a0bd-21b39496cf6a, frontend dpl_GRVrwacMhYkrqktFvGRChY5LB2Ln; both custom domains verified at that release. Full evidence, qualifications and compatible recovery: backend/docs/workforce-versions-production-20261026.md. Other release branches have advanced; recheck live source before any rollout. The full Revision 4 goal remains incomplete.

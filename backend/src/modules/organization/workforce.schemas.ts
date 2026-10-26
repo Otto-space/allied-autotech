@@ -336,6 +336,15 @@ export const workforceOwnResponseSchema = z.object({
   permissions: z.array(z.string()),
   canManageAssignments: z.boolean(),
   canInviteAdmins: z.boolean(),
+  accessRevision: z.string().regex(/^[a-f0-9]{64}$/),
+  nextChangeAt: timestamp.nullable(),
+  capabilityScopes: z.array(
+    z.object({
+      capability: z.string(),
+      branchId: z.uuid(),
+      scope: z.enum(["BRANCH", "ASSIGNED"]),
+    }),
+  ),
   serverTime: timestamp,
 });
 export const workforceJobResponseSchema = z.object({

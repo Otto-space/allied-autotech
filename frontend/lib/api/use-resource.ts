@@ -1,6 +1,7 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { apiRequest, ApiError, SESSION_CHANGED } from "./client";
+import { isWorkforceRead, WORKFORCE_ACCESS_CHANGED } from "../workforce-invalidation";
 
 type ResourceState<T> = {
   path: string;
@@ -107,13 +108,22 @@ export function useResource<T>(
     function visible() {
       if (document.visibilityState === "visible") revalidate();
     }
+    function workChanged() {
+      if (!isWorkforceRead(path!)) return;
+      active = false;
+      controller.abort();
+      setState(null);
+      refresh();
+    }
     window.addEventListener(SESSION_CHANGED, discard);
+    window.addEventListener(WORKFORCE_ACCESS_CHANGED, workChanged);
     window.addEventListener("online", revalidate);
     document.addEventListener("visibilitychange", visible);
     return () => {
       active = false;
       controller.abort();
       window.removeEventListener(SESSION_CHANGED, discard);
+      window.removeEventListener(WORKFORCE_ACCESS_CHANGED, workChanged);
       window.removeEventListener("online", revalidate);
       document.removeEventListener("visibilitychange", visible);
     };

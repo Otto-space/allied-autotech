@@ -18,7 +18,7 @@ export const complaintStatusLabels = {
 } as const;
 const complaintPriority = z.enum(["LOW", "MEDIUM", "HIGH", "URGENT"]);
 const complaintStatus = z.enum(["OPEN", "INVESTIGATING", "RESOLVED", "CLOSED"]);
-const accessSchema = workforceAccessSchema.extend({ managed: z.literal(true) });
+const accessSchema = workforceAccessSchema.safeExtend({ managed: z.literal(true) });
 const rowSchema = z.object({
   contact: z
     .object({

@@ -41,19 +41,75 @@ export const assignmentSchema = z.object({
   revokedByUserId: z.uuid().nullable(),
   revocationReason: z.string().nullable(),
 });
-export const workforceAccessSchema = z.object({
-  managed: z.boolean(),
-  userId: z.uuid(),
-  staffId: z.uuid().nullable(),
-  position: z.string().nullable(),
-  department: z.string().nullable(),
-  version: z.number().int(),
-  assignments: z.array(assignmentSchema),
-  permissions: z.array(z.string()),
-  canManageAssignments: z.boolean(),
-  canInviteAdmins: z.boolean().default(false),
-  serverTime: z.iso.datetime(),
-});
+export const workforceAccessSchema = z
+  .object({
+    managed: z.boolean(),
+    userId: z.uuid(),
+    staffId: z.uuid().nullable(),
+    position: z.string().nullable(),
+    department: z.string().nullable(),
+    version: z.number().int(),
+    assignments: z.array(assignmentSchema),
+    permissions: z.array(z.string()),
+    canManageAssignments: z.boolean(),
+    canInviteAdmins: z.boolean().default(false),
+    accessRevision: z
+      .string()
+      .regex(/^[a-f0-9]{64}$/)
+      .optional(),
+    nextChangeAt: z.iso.datetime().nullable().optional(),
+    capabilityScopes: z
+      .array(
+        z.object({
+          capability: z.string(),
+          branchId: z.uuid(),
+          scope: z.enum(["BRANCH", "ASSIGNED"]),
+        }),
+      )
+      .optional(),
+    serverTime: z.iso.datetime(),
+  })
+  .superRefine((value, context) => {
+    const metadata = [value.accessRevision, value.nextChangeAt, value.capabilityScopes];
+    if (metadata.every((field) => field === undefined)) return;
+    if (metadata.some((field) => field === undefined)) {
+      context.addIssue({
+        code: "custom",
+        message: "Incomplete current access projection",
+      });
+      return;
+    }
+    const scopes = value.capabilityScopes!;
+    if (
+      new Set(scopes.map((g) => `${g.capability}:${g.branchId}`)).size !==
+        scopes.length ||
+      value.permissions.some(
+        (capability) => !scopes.some((g) => g.capability === capability),
+      ) ||
+      scopes.some(
+        (g) =>
+          !value.permissions.includes(g.capability) ||
+          !value.assignments.some(
+            (a) =>
+              a.branchId === g.branchId && (g.scope !== "BRANCH" || a.scope === "BRANCH"),
+          ),
+      ) ||
+      value.assignments.some(
+        (a) =>
+          a.userId !== value.userId ||
+          a.revokedAt !== null ||
+          Date.parse(a.startsAt) > Date.parse(value.serverTime) ||
+          (a.expiresAt !== null &&
+            Date.parse(a.expiresAt) <= Date.parse(value.serverTime)),
+      ) ||
+      (value.nextChangeAt !== null &&
+        Date.parse(value.nextChangeAt!) <= Date.parse(value.serverTime))
+    )
+      context.addIssue({
+        code: "custom",
+        message: "Unexpected current access scope or time",
+      });
+  });
 export type WorkforceAccess = z.infer<typeof workforceAccessSchema>;
 export const parseWorkforceAccess = (value: unknown) =>
   workforceAccessSchema.parse(value);
@@ -77,7 +133,7 @@ const workforceOverviewSchema = z
       })
       .strict(),
     generatedAt: z.iso.datetime(),
-    access: workforceAccessSchema.extend({ managed: z.literal(true) }),
+    access: workforceAccessSchema.safeExtend({ managed: z.literal(true) }),
     branches: z.array(z.object({ id: z.uuid(), name: z.string().trim().min(1) })),
   })
   .superRefine((value, context) => {

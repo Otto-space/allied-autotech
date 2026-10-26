@@ -24,7 +24,7 @@ const status = z.enum([
   "CANCELLED",
 ]);
 const nextState = z.enum(["PROCESSING", "READY"]);
-const accessSchema = workforceAccessSchema.extend({ managed: z.literal(true) });
+const accessSchema = workforceAccessSchema.safeExtend({ managed: z.literal(true) });
 const rowSchema = z.object({
   id: z.uuid(),
   orderNumber: z.string(),

@@ -156,3 +156,5 @@ customer-table-responsive.spec.ts
 
 # Revision 4: scoped workforce discovery, filters, failure and access invalidation.
 workforce-directory.spec.ts
+# Revision 4 W5: current-access redirects, private draft disposal and cross-tab rechecks.
+workforce-session-revocation.spec.ts

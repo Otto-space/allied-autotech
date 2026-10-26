@@ -154679,6 +154679,51 @@
                               "type": "boolean",
                               "description": "Can Invite Admins validated by this operation's strict request contract."
                             },
+                            "accessRevision": {
+                              "type": "string",
+                              "pattern": "^[a-f0-9]{64}$",
+                              "description": "Access Revision validated by this operation's strict request contract."
+                            },
+                            "nextChangeAt": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "date-time",
+                              "description": "ISO 8601 timestamp interpreted and validated by the server."
+                            },
+                            "capabilityScopes": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "capability": {
+                                    "type": "string",
+                                    "description": "Capability validated by this operation's strict request contract."
+                                  },
+                                  "branchId": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "description": "Identifier of the branch resource; ownership is resolved server-side."
+                                  },
+                                  "scope": {
+                                    "type": "string",
+                                    "enum": [
+                                      "BRANCH",
+                                      "ASSIGNED"
+                                    ],
+                                    "description": "Scope validated by this operation's strict request contract."
+                                  }
+                                },
+                                "required": [
+                                  "capability",
+                                  "branchId",
+                                  "scope"
+                                ],
+                                "description": "Capability Scopes Item validated by this operation's strict request contract."
+                              },
+                              "description": "Capability Scopes validated by this operation's strict request contract."
+                            },
                             "serverTime": {
                               "type": "string",
                               "format": "date-time",
@@ -154696,6 +154741,9 @@
                             "permissions",
                             "canManageAssignments",
                             "canInviteAdmins",
+                            "accessRevision",
+                            "nextChangeAt",
+                            "capabilityScopes",
                             "serverTime"
                           ],
                           "description": "Access validated by this operation's strict request contract."
@@ -154792,6 +154840,15 @@
                       ],
                       "canManageAssignments": true,
                       "canInviteAdmins": true,
+                      "accessRevision": "synthetic-accessrevision",
+                      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+                      "capabilityScopes": [
+                        {
+                          "capability": "synthetic-capability",
+                          "branchId": "00000000-0000-4000-8000-000000000001",
+                          "scope": "BRANCH"
+                        }
+                      ],
                       "serverTime": "2030-01-15T10:00:00.000Z"
                     },
                     "jobId": "00000000-0000-4000-8000-000000000001",
@@ -155242,6 +155299,51 @@
                               "type": "boolean",
                               "description": "Can Invite Admins validated by this operation's strict request contract."
                             },
+                            "accessRevision": {
+                              "type": "string",
+                              "pattern": "^[a-f0-9]{64}$",
+                              "description": "Access Revision validated by this operation's strict request contract."
+                            },
+                            "nextChangeAt": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "date-time",
+                              "description": "ISO 8601 timestamp interpreted and validated by the server."
+                            },
+                            "capabilityScopes": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "capability": {
+                                    "type": "string",
+                                    "description": "Capability validated by this operation's strict request contract."
+                                  },
+                                  "branchId": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "description": "Identifier of the branch resource; ownership is resolved server-side."
+                                  },
+                                  "scope": {
+                                    "type": "string",
+                                    "enum": [
+                                      "BRANCH",
+                                      "ASSIGNED"
+                                    ],
+                                    "description": "Scope validated by this operation's strict request contract."
+                                  }
+                                },
+                                "required": [
+                                  "capability",
+                                  "branchId",
+                                  "scope"
+                                ],
+                                "description": "Capability Scopes Item validated by this operation's strict request contract."
+                              },
+                              "description": "Capability Scopes validated by this operation's strict request contract."
+                            },
                             "serverTime": {
                               "type": "string",
                               "format": "date-time",
@@ -155259,6 +155361,9 @@
                             "permissions",
                             "canManageAssignments",
                             "canInviteAdmins",
+                            "accessRevision",
+                            "nextChangeAt",
+                            "capabilityScopes",
                             "serverTime"
                           ],
                           "description": "Access validated by this operation's strict request contract."
@@ -155355,6 +155460,15 @@
                       ],
                       "canManageAssignments": true,
                       "canInviteAdmins": true,
+                      "accessRevision": "synthetic-accessrevision",
+                      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+                      "capabilityScopes": [
+                        {
+                          "capability": "synthetic-capability",
+                          "branchId": "00000000-0000-4000-8000-000000000001",
+                          "scope": "BRANCH"
+                        }
+                      ],
                       "serverTime": "2030-01-15T10:00:00.000Z"
                     },
                     "enquiryId": "00000000-0000-4000-8000-000000000001",
@@ -155809,6 +155923,51 @@
                               "type": "boolean",
                               "description": "Can Invite Admins validated by this operation's strict request contract."
                             },
+                            "accessRevision": {
+                              "type": "string",
+                              "pattern": "^[a-f0-9]{64}$",
+                              "description": "Access Revision validated by this operation's strict request contract."
+                            },
+                            "nextChangeAt": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "date-time",
+                              "description": "ISO 8601 timestamp interpreted and validated by the server."
+                            },
+                            "capabilityScopes": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "capability": {
+                                    "type": "string",
+                                    "description": "Capability validated by this operation's strict request contract."
+                                  },
+                                  "branchId": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "description": "Identifier of the branch resource; ownership is resolved server-side."
+                                  },
+                                  "scope": {
+                                    "type": "string",
+                                    "enum": [
+                                      "BRANCH",
+                                      "ASSIGNED"
+                                    ],
+                                    "description": "Scope validated by this operation's strict request contract."
+                                  }
+                                },
+                                "required": [
+                                  "capability",
+                                  "branchId",
+                                  "scope"
+                                ],
+                                "description": "Capability Scopes Item validated by this operation's strict request contract."
+                              },
+                              "description": "Capability Scopes validated by this operation's strict request contract."
+                            },
                             "serverTime": {
                               "type": "string",
                               "format": "date-time",
@@ -155826,6 +155985,9 @@
                             "permissions",
                             "canManageAssignments",
                             "canInviteAdmins",
+                            "accessRevision",
+                            "nextChangeAt",
+                            "capabilityScopes",
                             "serverTime"
                           ],
                           "description": "Access validated by this operation's strict request contract."
@@ -155993,6 +156155,15 @@
                       ],
                       "canManageAssignments": true,
                       "canInviteAdmins": true,
+                      "accessRevision": "synthetic-accessrevision",
+                      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+                      "capabilityScopes": [
+                        {
+                          "capability": "synthetic-capability",
+                          "branchId": "00000000-0000-4000-8000-000000000001",
+                          "scope": "BRANCH"
+                        }
+                      ],
                       "serverTime": "2030-01-15T10:00:00.000Z"
                     },
                     "action": "reply",
@@ -156454,6 +156625,51 @@
                               "type": "boolean",
                               "description": "Can Invite Admins validated by this operation's strict request contract."
                             },
+                            "accessRevision": {
+                              "type": "string",
+                              "pattern": "^[a-f0-9]{64}$",
+                              "description": "Access Revision validated by this operation's strict request contract."
+                            },
+                            "nextChangeAt": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "date-time",
+                              "description": "ISO 8601 timestamp interpreted and validated by the server."
+                            },
+                            "capabilityScopes": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "capability": {
+                                    "type": "string",
+                                    "description": "Capability validated by this operation's strict request contract."
+                                  },
+                                  "branchId": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "description": "Identifier of the branch resource; ownership is resolved server-side."
+                                  },
+                                  "scope": {
+                                    "type": "string",
+                                    "enum": [
+                                      "BRANCH",
+                                      "ASSIGNED"
+                                    ],
+                                    "description": "Scope validated by this operation's strict request contract."
+                                  }
+                                },
+                                "required": [
+                                  "capability",
+                                  "branchId",
+                                  "scope"
+                                ],
+                                "description": "Capability Scopes Item validated by this operation's strict request contract."
+                              },
+                              "description": "Capability Scopes validated by this operation's strict request contract."
+                            },
                             "serverTime": {
                               "type": "string",
                               "format": "date-time",
@@ -156471,6 +156687,9 @@
                             "permissions",
                             "canManageAssignments",
                             "canInviteAdmins",
+                            "accessRevision",
+                            "nextChangeAt",
+                            "capabilityScopes",
                             "serverTime"
                           ],
                           "description": "Access validated by this operation's strict request contract."
@@ -156590,6 +156809,15 @@
                       ],
                       "canManageAssignments": true,
                       "canInviteAdmins": true,
+                      "accessRevision": "synthetic-accessrevision",
+                      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+                      "capabilityScopes": [
+                        {
+                          "capability": "synthetic-capability",
+                          "branchId": "00000000-0000-4000-8000-000000000001",
+                          "scope": "BRANCH"
+                        }
+                      ],
                       "serverTime": "2030-01-15T10:00:00.000Z"
                     },
                     "action": "assignment",
@@ -157306,6 +157534,51 @@
                           "type": "boolean",
                           "description": "Can Invite Admins validated by this operation's strict request contract."
                         },
+                        "accessRevision": {
+                          "type": "string",
+                          "pattern": "^[a-f0-9]{64}$",
+                          "description": "Access Revision validated by this operation's strict request contract."
+                        },
+                        "nextChangeAt": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "format": "date-time",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        },
+                        "capabilityScopes": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "capability": {
+                                "type": "string",
+                                "description": "Capability validated by this operation's strict request contract."
+                              },
+                              "branchId": {
+                                "type": "string",
+                                "format": "uuid",
+                                "description": "Identifier of the branch resource; ownership is resolved server-side."
+                              },
+                              "scope": {
+                                "type": "string",
+                                "enum": [
+                                  "BRANCH",
+                                  "ASSIGNED"
+                                ],
+                                "description": "Scope validated by this operation's strict request contract."
+                              }
+                            },
+                            "required": [
+                              "capability",
+                              "branchId",
+                              "scope"
+                            ],
+                            "description": "Capability Scopes Item validated by this operation's strict request contract."
+                          },
+                          "description": "Capability Scopes validated by this operation's strict request contract."
+                        },
                         "serverTime": {
                           "type": "string",
                           "format": "date-time",
@@ -157323,6 +157596,9 @@
                         "permissions",
                         "canManageAssignments",
                         "canInviteAdmins",
+                        "accessRevision",
+                        "nextChangeAt",
+                        "capabilityScopes",
                         "serverTime"
                       ],
                       "description": "Data validated by this operation's strict request contract."
@@ -157388,6 +157664,15 @@
                     ],
                     "canManageAssignments": true,
                     "canInviteAdmins": true,
+                    "accessRevision": "synthetic-accessrevision",
+                    "nextChangeAt": "2030-01-15T10:00:00.000Z",
+                    "capabilityScopes": [
+                      {
+                        "capability": "synthetic-capability",
+                        "branchId": "00000000-0000-4000-8000-000000000001",
+                        "scope": "BRANCH"
+                      }
+                    ],
                     "serverTime": "2030-01-15T10:00:00.000Z"
                   },
                   "meta": {
@@ -157758,6 +158043,51 @@
                               "type": "boolean",
                               "description": "Can Invite Admins validated by this operation's strict request contract."
                             },
+                            "accessRevision": {
+                              "type": "string",
+                              "pattern": "^[a-f0-9]{64}$",
+                              "description": "Access Revision validated by this operation's strict request contract."
+                            },
+                            "nextChangeAt": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "date-time",
+                              "description": "ISO 8601 timestamp interpreted and validated by the server."
+                            },
+                            "capabilityScopes": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "capability": {
+                                    "type": "string",
+                                    "description": "Capability validated by this operation's strict request contract."
+                                  },
+                                  "branchId": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "description": "Identifier of the branch resource; ownership is resolved server-side."
+                                  },
+                                  "scope": {
+                                    "type": "string",
+                                    "enum": [
+                                      "BRANCH",
+                                      "ASSIGNED"
+                                    ],
+                                    "description": "Scope validated by this operation's strict request contract."
+                                  }
+                                },
+                                "required": [
+                                  "capability",
+                                  "branchId",
+                                  "scope"
+                                ],
+                                "description": "Capability Scopes Item validated by this operation's strict request contract."
+                              },
+                              "description": "Capability Scopes validated by this operation's strict request contract."
+                            },
                             "serverTime": {
                               "type": "string",
                               "format": "date-time",
@@ -157775,6 +158105,9 @@
                             "permissions",
                             "canManageAssignments",
                             "canInviteAdmins",
+                            "accessRevision",
+                            "nextChangeAt",
+                            "capabilityScopes",
                             "serverTime"
                           ],
                           "description": "Access validated by this operation's strict request contract."
@@ -157875,6 +158208,15 @@
                       ],
                       "canManageAssignments": true,
                       "canInviteAdmins": true,
+                      "accessRevision": "synthetic-accessrevision",
+                      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+                      "capabilityScopes": [
+                        {
+                          "capability": "synthetic-capability",
+                          "branchId": "00000000-0000-4000-8000-000000000001",
+                          "scope": "BRANCH"
+                        }
+                      ],
                       "serverTime": "2030-01-15T10:00:00.000Z"
                     },
                     "branches": [
@@ -158498,6 +158840,51 @@
                               "type": "boolean",
                               "description": "Can Invite Admins validated by this operation's strict request contract."
                             },
+                            "accessRevision": {
+                              "type": "string",
+                              "pattern": "^[a-f0-9]{64}$",
+                              "description": "Access Revision validated by this operation's strict request contract."
+                            },
+                            "nextChangeAt": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "date-time",
+                              "description": "ISO 8601 timestamp interpreted and validated by the server."
+                            },
+                            "capabilityScopes": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "capability": {
+                                    "type": "string",
+                                    "description": "Capability validated by this operation's strict request contract."
+                                  },
+                                  "branchId": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "description": "Identifier of the branch resource; ownership is resolved server-side."
+                                  },
+                                  "scope": {
+                                    "type": "string",
+                                    "enum": [
+                                      "BRANCH",
+                                      "ASSIGNED"
+                                    ],
+                                    "description": "Scope validated by this operation's strict request contract."
+                                  }
+                                },
+                                "required": [
+                                  "capability",
+                                  "branchId",
+                                  "scope"
+                                ],
+                                "description": "Capability Scopes Item validated by this operation's strict request contract."
+                              },
+                              "description": "Capability Scopes validated by this operation's strict request contract."
+                            },
                             "serverTime": {
                               "type": "string",
                               "format": "date-time",
@@ -158515,6 +158902,9 @@
                             "permissions",
                             "canManageAssignments",
                             "canInviteAdmins",
+                            "accessRevision",
+                            "nextChangeAt",
+                            "capabilityScopes",
                             "serverTime"
                           ],
                           "description": "Access validated by this operation's strict request contract."
@@ -158624,6 +159014,15 @@
                       ],
                       "canManageAssignments": true,
                       "canInviteAdmins": true,
+                      "accessRevision": "synthetic-accessrevision",
+                      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+                      "capabilityScopes": [
+                        {
+                          "capability": "synthetic-capability",
+                          "branchId": "00000000-0000-4000-8000-000000000001",
+                          "scope": "BRANCH"
+                        }
+                      ],
                       "serverTime": "2030-01-15T10:00:00.000Z"
                     }
                   },
@@ -159191,6 +159590,51 @@
                               "type": "boolean",
                               "description": "Can Invite Admins validated by this operation's strict request contract."
                             },
+                            "accessRevision": {
+                              "type": "string",
+                              "pattern": "^[a-f0-9]{64}$",
+                              "description": "Access Revision validated by this operation's strict request contract."
+                            },
+                            "nextChangeAt": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "date-time",
+                              "description": "ISO 8601 timestamp interpreted and validated by the server."
+                            },
+                            "capabilityScopes": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "capability": {
+                                    "type": "string",
+                                    "description": "Capability validated by this operation's strict request contract."
+                                  },
+                                  "branchId": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "description": "Identifier of the branch resource; ownership is resolved server-side."
+                                  },
+                                  "scope": {
+                                    "type": "string",
+                                    "enum": [
+                                      "BRANCH",
+                                      "ASSIGNED"
+                                    ],
+                                    "description": "Scope validated by this operation's strict request contract."
+                                  }
+                                },
+                                "required": [
+                                  "capability",
+                                  "branchId",
+                                  "scope"
+                                ],
+                                "description": "Capability Scopes Item validated by this operation's strict request contract."
+                              },
+                              "description": "Capability Scopes validated by this operation's strict request contract."
+                            },
                             "serverTime": {
                               "type": "string",
                               "format": "date-time",
@@ -159208,6 +159652,9 @@
                             "permissions",
                             "canManageAssignments",
                             "canInviteAdmins",
+                            "accessRevision",
+                            "nextChangeAt",
+                            "capabilityScopes",
                             "serverTime"
                           ],
                           "description": "Access validated by this operation's strict request contract."
@@ -159315,6 +159762,15 @@
                       ],
                       "canManageAssignments": true,
                       "canInviteAdmins": true,
+                      "accessRevision": "synthetic-accessrevision",
+                      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+                      "capabilityScopes": [
+                        {
+                          "capability": "synthetic-capability",
+                          "branchId": "00000000-0000-4000-8000-000000000001",
+                          "scope": "BRANCH"
+                        }
+                      ],
                       "serverTime": "2030-01-15T10:00:00.000Z"
                     },
                     "generatedAt": "2030-01-15T10:00:00.000Z"
@@ -159859,6 +160315,51 @@
                               "type": "boolean",
                               "description": "Can Invite Admins validated by this operation's strict request contract."
                             },
+                            "accessRevision": {
+                              "type": "string",
+                              "pattern": "^[a-f0-9]{64}$",
+                              "description": "Access Revision validated by this operation's strict request contract."
+                            },
+                            "nextChangeAt": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "date-time",
+                              "description": "ISO 8601 timestamp interpreted and validated by the server."
+                            },
+                            "capabilityScopes": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "capability": {
+                                    "type": "string",
+                                    "description": "Capability validated by this operation's strict request contract."
+                                  },
+                                  "branchId": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "description": "Identifier of the branch resource; ownership is resolved server-side."
+                                  },
+                                  "scope": {
+                                    "type": "string",
+                                    "enum": [
+                                      "BRANCH",
+                                      "ASSIGNED"
+                                    ],
+                                    "description": "Scope validated by this operation's strict request contract."
+                                  }
+                                },
+                                "required": [
+                                  "capability",
+                                  "branchId",
+                                  "scope"
+                                ],
+                                "description": "Capability Scopes Item validated by this operation's strict request contract."
+                              },
+                              "description": "Capability Scopes validated by this operation's strict request contract."
+                            },
                             "serverTime": {
                               "type": "string",
                               "format": "date-time",
@@ -159876,6 +160377,9 @@
                             "permissions",
                             "canManageAssignments",
                             "canInviteAdmins",
+                            "accessRevision",
+                            "nextChangeAt",
+                            "capabilityScopes",
                             "serverTime"
                           ],
                           "description": "Access validated by this operation's strict request contract."
@@ -160040,6 +160544,15 @@
                       ],
                       "canManageAssignments": true,
                       "canInviteAdmins": true,
+                      "accessRevision": "synthetic-accessrevision",
+                      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+                      "capabilityScopes": [
+                        {
+                          "capability": "synthetic-capability",
+                          "branchId": "00000000-0000-4000-8000-000000000001",
+                          "scope": "BRANCH"
+                        }
+                      ],
                       "serverTime": "2030-01-15T10:00:00.000Z"
                     },
                     "branch": {
@@ -160543,6 +161056,51 @@
                               "type": "boolean",
                               "description": "Can Invite Admins validated by this operation's strict request contract."
                             },
+                            "accessRevision": {
+                              "type": "string",
+                              "pattern": "^[a-f0-9]{64}$",
+                              "description": "Access Revision validated by this operation's strict request contract."
+                            },
+                            "nextChangeAt": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "date-time",
+                              "description": "ISO 8601 timestamp interpreted and validated by the server."
+                            },
+                            "capabilityScopes": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "capability": {
+                                    "type": "string",
+                                    "description": "Capability validated by this operation's strict request contract."
+                                  },
+                                  "branchId": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "description": "Identifier of the branch resource; ownership is resolved server-side."
+                                  },
+                                  "scope": {
+                                    "type": "string",
+                                    "enum": [
+                                      "BRANCH",
+                                      "ASSIGNED"
+                                    ],
+                                    "description": "Scope validated by this operation's strict request contract."
+                                  }
+                                },
+                                "required": [
+                                  "capability",
+                                  "branchId",
+                                  "scope"
+                                ],
+                                "description": "Capability Scopes Item validated by this operation's strict request contract."
+                              },
+                              "description": "Capability Scopes validated by this operation's strict request contract."
+                            },
                             "serverTime": {
                               "type": "string",
                               "format": "date-time",
@@ -160560,6 +161118,9 @@
                             "permissions",
                             "canManageAssignments",
                             "canInviteAdmins",
+                            "accessRevision",
+                            "nextChangeAt",
+                            "capabilityScopes",
                             "serverTime"
                           ],
                           "description": "Access validated by this operation's strict request contract."
@@ -160670,6 +161231,15 @@
                       ],
                       "canManageAssignments": true,
                       "canInviteAdmins": true,
+                      "accessRevision": "synthetic-accessrevision",
+                      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+                      "capabilityScopes": [
+                        {
+                          "capability": "synthetic-capability",
+                          "branchId": "00000000-0000-4000-8000-000000000001",
+                          "scope": "BRANCH"
+                        }
+                      ],
                       "serverTime": "2030-01-15T10:00:00.000Z"
                     },
                     "generatedAt": "2030-01-15T10:00:00.000Z"
@@ -161235,6 +161805,51 @@
                               "type": "boolean",
                               "description": "Can Invite Admins validated by this operation's strict request contract."
                             },
+                            "accessRevision": {
+                              "type": "string",
+                              "pattern": "^[a-f0-9]{64}$",
+                              "description": "Access Revision validated by this operation's strict request contract."
+                            },
+                            "nextChangeAt": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "date-time",
+                              "description": "ISO 8601 timestamp interpreted and validated by the server."
+                            },
+                            "capabilityScopes": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "capability": {
+                                    "type": "string",
+                                    "description": "Capability validated by this operation's strict request contract."
+                                  },
+                                  "branchId": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "description": "Identifier of the branch resource; ownership is resolved server-side."
+                                  },
+                                  "scope": {
+                                    "type": "string",
+                                    "enum": [
+                                      "BRANCH",
+                                      "ASSIGNED"
+                                    ],
+                                    "description": "Scope validated by this operation's strict request contract."
+                                  }
+                                },
+                                "required": [
+                                  "capability",
+                                  "branchId",
+                                  "scope"
+                                ],
+                                "description": "Capability Scopes Item validated by this operation's strict request contract."
+                              },
+                              "description": "Capability Scopes validated by this operation's strict request contract."
+                            },
                             "serverTime": {
                               "type": "string",
                               "format": "date-time",
@@ -161252,6 +161867,9 @@
                             "permissions",
                             "canManageAssignments",
                             "canInviteAdmins",
+                            "accessRevision",
+                            "nextChangeAt",
+                            "capabilityScopes",
                             "serverTime"
                           ],
                           "description": "Access validated by this operation's strict request contract."
@@ -161596,6 +162214,15 @@
                       ],
                       "canManageAssignments": true,
                       "canInviteAdmins": true,
+                      "accessRevision": "synthetic-accessrevision",
+                      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+                      "capabilityScopes": [
+                        {
+                          "capability": "synthetic-capability",
+                          "branchId": "00000000-0000-4000-8000-000000000001",
+                          "scope": "BRANCH"
+                        }
+                      ],
                       "serverTime": "2030-01-15T10:00:00.000Z"
                     },
                     "generatedAt": "2030-01-15T10:00:00.000Z",
@@ -162233,6 +162860,51 @@
                               "type": "boolean",
                               "description": "Can Invite Admins validated by this operation's strict request contract."
                             },
+                            "accessRevision": {
+                              "type": "string",
+                              "pattern": "^[a-f0-9]{64}$",
+                              "description": "Access Revision validated by this operation's strict request contract."
+                            },
+                            "nextChangeAt": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "date-time",
+                              "description": "ISO 8601 timestamp interpreted and validated by the server."
+                            },
+                            "capabilityScopes": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "capability": {
+                                    "type": "string",
+                                    "description": "Capability validated by this operation's strict request contract."
+                                  },
+                                  "branchId": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "description": "Identifier of the branch resource; ownership is resolved server-side."
+                                  },
+                                  "scope": {
+                                    "type": "string",
+                                    "enum": [
+                                      "BRANCH",
+                                      "ASSIGNED"
+                                    ],
+                                    "description": "Scope validated by this operation's strict request contract."
+                                  }
+                                },
+                                "required": [
+                                  "capability",
+                                  "branchId",
+                                  "scope"
+                                ],
+                                "description": "Capability Scopes Item validated by this operation's strict request contract."
+                              },
+                              "description": "Capability Scopes validated by this operation's strict request contract."
+                            },
                             "serverTime": {
                               "type": "string",
                               "format": "date-time",
@@ -162250,6 +162922,9 @@
                             "permissions",
                             "canManageAssignments",
                             "canInviteAdmins",
+                            "accessRevision",
+                            "nextChangeAt",
+                            "capabilityScopes",
                             "serverTime"
                           ],
                           "description": "Access validated by this operation's strict request contract."
@@ -162414,6 +163089,15 @@
                       ],
                       "canManageAssignments": true,
                       "canInviteAdmins": true,
+                      "accessRevision": "synthetic-accessrevision",
+                      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+                      "capabilityScopes": [
+                        {
+                          "capability": "synthetic-capability",
+                          "branchId": "00000000-0000-4000-8000-000000000001",
+                          "scope": "BRANCH"
+                        }
+                      ],
                       "serverTime": "2030-01-15T10:00:00.000Z"
                     },
                     "branch": {
@@ -163011,6 +163695,51 @@
                               "type": "boolean",
                               "description": "Can Invite Admins validated by this operation's strict request contract."
                             },
+                            "accessRevision": {
+                              "type": "string",
+                              "pattern": "^[a-f0-9]{64}$",
+                              "description": "Access Revision validated by this operation's strict request contract."
+                            },
+                            "nextChangeAt": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "date-time",
+                              "description": "ISO 8601 timestamp interpreted and validated by the server."
+                            },
+                            "capabilityScopes": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "capability": {
+                                    "type": "string",
+                                    "description": "Capability validated by this operation's strict request contract."
+                                  },
+                                  "branchId": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "description": "Identifier of the branch resource; ownership is resolved server-side."
+                                  },
+                                  "scope": {
+                                    "type": "string",
+                                    "enum": [
+                                      "BRANCH",
+                                      "ASSIGNED"
+                                    ],
+                                    "description": "Scope validated by this operation's strict request contract."
+                                  }
+                                },
+                                "required": [
+                                  "capability",
+                                  "branchId",
+                                  "scope"
+                                ],
+                                "description": "Capability Scopes Item validated by this operation's strict request contract."
+                              },
+                              "description": "Capability Scopes validated by this operation's strict request contract."
+                            },
                             "serverTime": {
                               "type": "string",
                               "format": "date-time",
@@ -163028,6 +163757,9 @@
                             "permissions",
                             "canManageAssignments",
                             "canInviteAdmins",
+                            "accessRevision",
+                            "nextChangeAt",
+                            "capabilityScopes",
                             "serverTime"
                           ],
                           "description": "Access validated by this operation's strict request contract."
@@ -163192,6 +163924,15 @@
                       ],
                       "canManageAssignments": true,
                       "canInviteAdmins": true,
+                      "accessRevision": "synthetic-accessrevision",
+                      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+                      "capabilityScopes": [
+                        {
+                          "capability": "synthetic-capability",
+                          "branchId": "00000000-0000-4000-8000-000000000001",
+                          "scope": "BRANCH"
+                        }
+                      ],
                       "serverTime": "2030-01-15T10:00:00.000Z"
                     },
                     "branch": {
@@ -163796,6 +164537,51 @@
                               "type": "boolean",
                               "description": "Can Invite Admins validated by this operation's strict request contract."
                             },
+                            "accessRevision": {
+                              "type": "string",
+                              "pattern": "^[a-f0-9]{64}$",
+                              "description": "Access Revision validated by this operation's strict request contract."
+                            },
+                            "nextChangeAt": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "date-time",
+                              "description": "ISO 8601 timestamp interpreted and validated by the server."
+                            },
+                            "capabilityScopes": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "capability": {
+                                    "type": "string",
+                                    "description": "Capability validated by this operation's strict request contract."
+                                  },
+                                  "branchId": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "description": "Identifier of the branch resource; ownership is resolved server-side."
+                                  },
+                                  "scope": {
+                                    "type": "string",
+                                    "enum": [
+                                      "BRANCH",
+                                      "ASSIGNED"
+                                    ],
+                                    "description": "Scope validated by this operation's strict request contract."
+                                  }
+                                },
+                                "required": [
+                                  "capability",
+                                  "branchId",
+                                  "scope"
+                                ],
+                                "description": "Capability Scopes Item validated by this operation's strict request contract."
+                              },
+                              "description": "Capability Scopes validated by this operation's strict request contract."
+                            },
                             "serverTime": {
                               "type": "string",
                               "format": "date-time",
@@ -163813,6 +164599,9 @@
                             "permissions",
                             "canManageAssignments",
                             "canInviteAdmins",
+                            "accessRevision",
+                            "nextChangeAt",
+                            "capabilityScopes",
                             "serverTime"
                           ],
                           "description": "Access validated by this operation's strict request contract."
@@ -163977,6 +164766,15 @@
                       ],
                       "canManageAssignments": true,
                       "canInviteAdmins": true,
+                      "accessRevision": "synthetic-accessrevision",
+                      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+                      "capabilityScopes": [
+                        {
+                          "capability": "synthetic-capability",
+                          "branchId": "00000000-0000-4000-8000-000000000001",
+                          "scope": "BRANCH"
+                        }
+                      ],
                       "serverTime": "2030-01-15T10:00:00.000Z"
                     },
                     "branch": {
@@ -164604,6 +165402,51 @@
                               "type": "boolean",
                               "description": "Can Invite Admins validated by this operation's strict request contract."
                             },
+                            "accessRevision": {
+                              "type": "string",
+                              "pattern": "^[a-f0-9]{64}$",
+                              "description": "Access Revision validated by this operation's strict request contract."
+                            },
+                            "nextChangeAt": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "date-time",
+                              "description": "ISO 8601 timestamp interpreted and validated by the server."
+                            },
+                            "capabilityScopes": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "capability": {
+                                    "type": "string",
+                                    "description": "Capability validated by this operation's strict request contract."
+                                  },
+                                  "branchId": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "description": "Identifier of the branch resource; ownership is resolved server-side."
+                                  },
+                                  "scope": {
+                                    "type": "string",
+                                    "enum": [
+                                      "BRANCH",
+                                      "ASSIGNED"
+                                    ],
+                                    "description": "Scope validated by this operation's strict request contract."
+                                  }
+                                },
+                                "required": [
+                                  "capability",
+                                  "branchId",
+                                  "scope"
+                                ],
+                                "description": "Capability Scopes Item validated by this operation's strict request contract."
+                              },
+                              "description": "Capability Scopes validated by this operation's strict request contract."
+                            },
                             "serverTime": {
                               "type": "string",
                               "format": "date-time",
@@ -164621,6 +165464,9 @@
                             "permissions",
                             "canManageAssignments",
                             "canInviteAdmins",
+                            "accessRevision",
+                            "nextChangeAt",
+                            "capabilityScopes",
                             "serverTime"
                           ],
                           "description": "Access validated by this operation's strict request contract."
@@ -164725,6 +165571,15 @@
                       ],
                       "canManageAssignments": true,
                       "canInviteAdmins": true,
+                      "accessRevision": "synthetic-accessrevision",
+                      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+                      "capabilityScopes": [
+                        {
+                          "capability": "synthetic-capability",
+                          "branchId": "00000000-0000-4000-8000-000000000001",
+                          "scope": "BRANCH"
+                        }
+                      ],
                       "serverTime": "2030-01-15T10:00:00.000Z"
                     },
                     "generatedAt": "2030-01-15T10:00:00.000Z"
@@ -165177,6 +166032,51 @@
                               "type": "boolean",
                               "description": "Can Invite Admins validated by this operation's strict request contract."
                             },
+                            "accessRevision": {
+                              "type": "string",
+                              "pattern": "^[a-f0-9]{64}$",
+                              "description": "Access Revision validated by this operation's strict request contract."
+                            },
+                            "nextChangeAt": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "date-time",
+                              "description": "ISO 8601 timestamp interpreted and validated by the server."
+                            },
+                            "capabilityScopes": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "capability": {
+                                    "type": "string",
+                                    "description": "Capability validated by this operation's strict request contract."
+                                  },
+                                  "branchId": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "description": "Identifier of the branch resource; ownership is resolved server-side."
+                                  },
+                                  "scope": {
+                                    "type": "string",
+                                    "enum": [
+                                      "BRANCH",
+                                      "ASSIGNED"
+                                    ],
+                                    "description": "Scope validated by this operation's strict request contract."
+                                  }
+                                },
+                                "required": [
+                                  "capability",
+                                  "branchId",
+                                  "scope"
+                                ],
+                                "description": "Capability Scopes Item validated by this operation's strict request contract."
+                              },
+                              "description": "Capability Scopes validated by this operation's strict request contract."
+                            },
                             "serverTime": {
                               "type": "string",
                               "format": "date-time",
@@ -165194,6 +166094,9 @@
                             "permissions",
                             "canManageAssignments",
                             "canInviteAdmins",
+                            "accessRevision",
+                            "nextChangeAt",
+                            "capabilityScopes",
                             "serverTime"
                           ],
                           "description": "Access validated by this operation's strict request contract."
@@ -165361,6 +166264,15 @@
                       ],
                       "canManageAssignments": true,
                       "canInviteAdmins": true,
+                      "accessRevision": "synthetic-accessrevision",
+                      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+                      "capabilityScopes": [
+                        {
+                          "capability": "synthetic-capability",
+                          "branchId": "00000000-0000-4000-8000-000000000001",
+                          "scope": "BRANCH"
+                        }
+                      ],
                       "serverTime": "2030-01-15T10:00:00.000Z"
                     },
                     "action": "reply",
@@ -165940,6 +166852,51 @@
                               "type": "boolean",
                               "description": "Can Invite Admins validated by this operation's strict request contract."
                             },
+                            "accessRevision": {
+                              "type": "string",
+                              "pattern": "^[a-f0-9]{64}$",
+                              "description": "Access Revision validated by this operation's strict request contract."
+                            },
+                            "nextChangeAt": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "date-time",
+                              "description": "ISO 8601 timestamp interpreted and validated by the server."
+                            },
+                            "capabilityScopes": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "capability": {
+                                    "type": "string",
+                                    "description": "Capability validated by this operation's strict request contract."
+                                  },
+                                  "branchId": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "description": "Identifier of the branch resource; ownership is resolved server-side."
+                                  },
+                                  "scope": {
+                                    "type": "string",
+                                    "enum": [
+                                      "BRANCH",
+                                      "ASSIGNED"
+                                    ],
+                                    "description": "Scope validated by this operation's strict request contract."
+                                  }
+                                },
+                                "required": [
+                                  "capability",
+                                  "branchId",
+                                  "scope"
+                                ],
+                                "description": "Capability Scopes Item validated by this operation's strict request contract."
+                              },
+                              "description": "Capability Scopes validated by this operation's strict request contract."
+                            },
                             "serverTime": {
                               "type": "string",
                               "format": "date-time",
@@ -165957,6 +166914,9 @@
                             "permissions",
                             "canManageAssignments",
                             "canInviteAdmins",
+                            "accessRevision",
+                            "nextChangeAt",
+                            "capabilityScopes",
                             "serverTime"
                           ],
                           "description": "Access validated by this operation's strict request contract."
@@ -166054,6 +167014,15 @@
                       ],
                       "canManageAssignments": true,
                       "canInviteAdmins": true,
+                      "accessRevision": "synthetic-accessrevision",
+                      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+                      "capabilityScopes": [
+                        {
+                          "capability": "synthetic-capability",
+                          "branchId": "00000000-0000-4000-8000-000000000001",
+                          "scope": "BRANCH"
+                        }
+                      ],
                       "serverTime": "2030-01-15T10:00:00.000Z"
                     },
                     "generatedAt": "2030-01-15T10:00:00.000Z"
@@ -166619,6 +167588,51 @@
                               "type": "boolean",
                               "description": "Can Invite Admins validated by this operation's strict request contract."
                             },
+                            "accessRevision": {
+                              "type": "string",
+                              "pattern": "^[a-f0-9]{64}$",
+                              "description": "Access Revision validated by this operation's strict request contract."
+                            },
+                            "nextChangeAt": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "date-time",
+                              "description": "ISO 8601 timestamp interpreted and validated by the server."
+                            },
+                            "capabilityScopes": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "capability": {
+                                    "type": "string",
+                                    "description": "Capability validated by this operation's strict request contract."
+                                  },
+                                  "branchId": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "description": "Identifier of the branch resource; ownership is resolved server-side."
+                                  },
+                                  "scope": {
+                                    "type": "string",
+                                    "enum": [
+                                      "BRANCH",
+                                      "ASSIGNED"
+                                    ],
+                                    "description": "Scope validated by this operation's strict request contract."
+                                  }
+                                },
+                                "required": [
+                                  "capability",
+                                  "branchId",
+                                  "scope"
+                                ],
+                                "description": "Capability Scopes Item validated by this operation's strict request contract."
+                              },
+                              "description": "Capability Scopes validated by this operation's strict request contract."
+                            },
                             "serverTime": {
                               "type": "string",
                               "format": "date-time",
@@ -166636,6 +167650,9 @@
                             "permissions",
                             "canManageAssignments",
                             "canInviteAdmins",
+                            "accessRevision",
+                            "nextChangeAt",
+                            "capabilityScopes",
                             "serverTime"
                           ],
                           "description": "Access validated by this operation's strict request contract."
@@ -166982,6 +167999,15 @@
                       ],
                       "canManageAssignments": true,
                       "canInviteAdmins": true,
+                      "accessRevision": "synthetic-accessrevision",
+                      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+                      "capabilityScopes": [
+                        {
+                          "capability": "synthetic-capability",
+                          "branchId": "00000000-0000-4000-8000-000000000001",
+                          "scope": "BRANCH"
+                        }
+                      ],
                       "serverTime": "2030-01-15T10:00:00.000Z"
                     },
                     "generatedAt": "2030-01-15T10:00:00.000Z",
@@ -167594,6 +168620,51 @@
                               "type": "boolean",
                               "description": "Can Invite Admins validated by this operation's strict request contract."
                             },
+                            "accessRevision": {
+                              "type": "string",
+                              "pattern": "^[a-f0-9]{64}$",
+                              "description": "Access Revision validated by this operation's strict request contract."
+                            },
+                            "nextChangeAt": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "date-time",
+                              "description": "ISO 8601 timestamp interpreted and validated by the server."
+                            },
+                            "capabilityScopes": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "capability": {
+                                    "type": "string",
+                                    "description": "Capability validated by this operation's strict request contract."
+                                  },
+                                  "branchId": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "description": "Identifier of the branch resource; ownership is resolved server-side."
+                                  },
+                                  "scope": {
+                                    "type": "string",
+                                    "enum": [
+                                      "BRANCH",
+                                      "ASSIGNED"
+                                    ],
+                                    "description": "Scope validated by this operation's strict request contract."
+                                  }
+                                },
+                                "required": [
+                                  "capability",
+                                  "branchId",
+                                  "scope"
+                                ],
+                                "description": "Capability Scopes Item validated by this operation's strict request contract."
+                              },
+                              "description": "Capability Scopes validated by this operation's strict request contract."
+                            },
                             "serverTime": {
                               "type": "string",
                               "format": "date-time",
@@ -167611,6 +168682,9 @@
                             "permissions",
                             "canManageAssignments",
                             "canInviteAdmins",
+                            "accessRevision",
+                            "nextChangeAt",
+                            "capabilityScopes",
                             "serverTime"
                           ],
                           "description": "Access validated by this operation's strict request contract."
@@ -167717,6 +168791,15 @@
                       ],
                       "canManageAssignments": true,
                       "canInviteAdmins": true,
+                      "accessRevision": "synthetic-accessrevision",
+                      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+                      "capabilityScopes": [
+                        {
+                          "capability": "synthetic-capability",
+                          "branchId": "00000000-0000-4000-8000-000000000001",
+                          "scope": "BRANCH"
+                        }
+                      ],
                       "serverTime": "2030-01-15T10:00:00.000Z"
                     },
                     "generatedAt": "2030-01-15T10:00:00.000Z"
@@ -168247,6 +169330,51 @@
                               "type": "boolean",
                               "description": "Can Invite Admins validated by this operation's strict request contract."
                             },
+                            "accessRevision": {
+                              "type": "string",
+                              "pattern": "^[a-f0-9]{64}$",
+                              "description": "Access Revision validated by this operation's strict request contract."
+                            },
+                            "nextChangeAt": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "date-time",
+                              "description": "ISO 8601 timestamp interpreted and validated by the server."
+                            },
+                            "capabilityScopes": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "capability": {
+                                    "type": "string",
+                                    "description": "Capability validated by this operation's strict request contract."
+                                  },
+                                  "branchId": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "description": "Identifier of the branch resource; ownership is resolved server-side."
+                                  },
+                                  "scope": {
+                                    "type": "string",
+                                    "enum": [
+                                      "BRANCH",
+                                      "ASSIGNED"
+                                    ],
+                                    "description": "Scope validated by this operation's strict request contract."
+                                  }
+                                },
+                                "required": [
+                                  "capability",
+                                  "branchId",
+                                  "scope"
+                                ],
+                                "description": "Capability Scopes Item validated by this operation's strict request contract."
+                              },
+                              "description": "Capability Scopes validated by this operation's strict request contract."
+                            },
                             "serverTime": {
                               "type": "string",
                               "format": "date-time",
@@ -168264,6 +169392,9 @@
                             "permissions",
                             "canManageAssignments",
                             "canInviteAdmins",
+                            "accessRevision",
+                            "nextChangeAt",
+                            "capabilityScopes",
                             "serverTime"
                           ],
                           "description": "Access validated by this operation's strict request contract."
@@ -168386,6 +169517,15 @@
                       ],
                       "canManageAssignments": true,
                       "canInviteAdmins": true,
+                      "accessRevision": "synthetic-accessrevision",
+                      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+                      "capabilityScopes": [
+                        {
+                          "capability": "synthetic-capability",
+                          "branchId": "00000000-0000-4000-8000-000000000001",
+                          "scope": "BRANCH"
+                        }
+                      ],
                       "serverTime": "2030-01-15T10:00:00.000Z"
                     },
                     "generatedAt": "2030-01-15T10:00:00.000Z"
@@ -168969,6 +170109,51 @@
                               "type": "boolean",
                               "description": "Can Invite Admins validated by this operation's strict request contract."
                             },
+                            "accessRevision": {
+                              "type": "string",
+                              "pattern": "^[a-f0-9]{64}$",
+                              "description": "Access Revision validated by this operation's strict request contract."
+                            },
+                            "nextChangeAt": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "date-time",
+                              "description": "ISO 8601 timestamp interpreted and validated by the server."
+                            },
+                            "capabilityScopes": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "capability": {
+                                    "type": "string",
+                                    "description": "Capability validated by this operation's strict request contract."
+                                  },
+                                  "branchId": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "description": "Identifier of the branch resource; ownership is resolved server-side."
+                                  },
+                                  "scope": {
+                                    "type": "string",
+                                    "enum": [
+                                      "BRANCH",
+                                      "ASSIGNED"
+                                    ],
+                                    "description": "Scope validated by this operation's strict request contract."
+                                  }
+                                },
+                                "required": [
+                                  "capability",
+                                  "branchId",
+                                  "scope"
+                                ],
+                                "description": "Capability Scopes Item validated by this operation's strict request contract."
+                              },
+                              "description": "Capability Scopes validated by this operation's strict request contract."
+                            },
                             "serverTime": {
                               "type": "string",
                               "format": "date-time",
@@ -168986,6 +170171,9 @@
                             "permissions",
                             "canManageAssignments",
                             "canInviteAdmins",
+                            "accessRevision",
+                            "nextChangeAt",
+                            "capabilityScopes",
                             "serverTime"
                           ],
                           "description": "Access validated by this operation's strict request contract."
@@ -169144,6 +170332,15 @@
                       ],
                       "canManageAssignments": true,
                       "canInviteAdmins": true,
+                      "accessRevision": "synthetic-accessrevision",
+                      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+                      "capabilityScopes": [
+                        {
+                          "capability": "synthetic-capability",
+                          "branchId": "00000000-0000-4000-8000-000000000001",
+                          "scope": "BRANCH"
+                        }
+                      ],
                       "serverTime": "2030-01-15T10:00:00.000Z"
                     },
                     "generatedAt": "2030-01-15T10:00:00.000Z",
@@ -169719,6 +170916,51 @@
                               "type": "boolean",
                               "description": "Can Invite Admins validated by this operation's strict request contract."
                             },
+                            "accessRevision": {
+                              "type": "string",
+                              "pattern": "^[a-f0-9]{64}$",
+                              "description": "Access Revision validated by this operation's strict request contract."
+                            },
+                            "nextChangeAt": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "date-time",
+                              "description": "ISO 8601 timestamp interpreted and validated by the server."
+                            },
+                            "capabilityScopes": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "capability": {
+                                    "type": "string",
+                                    "description": "Capability validated by this operation's strict request contract."
+                                  },
+                                  "branchId": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "description": "Identifier of the branch resource; ownership is resolved server-side."
+                                  },
+                                  "scope": {
+                                    "type": "string",
+                                    "enum": [
+                                      "BRANCH",
+                                      "ASSIGNED"
+                                    ],
+                                    "description": "Scope validated by this operation's strict request contract."
+                                  }
+                                },
+                                "required": [
+                                  "capability",
+                                  "branchId",
+                                  "scope"
+                                ],
+                                "description": "Capability Scopes Item validated by this operation's strict request contract."
+                              },
+                              "description": "Capability Scopes validated by this operation's strict request contract."
+                            },
                             "serverTime": {
                               "type": "string",
                               "format": "date-time",
@@ -169736,6 +170978,9 @@
                             "permissions",
                             "canManageAssignments",
                             "canInviteAdmins",
+                            "accessRevision",
+                            "nextChangeAt",
+                            "capabilityScopes",
                             "serverTime"
                           ],
                           "description": "Access validated by this operation's strict request contract."
@@ -169838,6 +171083,15 @@
                       ],
                       "canManageAssignments": true,
                       "canInviteAdmins": true,
+                      "accessRevision": "synthetic-accessrevision",
+                      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+                      "capabilityScopes": [
+                        {
+                          "capability": "synthetic-capability",
+                          "branchId": "00000000-0000-4000-8000-000000000001",
+                          "scope": "BRANCH"
+                        }
+                      ],
                       "serverTime": "2030-01-15T10:00:00.000Z"
                     },
                     "generatedAt": "2030-01-15T10:00:00.000Z"
@@ -170346,6 +171600,51 @@
                               "type": "boolean",
                               "description": "Can Invite Admins validated by this operation's strict request contract."
                             },
+                            "accessRevision": {
+                              "type": "string",
+                              "pattern": "^[a-f0-9]{64}$",
+                              "description": "Access Revision validated by this operation's strict request contract."
+                            },
+                            "nextChangeAt": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "date-time",
+                              "description": "ISO 8601 timestamp interpreted and validated by the server."
+                            },
+                            "capabilityScopes": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "capability": {
+                                    "type": "string",
+                                    "description": "Capability validated by this operation's strict request contract."
+                                  },
+                                  "branchId": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "description": "Identifier of the branch resource; ownership is resolved server-side."
+                                  },
+                                  "scope": {
+                                    "type": "string",
+                                    "enum": [
+                                      "BRANCH",
+                                      "ASSIGNED"
+                                    ],
+                                    "description": "Scope validated by this operation's strict request contract."
+                                  }
+                                },
+                                "required": [
+                                  "capability",
+                                  "branchId",
+                                  "scope"
+                                ],
+                                "description": "Capability Scopes Item validated by this operation's strict request contract."
+                              },
+                              "description": "Capability Scopes validated by this operation's strict request contract."
+                            },
                             "serverTime": {
                               "type": "string",
                               "format": "date-time",
@@ -170363,6 +171662,9 @@
                             "permissions",
                             "canManageAssignments",
                             "canInviteAdmins",
+                            "accessRevision",
+                            "nextChangeAt",
+                            "capabilityScopes",
                             "serverTime"
                           ],
                           "description": "Access validated by this operation's strict request contract."
@@ -170476,6 +171778,15 @@
                       ],
                       "canManageAssignments": true,
                       "canInviteAdmins": true,
+                      "accessRevision": "synthetic-accessrevision",
+                      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+                      "capabilityScopes": [
+                        {
+                          "capability": "synthetic-capability",
+                          "branchId": "00000000-0000-4000-8000-000000000001",
+                          "scope": "BRANCH"
+                        }
+                      ],
                       "serverTime": "2030-01-15T10:00:00.000Z"
                     },
                     "generatedAt": "2030-01-15T10:00:00.000Z"

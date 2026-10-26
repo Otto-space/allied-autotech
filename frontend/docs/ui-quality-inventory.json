@@ -1909,7 +1909,7 @@
     },
     {
       "source": "app/components/workforce-workspace.tsx",
-      "nativeButtons": 7,
+      "nativeButtons": 1,
       "nativeAnchors": 0,
       "textLinkButtons": 0,
       "review": "source census; semantics and utility duplication require per-consumer review"
@@ -6913,7 +6913,7 @@
     },
     {
       "source": "app/components/workforce-workspace.tsx",
-      "sourceSignals": ["nativeButton", "form", "nativeSelect", "feedback"],
+      "sourceSignals": ["nativeButton", "form", "feedback"],
       "review": "not independently rendered unless recorded in register"
     },
     {

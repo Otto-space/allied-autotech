@@ -53,7 +53,7 @@ const rowSchema = z.object({
     .min(1)
     .max(4),
 });
-const accessSchema = workforceAccessSchema.extend({ managed: z.literal(true) });
+const accessSchema = workforceAccessSchema.safeExtend({ managed: z.literal(true) });
 const detailSchema = rowSchema.extend({
   updatedAt: z.iso.datetime(),
   expiresAt: z.iso.datetime().nullable(),

@@ -84,7 +84,7 @@ export function parseScopedWorkforceBookings(value: unknown) {
       items: z.array(workforceBookingSchema).max(25),
       nextCursor: z.uuid().optional(),
       generatedAt: z.iso.datetime(),
-      access: workforceAccessSchema.extend({ managed: z.literal(true) }),
+      access: workforceAccessSchema.safeExtend({ managed: z.literal(true) }),
     })
     .parse(value);
   if (

@@ -119051,6 +119051,15 @@ export interface operations {
                      *           ],
                      *           "canManageAssignments": true,
                      *           "canInviteAdmins": true,
+                     *           "accessRevision": "synthetic-accessrevision",
+                     *           "nextChangeAt": "2030-01-15T10:00:00.000Z",
+                     *           "capabilityScopes": [
+                     *             {
+                     *               "capability": "synthetic-capability",
+                     *               "branchId": "00000000-0000-4000-8000-000000000001",
+                     *               "scope": "BRANCH"
+                     *             }
+                     *           ],
                      *           "serverTime": "2030-01-15T10:00:00.000Z"
                      *         },
                      *         "jobId": "00000000-0000-4000-8000-000000000001",
@@ -119189,6 +119198,28 @@ export interface operations {
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
                                 canInviteAdmins: boolean;
+                                /** @description Access Revision validated by this operation's strict request contract. */
+                                accessRevision: string;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                nextChangeAt: string | null;
+                                /** @description Capability Scopes validated by this operation's strict request contract. */
+                                capabilityScopes: {
+                                    /** @description Capability validated by this operation's strict request contract. */
+                                    capability: string;
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the branch resource; ownership is resolved server-side.
+                                     */
+                                    branchId: string;
+                                    /**
+                                     * @description Scope validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    scope: "BRANCH" | "ASSIGNED";
+                                }[];
                                 /**
                                  * Format: date-time
                                  * @description ISO 8601 timestamp interpreted and validated by the server.
@@ -119435,6 +119466,15 @@ export interface operations {
                      *           ],
                      *           "canManageAssignments": true,
                      *           "canInviteAdmins": true,
+                     *           "accessRevision": "synthetic-accessrevision",
+                     *           "nextChangeAt": "2030-01-15T10:00:00.000Z",
+                     *           "capabilityScopes": [
+                     *             {
+                     *               "capability": "synthetic-capability",
+                     *               "branchId": "00000000-0000-4000-8000-000000000001",
+                     *               "scope": "BRANCH"
+                     *             }
+                     *           ],
                      *           "serverTime": "2030-01-15T10:00:00.000Z"
                      *         },
                      *         "enquiryId": "00000000-0000-4000-8000-000000000001",
@@ -119573,6 +119613,28 @@ export interface operations {
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
                                 canInviteAdmins: boolean;
+                                /** @description Access Revision validated by this operation's strict request contract. */
+                                accessRevision: string;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                nextChangeAt: string | null;
+                                /** @description Capability Scopes validated by this operation's strict request contract. */
+                                capabilityScopes: {
+                                    /** @description Capability validated by this operation's strict request contract. */
+                                    capability: string;
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the branch resource; ownership is resolved server-side.
+                                     */
+                                    branchId: string;
+                                    /**
+                                     * @description Scope validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    scope: "BRANCH" | "ASSIGNED";
+                                }[];
                                 /**
                                  * Format: date-time
                                  * @description ISO 8601 timestamp interpreted and validated by the server.
@@ -119826,6 +119888,15 @@ export interface operations {
                      *           ],
                      *           "canManageAssignments": true,
                      *           "canInviteAdmins": true,
+                     *           "accessRevision": "synthetic-accessrevision",
+                     *           "nextChangeAt": "2030-01-15T10:00:00.000Z",
+                     *           "capabilityScopes": [
+                     *             {
+                     *               "capability": "synthetic-capability",
+                     *               "branchId": "00000000-0000-4000-8000-000000000001",
+                     *               "scope": "BRANCH"
+                     *             }
+                     *           ],
                      *           "serverTime": "2030-01-15T10:00:00.000Z"
                      *         },
                      *         "action": "reply",
@@ -119973,6 +120044,28 @@ export interface operations {
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
                                 canInviteAdmins: boolean;
+                                /** @description Access Revision validated by this operation's strict request contract. */
+                                accessRevision: string;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                nextChangeAt: string | null;
+                                /** @description Capability Scopes validated by this operation's strict request contract. */
+                                capabilityScopes: {
+                                    /** @description Capability validated by this operation's strict request contract. */
+                                    capability: string;
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the branch resource; ownership is resolved server-side.
+                                     */
+                                    branchId: string;
+                                    /**
+                                     * @description Scope validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    scope: "BRANCH" | "ASSIGNED";
+                                }[];
                                 /**
                                  * Format: date-time
                                  * @description ISO 8601 timestamp interpreted and validated by the server.
@@ -120258,6 +120351,15 @@ export interface operations {
                      *           ],
                      *           "canManageAssignments": true,
                      *           "canInviteAdmins": true,
+                     *           "accessRevision": "synthetic-accessrevision",
+                     *           "nextChangeAt": "2030-01-15T10:00:00.000Z",
+                     *           "capabilityScopes": [
+                     *             {
+                     *               "capability": "synthetic-capability",
+                     *               "branchId": "00000000-0000-4000-8000-000000000001",
+                     *               "scope": "BRANCH"
+                     *             }
+                     *           ],
                      *           "serverTime": "2030-01-15T10:00:00.000Z"
                      *         },
                      *         "action": "assignment",
@@ -120399,6 +120501,28 @@ export interface operations {
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
                                 canInviteAdmins: boolean;
+                                /** @description Access Revision validated by this operation's strict request contract. */
+                                accessRevision: string;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                nextChangeAt: string | null;
+                                /** @description Capability Scopes validated by this operation's strict request contract. */
+                                capabilityScopes: {
+                                    /** @description Capability validated by this operation's strict request contract. */
+                                    capability: string;
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the branch resource; ownership is resolved server-side.
+                                     */
+                                    branchId: string;
+                                    /**
+                                     * @description Scope validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    scope: "BRANCH" | "ASSIGNED";
+                                }[];
                                 /**
                                  * Format: date-time
                                  * @description ISO 8601 timestamp interpreted and validated by the server.
@@ -120901,6 +121025,15 @@ export interface operations {
                      *         ],
                      *         "canManageAssignments": true,
                      *         "canInviteAdmins": true,
+                     *         "accessRevision": "synthetic-accessrevision",
+                     *         "nextChangeAt": "2030-01-15T10:00:00.000Z",
+                     *         "capabilityScopes": [
+                     *           {
+                     *             "capability": "synthetic-capability",
+                     *             "branchId": "00000000-0000-4000-8000-000000000001",
+                     *             "scope": "BRANCH"
+                     *           }
+                     *         ],
                      *         "serverTime": "2030-01-15T10:00:00.000Z"
                      *       },
                      *       "meta": {
@@ -121011,6 +121144,28 @@ export interface operations {
                             canManageAssignments: boolean;
                             /** @description Can Invite Admins validated by this operation's strict request contract. */
                             canInviteAdmins: boolean;
+                            /** @description Access Revision validated by this operation's strict request contract. */
+                            accessRevision: string;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            nextChangeAt: string | null;
+                            /** @description Capability Scopes validated by this operation's strict request contract. */
+                            capabilityScopes: {
+                                /** @description Capability validated by this operation's strict request contract. */
+                                capability: string;
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the branch resource; ownership is resolved server-side.
+                                 */
+                                branchId: string;
+                                /**
+                                 * @description Scope validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                scope: "BRANCH" | "ASSIGNED";
+                            }[];
                             /**
                              * Format: date-time
                              * @description ISO 8601 timestamp interpreted and validated by the server.
@@ -121215,6 +121370,15 @@ export interface operations {
                      *           ],
                      *           "canManageAssignments": true,
                      *           "canInviteAdmins": true,
+                     *           "accessRevision": "synthetic-accessrevision",
+                     *           "nextChangeAt": "2030-01-15T10:00:00.000Z",
+                     *           "capabilityScopes": [
+                     *             {
+                     *               "capability": "synthetic-capability",
+                     *               "branchId": "00000000-0000-4000-8000-000000000001",
+                     *               "scope": "BRANCH"
+                     *             }
+                     *           ],
                      *           "serverTime": "2030-01-15T10:00:00.000Z"
                      *         },
                      *         "branches": [
@@ -121343,6 +121507,28 @@ export interface operations {
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
                                 canInviteAdmins: boolean;
+                                /** @description Access Revision validated by this operation's strict request contract. */
+                                accessRevision: string;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                nextChangeAt: string | null;
+                                /** @description Capability Scopes validated by this operation's strict request contract. */
+                                capabilityScopes: {
+                                    /** @description Capability validated by this operation's strict request contract. */
+                                    capability: string;
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the branch resource; ownership is resolved server-side.
+                                     */
+                                    branchId: string;
+                                    /**
+                                     * @description Scope validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    scope: "BRANCH" | "ASSIGNED";
+                                }[];
                                 /**
                                  * Format: date-time
                                  * @description ISO 8601 timestamp interpreted and validated by the server.
@@ -121612,6 +121798,15 @@ export interface operations {
                      *           ],
                      *           "canManageAssignments": true,
                      *           "canInviteAdmins": true,
+                     *           "accessRevision": "synthetic-accessrevision",
+                     *           "nextChangeAt": "2030-01-15T10:00:00.000Z",
+                     *           "capabilityScopes": [
+                     *             {
+                     *               "capability": "synthetic-capability",
+                     *               "branchId": "00000000-0000-4000-8000-000000000001",
+                     *               "scope": "BRANCH"
+                     *             }
+                     *           ],
                      *           "serverTime": "2030-01-15T10:00:00.000Z"
                      *         }
                      *       },
@@ -121810,6 +122005,28 @@ export interface operations {
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
                                 canInviteAdmins: boolean;
+                                /** @description Access Revision validated by this operation's strict request contract. */
+                                accessRevision: string;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                nextChangeAt: string | null;
+                                /** @description Capability Scopes validated by this operation's strict request contract. */
+                                capabilityScopes: {
+                                    /** @description Capability validated by this operation's strict request contract. */
+                                    capability: string;
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the branch resource; ownership is resolved server-side.
+                                     */
+                                    branchId: string;
+                                    /**
+                                     * @description Scope validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    scope: "BRANCH" | "ASSIGNED";
+                                }[];
                                 /**
                                  * Format: date-time
                                  * @description ISO 8601 timestamp interpreted and validated by the server.
@@ -122062,6 +122279,15 @@ export interface operations {
                      *           ],
                      *           "canManageAssignments": true,
                      *           "canInviteAdmins": true,
+                     *           "accessRevision": "synthetic-accessrevision",
+                     *           "nextChangeAt": "2030-01-15T10:00:00.000Z",
+                     *           "capabilityScopes": [
+                     *             {
+                     *               "capability": "synthetic-capability",
+                     *               "branchId": "00000000-0000-4000-8000-000000000001",
+                     *               "scope": "BRANCH"
+                     *             }
+                     *           ],
                      *           "serverTime": "2030-01-15T10:00:00.000Z"
                      *         },
                      *         "generatedAt": "2030-01-15T10:00:00.000Z"
@@ -122238,6 +122464,28 @@ export interface operations {
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
                                 canInviteAdmins: boolean;
+                                /** @description Access Revision validated by this operation's strict request contract. */
+                                accessRevision: string;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                nextChangeAt: string | null;
+                                /** @description Capability Scopes validated by this operation's strict request contract. */
+                                capabilityScopes: {
+                                    /** @description Capability validated by this operation's strict request contract. */
+                                    capability: string;
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the branch resource; ownership is resolved server-side.
+                                     */
+                                    branchId: string;
+                                    /**
+                                     * @description Scope validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    scope: "BRANCH" | "ASSIGNED";
+                                }[];
                                 /**
                                  * Format: date-time
                                  * @description ISO 8601 timestamp interpreted and validated by the server.
@@ -122482,6 +122730,15 @@ export interface operations {
                      *           ],
                      *           "canManageAssignments": true,
                      *           "canInviteAdmins": true,
+                     *           "accessRevision": "synthetic-accessrevision",
+                     *           "nextChangeAt": "2030-01-15T10:00:00.000Z",
+                     *           "capabilityScopes": [
+                     *             {
+                     *               "capability": "synthetic-capability",
+                     *               "branchId": "00000000-0000-4000-8000-000000000001",
+                     *               "scope": "BRANCH"
+                     *             }
+                     *           ],
                      *           "serverTime": "2030-01-15T10:00:00.000Z"
                      *         },
                      *         "branch": {
@@ -122681,6 +122938,28 @@ export interface operations {
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
                                 canInviteAdmins: boolean;
+                                /** @description Access Revision validated by this operation's strict request contract. */
+                                accessRevision: string;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                nextChangeAt: string | null;
+                                /** @description Capability Scopes validated by this operation's strict request contract. */
+                                capabilityScopes: {
+                                    /** @description Capability validated by this operation's strict request contract. */
+                                    capability: string;
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the branch resource; ownership is resolved server-side.
+                                     */
+                                    branchId: string;
+                                    /**
+                                     * @description Scope validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    scope: "BRANCH" | "ASSIGNED";
+                                }[];
                                 /**
                                  * Format: date-time
                                  * @description ISO 8601 timestamp interpreted and validated by the server.
@@ -122935,6 +123214,15 @@ export interface operations {
                      *           ],
                      *           "canManageAssignments": true,
                      *           "canInviteAdmins": true,
+                     *           "accessRevision": "synthetic-accessrevision",
+                     *           "nextChangeAt": "2030-01-15T10:00:00.000Z",
+                     *           "capabilityScopes": [
+                     *             {
+                     *               "capability": "synthetic-capability",
+                     *               "branchId": "00000000-0000-4000-8000-000000000001",
+                     *               "scope": "BRANCH"
+                     *             }
+                     *           ],
                      *           "serverTime": "2030-01-15T10:00:00.000Z"
                      *         },
                      *         "generatedAt": "2030-01-15T10:00:00.000Z"
@@ -123103,6 +123391,28 @@ export interface operations {
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
                                 canInviteAdmins: boolean;
+                                /** @description Access Revision validated by this operation's strict request contract. */
+                                accessRevision: string;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                nextChangeAt: string | null;
+                                /** @description Capability Scopes validated by this operation's strict request contract. */
+                                capabilityScopes: {
+                                    /** @description Capability validated by this operation's strict request contract. */
+                                    capability: string;
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the branch resource; ownership is resolved server-side.
+                                     */
+                                    branchId: string;
+                                    /**
+                                     * @description Scope validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    scope: "BRANCH" | "ASSIGNED";
+                                }[];
                                 /**
                                  * Format: date-time
                                  * @description ISO 8601 timestamp interpreted and validated by the server.
@@ -123353,6 +123663,15 @@ export interface operations {
                      *           ],
                      *           "canManageAssignments": true,
                      *           "canInviteAdmins": true,
+                     *           "accessRevision": "synthetic-accessrevision",
+                     *           "nextChangeAt": "2030-01-15T10:00:00.000Z",
+                     *           "capabilityScopes": [
+                     *             {
+                     *               "capability": "synthetic-capability",
+                     *               "branchId": "00000000-0000-4000-8000-000000000001",
+                     *               "scope": "BRANCH"
+                     *             }
+                     *           ],
                      *           "serverTime": "2030-01-15T10:00:00.000Z"
                      *         },
                      *         "generatedAt": "2030-01-15T10:00:00.000Z",
@@ -123575,6 +123894,28 @@ export interface operations {
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
                                 canInviteAdmins: boolean;
+                                /** @description Access Revision validated by this operation's strict request contract. */
+                                accessRevision: string;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                nextChangeAt: string | null;
+                                /** @description Capability Scopes validated by this operation's strict request contract. */
+                                capabilityScopes: {
+                                    /** @description Capability validated by this operation's strict request contract. */
+                                    capability: string;
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the branch resource; ownership is resolved server-side.
+                                     */
+                                    branchId: string;
+                                    /**
+                                     * @description Scope validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    scope: "BRANCH" | "ASSIGNED";
+                                }[];
                                 /**
                                  * Format: date-time
                                  * @description ISO 8601 timestamp interpreted and validated by the server.
@@ -123952,6 +124293,15 @@ export interface operations {
                      *           ],
                      *           "canManageAssignments": true,
                      *           "canInviteAdmins": true,
+                     *           "accessRevision": "synthetic-accessrevision",
+                     *           "nextChangeAt": "2030-01-15T10:00:00.000Z",
+                     *           "capabilityScopes": [
+                     *             {
+                     *               "capability": "synthetic-capability",
+                     *               "branchId": "00000000-0000-4000-8000-000000000001",
+                     *               "scope": "BRANCH"
+                     *             }
+                     *           ],
                      *           "serverTime": "2030-01-15T10:00:00.000Z"
                      *         },
                      *         "branch": {
@@ -124151,6 +124501,28 @@ export interface operations {
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
                                 canInviteAdmins: boolean;
+                                /** @description Access Revision validated by this operation's strict request contract. */
+                                accessRevision: string;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                nextChangeAt: string | null;
+                                /** @description Capability Scopes validated by this operation's strict request contract. */
+                                capabilityScopes: {
+                                    /** @description Capability validated by this operation's strict request contract. */
+                                    capability: string;
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the branch resource; ownership is resolved server-side.
+                                     */
+                                    branchId: string;
+                                    /**
+                                     * @description Scope validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    scope: "BRANCH" | "ASSIGNED";
+                                }[];
                                 /**
                                  * Format: date-time
                                  * @description ISO 8601 timestamp interpreted and validated by the server.
@@ -124433,6 +124805,15 @@ export interface operations {
                      *           ],
                      *           "canManageAssignments": true,
                      *           "canInviteAdmins": true,
+                     *           "accessRevision": "synthetic-accessrevision",
+                     *           "nextChangeAt": "2030-01-15T10:00:00.000Z",
+                     *           "capabilityScopes": [
+                     *             {
+                     *               "capability": "synthetic-capability",
+                     *               "branchId": "00000000-0000-4000-8000-000000000001",
+                     *               "scope": "BRANCH"
+                     *             }
+                     *           ],
                      *           "serverTime": "2030-01-15T10:00:00.000Z"
                      *         },
                      *         "branch": {
@@ -124632,6 +125013,28 @@ export interface operations {
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
                                 canInviteAdmins: boolean;
+                                /** @description Access Revision validated by this operation's strict request contract. */
+                                accessRevision: string;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                nextChangeAt: string | null;
+                                /** @description Capability Scopes validated by this operation's strict request contract. */
+                                capabilityScopes: {
+                                    /** @description Capability validated by this operation's strict request contract. */
+                                    capability: string;
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the branch resource; ownership is resolved server-side.
+                                     */
+                                    branchId: string;
+                                    /**
+                                     * @description Scope validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    scope: "BRANCH" | "ASSIGNED";
+                                }[];
                                 /**
                                  * Format: date-time
                                  * @description ISO 8601 timestamp interpreted and validated by the server.
@@ -124920,6 +125323,15 @@ export interface operations {
                      *           ],
                      *           "canManageAssignments": true,
                      *           "canInviteAdmins": true,
+                     *           "accessRevision": "synthetic-accessrevision",
+                     *           "nextChangeAt": "2030-01-15T10:00:00.000Z",
+                     *           "capabilityScopes": [
+                     *             {
+                     *               "capability": "synthetic-capability",
+                     *               "branchId": "00000000-0000-4000-8000-000000000001",
+                     *               "scope": "BRANCH"
+                     *             }
+                     *           ],
                      *           "serverTime": "2030-01-15T10:00:00.000Z"
                      *         },
                      *         "branch": {
@@ -125119,6 +125531,28 @@ export interface operations {
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
                                 canInviteAdmins: boolean;
+                                /** @description Access Revision validated by this operation's strict request contract. */
+                                accessRevision: string;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                nextChangeAt: string | null;
+                                /** @description Capability Scopes validated by this operation's strict request contract. */
+                                capabilityScopes: {
+                                    /** @description Capability validated by this operation's strict request contract. */
+                                    capability: string;
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the branch resource; ownership is resolved server-side.
+                                     */
+                                    branchId: string;
+                                    /**
+                                     * @description Scope validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    scope: "BRANCH" | "ASSIGNED";
+                                }[];
                                 /**
                                  * Format: date-time
                                  * @description ISO 8601 timestamp interpreted and validated by the server.
@@ -125395,6 +125829,15 @@ export interface operations {
                      *           ],
                      *           "canManageAssignments": true,
                      *           "canInviteAdmins": true,
+                     *           "accessRevision": "synthetic-accessrevision",
+                     *           "nextChangeAt": "2030-01-15T10:00:00.000Z",
+                     *           "capabilityScopes": [
+                     *             {
+                     *               "capability": "synthetic-capability",
+                     *               "branchId": "00000000-0000-4000-8000-000000000001",
+                     *               "scope": "BRANCH"
+                     *             }
+                     *           ],
                      *           "serverTime": "2030-01-15T10:00:00.000Z"
                      *         },
                      *         "generatedAt": "2030-01-15T10:00:00.000Z"
@@ -125593,6 +126036,28 @@ export interface operations {
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
                                 canInviteAdmins: boolean;
+                                /** @description Access Revision validated by this operation's strict request contract. */
+                                accessRevision: string;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                nextChangeAt: string | null;
+                                /** @description Capability Scopes validated by this operation's strict request contract. */
+                                capabilityScopes: {
+                                    /** @description Capability validated by this operation's strict request contract. */
+                                    capability: string;
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the branch resource; ownership is resolved server-side.
+                                     */
+                                    branchId: string;
+                                    /**
+                                     * @description Scope validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    scope: "BRANCH" | "ASSIGNED";
+                                }[];
                                 /**
                                  * Format: date-time
                                  * @description ISO 8601 timestamp interpreted and validated by the server.
@@ -125839,6 +126304,15 @@ export interface operations {
                      *           ],
                      *           "canManageAssignments": true,
                      *           "canInviteAdmins": true,
+                     *           "accessRevision": "synthetic-accessrevision",
+                     *           "nextChangeAt": "2030-01-15T10:00:00.000Z",
+                     *           "capabilityScopes": [
+                     *             {
+                     *               "capability": "synthetic-capability",
+                     *               "branchId": "00000000-0000-4000-8000-000000000001",
+                     *               "scope": "BRANCH"
+                     *             }
+                     *           ],
                      *           "serverTime": "2030-01-15T10:00:00.000Z"
                      *         },
                      *         "action": "reply",
@@ -125986,6 +126460,28 @@ export interface operations {
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
                                 canInviteAdmins: boolean;
+                                /** @description Access Revision validated by this operation's strict request contract. */
+                                accessRevision: string;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                nextChangeAt: string | null;
+                                /** @description Capability Scopes validated by this operation's strict request contract. */
+                                capabilityScopes: {
+                                    /** @description Capability validated by this operation's strict request contract. */
+                                    capability: string;
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the branch resource; ownership is resolved server-side.
+                                     */
+                                    branchId: string;
+                                    /**
+                                     * @description Scope validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    scope: "BRANCH" | "ASSIGNED";
+                                }[];
                                 /**
                                  * Format: date-time
                                  * @description ISO 8601 timestamp interpreted and validated by the server.
@@ -126277,6 +126773,15 @@ export interface operations {
                      *           ],
                      *           "canManageAssignments": true,
                      *           "canInviteAdmins": true,
+                     *           "accessRevision": "synthetic-accessrevision",
+                     *           "nextChangeAt": "2030-01-15T10:00:00.000Z",
+                     *           "capabilityScopes": [
+                     *             {
+                     *               "capability": "synthetic-capability",
+                     *               "branchId": "00000000-0000-4000-8000-000000000001",
+                     *               "scope": "BRANCH"
+                     *             }
+                     *           ],
                      *           "serverTime": "2030-01-15T10:00:00.000Z"
                      *         },
                      *         "generatedAt": "2030-01-15T10:00:00.000Z"
@@ -126453,6 +126958,28 @@ export interface operations {
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
                                 canInviteAdmins: boolean;
+                                /** @description Access Revision validated by this operation's strict request contract. */
+                                accessRevision: string;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                nextChangeAt: string | null;
+                                /** @description Capability Scopes validated by this operation's strict request contract. */
+                                capabilityScopes: {
+                                    /** @description Capability validated by this operation's strict request contract. */
+                                    capability: string;
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the branch resource; ownership is resolved server-side.
+                                     */
+                                    branchId: string;
+                                    /**
+                                     * @description Scope validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    scope: "BRANCH" | "ASSIGNED";
+                                }[];
                                 /**
                                  * Format: date-time
                                  * @description ISO 8601 timestamp interpreted and validated by the server.
@@ -126702,6 +127229,15 @@ export interface operations {
                      *           ],
                      *           "canManageAssignments": true,
                      *           "canInviteAdmins": true,
+                     *           "accessRevision": "synthetic-accessrevision",
+                     *           "nextChangeAt": "2030-01-15T10:00:00.000Z",
+                     *           "capabilityScopes": [
+                     *             {
+                     *               "capability": "synthetic-capability",
+                     *               "branchId": "00000000-0000-4000-8000-000000000001",
+                     *               "scope": "BRANCH"
+                     *             }
+                     *           ],
                      *           "serverTime": "2030-01-15T10:00:00.000Z"
                      *         },
                      *         "generatedAt": "2030-01-15T10:00:00.000Z",
@@ -126929,6 +127465,28 @@ export interface operations {
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
                                 canInviteAdmins: boolean;
+                                /** @description Access Revision validated by this operation's strict request contract. */
+                                accessRevision: string;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                nextChangeAt: string | null;
+                                /** @description Capability Scopes validated by this operation's strict request contract. */
+                                capabilityScopes: {
+                                    /** @description Capability validated by this operation's strict request contract. */
+                                    capability: string;
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the branch resource; ownership is resolved server-side.
+                                     */
+                                    branchId: string;
+                                    /**
+                                     * @description Scope validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    scope: "BRANCH" | "ASSIGNED";
+                                }[];
                                 /**
                                  * Format: date-time
                                  * @description ISO 8601 timestamp interpreted and validated by the server.
@@ -127293,6 +127851,15 @@ export interface operations {
                      *           ],
                      *           "canManageAssignments": true,
                      *           "canInviteAdmins": true,
+                     *           "accessRevision": "synthetic-accessrevision",
+                     *           "nextChangeAt": "2030-01-15T10:00:00.000Z",
+                     *           "capabilityScopes": [
+                     *             {
+                     *               "capability": "synthetic-capability",
+                     *               "branchId": "00000000-0000-4000-8000-000000000001",
+                     *               "scope": "BRANCH"
+                     *             }
+                     *           ],
                      *           "serverTime": "2030-01-15T10:00:00.000Z"
                      *         },
                      *         "generatedAt": "2030-01-15T10:00:00.000Z"
@@ -127473,6 +128040,28 @@ export interface operations {
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
                                 canInviteAdmins: boolean;
+                                /** @description Access Revision validated by this operation's strict request contract. */
+                                accessRevision: string;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                nextChangeAt: string | null;
+                                /** @description Capability Scopes validated by this operation's strict request contract. */
+                                capabilityScopes: {
+                                    /** @description Capability validated by this operation's strict request contract. */
+                                    capability: string;
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the branch resource; ownership is resolved server-side.
+                                     */
+                                    branchId: string;
+                                    /**
+                                     * @description Scope validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    scope: "BRANCH" | "ASSIGNED";
+                                }[];
                                 /**
                                  * Format: date-time
                                  * @description ISO 8601 timestamp interpreted and validated by the server.
@@ -127714,6 +128303,15 @@ export interface operations {
                      *           ],
                      *           "canManageAssignments": true,
                      *           "canInviteAdmins": true,
+                     *           "accessRevision": "synthetic-accessrevision",
+                     *           "nextChangeAt": "2030-01-15T10:00:00.000Z",
+                     *           "capabilityScopes": [
+                     *             {
+                     *               "capability": "synthetic-capability",
+                     *               "branchId": "00000000-0000-4000-8000-000000000001",
+                     *               "scope": "BRANCH"
+                     *             }
+                     *           ],
                      *           "serverTime": "2030-01-15T10:00:00.000Z"
                      *         },
                      *         "generatedAt": "2030-01-15T10:00:00.000Z"
@@ -127911,6 +128509,28 @@ export interface operations {
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
                                 canInviteAdmins: boolean;
+                                /** @description Access Revision validated by this operation's strict request contract. */
+                                accessRevision: string;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                nextChangeAt: string | null;
+                                /** @description Capability Scopes validated by this operation's strict request contract. */
+                                capabilityScopes: {
+                                    /** @description Capability validated by this operation's strict request contract. */
+                                    capability: string;
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the branch resource; ownership is resolved server-side.
+                                     */
+                                    branchId: string;
+                                    /**
+                                     * @description Scope validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    scope: "BRANCH" | "ASSIGNED";
+                                }[];
                                 /**
                                  * Format: date-time
                                  * @description ISO 8601 timestamp interpreted and validated by the server.
@@ -128179,6 +128799,15 @@ export interface operations {
                      *           ],
                      *           "canManageAssignments": true,
                      *           "canInviteAdmins": true,
+                     *           "accessRevision": "synthetic-accessrevision",
+                     *           "nextChangeAt": "2030-01-15T10:00:00.000Z",
+                     *           "capabilityScopes": [
+                     *             {
+                     *               "capability": "synthetic-capability",
+                     *               "branchId": "00000000-0000-4000-8000-000000000001",
+                     *               "scope": "BRANCH"
+                     *             }
+                     *           ],
                      *           "serverTime": "2030-01-15T10:00:00.000Z"
                      *         },
                      *         "generatedAt": "2030-01-15T10:00:00.000Z",
@@ -128381,6 +129010,28 @@ export interface operations {
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
                                 canInviteAdmins: boolean;
+                                /** @description Access Revision validated by this operation's strict request contract. */
+                                accessRevision: string;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                nextChangeAt: string | null;
+                                /** @description Capability Scopes validated by this operation's strict request contract. */
+                                capabilityScopes: {
+                                    /** @description Capability validated by this operation's strict request contract. */
+                                    capability: string;
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the branch resource; ownership is resolved server-side.
+                                     */
+                                    branchId: string;
+                                    /**
+                                     * @description Scope validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    scope: "BRANCH" | "ASSIGNED";
+                                }[];
                                 /**
                                  * Format: date-time
                                  * @description ISO 8601 timestamp interpreted and validated by the server.
@@ -128657,6 +129308,15 @@ export interface operations {
                      *           ],
                      *           "canManageAssignments": true,
                      *           "canInviteAdmins": true,
+                     *           "accessRevision": "synthetic-accessrevision",
+                     *           "nextChangeAt": "2030-01-15T10:00:00.000Z",
+                     *           "capabilityScopes": [
+                     *             {
+                     *               "capability": "synthetic-capability",
+                     *               "branchId": "00000000-0000-4000-8000-000000000001",
+                     *               "scope": "BRANCH"
+                     *             }
+                     *           ],
                      *           "serverTime": "2030-01-15T10:00:00.000Z"
                      *         },
                      *         "generatedAt": "2030-01-15T10:00:00.000Z"
@@ -128830,6 +129490,28 @@ export interface operations {
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
                                 canInviteAdmins: boolean;
+                                /** @description Access Revision validated by this operation's strict request contract. */
+                                accessRevision: string;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                nextChangeAt: string | null;
+                                /** @description Capability Scopes validated by this operation's strict request contract. */
+                                capabilityScopes: {
+                                    /** @description Capability validated by this operation's strict request contract. */
+                                    capability: string;
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the branch resource; ownership is resolved server-side.
+                                     */
+                                    branchId: string;
+                                    /**
+                                     * @description Scope validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    scope: "BRANCH" | "ASSIGNED";
+                                }[];
                                 /**
                                  * Format: date-time
                                  * @description ISO 8601 timestamp interpreted and validated by the server.
@@ -129066,6 +129748,15 @@ export interface operations {
                      *           ],
                      *           "canManageAssignments": true,
                      *           "canInviteAdmins": true,
+                     *           "accessRevision": "synthetic-accessrevision",
+                     *           "nextChangeAt": "2030-01-15T10:00:00.000Z",
+                     *           "capabilityScopes": [
+                     *             {
+                     *               "capability": "synthetic-capability",
+                     *               "branchId": "00000000-0000-4000-8000-000000000001",
+                     *               "scope": "BRANCH"
+                     *             }
+                     *           ],
                      *           "serverTime": "2030-01-15T10:00:00.000Z"
                      *         },
                      *         "generatedAt": "2030-01-15T10:00:00.000Z"
@@ -129251,6 +129942,28 @@ export interface operations {
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
                                 canInviteAdmins: boolean;
+                                /** @description Access Revision validated by this operation's strict request contract. */
+                                accessRevision: string;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                nextChangeAt: string | null;
+                                /** @description Capability Scopes validated by this operation's strict request contract. */
+                                capabilityScopes: {
+                                    /** @description Capability validated by this operation's strict request contract. */
+                                    capability: string;
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the branch resource; ownership is resolved server-side.
+                                     */
+                                    branchId: string;
+                                    /**
+                                     * @description Scope validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    scope: "BRANCH" | "ASSIGNED";
+                                }[];
                                 /**
                                  * Format: date-time
                                  * @description ISO 8601 timestamp interpreted and validated by the server.

@@ -343,7 +343,7 @@ export class IdentityService {
     });
     if (value === null) throw invalidAuthentication();
     const workforce =
-      value.user.role === "CUSTOMER"
+      value.user.role === "CUSTOMER" || value.user.role === "SUPER_ADMIN"
         ? null
         : await this.database.workforceAccess.findUnique({
             where: { userId },

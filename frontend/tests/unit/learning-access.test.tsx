@@ -25,39 +25,44 @@ afterEach(() => {
   sessionStorage.clear();
 });
 
-it("ignores a slow response after identity changes and clears only learning progress", async () => {
-  let finishOld: (value: Response) => void = () => {};
-  const fetcher = vi
-    .fn()
-    .mockImplementationOnce(
-      () =>
-        new Promise<Response>((resolve) => {
-          finishOld = resolve;
-        }),
-    )
-    .mockResolvedValue(response(catalogue("b")));
-  vi.stubGlobal("fetch", fetcher);
-  saveLearningProgress("a".repeat(64), {
-    id: "sample",
-    version: 1,
-    step: 0,
-    status: "paused",
-    lastActivity: 1,
-  });
-  sessionStorage.setItem("live-form-draft", "preserve");
-  const { result } = renderHook(() => useLearningCatalogue());
-  await waitFor(() => expect(fetcher).toHaveBeenCalledTimes(1));
-  act(() => window.dispatchEvent(new Event("aat:session-changed")));
-  await waitFor(() => expect(result.current.data?.accessKey).toBe("b".repeat(64)));
-  await act(async () => {
-    finishOld(response(catalogue("a")));
-  });
-  expect(result.current.data?.accessKey).toBe("b".repeat(64));
-  expect(
-    Object.keys(sessionStorage).filter((key) => key.startsWith("aat:learning-progress")),
-  ).toEqual([]);
-  expect(sessionStorage.getItem("live-form-draft")).toBe("preserve");
-});
+it.each(["aat:session-changed", "aat:workforce-access-changed"])(
+  "ignores a slow response after %s and clears only learning progress",
+  async (event) => {
+    let finishOld: (value: Response) => void = () => {};
+    const fetcher = vi
+      .fn()
+      .mockImplementationOnce(
+        () =>
+          new Promise<Response>((resolve) => {
+            finishOld = resolve;
+          }),
+      )
+      .mockResolvedValue(response(catalogue("b")));
+    vi.stubGlobal("fetch", fetcher);
+    saveLearningProgress("a".repeat(64), {
+      id: "sample",
+      version: 1,
+      step: 0,
+      status: "paused",
+      lastActivity: 1,
+    });
+    sessionStorage.setItem("live-form-draft", "preserve");
+    const { result } = renderHook(() => useLearningCatalogue());
+    await waitFor(() => expect(fetcher).toHaveBeenCalledTimes(1));
+    act(() => window.dispatchEvent(new Event(event)));
+    await waitFor(() => expect(result.current.data?.accessKey).toBe("b".repeat(64)));
+    await act(async () => {
+      finishOld(response(catalogue("a")));
+    });
+    expect(result.current.data?.accessKey).toBe("b".repeat(64));
+    expect(
+      Object.keys(sessionStorage).filter((key) =>
+        key.startsWith("aat:learning-progress"),
+      ),
+    ).toEqual([]);
+    expect(sessionStorage.getItem("live-form-draft")).toBe("preserve");
+  },
+);
 it("fails closed on malformed revalidation instead of retaining a prior catalogue", async () => {
   const fetcher = vi
     .fn()

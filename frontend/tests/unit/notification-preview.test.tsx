@@ -3,6 +3,7 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { beforeEach, afterEach, describe, expect, it, vi } from "vitest";
 import { NotificationPreview } from "@/app/components/notification-preview";
 import { apiRequest } from "@/lib/api/client";
+import { WORKFORCE_ACCESS_CHANGED } from "@/lib/workforce-invalidation";
 vi.mock("@/lib/api/client", () => ({ apiRequest: vi.fn() }));
 const item = {
   id: "b3000000-0000-4000-8000-000000000001",
@@ -27,6 +28,29 @@ beforeEach(() => {
 });
 afterEach(cleanup);
 describe("notification bell preview", () => {
+  it.each([false, true])(
+    "clears completed work previews while keeping customer-owned previews independent (customer=%s)",
+    async (customer) => {
+      const privateItem = {
+        ...item,
+        title: "Synthetic private case update",
+        message: "Synthetic case context",
+      };
+      vi.mocked(apiRequest).mockResolvedValue({
+        success: true,
+        message: "Fixture",
+        meta: { requestId: "fixture" },
+        data: { items: [privateItem] },
+      });
+      render(<NotificationPreview customer={customer} count={1} />);
+      fireEvent.click(screen.getByRole("button", { name: /Open notifications/ }));
+      expect(await screen.findByText(privateItem.title)).toBeTruthy();
+      fireEvent(window, new Event(WORKFORCE_ACCESS_CHANGED));
+      if (customer) expect(screen.getByText(privateItem.title)).toBeTruthy();
+      else await waitFor(() => expect(screen.queryByText(privateItem.title)).toBeNull());
+      expect(apiRequest).toHaveBeenCalledTimes(1);
+    },
+  );
   it("fetches only on opening, keeps the real global count and uses the correct role inbox without marking anything read", async () => {
     vi.mocked(apiRequest).mockResolvedValue({
       success: true,

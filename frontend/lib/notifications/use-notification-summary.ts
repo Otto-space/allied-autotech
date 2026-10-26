@@ -6,6 +6,7 @@ import {
   type NotificationSummary,
 } from "@/lib/api/notification-schemas";
 import type { SessionState } from "@/lib/api/types";
+import { WORKFORCE_ACCESS_CHANGED } from "../workforce-invalidation";
 
 const changed = "aat-notifications-changed";
 export function subscribeNotificationChanges(userId: string, listener: () => void) {
@@ -96,6 +97,12 @@ export function useNotificationSummary(session: SessionState | null) {
       request?.abort();
       setState(null);
     };
+    const workChanged = () => {
+      if (!session?.workforceManaged) return;
+      request?.abort();
+      setState(null);
+      void refresh(true);
+    };
     const channel =
       typeof BroadcastChannel !== "undefined" ? new BroadcastChannel(changed) : null;
     if (channel)
@@ -108,6 +115,7 @@ export function useNotificationSummary(session: SessionState | null) {
     window.addEventListener("online", visible);
     window.addEventListener(changed, updated);
     window.addEventListener(SESSION_CHANGED, discard);
+    window.addEventListener(WORKFORCE_ACCESS_CHANGED, workChanged);
     document.addEventListener("visibilitychange", visible);
     return () => {
       active = false;
@@ -118,8 +126,9 @@ export function useNotificationSummary(session: SessionState | null) {
       window.removeEventListener("online", visible);
       window.removeEventListener(changed, updated);
       window.removeEventListener(SESSION_CHANGED, discard);
+      window.removeEventListener(WORKFORCE_ACCESS_CHANGED, workChanged);
       document.removeEventListener("visibilitychange", visible);
     };
-  }, [scope, base, userId]);
+  }, [scope, base, userId, session?.workforceManaged]);
   return state?.scope === scope ? state : null;
 }

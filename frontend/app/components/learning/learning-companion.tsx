@@ -5,6 +5,7 @@ import { containDialogFocus } from "@/lib/dialog-focus";
 import { learningEnabled } from "@/lib/learning/contracts";
 import { clearLearningProgress } from "@/lib/learning/progress";
 import { LEARNING_SESSION_CHANGED } from "@/lib/learning/read";
+import { WORKFORCE_ACCESS_CHANGED } from "@/lib/workforce-invalidation";
 import { OPEN_LEARNING, START_LEARNING_GUIDE } from "./learning-entry";
 import {
   assistantName,
@@ -74,12 +75,14 @@ export function LearningCompanion() {
     window.addEventListener(START_LEARNING_GUIDE, start);
     window.addEventListener("hashchange", hash);
     window.addEventListener(LEARNING_SESSION_CHANGED, invalidate);
+    window.addEventListener(WORKFORCE_ACCESS_CHANGED, invalidate);
     window.addEventListener("keydown", escape);
     return () => {
       window.removeEventListener(OPEN_LEARNING, show);
       window.removeEventListener(START_LEARNING_GUIDE, start);
       window.removeEventListener("hashchange", hash);
       window.removeEventListener(LEARNING_SESSION_CHANGED, invalidate);
+      window.removeEventListener(WORKFORCE_ACCESS_CHANGED, invalidate);
       window.removeEventListener("keydown", escape);
     };
   }, [path]);

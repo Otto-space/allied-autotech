@@ -352,10 +352,15 @@
       "recovery": [],
       "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
       "fixture": "Identify the permitted role/scope and realistic state for this route.",
-      "verification": "pending",
-      "evidence": [],
+      "verification": "source-only",
+      "evidence": [
+        "docs/help-learn/WORKFORCE_NAVIGATION_SESSIONS_W5.md",
+        "backend/tests/integration/workforce-session-policy.test.ts",
+        "frontend/tests/unit/workforce-registry.test.ts"
+      ],
       "gaps": [
-        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4.",
+        "W5 canonical fitment predicate and real HTTP denial/allow tests passed; no new populated fitment browser acceptance in this batch."
       ],
       "subviews": []
     },
@@ -469,19 +474,27 @@
       "audience": "work",
       "accessPredicate": "server-enforced role and capability; per-route confirmation required",
       "decision": "pending",
-      "purpose": null,
-      "contextualAnswer": null,
+      "purpose": "Read personal notifications and follow only currently permitted work destinations.",
+      "contextualAnswer": "Open a notification in your own inbox. A formerly permitted work destination is rechecked; an unavailable page returns to the current work overview.",
       "articleIds": [],
       "guideIds": [],
       "practiceIds": [],
       "statusDefinitions": [],
       "recovery": [],
       "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
-      "fixture": "Identify the permitted role/scope and realistic state for this route.",
-      "verification": "pending",
-      "evidence": [],
+      "fixture": "W5 intercepted managed-workforce browser fixtures, 390/1440px revocation and existing eight-template notification cases; no real messages or submissions.",
+      "verification": "isolated",
+      "evidence": [
+        "docs/help-learn/WORKFORCE_NAVIGATION_SESSIONS_W5.md",
+        "backend/tests/integration/workforce-session-policy.test.ts",
+        "frontend/tests/unit/workforce-registry.test.ts",
+        "frontend/tests/unit/workforce-invalidation.test.tsx",
+        "frontend/tests/e2e/workforce-session-revocation.spec.ts"
+      ],
       "gaps": [
-        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+        "Complete legacy/owner route-specific learning and walkthrough/practice decisions remain open.",
+        "Actual hosted role changes, physical devices and full screen-reader acceptance remain open.",
+        "W5 evidence covers managed-workforce boundaries; real conversational AI and staffed chat are not implemented."
       ],
       "subviews": []
     },
@@ -553,8 +566,8 @@
       "audience": "work",
       "accessPredicate": "server-enforced role and capability; per-route confirmation required",
       "decision": "pending",
-      "purpose": null,
-      "contextualAnswer": null,
+      "purpose": "Show permitted operational work and explain current responsibility access.",
+      "contextualAnswer": "Use the remaining work links after a responsibility change. A recorded position grants no operational access. Personal security and notifications remain available.",
       "articleIds": [
         "work-access",
         "product-photos",
@@ -566,11 +579,19 @@
       "statusDefinitions": [],
       "recovery": [],
       "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
-      "fixture": "Identify the permitted role/scope and realistic state for this route.",
-      "verification": "pending",
-      "evidence": [],
+      "fixture": "W5 intercepted managed-workforce browser fixtures, 390/1440px revocation and existing eight-template notification cases; no real messages or submissions.",
+      "verification": "isolated",
+      "evidence": [
+        "docs/help-learn/WORKFORCE_NAVIGATION_SESSIONS_W5.md",
+        "backend/tests/integration/workforce-session-policy.test.ts",
+        "frontend/tests/unit/workforce-registry.test.ts",
+        "frontend/tests/unit/workforce-invalidation.test.tsx",
+        "frontend/tests/e2e/workforce-session-revocation.spec.ts"
+      ],
       "gaps": [
-        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+        "Complete legacy/owner route-specific learning and walkthrough/practice decisions remain open.",
+        "Actual hosted role changes, physical devices and full screen-reader acceptance remain open.",
+        "W5 evidence covers managed-workforce boundaries; real conversational AI and staffed chat are not implemented."
       ],
       "subviews": []
     },
@@ -1038,10 +1059,15 @@
         "backend/docs/workforce-versions-production-20261026.md",
         "backend/tests/integration/workforce-effective-access.test.ts",
         "frontend/tests/unit/workforce-access-preview.test.tsx",
-        "frontend/tests/e2e/work-staff-workforce.spec.ts"
+        "frontend/tests/e2e/work-staff-workforce.spec.ts",
+        "docs/help-learn/WORKFORCE_NAVIGATION_SESSIONS_W5.md",
+        "backend/tests/integration/workforce-session-policy.test.ts",
+        "frontend/tests/unit/workforce-registry.test.ts",
+        "frontend/tests/unit/workforce-invalidation.test.tsx",
+        "frontend/tests/e2e/workforce-session-revocation.spec.ts"
       ],
       "gaps": [
-        "Full account-baseline/independent-grant policy composition and canonical navigation/action/session/subscription transitions remain incomplete; W4 covers responsibility-grant provenance and reviewed assign/revoke impact only.",
+        "Full independent-grant/baseline composition and real chat subscription authorisation remain open; W5 verifies the managed-workforce registry and HTTP/session invalidation only.",
         "Completely unknown historical template/scope display and actual hosted role mutations remain unverified.",
         "Allie conversation, complete page-context guidance, walkthrough/practice mode decisions and full Revision 4 task-state acceptance remain open."
       ],
@@ -1245,11 +1271,11 @@
     "/admin/workforce/[[...section]]": {
       "source": "app/admin/workforce/[[...section]]/page.tsx",
       "audience": "work",
-      "accessPredicate": "Server-current SUPER_ADMIN or ADMIN with owner-approved delegation; ADMIN discovery and inspection are STAFF/branch scoped. Each write also requires its existing management predicate, MFA, current password and expected version.",
+      "accessPredicate": "Server-current managed-workforce capability/scope for operational destinations; current account and owner-approved envelope for management. API record-state, assignment/branch and independent-review guards remain authoritative.",
       "decision": "pending",
-      "purpose": "Discover permitted workforce accounts and review their separate role, business position and responsibility grants.",
-      "contextualAnswer": "Find a person, select View/manage, inspect the current permitted grants and use the reviewed change controls. A recorded business position grants no access.",
-      "articleIds": ["access-review"],
+      "purpose": "Use current permitted work queues and discover authorised workforce accounts without conflating position, tier and responsibility.",
+      "contextualAnswer": "Work tools follow current responsibilities. When access is removed, stale operational content and work drafts are discarded and an unavailable page returns to the permitted overview. Review fresh versions before consequential changes.",
+      "articleIds": ["access-review", "work-access", "assigned-findings"],
       "guideIds": [],
       "practiceIds": [],
       "statusDefinitions": [
@@ -1274,10 +1300,15 @@
         "backend/docs/workforce-versions-production-20261026.md",
         "backend/tests/integration/workforce-effective-access.test.ts",
         "frontend/tests/unit/workforce-access-preview.test.tsx",
-        "frontend/tests/e2e/work-staff-workforce.spec.ts"
+        "frontend/tests/e2e/work-staff-workforce.spec.ts",
+        "docs/help-learn/WORKFORCE_NAVIGATION_SESSIONS_W5.md",
+        "backend/tests/integration/workforce-session-policy.test.ts",
+        "frontend/tests/unit/workforce-registry.test.ts",
+        "frontend/tests/unit/workforce-invalidation.test.tsx",
+        "frontend/tests/e2e/workforce-session-revocation.spec.ts"
       ],
       "gaps": [
-        "Full account-baseline/independent-grant policy composition and canonical navigation/action/session/subscription transitions remain incomplete; W4 covers responsibility-grant provenance and reviewed assign/revoke impact only.",
+        "Full independent-grant/baseline composition and real chat subscription authorisation remain open; W5 verifies the managed-workforce registry and HTTP/session invalidation only.",
         "Completely unknown historical template/scope display and actual hosted role mutations remain unverified.",
         "Allie conversation, complete page-context guidance, walkthrough/practice mode decisions and full Revision 4 task-state acceptance remain open."
       ],
@@ -1291,6 +1322,46 @@
           "pattern": "/admin/workforce/access/[userId]",
           "task": "Existing reviewed position/responsibility editor",
           "verification": "W1: existing editor enrollment/assignment/revocation/delegation/recovery regression passed; full effective-access foundation still pending; W3 hosted fixture release evidence and W4 local impact/role regression accepted; full route learning remains open"
+        },
+        {
+          "pattern": "/admin/workforce/jobs",
+          "task": "Permitted workshop queue",
+          "verification": "W5 native policy tests and intercepted job-detail/session browser cases; remaining full learning modes open."
+        },
+        {
+          "pattern": "/admin/workforce/jobs/[jobId]",
+          "task": "Scoped technical work, assignment and independent review",
+          "verification": "W5 native policy tests and intercepted job-detail/session browser cases; remaining full learning modes open."
+        },
+        {
+          "pattern": "/admin/workforce/bookings",
+          "task": "Scoped bookings",
+          "verification": "W5 source predicate/native policy tests; full route-specific rendered states and learning modes remain open."
+        },
+        {
+          "pattern": "/admin/workforce/bookings/[bookingId]",
+          "task": "Scoped booking detail",
+          "verification": "W5 source predicate/native policy tests; full route-specific rendered states and learning modes remain open."
+        },
+        {
+          "pattern": "/admin/workforce/enquiries",
+          "task": "Scoped sales/care enquiry queue",
+          "verification": "W5 source predicate/native policy tests; full route-specific rendered states and learning modes remain open."
+        },
+        {
+          "pattern": "/admin/workforce/complaints",
+          "task": "Scoped complaint queue",
+          "verification": "W5 source predicate/native policy tests; full route-specific rendered states and learning modes remain open."
+        },
+        {
+          "pattern": "/admin/workforce/orders",
+          "task": "Scoped preparation queue",
+          "verification": "W5 source predicate/native policy tests; full route-specific rendered states and learning modes remain open."
+        },
+        {
+          "pattern": "/admin/workforce/finance",
+          "task": "Permitted finance overview",
+          "verification": "W5 source predicate/native policy tests; full route-specific rendered states and learning modes remain open."
         }
       ]
     },

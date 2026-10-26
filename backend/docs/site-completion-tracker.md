@@ -1719,3 +1719,29 @@ Care handoff and staffed/gated live chat remain required. C: postflight 27.85 Gi
 no Docker/worktree/profile/install duplication or speculative pruning. Other active
 worktree changes/releases are preserved and require reconciliation before any rollout.
 Full Revision 4 and Item 6 remain open.
+
+
+26 October 2026 - Revision 4 W5 local checkpoint: canonical managed-workforce
+navigation/page/action predicates, scoped revision metadata and server-relative
+activation/expiry rechecks. Access loss discards stale reads, protected drafts,
+learning and staff notification previews; forbidden pages return to the permitted
+overview with an explanation. Owner baseline preserved even with a business-position
+record, including the current-role guarded legacy invitation helper. No authority,
+commerce, schema or real messaging capability added. Existing unknown-save recovery,
+MFA, branch/assigned scope and independent approvals retained.
+75 distinct native HTTP/DB cases accepted across bounded runs on the W4 synthetic
+CI target; db:check and runtime restrictions reverified. Full 1,086 frontend units,
+then 29 route/draft and 16 final preview cases passed; lint/types/contracts and the
+final optimized build passed. 87 distinct intercepted browser cases accepted in
+12 bounded batches, plus two console/Axe/overflow screenshot rechecks at 390/1440px.
+Mobile/desktop images visually inspected; real roles, physical devices and full
+screen-reader acceptance remain open. Tests exposed/fixed notification cache and
+record-navigation draft regressions; harness qualifications are documented.
+Evidence: docs/help-learn/WORKFORCE_NAVIGATION_SESSIONS_W5.md. The full Revision 4
+and 106-route completion gate remain open: independent policy composition, real AI,
+persisted reviewed handoff, gated staffed chat and provider evaluation are required.
+No W4/W5 deployment. Other active worktree changes/releases retained and need
+reconciliation before publication. Disk preflight stopped a low-headroom build;
+space recovered without deletion. Reviewed obsolete dev-output deletion was blocked
+by automatic approval review; no alternate removal attempted. Browser batches kept
+at least 27.074 GiB in accepted receipts. No Docker resources created/pruned.

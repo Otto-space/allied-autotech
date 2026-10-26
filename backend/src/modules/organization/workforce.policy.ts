@@ -2,6 +2,10 @@ import { z } from "zod";
 import type { AuthenticatedActor } from "../../common/contracts/actor.js";
 import { AppError } from "../../common/errors/app-error.js";
 import type { Prisma } from "../../generated/prisma/client.js";
+import {
+  workforceAccessRevision,
+  workforceCapabilityScopes,
+} from "./workforce-access-revision.js";
 
 export { workforceTemplates } from "./workforce-catalogue.js";
 import {
@@ -54,7 +58,6 @@ export async function workforceSnapshot(
           assignments: {
             where: {
               revokedAt: null,
-              startsAt: { lte: now },
               OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
               branch: { isActive: true },
             },
@@ -72,13 +75,35 @@ export async function workforceSnapshot(
   )
     workforceDenied();
   const access = user.workforceAccess;
-  const assignments = (access?.assignments ?? []).filter(
+  const eligibleAssignments = (access?.assignments ?? []).filter(
     (a) => definitionForAssignment(a) !== undefined,
   );
+  const assignments = eligibleAssignments.filter((a) => a.startsAt <= now);
   const permissions = [
     ...new Set(assignments.flatMap((a) => [...definitionForAssignment(a)!.actions])),
   ].sort();
-  return {
+  const canManageAssignments =
+    actor.role === "SUPER_ADMIN" ||
+    (actor.role === "ADMIN" &&
+      !!access &&
+      isKnownWorkforcePolicyVersion(access.delegationPolicyVersion) &&
+      access.delegatedTemplates.some((template) =>
+        isSupportedDelegationTemplate(template, access.delegationPolicyVersion),
+      ) &&
+      access.delegatedBranchIds.length > 0);
+  const canInviteAdmins =
+    actor.role === "ADMIN" &&
+    !!access &&
+    isKnownWorkforcePolicyVersion(access.delegationPolicyVersion) &&
+    access.delegatedTemplates.includes("ADMIN_INVITE") &&
+    access.delegatedBranchIds.length > 0;
+  const nextChange = Math.min(
+    ...eligibleAssignments.flatMap((a) => [
+      ...(a.startsAt > now ? [a.startsAt.getTime()] : []),
+      ...(a.expiresAt ? [a.expiresAt.getTime()] : []),
+    ]),
+  );
+  const snapshot = {
     managed: access !== null,
     userId: actor.userId,
     staffId: user.staffProfile?.id ?? null,
@@ -92,22 +117,25 @@ export async function workforceSnapshot(
     version: access?.version ?? 0,
     assignments,
     permissions,
-    canManageAssignments:
-      actor.role === "SUPER_ADMIN" ||
-      (actor.role === "ADMIN" &&
-        !!access &&
-        isKnownWorkforcePolicyVersion(access.delegationPolicyVersion) &&
-        access.delegatedTemplates.some((template) =>
-          isSupportedDelegationTemplate(template, access.delegationPolicyVersion),
-        ) &&
-        !!access.delegatedBranchIds.length),
-    canInviteAdmins:
-      actor.role === "ADMIN" &&
-      !!access &&
-      isKnownWorkforcePolicyVersion(access.delegationPolicyVersion) &&
-      !!access?.delegatedTemplates.includes("ADMIN_INVITE") &&
-      !!access.delegatedBranchIds.length,
+    canManageAssignments,
+    canInviteAdmins,
+    capabilityScopes: workforceCapabilityScopes(assignments),
+    nextChangeAt: Number.isFinite(nextChange) ? new Date(nextChange).toISOString() : null,
     serverTime: now.toISOString(),
+  };
+  return {
+    ...snapshot,
+    accessRevision: workforceAccessRevision({
+      ...snapshot,
+      role: actor.role,
+      delegation: access
+        ? {
+            policyVersion: access.delegationPolicyVersion,
+            templates: access.delegatedTemplates,
+            branchIds: access.delegatedBranchIds,
+          }
+        : undefined,
+    }),
   };
 }
 export type WorkforceSnapshot = Awaited<ReturnType<typeof workforceSnapshot>>;
