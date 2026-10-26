@@ -19144,7 +19144,7 @@ JSON request fields:
 | Field | Type | Required | Purpose |
 | --- | --- | --- | --- |
 | `status` | ACTIVE / SUSPENDED / DEACTIVATED | Yes | Requested or filtered lifecycle state from the documented enum. |
-| `expectedRevision` | string | No | Optional account revision derived from updatedAt, role, status, profile updatedAt and branchId joined with colons. Checked atomically while the account and profile are locked. New clients should always provide it. |
+| `expectedRevision` | string | Yes | Required account revision derived from updatedAt, role, status, profile updatedAt and branchId joined with colons. Checked atomically while the account and profile are locked. |
 
 Synthetic request example:
 
@@ -19194,7 +19194,7 @@ JSON request fields:
 | Field | Type | Required | Purpose |
 | --- | --- | --- | --- |
 | `branchId` | string (uuid) | Yes | Identifier of the branch resource; ownership is resolved server-side. |
-| `expectedRevision` | string | No | Optional account revision derived from updatedAt, role, status, profile updatedAt and branchId joined with colons. Checked atomically while the account and profile are locked. New clients should always provide it. |
+| `expectedRevision` | string | Yes | Required account revision derived from updatedAt, role, status, profile updatedAt and branchId joined with colons. Checked atomically while the account and profile are locked. |
 
 Synthetic request example:
 
@@ -19245,7 +19245,7 @@ JSON request fields:
 | --- | --- | --- | --- |
 | `role` | STAFF | Yes | Role validated by this operation's strict request contract. |
 | `branchId` | string (uuid) | Yes | Identifier of the branch resource; ownership is resolved server-side. |
-| `expectedRevision` | string | No | Optional account revision derived from updatedAt, role, status, profile updatedAt and branchId joined with colons. Checked atomically while the account and profile are locked. New clients should always provide it. |
+| `expectedRevision` | string | Yes | Required account revision derived from updatedAt, role, status, profile updatedAt and branchId joined with colons. Checked atomically while the account and profile are locked. |
 
 Synthetic request example:
 

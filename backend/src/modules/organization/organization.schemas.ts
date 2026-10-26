@@ -144,9 +144,8 @@ const expectedRevision = z
   .string()
   .min(1)
   .max(300)
-  .optional()
   .describe(
-    "Optional account revision derived from updatedAt, role, status, profile updatedAt and branchId joined with colons. Checked atomically while the account and profile are locked. New clients should always provide it.",
+    "Required account revision derived from updatedAt, role, status, profile updatedAt and branchId joined with colons. Checked atomically while the account and profile are locked.",
   );
 export const staffStatusBodySchema = z
   .object({ status: z.enum(["ACTIVE", "SUSPENDED", "DEACTIVATED"]), expectedRevision })

@@ -271,7 +271,7 @@ export class OrganizationService {
     staffUserId: string,
     status: UserStatus,
     context: RequestSecurityContext,
-    expectedRevision?: string,
+    expectedRevision: string,
   ) {
     return this.database.$transaction(async (transaction) => {
       await lockAccessActor(transaction, actor);
@@ -315,7 +315,7 @@ export class OrganizationService {
     staffUserId: string,
     branchId: string,
     context: RequestSecurityContext,
-    expectedRevision?: string,
+    expectedRevision: string,
   ) {
     return this.database.$transaction(async (transaction) => {
       await lockAccessActor(transaction, actor);

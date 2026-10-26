@@ -27681,11 +27681,12 @@
                     "type": "string",
                     "minLength": 1,
                     "maxLength": 300,
-                    "description": "Optional account revision derived from updatedAt, role, status, profile updatedAt and branchId joined with colons. Checked atomically while the account and profile are locked. New clients should always provide it."
+                    "description": "Required account revision derived from updatedAt, role, status, profile updatedAt and branchId joined with colons. Checked atomically while the account and profile are locked."
                   }
                 },
                 "required": [
-                  "status"
+                  "status",
+                  "expectedRevision"
                 ],
                 "additionalProperties": false,
                 "description": "Request Body validated by this operation's strict request contract."
@@ -28018,11 +28019,12 @@
                     "type": "string",
                     "minLength": 1,
                     "maxLength": 300,
-                    "description": "Optional account revision derived from updatedAt, role, status, profile updatedAt and branchId joined with colons. Checked atomically while the account and profile are locked. New clients should always provide it."
+                    "description": "Required account revision derived from updatedAt, role, status, profile updatedAt and branchId joined with colons. Checked atomically while the account and profile are locked."
                   }
                 },
                 "required": [
-                  "branchId"
+                  "branchId",
+                  "expectedRevision"
                 ],
                 "additionalProperties": false,
                 "description": "Request Body validated by this operation's strict request contract."
@@ -28358,12 +28360,13 @@
                     "type": "string",
                     "minLength": 1,
                     "maxLength": 300,
-                    "description": "Optional account revision derived from updatedAt, role, status, profile updatedAt and branchId joined with colons. Checked atomically while the account and profile are locked. New clients should always provide it."
+                    "description": "Required account revision derived from updatedAt, role, status, profile updatedAt and branchId joined with colons. Checked atomically while the account and profile are locked."
                   }
                 },
                 "required": [
                   "role",
-                  "branchId"
+                  "branchId",
+                  "expectedRevision"
                 ],
                 "additionalProperties": false,
                 "description": "Request Body validated by this operation's strict request contract."

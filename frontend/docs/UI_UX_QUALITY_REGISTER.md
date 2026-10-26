@@ -1580,3 +1580,19 @@ Full release, rollback, backup/restore and disk evidence:
 Original Cycle 14 no-publication/locked-CI limitations describe the historical local
 milestone and are superseded only by the explicit evidence in this addendum.
 Site-completion Item 6, business policies and unrelated pages remain open.
+
+The correction is released: frontend `dpl_JD4ffNmmmo2W7dgrzBHN4evwNd6u`
+READY on main/www, backend `98401193-fb85-48d9-8c51-462dcadd6d19` ACTIVE,
+source `76377d43`. The production API and public route smoke passed; the real
+signed-in cart clear, physical devices and screen-reader flow remain untested.
+
+## Cycle 12: Staff access revision — candidate 25 October 2026
+
+Status, branch and role changes now require the selected account revision in the
+backend. Missing revisions fail validation; concurrent stale changes return 409
+without overwriting the winning decision. The existing dashboard sends the
+revision and keeps its review, result verification and unknown-outcome controls.
+Fresh isolated database tests passed, including competing mutations. Seven
+compiled browser fixtures passed at 320px and 1280px. These are mocked browser
+flows, not real signed-in role, physical-device or screen-reader acceptance.
+Production release and hosted verification remain open.

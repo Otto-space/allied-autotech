@@ -229,12 +229,12 @@ describe.skipIf(!provisionedWorkspaceAcceptanceChecksEnabled)(
       await request(app)
         .patch(`${root}/${admin.id}/status`)
         .set(admin.headers)
-        .send({ status: "SUSPENDED" })
+        .send({ status: "SUSPENDED", expectedRevision: "stale-revision" })
         .expect(403);
       await request(app)
         .patch(`${root}/${owner.id}/status`)
         .set(admin.headers)
-        .send({ status: "SUSPENDED" })
+        .send({ status: "SUSPENDED", expectedRevision: "stale-revision" })
         .expect(403);
       await request(app)
         .patch(`${root}/${staffId}/status`)

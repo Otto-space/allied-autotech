@@ -249,7 +249,7 @@ export class OrganizationController {
       validated<{ staffUserId: string }>(response, "params").staffUserId,
       validated<{ status: UserStatus }>(response, "body").status,
       context(request),
-      validated<{ expectedRevision?: string }>(response, "body").expectedRevision,
+      validated<{ expectedRevision: string }>(response, "body").expectedRevision,
     );
     response
       .status(200)
@@ -263,7 +263,7 @@ export class OrganizationController {
       validated<{ staffUserId: string }>(response, "params").staffUserId,
       validated<{ branchId: string }>(response, "body").branchId,
       context(request),
-      validated<{ expectedRevision?: string }>(response, "body").expectedRevision,
+      validated<{ expectedRevision: string }>(response, "body").expectedRevision,
     );
     response
       .status(200)

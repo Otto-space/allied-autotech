@@ -408,10 +408,28 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       const admin = await account("ADMIN");
       const staff = await account("STAFF");
       const invitation = await invite(admin, staff);
+      const member = (
+        await request(app)
+          .get(`/api/v1/admin/staff/${staff.user.id}`)
+          .set(admin.headers)
+          .expect(200)
+      ).body.data as {
+        updatedAt: string;
+        role: string;
+        status: string;
+        staffProfile: { updatedAt: string; branchId: string | null };
+      };
+      const expectedRevision = [
+        member.updatedAt,
+        member.role,
+        member.status,
+        member.staffProfile.updatedAt,
+        member.staffProfile.branchId,
+      ].join(":");
       const result = await request(app)
         .patch(`/api/v1/admin/staff/${staff.user.id}/status`)
         .set(admin.headers)
-        .send({ status: "SUSPENDED" });
+        .send({ status: "SUSPENDED", expectedRevision });
       expect(result.status).toBe(200);
       const stored = await prisma.privilegedInvitation.findUniqueOrThrow({
         where: { id: invitation.id },

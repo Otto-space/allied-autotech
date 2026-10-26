@@ -1543,3 +1543,24 @@ Removed only four never-deployed superseded task-local bb9dea4d images without f
 current/rollback resources and all 13 containers/14 volumes retained, no cache prune.
 C: measured 29.81 GiB before/after cleanup; reserve passed, no physical-reclaim claim.
 Main tracker updated append-only with original bytes preserved. Item 6 remains open.
+
+25 October 2026 - cart correction released from source `76377d43`. DigitalOcean
+`98401193-fb85-48d9-8c51-462dcadd6d19` is ACTIVE with all four expected image
+digests; Vercel `dpl_JD4ffNmmmo2W7dgrzBHN4evwNd6u` is READY on main/www. The
+three GitHub workflows passed. Existing 71-migration schema was unchanged;
+predeploy ran the read-only database checker, and the same-day separate restore
+evidence plus eight managed backups were reviewed. API live/ready and public
+Home/Help/Parts returned 200; `/shop` redirects to `/parts`; anonymous cart
+remains 401. No real cart or payment write was used for acceptance. Details and
+remaining limits: `cart-clear-atomic-20261025.md`. Item 6 and authenticated
+operational acceptance remain open.
+
+25 October 2026 - required staff revision candidate. Status, branch and role
+mutations now require the reviewed account revision and compare it under the
+account lock. Missing revisions fail 422; competing stale decisions fail 409.
+The deployed dashboard already sends the revision. A fresh isolated `_test`
+database replayed all 71 migrations with no schema difference; 13 focused
+integration tests, seven compiled dashboard fixtures, type/lint/format and
+API contract checks passed. See `staff-revision-required-20261025.md`.
+Production rollout and real signed-in role acceptance remain open. This does
+not close Item 6 or the wider site goal.
