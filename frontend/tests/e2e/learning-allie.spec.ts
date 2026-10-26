@@ -217,6 +217,7 @@ test("private answer and practice draft clear on actual identity change; product
     page.getByRole("status").filter({ hasText: "Practice review complete" }),
   ).toContainText("You chose:");
   await expect(page.locator(".learning-mode-label")).toHaveCount(1);
+  await expect(page.locator(".support-controls")).toHaveCount(0);
   await shot(page, "practice-care-desktop", true);
   await context.clearCookies();
   await page.evaluate(() => window.dispatchEvent(new Event("aat:session-changed")));

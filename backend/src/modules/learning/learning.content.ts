@@ -623,8 +623,22 @@ export const practiceDefinitions: PracticeDefinition[] = [
           "Thanks for checking. Please share your vehicle make, model, year, engine details and the filter part number if available. We need to review the compatibility evidence before confirming a fit.",
       },
     ],
+    choices: [
+      {
+        id: "review",
+        label: "Ask for the missing details through a permitted reply",
+        feedback:
+          "Model, year, engine and filter part number are missing. Ask for those details before checking compatibility; a name match does not confirm a fit.",
+      },
+      {
+        id: "assume",
+        label: "Promise fitment or a refund without evidence",
+        feedback:
+          "The sample provides no compatibility evidence or approved refund basis. Promising either would claim facts that are not established. Ask for the missing vehicle and part details first.",
+      },
+    ],
     outcome:
-      "Your sample reply was reviewed locally. Check that it asks for missing facts and avoids a fitment promise. The exercise checks required inputs and your decision; it does not assess the accuracy of free text or send a reply.",
+      "Keep your sample reply clear and free of fitment promises. No real message was sent.",
   },
   decision(
     "sales-evidence",

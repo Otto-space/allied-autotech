@@ -80,6 +80,7 @@ export function SupportWidget() {
     pathname.startsWith("/admin") ||
     pathname.startsWith("/staff") ||
     pathname.startsWith("/dashboard/support") ||
+    pathname.startsWith("/learn/practice/") ||
     pathname === "/dashboard/notifications" ||
     [
       "/login",

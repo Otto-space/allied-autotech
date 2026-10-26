@@ -3,7 +3,7 @@ import AxeBuilder from "@axe-core/playwright";
 import fs from "node:fs";
 import path from "node:path";
 import os from "node:os";
-const shots = path.join(os.tmpdir(), "allied-help-learn-20261026");
+const shots = path.join(os.tmpdir(), "allied-allie-20261026");
 async function identity(context: BrowserContext, name: string) {
   const file = path.join(
     process.env.LOCALAPPDATA!,
