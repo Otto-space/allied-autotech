@@ -159,3 +159,34 @@ No Docker image/container/volume was created or removed. Existing resources are
 retained for active worktrees and rollback. Latest read-only inventory: 87 images,
 13 containers, 14 volumes, 195 build-cache records; none was inferred disposable.
 C: post-build preflight measured 27.19 GiB free (point-in-time, not a machine quota).
+
+## Protected candidate follow-up — 27 October 2026
+
+The subsequent source `e67a576d` places the mobile support actions in document
+flow. The real 320x640 Tyre Change page first reproduced 31px of selector
+obstruction from the fixed dock. A protected Vercel preview from that source,
+`dpl_3ipmjkYQNpcTMXqDnv9wgyEDm1QJ`, used a preview-only read-only public
+API connection and enabled Help & Learn. Browser API mutations were denied. At
+320, 390, 768 and 900x400 coarse-pointer viewports, the handling-branch field
+was unobscured and pointer hit-testing reached it; 1024px retained the desktop
+floating control without blocking the field. No page overflow was found in
+those sampled states. Ask Allie opened and closed at 320px. These are hosted
+browser checks, not physical-device or production-role acceptance.
+
+The six earlier pending cases were replayed against the optimized preview:
+About 1024px, mobile Shop navigation and three Allie/practice cases passed.
+The Review Cart case is restricted in browse-and-enquiries mode and remains
+supported by its earlier isolated full-mode fixture pass, not a hosted commerce
+claim. The brand artwork suite passed 21/22 hosted cases before correcting its
+last test's method: CSS `zoom` doubled painting without shrinking the CSS
+viewport or changing media breakpoints. A 720px layout viewport now approximates
+a 1440px display at 200% browser zoom; the corrected reflow case passed across
+Home, About and Services. Actual browser zoom and complete screen-reader checks
+remain open. Vercel's `?dpl=` asset query and separately created test contexts
+required test harness corrections; the logo path and mobile navigation were
+verified after them. No application behavior was weakened for those checks.
+
+All three pushed commit `e67a576d` GitHub workflows passed: frontend locked
+release checks, backend isolated database safety, and redacted secret guard.
+This follow-up is candidate evidence. Production promotion, exact final-source
+checks and post-promotion domain verification remain separate.

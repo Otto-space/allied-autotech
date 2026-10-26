@@ -1789,3 +1789,18 @@ build/postbuild and formatting. Exact hosted-candidate interaction, 390px,
 short-landscape and adjacent-page checks remain before publication. Browser
 plugin unavailable; installed Edge/Playwright provided the live baseline and
 style preview. Prior rejected local preview startup was not retried.
+
+27 October 2026 - hosted P1 acceptance for the same support correction.
+Protected exact-source candidate dpl_3ipmjkYQNpcTMXqDnv9wgyEDm1QJ rendered
+the real public Tyre Change detail using read-only public API data. Field hit
+testing and zero obstruction passed at 320, 390, 768 and 900x400 coarse-pointer;
+1024 retained its desktop control without intercepting the field. The mobile
+support actions remain reachable below the footer and Ask Allie opens/closes.
+Home/About/Services brand artwork, keyboard and failure states passed 21 of 22
+hosted cases; the final 720px reflow check passed after replacing an inaccurate
+CSS-zoom emulation. Five of six earlier pending cases passed; Review Cart is
+launch-restricted and keeps its earlier isolated full-mode fixture evidence.
+No form submission, real customer data mutation or production frontend release.
+Actual device/browser zoom, screen reader and live authenticated-role checks
+remain open. The next P1 review is public enquiry draft/account switching and
+uncertain-submit recovery, already identified in release-blockers.md.

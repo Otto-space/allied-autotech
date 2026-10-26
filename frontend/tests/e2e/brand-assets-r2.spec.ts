@@ -110,11 +110,11 @@ for (const width of [360, 390, 768, 1024, 1440]) {
       ).toHaveCount(0);
       await expect(page.locator(".site-header__brand img")).toHaveAttribute(
         "src",
-        "/brand/r2/mark-red.png",
+        /^\/brand\/r2\/mark-red\.png(?:\?.*)?$/,
       );
       await expect(page.locator("footer .brand-logo__mark")).toHaveAttribute(
         "src",
-        "/brand/r2/mark-white.png",
+        /^\/brand\/r2\/mark-white\.png(?:\?.*)?$/,
       );
       expect(errors).toEqual([]);
     });
@@ -142,6 +142,11 @@ test("mobile navigation retains the home identity and reaches Shop search", asyn
   browser,
 }) => {
   const context = await browser.newContext({
+    baseURL:
+      test.info().project.use.baseURL ??
+      process.env.PLAYWRIGHT_BASE_URL ??
+      "http://localhost:3000",
+    storageState: test.info().project.use.storageState,
     viewport: { width: 390, height: 844 },
     isMobile: true,
     hasTouch: true,
@@ -235,16 +240,14 @@ for (const [route, selector] of [
   });
 }
 
-test("200 percent CSS zoom reflows artwork and actions without horizontal scrolling", async ({
+test("720px layout viewport reflows artwork and actions without horizontal scrolling", async ({
   page,
 }) => {
-  await page.setViewportSize({ width: 1440, height: 1000 });
+  // A 1440px screen at 200% browser zoom has about 720 CSS px of layout width.
+  // CSS `zoom` doubles paint size without changing media-query breakpoints.
+  await page.setViewportSize({ width: 720, height: 500 });
   for (const route of ["/", "/about", "/services"]) {
     await page.goto(route);
-    // CSS zoom is explicit emulation, not a claim of physical-device/browser zoom.
-    await page.evaluate(() => {
-      document.body.style.zoom = "2";
-    });
     for (const image of await page.locator(".campaign-artwork img").all()) {
       await image.scrollIntoViewIfNeeded();
       expect(await image.evaluate((node) => getComputedStyle(node).objectFit)).toBe(
