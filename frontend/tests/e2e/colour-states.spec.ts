@@ -33,10 +33,16 @@ async function gallery(page: Page) {
     htmlClass: document.documentElement.className,
     bodyClass: document.body.className,
   }));
-  await page.goto("about:blank");
-  await page.setContent(
-    `<!doctype html><html lang="en" class="${shell.htmlClass}"><head><title>Isolated Allied state gallery</title>${shell.styles}</head><body class="${shell.bodyClass}"></body></html>`,
+  const fixtureUrl = new URL("/__isolated_colour_fixture__", page.url()).href;
+  await page.route(fixtureUrl, (route) =>
+    route.fulfill({
+      contentType: "text/html",
+      body: `<!doctype html><html lang="en" class="${shell.htmlClass}"><head><title>Isolated Allied state gallery</title>${shell.styles}</head><body class="${shell.bodyClass}"></body></html>`,
+    }),
   );
+  // Same-origin requests retain the deployment-protection cookie for CSS assets.
+  // This document is intercepted entirely in the test; no debug endpoint is deployed.
+  await page.goto(fixtureUrl);
   await page.evaluate(() => document.fonts.ready);
   await page.evaluate(() => {
     document.body.innerHTML = `<main style="max-width:1100px;margin:auto;padding:28px">
