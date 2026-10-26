@@ -27,7 +27,6 @@ export const assignmentSchema = z.object({
   id: z.uuid(),
   userId: z.uuid(),
   template: workforceTemplateSchema,
-  templateVersion: z.number().int().positive().optional(),
   branchId: z.uuid(),
   scope: z.enum(["BRANCH", "ASSIGNED"]),
   temporary: z.boolean(),
@@ -195,25 +194,10 @@ export const workforceAccountSchema = z.object({
       enabledAt: z.iso.datetime(),
       delegatedTemplates: z.array(z.string()),
       delegatedBranchIds: z.array(z.uuid()),
-      delegationPolicyVersion: z.number().int().positive().optional(),
     })
     .nullable(),
   assignments: z.array(assignmentSchema),
   activeAssignmentIds: z.array(z.uuid()),
-  templatesVersion: z.number().int().positive().optional(),
-  assignmentDefinitions: z
-    .record(
-      z.uuid(),
-      z
-        .object({
-          label: z.string(),
-          department: z.string(),
-          scope: z.string(),
-          actions: z.array(z.string()),
-        })
-        .nullable(),
-    )
-    .optional(),
   templates: z.record(
     z.string(),
     z.object({
@@ -238,16 +222,7 @@ export const parseWorkforceAccount = (value: unknown) => {
     new Set(r.branches.map((b) => b.id)).size !== r.branches.length ||
     r.management.branchIds?.some(
       (id) => !r.branches.some((b) => b.id === id && b.isActive),
-    ) ||
-    (r.assignmentDefinitions !== undefined &&
-      (Object.keys(r.assignmentDefinitions).length !== r.assignments.length ||
-        r.assignments.some(
-          (a) =>
-            !Object.hasOwn(r.assignmentDefinitions!, a.id) ||
-            (r.assignmentDefinitions![a.id] !== null &&
-              r.assignmentDefinitions![a.id]?.scope !== a.scope),
-        ) ||
-        r.activeAssignmentIds.some((id) => !r.assignmentDefinitions![id])))
+    )
   )
     throw Error("Unexpected responsibility account scope");
   return r;

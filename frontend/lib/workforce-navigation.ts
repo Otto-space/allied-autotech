@@ -9,7 +9,6 @@ import {
 } from "lucide-react";
 import type { DashboardGroup } from "./dashboard-navigation";
 import type { WorkforceAccess } from "./api/workforce-schemas";
-import { canUseWorkforceFitment } from "./workforce-access";
 export function workforceNavigation(access: WorkforceAccess): DashboardGroup[] {
   const can = (permission: string) => access.permissions.includes(permission);
   const group = (
@@ -62,7 +61,11 @@ export function workforceNavigation(access: WorkforceAccess): DashboardGroup[] {
       {
         href: "/admin/fitment",
         label: "Fitment evidence & review",
-        allowed: canUseWorkforceFitment(access),
+        allowed: access.assignments.some((assignment) =>
+          ["OPERATIONS", "SALES_SUPERVISOR", "WORKSHOP_LEAD"].includes(
+            assignment.template,
+          ),
+        ),
       },
     ]),
     group("orders", "Sales & Orders", Package, [

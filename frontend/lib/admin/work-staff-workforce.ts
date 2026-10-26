@@ -5,7 +5,6 @@ import {
   type WorkforceAccount,
 } from "@/lib/api/workforce-schemas";
 const proof = {
-  receiptVersion: z.literal(2).default(2),
   currentPassword: z.string().min(1).max(256),
   reason: z.string().trim().min(10).max(1000),
   expectedVersion: z.number().int().nonnegative().nullable(),
@@ -19,7 +18,6 @@ const accessReceipt = z
     version: z.number().int().nonnegative(),
     delegatedTemplates: z.array(z.string()),
     delegatedBranchIds: z.array(z.uuid()),
-    delegationPolicyVersion: z.number().int().positive().optional(),
   })
   .strict();
 export type WorkforceAction = "enroll" | "assign" | "revoke" | "delegate";
@@ -32,7 +30,6 @@ export function workforceBody(action: WorkforceAction, input: unknown) {
       .extend({
         expectedVersion: z.number().int().nonnegative(),
         template: workforceTemplateSchema,
-        expectedTemplateVersion: z.number().int().positive().default(1),
         branchId: z.uuid(),
         temporary: z.boolean(),
         startsAt: z.iso.datetime(),
@@ -51,7 +48,6 @@ export function workforceBody(action: WorkforceAction, input: unknown) {
         templates: z.array(workforceTemplateSchema).max(8),
         branchIds: z.array(z.uuid()).max(20),
         allowAdminInvitations: z.boolean(),
-        expectedPolicyVersion: z.number().int().positive().default(1),
       })
       .strict()
       .parse(input);
@@ -100,11 +96,7 @@ export function verifyWorkforceReceipt(
       result.position !==
         (action === "enroll" ? input.position : current.access?.position) ||
       !equalSet(result.delegatedTemplates, templates) ||
-      !equalSet(result.delegatedBranchIds, branches) ||
-      (result.delegationPolicyVersion ?? 1) !==
-        (action === "delegate"
-          ? (current.templatesVersion ?? 1)
-          : (current.access?.delegationPolicyVersion ?? current.templatesVersion ?? 1))
+      !equalSet(result.delegatedBranchIds, branches)
     )
       throw Error("Unexpected responsibility receipt");
     return result;
@@ -116,7 +108,6 @@ export function verifyWorkforceReceipt(
       current.assignments.some((a) => a.id === result.id) ||
       result.assignedByUserId !== actor ||
       result.template !== input.template ||
-      (result.templateVersion ?? 1) !== (input.expectedTemplateVersion ?? 1) ||
       result.branchId !== input.branchId ||
       result.scope !== current.templates[result.template]?.scope ||
       result.temporary !== input.temporary ||
@@ -139,7 +130,6 @@ export function verifyWorkforceReceipt(
       (
         [
           "template",
-          "templateVersion",
           "branchId",
           "scope",
           "temporary",
