@@ -14,6 +14,8 @@ import {
 } from "./catalog.schemas.js";
 import {
   productImageConfirmSchema,
+  productImageOrderSchema,
+  type ProductImageOrder,
   type ProductImageConfirm,
 } from "./product-media.schemas.js";
 import { ProductMediaService } from "./product-media.service.js";
@@ -56,6 +58,24 @@ export function createProductMediaRouter(service = new ProductMediaService()) {
           actor: req.actor!,
           productId: ids(res).productId,
         }),
+      ),
+  );
+  router.post(
+    "/products/:productId/images/reorder",
+    requireCsrf,
+    validate({ params: productParamsSchema, query, body: productImageOrderSchema }),
+    async (req, res) =>
+      res.json(
+        successResponse(
+          "Product image order saved",
+          req.id,
+          await service.reorder(
+            req.actor!,
+            ids(res).productId,
+            body<ProductImageOrder>(res),
+            context(req),
+          ),
+        ),
       ),
   );
   router.post(

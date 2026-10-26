@@ -12,6 +12,7 @@ test.skip(
 );
 test.setTimeout(180000);
 async function signIn(page: Page) {
+  page.on("dialog", (dialog) => dialog.accept());
   const { sessions } = JSON.parse(readFileSync(sessionFile!, "utf8"));
   await page.context().addCookies([
     {
@@ -25,7 +26,7 @@ async function signIn(page: Page) {
   await page.route("https://media.example.test/**", async (route) => {
     const request = route.request();
     const response = await page.request.put(
-      `http://127.0.0.1:5011/api/v1/__test/storage${new URL(request.url()).pathname}`,
+      `${process.env.BG_MEDIA_API_ORIGIN ?? "http://127.0.0.1:5011"}/api/v1/__test/storage${new URL(request.url()).pathname}`,
       {
         data: request.postDataBuffer()!,
         headers: { "content-type": request.headers()["content-type"] },
@@ -52,9 +53,7 @@ async function openEditor(page: Page, name: string) {
     .filter({ hasText: name })
     .getByRole("button", { name: "Compatibility & images", exact: true })
     .click();
-  await expect(
-    page.getByRole("heading", { name: `Compatibility & images · ${name}`, exact: true }),
-  ).toBeVisible();
+  await expect(page.getByRole("heading", { name, exact: true })).toBeVisible();
 }
 async function upload(page: Page, invalid = false) {
   await page.getByRole("button", { name: "Upload file", exact: true }).click();
@@ -65,9 +64,9 @@ async function upload(page: Page, invalid = false) {
   });
   await page.getByRole("button", { name: "Upload selected file", exact: true }).click();
   await page
-    .getByLabel("Image description (optional)", { exact: true })
+    .getByLabel("Image description (alt text, optional)", { exact: true })
     .fill("Uploaded brake assembly");
-  await page.getByRole("checkbox", { name: "Primary image", exact: true }).check();
+  await page.getByRole("checkbox", { name: "Use as main image", exact: true }).check();
   await expect(
     page.getByRole("button", { name: "Review uploaded image", exact: true }),
   ).toBeEnabled();
@@ -123,6 +122,20 @@ test("product file uploads share hosted gallery editing, primary selection and r
   });
   expect(created.status()).toBe(201);
   const id = (await created.json()).data.id as string;
+  for (const url of [
+    "not a URL",
+    "https://127.0.0.1/private.png",
+    "https://images.example.test/private.png?X-Amz-Signature=private",
+  ]) {
+    expect(
+      (
+        await page.request.post(`/api/v1/admin/catalog/products/${id}/images`, {
+          headers,
+          data: { url },
+        })
+      ).status(),
+    ).toBe(422);
+  }
   await page.setViewportSize({ width: 1440, height: 1000 });
   await openEditor(page, name);
   await page.getByRole("button", { name: "Use hosted image URL", exact: true }).click();
@@ -130,18 +143,37 @@ test("product file uploads share hosted gallery editing, primary selection and r
     .getByLabel("Public image URL", { exact: true })
     .fill("https://unapproved.invalid/external-part.jpg");
   await page
-    .getByLabel("Image description (optional)", { exact: true })
+    .getByLabel("Image description (alt text, optional)", { exact: true })
     .fill("Hosted reference image");
-  await page.getByLabel("Sort position", { exact: true }).fill("5");
-  await page.getByRole("checkbox", { name: "Primary image", exact: true }).check();
+  await page.getByLabel("Display order (1 first)", { exact: true }).fill("6");
+  await page.getByRole("checkbox", { name: "Use as main image", exact: true }).check();
   await page.getByRole("button", { name: "Review product image", exact: true }).click();
   await confirm(page);
-  const gallery = page
-    .getByRole("heading", { name: "Recorded product images", exact: true })
-    .locator("..");
+  const gallery = page.getByRole("region", { name: "Saved image gallery", exact: true });
   await expect(gallery.getByRole("article")).toHaveCount(1);
   await upload(page);
   await expect(gallery.getByRole("article")).toHaveCount(2);
+  const beforeOrder = (
+    await page.request.get(`/api/v1/admin/catalog/products/${id}`)
+  ).ok();
+  expect(beforeOrder).toBe(true);
+  await gallery
+    .getByRole("button", { name: "Move image 2 earlier", exact: true })
+    .click();
+  await confirm(page);
+  let savedGallery = (
+    await (await page.request.get(`/api/v1/admin/catalog/products/${id}`)).json()
+  ).data.images;
+  expect(savedGallery.map((image: { sortOrder: number }) => image.sortOrder)).toEqual([
+    0, 1,
+  ]);
+  expect(savedGallery[1].isPrimary).toBe(true);
+  await gallery.getByRole("button", { name: "Move image 1 later", exact: true }).click();
+  await confirm(page);
+  savedGallery = (
+    await (await page.request.get(`/api/v1/admin/catalog/products/${id}`)).json()
+  ).data.images;
+  expect(savedGallery[0].isPrimary).toBe(true);
   const uploadedImage = gallery.locator('img[src*="/admin/catalog/products/"]');
   await expect
     .poll(() => uploadedImage.evaluate((img: HTMLImageElement) => img.naturalWidth))
@@ -153,9 +185,9 @@ test("product file uploads share hosted gallery editing, primary selection and r
   await gallery.getByRole("button", { name: "Edit image 1", exact: true }).click();
   await expect(page.getByLabel("Public image URL", { exact: true })).toHaveCount(0);
   await page
-    .getByLabel("Image description (optional)", { exact: true })
+    .getByLabel("Image description (alt text, optional)", { exact: true })
     .fill("Front brake assembly");
-  await page.getByLabel("Sort position", { exact: true }).fill("10");
+  await page.getByLabel("Display order (1 first)", { exact: true }).fill("11");
   await page.getByRole("button", { name: "Review product image", exact: true }).click();
   await confirm(page);
   await expect(gallery.getByRole("article").last()).toContainText("Front brake assembly");
@@ -163,18 +195,18 @@ test("product file uploads share hosted gallery editing, primary selection and r
   await page
     .getByLabel("Public image URL", { exact: true })
     .fill("https://unapproved.invalid/updated-external.jpg");
-  await page.getByRole("checkbox", { name: "Primary image", exact: true }).check();
+  await page.getByRole("checkbox", { name: "Use as main image", exact: true }).check();
   await page.getByRole("button", { name: "Review product image", exact: true }).click();
   await confirm(page);
   await expect(gallery.getByRole("article").first().getByRole("heading")).toContainText(
-    "primary",
+    "Main image",
   );
   await gallery.getByRole("button", { name: "Edit image 2", exact: true }).click();
-  await page.getByRole("checkbox", { name: "Primary image", exact: true }).check();
+  await page.getByRole("checkbox", { name: "Use as main image", exact: true }).check();
   await page.getByRole("button", { name: "Review product image", exact: true }).click();
   await confirm(page);
   await expect(gallery.getByRole("article").last().getByRole("heading")).toContainText(
-    "primary",
+    "Main image",
   );
   await gallery.scrollIntoViewIfNeeded();
   await page.screenshot({
@@ -227,7 +259,7 @@ test("product file uploads share hosted gallery editing, primary selection and r
   await expect(gallery.getByRole("article")).toHaveCount(1);
   expect((await publicPage.request.get(publicUrl)).status()).toBe(404);
   await expect(gallery.getByRole("article").getByRole("heading")).not.toContainText(
-    "primary",
+    "Main image",
   );
   await gallery.getByRole("button", { name: "Remove image 1", exact: true }).click();
   await confirm(page);

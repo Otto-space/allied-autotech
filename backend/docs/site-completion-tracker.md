@@ -1450,3 +1450,27 @@ OpenAPI/route checks and frontend build passed. See `cart-clear-atomic-20261025.
 Production deployment and real signed-in acceptance are pending; existing customer
 care and notification releases must be preserved. The broader Item 6 and site
 acceptance remain open.
+
+26 October 2026 - fitment and product-media local implementation candidate.
+Branch feat/fitment-media-20261026 in reused allied-home-restoration-20261025,
+based on recorded release 76377d43. No reset or whole-commit revert. The local
+customer-table correction, pending staff revision, Help work and other worktrees
+remain preserved. Reproduced legacy Toyota/Camry empty editor without a write;
+implemented explicit reconciliation/current-ID hydration, retained draft snapshots,
+evidence-led authoring/review and separate product Images/Compatibility tasks.
+Added compatible atomic, audited gallery ordering without changing main flags,
+permissions, uploaded assets or existing CRUD. Hosted URL writes reject private/local
+literal and common expiring forms. No schema change or production business write.
+71 migrations replayed in a fresh verified isolated native _ci database; db:check,
+21 real integration cases, seven backend units and 40 frontend units passed. Full
+frontend lint/types/build and backend lint/types/OpenAPI/route checks passed.
+Compiled fixture and real API/browser acceptance/evidence is recorded in
+backend/docs/fitment-product-media-20261026.md in the candidate worktree. Backend
+must precede the frontend for the new ordering endpoint. No production deployment;
+real-role/provider/device/locked-CI and wider Item 6 acceptance remain open.
+Final candidate acceptance: 36/36 compiled scope browser cases plus 12/12 adjacent
+regressions, including actual isolated API media persistence/public access/removal,
+passed. Owned preview/test API stopped. Current screenshot index is in
+%TEMP%/allied-fitment-media-review-20261026/. Removed 54.78 MiB superseded browser
+output; C: 29.88 GiB free at measurement. No Docker resources, duplicate dependencies
+or additional worktree created; databases/current cache/other tasks preserved.

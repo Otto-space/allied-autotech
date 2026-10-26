@@ -1,5 +1,6 @@
 "use client";
 import { useForm, useWatch } from "react-hook-form";
+import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   imageFormSchema,
@@ -9,6 +10,7 @@ import {
 import type { ProductImage } from "@/lib/api/product-extras-schemas";
 import { isPublicMediaUrl, publicMediaHosts } from "@/lib/media";
 import { PublicMedia } from "./public-media";
+import { isDurablePublicImageUrl } from "@/lib/product-image-url";
 const hosts = publicMediaHosts(process.env.NEXT_PUBLIC_MEDIA_HOSTS);
 export function ProductImageForm({
   item,
@@ -23,11 +25,21 @@ export function ProductImageForm({
 }) {
   const uploaded = item?.source === "UPLOADED";
   const form = useForm<ProductImageValues>({
-    resolver: zodResolver(uploaded ? uploadedImageFormSchema : imageFormSchema),
+    resolver: zodResolver(
+      (uploaded ? uploadedImageFormSchema : imageFormSchema).extend({
+        sortOrder: z
+          .string()
+          .regex(/^\d+$/, "Enter a whole number.")
+          .refine(
+            (value) => Number(value) >= 1 && Number(value) <= 10001,
+            "Use display order 1 to 10001.",
+          ),
+      }),
+    ),
     defaultValues: {
       url: item?.url ?? "",
       altText: item?.altText ?? "",
-      sortOrder: item?.sortOrder.toString() ?? "0",
+      sortOrder: String((item?.sortOrder ?? 0) + 1),
       isPrimary: item?.isPrimary ?? false,
     },
   });
@@ -37,7 +49,8 @@ export function ProductImageForm({
       data-draft-key={JSON.stringify(["product-image-form:1", item?.id])}
       noValidate
       onSubmit={form.handleSubmit((value) => {
-        if (!disabled) onReview(value);
+        if (!disabled)
+          onReview({ ...value, sortOrder: String(Number(value.sortOrder) - 1) });
       })}
     >
       <h3>{item ? "Edit product image" : "Add product image"}</h3>
@@ -55,25 +68,30 @@ export function ProductImageForm({
           saved, but its image will stay unavailable until its host is approved.
         </p>
       )}
-      {url && (uploaded || isPublicMediaUrl(url, hosts)) && (
-        <div className="product-image-preview">
-          <PublicMedia
-            key={url}
-            src={url}
-            alt="Selected product image preview"
-            adminPreview={uploaded}
-          />
-          <p className="field-hint">
-            Preview only. Review and save to update this product.
-          </p>
-        </div>
-      )}
+      {url &&
+        (uploaded || (isPublicMediaUrl(url, hosts) && isDurablePublicImageUrl(url))) && (
+          <div className="product-image-preview">
+            <PublicMedia
+              key={url}
+              src={url}
+              alt="Selected product image preview"
+              adminPreview={uploaded}
+            />
+            <p className="field-hint">
+              Preview only. Review and save to update this product.
+            </p>
+          </div>
+        )}
       <fieldset className="handover-fields" disabled={disabled}>
         {(
           [
             { name: "url", label: "Public image URL", max: 2048 },
-            { name: "altText", label: "Image description (optional)", max: 250 },
-            { name: "sortOrder", label: "Sort position", max: 5 },
+            {
+              name: "altText",
+              label: "Image description (alt text, optional)",
+              max: 250,
+            },
+            { name: "sortOrder", label: "Display order (1 first)", max: 5 },
           ] as const
         )
           .filter((field) => !uploaded || field.name !== "url")
@@ -105,11 +123,11 @@ export function ProductImageForm({
             </div>
           ))}
         <p className="field-hint">
-          Smaller sort positions appear first. The primary image is used for the main
-          product preview.
+          Describe what the photo shows. Smaller display orders appear first; tied orders
+          use the saved image reference. Use gallery move controls for an exact position.
         </p>
         <label className="check-label">
-          <input type="checkbox" {...form.register("isPrimary")} /> Primary image
+          <input type="checkbox" {...form.register("isPrimary")} /> Use as main image
         </label>
         <button className="button secondary">Review product image</button>
       </fieldset>

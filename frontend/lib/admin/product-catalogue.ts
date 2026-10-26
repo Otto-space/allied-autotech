@@ -81,6 +81,7 @@ export function productQuery(input: URLSearchParams) {
     "view",
     "edit",
     "media",
+    "tab",
   ];
   for (const key of keys) if (input.getAll(key).length > 1) invalid = true;
   for (const key of ["search", "brand", "make", "model"]) {
@@ -133,6 +134,11 @@ export function productQuery(input: URLSearchParams) {
   )
     params.set("_trail", trail.join(","));
   const view = input.get("view");
+  const tab = input.get("tab");
+  if (tab) {
+    if (tab !== "compatibility" || !params.has("media")) invalid = true;
+    else params.set("tab", tab);
+  }
   if (view) {
     if (view !== "create") invalid = true;
     else params.set("view", view);

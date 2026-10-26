@@ -142,3 +142,103 @@
     width: 100%;
   }
 }
+.fitment-workspace > header h1 {
+  font-size: clamp(1.65rem, 3vw, 2.25rem);
+}
+.fitment-workspace > header p {
+  max-width: 65ch;
+}
+.fitment-workspace .fitment-access {
+  font-size: 0.9rem;
+}
+.fitment-workspace summary {
+  cursor: pointer;
+  padding: 0.65rem 0;
+  font-weight: 600;
+}
+.fitment-workspace .fitment-product-results {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+.fitment-workspace .fitment-product-choice {
+  width: 100%;
+  min-height: 48px;
+  padding: 0.8rem 1rem;
+  text-align: left;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: #f7fafc;
+  color: #064f70;
+  font-weight: 600;
+}
+.fitment-workspace .fitment-product-choice:hover {
+  background: #eaf3f7;
+}
+.fitment-workspace .fitment-year-range {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  grid-column: 1 / -1;
+}
+.fitment-workspace .fitment-editor-group {
+  margin: 1.5rem 0;
+}
+.fitment-workspace .fitment-editor-group > h3 {
+  border-top: 1px solid var(--border);
+  padding-top: 1rem;
+}
+.fitment-workspace .fitment-evidence-summary {
+  background: #fff8e8;
+  border: 1px solid #bc8b36;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  color: #533e15;
+  margin: 1rem 0;
+}
+.fitment-workspace .fitment-evidence-summary ul {
+  margin-bottom: 0;
+}
+.fitment-workspace .fitment-readiness {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+.fitment-workspace :is(button, summary, a, input, select, textarea):focus-visible {
+  outline: 3px solid #006b96;
+  outline-offset: 3px;
+}
+.fitment-workspace .fitment-fields > .check-label {
+  align-self: start;
+}
+@media (max-width: 390px) {
+  .fitment-workspace .fitment-year-range {
+    grid-template-columns: 1fr;
+  }
+}
+/* Counter inherited field margins inside these deliberately grouped controls. */
+.dashboard .dashboard-content .fitment-workspace .field {
+  margin: 0;
+}
+.dashboard .dashboard-content .fitment-workspace > header {
+  display: grid;
+  gap: 0.6rem;
+}
+.dashboard .dashboard-content .fitment-workspace > header > :is(h1, p) {
+  margin: 0;
+}
+.dashboard .dashboard-content .fitment-workspace > header > button {
+  justify-self: start;
+}
+.dashboard .dashboard-content .fitment-workspace .fitment-fields {
+  gap: 1rem;
+  align-items: start;
+}
+.dashboard .dashboard-content .fitment-workspace .fitment-qualifier {
+  gap: 0.45rem;
+  padding: 0.75rem;
+}
+.dashboard .dashboard-content .fitment-workspace .fitment-qualifier .check-label {
+  margin: 0;
+  padding: 0.4rem 0 0;
+}

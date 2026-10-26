@@ -1465,3 +1465,48 @@ this does not replace physical-device or full screen-reader verification. A fres
 isolated 71-migration replay and two backend integration files passed. Actual
 production customer carts were not mutated for acceptance. Release and real-role
 checks remain open; the per-page dashboard backlog is unchanged.
+
+## Fitment and product media - 26 October 2026 local candidate
+
+Scope: `/admin/fitment` (permitted Sales/Operations authors, independent technical
+reviewers, Admin/Super Admin) and `/admin/products?media=<id>` Images/Compatibility.
+Branch `feat/fitment-media-20261026` reuses allied-home-restoration from recorded
+release 76377d43; other worktrees and pending work are retained. No shared rollout.
+
+Reproduced legacy Toyota/Camry labels with blank controls using the actual previous
+component and isolated fixture. Unchanged review made no write. Corrected explicit
+legacy reconciliation, normalized ID hydration outside suggestion pages, owner-bound
+selection drafts, snapshot preservation during refetch, stale/version blocking and
+mismatched context. Evidence readiness and approval are distinct; unknown years stay
+missing. Editor task groups, paired years, populated/required qualifier priority,
+secondary disclosures, contextual controls and independent review/history are verified.
+Product tasks separate Images from legacy Compatibility while retaining old deep links
+and list filters. Gallery moves use an atomic, versioned full-permutation backend
+operation. Main selection, upload stages, trust/validation, audit and cleanup survive.
+Hosted URL validation now rejects literal private/local and common expiring URL forms.
+
+Evidence and precise acceptance matrix: `backend/docs/fitment-product-media-20261026.md`.
+Before/after captures are actual rendered components with synthetic fixtures; no stock
+or evidence was invented for production. Isolated native PostgreSQL replayed 71
+migrations and passed db:check; 21 API/database integrations, seven backend units and
+40 frontend units passed. Full frontend lint/types/optimized build and backend
+lint/types/OpenAPI/route checks passed. Browser checks use installed Edge, with scoped
+Axe, keyboard/focus, 360/390/768/1024/1440 and existing 320px regression. A separate
+real API/browser case uses actual file bytes, database persistence, public image
+access and removal against an isolated database and memory storage provider.
+Final compiled browser counts and artifact paths are recorded in the evidence doc.
+
+Outstanding: real authenticated production-role, physical-device/on-screen keyboard,
+full screen-reader, actual object-storage-provider and locked Next 16.4.3 CI acceptance.
+Installed Next is 16.3.8; no dependency duplication. 200% native browser zoom and full
+contrast/motion acceptance are not inferred from narrow-width/Axe checks. Business
+must provide real photos/evidence and reconcile actual legacy records; names do not
+establish approved product types or compatibility. No production data/role/storage
+write or production deployment occurred. Site-completion Item 6 remains open.
+
+Final fitment/media checkpoint: 36/36 compiled scope cases and 12/12 adjacent
+upload/product regressions passed (48 total). Actual native isolated API media
+lifecycle and URL rejection passed; 200% logical reflow/reduced-motion emulation
+is distinguished from native/device acceptance. Owned preview/test API stopped;
+54.78 MiB superseded browser output removed, current evidence retained. C: 29.88 GiB
+free at measurement. Docker daemon unavailable; no Docker resources created or pruned.

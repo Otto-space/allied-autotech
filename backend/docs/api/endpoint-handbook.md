@@ -18218,6 +18218,60 @@ Binary image/webp bytes (no JSON envelope).
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.
 
+### POST `/admin/catalog/products/{productId}/images/reorder`
+
+- Operation ID: `postAdminCatalogProductsByProductIdImagesReorder`
+- Purpose: ADMIN/SUPER_ADMIN with verified MFA and CSRF. Requires expectedVersion and a unique complete permutation of the product image IDs. Validates product membership and gallery revision under the shared product lock; updates all zero-based positions and increments mediaVersion once. Does not change main selection or uploaded assets. Concurrent, partial or cross-product orders fail 409 without changes; audit retains the ordered image references. Atomically reorder the complete product image gallery without changing main selection. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `productId` | path | string (uuid) | Yes | Identifier selecting the product resource. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+| `imageIds` | array<string (uuid)> | Yes | Image Ids validated by this operation's strict request contract. |
+
+Synthetic request example:
+
+```json
+{
+  "expectedVersion": 0,
+  "imageIds": [
+    "00000000-0000-4000-8000-000000000001"
+  ]
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Atomically reorder the complete product image gallery without changing main selection",
+  "data": {
+    "version": 0,
+    "imageIds": [
+      "00000000-0000-4000-8000-000000000001"
+    ]
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.; 409 STALE_VERSION, MEDIA_COUNT_LIMIT, MEDIA_LAST_PUBLISHED_IMAGE or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body.; 422 VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.
+
 ### POST `/admin/catalog/products/{productId}/assets/upload`
 
 - Operation ID: `postAdminCatalogProductsByProductIdAssetsUpload`

@@ -247,6 +247,218 @@ async function draft(page: Page) {
     .check();
 }
 
+function existingRule(normalized = false) {
+  return {
+    id: id(5),
+    productId: product.id,
+    branchId: branch.id,
+    vehicleModelId: normalized ? model.id : null,
+    make: "Toyota",
+    model: "Camry",
+    yearFrom: 2013,
+    yearTo: 2019,
+    scope: "MODEL",
+    effect: "INCLUDE",
+    reviewStatus: "DRAFT",
+    version: 0,
+    safetyCritical: true,
+    allVariantsConfirmed: false,
+    requiredQualifiers: [],
+    trim: null,
+    engineCode: null,
+    market: null,
+    position: null,
+    brakeSystem: null,
+    brakeDiameterMm: null,
+    bodyType: null,
+    transmission: null,
+    generation: null,
+    chassisCode: null,
+    sourceReference: null,
+    evidenceNotes: null,
+    notes: null,
+    reviewNote: null,
+    createdByUserId: author.id,
+    updatedByUserId: author.id,
+    reviewedByUserId: null,
+    createdBy: author,
+    updatedBy: author,
+    reviewedBy: null,
+    createdAt: time,
+    updatedAt: time,
+    submittedAt: null,
+    reviewedAt: null,
+    product,
+    vehicleModel: normalized ? { ...model, name: "Camry" } : null,
+  };
+}
+
+test("legacy Toyota Camry remains visible and requires deliberate catalogue reconciliation without an unchanged write", async ({
+  page,
+}, testInfo) => {
+  const state = await fixture(page);
+  state.rule = existingRule();
+  await page.goto(`/admin/fitment?productId=${product.id}&ruleId=${id(5)}`);
+  await expect(page.getByText(/Toyota Camry, 2013/)).toBeVisible();
+  await page.getByRole("button", { name: "Edit rule", exact: true }).click();
+  await expect(
+    page.getByRole("combobox", { name: "Vehicle make", exact: true }),
+  ).toHaveValue("Toyota");
+  await expect(
+    page.getByRole("combobox", { name: "Vehicle model", exact: true }),
+  ).toHaveValue("Camry");
+  await expect(page.getByText(/Saved legacy association:/)).toBeVisible();
+  await page.getByRole("button", { name: "Review fitment draft", exact: true }).click();
+  await expect(
+    page.getByText(
+      "Choose a vehicle make and model from the catalogue before reviewing.",
+    ),
+  ).toBeVisible();
+  expect(state.writes).toHaveLength(0);
+  await page.screenshot({
+    path: testInfo.outputPath("after-legacy-reconciliation.png"),
+    fullPage: true,
+  });
+});
+
+test("normalized selection outside suggestions preserves identity on unchanged save", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  state.rule = existingRule(true);
+  await page.route("**/api/v1/public/fitment/makes?**", (route) =>
+    route.fulfill({
+      json: {
+        success: true,
+        message: "Isolated options",
+        meta: { requestId: "fixture" },
+        data: { items: [] },
+      },
+    }),
+  );
+  await page.goto(`/admin/fitment?productId=${product.id}&ruleId=${id(5)}`);
+  await page.getByRole("button", { name: "Edit rule", exact: true }).click();
+  await expect(
+    page.getByRole("combobox", { name: "Vehicle make", exact: true }),
+  ).toHaveValue("Toyota");
+  await expect(
+    page.getByRole("combobox", { name: "Vehicle model", exact: true }),
+  ).toHaveValue("Camry");
+  await page.getByRole("button", { name: "Review fitment draft", exact: true }).click();
+  await page.getByRole("button", { name: "Confirm fitment draft", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: "Fitment evidence · Version 1" }),
+  ).toBeVisible();
+  expect(state.writes[0].body).toMatchObject({
+    vehicleModelId: model.id,
+    expectedVersion: 0,
+    yearFrom: 2013,
+    yearTo: 2019,
+    requiredQualifiers: [],
+  });
+});
+
+test("late selected-model hydration and changed-record refresh preserve the active draft", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  state.rule = { ...existingRule(true), vehicleModel: null };
+  await page.route(`**/api/v1/public/fitment/models/${model.id}`, async (route) => {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await route.fulfill({
+      json: {
+        success: true,
+        message: "Isolated model",
+        meta: { requestId: "fixture" },
+        data: { ...model, name: "Camry" },
+      },
+    });
+  });
+  await page.goto(`/admin/fitment?productId=${product.id}&ruleId=${id(5)}`);
+  await page.getByRole("button", { name: "Edit rule", exact: true }).click();
+  await page
+    .getByLabel("Evidence source reference", { exact: true })
+    .fill("Retain my unsaved source");
+  await expect(
+    page.getByRole("combobox", { name: "Vehicle model", exact: true }),
+  ).toHaveValue("Camry");
+  await expect(page.getByText("Loading saved catalogue association?")).toHaveCount(0);
+  await expect(
+    page.getByRole("button", { name: "Review fitment draft", exact: true }),
+  ).toBeEnabled();
+  state.rule = { ...state.rule, version: 1 };
+  await page.getByRole("button", { name: "Refresh fitment workspace" }).click();
+  await expect(page.getByText(/This rule changed while you were editing/)).toBeVisible();
+  await expect(page.getByLabel("Evidence source reference", { exact: true })).toHaveValue(
+    "Retain my unsaved source",
+  );
+  await expect(
+    page.getByRole("button", { name: "Review fitment draft", exact: true }),
+  ).toBeDisabled();
+  expect(state.writes).toHaveLength(0);
+});
+
+for (const width of [360, 390, 768, 1024, 1440])
+  test(`oil-filter application, evidence, keyboard and reflow at ${width}px`, async ({
+    page,
+  }, testInfo) => {
+    await page.setViewportSize({ width, height: 900 });
+    const state = await fixture(page);
+    await page.route(`**/api/v1/staff/fitment/products/${product.id}`, (route) =>
+      route.fulfill({
+        json: {
+          success: true,
+          message: "Isolated product",
+          meta: { requestId: "fixture" },
+          data: {
+            ...product,
+            productType: "OIL_FILTER",
+            name: "Synthetic engine oil filter",
+          },
+        },
+      }),
+    );
+    state.rule = {
+      ...existingRule(true),
+      safetyCritical: false,
+      yearFrom: null,
+      yearTo: null,
+    };
+    await page.goto(`/admin/fitment?productId=${product.id}&ruleId=${id(5)}`);
+    await expect(
+      page.getByRole("complementary", { name: "Evidence readiness" }),
+    ).toContainText("Model-year range incomplete");
+    await expect(page.getByText("Unbounded", { exact: false })).toHaveCount(0);
+    await page.getByRole("button", { name: "Edit rule", exact: true }).click();
+    await expect(
+      page.getByRole("heading", { name: "Edit fitment rule", exact: true }),
+    ).toBeFocused();
+    await page.getByText("Additional technical restrictions", { exact: true }).focus();
+    await page.keyboard.press("Enter");
+    await expect(
+      page.getByLabel("Brake system / hardware restriction (optional)", { exact: true }),
+    ).toBeVisible();
+    await page
+      .getByLabel("Brake system / hardware restriction (optional)", { exact: true })
+      .fill("Preserved advanced restriction");
+    expect(
+      (
+        await new AxeBuilder({ page })
+          .include(".fitment-workspace")
+          .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
+          .analyze()
+      ).violations,
+    ).toEqual([]);
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.screenshot({
+      path: testInfo.outputPath(`fitment-editor-${width}.png`),
+      fullPage: true,
+    });
+  });
+
 for (const width of [1440, 390])
   test(`staff author, independent reviewer and history remain usable at ${width}px`, async ({
     page,
@@ -427,4 +639,140 @@ test("uncertain saves stop repeat creation, and failed reads expose no review ac
     page.getByRole("heading", { name: "Add a fitment rule", exact: true }),
   ).toHaveCount(0);
   expect(state.writes).toHaveLength(1);
+});
+
+test("legacy association is reconciled only after an explicit exact catalogue choice", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  state.rule = existingRule();
+  await page.route("**/api/v1/public/fitment/models?**", (route) =>
+    route.fulfill({
+      json: {
+        success: true,
+        message: "Isolated options",
+        data: { items: [{ ...model, name: "Camry" }] },
+        meta: { requestId: "fixture" },
+      },
+    }),
+  );
+  await page.goto(`/admin/fitment?productId=${product.id}&ruleId=${id(5)}`);
+  await page.getByRole("button", { name: "Edit rule", exact: true }).click();
+  await page.getByRole("combobox", { name: "Vehicle make", exact: true }).click();
+  await page.getByRole("option", { name: "Toyota", exact: true }).click();
+  await page.getByRole("combobox", { name: "Vehicle model", exact: true }).click();
+  await page.getByRole("option", { name: "Camry", exact: true }).click();
+  await page.getByRole("button", { name: "Review fitment draft", exact: true }).click();
+  expect(state.writes).toHaveLength(0);
+  await page.getByRole("button", { name: "Confirm fitment draft", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: "Fitment evidence · Version 1" }),
+  ).toBeVisible();
+  expect(state.writes[0].body).toMatchObject({
+    vehicleModelId: model.id,
+    expectedVersion: 0,
+    requiredQualifiers: [],
+    safetyCritical: true,
+    sourceReference: null,
+  });
+});
+
+test("failed catalogue identity hydration preserves labels and draft; mismatched rule context exposes no action", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  state.rule = { ...existingRule(true), vehicleModel: null };
+  await page.route(`**/api/v1/public/fitment/models/${model.id}`, (route) =>
+    route.fulfill({
+      status: 503,
+      json: { success: false, error: { code: "SERVICE_UNAVAILABLE" } },
+    }),
+  );
+  await page.goto(`/admin/fitment?productId=${product.id}&ruleId=${id(5)}`);
+  await page.getByRole("button", { name: "Edit rule", exact: true }).click();
+  await page
+    .getByLabel("Evidence source reference", { exact: true })
+    .fill("Preserved despite catalogue failure");
+  await expect(
+    page.getByText(/The saved catalogue model could not be loaded/),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("combobox", { name: "Vehicle model", exact: true }),
+  ).toHaveValue("Camry");
+  await page.getByRole("button", { name: "Review fitment draft", exact: true }).click();
+  expect(state.writes).toHaveLength(0);
+  await expect(page.getByLabel("Evidence source reference", { exact: true })).toHaveValue(
+    "Preserved despite catalogue failure",
+  );
+  page.on("dialog", (dialog) => dialog.accept());
+  state.rule.productId = id(99);
+  await page.reload();
+  await expect(
+    page.getByText(/The returned rule does not match this product link/),
+  ).toBeVisible();
+  await expect(page.getByRole("button", { name: "Edit rule", exact: true })).toHaveCount(
+    0,
+  );
+});
+
+test("closing a reconciled but unsaved legacy editor discards that local selection", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  state.rule = existingRule();
+  page.on("dialog", (dialog) => dialog.accept());
+  await page.goto(`/admin/fitment?productId=${product.id}&ruleId=${id(5)}`);
+  await page.getByRole("button", { name: "Edit rule", exact: true }).click();
+  await page.getByRole("combobox", { name: "Vehicle make", exact: true }).click();
+  await page.getByRole("option", { name: "Toyota", exact: true }).click();
+  await page.getByRole("combobox", { name: "Vehicle model", exact: true }).click();
+  await page.getByRole("option", { name: "Corolla", exact: true }).click();
+  await page
+    .getByLabel("Evidence source reference", { exact: true })
+    .fill("Discard this draft source");
+  await page.getByRole("button", { name: "Close rule editor", exact: true }).click();
+  await page.getByRole("button", { name: "Edit rule", exact: true }).click();
+  await expect(
+    page.getByRole("combobox", { name: "Vehicle model", exact: true }),
+  ).toHaveValue("Camry");
+  await expect(
+    page.getByRole("combobox", { name: "Vehicle model", exact: true }),
+  ).toBeDisabled();
+  await expect(page.getByLabel("Evidence source reference", { exact: true })).toHaveValue(
+    "",
+  );
+  expect(state.writes).toHaveLength(0);
+});
+
+test("catalogue search precedes create and either make control clears a dependent model", async ({
+  page,
+}) => {
+  await fixture(page);
+  await page.route("**/api/v1/public/fitment/makes?**", (route) =>
+    route.fulfill({
+      json: {
+        success: true,
+        message: "Isolated catalogue",
+        meta: { requestId: "fixture" },
+        data: { items: [make, { id: id(77), name: "Honda" }] },
+      },
+    }),
+  );
+  await page.goto("/admin/fitment");
+  await page.getByText("Vehicle catalogue maintenance", { exact: true }).click();
+  await page
+    .getByRole("combobox", { name: "Search existing makes", exact: true })
+    .click();
+  await page.getByRole("option", { name: "Toyota", exact: true }).click();
+  await page
+    .getByRole("combobox", { name: "Search models for this make", exact: true })
+    .click();
+  await page.getByRole("option", { name: "Corolla", exact: true }).click();
+  await expect(page.getByText(/Toyota Corolla already exists/)).toBeVisible();
+  await page.getByRole("combobox", { name: "Existing make", exact: true }).click();
+  await page.getByRole("option", { name: "Honda", exact: true }).click();
+  await expect(
+    page.getByRole("combobox", { name: "Search models for this make", exact: true }),
+  ).toHaveValue("");
+  await expect(page.getByText(/Corolla already exists/)).toHaveCount(0);
 });

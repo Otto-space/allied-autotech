@@ -1,8 +1,11 @@
 "use client";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useResource } from "@/lib/api/use-resource";
-import { ApiError } from "@/lib/api/client";
+import { apiRequest, ApiError } from "@/lib/api/client";
+import { z } from "zod";
+import "./product-media-workspace.css";
 import {
   parseProductExtrasSource,
   productExtrasRevision,
@@ -22,6 +25,8 @@ import { MutationReview, type MutationProposal } from "./mutation-review";
 import { ProductCompatibilityForm } from "./product-compatibility-form";
 import { ProductImageForm } from "./product-image-form";
 import { ProductFileUpload } from "./product-file-upload";
+import { ProductImagePreview } from "./product-image-preview";
+import { useEditorLeaveGuard } from "./use-editor-leave-guard";
 type Editor = (
   | { kind: "compatibility"; item: ProductCompatibility | null }
   | { kind: "image"; item: ProductImage | null }
@@ -36,6 +41,7 @@ export function ProductExtrasEditor({
   onUpdated,
   onClose,
   onPendingChange,
+  showClose = true,
 }: {
   productId: string;
   sourcePath: string;
@@ -44,15 +50,88 @@ export function ProductExtrasEditor({
   onUpdated: () => void;
   onClose: () => void;
   onPendingChange?: (pending: boolean) => void;
+  showClose?: boolean;
 }) {
   const records = useResource(sourcePath, parseProductExtrasSource);
   const product = records.data?.items.find((item) => item.id === productId);
   const [editor, setEditor] = useState<Editor | null>(null);
+  useEditorLeaveGuard(!!editor);
+  const [preview, setPreview] = useState<ProductImage | null>(null);
   const [epoch, setEpoch] = useState(0);
   const [proposal, setProposal] = useState<MutationProposal | null>(null);
   const [message, setMessage] = useState<string>();
   const [minimumVersion, setMinimumVersion] = useState(0);
   const heading = useRef<HTMLHeadingElement>(null);
+  const search = useSearchParams();
+  const task = search.get("tab") === "compatibility" ? "compatibility" : "images";
+  const editorHeading = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!editor) return;
+    const target = editorHeading.current?.querySelector<HTMLElement>("h3");
+    if (target) {
+      target.tabIndex = -1;
+      target.focus();
+    }
+  }, [editor]);
+  function discardEditorDraft() {
+    editorHeading.current
+      ?.querySelectorAll("form")
+      .forEach((form) => form.dispatchEvent(new Event("reset", { bubbles: true })));
+  }
+  function closeEditor() {
+    if (!window.confirm("Discard this unsaved edit? Saved records will be kept.")) return;
+    discardEditorDraft();
+    setEditor(null);
+    requestAnimationFrame(() => heading.current?.focus());
+  }
+  function chooseTask(next: string) {
+    if (editor && !window.confirm("Leave this task and discard its unsaved edit?"))
+      return;
+    if (editor) discardEditorDraft();
+    setEditor(null);
+    const params = new URLSearchParams(search.toString());
+    if (next === "images") params.delete("tab");
+    else params.set("tab", next);
+    window.history.pushState(null, "", `${window.location.pathname}?${params}`);
+  }
+  const detailsParams = new URLSearchParams(search.toString());
+  detailsParams.delete("media");
+  detailsParams.delete("tab");
+  detailsParams.set("edit", productId);
+  function moveImage(index: number, direction: -1 | 1) {
+    if (!product || product.mediaVersion === undefined) return;
+    const imageIds = product.images.map((image) => image.id);
+    const target = index + direction;
+    if (target < 0 || target >= imageIds.length) return;
+    [imageIds[index], imageIds[target]] = [imageIds[target], imageIds[index]];
+    review(
+      {
+        title: "Review gallery order",
+        description:
+          "The complete gallery order changes together. The main-image selection is preserved.",
+        facts: [{ label: "Move", value: `Image ${index + 1} to position ${target + 1}` }],
+        submit: async () => {
+          const result = z
+            .object({ version: z.number().int(), imageIds: z.array(z.uuid()) })
+            .parse(
+              (
+                await apiRequest(`/admin/catalog/products/${productId}/images/reorder`, {
+                  method: "POST",
+                  csrf: true,
+                  body: { expectedVersion: product.mediaVersion, imageIds },
+                })
+              ).data,
+            );
+          if (
+            result.version !== product.mediaVersion! + 1 ||
+            JSON.stringify(result.imageIds) !== JSON.stringify(imageIds)
+          )
+            throw Error("Unexpected gallery order");
+        },
+      },
+      true,
+    );
+  }
   useEffect(() => {
     heading.current?.focus();
   }, []);
@@ -143,15 +222,41 @@ export function ProductExtrasEditor({
   return (
     <section
       data-draft-scope={productId}
-      className="detail-section"
+      className="detail-section product-media-editor"
       aria-labelledby="product-extras-heading"
     >
       <h2 id="product-extras-heading" ref={heading} tabIndex={-1}>
-        Compatibility &amp; images{product ? ` · ${product.name}` : ""}
+        {product ? product.name : "Product media"}
       </h2>
+      {product && (
+        <p>
+          SKU {product.sku} ·{" "}
+          {product.isActive && product.category.isActive
+            ? "Publicly listed"
+            : "Unpublished"}
+        </p>
+      )}
+      <nav className="product-task-nav" aria-label="Product tasks">
+        <Link href={`/admin/products?${detailsParams}`}>Details</Link>
+        <button
+          type="button"
+          aria-current={task === "images" ? "page" : undefined}
+          onClick={() => chooseTask("images")}
+        >
+          Images
+        </button>
+        <button
+          type="button"
+          aria-current={task === "compatibility" ? "page" : undefined}
+          onClick={() => chooseTask("compatibility")}
+        >
+          Compatibility
+        </button>
+      </nav>
       <p>
-        Images appear when the product and its category are active. Customer fitment
-        results use approved evidence. Legacy compatibility edits remain unreviewed.
+        {task === "images"
+          ? "Prepare a photo, review its description and placement, then confirm to attach it."
+          : "Legacy associations are unreviewed. Only approved evidence in technical review can establish customer fitment."}
       </p>
       <Feedback message={records.error} />
       {records.refreshError && (
@@ -175,17 +280,24 @@ export function ProductExtrasEditor({
         <button
           className="button secondary"
           disabled={records.loading || !!proposal}
-          onClick={records.refresh}
+          onClick={records.revalidate}
         >
-          Refresh compatibility &amp; images
+          Refresh product records
         </button>
-        <button
-          className="button secondary"
-          disabled={!!proposal || editor?.kind === "upload"}
-          onClick={onClose}
-        >
-          Close compatibility &amp; images
-        </button>
+        {showClose && (
+          <button
+            className="button secondary"
+            disabled={!!proposal || editor?.kind === "upload"}
+            onClick={() => {
+              if (!editor || window.confirm("Close and discard this unsaved edit?")) {
+                if (editor) discardEditorDraft();
+                onClose();
+              }
+            }}
+          >
+            Close product workspace
+          </button>
+        )}
       </div>
       {records.loading && <p role="status">Checking the selected part…</p>}
       {!records.loading && !records.error && !product && (
@@ -202,56 +314,64 @@ export function ProductExtrasEditor({
             </p>
           )}
           <div className="actions">
-            <Link className="button" href={`/admin/fitment?productId=${productId}`}>
-              Fitment evidence and technical review
-            </Link>
-            <button
-              className="button secondary"
-              disabled={disabled || !!editor}
-              onClick={() => {
-                setEditor({
-                  kind: "compatibility",
-                  item: null,
-                  revision: productExtrasRevision(product),
-                });
-                setEpoch((value) => value + 1);
-              }}
-            >
-              Add compatibility
-            </button>
-            <button
-              className="button secondary"
-              disabled={disabled || !!editor || product.images.length >= 12}
-              onClick={() => {
-                setEditor({
-                  kind: "image",
-                  item: null,
-                  revision: productExtrasRevision(product),
-                });
-                setEpoch((value) => value + 1);
-              }}
-            >
-              Use hosted image URL
-            </button>
-            <button
-              className="button secondary"
-              disabled={
-                disabled ||
-                !!editor ||
-                product.mediaVersion === undefined ||
-                product.images.length >= 12
-              }
-              onClick={() => {
-                setEditor({
-                  kind: "upload",
-                  item: null,
-                  revision: productExtrasRevision(product),
-                });
-                setEpoch((value) => value + 1);
-              }}
-            >
-              Upload file
-            </button>
+            {task === "compatibility" && (
+              <>
+                <Link className="button" href={`/admin/fitment?productId=${productId}`}>
+                  Fitment evidence and technical review
+                </Link>
+                <button
+                  className="button secondary"
+                  disabled={disabled || !!editor}
+                  onClick={() => {
+                    setEditor({
+                      kind: "compatibility",
+                      item: null,
+                      revision: productExtrasRevision(product),
+                    });
+                    setEpoch((value) => value + 1);
+                  }}
+                >
+                  Add compatibility
+                </button>
+              </>
+            )}
+            {task === "images" && (
+              <>
+                <button
+                  className="button secondary"
+                  disabled={disabled || !!editor || product.images.length >= 12}
+                  onClick={() => {
+                    setEditor({
+                      kind: "image",
+                      item: null,
+                      revision: productExtrasRevision(product),
+                    });
+                    setEpoch((value) => value + 1);
+                  }}
+                >
+                  Use hosted image URL
+                </button>
+                <button
+                  className="button"
+                  disabled={
+                    disabled ||
+                    !!editor ||
+                    product.mediaVersion === undefined ||
+                    product.images.length >= 12
+                  }
+                  onClick={() => {
+                    setEditor({
+                      kind: "upload",
+                      item: null,
+                      revision: productExtrasRevision(product),
+                    });
+                    setEpoch((value) => value + 1);
+                  }}
+                >
+                  Upload file
+                </button>
+              </>
+            )}
           </div>
           {product.images.length >= 12 && (
             <p className="notice">
@@ -272,292 +392,382 @@ export function ProductExtrasEditor({
           </button>
         </div>
       )}
-      {editor?.kind === "compatibility" && (
-        <ProductCompatibilityForm
-          key={epoch}
-          item={editor.item}
-          disabled={disabled || changed}
-          onCancel={() => setEditor(null)}
-          onReview={(value) =>
-            review({
-              title: editor.item
-                ? "Review compatibility update"
-                : "Review new compatibility",
-              description:
-                "This legacy record stays unreviewed. Normalize its vehicle configuration and obtain independent approval in Fitment evidence and technical review before it can support a customer match.",
-              facts: [
-                { label: "Make", value: value.make },
-                { label: "Model", value: value.model || "Not specified" },
-                { label: "First year", value: value.yearFrom || "Not specified" },
-                { label: "Final year", value: value.yearTo || "Not specified" },
-                { label: "Notes", value: value.notes || "Not recorded" },
-              ],
-              submit: () =>
-                saveProductCompatibility(
-                  productId,
-                  editor.item?.id,
-                  value,
-                  editor.item?.version,
-                ),
-            })
-          }
-        />
-      )}
-      {editor?.kind === "image" && (
-        <ProductImageForm
-          key={epoch}
-          item={editor.item}
-          disabled={disabled || changed}
-          onCancel={() => setEditor(null)}
-          onReview={(value) =>
-            review(
-              {
+      <div ref={editorHeading} className="product-media-edit-panel">
+        {editor?.kind === "compatibility" && (
+          <ProductCompatibilityForm
+            key={epoch}
+            item={editor.item}
+            disabled={disabled || changed}
+            onCancel={closeEditor}
+            onReview={(value) =>
+              review({
                 title: editor.item
-                  ? "Review product image update"
-                  : "Review new product image",
-                description: `This image record can appear in the public catalogue. ${value.isPrimary ? "It will replace the existing primary image selection." : "It will not be designated primary; clearing an existing primary does not select a replacement."}`,
+                  ? "Review compatibility update"
+                  : "Review new compatibility",
+                description:
+                  "This legacy record stays unreviewed. Normalize its vehicle configuration and obtain independent approval in Fitment evidence and technical review before it can support a customer match.",
                 facts: [
-                  {
-                    label: "Image source",
-                    value:
-                      editor.item?.source === "UPLOADED" ? "Uploaded file" : value.url,
-                  },
-                  {
-                    label: "Image description",
-                    value: value.altText || "Product name used as fallback",
-                  },
-                  { label: "Sort position", value: value.sortOrder },
-                  { label: "Primary", value: value.isPrimary ? "Yes" : "No" },
-                  {
-                    label: "Display host",
-                    value:
-                      editor.item?.source === "UPLOADED"
-                        ? "Uploaded file preview"
-                        : isPublicMediaUrl(value.url, hosts)
-                          ? "Approved by this site"
-                          : "Not approved; image display unavailable",
-                  },
+                  { label: "Make", value: value.make },
+                  { label: "Model", value: value.model || "Not specified" },
+                  { label: "First year", value: value.yearFrom || "Not specified" },
+                  { label: "Final year", value: value.yearTo || "Not specified" },
+                  { label: "Notes", value: value.notes || "Not recorded" },
                 ],
                 submit: () =>
-                  saveProductImage(
+                  saveProductCompatibility(
                     productId,
                     editor.item?.id,
                     value,
-                    product?.mediaVersion,
-                    editor.item?.source === "UPLOADED",
+                    editor.item?.version,
                   ),
-              },
-              true,
-            )
-          }
-        />
-      )}
-      {editor?.kind === "upload" && product?.mediaVersion !== undefined && (
-        <ProductFileUpload
-          onPendingChange={onPendingChange}
-          key={epoch}
-          productId={productId}
-          version={product.mediaVersion}
-          disabled={disabled || changed}
-          refresh={records.refresh}
-          onCancel={() => setEditor(null)}
-          onSaved={(version) => {
-            setMinimumVersion(version);
-            setEditor(null);
-            setMessage("Product image attached.");
-            records.refresh();
-            onUpdated();
-          }}
-        />
-      )}
+              })
+            }
+          />
+        )}
+        {editor?.kind === "image" && (
+          <ProductImageForm
+            key={epoch}
+            item={editor.item}
+            disabled={disabled || changed}
+            onCancel={closeEditor}
+            onReview={(value) =>
+              review(
+                {
+                  title: editor.item
+                    ? "Review product image update"
+                    : "Review new product image",
+                  description: `This image record can appear in the public catalogue. ${value.isPrimary ? "It will replace the existing primary image selection." : "It will not be designated primary; clearing an existing primary does not select a replacement."}`,
+                  facts: [
+                    {
+                      label: "Image source",
+                      value:
+                        editor.item?.source === "UPLOADED" ? "Uploaded file" : value.url,
+                    },
+                    {
+                      label: "Image description",
+                      value: value.altText || "Product name used as fallback",
+                    },
+                    {
+                      label: "Display order",
+                      value: String(Number(value.sortOrder) + 1),
+                    },
+                    { label: "Main image", value: value.isPrimary ? "Yes" : "No" },
+                    {
+                      label: "Display host",
+                      value:
+                        editor.item?.source === "UPLOADED"
+                          ? "Uploaded file preview"
+                          : isPublicMediaUrl(value.url, hosts)
+                            ? "Approved by this site"
+                            : "Not approved; image display unavailable",
+                    },
+                  ],
+                  submit: () =>
+                    saveProductImage(
+                      productId,
+                      editor.item?.id,
+                      value,
+                      product?.mediaVersion,
+                      editor.item?.source === "UPLOADED",
+                    ),
+                },
+                true,
+              )
+            }
+          />
+        )}
+        {editor?.kind === "upload" && product?.mediaVersion !== undefined && (
+          <ProductFileUpload
+            onPendingChange={onPendingChange}
+            key={epoch}
+            productId={productId}
+            version={product.mediaVersion}
+            disabled={disabled || changed}
+            refresh={records.refresh}
+            onCancel={closeEditor}
+            onSaved={(version) => {
+              setMinimumVersion(version);
+              setEditor(null);
+              setMessage("Product image attached.");
+              records.refresh();
+              onUpdated();
+            }}
+          />
+        )}
+      </div>
       {product && (
         <>
-          <section className="detail-section">
-            <h3>Recorded compatibility</h3>
-            {product.compatibilities.length === 0 && (
-              <p>No compatibility records are saved for this part.</p>
-            )}
-            {product.compatibilities.map((item) => (
-              <article className="detail-section" key={item.id}>
-                <h4>
-                  {item.make}
-                  {item.model ? ` · ${item.model}` : " · model not specified"}
-                </h4>
-                <p>
-                  First year: {item.yearFrom ?? "not specified"} · Final year:{" "}
-                  {item.yearTo ?? "not specified"}
-                </p>
-                <p>{item.notes ?? "No fitment notes recorded."}</p>
-                <p>
-                  Review state:{" "}
-                  {item.reviewStatus?.toLowerCase() || "unreviewed legacy record"}
-                  {item.effect === "EXCLUDE" ? " (exclusion)" : ""}
-                </p>
-                {(item.vehicleModelId ||
-                  (item.reviewStatus && item.reviewStatus !== "DRAFT")) && (
-                  <p>
-                    <Link
-                      href={`/admin/fitment?${new URLSearchParams({ productId, ruleId: item.id })}`}
-                    >
-                      Open this rule in technical review
-                    </Link>
-                  </p>
-                )}
-                {item.version === undefined && (
-                  <p className="notice">
-                    Refresh this product before editing its compatibility.
-                  </p>
-                )}
-                <div className="actions">
-                  <button
-                    className="button secondary"
-                    disabled={
-                      disabled ||
-                      !!editor ||
-                      item.version === undefined ||
-                      !!item.vehicleModelId ||
-                      (!!item.reviewStatus && item.reviewStatus !== "DRAFT")
-                    }
-                    onClick={() => {
-                      setEditor({
-                        kind: "compatibility",
-                        item,
-                        revision: productExtrasRevision(product),
-                      });
-                      setEpoch((value) => value + 1);
-                    }}
-                  >
-                    Edit compatibility for {item.make}
-                    {item.model ? ` ${item.model}` : ""}
-                  </button>
-                  <button
-                    className="button secondary"
-                    disabled={
-                      disabled ||
-                      !!editor ||
-                      item.version === undefined ||
-                      !!item.vehicleModelId ||
-                      (!!item.reviewStatus && item.reviewStatus !== "DRAFT")
-                    }
-                    onClick={() =>
-                      review({
-                        title: "Remove compatibility record?",
-                        description:
-                          "This retires the unreviewed legacy record while preserving its version history. Reviewed rules must be retired through technical review.",
-                        facts: [
-                          {
-                            label: "Make / model",
-                            value: `${item.make} / ${item.model ?? "not specified"}`,
-                          },
-                          {
-                            label: "Year range",
-                            value: `${item.yearFrom ?? "not specified"} – ${item.yearTo ?? "not specified"}`,
-                          },
-                          { label: "Record reference", value: item.id },
-                        ],
-                        submit: () =>
-                          removeProductExtra(
-                            productId,
-                            "compatibilities",
-                            item.id,
-                            item.version,
-                          ),
-                      })
-                    }
-                  >
-                    Remove compatibility for {item.make}
-                    {item.model ? ` ${item.model}` : ""}
-                  </button>
-                </div>
-              </article>
-            ))}
-          </section>
-          <section className="detail-section">
-            <h3>Recorded product images</h3>
-            {product.images.length === 0 && <p>No product images are saved.</p>}
-            <div className="record-grid">
-              {product.images.map((item, index) => (
+          {task === "compatibility" && !editor && (
+            <section className="detail-section">
+              <h3>Recorded compatibility</h3>
+              {product.compatibilities.length === 0 && (
+                <p>No compatibility records are saved for this part.</p>
+              )}
+              {product.compatibilities.map((item) => (
                 <article className="detail-section" key={item.id}>
                   <h4>
-                    Image {index + 1}
-                    {item.isPrimary ? " · primary" : ""}
+                    {item.make}
+                    {item.model ? ` · ${item.model}` : " · model not specified"}
                   </h4>
-                  <PublicMedia
-                    adminPreview={item.source === "UPLOADED"}
-                    key={item.url}
-                    src={item.url}
-                    alt={item.altText ?? product.name}
-                  />
                   <p>
-                    {item.altText ??
-                      "No image description recorded; the product name is used."}
+                    First year: {item.yearFrom ?? "not specified"} · Final year:{" "}
+                    {item.yearTo ?? "not specified"}
                   </p>
-                  <p>Sort position: {item.sortOrder}</p>
+                  <p>{item.notes ?? "No fitment notes recorded."}</p>
                   <p>
-                    {item.source === "UPLOADED" ? "Uploaded file" : "Hosted image URL"}
+                    Review state:{" "}
+                    {item.reviewStatus?.toLowerCase() || "unreviewed legacy record"}
+                    {item.effect === "EXCLUDE" ? " (exclusion)" : ""}
                   </p>
-                  {item.source !== "UPLOADED" && (
-                    <p className="preserve-lines">{item.url}</p>
+                  {(item.vehicleModelId ||
+                    (item.reviewStatus && item.reviewStatus !== "DRAFT")) && (
+                    <p>
+                      <Link
+                        href={`/admin/fitment?${new URLSearchParams({ productId, ruleId: item.id })}`}
+                      >
+                        Open this rule in technical review
+                      </Link>
+                    </p>
                   )}
-                  {item.source !== "UPLOADED" && !isPublicMediaUrl(item.url, hosts) && (
+                  {item.version === undefined && (
                     <p className="notice">
-                      The image host is not approved for display by this site.
+                      Refresh this product before editing its compatibility.
                     </p>
                   )}
                   <div className="actions">
                     <button
                       className="button secondary"
-                      disabled={disabled || !!editor}
+                      disabled={
+                        disabled ||
+                        !!editor ||
+                        item.version === undefined ||
+                        !!item.vehicleModelId ||
+                        (!!item.reviewStatus && item.reviewStatus !== "DRAFT")
+                      }
                       onClick={() => {
                         setEditor({
-                          kind: "image",
+                          kind: "compatibility",
                           item,
                           revision: productExtrasRevision(product),
                         });
                         setEpoch((value) => value + 1);
                       }}
                     >
-                      Edit image {index + 1}
+                      Edit compatibility for {item.make}
+                      {item.model ? ` ${item.model}` : ""}
                     </button>
                     <button
                       className="button secondary"
-                      disabled={disabled || !!editor}
+                      disabled={
+                        disabled ||
+                        !!editor ||
+                        item.version === undefined ||
+                        !!item.vehicleModelId ||
+                        (!!item.reviewStatus && item.reviewStatus !== "DRAFT")
+                      }
                       onClick={() =>
-                        review(
-                          {
-                            title: "Remove product image?",
-                            description: `This removes the image from this product. ${item.source === "UPLOADED" ? "Its uploaded file will also be removed." : "It does not delete the hosted file."}${item.isPrimary ? " No replacement primary image will be selected automatically." : ""}`,
-                            facts: [
-                              {
-                                label: "Image source",
-                                value:
-                                  item.source === "UPLOADED" ? "Uploaded file" : item.url,
-                              },
-                              {
-                                label: "Description",
-                                value: item.altText ?? "Not recorded",
-                              },
-                              { label: "Primary", value: item.isPrimary ? "Yes" : "No" },
-                            ],
-                            submit: () =>
-                              removeProductExtra(
-                                productId,
-                                "images",
-                                item.id,
-                                product.mediaVersion,
-                              ),
-                          },
-                          true,
-                        )
+                        review({
+                          title: "Remove compatibility record?",
+                          description:
+                            "This retires the unreviewed legacy record while preserving its version history. Reviewed rules must be retired through technical review.",
+                          facts: [
+                            {
+                              label: "Make / model",
+                              value: `${item.make} / ${item.model ?? "not specified"}`,
+                            },
+                            {
+                              label: "Year range",
+                              value: `${item.yearFrom ?? "not specified"} – ${item.yearTo ?? "not specified"}`,
+                            },
+                            { label: "Record reference", value: item.id },
+                          ],
+                          submit: () =>
+                            removeProductExtra(
+                              productId,
+                              "compatibilities",
+                              item.id,
+                              item.version,
+                            ),
+                        })
                       }
                     >
-                      Remove image {index + 1}
+                      Remove compatibility for {item.make}
+                      {item.model ? ` ${item.model}` : ""}
                     </button>
                   </div>
                 </article>
               ))}
-            </div>
-          </section>
+            </section>
+          )}
+          {task === "images" && (
+            <section className="detail-section" aria-label="Saved image gallery">
+              <h3>Saved images ({product.images.length})</h3>
+              <p>
+                Display order starts at 1. The main image is selected separately. The
+                first image is not automatically main; removing or clearing main does not
+                choose a replacement.
+              </p>
+              {product.images.length === 0 && <p>No product images are saved.</p>}
+              <div className="product-gallery">
+                {product.images.map((item, index) => (
+                  <article className="detail-section" key={item.id}>
+                    <h4>
+                      Image {index + 1}
+                      {item.isPrimary ? " · Main image" : ""}
+                    </h4>
+                    <PublicMedia
+                      adminPreview={item.source === "UPLOADED"}
+                      key={item.url}
+                      src={item.url}
+                      alt={item.altText ?? product.name}
+                    />
+                    <button
+                      type="button"
+                      className="button secondary"
+                      onClick={() => setPreview(item)}
+                    >
+                      Enlarge image {index + 1}
+                    </button>
+                    <p>
+                      {item.altText ??
+                        "No image description recorded; the product name is used."}
+                    </p>
+                    <p>Display order {item.sortOrder + 1}</p>
+                    <p>
+                      {item.source === "UPLOADED" ? "Uploaded file" : "Hosted image URL"}
+                    </p>
+                    {item.source !== "UPLOADED" && (
+                      <details>
+                        <summary>Image source</summary>
+                        <p className="preserve-lines">{item.url}</p>
+                      </details>
+                    )}
+                    {item.source !== "UPLOADED" && !isPublicMediaUrl(item.url, hosts) && (
+                      <p className="notice">
+                        The image host is not approved for display by this site.
+                      </p>
+                    )}
+                    <div className="actions">
+                      {!item.isPrimary && (
+                        <button
+                          type="button"
+                          className="button secondary"
+                          disabled={disabled || !!editor}
+                          onClick={() =>
+                            review(
+                              {
+                                title: "Set main product image?",
+                                description:
+                                  "This replaces the existing main selection without changing gallery order.",
+                                facts: [
+                                  { label: "Main image", value: `Image ${index + 1}` },
+                                ],
+                                submit: () =>
+                                  saveProductImage(
+                                    productId,
+                                    item.id,
+                                    {
+                                      url: item.url,
+                                      altText: item.altText ?? "",
+                                      sortOrder: String(item.sortOrder),
+                                      isPrimary: true,
+                                    },
+                                    product.mediaVersion,
+                                    item.source === "UPLOADED",
+                                  ),
+                              },
+                              true,
+                            )
+                          }
+                        >
+                          Set image {index + 1} as main
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        className="button secondary"
+                        disabled={
+                          disabled ||
+                          !!editor ||
+                          index === 0 ||
+                          product.mediaVersion === undefined
+                        }
+                        onClick={() => moveImage(index, -1)}
+                      >
+                        Move image {index + 1} earlier
+                      </button>
+                      <button
+                        type="button"
+                        className="button secondary"
+                        disabled={
+                          disabled ||
+                          !!editor ||
+                          index === product.images.length - 1 ||
+                          product.mediaVersion === undefined
+                        }
+                        onClick={() => moveImage(index, 1)}
+                      >
+                        Move image {index + 1} later
+                      </button>
+                      <button
+                        className="button secondary"
+                        disabled={disabled || !!editor}
+                        onClick={() => {
+                          setEditor({
+                            kind: "image",
+                            item,
+                            revision: productExtrasRevision(product),
+                          });
+                          setEpoch((value) => value + 1);
+                        }}
+                      >
+                        Edit image {index + 1}
+                      </button>
+                      <button
+                        className="button secondary"
+                        disabled={disabled || !!editor}
+                        onClick={() =>
+                          review(
+                            {
+                              title: "Remove product image?",
+                              description: `This removes the image from this product. ${item.source === "UPLOADED" ? "Its owned upload is queued for cleanup when no longer referenced." : "It does not delete the hosted file."}${item.isPrimary ? " No replacement primary image will be selected automatically." : ""}`,
+                              facts: [
+                                {
+                                  label: "Image source",
+                                  value:
+                                    item.source === "UPLOADED"
+                                      ? "Uploaded file"
+                                      : item.url,
+                                },
+                                {
+                                  label: "Description",
+                                  value: item.altText ?? "Not recorded",
+                                },
+                                {
+                                  label: "Primary",
+                                  value: item.isPrimary ? "Yes" : "No",
+                                },
+                              ],
+                              submit: () =>
+                                removeProductExtra(
+                                  productId,
+                                  "images",
+                                  item.id,
+                                  product.mediaVersion,
+                                ),
+                            },
+                            true,
+                          )
+                        }
+                      >
+                        Remove image {index + 1}
+                      </button>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </section>
+          )}
         </>
       )}
       {proposal && (
@@ -572,6 +782,13 @@ export function ProductExtrasEditor({
               "Product record change confirmed. Review the refreshed catalogue details.",
             );
           }}
+        />
+      )}
+      {preview && product && (
+        <ProductImagePreview
+          image={preview}
+          productName={product.name}
+          onClose={() => setPreview(null)}
         />
       )}
     </section>
