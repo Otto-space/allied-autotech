@@ -1644,3 +1644,11 @@ source-cancellation races. Backend types, lint and format passed. The exact
 merged source still requires revalidation before release. No provider transaction,
 schema or financial policy changed. See `payment-source-concurrency-20261026.md`.
 Production release and real provider/role acceptance remain open; Item 6 is unchanged.
+
+The exact merged candidate `1f2e8c89` was then revalidated on a second newly
+created isolated `_test` PostgreSQL 17 target: 71 migrations and schema comparison
+passed, as did `db:check`, eight integration files/48 tests, backend typecheck and
+lint. The disposable test container auto-removed; all 14 pre-existing Docker
+volumes were retained, and C: postflight was 28.14 GiB free. This does not change
+the release or live-provider acceptance status. The next step is backend image,
+release and hosted readiness verification against the latest active deployment.
