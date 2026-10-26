@@ -1723,3 +1723,17 @@ targeted lint and format passing. This test-only work needs no runtime rollout.
 Provider sandbox and real-role acceptance remain open. The newer `c4e0005d` runtime is recorded in the main
 checkout tracker and includes the earlier payment fix. See the payment-source
 release record for exact scope.
+
+26 October 2026 - the historical refund replay authorization blocker was
+rechecked against current code and HTTP behavior. Existing refunds are returned
+only after matching the original requester and exact input, followed by branch
+access; STAFF and MFA-unverified administrators cannot request a refund. One
+focused route/integration case passed on a fresh native loopback `_test` cluster
+after 72-migration replay and `db:check`; three explicit denied-role POST checks
+were added. A Docker NAT direct-host guard correctly blocked the first attempt,
+so it was not counted as test acceptance. No runtime/provider/production financial
+write was made. Provider completion and real-role acceptance remain open. See
+`refund-replay-authorization-20261026.md`.
+The native test server was stopped; automatic command review blocked removal
+of its 76,629,829-byte task directory, which remains in Temp. C: postflight
+was 28 GiB free; original Docker volumes were retained.

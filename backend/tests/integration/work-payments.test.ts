@@ -454,6 +454,8 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       ])
         expect(first.body.data.refund).not.toHaveProperty(key);
       expect((await post("/refunds", body, other, key)).status).toBe(409);
+      for (const who of [staff, customer, unverified])
+        expect((await post("/refunds", body, who, key)).status).toBe(403);
       expect(
         (await post("/refunds", { ...body, reason: "Different request" }, admin, key))
           .status,
