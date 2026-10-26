@@ -1,6 +1,15 @@
 # Implementation checkpoint
 
-26 October 2026. BUILD NOW, Phases 0-3; local/test only. No production publication.
+26 October 2026. BUILD NOW, Phases 0-3. Subsequently deployed to production under
+the owner's explicit deployment instruction. Current release evidence and remaining
+acceptance limits: [PRODUCTION_RELEASE.md](PRODUCTION_RELEASE.md).
+
+Frozen deployed runtime: `adef02f9d7d0d23818b8dbfcae9e938a27a40ee4`.
+The implementation evidence below records the original local milestone; statements
+about no push/publication and unrun locked CI describe that earlier checkpoint.
+
+## Original implementation checkpoint
+
 Branch: feat/help-learn-practice-20261026; reused allied-shop-vehicles-r2-20261025.
 Base: released runtime 76377d43fb6e595e40ea27d24994794ceed37706.
 The separate responsive branch and other worktrees are preserved.
@@ -103,7 +112,7 @@ versions and review responsibility; OPERATIONS.md records flags, privacy and rol
   resource, new worktree, dependency installation or editor-profile clone created;
   all existing images, containers, volumes, databases and caches retained.
 
-## Resume checkpoint
+## Original local resume checkpoint
 
 Selected Phases 0-3 are implemented and locally verified. Task API/frontend servers
 are stopped. Backend contract commit e33c9e3e and frontend implementation 6b83a4d6
@@ -116,3 +125,16 @@ Postflight disk reserve: 29.84 GiB free on C: at measurement, compared with
 small screenshot evidence, the task-only database/role and protected local fixture
 credentials are retained for reproducibility. No database, backup, history or Docker
 resource was removed. This is a measurement, not a machine-wide quota guarantee.
+
+## Current production checkpoint
+
+The owner subsequently authorised deployment. The exact current fitment/product-media
+release `a28753ab` was merged before publication, preserving its behaviour. All three
+CI workflows passed for frozen runtime `adef02f9`; locked Next 16.4.3 passed 1,036
+frontend tests and the production dependency audit reported zero vulnerabilities.
+The backend is ACTIVE and both custom domains resolve to the intended READY Vercel
+deployment through provider management API verification. Learning, guides and local
+practice are enabled; generative AI remains deferred. No schema migration was added
+or applied. Public API reads passed; hosted authenticated-role, physical-device and
+full screen-reader acceptance remain open. See the release record for identifiers,
+backup/restore evidence, cleanup, rollback and exact verification boundaries.

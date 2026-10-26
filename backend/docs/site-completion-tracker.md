@@ -1502,3 +1502,28 @@ or additional worktree created; databases/current cache/other tasks preserved.
 Final gallery spacing follow-up rebuilt successfully and passed all five gallery
 width cases again; current screenshots updated and preview stopped. Functional
 48-case acceptance above remains the baseline; this is a bounded CSS correction.
+
+26 October 2026 - Help, Learn and Practice production deployment completed.
+Owner explicitly authorised publication after the original local/test milestone.
+Frozen runtime adef02f9d7d0d23818b8dbfcae9e938a27a40ee4, branch
+feat/help-learn-practice-20261026 in reused allied-shop-vehicles-r2-20261025.
+Merged actual preceding production a28753ab before rollout, preserving fitment and
+product media; separate staff/customer-table branches and other worktrees preserved.
+Backend 1dbceb73-075e-4f41-bd76-deb3daf71354 ACTIVE; Vercel
+dpl_EqRCL8GvHPvwXxMB2brqSgtdYKcD READY, both main/www aliases verified to it.
+API learning/guides/practice flags and frontend build flag enabled; AI remains off.
+All three exact-source CI workflows passed; locked Next 16.4.3, 1,036 frontend tests,
+production dependency audit zero findings (three existing development findings).
+Merged local regression 26/26, deployment spec 32/32, packaged contracts 10/10 passed.
+Production readiness, public catalogue/scenario and private-denial reads passed.
+No schema changes/migrations or production business submissions. Existing read-only
+predeploy check job SUCCESS. Eight managed backups present, latest 26 Oct 05:22Z;
+retained separate 25 Oct logical restore receipt/archive checksum verified. No new
+cloud restore/PITR rehearsal; packaged isolated synthetic restore is separate evidence.
+Hosted authenticated-role, physical-device, full screen-reader and production UI
+acceptance remain open. Full identifiers, rollback, CI links and precise evidence:
+docs/help-learn/PRODUCTION_RELEASE.md in the release worktree.
+Removed only four never-deployed superseded task-local bb9dea4d images without force;
+current/rollback resources and all 13 containers/14 volumes retained, no cache prune.
+C: measured 29.81 GiB before/after cleanup; reserve passed, no physical-reclaim claim.
+Main tracker updated append-only with original bytes preserved. Item 6 remains open.

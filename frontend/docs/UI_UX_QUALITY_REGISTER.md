@@ -1547,3 +1547,26 @@ free at measurement. Docker daemon unavailable; no Docker resources created or p
 Gallery alignment follow-up: removed an inherited sibling margin, rebuilt and passed
 all five populated-gallery widths again with an actual desktop alignment assertion.
 Current review captures reflect the follow-up; no production release or new scope.
+
+## Cycle 14 production addendum - 26 October 2026
+
+The owner subsequently authorised deployment of Help, Learn and Practice Phases 0-3.
+Frozen runtime `adef02f9` includes the actual preceding fitment/media release
+`a28753ab`; broader redesigns and separate pending branches remain outside scope.
+Both domains point to Vercel `dpl_EqRCL8GvHPvwXxMB2brqSgtdYKcD` (READY);
+backend `1dbceb73-075e-4f41-bd76-deb3daf71354` is ACTIVE. Learning, guides and
+safe local practice are enabled, AI remains disabled and browse/enquiries mode is
+preserved. All three exact-source CI workflows passed, including locked Next 16.4.3
+and 1,036 frontend tests; production dependency audit zero vulnerabilities.
+Merged learning/media regression 26/26, deployment specs 32/32 and packaged contracts
+10/10 passed. Read-only production public catalogue/practice and private-denial
+probes passed. Frontend provider READY/alias evidence does not establish hosted UI
+or authenticated-role acceptance. Physical-device, full screen-reader and actual
+production-role journeys remain unverified; earlier local fixture/browser evidence
+retains its stated boundaries. No business record or message was submitted.
+
+Full release, rollback, backup/restore and disk evidence:
+[Help/Learn production record](../../docs/help-learn/PRODUCTION_RELEASE.md).
+Original Cycle 14 no-publication/locked-CI limitations describe the historical local
+milestone and are superseded only by the explicit evidence in this addendum.
+Site-completion Item 6, business policies and unrelated pages remain open.
