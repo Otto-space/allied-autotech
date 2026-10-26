@@ -19,6 +19,7 @@ import { appendAuditEvent } from "../audit/audit.service.js";
 import { cancelPendingReminders } from "../service-operations/service-operations.service.js";
 import { lockAccessActor } from "./team-access-security.js";
 import { lockWorkforce } from "./workforce-access.service.js";
+import { assignmentAllows, supportedAssignmentPolicies } from "./workforce-catalogue.js";
 import {
   bookingScope,
   branchesFor,
@@ -429,17 +430,9 @@ export class WorkforceWorkService {
             .map((term) => term.replace(/[\\%_]/g, "\\$&"))
         : [];
       const now = new Date();
-      const pairs =
-        kind === "jobs"
-          ? [
-              { template: "MECHANICAL_TECHNICIAN", scope: "ASSIGNED" },
-              { template: "ELECTRICAL_TECHNICIAN", scope: "ASSIGNED" },
-              { template: "WORKSHOP_LEAD", scope: "BRANCH" },
-            ]
-          : [
-              { template: "SALES_CASHIER", scope: "ASSIGNED" },
-              { template: "SALES_SUPERVISOR", scope: "BRANCH" },
-            ];
+      const pairs = supportedAssignmentPolicies().filter((pair) =>
+        assignmentAllows(pair, kind === "jobs" ? "JOBS_UPDATE" : "SALES_ENQUIRIES"),
+      );
       const items = await tx.staffProfile.findMany({
         where: {
           ...(paginated

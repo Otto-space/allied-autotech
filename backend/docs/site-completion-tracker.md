@@ -1629,6 +1629,45 @@ is separate. No schema migration, production rollout or real communication.
 Evidence: docs/help-learn/WORKFORCE_ROLE_DEPENDENCIES_W2.md. Remaining foundation,
 actual AI, all-route learning, handoff/live chat and evaluations stay required.
 
+Revision 4 W3 local checkpoint: assignment/delegation definitions pinned to reviewed
+version 1, using forward migration 72 with portable LF checksum. Fresh empty replay,
+schema comparison/db:check, preserved reduced populated fixtures and existing
+non-destructive SQL guard passed. Fixed a reproduced delegated-admin copied-target
+branch bypass (200 before, 403 after); canonical versioned fitment, assignee and
+support-recipient eligibility align. Strict legacy mutation receipts preserved;
+updated clients explicitly request version metadata. All 57 isolated HTTP/DB cases,
+five backend units, 1,057 frontend units, lint/types/contracts and optimized build
+passed. W2/W3 rendered QA remains open after policy-blocked compiled preview start.
+No production migration/deployment, real messages, provider call or published stock.
+Evidence/rollback dependencies: docs/help-learn/WORKFORCE_TEMPLATE_VERSIONS_W3.md.
+Current C: postflight 28.12 GiB free; same useful Docker/current/rollback resources
+retained, no pruning. Complete effective-access/transition matrix, actual AI, full
+learning coverage, reviewed handoff, gated chat and evaluations remain required.
+
+26 October 2026 - current backend was rechecked as ACTIVE deployment
+`b1c75306-9ea7-4f5a-97cc-156ddf412d67`, image source `8c11c3a0`, with no
+pending rollout. Its ancestry includes the earlier `3ccee21a` release.
+
+Payment-source concurrency candidate `fix/payment-expiry-race-20261026` was
+initially tested against `3ccee21a` and then merged with current `8c11c3a0`.
+An isolated order expiry schedule reproduced creation of an intent from a stale
+payable read. Intent creation, online initialization and manual submission now
+lock the owned source before validating status, amount and deadline. A fresh
+`_test` database replayed 71 migrations with no schema difference and passed
+db:check; eight integration files passed 48 cases, including three
+source-cancellation races. Backend types, lint and format passed. The exact
+merged source still requires revalidation before release. No provider transaction,
+schema or financial policy changed. See `payment-source-concurrency-20261026.md`.
+Production release and real provider/role acceptance remain open; Item 6 is unchanged.
+
+The exact merged candidate `1f2e8c89` was then revalidated on a second newly
+created isolated `_test` PostgreSQL 17 target: 71 migrations and schema comparison
+passed, as did `db:check`, eight integration files/48 tests, backend typecheck and
+lint. The disposable test container auto-removed; all 14 pre-existing Docker
+volumes were retained, and C: postflight was 28.14 GiB free. This does not change
+the release or live-provider acceptance status. The next step is backend image,
+release and hosted readiness verification against the latest active deployment.
+
 
 26 October 2026 ? campaign artwork and committed W1/W2 changes deployed.
 Runtime 8c11c3a0, backend b1c75306-9ea7-4f5a-97cc-156ddf412d67 ACTIVE, frontend
@@ -1641,6 +1680,22 @@ passed and original firewall restored. No migration or real business submissions
 W3 uncommitted work remains in its original worktree; Revision 4/Item 6 not complete.
 Evidence/rollback: backend/docs/pending-commits-production-20261026.md. Local preview
 stopped, no cleanup deletion, current/rollback/data retained; C: 28.19 GiB free.
+
+26 October 2026 - owner-authorised pending W3 workforce commit 432308e0 deployed
+as reconciled runtime c4e0005d, preserving live campaign/W1/W2 and payment-source
+concurrency source 2033b159. Backend 707a200f-17c3-4947-a0bd-21b39496cf6a ACTIVE;
+frontend dpl_GRVrwacMhYkrqktFvGRChY5LB2Ln READY, both apex/www aliases verified.
+Guarded forward migration 72 and db:check passed after fresh backup and actual
+separate populated 90-table restore/migration rehearsal with original row hashes
+preserved. All exact-source CI, 123 restricted-runtime integrations, 41 release/
+image cases and 43 distinct hosted fixture browser journeys accepted. Post-release
+DB/least-privilege/worker checks and original app-only firewall verified. No grants
+changed or real business submissions. Existing rapid overlapping staff-directory
+filter loss remains separate; actual-role/device/screen-reader acceptance open.
+Operator harness/timeout qualifications and compatible recovery composition are
+in backend/docs/workforce-versions-production-20261026.md. Other worktrees and
+uncommitted edits preserved; no speculative Docker cleanup; C: 27.71 GiB free.
+Full Revision 4 implementation and broader Item 6 remain open.
 
 26 October 2026 - complete colour/state brief, local implementation checkpoint.
 Branch feat/colour-states-20261026 in allied-shop-vehicles-r2-20261025, based on

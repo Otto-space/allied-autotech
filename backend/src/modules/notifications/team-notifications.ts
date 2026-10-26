@@ -1,6 +1,9 @@
 import type { Prisma } from "../../generated/prisma/client.js";
 import { enqueueNotification } from "./notifications.service.js";
-import { templateSchema, workforceTemplates } from "../organization/workforce.policy.js";
+import {
+  assignmentAllows,
+  definitionForAssignment,
+} from "../organization/workforce-catalogue.js";
 
 // Match the existing support branch/responsibility rules. Text stays generic so
 // an inbox item cannot retain customer content after responsibility is removed.
@@ -59,22 +62,17 @@ export async function notifySupportTeam(
       user.role === "SUPER_ADMIN" ||
       (user.workforceAccess
         ? user.workforceAccess.assignments.some((a) => {
-            const template = templateSchema.safeParse(a.template);
-            if (
-              !template.success ||
-              a.scope !== workforceTemplates[template.data].scope ||
-              a.branchId !== record.branchId
-            )
+            if (!definitionForAssignment(a) || a.branchId !== record.branchId)
               return false;
             if (
               a.scope === "ASSIGNED" &&
               (!user.staffProfile || user.staffProfile.id !== record.assignedStaffId)
             )
               return false;
-            if (input.kind === "COMPLAINT") return a.template === "CUSTOMER_SERVICE";
+            if (input.kind === "COMPLAINT") return assignmentAllows(a, "COMPLAINTS");
             return (
-              a.template === "CUSTOMER_SERVICE" ||
-              (["SALES_SUPERVISOR", "SALES_CASHIER"].includes(a.template) &&
+              assignmentAllows(a, "CUSTOMER_ENQUIRIES") ||
+              (assignmentAllows(a, "SALES_ENQUIRIES") &&
                 "type" in record &&
                 typeof record.type === "string" &&
                 ["PRODUCT", "VEHICLE"].includes(record.type))

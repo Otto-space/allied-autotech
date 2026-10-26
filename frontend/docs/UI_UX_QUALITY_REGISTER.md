@@ -1683,6 +1683,21 @@ is separate. No schema migration, production rollout or real communication.
 Evidence: docs/help-learn/WORKFORCE_ROLE_DEPENDENCIES_W2.md. Remaining foundation,
 actual AI, all-route learning, handoff/live chat and evaluations stay required.
 
+Revision 4 W3 local checkpoint: assignment/delegation definitions pinned to reviewed
+version 1, using forward migration 72 with portable LF checksum. Fresh empty replay,
+schema comparison/db:check, preserved reduced populated fixtures and existing
+non-destructive SQL guard passed. Fixed a reproduced delegated-admin copied-target
+branch bypass (200 before, 403 after); canonical versioned fitment, assignee and
+support-recipient eligibility align. Strict legacy mutation receipts preserved;
+updated clients explicitly request version metadata. All 57 isolated HTTP/DB cases,
+five backend units, 1,057 frontend units, lint/types/contracts and optimized build
+passed. W2/W3 rendered QA remains open after policy-blocked compiled preview start.
+No production migration/deployment, real messages, provider call or published stock.
+Evidence/rollback dependencies: docs/help-learn/WORKFORCE_TEMPLATE_VERSIONS_W3.md.
+Current C: postflight 28.12 GiB free; same useful Docker/current/rollback resources
+retained, no pruning. Complete effective-access/transition matrix, actual AI, full
+learning coverage, reviewed handoff, gated chat and evaluations remain required.
+
 26 October campaign release: 8c11c3a0 is live with the supplied unaltered poster on
 home/About, complete 4:5 framing and About workshop-wall archive removed. W1/W2
 committed workforce changes included; unfinished W3 preserved separately. Local
@@ -1692,6 +1707,22 @@ alias identities and independent backend health verified. Hosted actual-role,
 physical device and full screen-reader acceptance remain open. Evidence, exact
 release/rollback IDs, disk qualification and screenshot paths are in
 backend/docs/pending-commits-production-20261026.md, campaign release section.
+
+26 October 2026 - owner-authorised pending W3 workforce commit 432308e0 deployed
+as reconciled runtime c4e0005d, preserving live campaign/W1/W2 and payment-source
+concurrency source 2033b159. Backend 707a200f-17c3-4947-a0bd-21b39496cf6a ACTIVE;
+frontend dpl_GRVrwacMhYkrqktFvGRChY5LB2Ln READY, both apex/www aliases verified.
+Guarded forward migration 72 and db:check passed after fresh backup and actual
+separate populated 90-table restore/migration rehearsal with original row hashes
+preserved. All exact-source CI, 123 restricted-runtime integrations, 41 release/
+image cases and 43 distinct hosted fixture browser journeys accepted. Post-release
+DB/least-privilege/worker checks and original app-only firewall verified. No grants
+changed or real business submissions. Existing rapid overlapping staff-directory
+filter loss remains separate; actual-role/device/screen-reader acceptance open.
+Operator harness/timeout qualifications and compatible recovery composition are
+in backend/docs/workforce-versions-production-20261026.md. Other worktrees and
+uncommitted edits preserved; no speculative Docker cleanup; C: 27.71 GiB free.
+Full Revision 4 implementation and broader Item 6 remain open.
 
 26 October 2026 - complete colour/state brief, local implementation checkpoint.
 Branch feat/colour-states-20261026 in allied-shop-vehicles-r2-20261025, based on

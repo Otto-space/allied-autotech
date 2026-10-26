@@ -4,7 +4,6 @@ import { afterAll, afterEach, describe, expect, it, vi } from "vitest";
 import { prisma } from "../../src/config/database.js";
 import type { AuthenticatedActor } from "../../src/common/contracts/actor.js";
 import { VehicleSalesService } from "../../src/modules/vehicle-sales/vehicle-sales.service.js";
-import { PaymentsService } from "../../src/modules/payments/payments.service.js";
 
 const context = () => ({ requestId: randomUUID(), ipAddress: null, userAgent: null });
 async function account(role: "CUSTOMER" | "ADMIN"): Promise<AuthenticatedActor> {
@@ -87,20 +86,9 @@ async function fixture(state: "unpaid" | "review" | "processing") {
     },
   });
   if (state !== "unpaid") {
-    const payments = new PaymentsService(prisma);
-    await expect(
-      payments.createIntent(
-        owner,
-        {
-          targetType: "VEHICLE_TRANSACTION",
-          targetId: sale.id,
-          purpose: "VEHICLE_FULL_PAYMENT",
-        },
-        randomUUID(),
-        context(),
-      ),
-    ).rejects.toMatchObject({ statusCode: 409 });
-    // Historical in-flight money is protected without enabling new draft-policy deposits.
+    // Model an already-submitted payment. The isolated fixture has a synthetic
+    // approved agreement, so a new full-payment intent would be valid here and
+    // cannot serve as a rejection assertion for this expiry test.
     await prisma.payment.create({
       data: {
         customerId: profile.id,

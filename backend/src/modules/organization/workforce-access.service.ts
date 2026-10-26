@@ -19,6 +19,12 @@ import type {
   workforceRevocationSchema,
   workforceDelegationSchema,
 } from "./workforce.schemas.js";
+import {
+  currentWorkforceTemplateVersion,
+  definitionForAssignment,
+  isKnownWorkforcePolicyVersion,
+  isSupportedDelegationTemplate,
+} from "./workforce-catalogue.js";
 
 export async function lockWorkforce(tx: Prisma.TransactionClient) {
   // Same lock as existing identity/access changes; always acquire before user/session locks.
@@ -46,7 +52,7 @@ async function authorizeChange(
       role: true,
       status: true,
       emailVerifiedAt: true,
-      staffProfile: { select: { id: true } },
+      staffProfile: { select: { id: true, branchId: true } },
       workforceAccess: true,
     },
   });
@@ -57,7 +63,20 @@ async function authorizeChange(
     !target.staffProfile
   )
     workforceDenied();
-  if (actor.role !== "SUPER_ADMIN" && target.role !== "STAFF") workforceDenied();
+  if (actor.role !== "SUPER_ADMIN") {
+    if (target.role !== "STAFF") workforceDenied();
+    const envelope = await tx.workforceAccess.findUnique({
+      where: { userId: actor.userId },
+      select: { delegatedBranchIds: true, delegationPolicyVersion: true },
+    });
+    if (
+      !target.staffProfile.branchId ||
+      !envelope ||
+      !isKnownWorkforcePolicyVersion(envelope.delegationPolicyVersion) ||
+      !envelope?.delegatedBranchIds.includes(target.staffProfile.branchId)
+    )
+      workforceDenied("This staff account is outside your permitted management branches");
+  }
   return target;
 }
 function checkVersion(current: { version: number } | null, expected: number | null) {
@@ -84,14 +103,20 @@ async function delegable(
   actor: AuthenticatedActor,
   template: string,
   branchId: string,
+  reviewedPolicyVersion?: number,
 ) {
   if (actor.role === "SUPER_ADMIN") return;
   const envelope = await tx.workforceAccess.findUnique({
     where: { userId: actor.userId },
   });
   if (
-    !envelope?.delegatedTemplates.includes(template) ||
-    !envelope.delegatedBranchIds.includes(branchId)
+    !envelope ||
+    !isKnownWorkforcePolicyVersion(envelope.delegationPolicyVersion) ||
+    !isSupportedDelegationTemplate(template, envelope.delegationPolicyVersion) ||
+    !envelope.delegatedTemplates.includes(template) ||
+    !envelope.delegatedBranchIds.includes(branchId) ||
+    (reviewedPolicyVersion !== undefined &&
+      envelope.delegationPolicyVersion !== reviewedPolicyVersion)
   )
     workforceDenied(
       "The owner must authorize this responsibility and branch in your delegation envelope",
@@ -173,9 +198,7 @@ export class WorkforceAccessService {
           a.startsAt <= now &&
           (!a.expiresAt || a.expiresAt > now) &&
           branches.some((b) => b.id === a.branchId && b.isActive) &&
-          a.template in workforceTemplates &&
-          a.scope ===
-            workforceTemplates[a.template as keyof typeof workforceTemplates].scope,
+          definitionForAssignment(a) !== undefined,
       );
       await audit(tx, actor, userId, { workforceAction: "ACCESS_PREVIEW" }, context);
       const manageable =
@@ -184,7 +207,10 @@ export class WorkforceAccessService {
         !!target.staffProfile;
       const eligible = target.status === "ACTIVE" && target.emailVerifiedAt !== null;
       const templates = Object.keys(workforceTemplates).filter(
-        (t) => !envelope || envelope.delegatedTemplates.includes(t),
+        (t) =>
+          !envelope ||
+          (envelope.delegationPolicyVersion === currentWorkforceTemplateVersion &&
+            envelope.delegatedTemplates.includes(t)),
       );
       const branchIds =
         actor.role === "SUPER_ADMIN"
@@ -221,6 +247,10 @@ export class WorkforceAccessService {
           : null,
         assignments,
         activeAssignmentIds: active.map((a) => a.id),
+        assignmentDefinitions: Object.fromEntries(
+          assignments.map((a) => [a.id, definitionForAssignment(a) ?? null]),
+        ),
+        templatesVersion: currentWorkforceTemplateVersion,
         templates: workforceTemplates,
       };
     });
@@ -244,7 +274,12 @@ export class WorkforceAccessService {
       checkVersion(target.workforceAccess, input.expectedVersion);
       const access = await tx.workforceAccess.upsert({
         where: { userId },
-        create: { userId, position: input.position, updatedByUserId: actor.userId },
+        create: {
+          userId,
+          position: input.position,
+          updatedByUserId: actor.userId,
+          delegationPolicyVersion: currentWorkforceTemplateVersion,
+        },
         update: {
           position: input.position,
           updatedByUserId: actor.userId,
@@ -288,7 +323,17 @@ export class WorkforceAccessService {
       )
         workforceDenied();
       checkVersion(target.workforceAccess, input.expectedVersion);
-      await delegable(tx, actor, input.template, input.branchId);
+      if (input.expectedTemplateVersion !== currentWorkforceTemplateVersion)
+        workforceConflict(
+          "The responsibility definition changed. Refresh and review its current capabilities before assigning it.",
+        );
+      await delegable(
+        tx,
+        actor,
+        input.template,
+        input.branchId,
+        currentWorkforceTemplateVersion,
+      );
       if (
         !(await tx.branch.findFirst({
           where: { id: input.branchId, isActive: true },
@@ -300,6 +345,7 @@ export class WorkforceAccessService {
         data: {
           userId,
           template: input.template,
+          templateVersion: currentWorkforceTemplateVersion,
           branchId: input.branchId,
           scope: workforceTemplates[input.template].scope,
           temporary: input.temporary,
@@ -321,6 +367,7 @@ export class WorkforceAccessService {
           workforceAction: "ASSIGN",
           assignmentId: assignment.id,
           template: assignment.template,
+          templateVersion: assignment.templateVersion,
           scope: assignment.scope,
           branchId: assignment.branchId,
           temporary: assignment.temporary,
@@ -366,6 +413,7 @@ export class WorkforceAccessService {
           workforceAction: "REVOKE",
           assignmentId,
           template: assignment.template,
+          templateVersion: assignment.templateVersion,
           branchId: assignment.branchId,
           reason: input.reason,
         },
@@ -389,6 +437,10 @@ export class WorkforceAccessService {
       )
         workforceDenied();
       checkVersion(target.workforceAccess, input.expectedVersion);
+      if (input.expectedPolicyVersion !== currentWorkforceTemplateVersion)
+        workforceConflict(
+          "The responsibility catalogue changed. Refresh and review the delegation's current capabilities.",
+        );
       if (
         (await tx.branch.count({
           where: { id: { in: [...new Set(input.branchIds)] }, isActive: true },
@@ -405,6 +457,7 @@ export class WorkforceAccessService {
             ]),
           ],
           delegatedBranchIds: [...new Set(input.branchIds)],
+          delegationPolicyVersion: currentWorkforceTemplateVersion,
           version: { increment: 1 },
           updatedByUserId: actor.userId,
         },
@@ -415,6 +468,7 @@ export class WorkforceAccessService {
         userId,
         {
           workforceAction: "DELEGATION",
+          delegationPolicyVersion: currentWorkforceTemplateVersion,
           allowAdminInvitations: input.allowAdminInvitations,
           templates: input.templates.join(","),
           branchIds: input.branchIds.join(","),

@@ -154,7 +154,9 @@ for (const practice of practiceDefinitions)
 if (errors.length) throw Error(errors.join("\n"));
 const unfinished = Object.values(matrix.routes).filter(
   (r) =>
-    !["isolated", "hosted", "excluded"].includes(r.verification) || r.gaps.length > 0,
+    r.decision === "pending" ||
+    !["isolated", "hosted", "excluded"].includes(r.verification) ||
+    r.gaps.length > 0,
 );
 console.log(
   `Coverage structure valid: ${inventory.routes.length} discovered routes; ${unfinished.length} still await Revision 4 acceptance. Structural validity is not completion.`,

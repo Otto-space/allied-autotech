@@ -10,6 +10,7 @@ import { successResponse } from "../../common/http/api-response.js";
 import { WorkforceAccessService } from "./workforce-access.service.js";
 import { WorkforceDirectoryService } from "./workforce-directory.service.js";
 import { WorkforceWorkService } from "./workforce-work.service.js";
+import { projectWorkforceMutationReceipt } from "./workforce-receipts.js";
 import * as schemas from "./workforce.schemas.js";
 
 import { TeamAccessService } from "./team-access.service.js";
@@ -441,7 +442,15 @@ export function createWorkforceRouter(): Router {
           );
           break;
       }
-      res.status(200).json(successResponse("Workspace request completed", req.id, data));
+      res
+        .status(200)
+        .json(
+          successResponse(
+            "Workspace request completed",
+            req.id,
+            projectWorkforceMutationReceipt(action, data, body?.receiptVersion),
+          ),
+        );
     };
     router[method](
       path,

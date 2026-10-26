@@ -1250,8 +1250,15 @@
       "articleIds": [],
       "guideIds": [],
       "practiceIds": [],
-      "statusDefinitions": [],
-      "recovery": [],
+      "statusDefinitions": [
+        "Active assignments require a registered pinned definition, valid scope, an active branch, an arrived start and no expiry/revocation.",
+        "Unsupported definition/policy versions grant no corresponding access; the owner must review ambiguity.",
+        "Unenrolled legacy baseline remains until explicit reviewed enrollment."
+      ],
+      "recovery": [
+        "Refresh the current account and workforce revisions before confirming a conflict.",
+        "Ask the owner to review an unsupported delegation or definition; authorised revocation preserves history."
+      ],
       "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
       "fixture": "W1 isolated workforceFixture plus intercepted owner/delegated browser account fixtures; no published inventory or operational writes.",
       "verification": "source-only",
@@ -1259,12 +1266,13 @@
         "docs/help-learn/WORKFORCE_DIRECTORY_W1.md",
         "backend/tests/integration/workforce-directory.test.ts",
         "frontend/tests/e2e/workforce-directory.spec.ts",
-        "frontend/tests/unit/workforce-directory.test.tsx"
+        "frontend/tests/unit/workforce-directory.test.tsx",
+        "docs/help-learn/WORKFORCE_TEMPLATE_VERSIONS_W3.md"
       ],
       "gaps": [
-        "Effective-access provenance and change-impact preview not complete.",
-        "Immutable template evolution and atomic role dependencies not complete.",
-        "Contextual articles/guides/practice for all workforce subviews and current-session/subscription matrix remain unverified."
+        "Effective-access provenance and added/removed/retained change preview remain incomplete.",
+        "Complete canonical navigation/action/session/subscription transitions and mode decisions remain unverified.",
+        "W3 version notices and new fitment guard require rendered acceptance; unrecognised historical template/scope display is not proven."
       ],
       "subviews": [
         {
