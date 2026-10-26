@@ -116,153 +116,115 @@
     {
       "file": "about-quality.spec.ts",
       "title": "About content and disclosures work with JavaScript disabled",
-      "attempts": [
-        { "status": "expected", "evidence": "about-final.json", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "about-final.json", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
       "file": "about-quality.spec.ts",
       "title": "About layout, complete content and keyboard disclosures at 1024px",
-      "attempts": [
-        { "status": "expected", "evidence": "about-final.json", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "about-final.json", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
       "file": "about-quality.spec.ts",
       "title": "About layout, complete content and keyboard disclosures at 1280px",
-      "attempts": [
-        { "status": "expected", "evidence": "about-final.json", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "about-final.json", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
       "file": "about-quality.spec.ts",
       "title": "About layout, complete content and keyboard disclosures at 1440px",
-      "attempts": [
-        { "status": "expected", "evidence": "about-final.json", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "about-final.json", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
       "file": "about-quality.spec.ts",
       "title": "About layout, complete content and keyboard disclosures at 1536px",
-      "attempts": [
-        { "status": "expected", "evidence": "about-final.json", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "about-final.json", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
       "file": "about-quality.spec.ts",
       "title": "About layout, complete content and keyboard disclosures at 320px",
-      "attempts": [
-        { "status": "expected", "evidence": "about-final.json", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "about-final.json", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
       "file": "about-quality.spec.ts",
       "title": "About layout, complete content and keyboard disclosures at 360px",
-      "attempts": [
-        { "status": "expected", "evidence": "about-final.json", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "about-final.json", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
       "file": "about-quality.spec.ts",
       "title": "About layout, complete content and keyboard disclosures at 375px",
-      "attempts": [
-        { "status": "expected", "evidence": "about-final.json", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "about-final.json", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
       "file": "about-quality.spec.ts",
       "title": "About layout, complete content and keyboard disclosures at 390px",
-      "attempts": [
-        { "status": "expected", "evidence": "about-final.json", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "about-final.json", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
       "file": "about-quality.spec.ts",
       "title": "About layout, complete content and keyboard disclosures at 430px",
-      "attempts": [
-        { "status": "expected", "evidence": "about-final.json", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "about-final.json", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
       "file": "about-quality.spec.ts",
       "title": "About layout, complete content and keyboard disclosures at 768px",
-      "attempts": [
-        { "status": "expected", "evidence": "about-final.json", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "about-final.json", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
       "file": "about-quality.spec.ts",
       "title": "About stays public for ADMIN without private data or mutation requests",
-      "attempts": [
-        { "status": "expected", "evidence": "about-final.json", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "about-final.json", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
       "file": "about-quality.spec.ts",
       "title": "About stays public for CUSTOMER without private data or mutation requests",
-      "attempts": [
-        { "status": "expected", "evidence": "about-final.json", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "about-final.json", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
       "file": "about-quality.spec.ts",
       "title": "About stays public for STAFF without private data or mutation requests",
-      "attempts": [
-        { "status": "expected", "evidence": "about-final.json", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "about-final.json", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
       "file": "about-quality.spec.ts",
       "title": "About stays public for SUPER_ADMIN without private data or mutation requests",
-      "attempts": [
-        { "status": "expected", "evidence": "about-final.json", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "about-final.json", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
       "file": "about-quality.spec.ts",
       "title": "contact links use the confirmed address and safe public destinations",
-      "attempts": [
-        { "status": "expected", "evidence": "about-final.json", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "about-final.json", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
       "file": "about-quality.spec.ts",
       "title": "every equipment item and the current campaign image have readable labels",
-      "attempts": [
-        { "status": "expected", "evidence": "about-final.json", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "about-final.json", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
       "file": "about-quality.spec.ts",
       "title": "section links move keyboard focus below the header on a short mobile screen",
-      "attempts": [
-        { "status": "expected", "evidence": "about-final.json", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "about-final.json", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
       "file": "about-quality.spec.ts",
       "title": "untrusted query text cannot alter the About page or contact destinations",
-      "attempts": [
-        { "status": "expected", "evidence": "about-final.json", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "about-final.json", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
@@ -301,11 +263,7 @@
       "file": "audit-actions.spec.ts",
       "title": "A01 A05: enquiry release preserves recorded activity without restricted links at 1440",
       "attempts": [
-        {
-          "status": "unexpected",
-          "evidence": "route-results.json",
-          "notes": []
-        },
+        { "status": "unexpected", "evidence": "route-results.json", "notes": [] },
         { "status": "expected", "evidence": "accepted-core.json", "notes": [] }
       ],
       "latestExecuted": "expected"
@@ -322,11 +280,7 @@
       "file": "audit-actions.spec.ts",
       "title": "A01 A05: enquiry release preserves recorded activity without restricted links at 390",
       "attempts": [
-        {
-          "status": "unexpected",
-          "evidence": "route-results.json",
-          "notes": []
-        },
+        { "status": "unexpected", "evidence": "route-results.json", "notes": [] },
         { "status": "expected", "evidence": "accepted-core.json", "notes": [] }
       ],
       "latestExecuted": "expected"
@@ -423,97 +377,73 @@
     {
       "file": "brand-refresh.spec.ts",
       "title": "Help categories open real articles and related guidance",
-      "attempts": [
-        { "status": "expected", "evidence": "final-public.log", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "final-public.log", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
       "file": "brand-refresh.spec.ts",
       "title": "hero keyboard, slide links, optional playback and marquee pause work",
-      "attempts": [
-        { "status": "expected", "evidence": "final-public.log", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "final-public.log", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
       "file": "brand-refresh.spec.ts",
       "title": "homepage and About remain readable at 1024px",
-      "attempts": [
-        { "status": "expected", "evidence": "final-public.log", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "final-public.log", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
       "file": "brand-refresh.spec.ts",
       "title": "homepage and About remain readable at 1280px",
-      "attempts": [
-        { "status": "expected", "evidence": "final-public.log", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "final-public.log", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
       "file": "brand-refresh.spec.ts",
       "title": "homepage and About remain readable at 1440px",
-      "attempts": [
-        { "status": "expected", "evidence": "final-public.log", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "final-public.log", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
       "file": "brand-refresh.spec.ts",
       "title": "homepage and About remain readable at 1920px",
-      "attempts": [
-        { "status": "expected", "evidence": "final-public.log", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "final-public.log", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
       "file": "brand-refresh.spec.ts",
       "title": "homepage and About remain readable at 360px",
-      "attempts": [
-        { "status": "expected", "evidence": "final-public.log", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "final-public.log", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
       "file": "brand-refresh.spec.ts",
       "title": "homepage and About remain readable at 390px",
-      "attempts": [
-        { "status": "expected", "evidence": "final-public.log", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "final-public.log", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
       "file": "brand-refresh.spec.ts",
       "title": "homepage and About remain readable at 430px",
-      "attempts": [
-        { "status": "expected", "evidence": "final-public.log", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "final-public.log", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
       "file": "brand-refresh.spec.ts",
       "title": "homepage and About remain readable at 768px",
-      "attempts": [
-        { "status": "expected", "evidence": "final-public.log", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "final-public.log", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
       "file": "brand-refresh.spec.ts",
       "title": "mobile navigation contains focus, closes with Escape and closes after navigation",
-      "attempts": [
-        { "status": "expected", "evidence": "final-public.log", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "final-public.log", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
       "file": "brand-refresh.spec.ts",
       "title": "reduced motion disables automatic movement",
-      "attempts": [
-        { "status": "expected", "evidence": "final-public.log", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "final-public.log", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
@@ -580,16 +510,8 @@
       "file": "cart-maintenance.spec.ts",
       "title": "cart clear is accessible at 320px",
       "attempts": [
-        {
-          "status": "unexpected",
-          "evidence": "route-results.json",
-          "notes": []
-        },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "unexpected", "evidence": "route-results.json", "notes": [] },
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -813,16 +735,8 @@
       "file": "customer-care-quality.spec.ts",
       "title": "customer care and confirmation accessible at 390px",
       "attempts": [
-        {
-          "status": "unexpected",
-          "evidence": "route-results.json",
-          "notes": []
-        },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "unexpected", "evidence": "route-results.json", "notes": [] },
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -830,16 +744,8 @@
       "file": "customer-care-quality.spec.ts",
       "title": "customer care fits 1440px",
       "attempts": [
-        {
-          "status": "unexpected",
-          "evidence": "route-results.json",
-          "notes": []
-        },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "unexpected", "evidence": "route-results.json", "notes": [] },
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -847,16 +753,8 @@
       "file": "customer-care-quality.spec.ts",
       "title": "customer care fits 390px",
       "attempts": [
-        {
-          "status": "unexpected",
-          "evidence": "route-results.json",
-          "notes": []
-        },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "unexpected", "evidence": "route-results.json", "notes": [] },
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -1370,16 +1268,8 @@
       "file": "dispute-workflow.spec.ts",
       "title": "work queue fits eleven widths and passes mobile accessibility before console verification",
       "attempts": [
-        {
-          "status": "unexpected",
-          "evidence": "route-results.json",
-          "notes": []
-        },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "unexpected", "evidence": "route-results.json", "notes": [] },
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -1459,16 +1349,8 @@
       "file": "header-session.spec.ts",
       "title": "anonymous public header routes its account link at 1440px",
       "attempts": [
-        {
-          "status": "unexpected",
-          "evidence": "route-results.json",
-          "notes": []
-        },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "unexpected", "evidence": "route-results.json", "notes": [] },
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -1476,161 +1358,117 @@
       "file": "header-session.spec.ts",
       "title": "anonymous public header routes its account link at 390px",
       "attempts": [
-        {
-          "status": "unexpected",
-          "evidence": "route-results.json",
-          "notes": []
-        },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "unexpected", "evidence": "route-results.json", "notes": [] },
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
     {
       "file": "home-quality.spec.ts",
       "title": "broken media and long API content remain usable at 320px",
-      "attempts": [
-        { "status": "expected", "evidence": "final-public.log", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "final-public.log", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
       "file": "home-quality.spec.ts",
       "title": "carousel, keyboard, FAQ and navigation perform their advertised actions",
-      "attempts": [
-        { "status": "expected", "evidence": "final-public.log", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "final-public.log", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
       "file": "home-quality.spec.ts",
       "title": "empty collections retain useful contact and browsing paths",
-      "attempts": [
-        { "status": "expected", "evidence": "final-public.log", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "final-public.log", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
       "file": "home-quality.spec.ts",
       "title": "four independent seed failures recover through their actual public APIs",
-      "attempts": [
-        { "status": "expected", "evidence": "final-public.log", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "final-public.log", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
       "file": "home-quality.spec.ts",
       "title": "Home layouts and real-contract previews at 1024px",
-      "attempts": [
-        { "status": "expected", "evidence": "final-public.log", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "final-public.log", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
       "file": "home-quality.spec.ts",
       "title": "Home layouts and real-contract previews at 1280px",
-      "attempts": [
-        { "status": "expected", "evidence": "final-public.log", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "final-public.log", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
       "file": "home-quality.spec.ts",
       "title": "Home layouts and real-contract previews at 1440px",
-      "attempts": [
-        { "status": "expected", "evidence": "final-public.log", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "final-public.log", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
       "file": "home-quality.spec.ts",
       "title": "Home layouts and real-contract previews at 1536px",
-      "attempts": [
-        { "status": "expected", "evidence": "final-public.log", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "final-public.log", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
       "file": "home-quality.spec.ts",
       "title": "Home layouts and real-contract previews at 320px",
-      "attempts": [
-        { "status": "expected", "evidence": "final-public.log", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "final-public.log", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
       "file": "home-quality.spec.ts",
       "title": "Home layouts and real-contract previews at 360px",
-      "attempts": [
-        { "status": "expected", "evidence": "final-public.log", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "final-public.log", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
       "file": "home-quality.spec.ts",
       "title": "Home layouts and real-contract previews at 375px",
-      "attempts": [
-        { "status": "expected", "evidence": "final-public.log", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "final-public.log", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
       "file": "home-quality.spec.ts",
       "title": "Home layouts and real-contract previews at 390px",
-      "attempts": [
-        { "status": "expected", "evidence": "final-public.log", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "final-public.log", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
       "file": "home-quality.spec.ts",
       "title": "Home layouts and real-contract previews at 430px",
-      "attempts": [
-        { "status": "expected", "evidence": "final-public.log", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "final-public.log", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
       "file": "home-quality.spec.ts",
       "title": "Home layouts and real-contract previews at 768px",
-      "attempts": [
-        { "status": "expected", "evidence": "final-public.log", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "final-public.log", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
       "file": "home-quality.spec.ts",
       "title": "Home passes the scoped automated accessibility check",
-      "attempts": [
-        { "status": "expected", "evidence": "final-public.log", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "final-public.log", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
       "file": "home-quality.spec.ts",
       "title": "homepage sections reflow when text is doubled on a narrow screen",
-      "attempts": [
-        { "status": "expected", "evidence": "final-public.log", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "final-public.log", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
       "file": "home-quality.spec.ts",
       "title": "mobile menu, touch carousel and paused autoplay remain usable",
-      "attempts": [
-        { "status": "expected", "evidence": "final-public.log", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "final-public.log", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
       "file": "home-quality.spec.ts",
       "title": "published reviews refresh with a busy state and retain their real ratings",
-      "attempts": [
-        { "status": "expected", "evidence": "final-public.log", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "final-public.log", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
@@ -1781,16 +1619,8 @@
       "file": "promotions.spec.ts",
       "title": "promotion editor and review work at mobile and desktop widths without accessibility violations",
       "attempts": [
-        {
-          "status": "unexpected",
-          "evidence": "route-results.json",
-          "notes": []
-        },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "unexpected", "evidence": "route-results.json", "notes": [] },
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -1799,11 +1629,7 @@
       "title": "fail read is accessible and blocks actions",
       "attempts": [
         { "status": "expected", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -1811,16 +1637,8 @@
       "file": "refund-timing.spec.ts",
       "title": "refund calendar and full review at 1440",
       "attempts": [
-        {
-          "status": "unexpected",
-          "evidence": "route-results.json",
-          "notes": []
-        },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "unexpected", "evidence": "route-results.json", "notes": [] },
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -1829,11 +1647,7 @@
       "title": "registration accessible at 320",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -1842,11 +1656,7 @@
       "title": "registration fits 1440px",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -1854,16 +1664,8 @@
       "file": "register-quality.spec.ts",
       "title": "registration fits 390px",
       "attempts": [
-        {
-          "status": "unexpected",
-          "evidence": "route-results.json",
-          "notes": []
-        },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "unexpected", "evidence": "route-results.json", "notes": [] },
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -1872,11 +1674,7 @@
       "title": "customer reviews and explicitly reserves at 1440px",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -1885,11 +1683,7 @@
       "title": "customer reviews and explicitly reserves at 390px",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -1898,11 +1692,7 @@
       "title": "reset accessible 320px",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -1911,11 +1701,7 @@
       "title": "reset link and manual entry fit 1440px",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -1924,11 +1710,7 @@
       "title": "reset link and manual entry fit 390px",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -1937,11 +1719,7 @@
       "title": "collections and removal dialog pass accessibility at 390",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -1950,11 +1728,7 @@
       "title": "parts is readable at 1440px",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -1963,11 +1737,7 @@
       "title": "parts is readable at 390px",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -1976,21 +1746,9 @@
       "title": "saved configuration, default and parts selection work at 1440px",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "unexpected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        },
-        {
-          "status": "unexpected",
-          "evidence": "corrected-results.json",
-          "notes": []
-        },
-        {
-          "status": "expected",
-          "evidence": "contracts-results.json",
-          "notes": []
-        }
+        { "status": "unexpected", "evidence": "remaining-results.json", "notes": [] },
+        { "status": "unexpected", "evidence": "corrected-results.json", "notes": [] },
+        { "status": "expected", "evidence": "contracts-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -1999,21 +1757,9 @@
       "title": "saved configuration, default and parts selection work at 390px",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "unexpected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        },
-        {
-          "status": "unexpected",
-          "evidence": "corrected-results.json",
-          "notes": []
-        },
-        {
-          "status": "expected",
-          "evidence": "contracts-results.json",
-          "notes": []
-        }
+        { "status": "unexpected", "evidence": "remaining-results.json", "notes": [] },
+        { "status": "unexpected", "evidence": "corrected-results.json", "notes": [] },
+        { "status": "expected", "evidence": "contracts-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -2022,65 +1768,45 @@
       "title": "security forms and review dialogs fit mobile and pass automated accessibility checks",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "unexpected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        },
-        {
-          "status": "expected",
-          "evidence": "corrected-results.json",
-          "notes": []
-        }
+        { "status": "unexpected", "evidence": "remaining-results.json", "notes": [] },
+        { "status": "expected", "evidence": "corrected-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
     {
       "file": "shop-vehicles-r2.spec.ts",
       "title": "a category-only zero result is distinguished from global emptiness and a constrained no-match",
-      "attempts": [
-        { "status": "expected", "evidence": "shop-final.json", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "shop-final.json", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
       "file": "shop-vehicles-r2.spec.ts",
       "title": "a superseded pending search shows loading and cannot replace the newer result",
-      "attempts": [
-        { "status": "expected", "evidence": "shop-final.json", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "shop-final.json", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
       "file": "shop-vehicles-r2.spec.ts",
       "title": "a verified public listing stays a listing enquiry with its reference and preferences",
-      "attempts": [
-        { "status": "expected", "evidence": "shop-final.json", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "shop-final.json", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
       "file": "shop-vehicles-r2.spec.ts",
       "title": "admin records oil grade and explicit volume through review while shared product types remain editable",
-      "attempts": [
-        { "status": "expected", "evidence": "shop-final.json", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "shop-final.json", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
       "file": "shop-vehicles-r2.spec.ts",
       "title": "both draft choices preserve separate edited drafts across reload, resume and equivalent URLs",
-      "attempts": [
-        { "status": "expected", "evidence": "shop-final.json", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "shop-final.json", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
       "file": "shop-vehicles-r2.spec.ts",
       "title": "budget errors retain the draft, focus the invalid field and return keyboard focus on Escape",
-      "attempts": [
-        { "status": "expected", "evidence": "shop-final.json", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "shop-final.json", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
@@ -2095,41 +1821,31 @@
     {
       "file": "shop-vehicles-r2.spec.ts",
       "title": "explicit Newest overrides the query default and survives history and reload",
-      "attempts": [
-        { "status": "expected", "evidence": "shop-final.json", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "shop-final.json", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
       "file": "shop-vehicles-r2.spec.ts",
       "title": "identity changes do not copy another principal's enquiry fields",
-      "attempts": [
-        { "status": "expected", "evidence": "shop-final.json", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "shop-final.json", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
       "file": "shop-vehicles-r2.spec.ts",
       "title": "oil preferences retain both budgets through review and the submission contract",
-      "attempts": [
-        { "status": "expected", "evidence": "shop-final.json", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "shop-final.json", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
       "file": "shop-vehicles-r2.spec.ts",
       "title": "Shop and Vehicles render and operate at 1024px",
-      "attempts": [
-        { "status": "expected", "evidence": "shop-final.json", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "shop-final.json", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
       "file": "shop-vehicles-r2.spec.ts",
       "title": "Shop and Vehicles render and operate at 1440px",
-      "attempts": [
-        { "status": "expected", "evidence": "shop-final.json", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "shop-final.json", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
@@ -2137,11 +1853,7 @@
       "title": "Shop and Vehicles render and operate at 360px",
       "attempts": [
         { "status": "unexpected", "evidence": "final-public.log", "notes": [] },
-        {
-          "status": "unexpected",
-          "evidence": "accepted-public.log",
-          "notes": []
-        },
+        { "status": "unexpected", "evidence": "accepted-public.log", "notes": [] },
         { "status": "expected", "evidence": "shop-final.json", "notes": [] }
       ],
       "latestExecuted": "expected"
@@ -2151,11 +1863,7 @@
       "title": "Shop and Vehicles render and operate at 390px",
       "attempts": [
         { "status": "unexpected", "evidence": "final-public.log", "notes": [] },
-        {
-          "status": "unexpected",
-          "evidence": "accepted-public.log",
-          "notes": []
-        },
+        { "status": "unexpected", "evidence": "accepted-public.log", "notes": [] },
         { "status": "expected", "evidence": "shop-final.json", "notes": [] }
       ],
       "latestExecuted": "expected"
@@ -2164,11 +1872,7 @@
       "file": "shop-vehicles-r2.spec.ts",
       "title": "Shop and Vehicles render and operate at 768px",
       "attempts": [
-        {
-          "status": "unexpected",
-          "evidence": "accepted-public.log",
-          "notes": []
-        },
+        { "status": "unexpected", "evidence": "accepted-public.log", "notes": [] },
         { "status": "expected", "evidence": "shop-final.json", "notes": [] }
       ],
       "latestExecuted": "expected"
@@ -2176,25 +1880,19 @@
     {
       "file": "shop-vehicles-r2.spec.ts",
       "title": "starting the different enquiry keeps the current draft, and unavailable listings never become requirements",
-      "attempts": [
-        { "status": "expected", "evidence": "shop-final.json", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "shop-final.json", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
       "file": "shop-vehicles-r2.spec.ts",
       "title": "unavailable draft storage protects the mounted edited form when the context changes",
-      "attempts": [
-        { "status": "expected", "evidence": "shop-final.json", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "shop-final.json", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
       "file": "shop-vehicles-r2.spec.ts",
       "title": "Vehicle requirements preserve Corolla, condition and budget through review and submission",
-      "attempts": [
-        { "status": "expected", "evidence": "shop-final.json", "notes": [] }
-      ],
+      "attempts": [{ "status": "expected", "evidence": "shop-final.json", "notes": [] }],
       "latestExecuted": "expected"
     },
     {
@@ -2202,21 +1900,9 @@
       "title": "support progress and email delivery at 1440px",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "unexpected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        },
-        {
-          "status": "unexpected",
-          "evidence": "corrected-results.json",
-          "notes": []
-        },
-        {
-          "status": "expected",
-          "evidence": "contracts-results.json",
-          "notes": []
-        }
+        { "status": "unexpected", "evidence": "remaining-results.json", "notes": [] },
+        { "status": "unexpected", "evidence": "corrected-results.json", "notes": [] },
+        { "status": "expected", "evidence": "contracts-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -2225,21 +1911,9 @@
       "title": "support progress and email delivery at 390px",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "unexpected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        },
-        {
-          "status": "unexpected",
-          "evidence": "corrected-results.json",
-          "notes": []
-        },
-        {
-          "status": "expected",
-          "evidence": "contracts-results.json",
-          "notes": []
-        }
+        { "status": "unexpected", "evidence": "remaining-results.json", "notes": [] },
+        { "status": "unexpected", "evidence": "corrected-results.json", "notes": [] },
+        { "status": "expected", "evidence": "contracts-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -2248,11 +1922,7 @@
       "title": "named navigation, actual history facts and selected review survive responsive layouts",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -2261,11 +1931,7 @@
       "title": "audit history and expanded inspection at 1440",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -2274,11 +1940,7 @@
       "title": "workshop detail retains complete records and actions at 1440px",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -2287,11 +1949,7 @@
       "title": "workshop detail retains complete records and actions at 390px",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -2300,11 +1958,7 @@
       "title": "workshop records and expanded filters fit 1440px",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -2313,11 +1967,7 @@
       "title": "workshop records and expanded filters fit 390px",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -2326,11 +1976,7 @@
       "title": "branch workspace foundation at 1440",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -2339,11 +1985,7 @@
       "title": "readable accessible list and edit at 320px",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -2352,11 +1994,7 @@
       "title": "readable accessible list and edit at 390px",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -2365,11 +2003,7 @@
       "title": "320px long category and editor have no page overflow or accessibility violations",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -2378,11 +2012,7 @@
       "title": "390px long category and editor have no page overflow or accessibility violations",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -2391,11 +2021,7 @@
       "title": "complaint policy responsive and accessible at 1440",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -2404,11 +2030,7 @@
       "title": "complaint policy responsive and accessible at 320",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -2417,11 +2039,7 @@
       "title": "seven responsive widths fit full long facts and pass accessibility",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -2430,11 +2048,7 @@
       "title": "empty, error and access failure remain distinct accessible states",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -2443,11 +2057,7 @@
       "title": "handling workspace accessible at 1440",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -2456,11 +2066,7 @@
       "title": "handling workspace accessible at 320",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -2469,11 +2075,7 @@
       "title": "dispute policy responsive and accessible at 1440",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -2482,11 +2084,7 @@
       "title": "dispute policy responsive and accessible at 320",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -2495,11 +2093,7 @@
       "title": "financial policy responsive and accessible at 1440",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -2508,11 +2102,7 @@
       "title": "financial policy responsive and accessible at 320",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -2521,11 +2111,7 @@
       "title": "responsive cards, filters and review are accessible without overflow",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -2534,11 +2120,7 @@
       "title": "complete mobile facts and forms remain accessible with long references",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -2547,11 +2129,7 @@
       "title": "complete long records, mobile filters and creation remain accessible",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -2560,11 +2138,7 @@
       "title": "complete invoice detail fits 1440px and passes serious Axe checks",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -2573,11 +2147,7 @@
       "title": "invoice records and create form fit 1440px with no serious Axe violations",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -2586,11 +2156,7 @@
       "title": "notification accessibility and confirmation 320px",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -2599,11 +2165,7 @@
       "title": "notification layout 1440px",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -2612,11 +2174,7 @@
       "title": "long content and reduced motion remain accessible across widths",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -2625,11 +2183,7 @@
       "title": "long content, reduced motion and responsive accessibility",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -2638,11 +2192,7 @@
       "title": "readable work overview and monitoring at 390px",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -2651,11 +2201,7 @@
       "title": "1440px complete accessible dispute facts",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -2664,11 +2210,7 @@
       "title": "320px complete accessible dispute facts",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -2677,11 +2219,7 @@
       "title": "1440px responsive and accessible investigation workspace",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -2690,11 +2228,7 @@
       "title": "375px responsive and accessible investigation workspace",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -2703,11 +2237,7 @@
       "title": "seven responsive widths, full long explanation and review pass accessibility",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -2716,11 +2246,7 @@
       "title": "processing jobs directory and inspection at 1440",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -2729,11 +2255,7 @@
       "title": "320px catalogue and editor remain accessible without horizontal overflow",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -2742,11 +2264,7 @@
       "title": "390px catalogue and editor remain accessible without horizontal overflow",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -2755,11 +2273,7 @@
       "title": "320px long category and editor have no page overflow or accessibility violations",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -2768,11 +2282,7 @@
       "title": "390px long category and editor have no page overflow or accessibility violations",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -2781,11 +2291,7 @@
       "title": "detail and editor are accessible without overflow at 320px",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -2794,11 +2300,7 @@
       "title": "maximum text and review remain usable at 1440x900",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -2807,11 +2309,7 @@
       "title": "maximum text and review remain usable at 844x390",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -2820,11 +2318,7 @@
       "title": "catalogue and complete editor are accessible without overflow at 320px",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -2833,11 +2327,7 @@
       "title": "catalogue and complete editor are accessible without overflow at 390px",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -2846,11 +2336,7 @@
       "title": "maximum-length product details and review fit at 1440px",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -2859,11 +2345,7 @@
       "title": "long names, codes, exact large amounts and mobile filters stay accessible",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -2872,11 +2354,7 @@
       "title": "selected refund fits 1440px with no serious Axe violations",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -2885,11 +2363,7 @@
       "title": "fail read is accessible and blocks actions",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -2898,11 +2372,7 @@
       "title": "reservation agreement page and review at 1440",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -2911,11 +2381,7 @@
       "title": "retention policy responsive and accessible at 1440",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -2924,11 +2390,7 @@
       "title": "retention policy responsive and accessible at 320",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -2937,11 +2399,7 @@
       "title": "long feedback and full review pass seven widths and accessibility",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -2950,11 +2408,7 @@
       "title": "complete accessible detail at 320px",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -2963,11 +2417,7 @@
       "title": "complete accessible detail at 390px",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -2976,11 +2426,7 @@
       "title": "accessible complete records at 320px",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -2989,11 +2435,7 @@
       "title": "accessible complete records at 390px",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -3002,11 +2444,7 @@
       "title": "slots are readable and accessible at 320px",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -3015,11 +2453,7 @@
       "title": "slots are readable and accessible at 390px",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -3028,11 +2462,7 @@
       "title": "staff account foundation at 1440",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -3041,11 +2471,7 @@
       "title": "staff directory responsive and accessible at 1440",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -3054,11 +2480,7 @@
       "title": "staff directory responsive and accessible at 320",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -3067,11 +2489,7 @@
       "title": "invitation workspace foundation at 1440",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -3080,11 +2498,7 @@
       "title": "expanded workforce forms are accessible at 1440px",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -3093,11 +2507,7 @@
       "title": "expanded workforce forms are accessible at 430px",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -3106,11 +2516,7 @@
       "title": "seven responsive widths, long original text and full review pass accessibility",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -3119,11 +2525,7 @@
       "title": "seven responsive widths and long complete records pass accessibility",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -3132,11 +2534,7 @@
       "title": "responsive groups and long review preserve all fields with accessible keyboard focus",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -3145,11 +2543,7 @@
       "title": "responsive named record, navigation, disclosure and review pass accessibility checks",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -3158,11 +2552,7 @@
       "title": "seven responsive widths and review retain accessible names, contrast and no overflow",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -3171,11 +2561,7 @@
       "title": "empty, unavailable and access-error states have valid accessible structure",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -3184,11 +2570,7 @@
       "title": "responsive layouts preserve every stock fact, readable controls and keyboard filter disclosure",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -3197,11 +2579,7 @@
       "title": "workforce bookings layout and accessibility 1440px",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -3210,11 +2588,7 @@
       "title": "workforce bookings layout and accessibility 360px",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -3223,11 +2597,7 @@
       "title": "workforce bookings layout and accessibility 390px",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -3236,11 +2606,7 @@
       "title": "complaint layout and accessibility 1440px",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -3249,11 +2615,7 @@
       "title": "complaint layout and accessibility 320px",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -3262,11 +2624,7 @@
       "title": "directory at 1440px keeps filters, table and actions accessible",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -3275,11 +2633,7 @@
       "title": "directory at 320px keeps filters, table and actions accessible",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -3288,11 +2642,7 @@
       "title": "directory at 390px keeps filters, table and actions accessible",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -3301,11 +2651,7 @@
       "title": "enquiry layout and accessibility 1440px",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -3314,11 +2660,7 @@
       "title": "enquiry layout and accessibility 360px",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -3327,11 +2669,7 @@
       "title": "enquiry layout and accessibility 390px",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -3340,11 +2678,7 @@
       "title": "finance layout and accessibility 1440px",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -3353,11 +2687,7 @@
       "title": "finance layout and accessibility 320px",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -3366,11 +2696,7 @@
       "title": "workforce job detail layout and accessibility 1440px",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -3379,11 +2705,7 @@
       "title": "workforce job detail layout and accessibility 360px",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -3392,11 +2714,7 @@
       "title": "workforce job detail layout and accessibility 390px",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -3405,11 +2723,7 @@
       "title": "workforce jobs layout and accessibility 1440px",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -3418,11 +2732,7 @@
       "title": "workforce jobs layout and accessibility 360px",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -3431,11 +2741,7 @@
       "title": "workforce jobs layout and accessibility 390px",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -3444,11 +2750,7 @@
       "title": "managed notifications and review at 1440px",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -3457,11 +2759,7 @@
       "title": "managed notifications and review at 390px",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -3470,11 +2768,7 @@
       "title": "orders layout and accessibility 1440px",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -3483,11 +2777,7 @@
       "title": "orders layout and accessibility 320px",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -3496,11 +2786,7 @@
       "title": "workforce overview layout and access 1440px",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     },
@@ -3509,11 +2795,7 @@
       "title": "workforce overview layout and access 390px",
       "attempts": [
         { "status": "skipped", "evidence": "route-results.json", "notes": [] },
-        {
-          "status": "expected",
-          "evidence": "remaining-results.json",
-          "notes": []
-        }
+        { "status": "expected", "evidence": "remaining-results.json", "notes": [] }
       ],
       "latestExecuted": "expected"
     }

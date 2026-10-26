@@ -95,7 +95,10 @@ const report = {
 };
 await fs.writeFile(
   "docs/colour-browser-coverage.json",
-  await prettier.format(JSON.stringify(report), { parser: "json" }),
+  await prettier.format(JSON.stringify(report), {
+    ...(await prettier.resolveConfig("docs/colour-browser-coverage.json")),
+    filepath: "docs/colour-browser-coverage.json",
+  }),
 );
 console.log(
   `${accepted.length} distinct accepted cases across ${report.acceptedSpecFiles} specifications; ${unresolved.length} unresolved; ${skipped.length} unexecuted.`,
