@@ -1465,3 +1465,37 @@ this does not replace physical-device or full screen-reader verification. A fres
 isolated 71-migration replay and two backend integration files passed. Actual
 production customer carts were not mutated for acceptance. Release and real-role
 checks remain open; the per-page dashboard backlog is unchanged.
+
+## Cycle 14: Help, Learn and safe practice - local 26 October 2026
+
+Selected brief Phases 0-3 implemented in feat/help-learn-practice-20261026 from
+released 76377d43. Public Help/Quick help and dashboard entry points now reach
+server-filtered, versioned learning: 17 articles, three semantic-target guides and
+11 fictional local exercises. Source flags remain off for publication. No AI,
+operational lookup/action tools, new schema or unrelated dashboard redesign.
+
+Actual isolated API/session fixtures cover visitor/customer/Admin/owner and all
+workforce templates, combined/delegated access and CEO_MD scope. Managed Admin
+does not gain legacy administration. Private titles/bodies/guide/scenario content
+stay on the backend; 191 final client chunks contain none of 94 restricted markers.
+Real live-page guides observe user events, preserve dirty support inputs and offer
+written mode for missing, obstructed or narrow targets. Local practice validates
+editable examples, confirms replacement, searches fictional part evidence, reviews
+and resets only its own memory. It has no operational mutation adapter.
+
+Final local checks: 1,032/1,032 frontend units, 77/77 backend checks and 18/18
+optimized Edge browser cases; types, lint, format, build/postbuild and API contract
+checks pass. Browser practice traffic contains no writes or external requests.
+320/390/768/1440 practice and dashboard-entry overflow checks and scoped Axe pass;
+keyboard modal exit/focus restoration, refresh/pause, route and identity transitions
+are exercised. A new 7px entry overflow at 320 was fixed with an accessible 44px
+icon button. Desktop/mobile captures were visually inspected.
+
+Evidence/checkpoint: docs/help-learn/IMPLEMENTATION_STATUS.md, content register,
+capability map and operations guide; screenshots %TEMP%/allied-help-learn-20261026/.
+Playwright/installed Edge used because Browser plugin was unavailable. API/browser
+fixtures, intercepted failure/hostile-content cases and actual production acceptance
+remain distinct. Physical devices, full screen readers, other browsers, locked CI
+and hosted acceptance are unverified. Installed Next 16.3.8 differs from lock16.4.3.
+No production deployment or real customer/business write occurred; existing site
+completion Item 6 and the broader dashboard backlog remain open.

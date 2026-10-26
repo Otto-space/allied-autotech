@@ -1450,3 +1450,28 @@ OpenAPI/route checks and frontend build passed. See `cart-clear-atomic-20261025.
 Production deployment and real signed-in acceptance are pending; existing customer
 care and notification releases must be preserved. The broader Item 6 and site
 acceptance remain open.
+
+
+26 October 2026 - Help, Learn and Practice Phases 0-3 completed locally.
+Branch feat/help-learn-practice-20261026 reuses allied-shop-vehicles-r2-20261025
+from released runtime 76377d43. Backend contract commit e33c9e3e and frontend
+implementation 6b83a4d6 add 17 server-filtered articles, three optional guides and
+11 isolated fictional scenarios; no schema migration, AI or operational action tool.
+Current permissions, launch restrictions, drafts and unrelated branches are retained.
+The separate customer-table responsive branch remains untouched and unbundled.
+
+Final evidence: 1,032 frontend units, 77 backend checks, 18 compiled Edge cases,
+71-migration fresh isolated replay/db:check, runtime privilege verification, types,
+lint, format, build/postbuild, API contracts and private-bundle checks passed.
+Practice produced no operational/external requests. Source flags default off.
+See docs/help-learn/IMPLEMENTATION_STATUS.md and UI quality Cycle 14 in that
+worktree; screenshots %TEMP%/allied-help-learn-20261026/. Local proxy/crypto/pg
+notices and physical-device/screen-reader/locked-CI/hosted limitations are explicit.
+
+This brief explicitly limits deployment to local/test. No push, production or
+preview publication, shared-database write or real business submission occurred.
+Task servers stopped; Docker daemon unavailable, all existing resources retained.
+C: measured 29.84 GiB free after work. Existing main-checkout tracker bytes are
+preserved by append-only update. Site completion Item 6 remains open.
+Next separately scoped action: business-copy review and current-release/locked-CI
+reconciliation before any publication request; generative AI remains deferred.
