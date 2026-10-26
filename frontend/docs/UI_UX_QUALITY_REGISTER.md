@@ -1696,3 +1696,13 @@ Evidence/rollback dependencies: docs/help-learn/WORKFORCE_TEMPLATE_VERSIONS_W3.m
 Current C: postflight 28.12 GiB free; same useful Docker/current/rollback resources
 retained, no pruning. Complete effective-access/transition matrix, actual AI, full
 learning coverage, reviewed handoff, gated chat and evaluations remain required.
+
+26 October campaign release: 8c11c3a0 is live with the supplied unaltered poster on
+home/About, complete 4:5 framing and About workshop-wall archive removed. W1/W2
+committed workforce changes included; unfinished W3 preserved separately. Local
+61 distinct browser cases accepted after documented stale-fixture corrections,
+1,053 units, scoped Axe/keyboard/responsive checks and all CI passed. Production
+alias identities and independent backend health verified. Hosted actual-role,
+physical device and full screen-reader acceptance remain open. Evidence, exact
+release/rollback IDs, disk qualification and screenshot paths are in
+backend/docs/pending-commits-production-20261026.md, campaign release section.

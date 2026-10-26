@@ -1667,3 +1667,16 @@ lint. The disposable test container auto-removed; all 14 pre-existing Docker
 volumes were retained, and C: postflight was 28.14 GiB free. This does not change
 the release or live-provider acceptance status. The next step is backend image,
 release and hosted readiness verification against the latest active deployment.
+
+
+26 October 2026 ? campaign artwork and committed W1/W2 changes deployed.
+Runtime 8c11c3a0, backend b1c75306-9ea7-4f5a-97cc-156ddf412d67 ACTIVE, frontend
+dpl_7mLXWniyi5uZoMPivAPtaWQPeK56 READY on both apex/www. Homepage/About use the
+owner-supplied poster with complete framing; About workshop-wall archive removed.
+All exact-runtime CI, 1,053 units, 31 isolated integration cases, 32 release-spec
+and nine image checks passed. 61 distinct fixture browser cases accepted with
+explicit harness corrections. Pre/post production history/privileges/heartbeats
+passed and original firewall restored. No migration or real business submissions.
+W3 uncommitted work remains in its original worktree; Revision 4/Item 6 not complete.
+Evidence/rollback: backend/docs/pending-commits-production-20261026.md. Local preview
+stopped, no cleanup deletion, current/rollback/data retained; C: 28.19 GiB free.
