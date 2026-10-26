@@ -153,35 +153,11 @@ test("every equipment item and campaign poster is available with readable labels
       expect(await img.getAttribute("alt")).toBeTruthy();
     }
   }
-  const archive = page.locator(".about-archive");
-  await archive.locator("summary").focus();
-  await page.keyboard.press("Enter");
-  await expect(archive.locator("figure")).toHaveCount(4);
-  await expect(archive).toContainText(
-    "Pictured campaign vehicles are lifestyle inspiration",
+  await expect(page.locator(".about-archive")).toHaveCount(0);
+  await expect(page.locator(".about-hero-photo img")).toHaveAttribute(
+    "src",
+    /precision-autocare-campaign/,
   );
-  for (const anchor of await archive
-    .getByRole("link", { name: /Open full-size poster:/ })
-    .all()) {
-    await expect(anchor).toHaveAttribute("target", "_blank");
-    await expect(anchor).toHaveAttribute("rel", "noopener noreferrer");
-    const href = await anchor.getAttribute("href");
-    expect(href).toMatch(/^\/images\/allied-autotech\/[a-z-]+\.webp$/);
-    expect((await page.request.get(href!)).status()).toBe(200);
-  }
-  const popupPromise = page.waitForEvent("popup");
-  await archive
-    .getByRole("link", {
-      name: /Open full-size poster: Our original operating principles/,
-    })
-    .click();
-  const popup = await popupPromise;
-  await expect(popup).toHaveURL(/\/images\/allied-autotech\/operating-principles\.webp$/);
-  expect(await popup.evaluate(() => window.opener === null)).toBe(true);
-  await popup.close();
-  await expect(
-    archive.getByRole("link", { name: "Explore current vehicle listings", exact: true }),
-  ).toHaveAttribute("href", "/vehicles");
 });
 
 test("contact links use the confirmed address and safe public destinations", async ({
@@ -256,8 +232,7 @@ test("About content and disclosures work with JavaScript disabled", async ({
     await expect(
       engine.getByRole("heading", { name: "Smoke leak detector", exact: true }),
     ).toBeVisible();
-    await page.locator(".about-archive > summary").click();
-    await expect(page.locator(".about-archive figure")).toHaveCount(4);
+    await expect(page.locator(".about-archive")).toHaveCount(0);
     await page
       .getByRole("main")
       .getByRole("link", { name: "Contact the team", exact: false })

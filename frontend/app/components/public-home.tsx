@@ -142,13 +142,13 @@ export async function PublicHome() {
             <figure className="technician-story">
               <div className="technician-story__image">
                 <Image
-                  src="/images/allied-autotech/technician-original.webp"
+                  src="/images/allied-autotech/precision-autocare-campaign.png"
                   alt="Allied AutoTech technician in the company’s original Precision Autocare You Can Trust campaign"
                   fill
                   sizes="(max-width: 700px) 90vw, 40vw"
                 />
               </div>
-              <figcaption>From the Allied AutoTech workshop.</figcaption>
+              <figcaption>Precision Autocare You Can Trust.</figcaption>
             </figure>
             <div>
               <h2>
