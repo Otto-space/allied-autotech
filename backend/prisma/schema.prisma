@@ -2683,6 +2683,74 @@ model UserCapability {
   @@index([userId, capability, revokedAt])
 }
 
+enum AssistantAudience {
+  PUBLIC
+  CUSTOMER
+  WORK
+}
+
+enum AssistantTurnStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+// Short-lived automated-help state, separate from canonical Customer Care records.
+// ownerKey is a purpose-separated keyed hash of the verified current session.
+model AssistantGuestSession {
+  id        String   @id @default(uuid()) @db.Uuid
+  tokenHash String   @unique @db.Char(64)
+  csrfHash  String   @db.Char(64)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([expiresAt])
+}
+
+model AssistantConversation {
+  id                String            @id @default(uuid()) @db.Uuid
+  ownerKey          String            @db.Char(64)
+  audience          AssistantAudience
+  accessKey         String            @db.Char(64)
+  sourceSet         String            @db.Char(64)
+  encryptedState    Json?
+  version           Int               @default(1)
+  expiresAt         DateTime
+  absoluteExpiresAt DateTime
+  closedAt          DateTime?
+  createdAt         DateTime          @default(now())
+  turns             AssistantTurn[]
+
+  @@index([ownerKey, closedAt, expiresAt])
+  @@index([expiresAt])
+}
+
+model AssistantTurn {
+  id              String                @id @default(uuid()) @db.Uuid
+  conversationId  String                @db.Uuid
+  operationId     String                @db.Uuid
+  inputHash       String                @db.Char(64)
+  status          AssistantTurnStatus   @default(PENDING)
+  quotaKey        String                @db.Char(64)
+  reservedTokens  Int
+  leaseExpiresAt  DateTime
+  encryptedResult Json?
+  failureCode     String?               @db.VarChar(40)
+  model           String?               @db.VarChar(120)
+  inputTokens     Int?
+  outputTokens    Int?
+  totalTokens     Int?
+  durationMs      Int?
+  createdAt       DateTime              @default(now())
+  completedAt     DateTime?
+  conversation    AssistantConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@unique([conversationId, operationId])
+  @@index([status, leaseExpiresAt])
+  @@index([conversationId, createdAt])
+}
+
 model RateLimitBucket {
   key     String   @id @db.Char(64)
   hits    Int

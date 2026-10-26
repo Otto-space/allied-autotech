@@ -64,6 +64,453 @@ Paystack calls the DigitalOcean API origin directly; Monnify remains disabled, n
 
 ## Public API
 
+### GET `/public/learning/assistant/conversations`
+
+- Operation ID: `getPublicLearningAssistantConversations`
+- Purpose: Disabled by default. Requires enabled reviewed learning, server-only provider settings and a positive shared daily reservation budget. Current verified identity/MFA and session-bound ownership are resolved on every protected operation. Public sessions are separate secure opaque cookies and never silently join an account. All writes require trusted Origin; account writes use existing CSRF, guest writes additionally verify the guest CSRF header. Conversation and turn creation use scoped operation IDs. Only typed questions and eligible reviewed help reach the provider; no business lookup/mutation tools. Output sources/actions are validated, state encrypted with short expiry, budget/concurrency shared in PostgreSQL. Persistence is automated help, not a Customer Care case, live staffing or human delivery. All responses private/no-store; no transcript URL parameters. Limited catalogue mode retains its public-write restrictions. Allie list. Access boundary: public. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: PUBLIC
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Allie list",
+  "data": {
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "createdAt": "2030-01-15T10:00:00.000Z",
+        "expiresAt": "2030-01-15T10:00:00.000Z"
+      }
+    ]
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current account session required; 403 Current assurance, CSRF, Origin or release restriction; 404 Disabled, expired or unavailable to this owner; no existence disclosure; 409 Pending, uncertain, cancelled, changed context or conflicting operation; never automatically replay generation; 422 Strict bounded payload; unsupported context or obvious sensitive input rejected; 429 Shared rate, concurrency or conservative token reservation limit; ordinary help/support unaffected; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 Provider/configuration/output verification unavailable; no fabricated AI answer
+
+### POST `/public/learning/assistant/conversations`
+
+- Operation ID: `postPublicLearningAssistantConversations`
+- Purpose: Disabled by default. Requires enabled reviewed learning, server-only provider settings and a positive shared daily reservation budget. Current verified identity/MFA and session-bound ownership are resolved on every protected operation. Public sessions are separate secure opaque cookies and never silently join an account. All writes require trusted Origin; account writes use existing CSRF, guest writes additionally verify the guest CSRF header. Conversation and turn creation use scoped operation IDs. Only typed questions and eligible reviewed help reach the provider; no business lookup/mutation tools. Output sources/actions are validated, state encrypted with short expiry, budget/concurrency shared in PostgreSQL. Persistence is automated help, not a Customer Care case, live staffing or human delivery. All responses private/no-store; no transcript URL parameters. Limited catalogue mode retains its public-write restrictions. Allie create. Access boundary: public. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: PUBLIC
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `origin` | header | string (uri) | Yes | Origin used to constrain this request. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `operationId` | string (uuid) | Yes | Identifier of the operation resource; ownership is resolved server-side. |
+
+Synthetic request example:
+
+```json
+{
+  "operationId": "00000000-0000-4000-8000-000000000001"
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Allie create",
+  "data": {
+    "replayed": true,
+    "conversation": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "version": 1,
+      "audience": "public",
+      "expiresAt": "2030-01-15T10:00:00.000Z",
+      "messages": [
+        {
+          "operationId": "00000000-0000-4000-8000-000000000001",
+          "question": "synthetic-question",
+          "answer": {
+            "kind": "answer",
+            "answer": "synthetic-answer",
+            "steps": [
+              "synthetic-steps-item"
+            ],
+            "caveat": "2030-01-15T10:00:00.000Z",
+            "sourceIds": [
+              "synthetic-sourceids-item"
+            ],
+            "actionIds": [
+              "synthetic-actionids-item"
+            ],
+            "sources": [
+              {
+                "id": "synthetic-id",
+                "articleId": "synthetic-articleid",
+                "version": 1,
+                "title": "synthetic-title",
+                "href": "synthetic-href"
+              }
+            ],
+            "actions": [
+              {
+                "id": "synthetic-id",
+                "kind": "article",
+                "label": "synthetic-label",
+                "href": "synthetic-href",
+                "sourceId": "synthetic-sourceid"
+              }
+            ]
+          }
+        }
+      ],
+      "historyReset": true,
+      "pending": {
+        "operationId": "00000000-0000-4000-8000-000000000001",
+        "state": "pending"
+      }
+    }
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current account session required; 403 Current assurance, CSRF, Origin or release restriction; 404 Disabled, expired or unavailable to this owner; no existence disclosure; 409 Pending, uncertain, cancelled, changed context or conflicting operation; never automatically replay generation; 422 Strict bounded payload; unsupported context or obvious sensitive input rejected; 429 Shared rate, concurrency or conservative token reservation limit; ordinary help/support unaffected; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 Provider/configuration/output verification unavailable; no fabricated AI answer
+
+### GET `/public/learning/assistant/conversations/{conversationId}`
+
+- Operation ID: `getPublicLearningAssistantConversationsByConversationId`
+- Purpose: Disabled by default. Requires enabled reviewed learning, server-only provider settings and a positive shared daily reservation budget. Current verified identity/MFA and session-bound ownership are resolved on every protected operation. Public sessions are separate secure opaque cookies and never silently join an account. All writes require trusted Origin; account writes use existing CSRF, guest writes additionally verify the guest CSRF header. Conversation and turn creation use scoped operation IDs. Only typed questions and eligible reviewed help reach the provider; no business lookup/mutation tools. Output sources/actions are validated, state encrypted with short expiry, budget/concurrency shared in PostgreSQL. Persistence is automated help, not a Customer Care case, live staffing or human delivery. All responses private/no-store; no transcript URL parameters. Limited catalogue mode retains its public-write restrictions. Allie read. Access boundary: public. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: PUBLIC
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `conversationId` | path | string (uuid) | Yes | Identifier selecting the conversation resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Allie read",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "version": 1,
+    "audience": "public",
+    "expiresAt": "2030-01-15T10:00:00.000Z",
+    "messages": [
+      {
+        "operationId": "00000000-0000-4000-8000-000000000001",
+        "question": "synthetic-question",
+        "answer": {
+          "kind": "answer",
+          "answer": "synthetic-answer",
+          "steps": [
+            "synthetic-steps-item"
+          ],
+          "caveat": "2030-01-15T10:00:00.000Z",
+          "sourceIds": [
+            "synthetic-sourceids-item"
+          ],
+          "actionIds": [
+            "synthetic-actionids-item"
+          ],
+          "sources": [
+            {
+              "id": "synthetic-id",
+              "articleId": "synthetic-articleid",
+              "version": 1,
+              "title": "synthetic-title",
+              "href": "synthetic-href"
+            }
+          ],
+          "actions": [
+            {
+              "id": "synthetic-id",
+              "kind": "article",
+              "label": "synthetic-label",
+              "href": "synthetic-href",
+              "sourceId": "synthetic-sourceid"
+            }
+          ]
+        }
+      }
+    ],
+    "historyReset": true,
+    "pending": {
+      "operationId": "00000000-0000-4000-8000-000000000001",
+      "state": "pending"
+    }
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current account session required; 403 Current assurance, CSRF, Origin or release restriction; 404 Disabled, expired or unavailable to this owner; no existence disclosure; 409 Pending, uncertain, cancelled, changed context or conflicting operation; never automatically replay generation; 422 Strict bounded payload; unsupported context or obvious sensitive input rejected; 429 Shared rate, concurrency or conservative token reservation limit; ordinary help/support unaffected; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 Provider/configuration/output verification unavailable; no fabricated AI answer
+
+### DELETE `/public/learning/assistant/conversations/{conversationId}`
+
+- Operation ID: `deletePublicLearningAssistantConversationsByConversationId`
+- Purpose: Disabled by default. Requires enabled reviewed learning, server-only provider settings and a positive shared daily reservation budget. Current verified identity/MFA and session-bound ownership are resolved on every protected operation. Public sessions are separate secure opaque cookies and never silently join an account. All writes require trusted Origin; account writes use existing CSRF, guest writes additionally verify the guest CSRF header. Conversation and turn creation use scoped operation IDs. Only typed questions and eligible reviewed help reach the provider; no business lookup/mutation tools. Output sources/actions are validated, state encrypted with short expiry, budget/concurrency shared in PostgreSQL. Persistence is automated help, not a Customer Care case, live staffing or human delivery. All responses private/no-store; no transcript URL parameters. Limited catalogue mode retains its public-write restrictions. Allie clear. Access boundary: public. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: PUBLIC
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `conversationId` | path | string (uuid) | Yes | Identifier selecting the conversation resource. |
+| `origin` | header | string (uri) | Yes | Origin used to constrain this request. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+
+Synthetic request example:
+
+```json
+{}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Allie clear",
+  "data": {
+    "cleared": true
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current account session required; 403 Current assurance, CSRF, Origin or release restriction; 404 Disabled, expired or unavailable to this owner; no existence disclosure; 409 Pending, uncertain, cancelled, changed context or conflicting operation; never automatically replay generation; 422 Strict bounded payload; unsupported context or obvious sensitive input rejected; 429 Shared rate, concurrency or conservative token reservation limit; ordinary help/support unaffected; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 Provider/configuration/output verification unavailable; no fabricated AI answer
+
+### POST `/public/learning/assistant/conversations/{conversationId}/cancel`
+
+- Operation ID: `postPublicLearningAssistantConversationsByConversationIdCancel`
+- Purpose: Disabled by default. Requires enabled reviewed learning, server-only provider settings and a positive shared daily reservation budget. Current verified identity/MFA and session-bound ownership are resolved on every protected operation. Public sessions are separate secure opaque cookies and never silently join an account. All writes require trusted Origin; account writes use existing CSRF, guest writes additionally verify the guest CSRF header. Conversation and turn creation use scoped operation IDs. Only typed questions and eligible reviewed help reach the provider; no business lookup/mutation tools. Output sources/actions are validated, state encrypted with short expiry, budget/concurrency shared in PostgreSQL. Persistence is automated help, not a Customer Care case, live staffing or human delivery. All responses private/no-store; no transcript URL parameters. Limited catalogue mode retains its public-write restrictions. Allie cancel. Access boundary: public. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: PUBLIC
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `conversationId` | path | string (uuid) | Yes | Identifier selecting the conversation resource. |
+| `origin` | header | string (uri) | Yes | Origin used to constrain this request. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `operationId` | string (uuid) | Yes | Identifier of the operation resource; ownership is resolved server-side. |
+
+Synthetic request example:
+
+```json
+{
+  "operationId": "00000000-0000-4000-8000-000000000001"
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Allie cancel",
+  "data": {
+    "cancelled": true,
+    "status": "PENDING"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current account session required; 403 Current assurance, CSRF, Origin or release restriction; 404 Disabled, expired or unavailable to this owner; no existence disclosure; 409 Pending, uncertain, cancelled, changed context or conflicting operation; never automatically replay generation; 422 Strict bounded payload; unsupported context or obvious sensitive input rejected; 429 Shared rate, concurrency or conservative token reservation limit; ordinary help/support unaffected; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 Provider/configuration/output verification unavailable; no fabricated AI answer
+
+### POST `/public/learning/assistant/conversations/{conversationId}/turns`
+
+- Operation ID: `postPublicLearningAssistantConversationsByConversationIdTurns`
+- Purpose: Disabled by default. Requires enabled reviewed learning, server-only provider settings and a positive shared daily reservation budget. Current verified identity/MFA and session-bound ownership are resolved on every protected operation. Public sessions are separate secure opaque cookies and never silently join an account. All writes require trusted Origin; account writes use existing CSRF, guest writes additionally verify the guest CSRF header. Conversation and turn creation use scoped operation IDs. Only typed questions and eligible reviewed help reach the provider; no business lookup/mutation tools. Output sources/actions are validated, state encrypted with short expiry, budget/concurrency shared in PostgreSQL. Persistence is automated help, not a Customer Care case, live staffing or human delivery. All responses private/no-store; no transcript URL parameters. Limited catalogue mode retains its public-write restrictions. Allie turns. Access boundary: public. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: PUBLIC
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `conversationId` | path | string (uuid) | Yes | Identifier selecting the conversation resource. |
+| `origin` | header | string (uri) | Yes | Origin used to constrain this request. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `operationId` | string (uuid) | Yes | Identifier of the operation resource; ownership is resolved server-side. |
+| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+| `question` | string | Yes | Question validated by this operation's strict request contract. |
+| `page` | home / parts / vehicles / services / contact / help / learn / customer-care / staff-care / work / security / other | Yes | Page validated by this operation's strict request contract. |
+
+Synthetic request example:
+
+```json
+{
+  "operationId": "00000000-0000-4000-8000-000000000001",
+  "expectedVersion": 1,
+  "question": "synthetic-question",
+  "page": "home"
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Allie turns",
+  "data": {
+    "replayed": true,
+    "conversation": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "version": 1,
+      "audience": "public",
+      "expiresAt": "2030-01-15T10:00:00.000Z",
+      "messages": [
+        {
+          "operationId": "00000000-0000-4000-8000-000000000001",
+          "question": "synthetic-question",
+          "answer": {
+            "kind": "answer",
+            "answer": "synthetic-answer",
+            "steps": [
+              "synthetic-steps-item"
+            ],
+            "caveat": "2030-01-15T10:00:00.000Z",
+            "sourceIds": [
+              "synthetic-sourceids-item"
+            ],
+            "actionIds": [
+              "synthetic-actionids-item"
+            ],
+            "sources": [
+              {
+                "id": "synthetic-id",
+                "articleId": "synthetic-articleid",
+                "version": 1,
+                "title": "synthetic-title",
+                "href": "synthetic-href"
+              }
+            ],
+            "actions": [
+              {
+                "id": "synthetic-id",
+                "kind": "article",
+                "label": "synthetic-label",
+                "href": "synthetic-href",
+                "sourceId": "synthetic-sourceid"
+              }
+            ]
+          }
+        }
+      ],
+      "historyReset": true,
+      "pending": {
+        "operationId": "00000000-0000-4000-8000-000000000001",
+        "state": "pending"
+      }
+    }
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current account session required; 403 Current assurance, CSRF, Origin or release restriction; 404 Disabled, expired or unavailable to this owner; no existence disclosure; 409 Pending, uncertain, cancelled, changed context or conflicting operation; never automatically replay generation; 422 Strict bounded payload; unsupported context or obvious sensitive input rejected; 429 Shared rate, concurrency or conservative token reservation limit; ordinary help/support unaffected; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 Provider/configuration/output verification unavailable; no fabricated AI answer
+
+### POST `/public/learning/assistant/session`
+
+- Operation ID: `postPublicLearningAssistantSession`
+- Purpose: Disabled by default. Requires enabled reviewed learning, server-only provider settings and a positive shared daily reservation budget. Current verified identity/MFA and session-bound ownership are resolved on every protected operation. Public sessions are separate secure opaque cookies and never silently join an account. All writes require trusted Origin; account writes use existing CSRF, guest writes additionally verify the guest CSRF header. Conversation and turn creation use scoped operation IDs. Only typed questions and eligible reviewed help reach the provider; no business lookup/mutation tools. Output sources/actions are validated, state encrypted with short expiry, budget/concurrency shared in PostgreSQL. Persistence is automated help, not a Customer Care case, live staffing or human delivery. All responses private/no-store; no transcript URL parameters. Limited catalogue mode retains its public-write restrictions. Allie session. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: PUBLIC
+- Authentication: None
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `origin` | header | string (uri) | Yes | Origin used to constrain this request. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+
+Synthetic request example:
+
+```json
+{}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Allie session",
+  "data": {
+    "csrfToken": "synthetic-token-value-not-a-real-secret",
+    "expiresAt": "2030-01-15T10:00:00.000Z"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current account session required; 403 Current assurance, CSRF, Origin or release restriction; 404 Disabled, expired or unavailable to this owner; no existence disclosure; 409 Pending, uncertain, cancelled, changed context or conflicting operation; never automatically replay generation; 422 Strict bounded payload; unsupported context or obvious sensitive input rejected; 429 Shared rate, concurrency or conservative token reservation limit; ordinary help/support unaffected; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 Provider/configuration/output verification unavailable; no fabricated AI answer
+
 ### GET `/public/learning/catalogue`
 
 - Operation ID: `getPublicLearningCatalogue`
@@ -23739,6 +24186,409 @@ Relevant errors: 400 The request is malformed.; 401 Invalid signature; 409 The r
 
 
 ## Operational
+
+### GET `/learning/assistant/conversations`
+
+- Operation ID: `getLearningAssistantConversations`
+- Purpose: Disabled by default. Requires enabled reviewed learning, server-only provider settings and a positive shared daily reservation budget. Current verified identity/MFA and session-bound ownership are resolved on every protected operation. Public sessions are separate secure opaque cookies and never silently join an account. All writes require trusted Origin; account writes use existing CSRF, guest writes additionally verify the guest CSRF header. Conversation and turn creation use scoped operation IDs. Only typed questions and eligible reviewed help reach the provider; no business lookup/mutation tools. Output sources/actions are validated, state encrypted with short expiry, budget/concurrency shared in PostgreSQL. Persistence is automated help, not a Customer Care case, live staffing or human delivery. All responses private/no-store; no transcript URL parameters. Limited catalogue mode retains its public-write restrictions. Allie list. Access boundary: authenticated-user. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: AUTHENTICATED
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Allie list",
+  "data": {
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "createdAt": "2030-01-15T10:00:00.000Z",
+        "expiresAt": "2030-01-15T10:00:00.000Z"
+      }
+    ]
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current account session required; 403 Current assurance, CSRF, Origin or release restriction; 404 Disabled, expired or unavailable to this owner; no existence disclosure; 409 Pending, uncertain, cancelled, changed context or conflicting operation; never automatically replay generation; 422 Strict bounded payload; unsupported context or obvious sensitive input rejected; 429 Shared rate, concurrency or conservative token reservation limit; ordinary help/support unaffected; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 Provider/configuration/output verification unavailable; no fabricated AI answer
+
+### POST `/learning/assistant/conversations`
+
+- Operation ID: `postLearningAssistantConversations`
+- Purpose: Disabled by default. Requires enabled reviewed learning, server-only provider settings and a positive shared daily reservation budget. Current verified identity/MFA and session-bound ownership are resolved on every protected operation. Public sessions are separate secure opaque cookies and never silently join an account. All writes require trusted Origin; account writes use existing CSRF, guest writes additionally verify the guest CSRF header. Conversation and turn creation use scoped operation IDs. Only typed questions and eligible reviewed help reach the provider; no business lookup/mutation tools. Output sources/actions are validated, state encrypted with short expiry, budget/concurrency shared in PostgreSQL. Persistence is automated help, not a Customer Care case, live staffing or human delivery. All responses private/no-store; no transcript URL parameters. Limited catalogue mode retains its public-write restrictions. Allie create. Access boundary: authenticated-user. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: AUTHENTICATED
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `origin` | header | string (uri) | Yes | Origin used to constrain this request. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `operationId` | string (uuid) | Yes | Identifier of the operation resource; ownership is resolved server-side. |
+
+Synthetic request example:
+
+```json
+{
+  "operationId": "00000000-0000-4000-8000-000000000001"
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Allie create",
+  "data": {
+    "replayed": true,
+    "conversation": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "version": 1,
+      "audience": "public",
+      "expiresAt": "2030-01-15T10:00:00.000Z",
+      "messages": [
+        {
+          "operationId": "00000000-0000-4000-8000-000000000001",
+          "question": "synthetic-question",
+          "answer": {
+            "kind": "answer",
+            "answer": "synthetic-answer",
+            "steps": [
+              "synthetic-steps-item"
+            ],
+            "caveat": "2030-01-15T10:00:00.000Z",
+            "sourceIds": [
+              "synthetic-sourceids-item"
+            ],
+            "actionIds": [
+              "synthetic-actionids-item"
+            ],
+            "sources": [
+              {
+                "id": "synthetic-id",
+                "articleId": "synthetic-articleid",
+                "version": 1,
+                "title": "synthetic-title",
+                "href": "synthetic-href"
+              }
+            ],
+            "actions": [
+              {
+                "id": "synthetic-id",
+                "kind": "article",
+                "label": "synthetic-label",
+                "href": "synthetic-href",
+                "sourceId": "synthetic-sourceid"
+              }
+            ]
+          }
+        }
+      ],
+      "historyReset": true,
+      "pending": {
+        "operationId": "00000000-0000-4000-8000-000000000001",
+        "state": "pending"
+      }
+    }
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current account session required; 403 Current assurance, CSRF, Origin or release restriction; 404 Disabled, expired or unavailable to this owner; no existence disclosure; 409 Pending, uncertain, cancelled, changed context or conflicting operation; never automatically replay generation; 422 Strict bounded payload; unsupported context or obvious sensitive input rejected; 429 Shared rate, concurrency or conservative token reservation limit; ordinary help/support unaffected; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 Provider/configuration/output verification unavailable; no fabricated AI answer
+
+### GET `/learning/assistant/conversations/{conversationId}`
+
+- Operation ID: `getLearningAssistantConversationsByConversationId`
+- Purpose: Disabled by default. Requires enabled reviewed learning, server-only provider settings and a positive shared daily reservation budget. Current verified identity/MFA and session-bound ownership are resolved on every protected operation. Public sessions are separate secure opaque cookies and never silently join an account. All writes require trusted Origin; account writes use existing CSRF, guest writes additionally verify the guest CSRF header. Conversation and turn creation use scoped operation IDs. Only typed questions and eligible reviewed help reach the provider; no business lookup/mutation tools. Output sources/actions are validated, state encrypted with short expiry, budget/concurrency shared in PostgreSQL. Persistence is automated help, not a Customer Care case, live staffing or human delivery. All responses private/no-store; no transcript URL parameters. Limited catalogue mode retains its public-write restrictions. Allie read. Access boundary: authenticated-user. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: AUTHENTICATED
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `conversationId` | path | string (uuid) | Yes | Identifier selecting the conversation resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Allie read",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "version": 1,
+    "audience": "public",
+    "expiresAt": "2030-01-15T10:00:00.000Z",
+    "messages": [
+      {
+        "operationId": "00000000-0000-4000-8000-000000000001",
+        "question": "synthetic-question",
+        "answer": {
+          "kind": "answer",
+          "answer": "synthetic-answer",
+          "steps": [
+            "synthetic-steps-item"
+          ],
+          "caveat": "2030-01-15T10:00:00.000Z",
+          "sourceIds": [
+            "synthetic-sourceids-item"
+          ],
+          "actionIds": [
+            "synthetic-actionids-item"
+          ],
+          "sources": [
+            {
+              "id": "synthetic-id",
+              "articleId": "synthetic-articleid",
+              "version": 1,
+              "title": "synthetic-title",
+              "href": "synthetic-href"
+            }
+          ],
+          "actions": [
+            {
+              "id": "synthetic-id",
+              "kind": "article",
+              "label": "synthetic-label",
+              "href": "synthetic-href",
+              "sourceId": "synthetic-sourceid"
+            }
+          ]
+        }
+      }
+    ],
+    "historyReset": true,
+    "pending": {
+      "operationId": "00000000-0000-4000-8000-000000000001",
+      "state": "pending"
+    }
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current account session required; 403 Current assurance, CSRF, Origin or release restriction; 404 Disabled, expired or unavailable to this owner; no existence disclosure; 409 Pending, uncertain, cancelled, changed context or conflicting operation; never automatically replay generation; 422 Strict bounded payload; unsupported context or obvious sensitive input rejected; 429 Shared rate, concurrency or conservative token reservation limit; ordinary help/support unaffected; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 Provider/configuration/output verification unavailable; no fabricated AI answer
+
+### DELETE `/learning/assistant/conversations/{conversationId}`
+
+- Operation ID: `deleteLearningAssistantConversationsByConversationId`
+- Purpose: Disabled by default. Requires enabled reviewed learning, server-only provider settings and a positive shared daily reservation budget. Current verified identity/MFA and session-bound ownership are resolved on every protected operation. Public sessions are separate secure opaque cookies and never silently join an account. All writes require trusted Origin; account writes use existing CSRF, guest writes additionally verify the guest CSRF header. Conversation and turn creation use scoped operation IDs. Only typed questions and eligible reviewed help reach the provider; no business lookup/mutation tools. Output sources/actions are validated, state encrypted with short expiry, budget/concurrency shared in PostgreSQL. Persistence is automated help, not a Customer Care case, live staffing or human delivery. All responses private/no-store; no transcript URL parameters. Limited catalogue mode retains its public-write restrictions. Allie clear. Access boundary: authenticated-user. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: AUTHENTICATED
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `conversationId` | path | string (uuid) | Yes | Identifier selecting the conversation resource. |
+| `origin` | header | string (uri) | Yes | Origin used to constrain this request. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+
+Synthetic request example:
+
+```json
+{}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Allie clear",
+  "data": {
+    "cleared": true
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current account session required; 403 Current assurance, CSRF, Origin or release restriction; 404 Disabled, expired or unavailable to this owner; no existence disclosure; 409 Pending, uncertain, cancelled, changed context or conflicting operation; never automatically replay generation; 422 Strict bounded payload; unsupported context or obvious sensitive input rejected; 429 Shared rate, concurrency or conservative token reservation limit; ordinary help/support unaffected; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 Provider/configuration/output verification unavailable; no fabricated AI answer
+
+### POST `/learning/assistant/conversations/{conversationId}/cancel`
+
+- Operation ID: `postLearningAssistantConversationsByConversationIdCancel`
+- Purpose: Disabled by default. Requires enabled reviewed learning, server-only provider settings and a positive shared daily reservation budget. Current verified identity/MFA and session-bound ownership are resolved on every protected operation. Public sessions are separate secure opaque cookies and never silently join an account. All writes require trusted Origin; account writes use existing CSRF, guest writes additionally verify the guest CSRF header. Conversation and turn creation use scoped operation IDs. Only typed questions and eligible reviewed help reach the provider; no business lookup/mutation tools. Output sources/actions are validated, state encrypted with short expiry, budget/concurrency shared in PostgreSQL. Persistence is automated help, not a Customer Care case, live staffing or human delivery. All responses private/no-store; no transcript URL parameters. Limited catalogue mode retains its public-write restrictions. Allie cancel. Access boundary: authenticated-user. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: AUTHENTICATED
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `conversationId` | path | string (uuid) | Yes | Identifier selecting the conversation resource. |
+| `origin` | header | string (uri) | Yes | Origin used to constrain this request. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `operationId` | string (uuid) | Yes | Identifier of the operation resource; ownership is resolved server-side. |
+
+Synthetic request example:
+
+```json
+{
+  "operationId": "00000000-0000-4000-8000-000000000001"
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Allie cancel",
+  "data": {
+    "cancelled": true,
+    "status": "PENDING"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current account session required; 403 Current assurance, CSRF, Origin or release restriction; 404 Disabled, expired or unavailable to this owner; no existence disclosure; 409 Pending, uncertain, cancelled, changed context or conflicting operation; never automatically replay generation; 422 Strict bounded payload; unsupported context or obvious sensitive input rejected; 429 Shared rate, concurrency or conservative token reservation limit; ordinary help/support unaffected; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 Provider/configuration/output verification unavailable; no fabricated AI answer
+
+### POST `/learning/assistant/conversations/{conversationId}/turns`
+
+- Operation ID: `postLearningAssistantConversationsByConversationIdTurns`
+- Purpose: Disabled by default. Requires enabled reviewed learning, server-only provider settings and a positive shared daily reservation budget. Current verified identity/MFA and session-bound ownership are resolved on every protected operation. Public sessions are separate secure opaque cookies and never silently join an account. All writes require trusted Origin; account writes use existing CSRF, guest writes additionally verify the guest CSRF header. Conversation and turn creation use scoped operation IDs. Only typed questions and eligible reviewed help reach the provider; no business lookup/mutation tools. Output sources/actions are validated, state encrypted with short expiry, budget/concurrency shared in PostgreSQL. Persistence is automated help, not a Customer Care case, live staffing or human delivery. All responses private/no-store; no transcript URL parameters. Limited catalogue mode retains its public-write restrictions. Allie turns. Access boundary: authenticated-user. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: AUTHENTICATED
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `conversationId` | path | string (uuid) | Yes | Identifier selecting the conversation resource. |
+| `origin` | header | string (uri) | Yes | Origin used to constrain this request. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `operationId` | string (uuid) | Yes | Identifier of the operation resource; ownership is resolved server-side. |
+| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+| `question` | string | Yes | Question validated by this operation's strict request contract. |
+| `page` | home / parts / vehicles / services / contact / help / learn / customer-care / staff-care / work / security / other | Yes | Page validated by this operation's strict request contract. |
+
+Synthetic request example:
+
+```json
+{
+  "operationId": "00000000-0000-4000-8000-000000000001",
+  "expectedVersion": 1,
+  "question": "synthetic-question",
+  "page": "home"
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Allie turns",
+  "data": {
+    "replayed": true,
+    "conversation": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "version": 1,
+      "audience": "public",
+      "expiresAt": "2030-01-15T10:00:00.000Z",
+      "messages": [
+        {
+          "operationId": "00000000-0000-4000-8000-000000000001",
+          "question": "synthetic-question",
+          "answer": {
+            "kind": "answer",
+            "answer": "synthetic-answer",
+            "steps": [
+              "synthetic-steps-item"
+            ],
+            "caveat": "2030-01-15T10:00:00.000Z",
+            "sourceIds": [
+              "synthetic-sourceids-item"
+            ],
+            "actionIds": [
+              "synthetic-actionids-item"
+            ],
+            "sources": [
+              {
+                "id": "synthetic-id",
+                "articleId": "synthetic-articleid",
+                "version": 1,
+                "title": "synthetic-title",
+                "href": "synthetic-href"
+              }
+            ],
+            "actions": [
+              {
+                "id": "synthetic-id",
+                "kind": "article",
+                "label": "synthetic-label",
+                "href": "synthetic-href",
+                "sourceId": "synthetic-sourceid"
+              }
+            ]
+          }
+        }
+      ],
+      "historyReset": true,
+      "pending": {
+        "operationId": "00000000-0000-4000-8000-000000000001",
+        "state": "pending"
+      }
+    }
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current account session required; 403 Current assurance, CSRF, Origin or release restriction; 404 Disabled, expired or unavailable to this owner; no existence disclosure; 409 Pending, uncertain, cancelled, changed context or conflicting operation; never automatically replay generation; 422 Strict bounded payload; unsupported context or obvious sensitive input rejected; 429 Shared rate, concurrency or conservative token reservation limit; ordinary help/support unaffected; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 Provider/configuration/output verification unavailable; no fabricated AI answer
 
 ### GET `/learning/catalogue`
 

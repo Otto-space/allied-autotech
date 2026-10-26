@@ -1763,3 +1763,26 @@ review remain required. Reviewed persisted Customer Care handoff, gated staffed
 chat and complete route learning remain open. No deployment, install, Docker or
 cleanup operation. Preview 3167 retains W5 frontend; C: approximately 27.10 GiB free.
 Full Revision 4 and broader Item 6 remain open; unrelated worktrees preserved.
+
+27 October 2026 - Revision 4 W7 local checkpoint: owned encrypted transient
+conversations, guest/account CSRF and isolation, shared quota/concurrency/leases,
+idempotent claims, cancellation, current-access finalization and bounded retention.
+Forward migration 73/client generation/fresh synthetic empty replay/schema/db:check
+and restricted runtime passed. Final 36 native HTTP/DB cases and 139 units passed;
+backend lint/types/scripts, OpenAPI 375 paths, 439 operations plus 4 infrastructure
+routes and frontend generated types/typecheck passed. Provider output was mocked;
+zero real model calls, customer messages or application/shared DB writes.
+Evidence: docs/help-learn/ALLIE_CONVERSATIONS_W7.md and learning-threat-model.md.
+Owner could not confirm topology; public/multi-instance assumptions remain explicit.
+Masked Windows-user-encrypted evaluation setup helper verified with a synthetic key;
+no app environment changed or AI enabled. UI still reviewed search; W5 rendered
+checkpoint unchanged. Frontend conversation/privacy, >=100 reviewed real-provider
+evaluation, full workforce policy/history, all-route learning, persisted reviewed
+Customer Care handoff and staffed/gated transport remain required. Coverage gate
+still has all 106 routes open. Fresh replay is not a production restore rehearsal.
+No W4-W7 deployment; preserve/reconcile newer release work before any rollout.
+Owner-approved deletion of exactly four obsolete .next/dev folders was rejected
+again before execution by automatic approval review (blocked by policy). No alternate
+removal attempted; 895,695,897 logical bytes remain. C: final-check preflight 26.93
+GiB free. No Docker resources, dependency install, new worktree or duplicate profile.
+Full Revision 4 and broader Item 6 remain open.

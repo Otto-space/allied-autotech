@@ -3,6 +3,7 @@ import type { AuthenticatedActor } from "../../common/contracts/actor.js";
 import { AppError } from "../../common/errors/app-error.js";
 import { prisma } from "../../config/database.js";
 import { env } from "../../config/env.js";
+import type { Prisma } from "../../generated/prisma/client.js";
 import { lockAccessActor } from "../organization/team-access-security.js";
 import { workforceSnapshot } from "../organization/workforce.policy.js";
 import {
@@ -76,65 +77,70 @@ export function learningEligible(access: LearningAccess, gate: LearningGate) {
 export async function currentLearningAccess(
   actor: AuthenticatedActor,
 ): Promise<LearningAccess> {
-  return prisma.$transaction(async (tx) => {
-    if (actor.role === "CUSTOMER") {
-      await tx.$queryRaw`SELECT "id" FROM "User" WHERE "id" = ${actor.userId}::uuid FOR UPDATE`;
-      const user = await tx.user.findUnique({
-        where: { id: actor.userId },
-        select: { role: true, status: true, emailVerifiedAt: true },
-      });
-      const session = await tx.session.findFirst({
-        where: {
-          id: actor.sessionId,
-          userId: actor.userId,
-          revokedAt: null,
-          expiresAt: { gt: new Date() },
-          idleExpiresAt: { gt: new Date() },
-        },
-        select: { id: true },
-      });
-      if (!user || user.status !== "ACTIVE" || user.role !== actor.role || !session)
-        throw learningUnavailable();
-      return {
-        ...publicLearningAccess,
-        role: "CUSTOMER",
-        verified: !!user.emailVerifiedAt,
-        key: createHash("sha256")
-          .update(
-            JSON.stringify([
-              actor.userId,
-              actor.sessionId,
-              user.role,
-              !!user.emailVerifiedAt,
-            ]),
-          )
-          .digest("hex"),
-      };
-    }
-    await lockAccessActor(tx, actor);
-    const snapshot = await workforceSnapshot(tx, actor);
+  return prisma.$transaction((tx) => learningAccessInTransaction(tx, actor));
+}
+export async function learningAccessInTransaction(
+  tx: Prisma.TransactionClient,
+  actor: AuthenticatedActor,
+): Promise<LearningAccess> {
+  if (actor.role === "CUSTOMER") {
+    await tx.$queryRaw`SELECT "id" FROM "User" WHERE "id" = ${actor.userId}::uuid FOR UPDATE`;
+    await tx.$queryRaw`SELECT "id" FROM "Session" WHERE "id" = ${actor.sessionId}::uuid FOR UPDATE`;
+    const user = await tx.user.findUnique({
+      where: { id: actor.userId },
+      select: { role: true, status: true, emailVerifiedAt: true },
+    });
+    const session = await tx.session.findFirst({
+      where: {
+        id: actor.sessionId,
+        userId: actor.userId,
+        revokedAt: null,
+        expiresAt: { gt: new Date() },
+        idleExpiresAt: { gt: new Date() },
+      },
+      select: { id: true },
+    });
+    if (!user || user.status !== "ACTIVE" || user.role !== actor.role || !session)
+      throw learningUnavailable();
     return {
-      role: actor.role,
-      verified: true,
-      managed: snapshot.managed,
-      permissions: snapshot.permissions,
-      position: snapshot.position,
-      canManage: snapshot.canManageAssignments,
+      ...publicLearningAccess,
+      role: "CUSTOMER",
+      verified: !!user.emailVerifiedAt,
       key: createHash("sha256")
         .update(
           JSON.stringify([
             actor.userId,
             actor.sessionId,
-            actor.role,
-            snapshot.version,
-            snapshot.permissions,
-            snapshot.assignments.map((a) => [a.id, a.branchId, a.scope]),
-            snapshot.canManageAssignments,
+            user.role,
+            !!user.emailVerifiedAt,
           ]),
         )
         .digest("hex"),
     };
-  });
+  }
+  await lockAccessActor(tx, actor);
+  const snapshot = await workforceSnapshot(tx, actor);
+  return {
+    role: actor.role,
+    verified: true,
+    managed: snapshot.managed,
+    permissions: snapshot.permissions,
+    position: snapshot.position,
+    canManage: snapshot.canManageAssignments,
+    key: createHash("sha256")
+      .update(
+        JSON.stringify([
+          actor.userId,
+          actor.sessionId,
+          actor.role,
+          snapshot.version,
+          snapshot.permissions,
+          snapshot.assignments.map((a) => [a.id, a.branchId, a.scope]),
+          snapshot.canManageAssignments,
+        ]),
+      )
+      .digest("hex"),
+  };
 }
 function textWords(value: string) {
   const synonyms: Record<string, string> = {

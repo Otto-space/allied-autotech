@@ -4,6 +4,9 @@ import { env } from "../../config/env.js";
 
 export type TokenPurpose =
   | "rate-limit"
+  | "assistant-owner"
+  | "assistant-session"
+  | "assistant-idempotency"
   | "session"
   | "csrf"
   | "email-verification"

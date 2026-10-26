@@ -15,7 +15,8 @@ type EncryptionPurpose =
   | "identity-outbox"
   | "notification-outbox"
   | "payment-checkout"
-  | "refund-beneficiary";
+  | "refund-beneficiary"
+  | "assistant-context";
 
 function deriveKey(keyMaterial: string, purpose: EncryptionPurpose): Buffer {
   return Buffer.from(
@@ -129,6 +130,46 @@ export function decryptNotificationPayload<T>(envelope: EncryptedEnvelope): T {
       env.OUTBOX_ENCRYPTION_KEY_ID,
     ),
   ) as T;
+}
+
+export function encryptAssistantContext(
+  value: unknown,
+  binding: string,
+): EncryptedEnvelope {
+  return encrypt(
+    JSON.stringify({ binding, value }),
+    "assistant-context",
+    env.OUTBOX_ENCRYPTION_KEY,
+    env.OUTBOX_ENCRYPTION_KEY_ID,
+  );
+}
+
+export function decryptAssistantContext(
+  envelope: EncryptedEnvelope,
+  binding: string,
+): unknown {
+  try {
+    const payload: unknown = JSON.parse(
+      decrypt(
+        envelope,
+        "assistant-context",
+        env.OUTBOX_ENCRYPTION_KEY,
+        env.OUTBOX_ENCRYPTION_KEY_ID,
+      ),
+    );
+    if (
+      !payload ||
+      typeof payload !== "object" ||
+      !("binding" in payload) ||
+      payload.binding !== binding ||
+      !("value" in payload)
+    )
+      throw new Error("Assistant context is unavailable");
+    return payload.value;
+  } catch {
+    // Decryption/JSON exception messages must never disclose transcript fragments.
+    throw new Error("Assistant context is unavailable");
+  }
 }
 
 export function encryptPaymentCheckoutState(payload: unknown): EncryptedEnvelope {

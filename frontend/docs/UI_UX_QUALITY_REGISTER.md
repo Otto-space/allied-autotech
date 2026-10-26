@@ -1,17 +1,17 @@
 # UI and UX quality register
 
-Updated 26 October 2026. This is the ongoing quality register, not an assertion
+Updated 27 October 2026. This is the ongoing quality register, not an assertion
 that every route or state has passed review. Work proceeds in finite batches.
 
 ## Standing responsibility and source
 
-Current bounded implementation: Revision 4 W5 navigation and active-workspace
-boundaries, branch `feat/workforce-navigation-policy-20261026`, based on local
-W4A `76719cc1` in the reused `allied-home-restoration-20261025` worktree.
-Status: local isolated and rendered fixture acceptance passed; not deployed.
+Current bounded implementation: Revision 4 W7 backend conversation state, branch
+`feat/allie-conversation-state-20261027`, based on W6 `29f82064` in the reused
+`allied-home-restoration-20261025` worktree. Backend isolated acceptance passed;
+the unchanged frontend checkpoint is W5 rendered fixture acceptance. Not deployed.
 Full baseline/independent-grant composition, actual Allie conversation, persisted
 human handoff, real chat subscriptions and all-route learning remain open.
-Evidence: `docs/help-learn/WORKFORCE_NAVIGATION_SESSIONS_W5.md` and the retained W4
+Evidence: `docs/help-learn/ALLIE_CONVERSATIONS_W7.md`, W6 provider core, W5 and the retained W4
 impact review evidence. Earlier customer-table/sidebar responsiveness remains in
 Cycle 13; unrelated worktrees and newer release branches are preserved.
 
@@ -1773,3 +1773,5 @@ by automatic approval review; no alternate removal attempted. Browser batches ke
 at least 27.074 GiB in accepted receipts. No Docker resources created/pruned.
 
 Revision 4 W6 (27 October): backend-only provider/retrieval core passed 51 contract/unit and 10 native learning cases with the provider mocked. No frontend interaction or source inventory changed; W5 rendered evidence above remains the UI checkpoint. Allie UI is still reviewed search, not an enabled conversation. See `docs/help-learn/ALLIE_PROVIDER_CORE_W6.md` for actual checks, provisional data flow and unfinished state/quota/endpoint/UI/provider evaluation. No new visual acceptance or deployment claimed.
+
+Revision 4 W7 (27 October): owned transient conversation backend passed 36 native HTTP/DB and 139 unit cases with provider mocked; migration 73 fresh replay/schema/db:check and generated API types passed. No conversation UI added or new rendered acceptance claimed; W5 remains the frontend checkpoint. Owner setup instructions and a DPAPI masked-key helper are available. AI remains disabled; full 106-route acceptance, configured-provider evaluation, privacy UI, persisted Customer Care handoff and gated chat remain open. Evidence: docs/help-learn/ALLIE_CONVERSATIONS_W7.md and learning-threat-model.md. No publication.

@@ -1,4 +1,5 @@
 import { SupportCustomerEmailWorker } from "./support-customer-email.worker.js";
+import { purgeExpiredAllieState } from "../modules/learning/allie.retention.js";
 import { PushWorker } from "./push.worker.js";
 import { OperationalAlertsWorker } from "./operational-alerts.worker.js";
 import { DepartmentEmailWorker } from "./department-email.worker.js";
@@ -113,6 +114,9 @@ export async function runGeneralWorker(): Promise<void> {
       await safely("refunds", () => refunds.runOnce(env.WORKER_BATCH_SIZE));
       const now = Date.now();
       if (now >= nextExpirationAt) {
+        await safely("assistant-retention", () =>
+          purgeExpiredAllieState(Math.min(env.WORKER_BATCH_SIZE, 500)),
+        );
         await safely("media-cleanup", () => mediaCleanup.runOnce(env.WORKER_BATCH_SIZE));
         await safely("expiration", () => expiration.runOnce(env.WORKER_BATCH_SIZE));
         await safely("operational-alerts", () => operationalAlerts.runOnce());

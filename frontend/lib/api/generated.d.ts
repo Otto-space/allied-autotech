@@ -4,6 +4,202 @@
  */
 
 export interface paths {
+    "/public/learning/assistant/conversations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Allie list
+         * @description Disabled by default. Requires enabled reviewed learning, server-only provider settings and a positive shared daily reservation budget. Current verified identity/MFA and session-bound ownership are resolved on every protected operation. Public sessions are separate secure opaque cookies and never silently join an account. All writes require trusted Origin; account writes use existing CSRF, guest writes additionally verify the guest CSRF header. Conversation and turn creation use scoped operation IDs. Only typed questions and eligible reviewed help reach the provider; no business lookup/mutation tools. Output sources/actions are validated, state encrypted with short expiry, budget/concurrency shared in PostgreSQL. Persistence is automated help, not a Customer Care case, live staffing or human delivery. All responses private/no-store; no transcript URL parameters. Limited catalogue mode retains its public-write restrictions. Allie list. Access boundary: public. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+         */
+        get: operations["getPublicLearningAssistantConversations"];
+        put?: never;
+        /**
+         * Allie create
+         * @description Disabled by default. Requires enabled reviewed learning, server-only provider settings and a positive shared daily reservation budget. Current verified identity/MFA and session-bound ownership are resolved on every protected operation. Public sessions are separate secure opaque cookies and never silently join an account. All writes require trusted Origin; account writes use existing CSRF, guest writes additionally verify the guest CSRF header. Conversation and turn creation use scoped operation IDs. Only typed questions and eligible reviewed help reach the provider; no business lookup/mutation tools. Output sources/actions are validated, state encrypted with short expiry, budget/concurrency shared in PostgreSQL. Persistence is automated help, not a Customer Care case, live staffing or human delivery. All responses private/no-store; no transcript URL parameters. Limited catalogue mode retains its public-write restrictions. Allie create. Access boundary: public. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         */
+        post: operations["postPublicLearningAssistantConversations"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/public/learning/assistant/conversations/{conversationId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Allie read
+         * @description Disabled by default. Requires enabled reviewed learning, server-only provider settings and a positive shared daily reservation budget. Current verified identity/MFA and session-bound ownership are resolved on every protected operation. Public sessions are separate secure opaque cookies and never silently join an account. All writes require trusted Origin; account writes use existing CSRF, guest writes additionally verify the guest CSRF header. Conversation and turn creation use scoped operation IDs. Only typed questions and eligible reviewed help reach the provider; no business lookup/mutation tools. Output sources/actions are validated, state encrypted with short expiry, budget/concurrency shared in PostgreSQL. Persistence is automated help, not a Customer Care case, live staffing or human delivery. All responses private/no-store; no transcript URL parameters. Limited catalogue mode retains its public-write restrictions. Allie read. Access boundary: public. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+         */
+        get: operations["getPublicLearningAssistantConversationsByConversationId"];
+        put?: never;
+        post?: never;
+        /**
+         * Allie clear
+         * @description Disabled by default. Requires enabled reviewed learning, server-only provider settings and a positive shared daily reservation budget. Current verified identity/MFA and session-bound ownership are resolved on every protected operation. Public sessions are separate secure opaque cookies and never silently join an account. All writes require trusted Origin; account writes use existing CSRF, guest writes additionally verify the guest CSRF header. Conversation and turn creation use scoped operation IDs. Only typed questions and eligible reviewed help reach the provider; no business lookup/mutation tools. Output sources/actions are validated, state encrypted with short expiry, budget/concurrency shared in PostgreSQL. Persistence is automated help, not a Customer Care case, live staffing or human delivery. All responses private/no-store; no transcript URL parameters. Limited catalogue mode retains its public-write restrictions. Allie clear. Access boundary: public. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         */
+        delete: operations["deletePublicLearningAssistantConversationsByConversationId"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/public/learning/assistant/conversations/{conversationId}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Allie cancel
+         * @description Disabled by default. Requires enabled reviewed learning, server-only provider settings and a positive shared daily reservation budget. Current verified identity/MFA and session-bound ownership are resolved on every protected operation. Public sessions are separate secure opaque cookies and never silently join an account. All writes require trusted Origin; account writes use existing CSRF, guest writes additionally verify the guest CSRF header. Conversation and turn creation use scoped operation IDs. Only typed questions and eligible reviewed help reach the provider; no business lookup/mutation tools. Output sources/actions are validated, state encrypted with short expiry, budget/concurrency shared in PostgreSQL. Persistence is automated help, not a Customer Care case, live staffing or human delivery. All responses private/no-store; no transcript URL parameters. Limited catalogue mode retains its public-write restrictions. Allie cancel. Access boundary: public. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         */
+        post: operations["postPublicLearningAssistantConversationsByConversationIdCancel"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/public/learning/assistant/conversations/{conversationId}/turns": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Allie turns
+         * @description Disabled by default. Requires enabled reviewed learning, server-only provider settings and a positive shared daily reservation budget. Current verified identity/MFA and session-bound ownership are resolved on every protected operation. Public sessions are separate secure opaque cookies and never silently join an account. All writes require trusted Origin; account writes use existing CSRF, guest writes additionally verify the guest CSRF header. Conversation and turn creation use scoped operation IDs. Only typed questions and eligible reviewed help reach the provider; no business lookup/mutation tools. Output sources/actions are validated, state encrypted with short expiry, budget/concurrency shared in PostgreSQL. Persistence is automated help, not a Customer Care case, live staffing or human delivery. All responses private/no-store; no transcript URL parameters. Limited catalogue mode retains its public-write restrictions. Allie turns. Access boundary: public. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         */
+        post: operations["postPublicLearningAssistantConversationsByConversationIdTurns"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/public/learning/assistant/session": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Allie session
+         * @description Disabled by default. Requires enabled reviewed learning, server-only provider settings and a positive shared daily reservation budget. Current verified identity/MFA and session-bound ownership are resolved on every protected operation. Public sessions are separate secure opaque cookies and never silently join an account. All writes require trusted Origin; account writes use existing CSRF, guest writes additionally verify the guest CSRF header. Conversation and turn creation use scoped operation IDs. Only typed questions and eligible reviewed help reach the provider; no business lookup/mutation tools. Output sources/actions are validated, state encrypted with short expiry, budget/concurrency shared in PostgreSQL. Persistence is automated help, not a Customer Care case, live staffing or human delivery. All responses private/no-store; no transcript URL parameters. Limited catalogue mode retains its public-write restrictions. Allie session. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+         */
+        post: operations["postPublicLearningAssistantSession"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/learning/assistant/conversations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Allie list
+         * @description Disabled by default. Requires enabled reviewed learning, server-only provider settings and a positive shared daily reservation budget. Current verified identity/MFA and session-bound ownership are resolved on every protected operation. Public sessions are separate secure opaque cookies and never silently join an account. All writes require trusted Origin; account writes use existing CSRF, guest writes additionally verify the guest CSRF header. Conversation and turn creation use scoped operation IDs. Only typed questions and eligible reviewed help reach the provider; no business lookup/mutation tools. Output sources/actions are validated, state encrypted with short expiry, budget/concurrency shared in PostgreSQL. Persistence is automated help, not a Customer Care case, live staffing or human delivery. All responses private/no-store; no transcript URL parameters. Limited catalogue mode retains its public-write restrictions. Allie list. Access boundary: authenticated-user. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+         */
+        get: operations["getLearningAssistantConversations"];
+        put?: never;
+        /**
+         * Allie create
+         * @description Disabled by default. Requires enabled reviewed learning, server-only provider settings and a positive shared daily reservation budget. Current verified identity/MFA and session-bound ownership are resolved on every protected operation. Public sessions are separate secure opaque cookies and never silently join an account. All writes require trusted Origin; account writes use existing CSRF, guest writes additionally verify the guest CSRF header. Conversation and turn creation use scoped operation IDs. Only typed questions and eligible reviewed help reach the provider; no business lookup/mutation tools. Output sources/actions are validated, state encrypted with short expiry, budget/concurrency shared in PostgreSQL. Persistence is automated help, not a Customer Care case, live staffing or human delivery. All responses private/no-store; no transcript URL parameters. Limited catalogue mode retains its public-write restrictions. Allie create. Access boundary: authenticated-user. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         */
+        post: operations["postLearningAssistantConversations"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/learning/assistant/conversations/{conversationId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Allie read
+         * @description Disabled by default. Requires enabled reviewed learning, server-only provider settings and a positive shared daily reservation budget. Current verified identity/MFA and session-bound ownership are resolved on every protected operation. Public sessions are separate secure opaque cookies and never silently join an account. All writes require trusted Origin; account writes use existing CSRF, guest writes additionally verify the guest CSRF header. Conversation and turn creation use scoped operation IDs. Only typed questions and eligible reviewed help reach the provider; no business lookup/mutation tools. Output sources/actions are validated, state encrypted with short expiry, budget/concurrency shared in PostgreSQL. Persistence is automated help, not a Customer Care case, live staffing or human delivery. All responses private/no-store; no transcript URL parameters. Limited catalogue mode retains its public-write restrictions. Allie read. Access boundary: authenticated-user. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+         */
+        get: operations["getLearningAssistantConversationsByConversationId"];
+        put?: never;
+        post?: never;
+        /**
+         * Allie clear
+         * @description Disabled by default. Requires enabled reviewed learning, server-only provider settings and a positive shared daily reservation budget. Current verified identity/MFA and session-bound ownership are resolved on every protected operation. Public sessions are separate secure opaque cookies and never silently join an account. All writes require trusted Origin; account writes use existing CSRF, guest writes additionally verify the guest CSRF header. Conversation and turn creation use scoped operation IDs. Only typed questions and eligible reviewed help reach the provider; no business lookup/mutation tools. Output sources/actions are validated, state encrypted with short expiry, budget/concurrency shared in PostgreSQL. Persistence is automated help, not a Customer Care case, live staffing or human delivery. All responses private/no-store; no transcript URL parameters. Limited catalogue mode retains its public-write restrictions. Allie clear. Access boundary: authenticated-user. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         */
+        delete: operations["deleteLearningAssistantConversationsByConversationId"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/learning/assistant/conversations/{conversationId}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Allie cancel
+         * @description Disabled by default. Requires enabled reviewed learning, server-only provider settings and a positive shared daily reservation budget. Current verified identity/MFA and session-bound ownership are resolved on every protected operation. Public sessions are separate secure opaque cookies and never silently join an account. All writes require trusted Origin; account writes use existing CSRF, guest writes additionally verify the guest CSRF header. Conversation and turn creation use scoped operation IDs. Only typed questions and eligible reviewed help reach the provider; no business lookup/mutation tools. Output sources/actions are validated, state encrypted with short expiry, budget/concurrency shared in PostgreSQL. Persistence is automated help, not a Customer Care case, live staffing or human delivery. All responses private/no-store; no transcript URL parameters. Limited catalogue mode retains its public-write restrictions. Allie cancel. Access boundary: authenticated-user. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         */
+        post: operations["postLearningAssistantConversationsByConversationIdCancel"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/learning/assistant/conversations/{conversationId}/turns": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Allie turns
+         * @description Disabled by default. Requires enabled reviewed learning, server-only provider settings and a positive shared daily reservation budget. Current verified identity/MFA and session-bound ownership are resolved on every protected operation. Public sessions are separate secure opaque cookies and never silently join an account. All writes require trusted Origin; account writes use existing CSRF, guest writes additionally verify the guest CSRF header. Conversation and turn creation use scoped operation IDs. Only typed questions and eligible reviewed help reach the provider; no business lookup/mutation tools. Output sources/actions are validated, state encrypted with short expiry, budget/concurrency shared in PostgreSQL. Persistence is automated help, not a Customer Care case, live staffing or human delivery. All responses private/no-store; no transcript URL parameters. Limited catalogue mode retains its public-write restrictions. Allie turns. Access boundary: authenticated-user. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         */
+        post: operations["postLearningAssistantConversationsByConversationIdTurns"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/public/learning/catalogue": {
         parameters: {
             query?: never;
@@ -7665,6 +7861,3034 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    getPublicLearningAssistantConversations: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success: Allie list. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Allie list",
+                     *       "data": {
+                     *         "items": [
+                     *           {
+                     *             "id": "00000000-0000-4000-8000-000000000001",
+                     *             "createdAt": "2030-01-15T10:00:00.000Z",
+                     *             "expiresAt": "2030-01-15T10:00:00.000Z"
+                     *           }
+                     *         ]
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /**
+                         * @description Success validated by this operation's strict request contract.
+                         * @enum {boolean}
+                         */
+                        success: true;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /** @description Items validated by this operation's strict request contract. */
+                            items: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
+                                 */
+                                id: string;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                createdAt: string;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                expiresAt: string;
+                            }[];
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                            /** @description ISO 8601 timestamp interpreted and validated by the server. */
+                            serverTime: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Current account session required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Current assurance, CSRF, Origin or release restriction */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Disabled, expired or unavailable to this owner; no existence disclosure */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Pending, uncertain, cancelled, changed context or conflicting operation; never automatically replay generation */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Strict bounded payload; unsupported context or obvious sensitive input rejected */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Shared rate, concurrency or conservative token reservation limit; ordinary help/support unaffected */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Provider/configuration/output verification unavailable; no fabricated AI answer */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    postPublicLearningAssistantConversations: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description Origin used to constrain this request.
+                 * @example https://example.test/continue
+                 */
+                origin: string;
+                /**
+                 * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+                 * @example synthetic-token-value-not-a-real-secret
+                 */
+                "x-csrf-token": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "operationId": "00000000-0000-4000-8000-000000000001"
+                 *     }
+                 */
+                "application/json": {
+                    /**
+                     * Format: uuid
+                     * @description Identifier of the operation resource; ownership is resolved server-side.
+                     */
+                    operationId: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Success: Allie create. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Allie create",
+                     *       "data": {
+                     *         "replayed": true,
+                     *         "conversation": {
+                     *           "id": "00000000-0000-4000-8000-000000000001",
+                     *           "version": 1,
+                     *           "audience": "public",
+                     *           "expiresAt": "2030-01-15T10:00:00.000Z",
+                     *           "messages": [
+                     *             {
+                     *               "operationId": "00000000-0000-4000-8000-000000000001",
+                     *               "question": "synthetic-question",
+                     *               "answer": {
+                     *                 "kind": "answer",
+                     *                 "answer": "synthetic-answer",
+                     *                 "steps": [
+                     *                   "synthetic-steps-item"
+                     *                 ],
+                     *                 "caveat": "2030-01-15T10:00:00.000Z",
+                     *                 "sourceIds": [
+                     *                   "synthetic-sourceids-item"
+                     *                 ],
+                     *                 "actionIds": [
+                     *                   "synthetic-actionids-item"
+                     *                 ],
+                     *                 "sources": [
+                     *                   {
+                     *                     "id": "synthetic-id",
+                     *                     "articleId": "synthetic-articleid",
+                     *                     "version": 1,
+                     *                     "title": "synthetic-title",
+                     *                     "href": "synthetic-href"
+                     *                   }
+                     *                 ],
+                     *                 "actions": [
+                     *                   {
+                     *                     "id": "synthetic-id",
+                     *                     "kind": "article",
+                     *                     "label": "synthetic-label",
+                     *                     "href": "synthetic-href",
+                     *                     "sourceId": "synthetic-sourceid"
+                     *                   }
+                     *                 ]
+                     *               }
+                     *             }
+                     *           ],
+                     *           "historyReset": true,
+                     *           "pending": {
+                     *             "operationId": "00000000-0000-4000-8000-000000000001",
+                     *             "state": "pending"
+                     *           }
+                     *         }
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /**
+                         * @description Success validated by this operation's strict request contract.
+                         * @enum {boolean}
+                         */
+                        success: true;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /** @description Replayed validated by this operation's strict request contract. */
+                            replayed: boolean;
+                            /** @description Conversation validated by this operation's strict request contract. */
+                            conversation: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
+                                 */
+                                id: string;
+                                /** @description Version validated by this operation's strict request contract. */
+                                version: number;
+                                /**
+                                 * @description Audience validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                audience: "public" | "customer" | "work";
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                expiresAt: string;
+                                /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                                messages: {
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the operation resource; ownership is resolved server-side.
+                                     */
+                                    operationId: string;
+                                    /** @description Question validated by this operation's strict request contract. */
+                                    question: string;
+                                    /** @description Answer validated by this operation's strict request contract. */
+                                    answer: {
+                                        /**
+                                         * @description Kind validated by this operation's strict request contract.
+                                         * @enum {string}
+                                         */
+                                        kind: "answer" | "clarification" | "unavailable" | "human";
+                                        /** @description Answer validated by this operation's strict request contract. */
+                                        answer: string;
+                                        /** @description Steps validated by this operation's strict request contract. */
+                                        steps: string[];
+                                        /** @description ISO 8601 timestamp interpreted and validated by the server. */
+                                        caveat: string | null;
+                                        /** @description Source Ids validated by this operation's strict request contract. */
+                                        sourceIds: string[];
+                                        /** @description Action Ids validated by this operation's strict request contract. */
+                                        actionIds: string[];
+                                        /** @description Sources validated by this operation's strict request contract. */
+                                        sources: {
+                                            /** @description Identifier of the id resource; ownership is resolved server-side. */
+                                            id: string;
+                                            /** @description Identifier of the article resource; ownership is resolved server-side. */
+                                            articleId: string;
+                                            /** @description Version validated by this operation's strict request contract. */
+                                            version: number;
+                                            /** @description Title validated by this operation's strict request contract. */
+                                            title: string;
+                                            /** @description Href validated by this operation's strict request contract. */
+                                            href: string;
+                                        }[];
+                                        /** @description Actions validated by this operation's strict request contract. */
+                                        actions: {
+                                            /** @description Identifier of the id resource; ownership is resolved server-side. */
+                                            id: string;
+                                            /**
+                                             * @description Kind validated by this operation's strict request contract.
+                                             * @enum {string}
+                                             */
+                                            kind: "article" | "guide" | "practice" | "navigate" | "human";
+                                            /** @description Label validated by this operation's strict request contract. */
+                                            label: string;
+                                            /** @description Href validated by this operation's strict request contract. */
+                                            href: string;
+                                            /** @description Identifier of the source resource; ownership is resolved server-side. */
+                                            sourceId: string | null;
+                                        }[];
+                                    };
+                                }[];
+                                /** @description History Reset validated by this operation's strict request contract. */
+                                historyReset: boolean;
+                                /** @description Pending validated by this operation's strict request contract. */
+                                pending: {
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the operation resource; ownership is resolved server-side.
+                                     */
+                                    operationId: string;
+                                    /**
+                                     * @description State validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    state: "pending" | "interrupted";
+                                } | null;
+                            };
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                            /** @description ISO 8601 timestamp interpreted and validated by the server. */
+                            serverTime: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Current account session required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Current assurance, CSRF, Origin or release restriction */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Disabled, expired or unavailable to this owner; no existence disclosure */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Pending, uncertain, cancelled, changed context or conflicting operation; never automatically replay generation */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Strict bounded payload; unsupported context or obvious sensitive input rejected */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Shared rate, concurrency or conservative token reservation limit; ordinary help/support unaffected */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Provider/configuration/output verification unavailable; no fabricated AI answer */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    getPublicLearningAssistantConversationsByConversationId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description Identifier selecting the conversation resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                conversationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success: Allie read. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Allie read",
+                     *       "data": {
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "version": 1,
+                     *         "audience": "public",
+                     *         "expiresAt": "2030-01-15T10:00:00.000Z",
+                     *         "messages": [
+                     *           {
+                     *             "operationId": "00000000-0000-4000-8000-000000000001",
+                     *             "question": "synthetic-question",
+                     *             "answer": {
+                     *               "kind": "answer",
+                     *               "answer": "synthetic-answer",
+                     *               "steps": [
+                     *                 "synthetic-steps-item"
+                     *               ],
+                     *               "caveat": "2030-01-15T10:00:00.000Z",
+                     *               "sourceIds": [
+                     *                 "synthetic-sourceids-item"
+                     *               ],
+                     *               "actionIds": [
+                     *                 "synthetic-actionids-item"
+                     *               ],
+                     *               "sources": [
+                     *                 {
+                     *                   "id": "synthetic-id",
+                     *                   "articleId": "synthetic-articleid",
+                     *                   "version": 1,
+                     *                   "title": "synthetic-title",
+                     *                   "href": "synthetic-href"
+                     *                 }
+                     *               ],
+                     *               "actions": [
+                     *                 {
+                     *                   "id": "synthetic-id",
+                     *                   "kind": "article",
+                     *                   "label": "synthetic-label",
+                     *                   "href": "synthetic-href",
+                     *                   "sourceId": "synthetic-sourceid"
+                     *                 }
+                     *               ]
+                     *             }
+                     *           }
+                     *         ],
+                     *         "historyReset": true,
+                     *         "pending": {
+                     *           "operationId": "00000000-0000-4000-8000-000000000001",
+                     *           "state": "pending"
+                     *         }
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /**
+                         * @description Success validated by this operation's strict request contract.
+                         * @enum {boolean}
+                         */
+                        success: true;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the id resource; ownership is resolved server-side.
+                             */
+                            id: string;
+                            /** @description Version validated by this operation's strict request contract. */
+                            version: number;
+                            /**
+                             * @description Audience validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            audience: "public" | "customer" | "work";
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            expiresAt: string;
+                            /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                            messages: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the operation resource; ownership is resolved server-side.
+                                 */
+                                operationId: string;
+                                /** @description Question validated by this operation's strict request contract. */
+                                question: string;
+                                /** @description Answer validated by this operation's strict request contract. */
+                                answer: {
+                                    /**
+                                     * @description Kind validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    kind: "answer" | "clarification" | "unavailable" | "human";
+                                    /** @description Answer validated by this operation's strict request contract. */
+                                    answer: string;
+                                    /** @description Steps validated by this operation's strict request contract. */
+                                    steps: string[];
+                                    /** @description ISO 8601 timestamp interpreted and validated by the server. */
+                                    caveat: string | null;
+                                    /** @description Source Ids validated by this operation's strict request contract. */
+                                    sourceIds: string[];
+                                    /** @description Action Ids validated by this operation's strict request contract. */
+                                    actionIds: string[];
+                                    /** @description Sources validated by this operation's strict request contract. */
+                                    sources: {
+                                        /** @description Identifier of the id resource; ownership is resolved server-side. */
+                                        id: string;
+                                        /** @description Identifier of the article resource; ownership is resolved server-side. */
+                                        articleId: string;
+                                        /** @description Version validated by this operation's strict request contract. */
+                                        version: number;
+                                        /** @description Title validated by this operation's strict request contract. */
+                                        title: string;
+                                        /** @description Href validated by this operation's strict request contract. */
+                                        href: string;
+                                    }[];
+                                    /** @description Actions validated by this operation's strict request contract. */
+                                    actions: {
+                                        /** @description Identifier of the id resource; ownership is resolved server-side. */
+                                        id: string;
+                                        /**
+                                         * @description Kind validated by this operation's strict request contract.
+                                         * @enum {string}
+                                         */
+                                        kind: "article" | "guide" | "practice" | "navigate" | "human";
+                                        /** @description Label validated by this operation's strict request contract. */
+                                        label: string;
+                                        /** @description Href validated by this operation's strict request contract. */
+                                        href: string;
+                                        /** @description Identifier of the source resource; ownership is resolved server-side. */
+                                        sourceId: string | null;
+                                    }[];
+                                };
+                            }[];
+                            /** @description History Reset validated by this operation's strict request contract. */
+                            historyReset: boolean;
+                            /** @description Pending validated by this operation's strict request contract. */
+                            pending: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the operation resource; ownership is resolved server-side.
+                                 */
+                                operationId: string;
+                                /**
+                                 * @description State validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                state: "pending" | "interrupted";
+                            } | null;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                            /** @description ISO 8601 timestamp interpreted and validated by the server. */
+                            serverTime: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Current account session required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Current assurance, CSRF, Origin or release restriction */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Disabled, expired or unavailable to this owner; no existence disclosure */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Pending, uncertain, cancelled, changed context or conflicting operation; never automatically replay generation */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Strict bounded payload; unsupported context or obvious sensitive input rejected */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Shared rate, concurrency or conservative token reservation limit; ordinary help/support unaffected */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Provider/configuration/output verification unavailable; no fabricated AI answer */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    deletePublicLearningAssistantConversationsByConversationId: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description Origin used to constrain this request.
+                 * @example https://example.test/continue
+                 */
+                origin: string;
+                /**
+                 * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+                 * @example synthetic-token-value-not-a-real-secret
+                 */
+                "x-csrf-token": string;
+            };
+            path: {
+                /**
+                 * @description Identifier selecting the conversation resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                conversationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /** @example {} */
+                "application/json": Record<string, never>;
+            };
+        };
+        responses: {
+            /** @description Success: Allie clear. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Allie clear",
+                     *       "data": {
+                     *         "cleared": true
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /**
+                         * @description Success validated by this operation's strict request contract.
+                         * @enum {boolean}
+                         */
+                        success: true;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /**
+                             * @description Cleared validated by this operation's strict request contract.
+                             * @enum {boolean}
+                             */
+                            cleared: true;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                            /** @description ISO 8601 timestamp interpreted and validated by the server. */
+                            serverTime: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Current account session required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Current assurance, CSRF, Origin or release restriction */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Disabled, expired or unavailable to this owner; no existence disclosure */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Pending, uncertain, cancelled, changed context or conflicting operation; never automatically replay generation */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Strict bounded payload; unsupported context or obvious sensitive input rejected */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Shared rate, concurrency or conservative token reservation limit; ordinary help/support unaffected */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Provider/configuration/output verification unavailable; no fabricated AI answer */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    postPublicLearningAssistantConversationsByConversationIdCancel: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description Origin used to constrain this request.
+                 * @example https://example.test/continue
+                 */
+                origin: string;
+                /**
+                 * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+                 * @example synthetic-token-value-not-a-real-secret
+                 */
+                "x-csrf-token": string;
+            };
+            path: {
+                /**
+                 * @description Identifier selecting the conversation resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                conversationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "operationId": "00000000-0000-4000-8000-000000000001"
+                 *     }
+                 */
+                "application/json": {
+                    /**
+                     * Format: uuid
+                     * @description Identifier of the operation resource; ownership is resolved server-side.
+                     */
+                    operationId: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Success: Allie cancel. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Allie cancel",
+                     *       "data": {
+                     *         "cancelled": true,
+                     *         "status": "PENDING"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /**
+                         * @description Success validated by this operation's strict request contract.
+                         * @enum {boolean}
+                         */
+                        success: true;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /** @description Cancelled validated by this operation's strict request contract. */
+                            cancelled: boolean;
+                            /**
+                             * @description Requested or filtered lifecycle state from the documented enum.
+                             * @enum {string}
+                             */
+                            status: "PENDING" | "COMPLETED" | "FAILED" | "CANCELLED";
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                            /** @description ISO 8601 timestamp interpreted and validated by the server. */
+                            serverTime: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Current account session required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Current assurance, CSRF, Origin or release restriction */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Disabled, expired or unavailable to this owner; no existence disclosure */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Pending, uncertain, cancelled, changed context or conflicting operation; never automatically replay generation */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Strict bounded payload; unsupported context or obvious sensitive input rejected */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Shared rate, concurrency or conservative token reservation limit; ordinary help/support unaffected */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Provider/configuration/output verification unavailable; no fabricated AI answer */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    postPublicLearningAssistantConversationsByConversationIdTurns: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description Origin used to constrain this request.
+                 * @example https://example.test/continue
+                 */
+                origin: string;
+                /**
+                 * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+                 * @example synthetic-token-value-not-a-real-secret
+                 */
+                "x-csrf-token": string;
+            };
+            path: {
+                /**
+                 * @description Identifier selecting the conversation resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                conversationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "operationId": "00000000-0000-4000-8000-000000000001",
+                 *       "expectedVersion": 1,
+                 *       "question": "synthetic-question",
+                 *       "page": "home"
+                 *     }
+                 */
+                "application/json": {
+                    /**
+                     * Format: uuid
+                     * @description Identifier of the operation resource; ownership is resolved server-side.
+                     */
+                    operationId: string;
+                    /** @description Last server version observed by the client; stale writes are rejected. */
+                    expectedVersion: number;
+                    /** @description Question validated by this operation's strict request contract. */
+                    question: string;
+                    /**
+                     * @description Page validated by this operation's strict request contract.
+                     * @enum {string}
+                     */
+                    page: "home" | "parts" | "vehicles" | "services" | "contact" | "help" | "learn" | "customer-care" | "staff-care" | "work" | "security" | "other";
+                };
+            };
+        };
+        responses: {
+            /** @description Success: Allie turns. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Allie turns",
+                     *       "data": {
+                     *         "replayed": true,
+                     *         "conversation": {
+                     *           "id": "00000000-0000-4000-8000-000000000001",
+                     *           "version": 1,
+                     *           "audience": "public",
+                     *           "expiresAt": "2030-01-15T10:00:00.000Z",
+                     *           "messages": [
+                     *             {
+                     *               "operationId": "00000000-0000-4000-8000-000000000001",
+                     *               "question": "synthetic-question",
+                     *               "answer": {
+                     *                 "kind": "answer",
+                     *                 "answer": "synthetic-answer",
+                     *                 "steps": [
+                     *                   "synthetic-steps-item"
+                     *                 ],
+                     *                 "caveat": "2030-01-15T10:00:00.000Z",
+                     *                 "sourceIds": [
+                     *                   "synthetic-sourceids-item"
+                     *                 ],
+                     *                 "actionIds": [
+                     *                   "synthetic-actionids-item"
+                     *                 ],
+                     *                 "sources": [
+                     *                   {
+                     *                     "id": "synthetic-id",
+                     *                     "articleId": "synthetic-articleid",
+                     *                     "version": 1,
+                     *                     "title": "synthetic-title",
+                     *                     "href": "synthetic-href"
+                     *                   }
+                     *                 ],
+                     *                 "actions": [
+                     *                   {
+                     *                     "id": "synthetic-id",
+                     *                     "kind": "article",
+                     *                     "label": "synthetic-label",
+                     *                     "href": "synthetic-href",
+                     *                     "sourceId": "synthetic-sourceid"
+                     *                   }
+                     *                 ]
+                     *               }
+                     *             }
+                     *           ],
+                     *           "historyReset": true,
+                     *           "pending": {
+                     *             "operationId": "00000000-0000-4000-8000-000000000001",
+                     *             "state": "pending"
+                     *           }
+                     *         }
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /**
+                         * @description Success validated by this operation's strict request contract.
+                         * @enum {boolean}
+                         */
+                        success: true;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /** @description Replayed validated by this operation's strict request contract. */
+                            replayed: boolean;
+                            /** @description Conversation validated by this operation's strict request contract. */
+                            conversation: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
+                                 */
+                                id: string;
+                                /** @description Version validated by this operation's strict request contract. */
+                                version: number;
+                                /**
+                                 * @description Audience validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                audience: "public" | "customer" | "work";
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                expiresAt: string;
+                                /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                                messages: {
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the operation resource; ownership is resolved server-side.
+                                     */
+                                    operationId: string;
+                                    /** @description Question validated by this operation's strict request contract. */
+                                    question: string;
+                                    /** @description Answer validated by this operation's strict request contract. */
+                                    answer: {
+                                        /**
+                                         * @description Kind validated by this operation's strict request contract.
+                                         * @enum {string}
+                                         */
+                                        kind: "answer" | "clarification" | "unavailable" | "human";
+                                        /** @description Answer validated by this operation's strict request contract. */
+                                        answer: string;
+                                        /** @description Steps validated by this operation's strict request contract. */
+                                        steps: string[];
+                                        /** @description ISO 8601 timestamp interpreted and validated by the server. */
+                                        caveat: string | null;
+                                        /** @description Source Ids validated by this operation's strict request contract. */
+                                        sourceIds: string[];
+                                        /** @description Action Ids validated by this operation's strict request contract. */
+                                        actionIds: string[];
+                                        /** @description Sources validated by this operation's strict request contract. */
+                                        sources: {
+                                            /** @description Identifier of the id resource; ownership is resolved server-side. */
+                                            id: string;
+                                            /** @description Identifier of the article resource; ownership is resolved server-side. */
+                                            articleId: string;
+                                            /** @description Version validated by this operation's strict request contract. */
+                                            version: number;
+                                            /** @description Title validated by this operation's strict request contract. */
+                                            title: string;
+                                            /** @description Href validated by this operation's strict request contract. */
+                                            href: string;
+                                        }[];
+                                        /** @description Actions validated by this operation's strict request contract. */
+                                        actions: {
+                                            /** @description Identifier of the id resource; ownership is resolved server-side. */
+                                            id: string;
+                                            /**
+                                             * @description Kind validated by this operation's strict request contract.
+                                             * @enum {string}
+                                             */
+                                            kind: "article" | "guide" | "practice" | "navigate" | "human";
+                                            /** @description Label validated by this operation's strict request contract. */
+                                            label: string;
+                                            /** @description Href validated by this operation's strict request contract. */
+                                            href: string;
+                                            /** @description Identifier of the source resource; ownership is resolved server-side. */
+                                            sourceId: string | null;
+                                        }[];
+                                    };
+                                }[];
+                                /** @description History Reset validated by this operation's strict request contract. */
+                                historyReset: boolean;
+                                /** @description Pending validated by this operation's strict request contract. */
+                                pending: {
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the operation resource; ownership is resolved server-side.
+                                     */
+                                    operationId: string;
+                                    /**
+                                     * @description State validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    state: "pending" | "interrupted";
+                                } | null;
+                            };
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                            /** @description ISO 8601 timestamp interpreted and validated by the server. */
+                            serverTime: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Current account session required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Current assurance, CSRF, Origin or release restriction */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Disabled, expired or unavailable to this owner; no existence disclosure */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Pending, uncertain, cancelled, changed context or conflicting operation; never automatically replay generation */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Strict bounded payload; unsupported context or obvious sensitive input rejected */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Shared rate, concurrency or conservative token reservation limit; ordinary help/support unaffected */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Provider/configuration/output verification unavailable; no fabricated AI answer */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    postPublicLearningAssistantSession: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description Origin used to constrain this request.
+                 * @example https://example.test/continue
+                 */
+                origin: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /** @example {} */
+                "application/json": Record<string, never>;
+            };
+        };
+        responses: {
+            /** @description Success: Allie session. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Allie session",
+                     *       "data": {
+                     *         "csrfToken": "synthetic-token-value-not-a-real-secret",
+                     *         "expiresAt": "2030-01-15T10:00:00.000Z"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /**
+                         * @description Success validated by this operation's strict request contract.
+                         * @enum {boolean}
+                         */
+                        success: true;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                            csrfToken: string;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            expiresAt: string;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                            /** @description ISO 8601 timestamp interpreted and validated by the server. */
+                            serverTime: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Current account session required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Current assurance, CSRF, Origin or release restriction */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Disabled, expired or unavailable to this owner; no existence disclosure */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Pending, uncertain, cancelled, changed context or conflicting operation; never automatically replay generation */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Strict bounded payload; unsupported context or obvious sensitive input rejected */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Shared rate, concurrency or conservative token reservation limit; ordinary help/support unaffected */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Provider/configuration/output verification unavailable; no fabricated AI answer */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    getLearningAssistantConversations: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success: Allie list. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Allie list",
+                     *       "data": {
+                     *         "items": [
+                     *           {
+                     *             "id": "00000000-0000-4000-8000-000000000001",
+                     *             "createdAt": "2030-01-15T10:00:00.000Z",
+                     *             "expiresAt": "2030-01-15T10:00:00.000Z"
+                     *           }
+                     *         ]
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /**
+                         * @description Success validated by this operation's strict request contract.
+                         * @enum {boolean}
+                         */
+                        success: true;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /** @description Items validated by this operation's strict request contract. */
+                            items: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
+                                 */
+                                id: string;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                createdAt: string;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                expiresAt: string;
+                            }[];
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                            /** @description ISO 8601 timestamp interpreted and validated by the server. */
+                            serverTime: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Current account session required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Current assurance, CSRF, Origin or release restriction */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Disabled, expired or unavailable to this owner; no existence disclosure */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Pending, uncertain, cancelled, changed context or conflicting operation; never automatically replay generation */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Strict bounded payload; unsupported context or obvious sensitive input rejected */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Shared rate, concurrency or conservative token reservation limit; ordinary help/support unaffected */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Provider/configuration/output verification unavailable; no fabricated AI answer */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    postLearningAssistantConversations: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description Origin used to constrain this request.
+                 * @example https://example.test/continue
+                 */
+                origin: string;
+                /**
+                 * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+                 * @example synthetic-token-value-not-a-real-secret
+                 */
+                "x-csrf-token": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "operationId": "00000000-0000-4000-8000-000000000001"
+                 *     }
+                 */
+                "application/json": {
+                    /**
+                     * Format: uuid
+                     * @description Identifier of the operation resource; ownership is resolved server-side.
+                     */
+                    operationId: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Success: Allie create. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Allie create",
+                     *       "data": {
+                     *         "replayed": true,
+                     *         "conversation": {
+                     *           "id": "00000000-0000-4000-8000-000000000001",
+                     *           "version": 1,
+                     *           "audience": "public",
+                     *           "expiresAt": "2030-01-15T10:00:00.000Z",
+                     *           "messages": [
+                     *             {
+                     *               "operationId": "00000000-0000-4000-8000-000000000001",
+                     *               "question": "synthetic-question",
+                     *               "answer": {
+                     *                 "kind": "answer",
+                     *                 "answer": "synthetic-answer",
+                     *                 "steps": [
+                     *                   "synthetic-steps-item"
+                     *                 ],
+                     *                 "caveat": "2030-01-15T10:00:00.000Z",
+                     *                 "sourceIds": [
+                     *                   "synthetic-sourceids-item"
+                     *                 ],
+                     *                 "actionIds": [
+                     *                   "synthetic-actionids-item"
+                     *                 ],
+                     *                 "sources": [
+                     *                   {
+                     *                     "id": "synthetic-id",
+                     *                     "articleId": "synthetic-articleid",
+                     *                     "version": 1,
+                     *                     "title": "synthetic-title",
+                     *                     "href": "synthetic-href"
+                     *                   }
+                     *                 ],
+                     *                 "actions": [
+                     *                   {
+                     *                     "id": "synthetic-id",
+                     *                     "kind": "article",
+                     *                     "label": "synthetic-label",
+                     *                     "href": "synthetic-href",
+                     *                     "sourceId": "synthetic-sourceid"
+                     *                   }
+                     *                 ]
+                     *               }
+                     *             }
+                     *           ],
+                     *           "historyReset": true,
+                     *           "pending": {
+                     *             "operationId": "00000000-0000-4000-8000-000000000001",
+                     *             "state": "pending"
+                     *           }
+                     *         }
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /**
+                         * @description Success validated by this operation's strict request contract.
+                         * @enum {boolean}
+                         */
+                        success: true;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /** @description Replayed validated by this operation's strict request contract. */
+                            replayed: boolean;
+                            /** @description Conversation validated by this operation's strict request contract. */
+                            conversation: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
+                                 */
+                                id: string;
+                                /** @description Version validated by this operation's strict request contract. */
+                                version: number;
+                                /**
+                                 * @description Audience validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                audience: "public" | "customer" | "work";
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                expiresAt: string;
+                                /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                                messages: {
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the operation resource; ownership is resolved server-side.
+                                     */
+                                    operationId: string;
+                                    /** @description Question validated by this operation's strict request contract. */
+                                    question: string;
+                                    /** @description Answer validated by this operation's strict request contract. */
+                                    answer: {
+                                        /**
+                                         * @description Kind validated by this operation's strict request contract.
+                                         * @enum {string}
+                                         */
+                                        kind: "answer" | "clarification" | "unavailable" | "human";
+                                        /** @description Answer validated by this operation's strict request contract. */
+                                        answer: string;
+                                        /** @description Steps validated by this operation's strict request contract. */
+                                        steps: string[];
+                                        /** @description ISO 8601 timestamp interpreted and validated by the server. */
+                                        caveat: string | null;
+                                        /** @description Source Ids validated by this operation's strict request contract. */
+                                        sourceIds: string[];
+                                        /** @description Action Ids validated by this operation's strict request contract. */
+                                        actionIds: string[];
+                                        /** @description Sources validated by this operation's strict request contract. */
+                                        sources: {
+                                            /** @description Identifier of the id resource; ownership is resolved server-side. */
+                                            id: string;
+                                            /** @description Identifier of the article resource; ownership is resolved server-side. */
+                                            articleId: string;
+                                            /** @description Version validated by this operation's strict request contract. */
+                                            version: number;
+                                            /** @description Title validated by this operation's strict request contract. */
+                                            title: string;
+                                            /** @description Href validated by this operation's strict request contract. */
+                                            href: string;
+                                        }[];
+                                        /** @description Actions validated by this operation's strict request contract. */
+                                        actions: {
+                                            /** @description Identifier of the id resource; ownership is resolved server-side. */
+                                            id: string;
+                                            /**
+                                             * @description Kind validated by this operation's strict request contract.
+                                             * @enum {string}
+                                             */
+                                            kind: "article" | "guide" | "practice" | "navigate" | "human";
+                                            /** @description Label validated by this operation's strict request contract. */
+                                            label: string;
+                                            /** @description Href validated by this operation's strict request contract. */
+                                            href: string;
+                                            /** @description Identifier of the source resource; ownership is resolved server-side. */
+                                            sourceId: string | null;
+                                        }[];
+                                    };
+                                }[];
+                                /** @description History Reset validated by this operation's strict request contract. */
+                                historyReset: boolean;
+                                /** @description Pending validated by this operation's strict request contract. */
+                                pending: {
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the operation resource; ownership is resolved server-side.
+                                     */
+                                    operationId: string;
+                                    /**
+                                     * @description State validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    state: "pending" | "interrupted";
+                                } | null;
+                            };
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                            /** @description ISO 8601 timestamp interpreted and validated by the server. */
+                            serverTime: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Current account session required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Current assurance, CSRF, Origin or release restriction */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Disabled, expired or unavailable to this owner; no existence disclosure */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Pending, uncertain, cancelled, changed context or conflicting operation; never automatically replay generation */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Strict bounded payload; unsupported context or obvious sensitive input rejected */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Shared rate, concurrency or conservative token reservation limit; ordinary help/support unaffected */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Provider/configuration/output verification unavailable; no fabricated AI answer */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    getLearningAssistantConversationsByConversationId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description Identifier selecting the conversation resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                conversationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success: Allie read. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Allie read",
+                     *       "data": {
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "version": 1,
+                     *         "audience": "public",
+                     *         "expiresAt": "2030-01-15T10:00:00.000Z",
+                     *         "messages": [
+                     *           {
+                     *             "operationId": "00000000-0000-4000-8000-000000000001",
+                     *             "question": "synthetic-question",
+                     *             "answer": {
+                     *               "kind": "answer",
+                     *               "answer": "synthetic-answer",
+                     *               "steps": [
+                     *                 "synthetic-steps-item"
+                     *               ],
+                     *               "caveat": "2030-01-15T10:00:00.000Z",
+                     *               "sourceIds": [
+                     *                 "synthetic-sourceids-item"
+                     *               ],
+                     *               "actionIds": [
+                     *                 "synthetic-actionids-item"
+                     *               ],
+                     *               "sources": [
+                     *                 {
+                     *                   "id": "synthetic-id",
+                     *                   "articleId": "synthetic-articleid",
+                     *                   "version": 1,
+                     *                   "title": "synthetic-title",
+                     *                   "href": "synthetic-href"
+                     *                 }
+                     *               ],
+                     *               "actions": [
+                     *                 {
+                     *                   "id": "synthetic-id",
+                     *                   "kind": "article",
+                     *                   "label": "synthetic-label",
+                     *                   "href": "synthetic-href",
+                     *                   "sourceId": "synthetic-sourceid"
+                     *                 }
+                     *               ]
+                     *             }
+                     *           }
+                     *         ],
+                     *         "historyReset": true,
+                     *         "pending": {
+                     *           "operationId": "00000000-0000-4000-8000-000000000001",
+                     *           "state": "pending"
+                     *         }
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /**
+                         * @description Success validated by this operation's strict request contract.
+                         * @enum {boolean}
+                         */
+                        success: true;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the id resource; ownership is resolved server-side.
+                             */
+                            id: string;
+                            /** @description Version validated by this operation's strict request contract. */
+                            version: number;
+                            /**
+                             * @description Audience validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            audience: "public" | "customer" | "work";
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            expiresAt: string;
+                            /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                            messages: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the operation resource; ownership is resolved server-side.
+                                 */
+                                operationId: string;
+                                /** @description Question validated by this operation's strict request contract. */
+                                question: string;
+                                /** @description Answer validated by this operation's strict request contract. */
+                                answer: {
+                                    /**
+                                     * @description Kind validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    kind: "answer" | "clarification" | "unavailable" | "human";
+                                    /** @description Answer validated by this operation's strict request contract. */
+                                    answer: string;
+                                    /** @description Steps validated by this operation's strict request contract. */
+                                    steps: string[];
+                                    /** @description ISO 8601 timestamp interpreted and validated by the server. */
+                                    caveat: string | null;
+                                    /** @description Source Ids validated by this operation's strict request contract. */
+                                    sourceIds: string[];
+                                    /** @description Action Ids validated by this operation's strict request contract. */
+                                    actionIds: string[];
+                                    /** @description Sources validated by this operation's strict request contract. */
+                                    sources: {
+                                        /** @description Identifier of the id resource; ownership is resolved server-side. */
+                                        id: string;
+                                        /** @description Identifier of the article resource; ownership is resolved server-side. */
+                                        articleId: string;
+                                        /** @description Version validated by this operation's strict request contract. */
+                                        version: number;
+                                        /** @description Title validated by this operation's strict request contract. */
+                                        title: string;
+                                        /** @description Href validated by this operation's strict request contract. */
+                                        href: string;
+                                    }[];
+                                    /** @description Actions validated by this operation's strict request contract. */
+                                    actions: {
+                                        /** @description Identifier of the id resource; ownership is resolved server-side. */
+                                        id: string;
+                                        /**
+                                         * @description Kind validated by this operation's strict request contract.
+                                         * @enum {string}
+                                         */
+                                        kind: "article" | "guide" | "practice" | "navigate" | "human";
+                                        /** @description Label validated by this operation's strict request contract. */
+                                        label: string;
+                                        /** @description Href validated by this operation's strict request contract. */
+                                        href: string;
+                                        /** @description Identifier of the source resource; ownership is resolved server-side. */
+                                        sourceId: string | null;
+                                    }[];
+                                };
+                            }[];
+                            /** @description History Reset validated by this operation's strict request contract. */
+                            historyReset: boolean;
+                            /** @description Pending validated by this operation's strict request contract. */
+                            pending: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the operation resource; ownership is resolved server-side.
+                                 */
+                                operationId: string;
+                                /**
+                                 * @description State validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                state: "pending" | "interrupted";
+                            } | null;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                            /** @description ISO 8601 timestamp interpreted and validated by the server. */
+                            serverTime: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Current account session required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Current assurance, CSRF, Origin or release restriction */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Disabled, expired or unavailable to this owner; no existence disclosure */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Pending, uncertain, cancelled, changed context or conflicting operation; never automatically replay generation */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Strict bounded payload; unsupported context or obvious sensitive input rejected */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Shared rate, concurrency or conservative token reservation limit; ordinary help/support unaffected */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Provider/configuration/output verification unavailable; no fabricated AI answer */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    deleteLearningAssistantConversationsByConversationId: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description Origin used to constrain this request.
+                 * @example https://example.test/continue
+                 */
+                origin: string;
+                /**
+                 * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+                 * @example synthetic-token-value-not-a-real-secret
+                 */
+                "x-csrf-token": string;
+            };
+            path: {
+                /**
+                 * @description Identifier selecting the conversation resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                conversationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /** @example {} */
+                "application/json": Record<string, never>;
+            };
+        };
+        responses: {
+            /** @description Success: Allie clear. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Allie clear",
+                     *       "data": {
+                     *         "cleared": true
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /**
+                         * @description Success validated by this operation's strict request contract.
+                         * @enum {boolean}
+                         */
+                        success: true;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /**
+                             * @description Cleared validated by this operation's strict request contract.
+                             * @enum {boolean}
+                             */
+                            cleared: true;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                            /** @description ISO 8601 timestamp interpreted and validated by the server. */
+                            serverTime: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Current account session required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Current assurance, CSRF, Origin or release restriction */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Disabled, expired or unavailable to this owner; no existence disclosure */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Pending, uncertain, cancelled, changed context or conflicting operation; never automatically replay generation */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Strict bounded payload; unsupported context or obvious sensitive input rejected */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Shared rate, concurrency or conservative token reservation limit; ordinary help/support unaffected */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Provider/configuration/output verification unavailable; no fabricated AI answer */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    postLearningAssistantConversationsByConversationIdCancel: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description Origin used to constrain this request.
+                 * @example https://example.test/continue
+                 */
+                origin: string;
+                /**
+                 * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+                 * @example synthetic-token-value-not-a-real-secret
+                 */
+                "x-csrf-token": string;
+            };
+            path: {
+                /**
+                 * @description Identifier selecting the conversation resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                conversationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "operationId": "00000000-0000-4000-8000-000000000001"
+                 *     }
+                 */
+                "application/json": {
+                    /**
+                     * Format: uuid
+                     * @description Identifier of the operation resource; ownership is resolved server-side.
+                     */
+                    operationId: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Success: Allie cancel. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Allie cancel",
+                     *       "data": {
+                     *         "cancelled": true,
+                     *         "status": "PENDING"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /**
+                         * @description Success validated by this operation's strict request contract.
+                         * @enum {boolean}
+                         */
+                        success: true;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /** @description Cancelled validated by this operation's strict request contract. */
+                            cancelled: boolean;
+                            /**
+                             * @description Requested or filtered lifecycle state from the documented enum.
+                             * @enum {string}
+                             */
+                            status: "PENDING" | "COMPLETED" | "FAILED" | "CANCELLED";
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                            /** @description ISO 8601 timestamp interpreted and validated by the server. */
+                            serverTime: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Current account session required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Current assurance, CSRF, Origin or release restriction */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Disabled, expired or unavailable to this owner; no existence disclosure */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Pending, uncertain, cancelled, changed context or conflicting operation; never automatically replay generation */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Strict bounded payload; unsupported context or obvious sensitive input rejected */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Shared rate, concurrency or conservative token reservation limit; ordinary help/support unaffected */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Provider/configuration/output verification unavailable; no fabricated AI answer */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    postLearningAssistantConversationsByConversationIdTurns: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description Origin used to constrain this request.
+                 * @example https://example.test/continue
+                 */
+                origin: string;
+                /**
+                 * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+                 * @example synthetic-token-value-not-a-real-secret
+                 */
+                "x-csrf-token": string;
+            };
+            path: {
+                /**
+                 * @description Identifier selecting the conversation resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                conversationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "operationId": "00000000-0000-4000-8000-000000000001",
+                 *       "expectedVersion": 1,
+                 *       "question": "synthetic-question",
+                 *       "page": "home"
+                 *     }
+                 */
+                "application/json": {
+                    /**
+                     * Format: uuid
+                     * @description Identifier of the operation resource; ownership is resolved server-side.
+                     */
+                    operationId: string;
+                    /** @description Last server version observed by the client; stale writes are rejected. */
+                    expectedVersion: number;
+                    /** @description Question validated by this operation's strict request contract. */
+                    question: string;
+                    /**
+                     * @description Page validated by this operation's strict request contract.
+                     * @enum {string}
+                     */
+                    page: "home" | "parts" | "vehicles" | "services" | "contact" | "help" | "learn" | "customer-care" | "staff-care" | "work" | "security" | "other";
+                };
+            };
+        };
+        responses: {
+            /** @description Success: Allie turns. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Allie turns",
+                     *       "data": {
+                     *         "replayed": true,
+                     *         "conversation": {
+                     *           "id": "00000000-0000-4000-8000-000000000001",
+                     *           "version": 1,
+                     *           "audience": "public",
+                     *           "expiresAt": "2030-01-15T10:00:00.000Z",
+                     *           "messages": [
+                     *             {
+                     *               "operationId": "00000000-0000-4000-8000-000000000001",
+                     *               "question": "synthetic-question",
+                     *               "answer": {
+                     *                 "kind": "answer",
+                     *                 "answer": "synthetic-answer",
+                     *                 "steps": [
+                     *                   "synthetic-steps-item"
+                     *                 ],
+                     *                 "caveat": "2030-01-15T10:00:00.000Z",
+                     *                 "sourceIds": [
+                     *                   "synthetic-sourceids-item"
+                     *                 ],
+                     *                 "actionIds": [
+                     *                   "synthetic-actionids-item"
+                     *                 ],
+                     *                 "sources": [
+                     *                   {
+                     *                     "id": "synthetic-id",
+                     *                     "articleId": "synthetic-articleid",
+                     *                     "version": 1,
+                     *                     "title": "synthetic-title",
+                     *                     "href": "synthetic-href"
+                     *                   }
+                     *                 ],
+                     *                 "actions": [
+                     *                   {
+                     *                     "id": "synthetic-id",
+                     *                     "kind": "article",
+                     *                     "label": "synthetic-label",
+                     *                     "href": "synthetic-href",
+                     *                     "sourceId": "synthetic-sourceid"
+                     *                   }
+                     *                 ]
+                     *               }
+                     *             }
+                     *           ],
+                     *           "historyReset": true,
+                     *           "pending": {
+                     *             "operationId": "00000000-0000-4000-8000-000000000001",
+                     *             "state": "pending"
+                     *           }
+                     *         }
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /**
+                         * @description Success validated by this operation's strict request contract.
+                         * @enum {boolean}
+                         */
+                        success: true;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /** @description Replayed validated by this operation's strict request contract. */
+                            replayed: boolean;
+                            /** @description Conversation validated by this operation's strict request contract. */
+                            conversation: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
+                                 */
+                                id: string;
+                                /** @description Version validated by this operation's strict request contract. */
+                                version: number;
+                                /**
+                                 * @description Audience validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                audience: "public" | "customer" | "work";
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                expiresAt: string;
+                                /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                                messages: {
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the operation resource; ownership is resolved server-side.
+                                     */
+                                    operationId: string;
+                                    /** @description Question validated by this operation's strict request contract. */
+                                    question: string;
+                                    /** @description Answer validated by this operation's strict request contract. */
+                                    answer: {
+                                        /**
+                                         * @description Kind validated by this operation's strict request contract.
+                                         * @enum {string}
+                                         */
+                                        kind: "answer" | "clarification" | "unavailable" | "human";
+                                        /** @description Answer validated by this operation's strict request contract. */
+                                        answer: string;
+                                        /** @description Steps validated by this operation's strict request contract. */
+                                        steps: string[];
+                                        /** @description ISO 8601 timestamp interpreted and validated by the server. */
+                                        caveat: string | null;
+                                        /** @description Source Ids validated by this operation's strict request contract. */
+                                        sourceIds: string[];
+                                        /** @description Action Ids validated by this operation's strict request contract. */
+                                        actionIds: string[];
+                                        /** @description Sources validated by this operation's strict request contract. */
+                                        sources: {
+                                            /** @description Identifier of the id resource; ownership is resolved server-side. */
+                                            id: string;
+                                            /** @description Identifier of the article resource; ownership is resolved server-side. */
+                                            articleId: string;
+                                            /** @description Version validated by this operation's strict request contract. */
+                                            version: number;
+                                            /** @description Title validated by this operation's strict request contract. */
+                                            title: string;
+                                            /** @description Href validated by this operation's strict request contract. */
+                                            href: string;
+                                        }[];
+                                        /** @description Actions validated by this operation's strict request contract. */
+                                        actions: {
+                                            /** @description Identifier of the id resource; ownership is resolved server-side. */
+                                            id: string;
+                                            /**
+                                             * @description Kind validated by this operation's strict request contract.
+                                             * @enum {string}
+                                             */
+                                            kind: "article" | "guide" | "practice" | "navigate" | "human";
+                                            /** @description Label validated by this operation's strict request contract. */
+                                            label: string;
+                                            /** @description Href validated by this operation's strict request contract. */
+                                            href: string;
+                                            /** @description Identifier of the source resource; ownership is resolved server-side. */
+                                            sourceId: string | null;
+                                        }[];
+                                    };
+                                }[];
+                                /** @description History Reset validated by this operation's strict request contract. */
+                                historyReset: boolean;
+                                /** @description Pending validated by this operation's strict request contract. */
+                                pending: {
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the operation resource; ownership is resolved server-side.
+                                     */
+                                    operationId: string;
+                                    /**
+                                     * @description State validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    state: "pending" | "interrupted";
+                                } | null;
+                            };
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                            /** @description ISO 8601 timestamp interpreted and validated by the server. */
+                            serverTime: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Current account session required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Current assurance, CSRF, Origin or release restriction */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Disabled, expired or unavailable to this owner; no existence disclosure */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Pending, uncertain, cancelled, changed context or conflicting operation; never automatically replay generation */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Strict bounded payload; unsupported context or obvious sensitive input rejected */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Shared rate, concurrency or conservative token reservation limit; ordinary help/support unaffected */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Provider/configuration/output verification unavailable; no fabricated AI answer */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     getPublicLearningCatalogue: {
         parameters: {
             query?: {

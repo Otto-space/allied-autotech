@@ -93,6 +93,11 @@ const environmentSchema = z.object({
   HELP_LEARN_ENABLED: booleanValue(false),
   HELP_LEARN_GUIDES_ENABLED: booleanValue(false),
   HELP_LEARN_PRACTICE_ENABLED: booleanValue(false),
+  HELP_LEARN_AI_ENABLED: booleanValue(false),
+  OPENAI_API_KEY: optionalNonEmptyString,
+  ALLIE_OPENAI_MODEL: optionalNonEmptyString,
+  ALLIE_AI_DAILY_TOKEN_LIMIT: z.coerce.number().int().min(0).max(10000000).default(0),
+  ALLIE_AI_GLOBAL_CONCURRENCY: z.coerce.number().int().min(1).max(10).default(2),
   CLIENT_IP_SOURCE: z.enum(["socket", "digitalocean"]).default("socket"),
   FRONTEND_PROXY_SECRET: base64Key,
   PRIVATE_TESTING_ENABLED: booleanValue(false),
@@ -425,6 +430,7 @@ export function assertApiEnvironment(
   source: NodeJS.ProcessEnv = process.env,
 ): void {
   assertPublicLaunchEnvironment(runtime);
+  assertAllieEnvironment(runtime, source);
   if (runtime.CLIENT_IP_SOURCE === "digitalocean" && !runtime.FRONTEND_PROXY_SECRET)
     throw new Error("Verified frontend forwarding requires FRONTEND_PROXY_SECRET.");
   if (
@@ -500,6 +506,36 @@ export function assertApiEnvironment(
   if (runtime.API_DOCS_ENABLED) {
     throw new Error("Hosted API documentation must remain disabled in production");
   }
+}
+
+export function assertAllieEnvironment(
+  runtime: typeof env = env,
+  source: NodeJS.ProcessEnv = process.env,
+): void {
+  if (!runtime.HELP_LEARN_AI_ENABLED) return;
+  if (
+    !runtime.HELP_LEARN_ENABLED ||
+    !runtime.OPENAI_API_KEY ||
+    !/^\S{20,1000}$/.test(runtime.OPENAI_API_KEY) ||
+    !runtime.ALLIE_OPENAI_MODEL ||
+    !/^[a-zA-Z0-9][a-zA-Z0-9._:-]{0,119}$/.test(runtime.ALLIE_OPENAI_MODEL) ||
+    runtime.ALLIE_AI_DAILY_TOKEN_LIMIT < 32000
+  )
+    throw new Error(
+      "Allie requires enabled reviewed learning, server-only provider settings and an explicit daily token reservation limit of at least 32000.",
+    );
+  if (runtime.NODE_ENV === "production")
+    requireConfiguredVariables(
+      "Allie",
+      [
+        "OPENAI_API_KEY",
+        "ALLIE_OPENAI_MODEL",
+        "ALLIE_AI_DAILY_TOKEN_LIMIT",
+        "OUTBOX_ENCRYPTION_KEY",
+        "TOKEN_HASH_KEY",
+      ],
+      source,
+    );
 }
 
 export function assertPublicLaunchEnvironment(runtime: typeof env = env): void {
