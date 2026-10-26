@@ -96,3 +96,15 @@ jobs:
             tests/integration/customers-care.test.ts tests/integration/customer-directory.test.ts \
             tests/integration/support-customer-email.test.ts tests/integration/support-timeline.test.ts \
             tests/integration/identity-flow.test.ts --maxWorkers=2
+      - name: Verify eligible learning and practice definitions on isolated PostgreSQL
+        run: |
+          docker run --rm --network "container:${{ job.services.postgres.id }}" \
+            --mount "type=bind,source=$PWD,target=/workspace" --workdir /workspace \
+            -e NODE_ENV=test -e DEPLOYMENT_ENV=local -e DB_HOST=127.0.0.1 -e DB_PORT=5432 \
+            -e DB_NAME=allied_autotech_schema_ci -e TEST_DB_NAME=allied_autotech_schema_ci \
+            -e DB_USER=postgres -e DB_PASSWORD=isolated-ci-only-password -e DB_SSL_MODE=disable \
+            -e CONFIRM_EMPTY_MIGRATION_DATABASE=true -e RUN_DATABASE_TESTS=true \
+            -e EMAIL_DELIVERY_ENABLED=false -e SMS_DELIVERY_ENABLED=false \
+            -e HELP_LEARN_ENABLED=true -e HELP_LEARN_GUIDES_ENABLED=true -e HELP_LEARN_PRACTICE_ENABLED=true \
+            node:24.13.0 node node_modules/vitest/vitest.mjs run \
+            tests/integration/learning.test.ts --maxWorkers=1
