@@ -1669,3 +1669,16 @@ types, lint, format, script/configuration checks and secret guard. GitHub PR
 creation returned 403, so PR-triggered locked CI is not claimed. Full details
 and limitations: `payment-source-concurrency-20261026.md`. Real-provider and
 authenticated-role acceptance, broader Item 6 and site completion remain open.
+
+26 October 2026 - post-release payment-source transition verification. The
+runtime deployment above remains unchanged. Six new isolated PostgreSQL races
+held a valid invoice-void or vehicle-cancellation source-row transition while
+intent creation, online initialization and manual evidence each waited, then
+rejected the changed source without a new intent or attempt. Three adjacent
+integration files passed 38 tests; 71-migration replay, schema comparison,
+`db:check`, backend typecheck and targeted lint/format passed. The first vehicle
+fixture was corrected to satisfy the existing cancellation timestamp/reason
+constraint; no application code, schema, provider or production business record
+was changed. These tests model the status transition directly; actual operator
+service races and real-provider acceptance remain open. See
+`payment-source-concurrency-20261026.md`.

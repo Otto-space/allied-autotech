@@ -13,6 +13,13 @@ const manual = () => ({
   payerName: "Isolated Target",
   transferredAt: new Date().toISOString(),
 });
+function gate() {
+  let release!: () => void;
+  const promise = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  return { promise, release };
+}
 async function fixture(kind: PaymentCreateInput["targetType"] = "ORDER") {
   const user = await prisma.user.create({
     data: {
@@ -268,6 +275,110 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         expect(await f.create(keys[winner]!)).toMatchObject({ replayed: true });
         expect(await f.payments()).toHaveLength(1);
       });
+    for (const kind of ["INVOICE", "VEHICLE_TRANSACTION"] as const)
+      for (const operation of ["intent", "online", "manual"] as const)
+        it(`${operation} rejects a ${kind} source transition committed while its row is locked`, async () => {
+          const f = await fixture(kind);
+          const existing = operation === "intent" ? null : (await f.create()).payment.id;
+          const held = gate();
+          const resume = gate();
+          const transition = prisma
+            .$transaction(async (tx) => {
+              try {
+                if (kind === "INVOICE") {
+                  await tx.$queryRaw`SELECT "id" FROM "Invoice" WHERE "id" = ${f.input.targetId}::uuid FOR UPDATE`;
+                  await tx.invoice.update({
+                    where: { id: f.input.targetId },
+                    data: {
+                      status: "VOID",
+                      voidedAt: new Date(),
+                      version: { increment: 1 },
+                    },
+                  });
+                } else {
+                  await tx.$queryRaw`SELECT "id" FROM "VehicleTransaction" WHERE "id" = ${f.input.targetId}::uuid FOR UPDATE`;
+                  await tx.vehicleTransaction.update({
+                    where: { id: f.input.targetId },
+                    data: {
+                      status: "CANCELLED",
+                      cancelledAt: new Date(),
+                      cancellationReason: "SYNTHETIC_SOURCE_TRANSITION",
+                      version: { increment: 1 },
+                    },
+                  });
+                }
+                held.release();
+                await resume.promise;
+              } finally {
+                held.release();
+              }
+            })
+            .then(
+              () => null,
+              (error: unknown) => error,
+            );
+          await held.promise;
+          const changing = (
+            operation === "intent"
+              ? f.create()
+              : operation === "online"
+                ? f.service.initializePaystack(
+                    f.actor,
+                    existing!,
+                    randomUUID(),
+                    context(),
+                  )
+                : f.service.submitManual(
+                    f.actor,
+                    existing!,
+                    manual(),
+                    randomUUID(),
+                    context(),
+                  )
+          ).then(
+            (result) => ({ result }),
+            (error: unknown) => ({ error }),
+          );
+          let pollError: unknown = null;
+          try {
+            await expect
+              .poll(
+                async () => {
+                  const rows = await prisma.$queryRaw<
+                    { blocked: boolean }[]
+                  >`SELECT EXISTS (
+                    SELECT 1 FROM pg_stat_activity WHERE datname = current_database()
+                    AND cardinality(pg_blocking_pids(pid)) > 0
+                    AND query LIKE '%FOR UPDATE%'
+                    AND query LIKE ${`%"${kind === "INVOICE" ? "Invoice" : "VehicleTransaction"}"%`}
+                  ) AS blocked`;
+                  return rows[0]?.blocked;
+                },
+                { timeout: 3000, interval: 20 },
+              )
+              .toBe(true);
+          } catch (error) {
+            pollError = error;
+          } finally {
+            resume.release();
+          }
+          const transitionError = await transition;
+          if (transitionError) throw transitionError;
+          if (pollError) throw pollError;
+          expect(await changing).toMatchObject({ error: { statusCode: 404 } });
+          expect(await f.payments()).toHaveLength(operation === "intent" ? 0 : 1);
+          expect(
+            await prisma.paymentAttempt.count({
+              where: {
+                payment:
+                  kind === "INVOICE"
+                    ? { invoiceId: f.input.targetId }
+                    : { vehicleTransactionId: f.input.targetId },
+              },
+            }),
+          ).toBe(0);
+          expect(f.initialize).not.toHaveBeenCalled();
+        });
     it("blocks another vehicle purpose while a full payment request exists", async () => {
       const f = await fixture("VEHICLE_TRANSACTION");
       await f.create();
