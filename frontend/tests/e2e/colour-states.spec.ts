@@ -20,6 +20,24 @@ async function gallery(page: Page) {
   await page.goto("/about");
   await page.locator(".about-hero").waitFor();
   await page.evaluate(() => document.fonts.ready);
+  // Keep the compiled styles but leave React's document before inserting fixtures.
+  // Delayed hosted hydration can otherwise restore the real About tree mid-test.
+  const shell = await page.evaluate(() => ({
+    styles: [...document.querySelectorAll('link[rel="stylesheet"], style')]
+      .map((node) =>
+        node instanceof HTMLLinkElement
+          ? `<link rel="stylesheet" href="${node.href}">`
+          : node.outerHTML,
+      )
+      .join(""),
+    htmlClass: document.documentElement.className,
+    bodyClass: document.body.className,
+  }));
+  await page.goto("about:blank");
+  await page.setContent(
+    `<!doctype html><html lang="en" class="${shell.htmlClass}"><head><title>Isolated Allied state gallery</title>${shell.styles}</head><body class="${shell.bodyClass}"></body></html>`,
+  );
+  await page.evaluate(() => document.fonts.ready);
   await page.evaluate(() => {
     document.body.innerHTML = `<main style="max-width:1100px;margin:auto;padding:28px">
       <h1>Allied colour and state fixtures</h1>
