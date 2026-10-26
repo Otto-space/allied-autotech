@@ -28,6 +28,7 @@ import {
 } from "@/lib/notifications/destinations";
 import { NotificationPreview } from "./notification-preview";
 import { NotificationAccessContext } from "@/lib/notifications/access-context";
+import { LearningEntry } from "./learning/learning-entry";
 import { containDialogFocus } from "@/lib/dialog-focus";
 const SessionContext = createContext<SessionState | null>(null);
 const StaffPermissionContext = createContext<ReturnType<
@@ -396,6 +397,7 @@ export function DashboardShell({
         <header className="dashboard-top">
           <DashboardPageSearch groups={navigation} />
           <div className="dashboard-account-controls">
+            <LearningEntry />
             {(!session.workforceManaged || verifiedWorkforce) && (
               <NotificationPreview
                 key={`${session.id}:${session.user.id}:${session.user.role}:${pathname}`}

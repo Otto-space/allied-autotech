@@ -116,6 +116,7 @@ export function WorkforceEnquiries({
             <Search size={18} aria-hidden="true" />
             <input
               id="wfe-q"
+              data-learning-target="care-search"
               name="q"
               type="search"
               maxLength={120}
@@ -194,6 +195,7 @@ export function WorkforceEnquiries({
       )}
       <section
         className="wfe-results"
+        data-learning-target="care-results"
         aria-labelledby="wfe-results-title"
         aria-busy={busy}
       >

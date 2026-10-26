@@ -7,6 +7,7 @@ import { ChevronRight } from "lucide-react";
 import { HelpCentre } from "../components/help-centre";
 import "./help.css";
 import { browseEnquiriesOnly, catalogueOnly } from "@/lib/public-launch";
+import { learningEnabled } from "@/lib/learning/contracts";
 import { CatalogueHelp } from "../components/catalogue-help";
 export async function generateMetadata({
   searchParams,
@@ -54,6 +55,13 @@ export default async function HelpPage({
             </p>
           </div>
         </header>
+        {learningEnabled() && (
+          <p className="help-wrap">
+            <Link href="/learn">
+              Help & Learn: role-aware instructions, optional guides and safe practice
+            </Link>
+          </p>
+        )}
         <HelpCentre
           key={`${query}\u0000${topic}`}
           initialQuery={query}

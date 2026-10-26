@@ -79,7 +79,11 @@ function SupportCategory({
       )}
       <div className="cc-layout">
         <details className="care-create">
-          <summary>{kind === "enquiries" ? "New enquiry" : "Make a complaint"}</summary>
+          <summary
+            data-learning-target={kind === "enquiries" ? "support-start" : undefined}
+          >
+            {kind === "enquiries" ? "New enquiry" : "Make a complaint"}
+          </summary>
           <SupportCreateForm
             kind={kind}
             presentation="dashboard"

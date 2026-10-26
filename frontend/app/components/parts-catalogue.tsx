@@ -462,6 +462,7 @@ export function PartsCatalogue({
       )}
       <div
         className="product-results"
+        data-learning-target="parts-results"
         aria-busy={products.loading || products.refreshing}
       >
         {products.error || (products.refreshError && !products.data?.items.length) ? (

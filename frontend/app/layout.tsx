@@ -12,6 +12,8 @@ import "./dashboard-forms.css";
 import "./brand-system.css";
 import "./status-progress.css";
 import "./dashboard-spacing.css";
+import "./learning.css";
+import { LearningCompanion } from "./components/learning/learning-companion";
 
 import { SupportWidget } from "./components/support-widget";
 import { ToastRegion } from "./components/toast-region";
@@ -64,6 +66,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       <body>
         {children}
         <SupportWidget />
+        <LearningCompanion />
         <ToastRegion />
         <FormDrafts />
       </body>

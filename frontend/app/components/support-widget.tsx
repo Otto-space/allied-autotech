@@ -6,6 +6,8 @@ import { CircleHelp, MessageCircle, X } from "lucide-react";
 import { answerFaq, business, faqs } from "@/lib/business";
 import { HelpAccountAction } from "./help-account-action";
 import { SESSION_CHANGED } from "@/lib/api/client";
+import { learningEnabled } from "@/lib/learning/contracts";
+import { OPEN_LEARNING } from "./learning/learning-entry";
 import { containDialogFocus } from "@/lib/dialog-focus";
 export function SupportWidget() {
   const pathname = usePathname();
@@ -76,9 +78,13 @@ export function SupportWidget() {
         <button
           ref={trigger}
           className="support-trigger"
-          onClick={() => dialog.current?.showModal()}
+          onClick={() =>
+            learningEnabled()
+              ? window.dispatchEvent(new Event(OPEN_LEARNING))
+              : dialog.current?.showModal()
+          }
           aria-haspopup="dialog"
-          aria-label="Quick help"
+          aria-label={learningEnabled() ? "Help & Learn" : "Quick help"}
           title="Quick help"
         >
           <CircleHelp size={22} aria-hidden="true" />
