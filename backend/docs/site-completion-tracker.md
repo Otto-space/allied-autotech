@@ -1680,3 +1680,19 @@ passed and original firewall restored. No migration or real business submissions
 W3 uncommitted work remains in its original worktree; Revision 4/Item 6 not complete.
 Evidence/rollback: backend/docs/pending-commits-production-20261026.md. Local preview
 stopped, no cleanup deletion, current/rollback/data retained; C: 28.19 GiB free.
+
+26 October 2026 - owner-authorised pending W3 workforce commit 432308e0 deployed
+as reconciled runtime c4e0005d, preserving live campaign/W1/W2 and payment-source
+concurrency source 2033b159. Backend 707a200f-17c3-4947-a0bd-21b39496cf6a ACTIVE;
+frontend dpl_GRVrwacMhYkrqktFvGRChY5LB2Ln READY, both apex/www aliases verified.
+Guarded forward migration 72 and db:check passed after fresh backup and actual
+separate populated 90-table restore/migration rehearsal with original row hashes
+preserved. All exact-source CI, 123 restricted-runtime integrations, 41 release/
+image cases and 43 distinct hosted fixture browser journeys accepted. Post-release
+DB/least-privilege/worker checks and original app-only firewall verified. No grants
+changed or real business submissions. Existing rapid overlapping staff-directory
+filter loss remains separate; actual-role/device/screen-reader acceptance open.
+Operator harness/timeout qualifications and compatible recovery composition are
+in backend/docs/workforce-versions-production-20261026.md. Other worktrees and
+uncommitted edits preserved; no speculative Docker cleanup; C: 27.71 GiB free.
+Full Revision 4 implementation and broader Item 6 remain open.

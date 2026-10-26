@@ -1,6 +1,6 @@
 # Revision 4 W3: pinned responsibility definitions
 
-Predecessors: W1 `72a8aeaf`, W2 `1cb71297`. No production rollout is authorised.
+Predecessors: W1 `72a8aeaf`, W2 `1cb71297`. This checkpoint was initially local only. The owner subsequently authorised deployment of the committed batch; see backend/docs/workforce-versions-production-20261026.md for actual release and recovery evidence.
 
 ## Model and authority
 
