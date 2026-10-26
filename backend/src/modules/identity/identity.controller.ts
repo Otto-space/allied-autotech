@@ -224,7 +224,7 @@ export class IdentityController {
     const current = actor(req);
     const result = await this.service.verifyMfaChallenge(
       current.userId,
-      current.sessionId,
+      securitySession(req),
       body<MfaChallengeVerifyInput>(res),
     );
     issueCookie(res, result);

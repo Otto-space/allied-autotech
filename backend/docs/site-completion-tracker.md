@@ -1765,3 +1765,16 @@ Authenticated role/device acceptance and sign-in challenge rotation remain open.
 Release detail: backend/docs/password-change-atomicity-20261026.md in the
 compatibility release worktree. Previous deployment 707a200f remains the
 immediate rollback candidate subject to compatibility review.
+
+26 October 2026 - sign-in MFA challenge rotation defect corrected locally.
+TOTP, recovery-code and WebAuthn proof consumption now commits with session
+assurance/token rotation after account/session/CSRF recheck. Three injected
+post-rotation failures roll back all proof and session state; concurrent use
+of one recovery code admits one request. A fresh isolated native loopback
+`_test` database replayed 72 migrations, schema/db:check passed, and four new
+transaction cases plus identity HTTP and 20 adjacent MFA cases passed. Full
+backend check passed 577 default unit/API tests with 1,121 database-gated skips;
+OpenAPI/routes, types, lint, format, scripts and secret checks passed. No
+schema, route or frontend runtime change. Deployment and genuine browser
+WebAuthn/real-role acceptance remain open. Detail:
+backend/docs/mfa-challenge-atomicity-20261026.md.

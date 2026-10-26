@@ -704,6 +704,35 @@ export class IdentityService {
     return user;
   }
 
+  private async assertMfaChallengeSession(
+    tx: Prisma.TransactionClient,
+    userId: string,
+    snapshot: AuthenticatedSessionSnapshot,
+  ) {
+    const user = await this.lockMfaAccount(tx, userId);
+    await tx.$queryRaw`SELECT id FROM "Session" WHERE id = ${snapshot.sessionId}::uuid AND "userId" = ${userId}::uuid FOR UPDATE`;
+    const session = await tx.session.findFirst({
+      where: { id: snapshot.sessionId, userId },
+      select: {
+        revokedAt: true,
+        expiresAt: true,
+        idleExpiresAt: true,
+        csrfTokenHash: true,
+      },
+    });
+    const now = new Date();
+    if (
+      session === null ||
+      session.revokedAt !== null ||
+      session.expiresAt <= now ||
+      session.idleExpiresAt <= now ||
+      !snapshot.csrfTokenHash ||
+      session.csrfTokenHash !== snapshot.csrfTokenHash
+    )
+      throw invalidAuthentication();
+    return user;
+  }
+
   async setupTotp(userId: string, session: MfaEnrollmentSession) {
     return this.database.$transaction(async (tx) => {
       const user = await this.assertMfaEnrollment(tx, userId, session);
@@ -960,9 +989,19 @@ export class IdentityService {
 
   async verifyMfaChallenge(
     userId: string,
-    sessionId: string,
+    snapshot: AuthenticatedSessionSnapshot,
     input: MfaChallengeVerifyInput,
   ): Promise<SessionIssueResult> {
+    let proof:
+      | { kind: "totp"; factorId: string; lastUsedAt: Date | null; usedAt: Date }
+      | { kind: "recovery-code"; codeHash: string }
+      | {
+          kind: "webauthn";
+          challengeId: string;
+          factorId: string;
+          signCount: bigint | null;
+          newCounter: bigint;
+        };
     if (input.method === "totp") {
       const factor = await this.database.mfaFactor.findFirst({
         where: {
@@ -983,30 +1022,75 @@ export class IdentityService {
         factor.lastUsedAt,
       );
       if (!result.valid || result.usedAt === undefined) throw invalidToken();
-      const updated = await this.database.mfaFactor.updateMany({
-        where: {
-          id: factor.id,
-          status: "ACTIVE",
-          revokedAt: null,
-          lastUsedAt: factor.lastUsedAt,
-        },
-        data: { lastUsedAt: result.usedAt },
-      });
-      if (updated.count !== 1) throw invalidToken();
+      proof = {
+        kind: "totp",
+        factorId: factor.id,
+        lastUsedAt: factor.lastUsedAt,
+        usedAt: result.usedAt,
+      };
     } else if (input.method === "recovery-code") {
-      const used = await this.database.mfaRecoveryCode.updateMany({
-        where: {
-          userId,
-          codeHash: hashToken("recovery-code", input.code),
-          usedAt: null,
-        },
-        data: { usedAt: new Date() },
-      });
-      if (used.count !== 1) throw invalidToken();
+      proof = { kind: "recovery-code", codeHash: hashToken("recovery-code", input.code) };
     } else {
-      await this.verifyWebAuthnChallenge(userId, sessionId, input.response);
+      proof = {
+        kind: "webauthn",
+        ...(await this.prepareWebAuthnChallenge(
+          userId,
+          snapshot.sessionId,
+          input.response,
+        )),
+      };
     }
-    return this.completeMfaSession(userId, sessionId);
+    return this.database.$transaction(async (tx) => {
+      const user = await this.assertMfaChallengeSession(tx, userId, snapshot);
+      const now = new Date();
+      if (proof.kind === "totp") {
+        const updated = await tx.mfaFactor.updateMany({
+          where: {
+            id: proof.factorId,
+            userId,
+            type: "TOTP",
+            status: "ACTIVE",
+            revokedAt: null,
+            lastUsedAt: proof.lastUsedAt,
+          },
+          data: { lastUsedAt: proof.usedAt },
+        });
+        if (updated.count !== 1) throw invalidToken();
+      } else if (proof.kind === "recovery-code") {
+        const used = await tx.mfaRecoveryCode.updateMany({
+          where: { userId, codeHash: proof.codeHash, usedAt: null },
+          data: { usedAt: now },
+        });
+        if (used.count !== 1) throw invalidToken();
+      } else {
+        const consumed = await tx.mfaChallenge.updateMany({
+          where: {
+            id: proof.challengeId,
+            userId,
+            sessionId: snapshot.sessionId,
+            purpose: "AUTHENTICATION",
+            usedAt: null,
+            expiresAt: { gt: now },
+          },
+          data: { usedAt: now },
+        });
+        if (consumed.count !== 1) throw invalidToken();
+        const updated = await tx.mfaFactor.updateMany({
+          where: {
+            id: proof.factorId,
+            userId,
+            type: "WEBAUTHN",
+            signCount: proof.signCount,
+            status: "ACTIVE",
+            revokedAt: null,
+          },
+          data: { signCount: proof.newCounter, lastUsedAt: now },
+        });
+        if (updated.count !== 1) throw invalidToken();
+      }
+      // Proof consumption and assurance rotation either both commit or both roll back.
+      return this.rotateAuthenticatedSession(user, snapshot.sessionId, true, true, tx);
+    });
   }
 
   async listFactors(userId: string) {
@@ -1284,11 +1368,11 @@ export class IdentityService {
     });
   }
 
-  private async verifyWebAuthnChallenge(
+  private async prepareWebAuthnChallenge(
     userId: string,
     sessionId: string,
     response: unknown,
-  ): Promise<void> {
+  ) {
     const credentialId =
       typeof response === "object" && response !== null && "id" in response
         ? response.id
@@ -1336,22 +1420,12 @@ export class IdentityService {
     if (!result.verified || result.authenticationInfo.newCounter < oldCounter) {
       throw invalidToken();
     }
-    const now = new Date();
-    await this.database.$transaction(async (tx) => {
-      const consumed = await tx.mfaChallenge.updateMany({
-        where: { id: challenge.id, usedAt: null, expiresAt: { gt: now } },
-        data: { usedAt: now },
-      });
-      if (consumed.count !== 1) throw invalidToken();
-      const updated = await tx.mfaFactor.updateMany({
-        where: { id: factor.id, signCount: factor.signCount, status: "ACTIVE" },
-        data: {
-          signCount: BigInt(result.authenticationInfo.newCounter),
-          lastUsedAt: now,
-        },
-      });
-      if (updated.count !== 1) throw invalidToken();
-    });
+    return {
+      challengeId: challenge.id,
+      factorId: factor.id,
+      signCount: factor.signCount,
+      newCounter: BigInt(result.authenticationInfo.newCounter),
+    };
   }
 
   private maskIp(ipAddress: string | null): string | null {

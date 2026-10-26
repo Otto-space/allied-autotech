@@ -19,6 +19,12 @@ notification and current-session rotation atomically. A failed rotation rolls
 back the credential and revocations rather than returning an error after a
 committed password change.
 
+Sign-in MFA challenge verification also binds the middleware-validated session
+and CSRF snapshot under account/session locks. TOTP step use, recovery-code use,
+or WebAuthn challenge consumption and counter advancement commit in the same
+transaction as session assurance/token rotation. A failed rotation leaves the
+proof available for a fresh, valid attempt.
+
 Staff, administrators, super administrators, and customers who enabled MFA receive a ten-minute
 MFA-pending session after password authentication. That session is limited to session inspection,
 logout, CSRF rotation, and MFA enrollment/challenge routes. Normal authenticated routes require
