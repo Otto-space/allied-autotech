@@ -1778,3 +1778,16 @@ OpenAPI/routes, types, lint, format, scripts and secret checks passed. No
 schema, route or frontend runtime change. Deployment and genuine browser
 WebAuthn/real-role acceptance remain open. Detail:
 backend/docs/mfa-challenge-atomicity-20261026.md.
+
+26 October 2026 - sign-in MFA challenge atomicity deployed.
+Runtime 8b583921, backend 50b5f5d1-50f6-4bf2-a9d0-f0c4975e02b3 ACTIVE.
+Four active image digests match the manifest, and the non-image app spec is
+unchanged. Nine image and one packaged isolated migration/restore checks passed;
+all 24 deployment steps including read-only PRE_DEPLOY database check succeeded.
+Direct/domain liveness and readiness returned 200; anonymous session and MFA
+verify returned 401. Managed backups through 26 October and retained separate
+populated 90-table restore evidence were reviewed. No schema/grant/production
+business write or frontend release. Real authenticated role, device and genuine
+WebAuthn browser acceptance remain open. Previous backend 96ffc790 is the
+immediate rollback candidate subject to compatibility review. Detail:
+backend/docs/mfa-challenge-atomicity-20261026.md.
