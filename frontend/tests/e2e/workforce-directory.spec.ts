@@ -185,6 +185,7 @@ test("directory filtering, pagination, clear and deep-link context use real cont
   await page.getByRole("link", { name: "Next page", exact: true }).click();
   await expect(page.getByText("Fixture colleague 2", { exact: true })).toBeVisible();
   await page.getByRole("link", { name: "First page", exact: true }).click();
+  await expect(page).toHaveURL(base);
   await page.getByLabel("Find a person", { exact: true }).fill("Ada");
   await page
     .getByLabel("Business position", { exact: true })
