@@ -1660,3 +1660,13 @@ Provider-cookie/identity/timing harness qualifications, three skipped provisione
 cases and remaining actual-role/device/screen-reader limits are explicit in
 backend/docs/pending-commits-production-20261026.md. No business submissions or
 schema migration. Broader Item 6 remains open; other worktrees preserved.
+
+Revision 4 W1 local checkpoint: real workforce account directory replaces UUID-first lookup.
+Scoped backend projection and copied-detail authorization, URL filters/pagination,
+cleared failure states and existing reviewed editor retained. 31 isolated database/HTTP
+tests, 14 focused units and 18 distinct fixture browser scenarios passed across
+320/390/768/1024/1440 plus existing 430px editor coverage; exact reruns and initial
+fixture/locator/reflow corrections are in docs/help-learn/WORKFORCE_DIRECTORY_W1.md.
+No production writes/publication. Installed Next 16.3.8 differs from lock 16.4.3;
+hosted/actual-role/device/screen-reader acceptance and full Revision 4 foundation
+remain open. The 106-route structural coverage baseline is not completion.

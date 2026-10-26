@@ -33,7 +33,7 @@
     },
     {
       "source": "app/components/account-notifications.tsx",
-      "nativeButtons": 7,
+      "nativeButtons": 8,
       "nativeAnchors": 0,
       "textLinkButtons": 0,
       "review": "source census; semantics and utility duplication require per-consumer review"
@@ -152,7 +152,7 @@
     },
     {
       "source": "app/components/browser-push-settings.tsx",
-      "nativeButtons": 1,
+      "nativeButtons": 2,
       "nativeAnchors": 0,
       "textLinkButtons": 0,
       "review": "source census; semantics and utility duplication require per-consumer review"
@@ -175,6 +175,20 @@
       "source": "app/components/catalogue-contact.tsx",
       "nativeButtons": 0,
       "nativeAnchors": 7,
+      "textLinkButtons": 0,
+      "review": "source census; semantics and utility duplication require per-consumer review"
+    },
+    {
+      "source": "app/components/catalogue-enquiry-drafts.tsx",
+      "nativeButtons": 5,
+      "nativeAnchors": 0,
+      "textLinkButtons": 2,
+      "review": "source census; semantics and utility duplication require per-consumer review"
+    },
+    {
+      "source": "app/components/catalogue-enquiry-link.tsx",
+      "nativeButtons": 0,
+      "nativeAnchors": 1,
       "textLinkButtons": 0,
       "review": "source census; semantics and utility duplication require per-consumer review"
     },
@@ -214,7 +228,21 @@
       "review": "source census; semantics and utility duplication require per-consumer review"
     },
     {
+      "source": "app/components/contact-parts-enquiry.tsx",
+      "nativeButtons": 1,
+      "nativeAnchors": 0,
+      "textLinkButtons": 0,
+      "review": "source census; semantics and utility duplication require per-consumer review"
+    },
+    {
       "source": "app/components/copy-control.tsx",
+      "nativeButtons": 1,
+      "nativeAnchors": 0,
+      "textLinkButtons": 0,
+      "review": "source census; semantics and utility duplication require per-consumer review"
+    },
+    {
+      "source": "app/components/copyable-value.tsx",
       "nativeButtons": 1,
       "nativeAnchors": 0,
       "textLinkButtons": 0,
@@ -230,6 +258,13 @@
     {
       "source": "app/components/cursor-pagination.tsx",
       "nativeButtons": 2,
+      "nativeAnchors": 0,
+      "textLinkButtons": 0,
+      "review": "source census; semantics and utility duplication require per-consumer review"
+    },
+    {
+      "source": "app/components/customer-account-action.tsx",
+      "nativeButtons": 3,
       "nativeAnchors": 0,
       "textLinkButtons": 0,
       "review": "source census; semantics and utility duplication require per-consumer review"
@@ -272,7 +307,7 @@
     {
       "source": "app/components/customer-support-thread.tsx",
       "nativeButtons": 2,
-      "nativeAnchors": 0,
+      "nativeAnchors": 1,
       "textLinkButtons": 0,
       "review": "source census; semantics and utility duplication require per-consumer review"
     },
@@ -383,7 +418,7 @@
     },
     {
       "source": "app/components/find-parts-for-car.tsx",
-      "nativeButtons": 4,
+      "nativeButtons": 5,
       "nativeAnchors": 0,
       "textLinkButtons": 0,
       "review": "source census; semantics and utility duplication require per-consumer review"
@@ -571,6 +606,55 @@
       "review": "source census; semantics and utility duplication require per-consumer review"
     },
     {
+      "source": "app/components/learning/allie-panel.tsx",
+      "nativeButtons": 9,
+      "nativeAnchors": 0,
+      "textLinkButtons": 0,
+      "review": "source census; semantics and utility duplication require per-consumer review"
+    },
+    {
+      "source": "app/components/learning/help-learning-card.tsx",
+      "nativeButtons": 1,
+      "nativeAnchors": 0,
+      "textLinkButtons": 0,
+      "review": "source census; semantics and utility duplication require per-consumer review"
+    },
+    {
+      "source": "app/components/learning/learning-companion.tsx",
+      "nativeButtons": 2,
+      "nativeAnchors": 0,
+      "textLinkButtons": 0,
+      "review": "source census; semantics and utility duplication require per-consumer review"
+    },
+    {
+      "source": "app/components/learning/learning-entry.tsx",
+      "nativeButtons": 1,
+      "nativeAnchors": 0,
+      "textLinkButtons": 0,
+      "review": "source census; semantics and utility duplication require per-consumer review"
+    },
+    {
+      "source": "app/components/learning/learning-guide.tsx",
+      "nativeButtons": 9,
+      "nativeAnchors": 0,
+      "textLinkButtons": 0,
+      "review": "source census; semantics and utility duplication require per-consumer review"
+    },
+    {
+      "source": "app/components/learning/learning-panel.tsx",
+      "nativeButtons": 4,
+      "nativeAnchors": 0,
+      "textLinkButtons": 0,
+      "review": "source census; semantics and utility duplication require per-consumer review"
+    },
+    {
+      "source": "app/components/learning/learning-practice.tsx",
+      "nativeButtons": 8,
+      "nativeAnchors": 1,
+      "textLinkButtons": 0,
+      "review": "source census; semantics and utility duplication require per-consumer review"
+    },
+    {
       "source": "app/components/login-form.tsx",
       "nativeButtons": 2,
       "nativeAnchors": 0,
@@ -648,7 +732,21 @@
       "review": "source census; semantics and utility duplication require per-consumer review"
     },
     {
+      "source": "app/components/notification-preview.tsx",
+      "nativeButtons": 3,
+      "nativeAnchors": 0,
+      "textLinkButtons": 0,
+      "review": "source census; semantics and utility duplication require per-consumer review"
+    },
+    {
       "source": "app/components/notification-record-context.tsx",
+      "nativeButtons": 1,
+      "nativeAnchors": 0,
+      "textLinkButtons": 0,
+      "review": "source census; semantics and utility duplication require per-consumer review"
+    },
+    {
+      "source": "app/components/notification-workspace.tsx",
       "nativeButtons": 1,
       "nativeAnchors": 0,
       "textLinkButtons": 0,
@@ -726,7 +824,7 @@
     },
     {
       "source": "app/components/parts-catalogue.tsx",
-      "nativeButtons": 14,
+      "nativeButtons": 12,
       "nativeAnchors": 0,
       "textLinkButtons": 0,
       "review": "source census; semantics and utility duplication require per-consumer review"
@@ -824,7 +922,7 @@
     },
     {
       "source": "app/components/product-extras-editor.tsx",
-      "nativeButtons": 10,
+      "nativeButtons": 16,
       "nativeAnchors": 0,
       "textLinkButtons": 0,
       "review": "source census; semantics and utility duplication require per-consumer review"
@@ -848,6 +946,13 @@
       "nativeButtons": 2,
       "nativeAnchors": 0,
       "textLinkButtons": 1,
+      "review": "source census; semantics and utility duplication require per-consumer review"
+    },
+    {
+      "source": "app/components/product-image-preview.tsx",
+      "nativeButtons": 1,
+      "nativeAnchors": 0,
+      "textLinkButtons": 0,
       "review": "source census; semantics and utility duplication require per-consumer review"
     },
     {
@@ -1307,7 +1412,7 @@
     },
     {
       "source": "app/components/support-email-delivery.tsx",
-      "nativeButtons": 1,
+      "nativeButtons": 4,
       "nativeAnchors": 0,
       "textLinkButtons": 0,
       "review": "source census; semantics and utility duplication require per-consumer review"
@@ -1482,7 +1587,7 @@
     },
     {
       "source": "app/components/work-customers.tsx",
-      "nativeButtons": 10,
+      "nativeButtons": 11,
       "nativeAnchors": 0,
       "textLinkButtons": 0,
       "review": "source census; semantics and utility duplication require per-consumer review"
@@ -1503,9 +1608,9 @@
     },
     {
       "source": "app/components/work-parts-fitment.tsx",
-      "nativeButtons": 22,
-      "nativeAnchors": 0,
-      "textLinkButtons": 1,
+      "nativeButtons": 24,
+      "nativeAnchors": 3,
+      "textLinkButtons": 0,
       "review": "source census; semantics and utility duplication require per-consumer review"
     },
     {
@@ -1644,7 +1749,7 @@
     {
       "source": "app/components/work-support-detail.tsx",
       "nativeButtons": 9,
-      "nativeAnchors": 1,
+      "nativeAnchors": 2,
       "textLinkButtons": 0,
       "review": "source census; semantics and utility duplication require per-consumer review"
     },
@@ -1714,13 +1819,20 @@
     {
       "source": "app/components/workforce-complaint-detail.tsx",
       "nativeButtons": 11,
-      "nativeAnchors": 0,
+      "nativeAnchors": 1,
       "textLinkButtons": 0,
       "review": "source census; semantics and utility duplication require per-consumer review"
     },
     {
       "source": "app/components/workforce-complaints.tsx",
       "nativeButtons": 7,
+      "nativeAnchors": 0,
+      "textLinkButtons": 0,
+      "review": "source census; semantics and utility duplication require per-consumer review"
+    },
+    {
+      "source": "app/components/workforce-directory.tsx",
+      "nativeButtons": 2,
       "nativeAnchors": 0,
       "textLinkButtons": 0,
       "review": "source census; semantics and utility duplication require per-consumer review"
@@ -1742,14 +1854,7 @@
     {
       "source": "app/components/workforce-enquiry-detail.tsx",
       "nativeButtons": 13,
-      "nativeAnchors": 0,
-      "textLinkButtons": 0,
-      "review": "source census; semantics and utility duplication require per-consumer review"
-    },
-    {
-      "source": "app/components/workforce-entry.tsx",
-      "nativeButtons": 1,
-      "nativeAnchors": 0,
+      "nativeAnchors": 1,
       "textLinkButtons": 0,
       "review": "source census; semantics and utility duplication require per-consumer review"
     },
@@ -1804,7 +1909,7 @@
     },
     {
       "source": "app/components/workforce-workspace.tsx",
-      "nativeButtons": 8,
+      "nativeButtons": 7,
       "nativeAnchors": 0,
       "textLinkButtons": 0,
       "review": "source census; semantics and utility duplication require per-consumer review"
@@ -1903,6 +2008,13 @@
     {
       "source": "app/parts/product-name-field.tsx",
       "nativeButtons": 4,
+      "nativeAnchors": 0,
+      "textLinkButtons": 0,
+      "review": "source census; semantics and utility duplication require per-consumer review"
+    },
+    {
+      "source": "app/parts/product-option-field.tsx",
+      "nativeButtons": 3,
       "nativeAnchors": 0,
       "textLinkButtons": 0,
       "review": "source census; semantics and utility duplication require per-consumer review"
@@ -4643,6 +4755,62 @@
       }
     },
     {
+      "route": "/learn",
+      "source": "app/learn/page.tsx",
+      "family": "public",
+      "dynamic": false,
+      "access": "public; launch mode and token conditions may restrict actions",
+      "review": "source inventoried; see register for sampled rendered evidence",
+      "coverage": {
+        "headings": "not-inspected",
+        "labels": "not-inspected",
+        "helpers": "not-inspected",
+        "errors": "not-inspected",
+        "placeholders": "not-inspected",
+        "inputs": "not-inspected",
+        "selects": "not-inspected",
+        "checkboxes": "not-inspected",
+        "radios": "not-inspected",
+        "actions": "not-inspected",
+        "toolbars": "not-inspected",
+        "tables": "not-inspected",
+        "cards": "not-inspected",
+        "empty": "not-inspected",
+        "permissions": "not-inspected",
+        "loading": "not-inspected",
+        "longContent": "not-inspected",
+        "mobile": "not-inspected"
+      }
+    },
+    {
+      "route": "/learn/practice/[scenarioId]",
+      "source": "app/learn/practice/[scenarioId]/page.tsx",
+      "family": "public",
+      "dynamic": true,
+      "access": "public; launch mode and token conditions may restrict actions",
+      "review": "source inventoried; see register for sampled rendered evidence",
+      "coverage": {
+        "headings": "not-inspected",
+        "labels": "not-inspected",
+        "helpers": "not-inspected",
+        "errors": "not-inspected",
+        "placeholders": "not-inspected",
+        "inputs": "not-inspected",
+        "selects": "not-inspected",
+        "checkboxes": "not-inspected",
+        "radios": "not-inspected",
+        "actions": "not-inspected",
+        "toolbars": "not-inspected",
+        "tables": "not-inspected",
+        "cards": "not-inspected",
+        "empty": "not-inspected",
+        "permissions": "not-inspected",
+        "loading": "not-inspected",
+        "longContent": "not-inspected",
+        "mobile": "not-inspected"
+      }
+    },
+    {
       "route": "/login",
       "source": "app/login/page.tsx",
       "family": "authentication",
@@ -5234,7 +5402,7 @@
     },
     {
       "source": "app/components/account-notifications.tsx",
-      "sourceSignals": ["nativeButton", "nativeSelect", "feedback"],
+      "sourceSignals": ["nativeButton", "disclosure", "nativeSelect", "feedback"],
       "review": "not independently rendered unless recorded in register"
     },
     {
@@ -5360,6 +5528,16 @@
       "review": "not independently rendered unless recorded in register"
     },
     {
+      "source": "app/components/catalogue-enquiry-drafts.tsx",
+      "sourceSignals": ["nativeButton", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/catalogue-enquiry-link.tsx",
+      "sourceSignals": ["nativeAnchor"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
       "source": "app/components/catalogue-help.tsx",
       "sourceSignals": ["nativeAnchor"],
       "review": "not independently rendered unless recorded in register"
@@ -5386,11 +5564,16 @@
     },
     {
       "source": "app/components/contact-parts-enquiry.tsx",
-      "sourceSignals": ["feedback"],
+      "sourceSignals": ["nativeButton", "feedback"],
       "review": "not independently rendered unless recorded in register"
     },
     {
       "source": "app/components/copy-control.tsx",
+      "sourceSignals": ["nativeButton", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/copyable-value.tsx",
       "sourceSignals": ["nativeButton", "feedback"],
       "review": "not independently rendered unless recorded in register"
     },
@@ -5402,6 +5585,11 @@
     {
       "source": "app/components/cursor-pagination.tsx",
       "sourceSignals": ["nativeButton"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/customer-account-action.tsx",
+      "sourceSignals": ["nativeButton", "form", "dialog", "disclosure"],
       "review": "not independently rendered unless recorded in register"
     },
     {
@@ -5431,12 +5619,19 @@
     },
     {
       "source": "app/components/customer-support-thread.tsx",
-      "sourceSignals": ["nativeButton", "feedback"],
+      "sourceSignals": ["nativeButton", "nativeAnchor", "disclosure", "feedback"],
       "review": "not independently rendered unless recorded in register"
     },
     {
       "source": "app/components/customer-support.tsx",
-      "sourceSignals": ["nativeButton", "nativeAnchor", "nativeSelect", "feedback"],
+      "sourceSignals": [
+        "nativeButton",
+        "nativeAnchor",
+        "disclosure",
+        "table",
+        "nativeSelect",
+        "feedback"
+      ],
       "review": "not independently rendered unless recorded in register"
     },
     {
@@ -5669,6 +5864,49 @@
       "review": "not independently rendered unless recorded in register"
     },
     {
+      "source": "app/components/learning/allie-panel.tsx",
+      "sourceSignals": ["nativeButton", "form", "disclosure", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/learning/help-learning-card.tsx",
+      "sourceSignals": ["nativeButton"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/learning/learning-companion.tsx",
+      "sourceSignals": ["nativeButton", "dialog", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/learning/learning-entry.tsx",
+      "sourceSignals": ["nativeButton"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/learning/learning-guide.tsx",
+      "sourceSignals": ["nativeButton", "disclosure", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/learning/learning-panel.tsx",
+      "sourceSignals": ["nativeButton", "form", "disclosure", "tabs", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/learning/learning-practice.tsx",
+      "sourceSignals": [
+        "nativeButton",
+        "nativeAnchor",
+        "form",
+        "dialog",
+        "disclosure",
+        "nativeSelect",
+        "feedback"
+      ],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
       "source": "app/components/login-form.tsx",
       "sourceSignals": ["nativeButton", "form"],
       "review": "not independently rendered unless recorded in register"
@@ -5729,8 +5967,18 @@
       "review": "not independently rendered unless recorded in register"
     },
     {
+      "source": "app/components/notification-preview.tsx",
+      "sourceSignals": ["nativeButton", "dialog", "disclosure", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
       "source": "app/components/notification-record-context.tsx",
       "sourceSignals": ["nativeButton", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/notification-workspace.tsx",
+      "sourceSignals": ["nativeButton", "disclosure"],
       "review": "not independently rendered unless recorded in register"
     },
     {
@@ -5785,7 +6033,7 @@
     },
     {
       "source": "app/components/parts-catalogue.tsx",
-      "sourceSignals": ["nativeButton", "disclosure", "nativeSelect", "feedback"],
+      "sourceSignals": ["nativeButton", "nativeSelect", "feedback"],
       "review": "not independently rendered unless recorded in register"
     },
     {
@@ -5855,7 +6103,7 @@
     },
     {
       "source": "app/components/product-extras-editor.tsx",
-      "sourceSignals": ["nativeButton", "feedback"],
+      "sourceSignals": ["nativeButton", "disclosure", "feedback"],
       "review": "not independently rendered unless recorded in register"
     },
     {
@@ -5871,6 +6119,11 @@
     {
       "source": "app/components/product-image-form.tsx",
       "sourceSignals": ["nativeButton", "form", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/product-image-preview.tsx",
+      "sourceSignals": ["nativeButton", "dialog"],
       "review": "not independently rendered unless recorded in register"
     },
     {
@@ -6269,7 +6522,7 @@
     },
     {
       "source": "app/components/support-email-delivery.tsx",
-      "sourceSignals": ["nativeButton", "feedback"],
+      "sourceSignals": ["nativeButton", "disclosure", "feedback"],
       "review": "not independently rendered unless recorded in register"
     },
     {
@@ -6399,12 +6652,12 @@
     },
     {
       "source": "app/components/work-customer-detail.tsx",
-      "sourceSignals": ["nativeButton", "feedback"],
+      "sourceSignals": ["nativeButton", "disclosure", "feedback"],
       "review": "not independently rendered unless recorded in register"
     },
     {
       "source": "app/components/work-customers.tsx",
-      "sourceSignals": ["nativeButton", "form", "nativeSelect", "feedback"],
+      "sourceSignals": ["nativeButton", "form", "table", "nativeSelect", "feedback"],
       "review": "not independently rendered unless recorded in register"
     },
     {
@@ -6419,7 +6672,14 @@
     },
     {
       "source": "app/components/work-parts-fitment.tsx",
-      "sourceSignals": ["nativeButton", "form", "disclosure", "nativeSelect", "feedback"],
+      "sourceSignals": [
+        "nativeButton",
+        "nativeAnchor",
+        "form",
+        "disclosure",
+        "nativeSelect",
+        "feedback"
+      ],
       "review": "not independently rendered unless recorded in register"
     },
     {
@@ -6439,7 +6699,7 @@
     },
     {
       "source": "app/components/work-product-category-form.tsx",
-      "sourceSignals": ["nativeButton", "form", "feedback"],
+      "sourceSignals": ["nativeButton", "form", "nativeSelect", "feedback"],
       "review": "not independently rendered unless recorded in register"
     },
     {
@@ -6526,12 +6786,12 @@
     },
     {
       "source": "app/components/work-support-detail.tsx",
-      "sourceSignals": ["nativeButton", "nativeAnchor", "feedback"],
+      "sourceSignals": ["nativeButton", "nativeAnchor", "disclosure", "feedback"],
       "review": "not independently rendered unless recorded in register"
     },
     {
       "source": "app/components/work-support.tsx",
-      "sourceSignals": ["nativeButton", "form", "nativeSelect", "feedback"],
+      "sourceSignals": ["nativeButton", "form", "table", "nativeSelect", "feedback"],
       "review": "not independently rendered unless recorded in register"
     },
     {
@@ -6583,11 +6843,16 @@
     },
     {
       "source": "app/components/workforce-complaint-detail.tsx",
-      "sourceSignals": ["nativeButton", "form", "feedback"],
+      "sourceSignals": ["nativeButton", "nativeAnchor", "form", "disclosure", "feedback"],
       "review": "not independently rendered unless recorded in register"
     },
     {
       "source": "app/components/workforce-complaints.tsx",
+      "sourceSignals": ["nativeButton", "form", "table", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/workforce-directory.tsx",
       "sourceSignals": ["nativeButton", "form", "table", "nativeSelect", "feedback"],
       "review": "not independently rendered unless recorded in register"
     },
@@ -6603,12 +6868,7 @@
     },
     {
       "source": "app/components/workforce-enquiry-detail.tsx",
-      "sourceSignals": ["nativeButton", "form", "disclosure", "feedback"],
-      "review": "not independently rendered unless recorded in register"
-    },
-    {
-      "source": "app/components/workforce-entry.tsx",
-      "sourceSignals": ["nativeButton", "form"],
+      "sourceSignals": ["nativeButton", "nativeAnchor", "form", "disclosure", "feedback"],
       "review": "not independently rendered unless recorded in register"
     },
     {
@@ -6687,6 +6947,16 @@
       "review": "not independently rendered unless recorded in register"
     },
     {
+      "source": "app/learn/page.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/learn/practice/[scenarioId]/page.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
       "source": "app/not-found.tsx",
       "sourceSignals": ["nativeAnchor", "loadingBoundary"],
       "review": "not independently rendered unless recorded in register"
@@ -6736,6 +7006,11 @@
     {
       "source": "app/parts/product-name-field.tsx",
       "sourceSignals": ["nativeButton"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/parts/product-option-field.tsx",
+      "sourceSignals": ["nativeButton", "nativeSelect"],
       "review": "not independently rendered unless recorded in register"
     },
     {

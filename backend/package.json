@@ -43,7 +43,9 @@
     "phase7:preflight": "tsx scripts/verify-phase7-preflight.ts",
     "reconcile:payments": "tsx scripts/reconcile-payments.ts",
     "seed:staging:public": "tsx scripts/seed-staging-public.ts",
-    "check:routes": "tsx scripts/verify-route-coverage.ts"
+    "check:routes": "tsx scripts/verify-route-coverage.ts",
+    "learning:coverage:check": "tsx scripts/check-learning-coverage.ts",
+    "learning:coverage:complete": "tsx scripts/check-learning-coverage.ts --require-complete"
   },
   "keywords": [
     "automotive",

@@ -1596,3 +1596,24 @@ verified; no new restore. Temporary source/cookie files removed, owned API stopp
 current/rollback/data/other-task resources retained. C: 28.16 GiB free. Evidence and
 rollback: backend/docs/pending-commits-production-20261026.md. Main tracker existing
 bytes preserved append-only. Broader site-completion Item 6 remains open.
+
+Revision 4 implementation is active on feat/workforce-allie-r4-20261026, based on
+verified production runtime 3ccee21a (documentation HEAD 9b1728fe). Canonical brief:
+docs/help-learn/REVISION_4_BRIEF.md. Its precedence replaces the older optional-AI
+completion criterion. Workforce access is the first dependency. Existing account
+tiers, eight responsibility templates plus CEO position, legacy reviewed enrollment
+and protected owner/promotion policies are retained. W1 adds a real scoped workforce
+directory in place of the UUID-first lookup; implementation is under verification.
+Remaining: complete effective-access provenance/versioning, atomic role/delegation
+changes, full navigation/session/subscription coverage, actual conversational AI,
+all-dashboard learning coverage, reviewed persisted handoff and gated human chat.
+Do not mark the goal complete from this first batch. No new production publication,
+purchase, invitation or real customer communication is authorised by this revision.
+
+Revision 4 W1 local acceptance: directory and existing editor verified with 31
+restricted-runtime isolated HTTP/DB cases, 14 focused units and 18 distinct
+fixture browser scenarios. No schema change or shared/application DB write.
+Full evidence/limits: docs/help-learn/WORKFORCE_DIRECTORY_W1.md. Effective-access
+provenance, template evolution and role dependencies remain the next foundation
+batch. Actual AI, full learning matrix, human handoff/chat and evaluations remain
+required. No new production publication. Broader Item 6 stays open.

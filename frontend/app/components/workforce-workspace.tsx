@@ -12,7 +12,7 @@ import {
 import { formatBusinessDate } from "@/lib/format/date";
 import { Feedback } from "./feedback";
 import { MutationReview, type MutationProposal } from "./mutation-review";
-import { WorkforceAccessPanel } from "./workforce-access-panel";
+import { WorkforceDirectory } from "./workforce-directory";
 import { WorkforceOverview } from "./workforce-overview";
 import { WorkforceBookingDetail } from "./workforce-booking-detail";
 import { WorkforceBookings } from "./workforce-bookings";
@@ -35,7 +35,11 @@ export function WorkforceWorkspace({
   if (path === "/admin/fitment") return <WorkPartsFitment />;
   if (path === "/admin" || path === "/admin/workforce")
     return <WorkforceOverview access={access} refreshAccess={refreshAccess} />;
-  if (path === "/admin/workforce/access" && access.canManageAssignments)
+  if (
+    (path === "/admin/workforce/access" ||
+      /^\/admin\/workforce\/access\/[^/]+$/.test(path)) &&
+    access.canManageAssignments
+  )
     return <WorkforceAccessLookup canInvite={access.canInviteAdmins} />;
   const bookingId = /^\/admin\/workforce\/bookings\/([0-9a-f-]+)$/.exec(path)?.[1];
   if (bookingId && access.permissions.includes("BOOKINGS_READ"))
@@ -380,29 +384,9 @@ function WorkforceQueue({ queue, access }: { queue: string; access: WorkforceAcc
   );
 }
 function WorkforceAccessLookup({ canInvite }: { canInvite: boolean }) {
-  const [userId, setUserId] = useState("");
   return (
     <>
-      <h1>Responsibility assignments</h1>
-      <p>Select a verified staff account by its user reference.</p>
-      <form
-        onSubmit={(event) => {
-          event.preventDefault();
-          setUserId(String(new FormData(event.currentTarget).get("userId")));
-        }}
-      >
-        <div className="field">
-          <label htmlFor="workforce-user-id">Staff user reference</label>
-          <input
-            name="userId"
-            id="workforce-user-id"
-            required
-            pattern="[0-9a-fA-F-]{36}"
-          />
-        </div>
-        <button className="button">Review account</button>
-      </form>
-      {userId && <WorkforceAccessPanel key={userId} userId={userId} />}
+      <WorkforceDirectory />
       {canInvite && <WorkforceAdminInvitation />}
     </>
   );

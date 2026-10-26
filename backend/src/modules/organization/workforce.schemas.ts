@@ -45,6 +45,55 @@ export const workforceListSchema = z.strictObject({
   limit: z.coerce.number().int().min(1).max(50).default(25),
   cursor: z.uuid().optional(),
 });
+export const workforceDirectoryQuerySchema = workforceListSchema.extend({
+  q: z
+    .string()
+    .trim()
+    .max(120)
+    .refine(
+      (value) => ![...value].some((c) => c.charCodeAt(0) < 32 || c.charCodeAt(0) === 127),
+      {
+        message: "Search cannot contain control characters",
+      },
+    )
+    .optional(),
+  role: z.enum(["STAFF", "ADMIN", "SUPER_ADMIN"]).optional(),
+  status: z.enum(["ACTIVE", "SUSPENDED", "DEACTIVATED"]).optional(),
+  position: positionSchema.optional(),
+  branchId: z.uuid().optional(),
+});
+export const workforceDirectoryResponseSchema = z.object({
+  items: z.array(
+    z.object({
+      userId: z.uuid(),
+      name: z.string(),
+      email: z.string(),
+      role: z.enum(["STAFF", "ADMIN", "SUPER_ADMIN"]),
+      status: z.enum(["ACTIVE", "SUSPENDED", "DEACTIVATED"]),
+      verified: z.boolean(),
+      managed: z.boolean(),
+      position: positionSchema.nullable(),
+      version: z.number().int().nonnegative().nullable(),
+      accountBranch: z
+        .object({ id: z.uuid(), name: z.string(), isActive: z.boolean() })
+        .nullable(),
+      responsibilities: z.array(
+        z.object({
+          assignmentId: z.uuid(),
+          template: templateSchema,
+          branch: z.object({ id: z.uuid(), name: z.string() }),
+          scope: z.enum(["BRANCH", "ASSIGNED"]),
+          temporary: z.boolean(),
+          expiresAt: z.string().datetime().nullable(),
+        }),
+      ),
+      canInspect: z.boolean(),
+      responsibilitiesMore: z.boolean(),
+    }),
+  ),
+  nextCursor: z.uuid().optional(),
+  generatedAt: z.string().datetime(),
+});
 export const workforceMessageQuerySchema = workforceListSchema
   .extend({ messageId: z.uuid().optional() })
   .refine((query) => !(query.cursor && query.messageId), {
@@ -401,6 +450,8 @@ export const workforceFinanceQuerySchema = workforceListSchema.extend({
 });
 export function workforceResponseSchema(action: string): z.ZodType {
   switch (action) {
+    case "directory":
+      return workforceDirectoryResponseSchema;
     case "enquiryDeliveryDismiss":
     case "complaintDeliveryDismiss":
       return supportEmailDeliveryPageSchema;
