@@ -1510,3 +1510,6 @@ lifecycle and URL rejection passed; 200% logical reflow/reduced-motion emulation
 is distinguished from native/device acceptance. Owned preview/test API stopped;
 54.78 MiB superseded browser output removed, current evidence retained. C: 29.88 GiB
 free at measurement. Docker daemon unavailable; no Docker resources created or pruned.
+Gallery alignment follow-up: removed an inherited sibling margin, rebuilt and passed
+all five populated-gallery widths again with an actual desktop alignment assertion.
+Current review captures reflect the follow-up; no production release or new scope.

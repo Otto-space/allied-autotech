@@ -1474,3 +1474,6 @@ passed. Owned preview/test API stopped. Current screenshot index is in
 %TEMP%/allied-fitment-media-review-20261026/. Removed 54.78 MiB superseded browser
 output; C: 29.88 GiB free at measurement. No Docker resources, duplicate dependencies
 or additional worktree created; databases/current cache/other tasks preserved.
+Final gallery spacing follow-up rebuilt successfully and passed all five gallery
+width cases again; current screenshots updated and preview stopped. Functional
+48-case acceptance above remains the baseline; this is a bounded CSS correction.

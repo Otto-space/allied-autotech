@@ -746,6 +746,12 @@ for (const width of [360, 390, 768, 1024, 1440])
       await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
     ).toBe(true);
     await page.getByRole("button", { name: "Cancel image edit", exact: true }).click();
+    if (width === 1440) {
+      const tops = await page
+        .locator(".product-gallery > article")
+        .evaluateAll((cards) => cards.map((card) => card.getBoundingClientRect().top));
+      expect(Math.abs(tops[0] - tops[1])).toBeLessThan(1);
+    }
     for (const dismiss of await page
       .getByRole("button", { name: "Dismiss notification", exact: true })
       .all())

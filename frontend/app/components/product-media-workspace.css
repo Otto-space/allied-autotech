@@ -112,4 +112,5 @@
 }
 .dashboard .dashboard-content .product-media-editor .product-gallery > article {
   padding: 1rem;
+  margin: 0;
 }

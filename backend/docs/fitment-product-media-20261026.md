@@ -192,3 +192,11 @@ free at measurement; the 20 GiB reserve remains a preflight, not an OS guarantee
 
 No production deployment. This candidate requires normal locked CI, source/release
 reconciliation and authorized backend-first rollout before production use.
+
+Desktop gallery alignment follow-up: removed the inherited sibling-section margin
+inside image cards. The optimized build/types/postbuild and focused lint/format
+passed again; all five compiled populated-gallery cases passed, including a measured
+same-top-edge assertion at 1440px and the existing keyboard/preview/reflow actions.
+This CSS-only follow-up reruns five of the 48 distinct acceptance cases above; it is
+not an additional five distinct journeys. Review Images screenshots were refreshed.
+The owned preview was stopped again; no production operation occurred.
