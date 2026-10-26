@@ -129,7 +129,7 @@ for (const width of [1440, 390])
     expect(href).not.toMatch(/vin|registration|nickname|customerId|daily.driver/i);
     await find.click();
     await expect(
-      page.getByRole("heading", { name: "Find parts for my car", exact: true }),
+      page.getByRole("heading", { name: "Find products for my vehicle", exact: true }),
     ).toBeVisible();
     await expect(
       page.getByLabel("Your vehicle configurations", { exact: true }),
@@ -138,6 +138,9 @@ for (const width of [1440, 390])
       .getByRole("button", { name: "Clear selected vehicle", exact: true })
       .click();
     await expect(page).toHaveURL(/\/parts$/);
+    await page
+      .getByRole("radio", { name: "Find products for my vehicle", exact: true })
+      .check();
     await page.getByRole("button", { name: "Use this vehicle", exact: true }).click();
     await expect(page).toHaveURL(new RegExp(`vehicleModelId=${model.id}`));
     await expect(

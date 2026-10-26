@@ -1,6 +1,7 @@
 /* cspell:words rgba minmax nowrap */
 
 @import "tailwindcss";
+@import "./colour-tokens.css";
 
 .auth-help {
   margin-top: 1rem;
@@ -40,31 +41,14 @@ body {
 }
 
 @theme inline {
-  --color-ink: #01121a;
-  --color-brand-red: #e60301;
-  --color-marketplace-blue: #091b38;
-  --color-muted: #64748b;
-  --color-surface: #f8fafc;
-  --color-line: #e2e8f0;
+  --color-ink: var(--ink);
+  --color-brand-red: var(--brand-red);
+  --color-marketplace-blue: var(--marketplace-blue);
+  --color-muted: var(--muted);
+  --color-surface: var(--surface);
+  --color-line: var(--line);
   --font-sans: var(--font-quicksand);
   --font-display: var(--font-quicksand);
-}
-
-:root {
-  --ink: #01121a;
-  --muted: #64748b;
-  --line: #e2e8f0;
-  --surface: #f8fafc;
-  --brand-red: #e60301;
-  --brand-red-dark: #b80201;
-  --brand-red-on-dark: #ff625a;
-  --marketplace-blue: #091b38;
-  --blue: #e60301;
-  --blue-dark: #b80201;
-  --orange: #e86f13;
-  --success: #13734a;
-  --danger: #b42318;
-  --white: #fff;
 }
 
 * {
@@ -136,8 +120,9 @@ button {
 }
 
 :focus-visible {
-  outline: 3px solid #6ca5ff;
+  outline: 3px solid var(--focus-ring);
   outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 
 .skip-link {
@@ -874,9 +859,6 @@ button {
   border: 1px solid transparent;
   border-radius: 9px;
 
-  background: var(--brand-red);
-  color: white;
-
   font-size: 12px;
   font-weight: 750;
 
@@ -887,53 +869,89 @@ button {
     0 3px 8px rgba(230, 3, 1, 0.08),
     0 8px 20px rgba(230, 3, 1, 0.08);
 
+  --button-fill: var(--action-primary);
+
+  --button-ink: var(--on-primary);
+
+  background: var(--button-fill);
+
+  color: var(--button-ink);
+
   transition:
-    background 180ms ease,
-    border-color 180ms ease,
-    box-shadow 180ms ease,
-    transform 180ms ease;
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease;
 }
 
-.button:hover {
-  background: var(--brand-red-dark);
+.button:hover:where(:not(:disabled):not([aria-disabled="true"])) {
+  --button-fill: var(--action-hover);
 
-  transform: translateY(-1px);
+  background: var(--button-fill);
 
-  box-shadow:
-    0 5px 12px rgba(230, 3, 1, 0.13),
-    0 12px 26px rgba(230, 3, 1, 0.12);
+  transform: none;
 }
 
-.button:active {
+.button:active:where(:not(:disabled):not([aria-disabled="true"])) {
   transform: translateY(0);
+  --button-fill: var(--action-pressed);
+  background: var(--button-fill);
 }
 
 .button.secondary {
-  background: white;
-  color: var(--ink);
-
-  border-color: rgba(1, 18, 26, 0.13);
-
   box-shadow: none;
+
+  --button-fill: var(--action-secondary);
+
+  --button-ink: var(--on-secondary);
+
+  background: var(--button-fill);
+
+  color: var(--button-ink);
+
+  border-color: var(--border-control);
 }
 
-.button.secondary:hover {
-  background: rgba(1, 18, 26, 0.035);
+.button.secondary:hover:where(:not(:disabled):not([aria-disabled="true"])) {
+  --button-fill: var(--action-secondary-hover);
 
-  border-color: rgba(1, 18, 26, 0.28);
+  background: var(--action-secondary-hover);
+
+  border-color: var(--action-hover);
+}
+
+.button.secondary:active:where(:not(:disabled):not([aria-disabled="true"])) {
+  --button-fill: var(--action-secondary-pressed);
+  background: var(--button-fill);
+}
+.button.danger:hover:where(:not(:disabled):not([aria-disabled="true"])) {
+  --button-fill: var(--destructive-hover);
+}
+.button.danger:active:where(:not(:disabled):not([aria-disabled="true"])) {
+  --button-fill: var(--destructive-pressed);
+}
+.button:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 
 .button.danger {
-  background: var(--danger);
+  --button-fill: var(--destructive);
+  background: var(--button-fill);
+  color: var(--on-destructive);
 }
 
 .button:disabled {
   cursor: not-allowed;
 
-  opacity: 0.55;
-
   transform: none;
   box-shadow: none;
+  --button-fill: var(--disabled-fill);
+  --button-ink: var(--disabled-ink);
+  background: var(--button-fill);
+  color: var(--button-ink);
+  opacity: 1;
+  border-color: var(--border-control);
 }
 
 /* Explicit task actions reuse the existing brand button foundation. */
@@ -960,11 +978,15 @@ button {
   background: var(--surface);
   border-color: var(--line);
 }
+.button.ui-action.tertiary:active:not(:disabled) {
+  background: var(--action-secondary-pressed);
+  color: var(--selection-ink);
+}
 .button.ui-action[aria-pressed="true"] {
-  background: var(--marketplace-blue);
-  border-color: var(--marketplace-blue);
-  color: white;
-  box-shadow: inset 0 -3px 0 white;
+  background: var(--selection-fill);
+  border-color: var(--action-primary);
+  color: var(--selection-ink);
+  box-shadow: inset 0 -3px 0 var(--action-primary);
 }
 .ui-navigation {
   display: inline-flex;
@@ -979,8 +1001,9 @@ button {
   text-decoration-thickness: 2px;
 }
 :is(.ui-action, .ui-navigation):focus-visible {
-  outline: 3px solid #075bca;
+  outline: 3px solid var(--focus-ring);
   outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 [data-release-unavailable] .lucide-arrow-up-right {
   display: none;
@@ -1012,9 +1035,9 @@ button {
   cursor: pointer;
 }
 .support-reply-compose .support-audience label:has(input:checked) {
-  border-color: var(--marketplace-blue);
-  box-shadow: inset 0 0 0 1px var(--marketplace-blue);
-  background: #eef3f9;
+  border-color: var(--action-primary);
+  box-shadow: inset 0 0 0 1px var(--action-primary);
+  background: var(--selection-fill);
   font-weight: 700;
 }
 .support-reply-compose .support-audience input[type="radio"] {
@@ -1023,7 +1046,7 @@ button {
   min-height: 0;
   flex: 0 0 20px;
   margin: 0;
-  accent-color: var(--marketplace-blue);
+  accent-color: var(--checked);
 }
 .support-reply-compose .support-audience p {
   grid-column: 1 / -1;
@@ -1384,7 +1407,7 @@ button {
 
   min-height: 30px;
 
-  border: 1px solid var(--line);
+  border: 1px solid var(--border-control);
   border-radius: 8px;
 
   background: white;
@@ -1405,13 +1428,43 @@ button {
 .field select:focus,
 .field textarea:focus {
   border-color: var(--brand-red);
-  outline: none;
-  box-shadow: 0 0 0 1px var(--brand-red);
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 
 .field-hint {
   max-width: 100%;
   overflow-wrap: anywhere;
+}
+
+:is(input, select, textarea)[aria-invalid="true"] {
+  border-color: var(--error-ink);
+}
+.input[readonly],
+.field textarea[readonly] {
+  background: var(--readonly-fill);
+  color: var(--readonly-ink);
+}
+.input:disabled,
+.field :is(select, textarea):disabled {
+  background: var(--disabled-fill);
+  color: var(--disabled-ink);
+  cursor: not-allowed;
+}
+input[type="file"]::file-selector-button {
+  font: inherit;
+  padding: 8px 12px;
+  margin-right: 12px;
+  border: 1px solid var(--border-control);
+  border-radius: var(--radius-control);
+  background: var(--action-secondary);
+  color: var(--on-secondary);
+  cursor: pointer;
+}
+input[type="file"]:enabled::file-selector-button:hover {
+  background: var(--action-secondary-hover);
+  border-color: var(--action-hover);
 }
 
 /* Footer can wrap rather than cause horizontal overflow */
@@ -1492,8 +1545,13 @@ button {
 }
 
 .text-link {
-  color: var(--blue);
+  color: var(--link);
   font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.text-link:hover {
+  text-decoration-thickness: 2px;
 }
 
 .dashboard {
@@ -1504,13 +1562,13 @@ button {
 }
 
 .sidebar {
-  background: var(--ink);
   color: white;
   padding: 28px 18px;
   position: sticky;
   top: 0;
   height: 100vh;
   overflow-y: auto;
+  background: var(--gradient-nav);
 }
 
 .sidebar .brand {
@@ -1679,7 +1737,7 @@ button {
 
 .chat-form input {
   flex: 1;
-  border: 1px solid #b9c5d1;
+  border: 1px solid var(--border-control);
   border-radius: 4px;
   padding: 10px 12px;
 }
@@ -1751,6 +1809,7 @@ button {
     position: static;
     height: auto;
     padding: 18px 20px;
+    background: var(--gradient-nav);
   }
 
   .side-nav {
@@ -3061,9 +3120,14 @@ address {
   line-height: 1.4;
 }
 .dashboard .side-nav a[aria-current="page"] {
-  background: #263740;
   color: #fff;
-  box-shadow: inset 3px 0 var(--brand-red);
+  background: var(--palette-red-deep);
+  box-shadow: inset 3px 0 var(--link-inverse);
+}
+.dashboard .side-nav a[aria-current="page"]:focus-visible {
+  box-shadow:
+    var(--focus-shadow),
+    inset 3px 0 var(--link-inverse);
 }
 .dashboard-logout {
   display: flex;
@@ -3457,6 +3521,7 @@ address {
 }
 .support-timeline-selected,
 .support-timeline-entry:focus-visible {
-  outline: 2px solid #365e80;
+  outline: 3px solid var(--focus-ring);
   outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }

@@ -1,10 +1,10 @@
 ﻿.vehicles-page {
-  --vehicle-navy: #091b38;
   --vehicle-border: #8290a1;
   --vehicle-muted: #4f6073;
   --vehicle-surface: #f3f5f8;
   color: var(--vehicle-navy);
   background: var(--vehicle-surface);
+  --vehicle-navy: var(--palette-charcoal);
 }
 .vehicle-breadcrumb ol {
   display: flex;
@@ -29,8 +29,8 @@
   color: var(--vehicle-muted);
 }
 .vehicle-hero {
-  background: var(--vehicle-navy);
   color: #fff;
+  background: var(--gradient-brand);
 }
 .vehicle-hero-inner {
   display: grid;
@@ -211,13 +211,15 @@
   border-color: var(--vehicle-navy);
 }
 .vehicles-page :is(input, select, button, a):focus-visible {
-  outline: 2px solid #e60301;
+  outline: 3px solid var(--focus-ring);
   outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .vehicles-page :is(input, select):focus-visible {
-  border-color: #e60301;
-  box-shadow: 0 0 0 1px #e60301;
-  outline: none;
+  border-color: var(--brand-red);
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .vehicles-page input[aria-invalid="true"] {
   border-color: #c00000;
@@ -957,8 +959,9 @@
   background: #fff2f3;
 }
 .vehicle-origin-presets button:focus-visible {
-  outline: 2px solid #a71520;
+  outline: 3px solid var(--focus-ring);
   outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .vehicle-filter-hint,
 .vehicle-card-specification {
@@ -1018,7 +1021,7 @@
   min-height: 18px;
   margin: 0;
   flex-shrink: 0;
-  accent-color: #126b59;
+  accent-color: var(--checked);
 }
 .vehicle-multiple-options small {
   display: block;

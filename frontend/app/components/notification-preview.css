@@ -11,7 +11,7 @@
   border: 1px solid #c8d3dc;
   border-radius: 12px;
   background: #fff;
-  color: #01121a;
+  color: var(--ink);
   box-shadow: 0 16px 60px #01121a30;
   overflow: hidden;
 }
@@ -57,7 +57,7 @@
   height: 44px;
   border-radius: 6px;
   background: #eef2f5;
-  color: #01121a;
+  color: var(--ink);
   border: 1px solid #c8d3dc;
 }
 .np-content > p,
@@ -77,7 +77,7 @@
   gap: 7px;
   padding: 18px 20px;
   text-decoration: none;
-  color: #01121a;
+  color: var(--ink);
   overflow-wrap: anywhere;
 }
 .np-content a:hover {
@@ -112,13 +112,14 @@
   display: inline-flex;
   align-items: center;
   min-height: 44px;
-  color: #075985;
+  color: var(--link);
   font-weight: 700;
   text-decoration: underline;
 }
 .notification-preview-dialog :focus-visible {
-  outline: 3px solid #075985;
+  outline: 3px solid var(--focus-ring);
   outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 @media (max-width: 600px) {
   .notification-preview-dialog {

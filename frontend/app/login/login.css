@@ -5,7 +5,7 @@ html:has(.login-page) {
   min-height: 100dvh;
   display: grid;
   grid-template-columns: 46% 54%;
-  color: #01121a;
+  color: var(--ink);
   background: #fff;
   font-family: var(--font-quicksand), sans-serif;
 }
@@ -15,11 +15,11 @@ html:has(.login-page) {
   align-self: start;
   height: 100svh;
   min-height: 400px;
-  background: #01121a;
   color: white;
   display: flex;
   flex-direction: column;
   min-width: 0;
+  background: var(--gradient-brand);
 }
 .login-brand {
   display: flex;
@@ -40,7 +40,7 @@ html:has(.login-page) {
   width: 44px;
   height: 3px;
   margin-bottom: 24px;
-  background: #e60301;
+  background: var(--brand-red);
 }
 .login-story h2 {
   font-family: var(--font-nippo), sans-serif;
@@ -52,7 +52,10 @@ html:has(.login-page) {
 }
 .login-story h2 span,
 .login-form h1 span {
-  color: #e60301;
+  color: var(--brand-red);
+}
+.login-story h2 span {
+  color: var(--link-inverse);
 }
 .login-story p {
   font-size: 14px;
@@ -128,10 +131,10 @@ html:has(.login-page) {
   width: 100%;
   min-width: 0;
   height: 48px;
-  border: 1px solid #82939f;
+  border: 1px solid var(--border-control);
   border-radius: 6px;
   background: #fff;
-  color: #01121a;
+  color: var(--ink);
   padding: 10px 13px;
   font:
     400 16px/1.5 var(--font-quicksand),
@@ -139,11 +142,12 @@ html:has(.login-page) {
   box-shadow: 0 1px 2px #01121a05;
 }
 .login-page :is(input, button, a):focus-visible {
-  outline: 2px solid #e60301;
+  outline: 3px solid var(--focus-ring);
   outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .login-field input:focus {
-  border-color: #e60301;
+  border-color: var(--brand-red);
 }
 .login-field input:disabled {
   background: #f1f4f6;
@@ -201,7 +205,7 @@ html:has(.login-page) {
   width: 100%;
   min-height: 48px;
   margin-top: 26px;
-  background: #e60301;
+  background: var(--brand-red);
   border: 1px solid #e60301;
   border-radius: 6px;
   color: white;
@@ -251,7 +255,7 @@ html:has(.login-page) {
   z-index: 100;
   background: #fff;
   padding: 12px;
-  color: #01121a;
+  color: var(--ink);
 }
 .login-skip:focus {
   top: 10px;
@@ -271,6 +275,7 @@ html:has(.login-page) {
   }
   .login-editorial {
     display: none;
+    background: var(--gradient-brand);
   }
   .login-content {
     min-height: 0;

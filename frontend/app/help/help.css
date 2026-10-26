@@ -1,7 +1,7 @@
 .help-index {
   --help-border: #82939f;
   --help-muted: #445662;
-  color: #01121a;
+  color: var(--ink);
   background: #f2f5f7;
 }
 .help-wrap {
@@ -35,8 +35,9 @@
   color: var(--help-muted);
 }
 .help-index :is(a, button, input, select, summary, [tabindex="-1"]):focus-visible {
-  outline: 2px solid #b80201;
-  outline-offset: 4px;
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .help-index :is(summary, a, button, #help-results) {
   scroll-margin-top: 100px;
@@ -69,7 +70,7 @@
 }
 .help-intro,
 .help-search-band {
-  background: #01121a;
+  background: var(--ink);
   color: #fff;
 }
 .help-intro {
@@ -141,7 +142,7 @@
   border: 1px solid var(--help-border);
   border-radius: 5px;
   background: #fff;
-  color: #01121a;
+  color: var(--ink);
   padding: 10px 12px 10px 42px;
   font-family: var(--font-quicksand), sans-serif;
   font-size: 15px;
@@ -189,7 +190,7 @@
   border: 1px solid var(--help-border);
   border-radius: 4px;
   background: transparent;
-  color: #01121a;
+  color: var(--ink);
   font-family: var(--font-quicksand), sans-serif;
   font-size: 13px;
   font-weight: 600;
@@ -204,9 +205,9 @@
   background: #e5ebef;
 }
 .help-topic-buttons button[aria-pressed="true"] {
-  background: #01121a;
+  background: var(--ink);
   color: #fff;
-  border-color: #01121a;
+  border-color: var(--ink);
   box-shadow: inset 3px 0 #e60301;
 }
 .help-mobile-topics {
@@ -318,7 +319,7 @@
   max-width: 58ch;
 }
 .help-contact {
-  background: #01121a;
+  background: var(--ink);
   color: #fff;
   padding-block: 40px;
   border-bottom: 1px solid #30434f;
@@ -440,7 +441,7 @@
     border: 1px solid var(--help-border);
     border-radius: 5px;
     background: #fff;
-    color: #01121a;
+    color: var(--ink);
     font-family: var(--font-quicksand), sans-serif;
     font-size: 14px;
     padding: 10px 32px 10px 12px;

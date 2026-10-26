@@ -280,7 +280,7 @@
   min-width: 20px;
   flex: none;
   margin-top: 2px;
-  accent-color: #c90000;
+  accent-color: var(--checked);
 }
 .work-payments .mutation-review .totals dd {
   white-space: pre-wrap;

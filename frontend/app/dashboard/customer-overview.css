@@ -1,6 +1,6 @@
 .dashboard .dashboard-content .customer-overview {
   max-width: 1440px;
-  color: #01121a;
+  color: var(--ink);
   font-family: var(--font-quicksand), sans-serif;
 }
 .customer-overview .overview-welcome {
@@ -39,8 +39,9 @@
   width: 100%;
 }
 .customer-overview :is(a, button, input, select, summary):focus-visible {
-  outline: 2px solid #e60301;
+  outline: 3px solid var(--focus-ring);
   outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .customer-care {
   margin: 24px 0 36px;
@@ -81,9 +82,9 @@
   min-width: 0;
 }
 .care-service {
-  background: #01121a;
+  background: var(--ink);
   color: white;
-  border-color: #01121a;
+  border-color: var(--ink);
 }
 .dashboard .dashboard-content .customer-overview .care-service :is(p, time) {
   color: #d1dbe2;
@@ -141,7 +142,7 @@
   align-items: center;
   min-height: 44px;
   padding: 6px 0;
-  color: #01121a;
+  color: var(--ink);
   font-size: 13px;
   font-weight: 700;
   line-height: 1.5;

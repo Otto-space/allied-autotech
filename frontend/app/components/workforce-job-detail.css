@@ -1,7 +1,7 @@
 .dashboard .dashboard-content .workforce-job-detail {
   --wjd-line: #ccd6df;
   --wjd-muted: #465866;
-  color: #01121a;
+  color: var(--ink);
   font-family: var(--font-quicksand), sans-serif;
   container-type: inline-size;
   padding-bottom: 28px;
@@ -10,8 +10,9 @@
   min-width: 0;
 }
 .workforce-job-detail :is(a, button, input, select, textarea):focus-visible {
-  outline: 2px solid #e60301;
+  outline: 3px solid var(--focus-ring);
   outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .workforce-job-detail .wjd-breadcrumb ol {
   list-style: none;
@@ -33,7 +34,7 @@
   display: block;
 }
 .workforce-job-detail a {
-  color: #01121a;
+  color: var(--ink);
   text-underline-offset: 3px;
 }
 .workforce-job-detail :is(.wjd-breadcrumb a, .wjd-back) {
@@ -173,17 +174,17 @@
 }
 .workforce-job-detail .field label {
   font-size: 14px;
-  color: #01121a;
+  color: var(--ink);
   font-weight: 650;
 }
 .workforce-job-detail .field :is(input, select, textarea) {
   width: 100%;
   min-height: 44px;
   padding: 10px 12px;
-  border: 1px solid #9cadba;
+  border: 1px solid var(--border-control);
   border-radius: 5px;
   background: #fff;
-  color: #01121a;
+  color: var(--ink);
   font-family: inherit;
   font-size: 14px;
   line-height: 1.65;
@@ -254,7 +255,7 @@
   width: 18px;
   height: 18px;
   flex: 0 0 18px;
-  accent-color: #e60301;
+  accent-color: var(--checked);
 }
 .dashboard .dashboard-content .workforce-job-detail .wjd-options > p {
   padding: 14px;

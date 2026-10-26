@@ -17,7 +17,7 @@
   white-space: nowrap;
 }
 .care-sort {
-  color: #075579;
+  color: var(--link);
   background: transparent;
   border: 0;
   padding: 0;
@@ -27,8 +27,9 @@
   min-height: 36px;
 }
 .care-sort:focus-visible {
-  outline: 3px solid #075579;
+  outline: 3px solid var(--focus-ring);
   outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .customer-account-dialog {
   width: min(620px, calc(100vw - 32px));
@@ -71,7 +72,7 @@
   background: #f8fafc;
 }
 .care-table tbody tr:focus-within {
-  background: #eff6ff;
+  background: var(--selection-fill);
 }
 .dashboard .dashboard-content table.care-table {
   display: table;
@@ -151,7 +152,7 @@
   display: inline-flex;
   align-items: center;
   min-height: 36px;
-  color: #075579;
+  color: var(--link);
   text-decoration: underline;
   text-underline-offset: 3px;
 }
@@ -170,14 +171,15 @@
   display: list-item;
   align-content: center;
   padding: 0 8px;
-  color: #075579;
+  color: var(--link);
   border: 1px solid #93adbd;
   border-radius: 6px;
   white-space: nowrap;
 }
 .care-account-menu > summary:focus-visible {
-  outline: 3px solid #075579;
-  outline-offset: 2px;
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .care-account-menu-popover {
   position: absolute;
@@ -210,8 +212,9 @@
   border-radius: 10px;
 }
 .care-table-region:focus-visible {
-  outline: 3px solid #075579;
-  outline-offset: 2px;
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .work-customers .care-table-region {
   overflow-x: auto;
@@ -238,7 +241,7 @@
   min-height: 44px;
   align-items: center;
   padding: 0 18px;
-  background: #075579;
+  background: var(--action-primary);
   color: white;
   border-radius: 6px;
   font-weight: 600;
@@ -247,8 +250,9 @@
   margin-bottom: 12px;
 }
 .care-create > summary:focus-visible {
-  outline: 3px solid #075579;
+  outline: 3px solid var(--focus-ring);
   outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .work-customers .wc-records {
   overflow-x: auto;
@@ -315,22 +319,32 @@
 }
 .care-secondary > summary {
   cursor: pointer;
-  color: #075579;
+  color: var(--link);
   padding: 12px;
   font-weight: 600;
 }
 .care-secondary > summary:focus-visible {
-  outline: 3px solid #075579;
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .care-next {
   display: inline-flex;
   min-height: 44px;
   align-items: center;
   padding: 0 14px;
-  background: #075579;
+  background: var(--action-primary);
   color: white;
   border-radius: 6px;
   font-weight: 600;
+}
+.care-next:hover,
+.care-create > summary:hover {
+  background: var(--action-hover);
+}
+.care-next:active,
+.care-create > summary:active {
+  background: var(--action-pressed);
 }
 .delivery-notices {
   margin: 8px 0;
@@ -347,7 +361,7 @@
 .support-delivery summary {
   cursor: pointer;
   padding: 12px 0;
-  color: #075579;
+  color: var(--link);
   font-weight: 600;
 }
 .support-delivery-list li {

@@ -1,7 +1,7 @@
 .dashboard .dashboard-content .workforce-overview {
   --wfo-line: #ccd6df;
   --wfo-muted: #465866;
-  color: #01121a;
+  color: var(--ink);
   font-family: var(--font-quicksand), sans-serif;
   padding-bottom: 32px;
 }
@@ -9,8 +9,9 @@
   min-width: 0;
 }
 .workforce-overview :is(a, button):focus-visible {
-  outline: 2px solid #e60301;
+  outline: 3px solid var(--focus-ring);
   outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .workforce-overview .wfo-breadcrumb {
   margin-bottom: 12px;
@@ -148,7 +149,7 @@
   gap: 16px;
 }
 .workforce-overview .wfo-access {
-  background: #01121a;
+  background: var(--ink);
   color: white;
   border-radius: 6px;
   padding: 20px;

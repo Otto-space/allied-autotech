@@ -1,6 +1,6 @@
 .work-capacity-policy {
   max-width: 1360px;
-  color: #01121a;
+  color: var(--ink);
   font-size: 14px;
 }
 .work-capacity-policy .breadcrumbs a {
@@ -166,8 +166,9 @@
   min-height: 44px;
 }
 .work-capacity-policy summary:focus-visible {
-  outline: 2px solid #e60301;
-  outline-offset: 4px;
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .capacity-version {
   background: #fff;
@@ -348,7 +349,7 @@
 }
 .dashboard .dashboard-content .capacity-days input[type="checkbox"] {
   margin-top: 0;
-  accent-color: #e60301;
+  accent-color: var(--checked);
 }
 .capacity-fixed-hours {
   padding: 12px;

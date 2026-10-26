@@ -21,17 +21,18 @@
   place-items: center;
   border: 1px solid transparent;
   border-radius: 6px;
-  color: #075579;
+  color: var(--link);
   background: transparent;
   cursor: pointer;
 }
 .copy:hover {
-  background: #e6f1f7;
+  background: var(--selection-fill);
   border-color: #93adbd;
 }
 .copy:focus-visible {
-  outline: 3px solid #075579;
-  outline-offset: 2px;
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .feedback {
   grid-column: 1 / -1;

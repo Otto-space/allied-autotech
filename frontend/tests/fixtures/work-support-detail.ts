@@ -1,6 +1,7 @@
 import type { Page } from "@playwright/test";
 import { workSupportFixture, supportRecord, bookingId } from "./work-support";
 import type { SupportKind } from "@/lib/api/support-schemas";
+import type { SupportEmailPage } from "@/lib/api/support-email-schemas";
 export { bookingId };
 export const threadMessage = (n = 0) => ({
   id: bookingId(90000 + n),
@@ -31,13 +32,7 @@ export async function workThreadFixture(
       } as MutableRecord,
       messages: [0, 1, 2].map(threadMessage),
       emailDeliveries: {
-        items: [] as {
-          id: string;
-          status: string;
-          reason: string | null;
-          createdAt: string;
-          sentAt: string | null;
-        }[],
+        items: [] as SupportEmailPage["items"],
       },
       mode: "normal",
       messagesMode: "normal",

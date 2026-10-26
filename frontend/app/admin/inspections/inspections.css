@@ -1,7 +1,7 @@
 .work-inspections {
   font-family: var(--font-quicksand), sans-serif;
   font-size: 13px;
-  color: #01121a;
+  color: var(--ink);
   min-width: 0;
 }
 .work-inspections h1 {
@@ -109,8 +109,9 @@
   border-radius: 8px;
 }
 .work-inspections :is(input, select, textarea, button, a, summary):focus-visible {
-  outline: 2px solid #d00301;
+  outline: 3px solid var(--focus-ring);
   outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .wi-band {
   display: flex;

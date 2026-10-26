@@ -153,7 +153,7 @@
   overflow-wrap: anywhere;
 }
 .iv-invoice h3 a {
-  color: #01121a;
+  color: var(--ink);
   text-decoration: none;
 }
 .iv-invoice h3 a:hover {

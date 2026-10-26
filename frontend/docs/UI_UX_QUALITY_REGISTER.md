@@ -5,13 +5,14 @@ that every route or state has passed review. Work proceeds in finite batches.
 
 ## Standing responsibility and source
 
-Current bounded implementation: customer-table sidebar responsiveness and the
-owner-requested removal of visible table/sidebar scrollbars, branch
-`fix/customer-table-responsive-20261026` in the reused
-`allied-shop-vehicles-r2-20261025` worktree, based on released `76377d43`.
-Status: implemented and locally verified, including the optimized build; not
-deployed. See Cycle 13. Unrelated worktrees, pending staff-revision changes,
-permissions, data and the released 71-migration history are preserved.
+Current bounded implementation: the owner's complete colour/state brief, branch
+`feat/colour-states-20261026` in the reused `allied-shop-vehicles-r2-20261025`
+worktree, based on `3cea520f` / released runtime `8c11c3a0`. Shared black/red/white
+tokens and contextual states are implemented and locally verified; not deployed.
+See [colour/state report](COLOUR_AND_STATE_REPORT.md) for the exact evidence and
+remaining native/platform and three cart-drawer verification gaps. The prior
+customer-table cycle is retained below. Separate workforce work, permissions,
+data and unrelated worktree edits are preserved.
 
 Notification Cycle 8 was deployed on 25 October 2026 from runtime source `345847d5` after locked
 Next 16.4.3 CI and optimized hosted acceptance. Genuine native delivery/click
@@ -1691,3 +1692,19 @@ alias identities and independent backend health verified. Hosted actual-role,
 physical device and full screen-reader acceptance remain open. Evidence, exact
 release/rollback IDs, disk qualification and screenshot paths are in
 backend/docs/pending-commits-production-20261026.md, campaign release section.
+
+26 October 2026 - complete colour/state brief, local implementation checkpoint.
+Branch feat/colour-states-20261026 in allied-shop-vehicles-r2-20261025, based on
+3cea520f / released runtime 8c11c3a0. Shared black/red/white tokens, branded
+marketing/navigation/Allie gradients, contextual focus/selection and semantic
+statuses are implemented; approved imagery and white operational surfaces remain.
+No backend, schema, permission or business mutation changed. 1,053 units, lint,
+typecheck, optimized build and 30 contrast pairs passed. Browser evidence accepts
+324 distinct cases across 118 files; three optional cart-drawer cases unexecuted.
+Firefox/WebKit, native autofill/pickers, physical devices and full screen-reader
+acceptance remain unverified. Exact coverage, initial harness corrections, safe
+screenshots and remaining limits: frontend/docs/COLOUR_AND_STATE_REPORT.md and
+colour-browser-coverage.json. No push/deploy under this brief. Other worktrees,
+Desktop edits and the separate workforce/Allie scope are preserved. Broader site
+completion Item 6 remains open. Task servers stopped after checks; no Docker
+resources created/deleted; final disk preflight 28.15 GiB free.

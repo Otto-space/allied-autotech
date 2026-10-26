@@ -1,9 +1,9 @@
 .work-promotion-create {
-  --pc-ink: #01121a;
+  --pc-ink: var(--ink);
   --pc-muted: #50616c;
   --pc-line: #dce2e6;
-  --form-focus: #d00301;
-  --form-halo: #fce7e7;
+  --form-focus: var(--action-primary);
+  --form-halo: var(--selection-fill);
   color: var(--pc-ink);
   font-family: var(--font-quicksand), sans-serif;
   font-size: 14px;
@@ -172,13 +172,13 @@
   padding-right: 32px;
 }
 .pc-editor :is(input, select, textarea):hover:enabled {
-  border-color: #455b6a;
+  border-color: var(--border-control);
 }
 .pc-editor :is(input, select, textarea):focus-visible {
-  outline: 2px solid #e6030140;
-  outline-offset: 2px;
   border-color: #d00301;
-  box-shadow: 0 0 0 3px #e6030110;
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .pc-editor [aria-invalid="true"] {
   border-color: #b50200;
@@ -215,7 +215,7 @@
   width: 19px;
   height: 19px;
   flex-shrink: 0;
-  accent-color: #e60301;
+  accent-color: var(--checked);
   margin: 0;
 }
 .work-promotion-create .button {
@@ -231,8 +231,9 @@
   width: 100%;
 }
 .work-promotion-create :is(a, button):focus-visible {
-  outline: 2px solid #c00301;
-  outline-offset: 4px;
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .pc-guidance {
   position: sticky;

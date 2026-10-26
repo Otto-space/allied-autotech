@@ -4,9 +4,6 @@
 }
 
 :root {
-  --canvas: #f4f6f8;
-  --muted: #526370;
-  --text-secondary: #4c5c66;
   --radius-control: 6px;
   --brand-logo-width: 160px;
 }
@@ -97,6 +94,7 @@
 .site-footer {
   background-color: #06181f;
   border-top: 2px solid var(--brand-red);
+  background: var(--gradient-nav);
 }
 /* Quiet echoes of the curved linework in the company's campaign posters. */
 .site-footer::before {
@@ -108,11 +106,8 @@
   height: 560px;
   border: 1px solid #ffffff26;
   border-radius: 50%;
-  box-shadow:
-    0 0 0 22px #06181f,
-    0 0 0 23px #ffffff1f,
-    0 0 0 46px #06181f,
-    0 0 0 47px #ffffff14;
+  outline: 1px solid #ffffff1f;
+  outline-offset: 22px;
   transform: rotate(-26deg);
   pointer-events: none;
 }
@@ -233,8 +228,8 @@
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: linear-gradient(90deg, #01121af2, #01121a80 46%, transparent 78%);
   pointer-events: none;
+  background: var(--hero-scrim);
 }
 .hero-layout {
   display: flex;
@@ -312,7 +307,7 @@
   overflow: hidden;
 }
 .hero-dots [aria-current] > span {
-  background: #ff625a;
+  background: var(--brand-red-on-dark);
 }
 .hero-dots i {
   position: absolute;
@@ -473,8 +468,8 @@
   max-width: 340px;
 }
 .trust-story {
-  background: var(--ink);
   color: white;
+  background: var(--gradient-brand);
 }
 .trust-layout {
   display: grid;
@@ -519,9 +514,9 @@
 }
 .principles-list li > span {
   flex-shrink: 0;
-  color: var(--brand-red-on-dark);
   font-size: 13px;
   padding-top: 3px;
+  color: var(--link-inverse);
 }
 .public-site .principles-list h3 {
   font-size: 17px;
@@ -532,7 +527,7 @@
   font-size: 14px;
 }
 .trust-story .text-link {
-  color: white;
+  color: var(--link-inverse);
 }
 .home-vehicles .button.secondary {
   border: 1px solid #7f90a7;
@@ -642,8 +637,8 @@
   gap: 64px;
 }
 .contact-invitation {
-  background: var(--ink);
   color: white;
+  background: var(--gradient-brand);
 }
 .contact-invitation h2 {
   max-width: 650px;
@@ -657,12 +652,12 @@
 .editorial-banner {
   position: relative;
   isolation: isolate;
-  background: var(--ink);
   color: white;
   overflow: hidden;
+  background: var(--gradient-brand);
 }
 .editorial-banner--marketplace {
-  background: var(--marketplace-blue);
+  background: var(--gradient-brand);
 }
 .editorial-banner__media {
   position: absolute;
@@ -678,7 +673,7 @@
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: linear-gradient(90deg, #01121aff, #01121aab 50%, #01121a20);
+  background: var(--hero-scrim);
 }
 .editorial-banner__copy {
   padding-block: 60px;
@@ -812,7 +807,7 @@
   background: var(--canvas);
 }
 .dashboard .sidebar {
-  background: var(--ink);
+  background: var(--gradient-nav);
   padding: 22px 14px 16px;
 }
 .dashboard .dashboard-top {
@@ -994,7 +989,13 @@
 .dashboard .button:hover,
 .auth-shell .button:hover {
   transform: none;
-  box-shadow: none;
+}
+.public-site .button:focus-visible,
+.dashboard .button:focus-visible,
+.auth-shell .button:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .dashboard .support-dialog {
   border-radius: 8px;
@@ -1017,7 +1018,7 @@
   max-height: none;
   border: 0;
   padding: 22px 20px max(20px, env(safe-area-inset-bottom));
-  background: var(--ink);
+  background: var(--gradient-nav);
   color: white;
 }
 .dashboard-drawer::backdrop {
@@ -1237,7 +1238,7 @@
     object-position: 72% center;
   }
   .home-hero::after {
-    background: linear-gradient(180deg, #01121a 40%, #01121a30 75%, #01121ad9);
+    background: var(--hero-scrim-mobile);
   }
   .hero-copy {
     margin: 0;
@@ -1320,7 +1321,7 @@
     min-height: 300px;
   }
   .editorial-banner::after {
-    background: linear-gradient(90deg, #01121af5, #01121aaa);
+    background: var(--editorial-scrim-mobile);
   }
   .public-site .principles-full .principles-list {
     grid-template-columns: 1fr;

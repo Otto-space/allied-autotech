@@ -1,5 +1,5 @@
 .services-page {
-  --services-ink: #01121a;
+  --services-ink: var(--ink);
   --services-border: #8290a1;
   --services-muted: #4f6073;
   --services-surface: #f3f5f8;
@@ -8,8 +8,9 @@
 }
 .services-page :is(a, button, summary):focus-visible,
 .services-pricing input:focus-visible + span {
-  outline: 2px solid #e60301;
-  outline-offset: 4px;
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .services-breadcrumb ol {
   display: flex;
@@ -862,8 +863,9 @@
 .services-discovery-controls input:focus-visible,
 .services-discovery-controls select:focus-visible,
 .services-category-finder summary:focus-visible {
-  outline: 2px solid #e60301;
+  outline: 3px solid var(--focus-ring);
   outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .services-search-row {
   display: grid;

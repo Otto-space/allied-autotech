@@ -1,10 +1,10 @@
 .dashboard .dashboard-content .work-vehicle-detail {
-  --form-focus: #d00301;
-  --form-halo: #fce7e7;
+  --form-focus: var(--action-primary);
+  --form-halo: var(--selection-fill);
   font:
     500 13px/1.6 var(--font-quicksand),
     sans-serif;
-  color: #01121a;
+  color: var(--ink);
   min-width: 0;
 }
 .vd-breadcrumb {
@@ -174,7 +174,7 @@
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  color: #01121a;
+  color: var(--ink);
 }
 .work-vehicle-detail details[open] > summary {
   border-bottom: 1px solid #dce2e6;
@@ -186,8 +186,9 @@
 .work-vehicle-detail details > summary:focus-visible,
 .vd-sections a:focus-visible,
 .vd-back:focus-visible {
-  outline: 2px solid #d00301;
+  outline: 3px solid var(--focus-ring);
   outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .work-vehicle-detail details .detail-section {
   box-shadow: none;
@@ -258,7 +259,7 @@
   border: 1px solid #8998a3;
   border-radius: 8px;
   background: #fff;
-  color: #01121a;
+  color: var(--ink);
   font:
     500 13px/1.5 var(--font-quicksand),
     sans-serif;
@@ -270,9 +271,9 @@
   .dashboard-content
   .work-vehicle-detail
   :is(input, select, textarea):focus-visible {
-  outline: 2px solid #d00301;
-  outline-offset: 2px;
-  box-shadow: 0 0 0 3px #fce7e7;
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .dashboard .dashboard-content .work-vehicle-detail [aria-invalid="true"] {
   border-color: #b50200;
@@ -285,7 +286,7 @@
   font-family: inherit;
   font-size: 13px;
   font-weight: 600;
-  color: #01121a;
+  color: var(--ink);
 }
 .dashboard .dashboard-content .work-vehicle-detail .button {
   min-height: 44px;
@@ -316,7 +317,7 @@
   font-size: 13px;
 }
 .work-vehicle-detail input[type="checkbox"] {
-  accent-color: #e60301;
+  accent-color: var(--checked);
   width: 20px;
   height: 20px;
   min-width: 20px;

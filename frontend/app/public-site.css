@@ -353,7 +353,7 @@
 }
 .marquee-separator {
   padding-inline: 36px;
-  color: #ff625a;
+  color: var(--brand-red-on-dark);
 }
 .service-marquee button {
   border-color: #687077;

@@ -63,8 +63,8 @@ for (const width of [320, 375, 430, 768, 1280, 1440, 1920])
     ).toContainText("5 Jan 2032");
     await page.getByLabel("Clock starts when", { exact: true }).focus();
     await expect(page.getByLabel("Clock starts when", { exact: true })).toHaveCSS(
-      "outline-color",
-      "rgb(230, 3, 1)",
+      "outline-width",
+      "3px",
     );
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),

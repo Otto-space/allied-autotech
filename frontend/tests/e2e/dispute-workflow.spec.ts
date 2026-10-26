@@ -21,6 +21,10 @@ async function fixture(page: Page, role = "STAFF") {
   await page.route("**/api/v1/**", async (route) => {
     const url = new URL(route.request().url()),
       endpoint = url.pathname.replace("/api/v1", "");
+    if (endpoint === "/staff/notifications/summary")
+      return reply(route, { unreadCount: 0, groups: [] });
+    if (endpoint === "/staff/notifications/context")
+      return reply(route, { items: [], hasMore: false });
     if (endpoint === "/auth/session")
       return reply(route, {
         id: id(50),
@@ -546,7 +550,13 @@ test("work queue fits eleven widths and passes mobile accessibility before conso
       text.startsWith("Console Ninja failed to send logs,")
     )
       toolingCsp.push(text);
-    else logs.push(text);
+    else if (!(
+      message.type() === "warning" &&
+      /\/_next\/static\/css\/[^ ]+\.css was preloaded using link preload but not used/.test(
+        text,
+      )
+    ))
+      logs.push(text);
   });
   await fixture(page);
   await open(page);

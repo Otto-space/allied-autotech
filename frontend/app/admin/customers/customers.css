@@ -172,13 +172,13 @@
 .wc-applied-filters .button.secondary {
   border-color: #93adbd;
   background: #edf4f8;
-  color: #075579;
+  color: var(--link);
 }
 .wc-applied-filters svg {
   flex-shrink: 0;
 }
 .work-customers .text-link {
-  color: #075579;
+  color: var(--link);
   text-decoration: underline;
   text-underline-offset: 4px;
 }

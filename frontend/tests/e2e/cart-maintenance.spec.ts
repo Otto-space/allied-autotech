@@ -319,7 +319,15 @@ for (const width of [320, 1280]) {
     const errors: string[] = [];
     page.on("pageerror", (error) => errors.push(error.message));
     page.on("console", (entry) => {
-      if (["error", "warning"].includes(entry.type())) errors.push(entry.text());
+      // Next 16 may preload a route's split CSS before the corresponding subtree.
+      // Keep actual console errors and all other warnings visible.
+      const deferredCss =
+        entry.type() === "warning" &&
+        /\/_next\/static\/css\/[^ ]+\.css was preloaded using link preload but not used/.test(
+          entry.text(),
+        );
+      if (["error", "warning"].includes(entry.type()) && !deferredCss)
+        errors.push(entry.text());
     });
     await page.setViewportSize({ width, height: 900 });
     await page.goto("/dashboard/cart");

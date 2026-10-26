@@ -47,7 +47,7 @@
   flex: 0 0 20px;
   margin: 0;
   padding: 0;
-  accent-color: var(--red);
+  accent-color: var(--checked);
 }
 .parts-intent label:has(input:checked) {
   background: var(--product-navy, var(--vehicle-navy));
@@ -117,8 +117,9 @@
 }
 :is(.shop-page, .vehicles-page) summary:focus-visible,
 .parts-intent label:focus-within {
-  outline: 2px solid var(--red);
+  outline: 3px solid var(--focus-ring);
   outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 @media (max-width: 767px) {
   .shop-page .product-hero-inner {

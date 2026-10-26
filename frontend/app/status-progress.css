@@ -1,8 +1,8 @@
 /* Shared status language across public, customer and staff surfaces. Labels and
    an explicit current-stage marker carry meaning independently of colour. */
 [data-status] {
-  --status-ink: #334155;
-  --status-fill: #f1f5f9;
+  --status-ink: var(--neutral-ink);
+  --status-fill: var(--neutral-fill);
 }
 :is(span, strong, p, dd)[data-status] {
   color: var(--status-ink, #334155) !important;
@@ -129,8 +129,8 @@
 [data-status="AVAILABLE"],
 [data-status="INSPECTION_COMPLETED"],
 [data-status="SOLD"] {
-  --status-ink: #166534;
-  --status-fill: #f0fdf4;
+  --status-ink: var(--success-ink);
+  --status-fill: var(--success-fill);
 }
 [data-status="OPEN"],
 [data-status="ENQUIRY"],
@@ -157,8 +157,8 @@
 [data-status="RESCHEDULED"],
 [data-status="RECEIVED"],
 [data-status="INSPECTED"] {
-  --status-ink: #1e40af;
-  --status-fill: #eff6ff;
+  --status-ink: var(--info-ink);
+  --status-fill: var(--info-fill);
 }
 [data-status="PENDING"],
 [data-status="QUEUED"],
@@ -174,8 +174,8 @@
 [data-status="APPROVED_PENDING_POLICY"],
 [data-status="PARTIALLY_PAID"],
 [data-status="ON_HOLD"] {
-  --status-ink: #854d0e;
-  --status-fill: #fefce8;
+  --status-ink: var(--warning-ink);
+  --status-fill: var(--warning-fill);
 }
 [data-status="SUSPENDED"],
 [data-status="FAILED"],
@@ -186,8 +186,8 @@
 [data-status="REJECTED"],
 [data-status="NO_SHOW"],
 [data-status="VOID"] {
-  --status-ink: #991b1b;
-  --status-fill: #fef2f2;
+  --status-ink: var(--error-ink);
+  --status-fill: var(--error-fill);
 }
 [data-status="CLOSED"],
 [data-status="INACTIVE"],
@@ -199,6 +199,6 @@
 [data-status="REVOKED"],
 [data-status="CANCELLED"],
 [data-status="LOST"] {
-  --status-ink: #334155;
-  --status-fill: #f1f5f9;
+  --status-ink: var(--neutral-ink);
+  --status-fill: var(--neutral-fill);
 }

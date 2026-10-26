@@ -1,6 +1,6 @@
 .work-retention-policy {
   max-width: 1360px;
-  color: #01121a;
+  color: var(--ink);
   font-size: 14px;
 }
 .work-retention-policy .breadcrumbs a {
@@ -167,8 +167,9 @@
   min-height: 44px;
 }
 .work-retention-policy summary:focus-visible {
-  outline: 2px solid #e60301;
-  outline-offset: 4px;
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .retention-version {
   background: #fff;

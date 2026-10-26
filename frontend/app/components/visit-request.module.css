@@ -24,7 +24,7 @@
   min-height: 20px;
   margin: 0;
   padding: 0;
-  accent-color: #0b6178;
+  accent-color: var(--checked);
 }
 
 .request p {
