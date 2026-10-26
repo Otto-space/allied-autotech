@@ -176,7 +176,9 @@ for (const width of [360, 390, 430, 768, 1024, 1280, 1440, 1920]) {
           ),
         });
         if (route === "/about") {
-          await page.getByText("From our workshop walls", { exact: true }).click();
+          await expect(
+            page.getByText("From our workshop walls", { exact: true }),
+          ).toHaveCount(0);
           // Closed equipment sections intentionally defer their images.
           for (const summary of await page
             .locator(".equipment-disclosure > summary")

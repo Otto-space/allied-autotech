@@ -3,7 +3,6 @@ import Link from "next/link";
 import {
   ArrowRight,
   ArrowUpRight,
-  ChevronDown,
   ChevronRight,
   Mail,
   MapPin,
@@ -68,14 +67,14 @@ export default function AboutPage() {
               <figure className="about-hero-figure">
                 <div className="about-hero-photo">
                   <Image
-                    src="/images/allied-autotech/technician-original.webp"
-                    alt="Allied AutoTech technician in the original company campaign photograph"
+                    src="/images/allied-autotech/precision-autocare-campaign.png"
+                    alt="Allied AutoTech campaign: Precision Autocare You Can Trust, with a technician in a red uniform"
                     fill
                     sizes="(max-width: 760px) calc(100vw - 40px), (max-width: 1023px) 36vw, 380px"
                     preload
                   />
                 </div>
-                <figcaption>From the Allied AutoTech workshop wall.</figcaption>
+                <figcaption>Precision Autocare You Can Trust.</figcaption>
               </figure>
             </div>
           </div>
@@ -138,56 +137,6 @@ export default function AboutPage() {
             </p>
           </div>
           <TrustPrinciples complete />
-          <details className="about-archive">
-            <summary>
-              <span>
-                <strong>From our workshop walls</strong>
-                <span>Explore the original brand campaigns.</span>
-              </span>
-              <ChevronDown size={18} aria-hidden="true" />
-            </summary>
-            <div className="about-archive-content">
-              <p>
-                Our original campaigns reflect the principles and everyday journeys behind
-                Allied AutoTech. Pictured campaign vehicles are lifestyle inspiration;
-                current availability is shown in the marketplace.
-              </p>
-              <div className="about-archive-grid">
-                {[
-                  ["lifestyle-campaign", "Which car fits your lifestyle?"],
-                  ["executive-campaign", "Executive presence"],
-                  ["family-campaign", "Family comfort"],
-                  ["operating-principles", "Our original operating principles"],
-                ].map(([src, caption]) => (
-                  <figure key={src}>
-                    <a
-                      href={`/images/allied-autotech/${src}.webp`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={`Open full-size poster: ${caption} (new tab)`}
-                    >
-                      <Image
-                        src={`/images/allied-autotech/${src}.webp`}
-                        alt={`Original Allied AutoTech campaign: ${caption}`}
-                        width={1200}
-                        height={1594}
-                        sizes="(max-width: 760px) calc(50vw - 40px), 270px"
-                      />
-                      <span>
-                        View full-size poster{" "}
-                        <ArrowUpRight size={14} aria-hidden="true" />
-                      </span>
-                    </a>
-                    <figcaption>{caption}</figcaption>
-                  </figure>
-                ))}
-              </div>
-              <Link href="/vehicles" className="text-link">
-                Explore current vehicle listings{" "}
-                <ArrowRight size={16} aria-hidden="true" />
-              </Link>
-            </div>
-          </details>
         </section>
         <section
           className="about-equipment"

@@ -138,14 +138,13 @@
 }
 .about-hero-photo {
   position: relative;
-  height: 400px;
+  aspect-ratio: 4 / 5;
   border-radius: 5px;
   overflow: hidden;
   background: #172830;
 }
 .about-hero-photo img {
-  object-fit: cover;
-  object-position: 50% 75%;
+  object-fit: contain;
 }
 .about-hero-figure figcaption {
   font-size: 12px;
@@ -242,32 +241,6 @@
   line-height: 1.7;
   margin-top: 6px;
 }
-.about-archive {
-  border: 1px solid var(--about-border);
-  border-radius: 5px;
-  margin-top: 28px;
-}
-.about-archive > summary {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  list-style: none;
-  padding: 16px 20px;
-  cursor: pointer;
-  min-height: 44px;
-}
-.about-archive > summary > span {
-  display: grid;
-  gap: 4px;
-}
-.about-archive summary strong {
-  font-size: 16px;
-}
-.about-archive summary span span {
-  font-size: 13px;
-  color: var(--about-muted);
-}
 .about-page summary::-webkit-details-marker {
   display: none;
 }
@@ -277,48 +250,6 @@
 }
 .about-page details[open] > summary svg {
   transform: rotate(180deg);
-}
-.about-archive[open] > summary {
-  border-bottom: 1px solid var(--about-rule);
-}
-.about-archive-content {
-  padding: 20px;
-}
-.about-archive-content > p {
-  color: var(--about-muted);
-  max-width: 85ch;
-}
-.about-archive-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 20px;
-  margin-block: 22px;
-}
-.about-archive-grid figure {
-  min-width: 0;
-}
-.about-archive-grid img {
-  width: 100%;
-  height: auto;
-  border-radius: 4px;
-}
-.about-archive-grid a {
-  display: block;
-  color: #01121a;
-}
-.about-archive-grid a > span {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  min-height: 44px;
-  font-size: 12px;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-.about-archive-grid figcaption {
-  color: var(--about-muted);
-  font-size: 12px;
-  line-height: 1.6;
 }
 .about-equipment {
   background: #f2f5f7;
@@ -524,11 +455,9 @@
   .about-hero-copy .about-actions {
     margin-top: 20px;
   }
-  .about-hero-photo {
-    height: 260px;
-  }
-  .about-hero-photo img {
-    object-position: 50% 67%;
+  .about-page .about-hero-figure {
+    width: min(100%, 380px);
+    margin-inline: auto;
   }
   .about-hero {
     padding-bottom: 22px;
@@ -579,16 +508,6 @@
   }
   .about-page .principles-list h3 {
     font-size: 16px;
-  }
-  .about-archive > summary {
-    padding: 14px;
-  }
-  .about-archive-content {
-    padding: 16px;
-  }
-  .about-archive-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 20px 14px;
   }
   .about-page .equipment-disclosure > summary {
     padding: 14px;

@@ -1643,3 +1643,27 @@ Evidence/rollback dependencies: docs/help-learn/WORKFORCE_TEMPLATE_VERSIONS_W3.m
 Current C: postflight 28.12 GiB free; same useful Docker/current/rollback resources
 retained, no pruning. Complete effective-access/transition matrix, actual AI, full
 learning coverage, reviewed handoff, gated chat and evaluations remain required.
+
+26 October 2026 - current backend was rechecked as ACTIVE deployment
+`b1c75306-9ea7-4f5a-97cc-156ddf412d67`, image source `8c11c3a0`, with no
+pending rollout. Its ancestry includes the earlier `3ccee21a` release.
+
+Payment-source concurrency candidate `fix/payment-expiry-race-20261026` was
+initially tested against `3ccee21a` and then merged with current `8c11c3a0`.
+An isolated order expiry schedule reproduced creation of an intent from a stale
+payable read. Intent creation, online initialization and manual submission now
+lock the owned source before validating status, amount and deadline. A fresh
+`_test` database replayed 71 migrations with no schema difference and passed
+db:check; eight integration files passed 48 cases, including three
+source-cancellation races. Backend types, lint and format passed. The exact
+merged source still requires revalidation before release. No provider transaction,
+schema or financial policy changed. See `payment-source-concurrency-20261026.md`.
+Production release and real provider/role acceptance remain open; Item 6 is unchanged.
+
+The exact merged candidate `1f2e8c89` was then revalidated on a second newly
+created isolated `_test` PostgreSQL 17 target: 71 migrations and schema comparison
+passed, as did `db:check`, eight integration files/48 tests, backend typecheck and
+lint. The disposable test container auto-removed; all 14 pre-existing Docker
+volumes were retained, and C: postflight was 28.14 GiB free. This does not change
+the release or live-provider acceptance status. The next step is backend image,
+release and hosted readiness verification against the latest active deployment.
