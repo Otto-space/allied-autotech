@@ -1652,3 +1652,20 @@ lint. The disposable test container auto-removed; all 14 pre-existing Docker
 volumes were retained, and C: postflight was 28.14 GiB free. This does not change
 the release or live-provider acceptance status. The next step is backend image,
 release and hosted readiness verification against the latest active deployment.
+
+26 October 2026 - payment-source expiry correction released from runtime
+`2033b159`. DigitalOcean deployment `3cb61958-e460-494b-ae29-1ce826ac22b9`
+is ACTIVE with no in-progress rollout; all four component digests match the
+reviewed registry manifest. The existing-app proposal changed only those four
+digests. Its read-only predeploy database checker and all 16 deployment steps
+succeeded. Direct API live/ready and apex readiness returned 200; anonymous
+session/payments returned 401. Public Home, Parts and Help returned 200, `/shop`
+redirects to `/parts`, and `www` redirects to the apex. No frontend rollout,
+schema migration, production business DML, provider transaction or grant change.
+Eight managed backups were present, latest 26 October 05:22:11 UTC; the prior
+separate 25 October 18:03:19 UTC restore rehearsal was reused. Exact-source
+local gates included 48 integration cases, nine image tests, OpenAPI/routes,
+types, lint, format, script/configuration checks and secret guard. GitHub PR
+creation returned 403, so PR-triggered locked CI is not claimed. Full details
+and limitations: `payment-source-concurrency-20261026.md`. Real-provider and
+authenticated-role acceptance, broader Item 6 and site completion remain open.
