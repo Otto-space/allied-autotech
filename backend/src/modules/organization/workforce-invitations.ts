@@ -1,5 +1,6 @@
 import type { Prisma } from "../../generated/prisma/client.js";
 import { workforceDenied } from "./workforce.policy.js";
+import { isKnownWorkforcePolicyVersion } from "./workforce-catalogue.js";
 
 // Enrolled administrators retain the established invitation/acceptance flow, within
 // an explicit owner envelope. Promotion never switches an enrolled user to legacy access.
@@ -20,6 +21,7 @@ export async function assertWorkforceInvitationDelegation(
     },
   });
   if (
+    !isKnownWorkforcePolicyVersion(envelope.delegationPolicyVersion) ||
     !envelope.delegatedTemplates.includes("ADMIN_INVITE") ||
     !recipient?.workforceAccess ||
     !recipient.staffProfile?.branchId ||

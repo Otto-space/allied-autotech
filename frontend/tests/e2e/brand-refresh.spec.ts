@@ -246,6 +246,7 @@ test("hero keyboard, slide links, optional playback and marquee pause work", asy
   await expect(hero.getByRole("button", { name: "Pause slideshow" })).toBeVisible();
   await hero.getByRole("button", { name: "Next slide", exact: true }).focus();
   await expect(hero.getByRole("button", { name: "Play slideshow" })).toBeVisible();
+  await page.getByRole("button", { name: "Resume service marquee" }).click();
   await page.getByRole("button", { name: "Pause service marquee" }).click();
   await expect(page.locator(".marquee-track")).toHaveCSS(
     "animation-play-state",

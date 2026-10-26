@@ -164,6 +164,7 @@ test("enrollment reviews named account, clears and hides password, then applies 
   ).toBeVisible();
   expect(s.writes).toHaveLength(1);
   expect(s.writes[0]!.body).toEqual({
+    receiptVersion: 2,
     currentPassword: proof,
     reason,
     position: "WORKSHOP_LEAD",

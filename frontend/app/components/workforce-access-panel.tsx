@@ -204,6 +204,10 @@ function WorkforcePanel({ userId }: { userId: string }) {
             (current.access?.version ?? null) !== body.expectedVersion ||
             current.management[permission] !== true ||
             (action === "assign" &&
+              (current.templatesVersion ?? 1) !== (body.expectedTemplateVersion ?? 1)) ||
+            (action === "delegate" &&
+              (current.templatesVersion ?? 1) !== (body.expectedPolicyVersion ?? 1)) ||
+            (action === "assign" &&
               (!current.management.templates.includes(
                 body.template as (typeof current.management.templates)[number],
               ) ||
@@ -439,6 +443,13 @@ function WorkforceEditors({
                   {branchName(a.branchId)} ·{" "}
                   {a.scope === "ASSIGNED" ? "Assigned work only" : "Branch scope"}
                 </p>
+                {data.assignmentDefinitions?.[a.id] === null && (
+                  <p className="notice">
+                    Definition version {a.templateVersion ?? 1} is unavailable. This
+                    assignment grants no access. Ask the owner to review it, or revoke the
+                    assignment if authorised.
+                  </p>
+                )}
                 <details>
                   <summary>Assignment details</summary>
                   <dl>
@@ -467,9 +478,16 @@ function WorkforceEditors({
                       <dd>{formatBusinessDate(a.createdAt)}</dd>
                     </div>
                     <div>
+                      <dt>Definition version</dt>
+                      <dd>{a.templateVersion ?? 1}</dd>
+                    </div>
+                    <div>
                       <dt>Supported actions</dt>
                       <dd>
-                        {data.templates[a.template]?.actions
+                        {(data.assignmentDefinitions
+                          ? data.assignmentDefinitions[a.id]
+                          : data.templates[a.template]
+                        )?.actions
                           .map((v) => v.toLowerCase().replaceAll("_", " "))
                           .join(", ") || "No action details available"}
                       </dd>
@@ -549,6 +567,7 @@ function WorkforceEditors({
                   "assign",
                   {
                     template,
+                    expectedTemplateVersion: data.templatesVersion ?? 1,
                     branchId,
                     temporary: f.get("temporary") === "on",
                     startsAt,
@@ -561,6 +580,10 @@ function WorkforceEditors({
                         workforceTemplateLabels[
                           template as keyof typeof workforceTemplateLabels
                         ] ?? template,
+                    },
+                    {
+                      label: "Definition version",
+                      value: String(data.templatesVersion ?? 1),
                     },
                     { label: "Branch", value: branchLabel },
                     {
@@ -664,10 +687,15 @@ function WorkforceEditors({
                 "delegate",
                 {
                   templates,
+                  expectedPolicyVersion: data.templatesVersion ?? 1,
                   branchIds: delegated,
                   allowAdminInvitations: f.get("allowAdminInvitations") === "on",
                 },
                 [
+                  {
+                    label: "Definition version",
+                    value: String(data.templatesVersion ?? 1),
+                  },
                   {
                     label: "Responsibilities",
                     value:

@@ -1629,6 +1629,21 @@ is separate. No schema migration, production rollout or real communication.
 Evidence: docs/help-learn/WORKFORCE_ROLE_DEPENDENCIES_W2.md. Remaining foundation,
 actual AI, all-route learning, handoff/live chat and evaluations stay required.
 
+Revision 4 W3 local checkpoint: assignment/delegation definitions pinned to reviewed
+version 1, using forward migration 72 with portable LF checksum. Fresh empty replay,
+schema comparison/db:check, preserved reduced populated fixtures and existing
+non-destructive SQL guard passed. Fixed a reproduced delegated-admin copied-target
+branch bypass (200 before, 403 after); canonical versioned fitment, assignee and
+support-recipient eligibility align. Strict legacy mutation receipts preserved;
+updated clients explicitly request version metadata. All 57 isolated HTTP/DB cases,
+five backend units, 1,057 frontend units, lint/types/contracts and optimized build
+passed. W2/W3 rendered QA remains open after policy-blocked compiled preview start.
+No production migration/deployment, real messages, provider call or published stock.
+Evidence/rollback dependencies: docs/help-learn/WORKFORCE_TEMPLATE_VERSIONS_W3.md.
+Current C: postflight 28.12 GiB free; same useful Docker/current/rollback resources
+retained, no pruning. Complete effective-access/transition matrix, actual AI, full
+learning coverage, reviewed handoff, gated chat and evaluations remain required.
+
 26 October 2026 - current backend was rechecked as ACTIVE deployment
 `b1c75306-9ea7-4f5a-97cc-156ddf412d67`, image source `8c11c3a0`, with no
 pending rollout. Its ancestry includes the earlier `3ccee21a` release.
@@ -1652,6 +1667,19 @@ lint. The disposable test container auto-removed; all 14 pre-existing Docker
 volumes were retained, and C: postflight was 28.14 GiB free. This does not change
 the release or live-provider acceptance status. The next step is backend image,
 release and hosted readiness verification against the latest active deployment.
+
+
+26 October 2026 ? campaign artwork and committed W1/W2 changes deployed.
+Runtime 8c11c3a0, backend b1c75306-9ea7-4f5a-97cc-156ddf412d67 ACTIVE, frontend
+dpl_7mLXWniyi5uZoMPivAPtaWQPeK56 READY on both apex/www. Homepage/About use the
+owner-supplied poster with complete framing; About workshop-wall archive removed.
+All exact-runtime CI, 1,053 units, 31 isolated integration cases, 32 release-spec
+and nine image checks passed. 61 distinct fixture browser cases accepted with
+explicit harness corrections. Pre/post production history/privileges/heartbeats
+passed and original firewall restored. No migration or real business submissions.
+W3 uncommitted work remains in its original worktree; Revision 4/Item 6 not complete.
+Evidence/rollback: backend/docs/pending-commits-production-20261026.md. Local preview
+stopped, no cleanup deletion, current/rollback/data retained; C: 28.19 GiB free.
 
 26 October 2026 - payment-source expiry correction released from runtime
 `2033b159`. DigitalOcean deployment `3cb61958-e460-494b-ae29-1ce826ac22b9`

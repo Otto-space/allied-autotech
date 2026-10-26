@@ -42,6 +42,7 @@ it("validates target, actor, version and preserved delegation in enrollment and 
       version: 0,
       delegatedTemplates: [],
       delegatedBranchIds: [],
+      delegationPolicyVersion: 1,
     };
   const body = { position: "WORKSHOP_LEAD", expectedVersion: null };
   expect(verifyWorkforceReceipt(receipt, "enroll", r.userId, actor, body, r)).toEqual(
@@ -53,6 +54,7 @@ it("validates target, actor, version and preserved delegation in enrollment and 
     { updatedByUserId: r.userId },
     { position: "ACCOUNTANT" },
     { currentPassword: "must-not-appear" },
+    { delegationPolicyVersion: 2 },
   ])
     expect(() =>
       verifyWorkforceReceipt(
@@ -102,6 +104,7 @@ it("validates every assignment and revocation fact and rejects replayed assignme
     };
   const receipt = {
     id: id(890),
+    templateVersion: 1,
     userId: r.userId,
     ...body,
     scope: "BRANCH" as const,
@@ -120,6 +123,7 @@ it("validates every assignment and revocation fact and rejects replayed assignme
     { reason: "Different reason" },
     { startsAt: "2026-10-20T08:00:00.000Z" },
     { scope: "ASSIGNED" },
+    { templateVersion: 2 },
   ])
     expect(() =>
       verifyWorkforceReceipt(
@@ -176,5 +180,45 @@ it("rejects cross-account assignments and false active/branch scope in inspectio
   ).toThrow();
   expect(() =>
     parseWorkforceAccount({ ...r, branches: [r.branches[0], r.branches[0]] }),
+  ).toThrow();
+});
+it("does not label an unsupported or missing definition as an active grant", () => {
+  const r = staffWorkforceRecord(),
+    assignment = {
+      id: id(890),
+      userId: r.userId,
+      template: "WORKSHOP_LEAD" as const,
+      templateVersion: 99,
+      branchId: id(101),
+      scope: "BRANCH" as const,
+      temporary: false,
+      startsAt: stamp,
+      expiresAt: null,
+      reason: "Synthetic unsupported historical definition",
+      assignedByUserId: actor,
+      createdAt: stamp,
+      revokedAt: null,
+      revokedByUserId: null,
+      revocationReason: null,
+    };
+  r.assignments = [assignment];
+  r.assignmentDefinitions = { [assignment.id]: null };
+  expect(parseWorkforceAccount(r)).toEqual(r);
+  expect(() =>
+    parseWorkforceAccount({ ...r, activeAssignmentIds: [assignment.id] }),
+  ).toThrow();
+  expect(() => parseWorkforceAccount({ ...r, assignmentDefinitions: {} })).toThrow();
+  expect(() =>
+    parseWorkforceAccount({
+      ...r,
+      assignmentDefinitions: {
+        [assignment.id]: {
+          label: "Wrong scope",
+          department: "Services",
+          scope: "ASSIGNED",
+          actions: [],
+        },
+      },
+    }),
   ).toThrow();
 });

@@ -121,3 +121,75 @@ preflight measurement, not an OS quota or physical-reclamation claim.
 Private provider, CI, health and browser receipts use the pending- prefix in the
 ignored protected operator directory. Subsequent evidence-only commits do not change
 the deployed runtime source above. Main-checkout continuity is append-only.
+
+## Campaign artwork and committed workforce release ? 26 October 2026
+
+Current production runtime: **8c11c3a009031b8fde56a4da07ebba21b01e5954**,
+branch release/brand-refresh-20261026 in the reused allied-shop-vehicles-r2-20261025
+worktree. This preserves 3ccee21a and includes committed workforce directory W1
+72a8aeaf, atomic role/delegation reconciliation W2 1cb71297 and the requested
+homepage/About campaign replacement. The unfinished W3 migration and unrelated
+uncommitted edits in allied-home-restoration-20261025 were not copied or modified.
+This is a bounded release; it does not complete the broader Revision 4 brief.
+
+The supplied ad copy 2.png is preserved byte for byte as precision-autocare-campaign.png
+(SHA256 3e10dfedb37573452328cf573477136f6256f400d35f00b96514d47e1fa08537).
+Both placements show its complete 4:5 composition with responsive Next image delivery.
+About no longer contains the workshop-wall campaign archive; its unused styles are
+removed. Existing images used by other pages are retained.
+
+Backend **b1c75306-9ea7-4f5a-97cc-156ddf412d67** is ACTIVE; all four components passed.
+The migrate-labelled predeploy job ran only check-database-safety.ts and succeeded.
+Frontend **dpl_7mLXWniyi5uZoMPivAPtaWQPeK56** is READY, and management API reads
+confirmed both alliedautotech.com and www.alliedautotech.com resolve to it. Promotion
+followed backend readiness. Only four immutable backend digests changed; configuration,
+flags, permissions, capacity and database schema remain at their reviewed values.
+Retain preceding backend e8c5297d-93f5-41e0-97bd-0c7851fa5daa and frontend
+dpl_5hGWpdJyGqQgG69dcumqFQ2RU7HQ, plus the preceding Help/Learn rollback resources.
+
+Validation: all three exact-source CI workflows passed (frontend 40377975880,
+backend 40377975699, secret guard 40377975656). Local full lint/types, optimized
+build/postbuild and **1,053 frontend units in 161 files** passed. **32 release-spec
+checks and 9 packaged image checks** passed. Fresh loopback brand_release_8d3d2054aa_ci
+replayed all 71 migrations, passed db:check without drift and **31 integration tests**
+for workforce directory, role transitions, workforce access and learning under a
+restricted runtime. No shared/application database was used for tests.
+
+**61 distinct browser cases accepted:** initial runs passed 47/50 About/staff/workforce
+and 10/11 brand cases. Four targeted rechecks passed after test-only corrections:
+current support email, main-scoped services link, initially paused marquee, notification
+summary fixture and waiting for first-page navigation before filling search. The staff
+harness excludes only Next's known unused preloaded stylesheet warning; errors remain
+asserted. Temporary test copies outside Git kept the runtime source frozen; equivalent
+corrections are committed afterward. These are fixture tests, not real staff mutations.
+Coverage includes 320?1920px, full poster visibility, no horizontal overflow, keyboard
+navigation/disclosures, scoped Axe, no-JavaScript About, owner-demotion review, access
+loss and directory filtering/pagination. Installed Edge and repository Playwright were
+used because the Browser plugin was unavailable. Local Next 16.3.8 differs from locked
+16.4.3 verified by CI. Local server-side API fallbacks during isolated
+navigation are not evidence of a production API failure. Physical-device, complete
+screen-reader and authenticated production-role acceptance remain unverified.
+
+Screenshots inspected: %TEMP%/allied-brand-release-20261026/home-campaign-1440.png,
+home-campaign-390-viewport.png, plus %TEMP%/about-quality-1440-viewport.png and
+about-quality-390-full.png. Whole-element mobile captures can place fixed chrome in
+the middle; the viewport capture records actual header/poster positioning. No claim
+of new hosted visual acceptance: production verification used provider identity and
+independent API health/eligibility reads.
+
+Before/after production read-only checks passed migration checksums/history at 71,
+runtime least privilege and three fresh worker heartbeats. Original app-only firewall
+restored and verified after each diagnostic window. Eight managed backups remain,
+newest 26 October 05:22:11 UTC; existing encrypted off-device retention/PITR evidence
+and the separate 25 October 18:03:19 restore receipt were reviewed. Archive SHA256
+was recomputed and matched; no new restore/PITR exercise. No migration, grant change,
+customer submission, message, payment or upload was performed by verification.
+
+Disk preflight initially 28.01 GiB, later temporarily 20.35 GiB after builds. Image
+checks/upload were paused; automatic approval review rejected generated-cache removal
+as blocked by policy. No files were removed. Bounded existing-image checks/upload then
+passed separate 0.15/0.25 GiB growth preflights; no additional build/install occurred.
+Free space returned to 28.22 GiB without deletion and postflight measured 28.19 GiB.
+These are point-in-time observations, not a system-wide guarantee or reclaimed-space
+claim. Current/rollback images, all containers/volumes, histories, databases and other
+tasks were retained. Owned local preview stopped. Broader Item 6 remains open.

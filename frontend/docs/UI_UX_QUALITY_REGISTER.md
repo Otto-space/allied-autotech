@@ -1681,3 +1681,28 @@ blocked by automatic approval review; no alternate startup. W1 browser evidence
 is separate. No schema migration, production rollout or real communication.
 Evidence: docs/help-learn/WORKFORCE_ROLE_DEPENDENCIES_W2.md. Remaining foundation,
 actual AI, all-route learning, handoff/live chat and evaluations stay required.
+
+Revision 4 W3 local checkpoint: assignment/delegation definitions pinned to reviewed
+version 1, using forward migration 72 with portable LF checksum. Fresh empty replay,
+schema comparison/db:check, preserved reduced populated fixtures and existing
+non-destructive SQL guard passed. Fixed a reproduced delegated-admin copied-target
+branch bypass (200 before, 403 after); canonical versioned fitment, assignee and
+support-recipient eligibility align. Strict legacy mutation receipts preserved;
+updated clients explicitly request version metadata. All 57 isolated HTTP/DB cases,
+five backend units, 1,057 frontend units, lint/types/contracts and optimized build
+passed. W2/W3 rendered QA remains open after policy-blocked compiled preview start.
+No production migration/deployment, real messages, provider call or published stock.
+Evidence/rollback dependencies: docs/help-learn/WORKFORCE_TEMPLATE_VERSIONS_W3.md.
+Current C: postflight 28.12 GiB free; same useful Docker/current/rollback resources
+retained, no pruning. Complete effective-access/transition matrix, actual AI, full
+learning coverage, reviewed handoff, gated chat and evaluations remain required.
+
+26 October campaign release: 8c11c3a0 is live with the supplied unaltered poster on
+home/About, complete 4:5 framing and About workshop-wall archive removed. W1/W2
+committed workforce changes included; unfinished W3 preserved separately. Local
+61 distinct browser cases accepted after documented stale-fixture corrections,
+1,053 units, scoped Axe/keyboard/responsive checks and all CI passed. Production
+alias identities and independent backend health verified. Hosted actual-role,
+physical device and full screen-reader acceptance remain open. Evidence, exact
+release/rollback IDs, disk qualification and screenshot paths are in
+backend/docs/pending-commits-production-20261026.md, campaign release section.

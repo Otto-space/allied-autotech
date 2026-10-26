@@ -11,6 +11,12 @@ export const workforceAssignmentParams = workforceAccountParams.extend({
 });
 export const workforceRecordParams = z.strictObject({ id: z.uuid() });
 export const workforceEnrollmentSchema = z.strictObject({
+  receiptVersion: z
+    .literal(2)
+    .optional()
+    .describe(
+      "Opt in to pinned-definition metadata; omission preserves the published legacy mutation receipt.",
+    ),
   position: positionSchema,
   expectedVersion: version.nullable(),
   currentPassword: z.string().min(1).max(256),
@@ -18,7 +24,9 @@ export const workforceEnrollmentSchema = z.strictObject({
 });
 export const workforceAssignmentSchema = z
   .strictObject({
+    receiptVersion: z.literal(2).optional(),
     template: templateSchema,
+    expectedTemplateVersion: z.number().int().positive().default(1),
     branchId: z.uuid(),
     temporary: z.boolean(),
     startsAt: z.iso.datetime({ offset: true }),
@@ -32,11 +40,13 @@ export const workforceAssignmentSchema = z
     path: ["expiresAt"],
   });
 export const workforceRevocationSchema = z.strictObject({
+  receiptVersion: z.literal(2).optional(),
   expectedVersion: version,
   reason,
   currentPassword: z.string().min(1).max(256),
 });
 export const workforceDelegationSchema = workforceRevocationSchema.extend({
+  expectedPolicyVersion: z.number().int().positive().default(1),
   allowAdminInvitations: z.boolean().default(false),
   templates: z.array(templateSchema).max(8),
   branchIds: z.array(z.uuid()).max(20),
@@ -227,6 +237,7 @@ export const workforceAssignmentResponseSchema = z.object({
   id: z.uuid(),
   userId: z.uuid(),
   template: templateSchema,
+  templateVersion: z.number().int().positive(),
   branchId: z.uuid(),
   scope: z.enum(["BRANCH", "ASSIGNED"]),
   temporary: z.boolean(),
@@ -247,6 +258,7 @@ const accessRecord = z.object({
   version,
   delegatedTemplates: z.array(z.string()),
   delegatedBranchIds: z.array(z.uuid()),
+  delegationPolicyVersion: z.number().int().positive(),
 });
 export const workforceOwnResponseSchema = z.object({
   managed: z.boolean(),
@@ -571,10 +583,24 @@ export function workforceResponseSchema(action: string): z.ZodType {
       });
     case "enroll":
     case "delegate":
-      return accessRecord;
+      return accessRecord.extend({
+        delegationPolicyVersion: z
+          .number()
+          .int()
+          .positive()
+          .optional()
+          .describe("Present when the request opts in with receiptVersion 2."),
+      });
     case "assign":
     case "revoke":
-      return workforceAssignmentResponseSchema;
+      return workforceAssignmentResponseSchema.extend({
+        templateVersion: z
+          .number()
+          .int()
+          .positive()
+          .optional()
+          .describe("Present when the request opts in with receiptVersion 2."),
+      });
     case "inspect":
       return z.object({
         userId: z.uuid(),
@@ -598,6 +624,18 @@ export function workforceResponseSchema(action: string): z.ZodType {
         access: accessRecord.nullable(),
         assignments: z.array(workforceAssignmentResponseSchema),
         activeAssignmentIds: z.array(z.uuid()),
+        templatesVersion: z.number().int().positive(),
+        assignmentDefinitions: z.record(
+          z.uuid(),
+          z
+            .object({
+              label: z.string(),
+              department: z.string(),
+              scope: z.string(),
+              actions: z.array(z.string()),
+            })
+            .nullable(),
+        ),
         templates: z.record(
           z.string(),
           z.object({

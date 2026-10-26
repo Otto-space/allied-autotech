@@ -1,15 +1,17 @@
 import type { Prisma } from "../../generated/prisma/client.js";
 import { workforceDenied, type WorkforceSnapshot } from "./workforce.policy.js";
+import { assignmentAllows } from "./workforce-catalogue.js";
 
 export function enquiryScope(snapshot: WorkforceSnapshot): Prisma.EnquiryWhereInput {
-  const assignments = snapshot.assignments.filter((a) =>
-    ["CUSTOMER_SERVICE", "SALES_SUPERVISOR", "SALES_CASHIER"].includes(a.template),
+  const assignments = snapshot.assignments.filter(
+    (a) =>
+      assignmentAllows(a, "CUSTOMER_ENQUIRIES") || assignmentAllows(a, "SALES_ENQUIRIES"),
   );
   if (!assignments.length) workforceDenied();
   return {
     OR: assignments.map((a) => ({
       branchId: a.branchId,
-      ...(a.template === "CUSTOMER_SERVICE"
+      ...(assignmentAllows(a, "CUSTOMER_ENQUIRIES")
         ? {}
         : { type: { in: ["PRODUCT", "VEHICLE"] as ("PRODUCT" | "VEHICLE")[] } }),
       ...(a.scope === "ASSIGNED"

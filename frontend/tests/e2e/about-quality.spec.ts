@@ -128,7 +128,7 @@ test("section links move keyboard focus below the header on a short mobile scree
   }
 });
 
-test("every equipment item and campaign poster is available with readable labels", async ({
+test("every equipment item and the current campaign image have readable labels", async ({
   page,
 }) => {
   await session(page);
@@ -173,7 +173,7 @@ test("contact links use the confirmed address and safe public destinations", asy
   );
   await expect(visit.locator('a[href^="mailto:"]')).toHaveAttribute(
     "href",
-    "mailto:alliedautotech26@gmail.com",
+    "mailto:support@alliedautotech.com",
   );
   const directions = visit.getByRole("link", { name: "Get directions", exact: false });
   const url = new URL((await directions.getAttribute("href"))!);
@@ -190,7 +190,10 @@ test("contact links use the confirmed address and safe public destinations", asy
     "Let’s talk about your vehicle.",
   );
   await page.goBack();
-  await page.getByRole("link", { name: "Explore services", exact: false }).click();
+  await page
+    .getByRole("main")
+    .getByRole("link", { name: "Explore services", exact: false })
+    .click();
   await expect(page).toHaveURL(/\/services$/);
 });
 

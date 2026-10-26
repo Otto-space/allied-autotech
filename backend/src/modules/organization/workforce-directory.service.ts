@@ -10,9 +10,12 @@ import {
   workforceDenied,
   workforceNotFound,
   workforceSnapshot,
-  workforceTemplates,
 } from "./workforce.policy.js";
 import type { workforceDirectoryQuerySchema } from "./workforce.schemas.js";
+import {
+  definitionForAssignment,
+  supportedAssignmentPolicies,
+} from "./workforce-catalogue.js";
 
 /** Account discovery follows the existing owner/delegation boundary of inspect().
  * No customer profiles, security factors, passwords or operational records are read.
@@ -104,10 +107,7 @@ export class WorkforceDirectoryService {
                   branch: { isActive: true },
                   AND: [
                     {
-                      OR: templateSchema.options.map((template) => ({
-                        template,
-                        scope: workforceTemplates[template].scope,
-                      })),
+                      OR: supportedAssignmentPolicies(),
                     },
                   ],
                   template: {
@@ -124,6 +124,7 @@ export class WorkforceDirectoryService {
                 select: {
                   id: true,
                   template: true,
+                  templateVersion: true,
                   scope: true,
                   temporary: true,
                   expiresAt: true,
@@ -154,8 +155,7 @@ export class WorkforceDirectoryService {
         responsibilities: (row.workforceAccess?.assignments ?? [])
           .slice(0, 20)
           .filter((a) => {
-            const template = templateSchema.parse(a.template);
-            return a.scope === workforceTemplates[template].scope;
+            return definitionForAssignment(a) !== undefined;
           })
           .map((a) => ({
             assignmentId: a.id,
