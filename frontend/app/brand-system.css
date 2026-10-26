@@ -57,8 +57,8 @@
   display: block;
   flex: 0 0 auto;
   width: 72px;
-  aspect-ratio: 367 / 317;
-  background: url("/brand/allied-mark-red.png") center / contain no-repeat;
+  aspect-ratio: 397 / 349;
+  background: url("/brand/r2/mark-red.png") center / contain no-repeat;
   pointer-events: none;
 }
 .partner-intro::before {

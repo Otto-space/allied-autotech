@@ -12,6 +12,7 @@ import { serviceApiPath } from "@/lib/service-discovery";
 import { SiteHeader } from "../components/site-header";
 import { SiteFooter } from "../components/site-footer";
 import { ServicesCatalogue } from "../components/services-catalogue";
+import { CampaignArtwork } from "../components/campaign-artwork";
 import "./services.css";
 
 async function listingPath(searchParams: SearchParameters) {
@@ -100,15 +101,18 @@ export default async function ServicesPage({
         >
           <div className="public-wrap services-principles-inner">
             <div className="services-principles-media">
-              <Image
-                src="/images/allied-autotech/parts-editorial.webp"
-                alt="Editorial arrangement of automotive parts and servicing supplies"
-                fill
-                sizes="(max-width: 767px) 100vw, 40vw"
+              <CampaignArtwork
+                artwork="right-work"
+                alt="Allied AutoTech No Guesswork campaign showing mechanical work"
+                sizes="(max-width: 440px) calc(100vw - 40px), 400px"
               />
             </div>
             <div>
-              <h2 id="services-principles-title">Care built on clear decisions.</h2>
+              <h2 id="services-principles-title">No guesswork. Just the right work.</h2>
+              <p>
+                Share what you have noticed. Discuss the findings and proposed work with
+                our team before you decide on the next step.
+              </p>
               <ul>
                 {[
                   operatingPrinciples[0],

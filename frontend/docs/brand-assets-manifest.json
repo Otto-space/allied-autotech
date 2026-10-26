@@ -1,0 +1,256 @@
+{
+  "revision": 2,
+  "sourceDirectory": "Owner Downloads/alliedautotechlogoandmedia (originals unchanged)",
+  "assets": [
+    {
+      "id": "mark-black-backed",
+      "source": "logo mark_black.png",
+      "provenance": "Owner-supplied Revision 2, 26 October 2026",
+      "sourceSha256": "779de66c2a6585ff92fe351a1a5e19a0656042dee4ae5653864d6f61f17996e8",
+      "sourceBytes": 13062,
+      "sourceWidth": 1081,
+      "sourceHeight": 1081,
+      "transparent": false,
+      "canvasTreatment": "Extract x334 y356 397x349; full 361x313 symbol plus 18px clearspace on each side. No resampling.",
+      "accessibleDescription": "Allied AutoTech; mark is decorative inside the named shared wordmark.",
+      "suitability": "Opaque white; reserved for white-backed use",
+      "placements": [],
+      "derivatives": [
+        {
+          "path": "/brand/r2/mark-black-backed.png",
+          "width": 397,
+          "height": 349,
+          "bytes": 3727,
+          "sha256": "f376e65c3af4875645863380a67ad655276e4d402bcc5d950638eb10a750721c"
+        }
+      ],
+      "restrictions": "Preserve original geometry and composition."
+    },
+    {
+      "id": "mark-black",
+      "source": "logo mark_black_on_white.png",
+      "provenance": "Owner-supplied Revision 2, 26 October 2026",
+      "sourceSha256": "21c1431f1b26d9af1a57931bb649579c5f3928a9ca24857fde3a7cb8456f5687",
+      "sourceBytes": 11796,
+      "sourceWidth": 1081,
+      "sourceHeight": 1081,
+      "transparent": true,
+      "canvasTreatment": "Extract x334 y356 397x349; full 361x313 symbol plus 18px clearspace on each side. No resampling.",
+      "accessibleDescription": "Allied AutoTech; mark is decorative inside the named shared wordmark.",
+      "suitability": "Transparent; light surfaces",
+      "placements": ["About principles"],
+      "derivatives": [
+        {
+          "path": "/brand/r2/mark-black.png",
+          "width": 397,
+          "height": 349,
+          "bytes": 3400,
+          "sha256": "f2e2a6565a9643c9584f53fb6604ec73a6fd6f01b21ece376512bdb91f138040"
+        }
+      ],
+      "restrictions": "Preserve original geometry and composition."
+    },
+    {
+      "id": "mark-red-backed",
+      "source": "logo mark_main.png",
+      "provenance": "Owner-supplied Revision 2, 26 October 2026",
+      "sourceSha256": "527aa4904ddcfa90f9a9a9ea2b6b0ba5b4ef05ff57f0a6c54a9d4b96beea1f76",
+      "sourceBytes": 12863,
+      "sourceWidth": 1081,
+      "sourceHeight": 1081,
+      "transparent": false,
+      "canvasTreatment": "Extract x334 y356 397x349; full 361x313 symbol plus 18px clearspace on each side. No resampling.",
+      "accessibleDescription": "Allied AutoTech; mark is decorative inside the named shared wordmark.",
+      "suitability": "Opaque #06181F; reserved for matching dark panels",
+      "placements": [],
+      "derivatives": [
+        {
+          "path": "/brand/r2/mark-red-backed.png",
+          "width": 397,
+          "height": 349,
+          "bytes": 3567,
+          "sha256": "163496c0c1307826ec02bedecd9c1d62c1113351cbe6adc64dfb1ac0b95073ff"
+        }
+      ],
+      "restrictions": "Preserve original geometry and composition."
+    },
+    {
+      "id": "mark-red",
+      "source": "logo mark_main_1.png",
+      "provenance": "Owner-supplied Revision 2, 26 October 2026",
+      "sourceSha256": "cc9ff6c80163993bb7d0c741dc10103ade2ab2efc8a5a18d4eaec719a04849fe",
+      "sourceBytes": 11847,
+      "sourceWidth": 1081,
+      "sourceHeight": 1081,
+      "transparent": true,
+      "canvasTreatment": "Extract x334 y356 397x349; full 361x313 symbol plus 18px clearspace on each side. No resampling.",
+      "accessibleDescription": "Allied AutoTech; mark is decorative inside the named shared wordmark.",
+      "suitability": "Transparent; light surfaces",
+      "placements": ["Header", "Mobile header", "Authentication", "Home introduction"],
+      "derivatives": [
+        {
+          "path": "/brand/r2/mark-red.png",
+          "width": 397,
+          "height": 349,
+          "bytes": 3425,
+          "sha256": "ddf0ef13c79e0b794e6e55785a3da629315cbf326c122151be9734f63bb01794"
+        }
+      ],
+      "restrictions": "Preserve original geometry and composition."
+    },
+    {
+      "id": "mark-white",
+      "source": "logo mark_white_on_black.png",
+      "provenance": "Owner-supplied Revision 2, 26 October 2026",
+      "sourceSha256": "4c81bbb0c7d7b201fa492269f994271daca41ad50b9a115126e8672e4355230d",
+      "sourceBytes": 11452,
+      "sourceWidth": 1081,
+      "sourceHeight": 1081,
+      "transparent": true,
+      "canvasTreatment": "Extract x334 y356 397x349; full 361x313 symbol plus 18px clearspace on each side. No resampling.",
+      "accessibleDescription": "Allied AutoTech; mark is decorative inside the named shared wordmark.",
+      "suitability": "Transparent; dark surfaces only",
+      "placements": ["Footer", "Dashboard sidebar", "Dashboard mobile header"],
+      "derivatives": [
+        {
+          "path": "/brand/r2/mark-white.png",
+          "width": 397,
+          "height": 349,
+          "bytes": 3478,
+          "sha256": "a8c8d9aa093839d40faeb971da37a3a184a9d7008d82dce23e94e34e8c444409"
+        }
+      ],
+      "restrictions": "Preserve original geometry and composition."
+    },
+    {
+      "id": "built-on-trust",
+      "source": "ad copy 1.png",
+      "provenance": "Owner-supplied Revision 2, 26 October 2026",
+      "sourceSha256": "6ad378a65856f0ebd90932042ea4fe0ebfbc2a55ebe51c4a454b262f486d7025",
+      "sourceBytes": 2946209,
+      "sourceWidth": 1080,
+      "sourceHeight": 1350,
+      "transparent": false,
+      "canvasTreatment": "Full 4:5 composition; proportional resize only.",
+      "accessibleDescription": "Sculptural red Allied emblem from the Built on Trust campaign; adjacent HTML conveys Built on trust. Driven by quality.",
+      "suitability": "Opaque portrait; full composition",
+      "placements": ["Home trust feature"],
+      "derivatives": [
+        {
+          "path": "/brand/r2/built-on-trust-480.webp",
+          "width": 480,
+          "height": 600,
+          "bytes": 28350,
+          "sha256": "e5e16a4ab6474263579e9db34e3d664402439fa76eb9ea19ef23a6eeb1521e12"
+        },
+        {
+          "path": "/brand/r2/built-on-trust-800.webp",
+          "width": 800,
+          "height": 1000,
+          "bytes": 143144,
+          "sha256": "416982f8aca3dfbba749707438deff9fa7409d64874f2d71db5fe6a280fc01a4"
+        },
+        {
+          "path": "/brand/r2/built-on-trust-1080.webp",
+          "width": 1080,
+          "height": 1350,
+          "bytes": 378760,
+          "sha256": "6ada6a841db894cfb7bc8946d97a774b1ecf1a6be5f46a2f2b47e17dff3fb46c"
+        }
+      ],
+      "restrictions": "Preserve original geometry and composition."
+    },
+    {
+      "id": "precision-autocare",
+      "source": "ad copy 2.png",
+      "provenance": "Owner-supplied Revision 2, 26 October 2026",
+      "sourceSha256": "3e10dfedb37573452328cf573477136f6256f400d35f00b96514d47e1fa08537",
+      "sourceBytes": 3333742,
+      "sourceWidth": 1080,
+      "sourceHeight": 1350,
+      "transparent": false,
+      "canvasTreatment": "Full 4:5 composition; proportional resize only.",
+      "accessibleDescription": "Allied AutoTech Precision Autocare You Can Trust campaign, with a person in a red branded uniform.",
+      "suitability": "Opaque portrait; full composition",
+      "placements": ["Home service introduction", "About introduction"],
+      "derivatives": [
+        {
+          "path": "/brand/r2/precision-autocare-480.webp",
+          "width": 480,
+          "height": 600,
+          "bytes": 54604,
+          "sha256": "650c693b89188b4afaf741eaa6e21b2981b866c37992ddbcd11977b064881d97"
+        },
+        {
+          "path": "/brand/r2/precision-autocare-800.webp",
+          "width": 800,
+          "height": 1000,
+          "bytes": 192352,
+          "sha256": "2ad3737d958c31e4a3b519b2623350238e5476212180a43fd7935ffd47d755b8"
+        },
+        {
+          "path": "/brand/r2/precision-autocare-1080.webp",
+          "width": 1080,
+          "height": 1350,
+          "bytes": 472764,
+          "sha256": "24fdaae70aa5ce4f3e6bbe721390226b996abb174fc4eb45acda886cedbaf45e"
+        }
+      ],
+      "restrictions": "Marketing portrait; no identity, employment or qualification inferred."
+    },
+    {
+      "id": "right-work",
+      "source": "ad copy 3.png",
+      "provenance": "Owner-supplied Revision 2, 26 October 2026",
+      "sourceSha256": "89743eb56bd9d45a52ae35aec9f4b020b05aeea2cded686e57df8d3be5d21842",
+      "sourceBytes": 3529554,
+      "sourceWidth": 1080,
+      "sourceHeight": 1350,
+      "transparent": false,
+      "canvasTreatment": "Full 4:5 composition; proportional resize only.",
+      "accessibleDescription": "Allied AutoTech No Guesswork campaign showing mechanical work; adjacent HTML conveys No guesswork. Just the right work.",
+      "suitability": "Opaque portrait; full composition",
+      "placements": ["Services workmanship feature"],
+      "derivatives": [
+        {
+          "path": "/brand/r2/right-work-480.webp",
+          "width": 480,
+          "height": 600,
+          "bytes": 58838,
+          "sha256": "aec31dbbcd5e80053e58b1992361985adb46bd9ccb079af9d1c9974645361567"
+        },
+        {
+          "path": "/brand/r2/right-work-800.webp",
+          "width": 800,
+          "height": 1000,
+          "bytes": 231608,
+          "sha256": "7950c8b1b13b584af38f5f16993035d7ccb8389d0bad976daec2b133eabd73e5"
+        },
+        {
+          "path": "/brand/r2/right-work-1080.webp",
+          "width": 1080,
+          "height": 1350,
+          "bytes": 541522,
+          "sha256": "1eca3b59e27f2ceecd8ee43d3f659b906ca3b9b8dc985a093076a21bc298a89b"
+        }
+      ],
+      "restrictions": "Marketing workmanship image; not proof of equipment, certification or service availability."
+    },
+    {
+      "id": "parts-delivery-withheld",
+      "source": "ad copy 4.png",
+      "provenance": "Owner-supplied Revision 2, 26 October 2026",
+      "sourceSha256": "c4e059743510fb7c89061f87808da4c0024a138a861069b9cc2db3aa914b5d46",
+      "sourceBytes": 3168382,
+      "sourceWidth": 1080,
+      "sourceHeight": 1350,
+      "transparent": false,
+      "canvasTreatment": "Full 4:5 composition; proportional resize only.",
+      "accessibleDescription": "Withheld: original parts and nationwide-delivery truck promotion.",
+      "suitability": "Opaque portrait; unsupported nationwide delivery claim",
+      "placements": [],
+      "derivatives": [],
+      "restrictions": "Do not publish: workshop collection only. Requires a clean corrected source without nationwide delivery or implied fleet ownership. No derivative generated."
+    }
+  ]
+}

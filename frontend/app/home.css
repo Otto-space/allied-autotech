@@ -53,14 +53,13 @@
 }
 .home-page .home-services__image {
   position: relative;
-  min-height: 360px;
+  align-self: center;
   border-radius: 6px;
   overflow: hidden;
   background: var(--ink);
 }
 .home-page .home-services__image img {
-  object-fit: cover;
-  object-position: 72% center;
+  object-fit: contain;
 }
 .home-page .service-discovery--preview {
   grid-template-columns: 1fr;
@@ -464,7 +463,8 @@
   }
   .home-page .home-services__image {
     min-height: 0;
-    aspect-ratio: 16 / 9;
+    width: min(100%, 380px);
+    justify-self: center;
   }
   .home-page .technician-story {
     width: 100%;

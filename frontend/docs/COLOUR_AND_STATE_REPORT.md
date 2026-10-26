@@ -1,5 +1,11 @@
 # Allied colour and interaction system — 26 October 2026
 
+Revision 2 local implementation and current verification dependencies are recorded
+in [BRAND_ASSETS_R2_REPORT.md](BRAND_ASSETS_R2_REPORT.md). It adds the supplied asset
+variants, preserves the original colour system, and exercises the previously open
+cart-drawer cases. The records below are historical, not a claim that all tests were
+rerun or that Revision 2 has been deployed.
+
 Production update: the owner subsequently authorised deployment. Runtime `d6d8534d`
 is live with the newer workforce release preserved. See the
 [release record](../../backend/docs/colour-production-20261026.md) for exact CI,

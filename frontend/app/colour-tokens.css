@@ -1,5 +1,9 @@
 /* Allied palette → semantic roles → component states. Inherited by body portals. */
 :root {
+  /* Sampled from supplied original marks; functional text/action pairs stay accessible. */
+  --brand-source-red: #de1f26;
+  --brand-source-dark: #06181f;
+  --brand-source-black: #040707;
   --palette-black: #080c0f;
   --palette-charcoal: #101419;
   --palette-red: #d71920;

@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { CampaignArtwork } from "../components/campaign-artwork";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -66,12 +66,11 @@ export default function AboutPage() {
               </div>
               <figure className="about-hero-figure">
                 <div className="about-hero-photo">
-                  <Image
-                    src="/images/allied-autotech/precision-autocare-campaign.png"
-                    alt="Allied AutoTech campaign: Precision Autocare You Can Trust, with a technician in a red uniform"
-                    fill
+                  <CampaignArtwork
+                    artwork="precision-autocare"
+                    alt="Allied AutoTech Precision Autocare You Can Trust campaign, with a person in a red branded uniform"
                     sizes="(max-width: 760px) calc(100vw - 40px), (max-width: 1023px) 36vw, 380px"
-                    preload
+                    priority
                   />
                 </div>
                 <figcaption>Precision Autocare You Can Trust.</figcaption>
@@ -127,7 +126,7 @@ export default function AboutPage() {
         >
           <div className="about-section-heading">
             <div className="about-brand">
-              <Brand />
+              <Brand monochrome />
             </div>
             <h2 id="about-principles-title">Built on trust driven by quality</h2>
             <p>

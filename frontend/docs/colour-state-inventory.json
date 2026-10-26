@@ -8,6 +8,7 @@
       "components": [
         "app/components/brand-editorial.tsx",
         "app/components/brand.tsx",
+        "app/components/campaign-artwork.tsx",
         "app/components/equipment-gallery.tsx",
         "app/components/feedback.tsx",
         "app/components/form-drafts.tsx",
@@ -25,6 +26,7 @@
         "app/about/about.css",
         "app/brand-system.css",
         "app/colour-tokens.css",
+        "app/components/campaign-artwork.css",
         "app/components/service-journey.css",
         "app/dashboard-forms.css",
         "app/dashboard-spacing.css",
@@ -7831,6 +7833,7 @@
       "components": [
         "app/components/brand-editorial.tsx",
         "app/components/brand.tsx",
+        "app/components/campaign-artwork.tsx",
         "app/components/feedback.tsx",
         "app/components/form-drafts.tsx",
         "app/components/help-account-action.tsx",
@@ -7857,6 +7860,7 @@
       "styles": [
         "app/brand-system.css",
         "app/colour-tokens.css",
+        "app/components/campaign-artwork.css",
         "app/components/home-feedback.css",
         "app/components/reviewer-avatar.css",
         "app/components/service-image.module.css",
@@ -8185,6 +8189,7 @@
       "components": [
         "app/components/brand-editorial.tsx",
         "app/components/brand.tsx",
+        "app/components/campaign-artwork.tsx",
         "app/components/cursor-pagination.tsx",
         "app/components/feedback.tsx",
         "app/components/form-drafts.tsx",
@@ -8204,6 +8209,7 @@
       "styles": [
         "app/brand-system.css",
         "app/colour-tokens.css",
+        "app/components/campaign-artwork.css",
         "app/components/service-image.module.css",
         "app/components/service-journey.css",
         "app/dashboard-forms.css",
@@ -9595,6 +9601,8 @@
     {
       "source": "app/colour-tokens.css",
       "literalColours": [
+        "#040707",
+        "#06181f",
         "#080c0f",
         "#080c0f24",
         "#080c0f33",
@@ -9625,6 +9633,7 @@
         "#b51218",
         "#d71920",
         "#d9dde3",
+        "#de1f26",
         "#e0e2e6",
         "#e9ecf0",
         "#eff6ff",
@@ -9660,6 +9669,11 @@
       "source": "app/components/authenticator-help.css",
       "literalColours": ["#435563", "#cbd5df"],
       "focusRules": 1
+    },
+    {
+      "source": "app/components/campaign-artwork.css",
+      "literalColours": [],
+      "focusRules": 0
     },
     {
       "source": "app/components/care-workspace.css",

@@ -686,14 +686,14 @@
 }
 .services-principles-media {
   position: relative;
-  min-height: 330px;
-  height: 100%;
+  max-width: 400px;
+  width: 100%;
+  justify-self: center;
   border-radius: 6px;
   overflow: hidden;
 }
 .services-principles-media img {
-  object-fit: cover;
-  object-position: 65% center;
+  object-fit: contain;
 }
 .services-principles h2,
 .services-faq h2 {
@@ -705,7 +705,7 @@
 .services-principles ul {
   list-style: none;
   padding: 0;
-  margin: 0 0 12px;
+  margin: 20px 0 12px;
 }
 .services-principles li {
   border-bottom: 1px solid #d4dce4;

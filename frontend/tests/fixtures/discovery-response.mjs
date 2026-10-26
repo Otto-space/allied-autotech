@@ -109,6 +109,11 @@ export function discoveryResponse(url, mode = "populated") {
     return demoModels.find((item) => path.endsWith(item.id));
   if (path === "/public/services")
     return { items: empty ? [] : demoServices.slice(0, limit) };
+  if (path === "/public/services/discovery") {
+    const items = empty ? [] : demoServices;
+    return { items: items.slice(0, limit), totalMatches: items.length };
+  }
+  if (path === "/public/services/categories") return { items: [] };
   if (path.startsWith("/public/services/"))
     return demoServices.find((item) => path.endsWith(item.id));
   if (path === "/public/support/reviews") return { items: empty ? [] : demoReviews };

@@ -1755,3 +1755,22 @@ restore proof verified; no new restore, production DB command or business write.
 Prior frontend dpl_GRVrwacMhYkrqktFvGRChY5LB2Ln retained for compatible rollback.
 Other worktrees and Desktop edits preserved; no Docker cleanup; C: 27.86 GiB free.
 Broader site completion Item 6 and the separate workforce/Allie roadmap remain open.
+
+26 October 2026 - colour and brand assets Revision 2 local checkpoint.
+Branch feat/brand-assets-r2-20261026 in allied-shop-vehicles-r2-20261025, based on
+ce3121b8 / released d6d8534d. All nine supplied files inspected and original hashes
+preserved; five pixel-identical logo crops and nine responsive WebP posters prepared.
+Shared red/white/black marks, Home trust/service artwork, About portrait and Services
+workmanship implemented. Ad 4 withheld: nationwide delivery contradicts collection
+policy; clean corrected artwork is a business/source dependency. No policy changed.
+1,057 units, lint/types/build/format and 30 contrast pairs passed. 103/109 broad
+fixture browser cases passed; six await optimized replay (three development loading/
+navigation failures and three Help/Learn tests with the local flag disabled). The
+three prior cart gaps passed in focused checks; real Strict Mode dialog cleanup and
+pre-hydration image-error handling repaired. Final local preview start was rejected
+by automatic approval review, reason only "blocked by policy"; specific local-only
+approval requested and pending. No bypass, push, deployment or database command.
+See frontend/docs/BRAND_ASSETS_R2_REPORT.md and brand-assets-r2-coverage.json for
+exact evidence, missing clean recaptures, platform limits and reused dependency
+version discrepancy. Both live domains still dpl_9YTq9gSNUnb3XuHKry5MgCVvigdD.
+Other worktrees and unrelated edits preserved; broader Item 6 remains open.

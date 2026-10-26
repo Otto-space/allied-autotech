@@ -156,7 +156,7 @@ test("every equipment item and the current campaign image have readable labels",
   await expect(page.locator(".about-archive")).toHaveCount(0);
   await expect(page.locator(".about-hero-photo img")).toHaveAttribute(
     "src",
-    /precision-autocare-campaign/,
+    /brand\/r2\/precision-autocare-\d+\.webp/,
   );
 });
 
