@@ -1577,3 +1577,22 @@ deployment or database/business write was performed. Item 6 remains open.
 
 Task preview servers stopped. C: postflight 29.99 GiB; useful build/cache and 8.4 MiB
 review evidence retained. No Docker resource/duplicate install/worktree created.
+
+26 October 2026 - all three identified pending functional batches deployed together.
+Runtime 3ccee21a includes customer table/sidebar 3500b3a0, required staff revisions
+1aaa39a9 and Help/Allie 38e7df62/d0272949/aa54fba8, preserving actual preceding
+adef02f9 and all earlier releases. Backend e8c5297d-93f5-41e0-97bd-0c7851fa5daa ACTIVE;
+Vercel dpl_5hGWpdJyGqQgG69dcumqFQ2RU7HQ READY, apex/www exact aliases verified.
+Only four backend image digests changed; schema remains 71, no migration/grant/
+production business submission. All three exact-source CI workflows, 1,039 units,
+nine image cases, fresh isolated replay/db:check, 41 integrations, 57 hosted-candidate
+fixture browser cases and 22 recorded live read-only checks passed. Three provisioned
+cases skipped. Local preview policy rejection resolved via protected hosted candidate,
+with isolated API/page fixtures and writes blocked; host/identity harness adjustments
+are documented. Real-role mutations, physical and screen-reader acceptance remain open.
+Production schema/privileges and three worker heartbeats passed; original app-only
+firewall restored. Latest managed backups and retained separate restore/archive hash
+verified; no new restore. Temporary source/cookie files removed, owned API stopped;
+current/rollback/data/other-task resources retained. C: 28.16 GiB free. Evidence and
+rollback: backend/docs/pending-commits-production-20261026.md. Main tracker existing
+bytes preserved append-only. Broader site-completion Item 6 remains open.

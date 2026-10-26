@@ -1647,3 +1647,16 @@ C: measured 29.99 GiB free (30.30 GiB before work). Browser evidence totals abou
 no install, extra worktree, profile copy, image archive or Docker resource created.
 Docker inventory was unavailable because its daemon was stopped; no Docker cleanup
 was attempted. Source, unrelated work, histories, backups and databases retained.
+
+26 October combined production checkpoint: runtime 3ccee21a publishes the pending
+customer table/sidebar, required staff-revision and Help/Allie batches together.
+Backend e8c5297d-93f5-41e0-97bd-0c7851fa5daa ACTIVE; frontend
+dpl_5hGWpdJyGqQgG69dcumqFQ2RU7HQ READY on main/www. Exact-source locked CI,
+1,039 units, 41 isolated integrations, nine image cases, 57 hosted-candidate fixture
+browser cases and 22 live read-only checks passed. Captures:
+%TEMP%/allied-pending-release-production-20261026/ (real public reads), plus existing
+allied-customer-table-20261026 and allied-allie-20261026 folders (synthetic fixtures).
+Provider-cookie/identity/timing harness qualifications, three skipped provisioned
+cases and remaining actual-role/device/screen-reader limits are explicit in
+backend/docs/pending-commits-production-20261026.md. No business submissions or
+schema migration. Broader Item 6 remains open; other worktrees preserved.
