@@ -11,7 +11,7 @@ import type {
 } from "./identity.schemas.js";
 import { identityService, type IdentityService } from "./identity.service.js";
 import type {
-  MfaEnrollmentSession,
+  AuthenticatedSessionSnapshot,
   RequestSecurityContext,
   SessionIssueResult,
 } from "./identity.types.js";
@@ -37,7 +37,7 @@ function actor(request: Request) {
   return request.actor;
 }
 
-function enrollmentSession(request: Request): MfaEnrollmentSession {
+function securitySession(request: Request): AuthenticatedSessionSnapshot {
   const current = actor(request);
   const csrfTokenHash = request.authSession?.csrfTokenHash;
   if (!csrfTokenHash || request.authSession?.id !== current.sessionId)
@@ -142,7 +142,7 @@ export class IdentityController {
     const current = actor(req);
     const result = await this.service.changePassword(
       current.userId,
-      current.sessionId,
+      securitySession(req),
       body<ChangePasswordInput>(res),
       context(req),
     );
@@ -155,7 +155,7 @@ export class IdentityController {
   setupTotp = async (req: Request, res: Response): Promise<void> => {
     const enrollment = await this.service.setupTotp(
       actor(req).userId,
-      enrollmentSession(req),
+      securitySession(req),
     );
     res.status(201).json(successResponse("TOTP enrollment created", req.id, enrollment));
   };
@@ -165,7 +165,7 @@ export class IdentityController {
     const input = body<{ factorId: string; code: string; replaceFactorId?: string }>(res);
     const result = await this.service.verifyTotpSetup(
       current.userId,
-      enrollmentSession(req),
+      securitySession(req),
       input.factorId,
       input.code,
       input.replaceFactorId,
@@ -187,7 +187,7 @@ export class IdentityController {
     const current = actor(req);
     const options = await this.service.webAuthnRegistrationOptions(
       current.userId,
-      enrollmentSession(req),
+      securitySession(req),
     );
     res.status(200).json(successResponse("WebAuthn options created", req.id, options));
   };
@@ -197,7 +197,7 @@ export class IdentityController {
     const input = body<{ name?: string; response: unknown }>(res);
     const result = await this.service.verifyWebAuthnSetup(
       current.userId,
-      enrollmentSession(req),
+      securitySession(req),
       input.response,
       input.name,
     );

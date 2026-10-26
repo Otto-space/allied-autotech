@@ -78,7 +78,7 @@ Historical successful checks are listed in [validation progress](validation-prog
 ## Account security findings from the September 17 increment
 
 - Final-factor removal now runs under an account lock with its count/update/audit in one transaction; the local concurrent-removal regression passes. See the correction below.
-- Password verification precedes the password transaction, and session rotation follows that transaction. Concurrent changes need testing; a session-rotation failure can occur after the password has committed. The UI does not automatically replay an uncertain password change.
+- Password change now rechecks the credential and middleware-validated session snapshot under account/session locks, and rotates the session in the same transaction as the password, revocations, audit and security notification. Isolated rollback and concurrent-change regressions plus the identity HTTP flow pass; see `backend/docs/password-change-atomicity-20261026.md`. Production authenticated-role/browser acceptance remains open. The UI still does not automatically replay an uncertain password change.
 - Recovery-code replacement and enrollment now share an account lock; isolated concurrent replacement/activation regressions pass. There is still no code retrieval/count endpoint or replay key, so another UI replacement requires a fresh explicit review.
 - Removing a factor does not revoke existing sessions or recovery codes. This actual behavior is explained before confirmation. Pending-factor deletion is unavailable. MFA UI and selected isolated backend security journeys are now verified within the recorded scope; broader real browser/device journeys remain unfinished.
 
@@ -88,7 +88,7 @@ The existing-factor enrollment bypass was reproduced against disposable PostgreS
 
 Account and session row locks serialize the decision. The request's middleware-validated CSRF digest binds it to the current session revision; rotated, revoked, expired and suspended cases are rejected. Activation, recovery-code replacement, audit and session rotation share a transaction. Concurrent bootstrap, final-factor removal and recovery replacement are covered by isolated database regressions. An injected rotation failure preserves the original factor state, codes, session and audit history.
 
-This supersedes the earlier open notes about enrollment authorization, non-atomic enrollment rotation, final-factor removal and concurrent recovery replacement. Password-change concurrency/rotation and single-use sign-in challenge consumption followed by failed rotation still require separate work. Genuine browser-to-API WebAuthn cryptographic verification, physical devices, additional browser engines and deployment RP/origin behavior remain release checks.
+This supersedes the earlier open notes about enrollment authorization, non-atomic enrollment rotation, final-factor removal and concurrent recovery replacement. Password-change concurrency/rotation now has the separate correction and isolated evidence above. Single-use sign-in challenge consumption followed by failed rotation still requires separate work. Genuine browser-to-API WebAuthn cryptographic verification, physical devices, additional browser engines and deployment RP/origin behavior remain release checks.
 
 ## Credential-example finding
 

@@ -12,6 +12,13 @@ Every authenticated mutation requires the session-bound `X-CSRF-Token`, an exact
 `Origin`, and non-cross-site Fetch Metadata. Rotating either authentication or MFA assurance also
 rotates both the opaque session value and CSRF secret.
 
+Password change binds the middleware-validated session/CSRF snapshot to the
+account and session locks. It rechecks the current credential after locking and
+commits the new password, other-session/reset-token revocations, audit,
+notification and current-session rotation atomically. A failed rotation rolls
+back the credential and revocations rather than returning an error after a
+committed password change.
+
 Staff, administrators, super administrators, and customers who enabled MFA receive a ten-minute
 MFA-pending session after password authentication. That session is limited to session inspection,
 logout, CSRF rotation, and MFA enrollment/challenge routes. Normal authenticated routes require

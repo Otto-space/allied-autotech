@@ -1737,3 +1737,15 @@ write was made. Provider completion and real-role acceptance remain open. See
 The native test server was stopped; automatic command review blocked removal
 of its 76,629,829-byte task directory, which remains in Temp. C: postflight
 was 28 GiB free; original Docker volumes were retained.
+
+26 October 2026 - password-change session-rotation defect corrected locally.
+The new password, other-session/reset-token revocations, audit, notification
+and current-session rotation now share one locked transaction. A failed
+post-rotation step rolls all of them back; a second request with the old
+credential/snapshot is rejected. A fresh native loopback `_test` database
+replayed all 72 migrations with no schema difference and passed `db:check`.
+Two new deterministic races, the full identity HTTP flow, 20 MFA integration
+cases, five identity unit cases, types, targeted lint and format passed.
+No schema/frontend change or production deployment has yet occurred for this
+candidate. See `password-change-atomicity-20261026.md`; real-role/browser
+acceptance and the separate sign-in challenge rotation gap remain open.

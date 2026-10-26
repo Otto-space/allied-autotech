@@ -46,6 +46,7 @@ import type {
   RegisterInput,
 } from "./identity.schemas.js";
 import type {
+  AuthenticatedSessionSnapshot,
   IdentityEmailPayload,
   MfaEnrollmentSession,
   RequestSecurityContext,
@@ -567,7 +568,7 @@ export class IdentityService {
 
   async changePassword(
     userId: string,
-    sessionId: string,
+    snapshot: AuthenticatedSessionSnapshot,
     input: ChangePasswordInput,
     context: RequestSecurityContext,
   ): Promise<SessionIssueResult> {
@@ -578,35 +579,59 @@ export class IdentityService {
     ) {
       throw invalidAuthentication();
     }
-    const now = new Date();
     const passwordHash = await hashPassword(input.newPassword);
-    await this.database.$transaction(async (tx) => {
-      await Promise.all([
-        tx.user.update({
-          where: { id: userId },
-          data: { passwordHash, passwordChangedAt: now },
-        }),
-        tx.session.updateMany({
-          where: { userId, id: { not: sessionId }, revokedAt: null },
-          data: { revokedAt: now },
-        }),
-        tx.passwordResetToken.updateMany({
-          where: { userId, usedAt: null, revokedAt: null },
-          data: { revokedAt: now },
-        }),
-        tx.auditLog.create({
-          data: {
-            userId,
-            action: "UPDATE",
-            entityType: "USER",
-            entityId: userId,
-            requestId: context.requestId,
-            ipAddress: context.ipAddress,
-            userAgent: safeUserAgent(context.userAgent),
-            newValues: { passwordChanged: true, otherSessionsRevoked: true },
-          },
-        }),
-      ]);
+    return this.database.$transaction(async (tx) => {
+      // Recheck the credential after locking the account: another password change
+      // may have committed while the original Argon2 verification was running.
+      const current = await this.lockMfaAccount(tx, userId);
+      if (current.passwordHash !== user.passwordHash) throw invalidAuthentication();
+      await tx.$queryRaw`SELECT id FROM "Session" WHERE id = ${snapshot.sessionId}::uuid AND "userId" = ${userId}::uuid FOR UPDATE`;
+      const session = await tx.session.findFirst({
+        where: { id: snapshot.sessionId, userId },
+        select: {
+          revokedAt: true,
+          expiresAt: true,
+          idleExpiresAt: true,
+          csrfTokenHash: true,
+          mfaRequired: true,
+          mfaVerifiedAt: true,
+        },
+      });
+      const now = new Date();
+      const mfaRequired = session?.mfaRequired || current.role !== "CUSTOMER";
+      if (
+        session === null ||
+        session.revokedAt !== null ||
+        session.expiresAt <= now ||
+        session.idleExpiresAt <= now ||
+        session.csrfTokenHash !== snapshot.csrfTokenHash ||
+        (mfaRequired && session.mfaVerifiedAt === null)
+      )
+        throw invalidAuthentication();
+      await tx.user.update({
+        where: { id: userId },
+        data: { passwordHash, passwordChangedAt: now },
+      });
+      await tx.session.updateMany({
+        where: { userId, id: { not: snapshot.sessionId }, revokedAt: null },
+        data: { revokedAt: now },
+      });
+      await tx.passwordResetToken.updateMany({
+        where: { userId, usedAt: null, revokedAt: null },
+        data: { revokedAt: now },
+      });
+      await tx.auditLog.create({
+        data: {
+          userId,
+          action: "UPDATE",
+          entityType: "USER",
+          entityId: userId,
+          requestId: context.requestId,
+          ipAddress: context.ipAddress,
+          userAgent: safeUserAgent(context.userAgent),
+          newValues: { passwordChanged: true, otherSessionsRevoked: true },
+        },
+      });
       await enqueueNotification(tx, {
         userId,
         type: "SYSTEM",
@@ -617,18 +642,16 @@ export class IdentityService {
         deduplicationKey: `security:password-change:${userId}:${now.toISOString()}`,
         channels: [],
       });
+      // A failure to rotate the current session rolls back the password and all
+      // revocations, audit and notification with this transaction.
+      return this.rotateAuthenticatedSession(
+        { id: current.id, email: current.email, role: current.role },
+        snapshot.sessionId,
+        mfaRequired,
+        session.mfaVerifiedAt !== null,
+        tx,
+      );
     });
-    const currentSession = await this.database.session.findFirst({
-      where: { id: sessionId, userId, revokedAt: null },
-      select: { mfaRequired: true, mfaVerifiedAt: true },
-    });
-    if (currentSession === null) throw invalidAuthentication();
-    return this.rotateAuthenticatedSession(
-      { id: user.id, email: user.email, role: user.role },
-      sessionId,
-      currentSession.mfaRequired,
-      currentSession.mfaVerifiedAt !== null,
-    );
   }
 
   private async lockMfaAccount(tx: Prisma.TransactionClient, userId: string) {
