@@ -2542,6 +2542,10 @@ export class PaymentsService {
     tx: Prisma.TransactionClient,
   ): Promise<{ amountKobo: bigint; expiresAt: Date | null }> {
     if (input.targetType === "ORDER") {
+      // Expiry and cancellation lock the source row. Read its payable state only
+      // after taking the same lock, so a concurrent cancellation cannot commit
+      // between source validation and intent/attempt creation.
+      await tx.$queryRaw`SELECT "id" FROM "Order" WHERE "id" = ${input.targetId}::uuid AND "customerId" = ${customerId}::uuid FOR UPDATE`;
       const source = await this.repository.order(input.targetId, customerId, tx);
       if (
         !source ||
@@ -2553,6 +2557,7 @@ export class PaymentsService {
       return { amountKobo: source.totalKobo, expiresAt: source.paymentDueAt };
     }
     if (input.targetType === "INVOICE") {
+      await tx.$queryRaw`SELECT "id" FROM "Invoice" WHERE "id" = ${input.targetId}::uuid AND "customerId" = ${customerId}::uuid FOR UPDATE`;
       const source = await this.repository.invoice(input.targetId, customerId, tx);
       if (
         !source ||
@@ -2563,6 +2568,7 @@ export class PaymentsService {
         throw paymentNotFound();
       return { amountKobo: source.totalKobo, expiresAt: source.dueAt };
     }
+    await tx.$queryRaw`SELECT "id" FROM "VehicleTransaction" WHERE "id" = ${input.targetId}::uuid AND "customerId" = ${customerId}::uuid FOR UPDATE`;
     const source = await this.repository.vehicleTransaction(
       input.targetId,
       customerId,

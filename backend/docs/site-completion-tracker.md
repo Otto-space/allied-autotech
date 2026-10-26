@@ -1577,3 +1577,21 @@ deployment or database/business write was performed. Item 6 remains open.
 
 Task preview servers stopped. C: postflight 29.99 GiB; useful build/cache and 8.4 MiB
 review evidence retained. No Docker resource/duplicate install/worktree created.
+
+26 October 2026 - the three pending functional batches are live at source
+`3ccee21a`: required staff revisions, current Help/Allie and customer table/sidebar
+responsiveness. Backend `e8c5297d-93f5-41e0-97bd-0c7851fa5daa` is ACTIVE;
+frontend `dpl_5hGWpdJyGqQgG69dcumqFQ2RU7HQ` is READY on apex/www. The
+release record is `pending-commits-production-20261026.md`; real-role and
+physical-device acceptance remain open.
+
+26 October 2026 - payment-source concurrency candidate on
+`fix/payment-expiry-race-20261026`, based on live runtime `3ccee21a`.
+An isolated order expiry schedule reproduced creation of an intent from a stale
+payable read. Payment intent, online initialization and manual submission now
+lock the owned source before validating status/amount/deadline. A fresh `_test`
+database replayed 71 migrations with no schema difference and passed db:check;
+eight integration files passed 48 cases, including three source-cancellation
+races. Backend types, lint and format passed. No provider transaction, schema or
+financial policy changed. See `payment-source-concurrency-20261026.md`.
+Production release and real provider/role acceptance remain open; Item 6 is unchanged.
