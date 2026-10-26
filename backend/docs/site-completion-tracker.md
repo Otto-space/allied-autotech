@@ -1710,3 +1710,16 @@ constraint; no application code, schema, provider or production business record
 was changed. These tests model the status transition directly; actual operator
 service races and real-provider acceptance remain open. See
 `payment-source-concurrency-20261026.md`.
+
+26 October 2026 - actual invoice and vehicle operator-service lock order was
+verified locally after incorporating the newer `c4e0005d` workforce runtime.
+`BillingService.void` and `VehicleSalesService.transition` each held the real
+source-row lock while intent creation, online initialization or manual evidence
+waited, then committed; all six actions rejected the cancelled source with no
+new payment or attempt. Fresh isolated
+`_test` PostgreSQL replayed all 72 migrations with no schema difference and
+passed `db:check`; the adjacent set passed 44 tests, with backend typecheck,
+targeted lint and format passing. This test-only work needs no runtime rollout.
+Provider sandbox and real-role acceptance remain open. The newer `c4e0005d` runtime is recorded in the main
+checkout tracker and includes the earlier payment fix. See the payment-source
+release record for exact scope.
