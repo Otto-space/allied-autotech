@@ -15,7 +15,7 @@ export function registerLearningOpenApi(registry: OpenAPIRegistry) {
         ...(prefix === "/learning" ? { security: [{ sessionCookie: [] }] } : {}),
         summary: "Read eligible " + kind,
         description:
-          "Read-only versioned learning content. Public routes always omit restricted titles, bodies, guides and fixtures. Protected reads resolve current identity, MFA and effective assignments server-side; client roles/owner IDs are not accepted. All responses are private/no-store and vary by Cookie. No AI, account lookup, progress mutation or training/live operational writes.",
+          "Read-only versioned learning content. Catalogue q matches eligible articles, guides and practice separately using task synonyms and their eligible parent article context. Public routes always omit restricted titles, bodies, guides and fixtures. Protected reads resolve current identity, MFA and effective assignments server-side; client roles/owner IDs are not accepted. All responses are private/no-store and vary by Cookie. No AI, account lookup, progress mutation or training/live operational writes.",
         request: {
           query: kind === "catalogue" ? learningQuery : z.strictObject({}),
           params: kind === "catalogue" ? z.strictObject({}) : learningParams,

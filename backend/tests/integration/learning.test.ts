@@ -157,6 +157,39 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       expect(
         ids(await read(null, "/public/learning/catalogue?q=no-such-fixture")),
       ).toEqual([]);
+      const guideSearch = await read(null, "/public/learning/catalogue?q=walkthrough");
+      expect(guideSearch.body.data.articles).toEqual([]);
+      expect(guideSearch.body.data.guides.map((g: { id: string }) => g.id)).toEqual([
+        "parts-find",
+      ]);
+      expect(guideSearch.body.data.scenarios).toEqual([]);
+      const practiceSearch = await read(null, "/public/learning/catalogue?q=practise");
+      expect(practiceSearch.body.data.articles).toEqual([]);
+      expect(practiceSearch.body.data.guides).toEqual([]);
+      expect(practiceSearch.body.data.scenarios.map((s: { id: string }) => s.id)).toEqual(
+        ["corolla-fitment"],
+      );
+      const natural = await read(
+        null,
+        "/public/learning/catalogue?q=how+do+I+find+a+part",
+      );
+      expect(natural.body.data.articles.map((a: { id: string }) => a.id)).toContain(
+        "parts-fitment",
+      );
+      expect(natural.body.data.guides.map((g: { id: string }) => g.id)).toContain(
+        "parts-find",
+      );
+      expect(natural.body.data.scenarios.map((s: { id: string }) => s.id)).toContain(
+        "corolla-fitment",
+      );
+      expect(ids(await read(null, "/public/learning/catalogue?q=product+photo"))).toEqual(
+        [],
+      );
+      expect(ids(await read(f.care, "/learning/catalogue?q=product+photo"))).toEqual([]);
+      const mediaOwner = await f.session(f.owner.id, "SUPER_ADMIN");
+      expect(ids(await read(mediaOwner, "/learning/catalogue?q=product+photo"))).toEqual([
+        "product-photos",
+      ]);
       const article = learningArticles.find((a) => a.id === "parts-fitment")!;
       article.status = "draft";
       try {

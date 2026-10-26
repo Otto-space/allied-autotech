@@ -67,7 +67,7 @@ const article = (
     "You understand the next permitted step. Reading help does not change a live record.",
   recovery:
     "If the required control is unavailable, refresh your access or use Contact support. Do not bypass a restriction or repeat an uncertain submission.",
-  version: 1,
+  version: 2,
   status: "published",
   reviewedAt: "2026-10-26",
 });
@@ -183,7 +183,7 @@ export const learningArticles: LearningArticle[] = [
     "care-triage",
     "care",
     "staff-care",
-    "Triage a scoped Customer Care case",
+    "Handle a Customer Care request",
     "Read customer identity, status and conversation before choosing a next step.",
     [
       "Open your permitted enquiry or complaint queue; filter by subject or message.",
@@ -209,6 +209,23 @@ export const learningArticles: LearningArticle[] = [
     "/admin/workforce/enquiries",
     "SALES_ENQUIRIES and ENQUIRIES_ASSIGN contracts",
     "cashier sales supervisor sales representative quotation quote",
+  ),
+  article(
+    "product-photos",
+    "admin",
+    "work",
+    "Manage product photos",
+    "Review images, their display order and the main image as separate choices.",
+    [
+      "Open Products, select the actual product and open Compatibility & images, then Images.",
+      "Use the supported image controls and real approved product photos. Review the image description, display order and main-image choice before saving.",
+      "Move an image earlier or later only after reviewing the proposed gallery order. Reordering preserves the existing main image; the first image is not automatically main.",
+      "Read the saved gallery after a change. If the outcome cannot be confirmed, reload the saved records before trying again. Removing or clearing the main image does not choose a replacement automatically.",
+    ],
+    "/admin",
+    "ProductExtrasEditor, ProductImageForm and administrator-only product-media routes",
+    "product image photo gallery upload reorder primary main pictures",
+    "Use your current authorised administrator account. This help does not upload or change product images.",
   ),
   article(
     "finance-meaning",
@@ -321,7 +338,7 @@ export const learningArticles: LearningArticle[] = [
     "privileged-recovery",
     "owner",
     "work",
-    "Use the approved privileged recovery procedure",
+    "Use the approved account recovery process",
     "Help is not a bootstrap console or a place to enter privileged secrets.",
     [
       "Identify the verified operational procedure and responsible owner.",
@@ -351,8 +368,8 @@ export interface LearningGuide {
 export const learningGuides: LearningGuide[] = [
   {
     id: "parts-find",
-    version: 1,
-    title: "Find a candidate part",
+    version: 2,
+    title: "Find the right part",
     articleId: "parts-fitment",
     page: "parts",
     href: "/parts",
@@ -361,7 +378,7 @@ export const learningGuides: LearningGuide[] = [
       {
         id: "search",
         target: "parts-search",
-        text: "Enter a product name, brand or part number. A matching name is only a candidate, not compatibility evidence.",
+        text: "Enter a part name such as oil filter, a brand or a part number, then use Search. A name match alone does not confirm compatibility.",
         event: "input",
       },
       {
@@ -459,7 +476,7 @@ const decision = (
   liveHref: string,
 ): PracticeDefinition => ({
   id,
-  version: 1,
+  version: 2,
   gate,
   title,
   articleId,
@@ -471,13 +488,12 @@ const decision = (
     {
       id: "review",
       label: correct,
-      feedback: "This keeps the outcome and responsibility boundary accurate.",
+      feedback: `You chose to ${correct.charAt(0).toLowerCase() + correct.slice(1)}. ${objective} This keeps the missing evidence and your responsibility clear.`,
     },
     {
       id: "assume",
       label: unsafe,
-      feedback:
-        "That would assume an outcome or permission the sample does not establish. Read the evidence and try again.",
+      feedback: `You chose to ${unsafe.charAt(0).toLowerCase() + unsafe.slice(1)}. ${objective} The sample does not establish that outcome or permission. Try again and check what is missing.`,
     },
   ],
   outcome:
@@ -585,16 +601,31 @@ export const practiceDefinitions: PracticeDefinition[] = [
     outcome: "Fictional draft reviewed. No enquiry sent and no appointment booked.",
     liveHref: "/dashboard/support",
   },
-  decision(
-    "care-triage",
-    "care",
-    "Triage a fictional enquiry",
-    "care-triage",
-    "Practice Customer 001 asks whether an unspecified part fits. Vehicle/engine details and compatibility evidence are missing.",
-    "Ask for the missing details through a permitted reply",
-    "Promise fitment or a refund without evidence",
-    "/admin/workforce/enquiries",
-  ),
+  {
+    ...decision(
+      "care-triage",
+      "care",
+      "Reply to a sample Customer Care request",
+      "care-triage",
+      "Sample conversation — Practice Customer 001: “Will this oil filter fit my car?” No model, year, engine or part number is supplied. Draft a helpful public reply asking for those details; do not promise compatibility.",
+      "Ask for the missing details through a permitted reply",
+      "Promise fitment or a refund without evidence",
+      "/admin/workforce/enquiries",
+    ),
+    kind: "draft",
+    fields: [
+      {
+        id: "reply",
+        label: "Sample public reply",
+        min: 20,
+        max: 600,
+        example:
+          "Thanks for checking. Please share your vehicle make, model, year, engine details and the filter part number if available. We need to review the compatibility evidence before confirming a fit.",
+      },
+    ],
+    outcome:
+      "Your sample reply was reviewed locally. Check that it asks for missing facts and avoids a fitment promise. The exercise checks required inputs and your decision; it does not assess the accuracy of free text or send a reply.",
+  },
   decision(
     "sales-evidence",
     "sales",

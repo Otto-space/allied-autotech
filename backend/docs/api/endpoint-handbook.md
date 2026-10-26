@@ -67,7 +67,7 @@ Paystack calls the DigitalOcean API origin directly; Monnify remains disabled, n
 ### GET `/public/learning/catalogue`
 
 - Operation ID: `getPublicLearningCatalogue`
-- Purpose: Read-only versioned learning content. Public routes always omit restricted titles, bodies, guides and fixtures. Protected reads resolve current identity, MFA and effective assignments server-side; client roles/owner IDs are not accepted. All responses are private/no-store and vary by Cookie. No AI, account lookup, progress mutation or training/live operational writes. Read eligible catalogue. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Read-only versioned learning content. Catalogue q matches eligible articles, guides and practice separately using task synonyms and their eligible parent article context. Public routes always omit restricted titles, bodies, guides and fixtures. Protected reads resolve current identity, MFA and effective assignments server-side; client roles/owner IDs are not accepted. All responses are private/no-store and vary by Cookie. No AI, account lookup, progress mutation or training/live operational writes. Read eligible catalogue. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: PUBLIC
 - Authentication: None
 - CSRF: Not required
@@ -154,7 +154,7 @@ Relevant errors: 400 The request is malformed.; 401 Current session required; 40
 ### GET `/public/learning/articles/{id}`
 
 - Operation ID: `getPublicLearningArticlesById`
-- Purpose: Read-only versioned learning content. Public routes always omit restricted titles, bodies, guides and fixtures. Protected reads resolve current identity, MFA and effective assignments server-side; client roles/owner IDs are not accepted. All responses are private/no-store and vary by Cookie. No AI, account lookup, progress mutation or training/live operational writes. Read eligible articles. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Read-only versioned learning content. Catalogue q matches eligible articles, guides and practice separately using task synonyms and their eligible parent article context. Public routes always omit restricted titles, bodies, guides and fixtures. Protected reads resolve current identity, MFA and effective assignments server-side; client roles/owner IDs are not accepted. All responses are private/no-store and vary by Cookie. No AI, account lookup, progress mutation or training/live operational writes. Read eligible articles. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: PUBLIC
 - Authentication: None
 - CSRF: Not required
@@ -201,7 +201,7 @@ Relevant errors: 400 The request is malformed.; 401 Current session required; 40
 ### GET `/public/learning/guides/{id}`
 
 - Operation ID: `getPublicLearningGuidesById`
-- Purpose: Read-only versioned learning content. Public routes always omit restricted titles, bodies, guides and fixtures. Protected reads resolve current identity, MFA and effective assignments server-side; client roles/owner IDs are not accepted. All responses are private/no-store and vary by Cookie. No AI, account lookup, progress mutation or training/live operational writes. Read eligible guides. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Read-only versioned learning content. Catalogue q matches eligible articles, guides and practice separately using task synonyms and their eligible parent article context. Public routes always omit restricted titles, bodies, guides and fixtures. Protected reads resolve current identity, MFA and effective assignments server-side; client roles/owner IDs are not accepted. All responses are private/no-store and vary by Cookie. No AI, account lookup, progress mutation or training/live operational writes. Read eligible guides. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: PUBLIC
 - Authentication: None
 - CSRF: Not required
@@ -246,7 +246,7 @@ Relevant errors: 400 The request is malformed.; 401 Current session required; 40
 ### GET `/public/learning/scenarios/{id}`
 
 - Operation ID: `getPublicLearningScenariosById`
-- Purpose: Read-only versioned learning content. Public routes always omit restricted titles, bodies, guides and fixtures. Protected reads resolve current identity, MFA and effective assignments server-side; client roles/owner IDs are not accepted. All responses are private/no-store and vary by Cookie. No AI, account lookup, progress mutation or training/live operational writes. Read eligible scenarios. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Read-only versioned learning content. Catalogue q matches eligible articles, guides and practice separately using task synonyms and their eligible parent article context. Public routes always omit restricted titles, bodies, guides and fixtures. Protected reads resolve current identity, MFA and effective assignments server-side; client roles/owner IDs are not accepted. All responses are private/no-store and vary by Cookie. No AI, account lookup, progress mutation or training/live operational writes. Read eligible scenarios. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: PUBLIC
 - Authentication: None
 - CSRF: Not required
@@ -23281,7 +23281,7 @@ Relevant errors: 400 The request is malformed.; 401 Invalid signature; 409 The r
 ### GET `/learning/catalogue`
 
 - Operation ID: `getLearningCatalogue`
-- Purpose: Read-only versioned learning content. Public routes always omit restricted titles, bodies, guides and fixtures. Protected reads resolve current identity, MFA and effective assignments server-side; client roles/owner IDs are not accepted. All responses are private/no-store and vary by Cookie. No AI, account lookup, progress mutation or training/live operational writes. Read eligible catalogue. Access boundary: authenticated-user. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Read-only versioned learning content. Catalogue q matches eligible articles, guides and practice separately using task synonyms and their eligible parent article context. Public routes always omit restricted titles, bodies, guides and fixtures. Protected reads resolve current identity, MFA and effective assignments server-side; client roles/owner IDs are not accepted. All responses are private/no-store and vary by Cookie. No AI, account lookup, progress mutation or training/live operational writes. Read eligible catalogue. Access boundary: authenticated-user. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: AUTHENTICATED
 - Authentication: Opaque session cookie
 - CSRF: Not required
@@ -23368,7 +23368,7 @@ Relevant errors: 400 The request is malformed.; 401 Current session required; 40
 ### GET `/learning/articles/{id}`
 
 - Operation ID: `getLearningArticlesById`
-- Purpose: Read-only versioned learning content. Public routes always omit restricted titles, bodies, guides and fixtures. Protected reads resolve current identity, MFA and effective assignments server-side; client roles/owner IDs are not accepted. All responses are private/no-store and vary by Cookie. No AI, account lookup, progress mutation or training/live operational writes. Read eligible articles. Access boundary: authenticated-user. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Read-only versioned learning content. Catalogue q matches eligible articles, guides and practice separately using task synonyms and their eligible parent article context. Public routes always omit restricted titles, bodies, guides and fixtures. Protected reads resolve current identity, MFA and effective assignments server-side; client roles/owner IDs are not accepted. All responses are private/no-store and vary by Cookie. No AI, account lookup, progress mutation or training/live operational writes. Read eligible articles. Access boundary: authenticated-user. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: AUTHENTICATED
 - Authentication: Opaque session cookie
 - CSRF: Not required
@@ -23415,7 +23415,7 @@ Relevant errors: 400 The request is malformed.; 401 Current session required; 40
 ### GET `/learning/guides/{id}`
 
 - Operation ID: `getLearningGuidesById`
-- Purpose: Read-only versioned learning content. Public routes always omit restricted titles, bodies, guides and fixtures. Protected reads resolve current identity, MFA and effective assignments server-side; client roles/owner IDs are not accepted. All responses are private/no-store and vary by Cookie. No AI, account lookup, progress mutation or training/live operational writes. Read eligible guides. Access boundary: authenticated-user. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Read-only versioned learning content. Catalogue q matches eligible articles, guides and practice separately using task synonyms and their eligible parent article context. Public routes always omit restricted titles, bodies, guides and fixtures. Protected reads resolve current identity, MFA and effective assignments server-side; client roles/owner IDs are not accepted. All responses are private/no-store and vary by Cookie. No AI, account lookup, progress mutation or training/live operational writes. Read eligible guides. Access boundary: authenticated-user. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: AUTHENTICATED
 - Authentication: Opaque session cookie
 - CSRF: Not required
@@ -23460,7 +23460,7 @@ Relevant errors: 400 The request is malformed.; 401 Current session required; 40
 ### GET `/learning/scenarios/{id}`
 
 - Operation ID: `getLearningScenariosById`
-- Purpose: Read-only versioned learning content. Public routes always omit restricted titles, bodies, guides and fixtures. Protected reads resolve current identity, MFA and effective assignments server-side; client roles/owner IDs are not accepted. All responses are private/no-store and vary by Cookie. No AI, account lookup, progress mutation or training/live operational writes. Read eligible scenarios. Access boundary: authenticated-user. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Read-only versioned learning content. Catalogue q matches eligible articles, guides and practice separately using task synonyms and their eligible parent article context. Public routes always omit restricted titles, bodies, guides and fixtures. Protected reads resolve current identity, MFA and effective assignments server-side; client roles/owner IDs are not accepted. All responses are private/no-store and vary by Cookie. No AI, account lookup, progress mutation or training/live operational writes. Read eligible scenarios. Access boundary: authenticated-user. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: AUTHENTICATED
 - Authentication: Opaque session cookie
 - CSRF: Not required

@@ -138,16 +138,29 @@ export async function currentLearningAccess(
 }
 function textWords(value: string) {
   const synonyms: Record<string, string> = {
-    shop: "parts",
+    shop: "part",
     quotation: "quote",
     appointment: "booking",
     cash: "payment",
     login: "access",
+    products: "part",
+    product: "part",
+    parts: "part",
+    photos: "image",
+    photo: "image",
+    images: "image",
+    fitment: "compatibility",
+    support: "care",
+    customer: "care",
   };
   return value
     .toLowerCase()
     .split(/[^\p{L}\p{N}-]+/u)
     .filter(Boolean)
+    .filter(
+      (word) =>
+        !/^(how|do|does|i|can|my|your|what|is|the|a|an|to|me|please|with)$/.test(word),
+    )
     .map((word) => synonyms[word] ?? word);
 }
 export function learningCatalogue(access: LearningAccess, query = "") {
@@ -157,13 +170,16 @@ export function learningCatalogue(access: LearningAccess, query = "") {
   );
   const visibleIds = new Set(published.map((a) => a.id));
   const words = textWords(query);
+  const matches = (...fields: string[]) => {
+    const haystack = textWords(fields.join(" ")).join(" ");
+    return words.every((word) => haystack.includes(word));
+  };
+  const parentText = (id: string) => {
+    const parent = published.find((a) => a.id === id);
+    return parent ? [parent.title, parent.summary, parent.keywords].join(" ") : "";
+  };
   const articles = published
-    .filter((a) => {
-      const haystack = textWords(
-        [a.title, a.summary, a.keywords, ...a.steps].join(" "),
-      ).join(" ");
-      return words.every((word) => haystack.includes(word));
-    })
+    .filter((a) => matches("article answer", a.title, a.summary, a.keywords, ...a.steps))
     .map(({ gate: _gate, ...a }) => {
       // Complaint-only officers must not be directed to an unavailable enquiry queue.
       if (
@@ -202,6 +218,12 @@ export function learningCatalogue(access: LearningAccess, query = "") {
             (g) =>
               visibleIds.has(g.articleId) &&
               learningEligible(access, g.gate) &&
+              matches(
+                "guide walkthrough",
+                g.title,
+                ...g.steps.map((s) => s.text),
+                parentText(g.articleId),
+              ) &&
               !(
                 g.id === "care-queue" &&
                 !access.permissions.includes("CUSTOMER_ENQUIRIES")
@@ -211,7 +233,17 @@ export function learningCatalogue(access: LearningAccess, query = "") {
       : [],
     scenarios: env.HELP_LEARN_PRACTICE_ENABLED
       ? practiceDefinitions
-          .filter((s) => visibleIds.has(s.articleId) && learningEligible(access, s.gate))
+          .filter(
+            (s) =>
+              visibleIds.has(s.articleId) &&
+              learningEligible(access, s.gate) &&
+              matches(
+                "practice practise sample",
+                s.title,
+                s.objective,
+                parentText(s.articleId),
+              ),
+          )
           .map(({ id, title, objective, version, articleId }) => ({
             id,
             title,
