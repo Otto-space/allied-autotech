@@ -79,3 +79,9 @@ provider was a controlled test adapter; no provider request, payment movement,
 application database or production deployment occurred. The separate linear
 due-scan scale finding, provider sandbox, operational hold resolution, legacy
 `RUNNING` inspection, compatible merge and guarded rollout remain open.
+
+Exact runtime `9f4c963820ca7bdd1079818a503f414549fb284b` was pushed. Its
+[backend database-safety CI](https://github.com/Otto-space/allied-autotech/actions/runs/40452332576)
+and [redacted secret guard](https://github.com/Otto-space/allied-autotech/actions/runs/40452332536)
+both completed successfully. Neither check establishes provider or production
+acceptance.
