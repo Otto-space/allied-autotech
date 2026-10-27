@@ -43,3 +43,17 @@ that suite was attempted, but automatic command review rejected starting its
 task-owned container with the reason `blocked by policy`. No container or
 database was created by that attempt. The direct real-database refund transition
 therefore remains unverified at this checkpoint.
+
+## Isolated real-database follow-up — 27 October
+
+The existing `refund-processing.test.ts` suite is now included as a dedicated
+step before other refund fixtures in the GitHub database-safety workflow. Its
+manual approval case additionally reads the committed refund and checks that
+`NEEDS_ATTENTION`, `OFFLINE_PROCESSING_REQUIRED` and the approver are stored
+together. Both suite cases passed against the workflow's isolated `_ci`
+PostgreSQL target on exact runtime `70f5615ac3da9990bbf76a7a17cfb1ceb70fbf1e`.
+The full [database-safety run](https://github.com/Otto-space/allied-autotech/actions/runs/40466928896)
+and [secret guard](https://github.com/Otto-space/allied-autotech/actions/runs/40466928798)
+passed. This closes the earlier direct database-transition test gap for the
+tested manual path. It does not verify real bank movement, provider settlement,
+production financial rows or a live role session; the candidate is unreleased.
