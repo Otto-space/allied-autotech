@@ -1312,7 +1312,8 @@
         "access-review",
         "work-access",
         "assigned-findings",
-        "booking-confirmation"
+        "booking-confirmation",
+        "financial-aftercare"
       ],
       "guideIds": [],
       "practiceIds": [],
@@ -1357,7 +1358,11 @@
         "docs/help-learn/WORKFORCE_BOOKING_W12.md",
         "backend/tests/integration/workforce-booking-confirmation.test.ts",
         "frontend/tests/e2e/workforce-booking-confirmation.spec.ts",
-        "frontend/tests/e2e/workforce-booking-native.spec.ts"
+        "frontend/tests/e2e/workforce-booking-native.spec.ts",
+        "docs/help-learn/WORKFORCE_AFTERCARE_W13.md",
+        "backend/tests/integration/workforce-aftercare.test.ts",
+        "frontend/tests/e2e/workforce-aftercare.spec.ts",
+        "frontend/tests/e2e/workforce-aftercare-native.spec.ts"
       ],
       "gaps": [
         "Full independent-grant/baseline composition and real chat subscription authorisation remain open; W5 verifies the managed-workforce registry and HTTP/session invalidation only.",
@@ -1366,7 +1371,8 @@
         "W10: unsupported historical values and revocation receipts accepted in native/320-1440px fixtures; independent-grant/baseline and full route learning remain open.",
         "Hosted role mutations remain unverified; W10 synthetic history does not establish production prevalence.",
         "W11 adds separate current owner-grant projection, page/notification guards and invalidation; scoped booking confirmation, financial aftercare and granular Care authority remain open.",
-        "W12 closes scoped BOOKING_CONFIRM with bounded local acceptance; scoped financial aftercare, granular Care authority, booking guide/practice decisions and complete route acceptance remain open."
+        "W12 closes scoped BOOKING_CONFIRM with bounded local acceptance; scoped financial aftercare, granular Care authority, booking guide/practice decisions and complete route acceptance remain open.",
+        "W13 closes the scoped financial-aftercare adapter locally. Granular Care authority, canonical persisted handoff/shared staffed transport and full route-specific mode decisions remain open."
       ],
       "subviews": [
         {
@@ -1418,6 +1424,16 @@
           "pattern": "/admin/workforce/finance",
           "task": "Permitted finance overview",
           "verification": "W5 source predicate/native policy tests; full route-specific rendered states and learning modes remain open."
+        },
+        {
+          "pattern": "/admin/workforce/aftercare",
+          "task": "Scoped financial aftercare queue",
+          "verification": "W13: native branch/grant/fee/privacy/stale/concurrency acceptance, 21 responsive Staff/Admin fixtures and actual browser/CSRF/API/CI-DB composition; full learning modes/hosted/device acceptance remain open."
+        },
+        {
+          "pattern": "/admin/workforce/aftercare/[requestId]",
+          "task": "Scoped financial aftercare evidence and reviewed decision",
+          "verification": "W13: native branch/grant/fee/privacy/stale/concurrency acceptance, 21 responsive Staff/Admin fixtures and actual browser/CSRF/API/CI-DB composition; full learning modes/hosted/device acceptance remain open."
         }
       ]
     },

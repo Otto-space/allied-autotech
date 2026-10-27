@@ -5,21 +5,19 @@ that every route or state has passed review. Work proceeds in finite batches.
 
 ## Standing responsibility and source
 
-Current bounded implementation: Revision 4 W12 scoped booking confirmation,
-branch `feat/workforce-scoped-booking-20261027`, based on W11 `8503f4f7` in the
-reused `allied-home-restoration-20261025` worktree. Current branch access and the
-separate confirmation grant are both required. Existing calendar/capacity, staff
-schedule, version, audit and reminder checks remain. Eleven scoped native cases,
-57 workforce/session/learning regressions, eleven legacy booking cases, 59 backend
-units and full 1,121 frontend tests passed; final focused API/review checks and
-responsive/native browser evidence are recorded in the W12 checkpoint.
-No publication, schema change, real customer message or new provider call.
-AI defaults stay off; W9's bounded provider allowance remains exhausted.
-Financial aftercare, granular Care authority, canonical persisted handoff, shared
-staffed/gated transport, all-route learning and hosted/device acceptance remain open.
-Evidence: `docs/help-learn/WORKFORCE_BOOKING_W12.md`, W11 independent grants, W10
-history, W9 provider evaluation and retained earlier checkpoints. Customer-table/
-sidebar responsiveness remains in Cycle13; unrelated release worktrees are preserved.
+Current bounded implementation: Revision4 W13 scoped financial aftercare, branch
+`feat/workforce-scoped-aftercare-20261027`, based on W12 `e31af199` in the reused
+`allied-home-restoration-20261025` worktree. Finance branch scope and the separate
+financial approval duty both govern the queue/detail/decision. Customer-visible notes,
+internal evidence, current-review HMAC and uncertain outcome recovery are explicit.
+Final62 native,60 backend units, full1130 frontend/final67 focused,21 responsive
+fixtures and1 actual native-browser case passed, with types/contracts/lint/build.
+No new schema, provider call, external customer message or publication. AI defaults
+stay off and W9 allowance remains exhausted. Granular Care authority, canonical
+reviewed handoff, gated shared staffed transport and all106 route learning acceptance
+remain open. Evidence: `docs/help-learn/WORKFORCE_AFTERCARE_W13.md` and retained W12
+booking/W11 independent-grant/W10 history/W9 evaluation checkpoints. Customer-table/
+sidebar responsiveness remains Cycle13; unrelated newer release work is preserved.
 
 Notification Cycle 8 was deployed on 25 October 2026 from runtime source `345847d5` after locked
 Next 16.4.3 CI and optimized hosted acceptance. Genuine native delivery/click
@@ -1839,3 +1837,18 @@ API stopped and synthetic browser session/cookie retired; existing frontend prev
 retained. Docker resources preserved, denied dev-folder cleanup not retried.
 Next: scoped financial-aftercare then granular Care permissions, persisted reviewed
 handoff/shared staffed transport. All106 route gates and fullRevision4/Item6 active.
+
+27 October 2026 - Revision4 W13 local checkpoint: scoped financial aftercare
+requires current FINANCE_READ branch scope AND separate FINANCE_POLICY_APPROVE.
+Minimal queue/detail, current evidence HMAC, customer-visible reviewed decision note,
+receipt verification and reload-safe uncertainty block implemented. Existing legacy
+fee/inspection/immutable-data/audit rules retained; no stock/refund execution.
+Final62 native across7 suites,60 backend units, full1130 frontend plus67 focused,
+21 responsive Staff/Admin fixtures and1 actual browser/CSRF/API/CI-DB case passed.
+OpenAPI379/routes443+4, generated types, types/lint/secret guard and cached build pass.
+Evidence: docs/help-learn/WORKFORCE_AFTERCARE_W13.md. No schema/model call, real message,
+install/new worktree or publication. W9 allowance exhausted. Native API/session/cookie
+retired; frontend preview retained. C:25.43GiB measured free; Docker useful resources
+preserved and denied dev-folder cleanup untouched. Next: granular Care permissions,
+canonical reviewed persisted handoff and shared staffed/gated transport. All106
+route learning decisions, exact-lock/hosted/device gates and fullRevision4 remain open.

@@ -18,6 +18,7 @@ export type TokenPurpose =
   | "order-checkout-idempotency"
   | "order-reservation"
   | "order-inventory"
+  | "workforce-aftercare-review"
   | "vehicle-reservation-idempotency"
   | "vehicle-creation-idempotency"
   | "saved-vehicle-cursor"

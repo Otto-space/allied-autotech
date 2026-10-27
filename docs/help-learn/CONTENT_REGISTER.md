@@ -1,35 +1,36 @@
 # Versioned content and scenario register
 
 Source: backend/src/modules/learning/learning.content.ts. Versions and review dates
-below reflect current source definitions, including W9-W12 corrections. Published
+below reflect current source definitions, including W9-W13 corrections. Published
 status in source means eligible for filtering when explicitly enabled; it does not
 mean a production publication. Feature flags remain off in committed examples.
 
-| Article                 | Eligibility gate     | Version / review | Actual destination           | Authority                                                                                                              |
-| ----------------------- | -------------------- | ---------------- | ---------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| booking-confirmation    | booking-confirmation | 3 / 2026-10-27   | /admin/workforce/bookings    | Scoped confirmation adapter, shared ServiceOperations transition/capacity/schedule/reminders and reviewed booking form |
-| refund-work             | refunds              | 3 / 2026-10-27   | /admin/refunds               | ManualRefundsService scope/current/check, PaymentsService refund decisions and StaffRefunds review/recovery            |
-| dispute-work            | disputes             | 3 / 2026-10-27   | /admin/payment-disputes/work | DisputesRouter authorized/current/assignment and WorkDisputeHandling review/recovery                                   |
-| privacy-work            | privacy              | 3 / 2026-10-27   | /admin/privacy               | PrivacyRouter assertCapability, hold protection and WorkPrivacy review/recovery                                        |
-| financial-policy-work   | financial-policy     | 3 / 2026-10-27   | /admin/finance-policy        | readFinancePolicy and publishPolicy FINANCE branch, FinancePolicy current/version/review                               |
-| parts-fitment           | public               | 2 / 2026-10-26   | /parts                       | Parts discovery, fitment evidence and approved collection-only launch                                                  |
-| vehicle-enquiry         | public               | 2 / 2026-10-26   | /vehicles                    | Vehicle discovery and listing-less enquiry contracts                                                                   |
-| service-request         | public               | 2 / 2026-10-26   | /services                    | Public launch mode and Services page                                                                                   |
-| security-basics         | public               | 2 / 2026-10-26   | /forgot-password             | Identity recovery and published account security guidance                                                              |
-| no-live-lookup          | public               | 2 / 2026-10-26   | /help                        | Launch restrictions and existing status contracts                                                                      |
-| own-conversation        | customer             | 4 / 2026-10-27   | /dashboard/support           | Customer support ownership, drafts and review-before-send                                                              |
-| work-access             | work                 | 5 / 2026-10-27   | /admin                       | Current workforce scope, registered navigation and access-change recovery                                              |
-| care-triage             | care                 | 3 / 2026-10-27   | /admin/workforce/enquiries   | Managed care scope, public/internal separation and delivery acknowledgements                                           |
-| sales-enquiries         | sales                | 3 / 2026-10-27   | /admin/workforce/enquiries   | SALES_ENQUIRIES and ENQUIRIES_ASSIGN contracts                                                                         |
-| product-photos          | admin                | 3 / 2026-10-27   | /admin                       | ProductExtrasEditor, ProductImageForm and administrator-only product-media routes                                      |
-| finance-meaning         | finance              | 3 / 2026-10-27   | /admin/workforce/finance     | Workforce finance projection and permission boundary                                                                   |
-| assigned-findings       | jobs                 | 3 / 2026-10-27   | /admin/workforce/jobs        | JOBS_READ/JOBS_UPDATE, assigned scope and work review                                                                  |
-| job-assignment          | assign               | 3 / 2026-10-27   | /admin/workforce/jobs        | JOBS_ASSIGN and QUALITY_APPROVE routes                                                                                 |
-| mixed-queues            | operations           | 3 / 2026-10-27   | /admin                       | OPERATIONS template and effective assignment union                                                                     |
-| oversight-scope         | oversight            | 3 / 2026-10-27   | /admin                       | CEO_MD position and permission-filtered overview                                                                       |
-| customer-account-review | admin                | 3 / 2026-10-27   | /admin/customers             | Customer account lock, session enforcement and audit contract                                                          |
-| access-review           | access               | 4 / 2026-10-27   | /admin/workforce/access      | Team access security, pinned delegation and reviewed responsibility impact                                             |
-| privileged-recovery     | owner                | 3 / 2026-10-27   | /admin/security              | Existing identity/governance safeguards                                                                                |
+| Article                 | Eligibility gate     | Version / review | Actual destination           | Authority                                                                                                                                   |
+| ----------------------- | -------------------- | ---------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| financial-aftercare     | financial-aftercare  | 3 / 2026-10-27   | /admin/workforce/aftercare   | Scoped financial aftercare adapter, shared OrderAftercareService fee/inspection/audit core and customerAftercareView review-note projection |
+| booking-confirmation    | booking-confirmation | 3 / 2026-10-27   | /admin/workforce/bookings    | Scoped confirmation adapter, shared ServiceOperations transition/capacity/schedule/reminders and reviewed booking form                      |
+| refund-work             | refunds              | 3 / 2026-10-27   | /admin/refunds               | ManualRefundsService scope/current/check, PaymentsService refund decisions and StaffRefunds review/recovery                                 |
+| dispute-work            | disputes             | 3 / 2026-10-27   | /admin/payment-disputes/work | DisputesRouter authorized/current/assignment and WorkDisputeHandling review/recovery                                                        |
+| privacy-work            | privacy              | 3 / 2026-10-27   | /admin/privacy               | PrivacyRouter assertCapability, hold protection and WorkPrivacy review/recovery                                                             |
+| financial-policy-work   | financial-policy     | 3 / 2026-10-27   | /admin/finance-policy        | readFinancePolicy and publishPolicy FINANCE branch, FinancePolicy current/version/review                                                    |
+| parts-fitment           | public               | 2 / 2026-10-26   | /parts                       | Parts discovery, fitment evidence and approved collection-only launch                                                                       |
+| vehicle-enquiry         | public               | 2 / 2026-10-26   | /vehicles                    | Vehicle discovery and listing-less enquiry contracts                                                                                        |
+| service-request         | public               | 2 / 2026-10-26   | /services                    | Public launch mode and Services page                                                                                                        |
+| security-basics         | public               | 2 / 2026-10-26   | /forgot-password             | Identity recovery and published account security guidance                                                                                   |
+| no-live-lookup          | public               | 2 / 2026-10-26   | /help                        | Launch restrictions and existing status contracts                                                                                           |
+| own-conversation        | customer             | 4 / 2026-10-27   | /dashboard/support           | Customer support ownership, drafts and review-before-send                                                                                   |
+| work-access             | work                 | 5 / 2026-10-27   | /admin                       | Current workforce scope, registered navigation and access-change recovery                                                                   |
+| care-triage             | care                 | 3 / 2026-10-27   | /admin/workforce/enquiries   | Managed care scope, public/internal separation and delivery acknowledgements                                                                |
+| sales-enquiries         | sales                | 3 / 2026-10-27   | /admin/workforce/enquiries   | SALES_ENQUIRIES and ENQUIRIES_ASSIGN contracts                                                                                              |
+| product-photos          | admin                | 3 / 2026-10-27   | /admin                       | ProductExtrasEditor, ProductImageForm and administrator-only product-media routes                                                           |
+| finance-meaning         | finance              | 3 / 2026-10-27   | /admin/workforce/finance     | Workforce finance projection and permission boundary                                                                                        |
+| assigned-findings       | jobs                 | 3 / 2026-10-27   | /admin/workforce/jobs        | JOBS_READ/JOBS_UPDATE, assigned scope and work review                                                                                       |
+| job-assignment          | assign               | 3 / 2026-10-27   | /admin/workforce/jobs        | JOBS_ASSIGN and QUALITY_APPROVE routes                                                                                                      |
+| mixed-queues            | operations           | 3 / 2026-10-27   | /admin                       | OPERATIONS template and effective assignment union                                                                                          |
+| oversight-scope         | oversight            | 3 / 2026-10-27   | /admin                       | CEO_MD position and permission-filtered overview                                                                                            |
+| customer-account-review | admin                | 3 / 2026-10-27   | /admin/customers             | Customer account lock, session enforcement and audit contract                                                                               |
+| access-review           | access               | 4 / 2026-10-27   | /admin/workforce/access      | Team access security, pinned delegation and reviewed responsibility impact                                                                  |
+| privileged-recovery     | owner                | 3 / 2026-10-27   | /admin/security              | Existing identity/governance safeguards                                                                                                     |
 
 ## Guides
 

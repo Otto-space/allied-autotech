@@ -114,3 +114,14 @@ defects found during rendered acceptance were fixed and rechecked. No migration,
 provider call or publication. See WORKFORCE_BOOKING_W12.md. Financial-aftercare
 adapter, granular Care duties, canonical persisted handoff, shared staffed/gated
 transport and all106 exact route completion decisions remain open.
+
+W13: `feat/workforce-scoped-aftercare-20261027`, based on W12 `e31af199`. Scoped
+finance reading AND a separate financial approval duty govern the minimal aftercare
+queue/detail/decision. Existing fee/inspection/audit core preserved; no refund/stock
+execution. HMAC revision binds reviewed evidence; internal versus customer-visible
+notes and uncertain recovery are explicit. Final62 native,60 backend units, full1130
+frontend/final67 focused and21 fixture plus1 actual native-browser cases passed.
+OpenAPI379/routes443+4, generated types, types/lint/secret guard and cached build pass.
+No schema change, model call or publication. See WORKFORCE_AFTERCARE_W13.md. Granular
+Care duties, persisted reviewed handoff, shared staffed/gated transport, exact-lock/
+hosted/device checks and all106 route completion decisions remain open.

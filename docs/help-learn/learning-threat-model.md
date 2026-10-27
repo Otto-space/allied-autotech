@@ -274,3 +274,29 @@ The appointment reminder is scheduled, not verified delivered. No actual provide
 call or operational customer record is involved. The gated help topic has no fresh
 real-provider evaluation under the exhausted W9 allowance. Hosted, device and complete
 route learning acceptance remain separate gates; this does not authorize release.
+
+## W13 scoped financial aftercare boundary
+
+Current FINANCE_READ branch scope intersects a separate active FINANCE_POLICY_APPROVE
+duty. Position, grant alone and enrolled Admin status cannot expose foreign orders.
+The projection excludes customer identity/contact, full order data and raw policy
+settings. A purpose-separated server HMAC binds request/items/financial/policy evidence,
+including unprojected settings, without exposing a guessable unkeyed digest of them.
+The revision proves freshness only; every read/decision rechecks authority and scope.
+Request/order locks serialize the decision and existing business checks/audit handling.
+Unknown JSON evidence stays unknown and cannot confer financial decision authority.
+Database immutable-pricing and kind/status guards remain intact and were exercised.
+
+The UI keeps internal inspection evidence separate from the explicitly customer-visible
+decision note. It never auto-copies internal notes, pays a refund, restocks goods or
+sends model output to customers. Session-local uncertainty stores only an actor-keyed
+request reference/token; invalidation redacts that reference and disposes the review.
+An ambiguous response stays blocked through reload, with explicit current-state/history
+inspection that cannot attribute an earlier operation. The new help source is static,
+permission-gated and contains no operational record retrieval for the provider.
+
+Final62 native tests,21 responsive fixtures and a real browser/CSRF/API/restricted-CI-DB
+decision provide bounded local evidence. No actual provider call, customer message or
+public feature enablement occurred. The new guidance has no fresh real-provider review
+under W9's exhausted allowance. Hosted proxy/role/device acceptance and all-route
+learning remain open; persisted handoff and live transport still need their own review.

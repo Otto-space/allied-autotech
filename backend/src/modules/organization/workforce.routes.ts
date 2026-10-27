@@ -15,6 +15,7 @@ import * as schemas from "./workforce.schemas.js";
 
 import { TeamAccessService } from "./team-access.service.js";
 import { ServiceOperationsService } from "../service-operations/service-operations.service.js";
+import { OrderAftercareService } from "../orders/order-aftercare.service.js";
 import { privilegedInvitationBodySchema } from "./organization.schemas.js";
 
 const context = (req: Request) => ({
@@ -25,6 +26,27 @@ const context = (req: Request) => ({
 const empty = z.strictObject({});
 // Route definitions are shared with OpenAPI, so every new contract is documented.
 export const workforceRouteDefinitions = [
+  [
+    "get",
+    "/staff/workforce/aftercare",
+    "aftercare",
+    schemas.workforceAftercareQuerySchema,
+    empty,
+  ],
+  [
+    "get",
+    "/staff/workforce/aftercare/:id",
+    "aftercareRequest",
+    empty,
+    schemas.workforceRecordParams,
+  ],
+  [
+    "post",
+    "/staff/workforce/aftercare/:id/decision",
+    "aftercareDecision",
+    schemas.workforceAftercareDecisionSchema,
+    schemas.workforceRecordParams,
+  ],
   [
     "get",
     "/admin/workforce/accounts",
@@ -256,6 +278,7 @@ export function createWorkforceRouter(): Router {
                   "orders",
                   "finance",
                   "directory",
+                  "aftercare",
                 ].includes(action)
               ? schemas.workforceListSchema.parse({})
               : schemas.workforceListSchema.parse(req.query);
@@ -266,6 +289,24 @@ export function createWorkforceRouter(): Router {
       } = req.params as Record<string, string>;
       let data: unknown;
       switch (action) {
+        case "aftercare":
+          data = await new OrderAftercareService().workforceList(
+            actor,
+            schemas.workforceAftercareQuerySchema.parse(req.query),
+            ctx,
+          );
+          break;
+        case "aftercareRequest":
+          data = await new OrderAftercareService().workforceRequest(actor, id, ctx);
+          break;
+        case "aftercareDecision":
+          data = await new OrderAftercareService().workforceDecision(
+            actor,
+            id,
+            schemas.workforceAftercareDecisionSchema.parse(body),
+            ctx,
+          );
+          break;
         case "directory":
           data = await new WorkforceDirectoryService().list(
             actor,

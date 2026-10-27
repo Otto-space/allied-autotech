@@ -15800,6 +15800,291 @@ Success: HTTP 200.
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
+### GET `/staff/workforce/aftercare`
+
+- Operation ID: `getStaffWorkforceAftercare`
+- Purpose: Explicit enrollment required for operational queues. Current assignments, branch, field projections and state are enforced in a transaction. Access changes require MFA, current password, target/version review and an owner-configured delegation envelope. No financial execution, exports or collection release authority is conferred by a title. Responsibility-based workspace: aftercare. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
+| `q` | query | string | No | Q used to constrain this request. |
+| `status` | query | REQUESTED / RECEIVED / INSPECTED / APPROVED / REJECTED | No | Status used to constrain this request. |
+| `kind` | query | RETURN / CANCELLATION | No | Kind used to constrain this request. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Responsibility-based workspace: aftercare",
+  "data": {
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "orderId": "00000000-0000-4000-8000-000000000001",
+        "kind": "synthetic-kind",
+        "status": "synthetic-status",
+        "requestedAt": "2030-01-15T10:00:00.000Z",
+        "receivedAt": "2030-01-15T10:00:00.000Z",
+        "inspectedAt": "2030-01-15T10:00:00.000Z",
+        "reviewedAt": "2030-01-15T10:00:00.000Z",
+        "approvedFeeKobo": "300000",
+        "order": {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "orderNumber": "synthetic-ordernumber",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "branch": {
+            "id": "00000000-0000-4000-8000-000000000001",
+            "name": "synthetic-name"
+          },
+          "currency": "NGN",
+          "totalKobo": "300000",
+          "confirmedAt": "2030-01-15T10:00:00.000Z",
+          "fulfillmentMethod": "COLLECTION"
+        }
+      }
+    ],
+    "nextCursor": "00000000-0000-4000-8000-000000000001",
+    "access": {
+      "managed": true,
+      "userId": "00000000-0000-4000-8000-000000000001",
+      "staffId": "00000000-0000-4000-8000-000000000001",
+      "position": "synthetic-position",
+      "department": "synthetic-department",
+      "version": 0,
+      "assignments": [
+        {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "userId": "00000000-0000-4000-8000-000000000001",
+          "template": "OPERATIONS",
+          "templateVersion": 1,
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH",
+          "temporary": true,
+          "startsAt": "2030-01-15T10:00:00.000Z",
+          "expiresAt": "2030-01-15T10:00:00.000Z",
+          "reason": "synthetic-reason",
+          "assignedByUserId": "00000000-0000-4000-8000-000000000001",
+          "createdAt": "2030-01-15T10:00:00.000Z",
+          "revokedAt": "2030-01-15T10:00:00.000Z",
+          "revokedByUserId": "00000000-0000-4000-8000-000000000001",
+          "revocationReason": "synthetic-revocationreason"
+        }
+      ],
+      "permissions": [
+        "synthetic-permissions-item"
+      ],
+      "independentCapabilities": [
+        "REFUND_APPROVE"
+      ],
+      "canManageAssignments": true,
+      "canInviteAdmins": true,
+      "accessRevision": "synthetic-accessrevision",
+      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+      "capabilityScopes": [
+        {
+          "capability": "synthetic-capability",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH"
+        }
+      ],
+      "serverTime": "2030-01-15T10:00:00.000Z"
+    },
+    "generatedAt": "2030-01-15T10:00:00.000Z"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 Current access does not permit this request; 404 Record unavailable in permitted scope; 409 Stale version or invalid state; 422 Invalid fields; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/staff/workforce/aftercare/{id}`
+
+- Operation ID: `getStaffWorkforceAftercareById`
+- Purpose: Explicit enrollment required for operational queues. Current assignments, branch, field projections and state are enforced in a transaction. Access changes require MFA, current password, target/version review and an owner-configured delegation envelope. No financial execution, exports or collection release authority is conferred by a title. Responsibility-based workspace: aftercareRequest. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Responsibility-based workspace: aftercareRequest",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "orderId": "00000000-0000-4000-8000-000000000001",
+    "kind": "synthetic-kind",
+    "status": "synthetic-status",
+    "requestedAt": "2030-01-15T10:00:00.000Z",
+    "receivedAt": "2030-01-15T10:00:00.000Z",
+    "inspectedAt": "2030-01-15T10:00:00.000Z",
+    "reviewedAt": "2030-01-15T10:00:00.000Z",
+    "approvedFeeKobo": "300000",
+    "order": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "orderNumber": "synthetic-ordernumber",
+      "branchId": "00000000-0000-4000-8000-000000000001",
+      "branch": {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "name": "synthetic-name"
+      },
+      "currency": "NGN",
+      "totalKobo": "300000",
+      "confirmedAt": "2030-01-15T10:00:00.000Z",
+      "fulfillmentMethod": "COLLECTION"
+    },
+    "reason": "synthetic-reason",
+    "reviewReason": "synthetic-reviewreason",
+    "inspectionNote": "synthetic-inspectionnote",
+    "goodCondition": "synthetic-goodcondition",
+    "reviewNote": "synthetic-reviewnote",
+    "requestedItems": "synthetic-requesteditems",
+    "policy": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "key": "synthetic-key",
+      "version": 1,
+      "approvalStatus": "synthetic-approvalstatus",
+      "source": "synthetic-source",
+      "effectiveAt": "2030-01-15T10:00:00.000Z"
+    },
+    "reviewEvidenceReady": true,
+    "reviewRevision": "synthetic-reviewrevision",
+    "access": {
+      "managed": true,
+      "userId": "00000000-0000-4000-8000-000000000001",
+      "staffId": "00000000-0000-4000-8000-000000000001",
+      "position": "synthetic-position",
+      "department": "synthetic-department",
+      "version": 0,
+      "assignments": [
+        {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "userId": "00000000-0000-4000-8000-000000000001",
+          "template": "OPERATIONS",
+          "templateVersion": 1,
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH",
+          "temporary": true,
+          "startsAt": "2030-01-15T10:00:00.000Z",
+          "expiresAt": "2030-01-15T10:00:00.000Z",
+          "reason": "synthetic-reason",
+          "assignedByUserId": "00000000-0000-4000-8000-000000000001",
+          "createdAt": "2030-01-15T10:00:00.000Z",
+          "revokedAt": "2030-01-15T10:00:00.000Z",
+          "revokedByUserId": "00000000-0000-4000-8000-000000000001",
+          "revocationReason": "synthetic-revocationreason"
+        }
+      ],
+      "permissions": [
+        "synthetic-permissions-item"
+      ],
+      "independentCapabilities": [
+        "REFUND_APPROVE"
+      ],
+      "canManageAssignments": true,
+      "canInviteAdmins": true,
+      "accessRevision": "synthetic-accessrevision",
+      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+      "capabilityScopes": [
+        {
+          "capability": "synthetic-capability",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH"
+        }
+      ],
+      "serverTime": "2030-01-15T10:00:00.000Z"
+    },
+    "generatedAt": "2030-01-15T10:00:00.000Z"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 Current access does not permit this request; 404 Record unavailable in permitted scope; 409 Stale version or invalid state; 422 Invalid fields; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### POST `/staff/workforce/aftercare/{id}/decision`
+
+- Operation ID: `postStaffWorkforceAftercareByIdDecision`
+- Purpose: Explicit enrollment required for operational queues. Current assignments, branch, field projections and state are enforced in a transaction. Access changes require MFA, current password, target/version review and an owner-configured delegation envelope. No financial execution, exports or collection release authority is conferred by a title. Responsibility-based workspace: aftercareDecision. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `note` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| `approvedFeeKobo` | string | No | Approved Fee Kobo validated by this operation's strict request contract. |
+| `stage` | APPROVED / REJECTED | Yes | Stage validated by this operation's strict request contract. |
+| `expectedStatus` | REQUESTED / RECEIVED / INSPECTED / APPROVED / REJECTED | Yes | Expected Status validated by this operation's strict request contract. |
+| `expectedRevision` | string | Yes | Last server version observed by the client; stale writes are rejected. |
+
+Synthetic request example:
+
+```json
+{
+  "note": "synthetic-note",
+  "approvedFeeKobo": "300000",
+  "stage": "APPROVED",
+  "expectedStatus": "REQUESTED",
+  "expectedRevision": "synthetic-expectedrevision"
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Responsibility-based workspace: aftercareDecision",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "orderId": "00000000-0000-4000-8000-000000000001",
+    "branchId": "00000000-0000-4000-8000-000000000001",
+    "status": "APPROVED",
+    "reviewNote": "synthetic-reviewnote",
+    "approvedFeeKobo": "300000",
+    "reviewedAt": "2030-01-15T10:00:00.000Z",
+    "performedByUserId": "00000000-0000-4000-8000-000000000001"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 Current access does not permit this request; 404 Record unavailable in permitted scope; 409 Stale version or invalid state; 422 Invalid fields; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
 ### POST `/staff/workforce/enquiries/{id}/email-deliveries/dismiss`
 
 - Operation ID: `postStaffWorkforceEnquiriesByIdEmailDeliveriesDismiss`

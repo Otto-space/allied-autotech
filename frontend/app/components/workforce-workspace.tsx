@@ -17,6 +17,7 @@ import { WorkforceOrders } from "./workforce-orders";
 import { WorkforceJobs } from "./workforce-jobs";
 import { WorkPartsFitment } from "./work-parts-fitment";
 import { WorkforceJobDetail } from "./workforce-job-detail";
+import { WorkforceAftercare } from "./workforce-aftercare";
 import { workforceDestination, workforceAllows } from "@/lib/workforce-registry";
 
 export function WorkforceWorkspace({
@@ -33,6 +34,16 @@ export function WorkforceWorkspace({
   if (!destination || !workforceAllows(access, destination.predicate))
     return <WorkforceAccessRedirect />;
   switch (destination.id) {
+    case "financialAftercare":
+      return (
+        <WorkforceAftercare
+          access={access}
+          refreshAccess={refreshAccess}
+          {...(path === destination.href
+            ? {}
+            : { id: path.slice(destination.href.length + 1) })}
+        />
+      );
     case "overview":
       return <WorkforceOverview access={access} refreshAccess={refreshAccess} />;
     case "fitment":

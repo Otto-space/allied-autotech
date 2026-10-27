@@ -71,6 +71,13 @@ export function learningEligible(access: LearningAccess, gate: LearningGate) {
       return work && independent("FINANCE_POLICY_APPROVE");
     case "booking-confirmation":
       return work && can("BOOKINGS_READ") && independent("BOOKING_CONFIRM");
+    case "financial-aftercare":
+      return (
+        work &&
+        access.managed &&
+        can("FINANCE_READ") &&
+        independent("FINANCE_POLICY_APPROVE")
+      );
     case "jobs":
       return work && can("JOBS_UPDATE") && can("JOBS_READ");
     case "assign":

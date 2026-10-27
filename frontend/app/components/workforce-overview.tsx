@@ -210,6 +210,19 @@ export function WorkforceOverview({
                     </Link>
                   </li>
                 )}
+                {active && workforceDestinationAllowed(active, "financialAftercare") && (
+                  <li>
+                    <Link prefetch={false} href="/admin/workforce/aftercare">
+                      <ClipboardList size={22} aria-hidden="true" />
+                      <span className="wfo-queue-copy">
+                        <strong>Financial aftercare</strong>
+                        <span>Scoped return and cancellation decisions</span>
+                      </span>
+                      <span className="wfo-open">View requests</span>
+                      <ChevronRight size={18} aria-hidden="true" />
+                    </Link>
+                  </li>
+                )}
               </ul>
               {!Object.keys(data.counts).length &&
                 !independentDestinations.length &&

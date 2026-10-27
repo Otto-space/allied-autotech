@@ -66,7 +66,7 @@ export async function account(
   };
 }
 type Account = Awaited<ReturnType<typeof account>>;
-export const post = (actor: Account, url: string, body: unknown) =>
+export const post = (actor: Account, url: string, body: object | string) =>
   request(app)
     .post(`/api/v1${url}`)
     .set(actor.headers)

@@ -4,6 +4,14 @@ import { z } from "zod";
 import { positionSchema, templateSchema } from "./workforce.policy.js";
 import { independentCapabilitySchema } from "../policies/independent-capabilities.js";
 import { bookingTransitionBodySchema } from "../service-operations/service-operations.schemas.js";
+import {
+  aftercareReviewBody,
+  aftercareStatus,
+} from "../orders/order-aftercare.schemas.js";
+import {
+  workforceAftercareRowSchema,
+  workforceAftercareDetailSchema,
+} from "./workforce-aftercare-workspace.js";
 
 const version = z.number().int().min(0);
 const reason = z.string().trim().min(10).max(1000);
@@ -291,6 +299,18 @@ export const workforceOrdersQuerySchema = workforceListSchema.extend({
     .optional(),
   fulfillmentMethod: z.enum(["COLLECTION", "DELIVERY"]).optional(),
 });
+export const workforceAftercareQuerySchema = workforceListSchema.extend({
+  q: workforceOrdersQuerySchema.shape.q,
+  status: aftercareStatus.optional(),
+  kind: z.enum(["RETURN", "CANCELLATION"]).optional(),
+});
+export const workforceAftercareDecisionSchema = aftercareReviewBody
+  .pick({ note: true, approvedFeeKobo: true })
+  .extend({
+    stage: z.enum(["APPROVED", "REJECTED"]),
+    expectedStatus: aftercareStatus,
+    expectedRevision: z.string().regex(/^[a-f0-9]{64}$/),
+  });
 export const workforceReplySchema = z.strictObject({
   expectedVersion: version,
   body: z.string().trim().min(1).max(5000),
@@ -554,6 +574,27 @@ export const workforceFinanceQuerySchema = workforceListSchema.extend({
 });
 export function workforceResponseSchema(action: string): z.ZodType {
   switch (action) {
+    case "aftercare":
+      return pageOf(workforceAftercareRowSchema).extend({
+        access: workforceOwnResponseSchema,
+        generatedAt: timestamp,
+      });
+    case "aftercareRequest":
+      return workforceAftercareDetailSchema.extend({
+        access: workforceOwnResponseSchema,
+        generatedAt: timestamp,
+      });
+    case "aftercareDecision":
+      return z.object({
+        id: z.uuid(),
+        orderId: z.uuid(),
+        branchId: z.uuid(),
+        status: z.enum(["APPROVED", "REJECTED"]),
+        reviewNote: z.string(),
+        approvedFeeKobo: z.string().regex(/^\d+$/),
+        reviewedAt: timestamp,
+        performedByUserId: z.uuid(),
+      });
     case "accessPreview":
       return workforceAccessPreviewResponseSchema;
     case "directory":

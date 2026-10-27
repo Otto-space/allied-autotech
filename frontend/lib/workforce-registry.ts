@@ -195,6 +195,21 @@ export const workforceDestinations = [
     articleIds: ["financial-policy-work"],
   },
   {
+    id: "financialAftercare",
+    href: "/admin/workforce/aftercare",
+    detail: true,
+    group: "finance",
+    order: 74,
+    label: "Financial aftercare",
+    feature: "managed-workforce",
+    predicate: {
+      all: ["FINANCE_READ"],
+      independentAll: ["FINANCE_POLICY_APPROVE"],
+      scope: "responsibility",
+    },
+    articleIds: ["financial-aftercare"],
+  },
+  {
     id: "access",
     href: "/admin/workforce/access",
     detail: true,
@@ -267,6 +282,11 @@ export function permittedWorkforceDestinations(access: WorkforceAccess) {
 }
 
 export const workforceActionPredicates = {
+  financialAftercare: {
+    all: ["FINANCE_READ"],
+    independentAll: ["FINANCE_POLICY_APPROVE"],
+    scope: "responsibility",
+  },
   bookingConfirm: {
     all: ["BOOKINGS_READ"],
     independentAll: ["BOOKING_CONFIRM"],

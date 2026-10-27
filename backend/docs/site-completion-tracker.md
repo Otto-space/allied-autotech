@@ -1896,3 +1896,35 @@ API stopped and synthetic browser session/cookie retired; existing frontend prev
 retained. Docker resources preserved, denied dev-folder cleanup not retried.
 Next: scoped financial-aftercare then granular Care permissions, persisted reviewed
 handoff/shared staffed transport. All106 route gates and fullRevision4/Item6 active.
+
+27 October 2026 - Active Revision4 W13 dependency: scoped financial aftercare.
+Branch feat/workforce-scoped-aftercare-20261027 based on W12 e31af199, same checkout.
+Fixture contracts preceded implementation. After fixture corrections, nine original
+cases reproduced missing routes. Ten final scoped native cases now pass: FINANCE_READ
+branch scope AND explicit FINANCE_POLICY_APPROVE, projection privacy, unknown JSON
+evidence, immutable pricing/kind/status DB guards, fee/inspection checks, stale
+evidence and mixed legacy/scoped concurrency. Existing legacy business core reused;
+no stock/refund execution. HMAC review revision binds current stored evidence without
+exposing raw policy settings. Legacy regression/contracts running. Frontend journey
+is not implemented yet and remains required. No schema/provider call/publication.
+See docs/help-learn/WORKFORCE_AFTERCARE_W13.md. Full Revision4 remains active.
+
+27 October 2026 - Revision4 W13 local checkpoint: scoped financial aftercare
+requires current FINANCE_READ branch scope AND separate FINANCE_POLICY_APPROVE.
+Minimal queue/detail, current evidence HMAC, customer-visible reviewed decision note,
+receipt verification and reload-safe uncertainty block implemented. Existing legacy
+fee/inspection/immutable-data/audit rules retained; no stock/refund execution.
+Final62 native across7 suites,60 backend units, full1130 frontend plus67 focused,
+21 responsive Staff/Admin fixtures and1 actual browser/CSRF/API/CI-DB case passed.
+OpenAPI379/routes443+4, generated types, types/lint/secret guard and cached build pass.
+Evidence: docs/help-learn/WORKFORCE_AFTERCARE_W13.md. No schema/model call, real message,
+install/new worktree or publication. W9 allowance exhausted. Native API/session/cookie
+retired; frontend preview retained. C:25.43GiB measured free; Docker useful resources
+preserved and denied dev-folder cleanup untouched. Next: granular Care permissions,
+canonical reviewed persisted handoff and shared staffed/gated transport. All106
+route learning decisions, exact-lock/hosted/device gates and fullRevision4 remain open.
+
+W13 final addendum: eleven focused scoped native cases pass after adding actual
+enrolled-Admin positive/customer-history privacy acceptance; combined62 and focused11
+receipts remain separate. C:25.41GiB final measured free; read-only Docker retention
+review preserved useful/current/rollback/other-task resources. No cleanup or publication.

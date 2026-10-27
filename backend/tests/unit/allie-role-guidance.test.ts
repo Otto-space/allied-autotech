@@ -18,6 +18,38 @@ function catalogue(overrides: Partial<LearningAccess>) {
   }
 }
 describe("provider-observed role guidance regressions", () => {
+  it("requires both scoped finance reading and the separate financial duty for aftercare guidance", () => {
+    const base = { role: "STAFF" as const, managed: true };
+    for (const partial of [
+      { permissions: ["FINANCE_READ"] },
+      { independentCapabilities: ["FINANCE_POLICY_APPROVE"] },
+      {
+        managed: false,
+        permissions: ["FINANCE_READ"],
+        independentCapabilities: ["FINANCE_POLICY_APPROVE"],
+      },
+    ])
+      expect(
+        catalogue({ ...base, ...partial }).articles.some(
+          (a) => a.id === "financial-aftercare",
+        ),
+      ).toBe(false);
+    const allowed = catalogue({
+      ...base,
+      permissions: ["FINANCE_READ"],
+      independentCapabilities: ["FINANCE_POLICY_APPROVE"],
+    });
+    expect(
+      allowed.articles.find((a) => a.id === "financial-aftercare")?.steps.join(" "),
+    ).toContain("customer-visible note");
+    expect(
+      retrieveAllieContext(
+        allowed,
+        "How do I review a cancellation fee and record a financial aftercare decision?",
+        "work",
+      ).sources.some((s) => s.articleId === "financial-aftercare"),
+    ).toBe(true);
+  });
   it("requires the paired booking scope and independent confirmation duty for its written help", () => {
     const worker = { role: "STAFF" as const, managed: true };
     expect(

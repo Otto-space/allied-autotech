@@ -11,6 +11,7 @@ export type LearningGate =
   | "privacy"
   | "financial-policy"
   | "booking-confirmation"
+  | "financial-aftercare"
   | "jobs"
   | "assign"
   | "operations"
@@ -79,6 +80,23 @@ const article = (
   reviewedAt: gate === "public" || gate === "customer" ? "2026-10-26" : "2026-10-27",
 });
 export const learningArticles: LearningArticle[] = [
+  article(
+    "financial-aftercare",
+    "financial-aftercare",
+    "work",
+    "Review a scoped financial aftercare decision",
+    "Financial aftercare requires current finance scope and a separate financial approval grant. A title, payment-reading permission or approval grant alone does not provide another branch's records.",
+    [
+      "Open Financial aftercare and filter by order reference, request type or status. Open a permitted request and inspect its requested quantities, branch, total and stored policy evidence.",
+      "Treat missing or unrecognised item/policy evidence as unknown. An authorised operator must review that evidence; do not invent a policy, fee or inspection. A return needs receipt and inspection before approval.",
+      "Choose a financial decision and record an explicit fee, including zero, when approving. Cancellation before order confirmation is free. Explain the monetary basis in the customer-visible note; never copy internal inspection notes or private financial details into it.",
+      "Review the order, branch, decision, fee and Customer-visible audience before explicitly recording the decision. The server rechecks current scope/grant and the evidence revision. This does not cancel the order, restock goods, initiate a refund or mark money received.",
+      "For a lost or unverified response, do not retry automatically. Check the current request and earlier decision history with an authorised operator, then acknowledge the inspected state. A current decision alone cannot attribute an earlier uncertain submission.",
+    ],
+    "/admin/workforce/aftercare",
+    "Scoped financial aftercare adapter, shared OrderAftercareService fee/inspection/audit core and customerAftercareView review-note projection",
+    "financial aftercare return cancellation fee approval reject inspection customer-visible decision evidence",
+  ),
   article(
     "booking-confirmation",
     "booking-confirmation",

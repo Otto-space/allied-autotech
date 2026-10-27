@@ -36,6 +36,7 @@ import { redactWorkforceComplaintPending } from "../admin/workforce-complaint-pe
 import { redactWorkforceOrderPending } from "../admin/workforce-order-pending";
 import { redactWorkforceJobPending } from "../admin/workforce-job-pending";
 import { redactWorkforceBookingPending } from "../admin/workforce-booking-pending";
+import { redactAftercarePending } from "../admin/workforce-aftercare-pending";
 import { redactDisputeChanges } from "../admin/work-dispute-pending";
 import { redactSupportReplyRecoveries } from "../support/reply-recovery";
 import { redactSupportCreationRecoveries } from "../support/creation-recovery";
@@ -273,6 +274,7 @@ export function invalidateSession(reason?: "password-changed"): void {
   redactJobRetries();
   redactWorkforceJobPending();
   redactWorkforceBookingPending();
+  redactAftercarePending();
   redactWorkforceEnquiryPending();
   redactWorkforceComplaintPending();
   redactWorkforceOrderPending();
@@ -323,6 +325,7 @@ export function invalidateWorkforceAccess(userId: string) {
   redactFinancePolicyChanges();
   redactWorkforceJobPending();
   redactWorkforceBookingPending();
+  redactAftercarePending();
   redactWorkforceEnquiryPending();
   redactWorkforceComplaintPending();
   redactWorkforceOrderPending();
