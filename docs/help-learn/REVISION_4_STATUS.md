@@ -182,3 +182,16 @@ FullRevision4 remains active: next canonical reviewed persisted Allie handoff, t
 shared staffed/gated transport and all106 exact route-learning decisions. W9 allowance
 exhausted; new Care guidance has no actual-provider re-evaluation. Exact-lock16.4.3,
 hosted/actual-role/device/screen-reader gates stay open. Useful Docker/caches retained.
+
+27 October 2026 - Revision4 W15A backend-only checkpoint: reviewed canonical
+asynchronous handoff contracts implemented. Current customer identity/CSRF, exact
+keyed review, selected owned customer help excerpts, branch/target/version and
+24-hour owner/payload-bound receipt. Canonical Enquiry/Complaint/SupportMessage
+reuse; atomic audit/notification/context ending, no second inbox or schema change.
+Final14 focused native and109 combined legacy/support/Allie/session/Care cases,
+70 provider/state/guidance units+51 workforce units, OpenAPI384/routes448+4, types/
+lint/secret guard pass. No actual-provider call, real delivery or publication.
+Frontend handoff is unfinished; next implement review/edit/cancel/recovery/draft
+preservation and responsive/native browser acceptance. Preview3167 is W14C only.
+See docs/help-learn/REVIEWED_HANDOFF_W15.md. FullRevision4/shared staffed transport/
+all106 route gates remain active; W9 provider allowance stays exhausted.

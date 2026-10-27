@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import type { HandoffExcerpts } from "../support/support-handoff.schemas.js";
 import type { AuthenticatedActor } from "../../common/contracts/actor.js";
 import { AppError } from "../../common/errors/app-error.js";
 import { verifyCsrfToken } from "../../common/security/csrf-tokens.js";
@@ -246,6 +247,57 @@ async function view(
         }
       : null,
   };
+}
+
+/** Customer consent can export only explicitly selected, current owned help.
+ * This path intentionally needs neither a provider key nor AI quota/enablement.
+ * Ordinary support remains available during AI outages. Never accepts work/guest
+ * conversation proofs or a client-supplied transcript.
+ */
+export async function customerHandoffExcerpts(
+  tx: Tx,
+  actor: AuthenticatedActor,
+  input: HandoffExcerpts,
+) {
+  if (actor.role !== "CUSTOMER") throw learningUnavailable();
+  const owner = await resolveOwner(tx, { kind: "account", actor }, false);
+  if (owner.audience !== "CUSTOMER") throw learningUnavailable();
+  await mutex(tx);
+  const value = await material(tx, owner, input.conversationId, await now(tx));
+  if (!value || value.reset) throw learningUnavailable();
+  if (value.row.version !== input.expectedVersion)
+    conflict("Your help conversation changed. Review the handoff again.");
+  return input.selections.map((selection) => {
+    const message = value.state.messages.find(
+      (m) => m.operationId === selection.operationId,
+    );
+    if (!message) throw learningUnavailable();
+    return selection.part === "QUESTION"
+      ? `You (selected help question):\n${message.question}`
+      : `Allie (AI-generated guidance; may be wrong):\n${[
+          message.answer.answer,
+          ...message.answer.steps.map((step, i) => `${i + 1}. ${step}`),
+          ...(message.answer.caveat ? [message.answer.caveat] : []),
+        ].join("\n")}`;
+  });
+}
+
+/** Called only in the same successful support transaction after reviewed export.
+ * The original AI context ends; separate AI help can be started deliberately.
+ * Completion of an in-flight provider request cannot append to this closed context.
+ */
+export async function finishCustomerHandoffContext(
+  tx: Tx,
+  actor: AuthenticatedActor,
+  input: HandoffExcerpts,
+) {
+  await customerHandoffExcerpts(tx, actor, input);
+  const at = await now(tx);
+  await discard(tx, input.conversationId, at);
+  await tx.assistantConversation.update({
+    where: { id: input.conversationId },
+    data: { closedAt: at, encryptedState: Prisma.DbNull, version: { increment: 1 } },
+  });
 }
 export async function bootstrapAllieGuest(ip: string, existingToken?: string) {
   requireAllieEnabled();

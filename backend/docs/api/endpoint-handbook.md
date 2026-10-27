@@ -6443,6 +6443,205 @@ Success: HTTP 201.
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required provider or database is temporarily unavailable. PROVIDER_UNAVAILABLE when private file storage is unconfigured, unreachable, denied by the provider or exceeds its 20-second verification deadline. Verification shares that deadline across metadata and a bounded 16-byte signature read. Invalid or missing bytes retain the operation's existing validation/conflict response. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Restore storage before retrying an uncommitted upload, and check current state after an uncertain mutation.
 
+### POST `/customers/support/handoff/preview`
+
+- Operation ID: `postCustomersSupportHandoffPreview`
+- Purpose: No operational case/message is created. Customer identity comes from the session. Optional help excerpts must belong to the current customer session, remain eligible/unexpired, and be explicitly selected. Work/guest context is excluded. The keyed ten-minute review binds exact content, target/version, branch and session. No provider call, live availability or automatic transcript attachment. Prepare an exact review of an asynchronous Customer Care handoff. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: CUSTOMER
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `target` | object | Yes | Target validated by this operation's strict request contract. |
+| `summary` | string | Yes | Summary validated by this operation's strict request contract. |
+| `excerpts` | object | No | Excerpts validated by this operation's strict request contract. |
+
+Synthetic request example:
+
+```json
+{
+  "target": {
+    "kind": "NEW_ENQUIRY",
+    "branchId": "00000000-0000-4000-8000-000000000001",
+    "subject": "synthetic-subject"
+  },
+  "summary": "synthetic-summary",
+  "excerpts": {
+    "conversationId": "00000000-0000-4000-8000-000000000001",
+    "expectedVersion": 1,
+    "selections": [
+      {
+        "operationId": "00000000-0000-4000-8000-000000000001",
+        "part": "QUESTION"
+      }
+    ]
+  }
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Prepare an exact review of an asynchronous Customer Care handoff",
+  "data": {
+    "target": {
+      "kind": "NEW_ENQUIRY",
+      "id": "00000000-0000-4000-8000-000000000001",
+      "branchId": "00000000-0000-4000-8000-000000000001",
+      "branchName": "synthetic-branchname",
+      "subject": "synthetic-subject",
+      "version": "synthetic-version"
+    },
+    "body": "synthetic-body",
+    "audience": "CUSTOMER_CARE",
+    "mode": "QUEUED",
+    "excerptCount": 0,
+    "review": {
+      "expiresAt": "2030-01-15T10:00:00.000Z",
+      "token": "synthetic-token-value-not-a-real-secret"
+    }
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current verified customer session required; 403 Customer identity, trusted origin or CSRF verification failed; 404 Owned current support/help resource unavailable; existence hidden; 409 Changed/expired review, closed case or mismatched/expired operation; 422 Strict bounded payload, consent or excerpt selection invalid; 429 Bounded handoff request limit reached; ordinary Customer Care retained; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### POST `/customers/support/handoff`
+
+- Operation ID: `postCustomersSupportHandoff`
+- Purpose: Creates one General enquiry or adds one public customer message to the explicitly selected owned enquiry/complaint. Session-derived identity, active branch, expected version, current excerpts and exact review are revalidated transactionally. Selected AI context ends after success. Owner/payload-bound operation receipts prevent duplicates and permit replay after transient help expires. Queued/Saved does not establish email delivery or human reading. Requires compatible backend before frontend exposure; no new schema. Persist an explicitly reviewed customer handoff in canonical support. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
+- Roles: CUSTOMER
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Required in `Idempotency-Key`
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| `idempotency-key` | header | string | Yes | Unique retry key for this logical mutation. Reuse it only with the identical request. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `draft` | object | Yes | Draft validated by this operation's strict request contract. |
+| `review` | object | Yes | Review validated by this operation's strict request contract. |
+| `consent` | true | Yes | Consent validated by this operation's strict request contract. |
+
+Synthetic request example:
+
+```json
+{
+  "draft": {
+    "target": {
+      "kind": "NEW_ENQUIRY",
+      "branchId": "00000000-0000-4000-8000-000000000001",
+      "subject": "synthetic-subject"
+    },
+    "summary": "synthetic-summary",
+    "excerpts": {
+      "conversationId": "00000000-0000-4000-8000-000000000001",
+      "expectedVersion": 1,
+      "selections": [
+        {
+          "operationId": "00000000-0000-4000-8000-000000000001",
+          "part": "QUESTION"
+        }
+      ]
+    }
+  },
+  "review": {
+    "expiresAt": "2030-01-15T10:00:00.000Z",
+    "token": "synthetic-token-value-not-a-real-secret"
+  },
+  "consent": true
+}
+```
+
+Success: HTTP 201.
+
+```json
+{
+  "success": true,
+  "message": "Persist an explicitly reviewed customer handoff in canonical support",
+  "data": {
+    "reference": {
+      "kind": "ENQUIRY",
+      "id": "00000000-0000-4000-8000-000000000001",
+      "branchId": "00000000-0000-4000-8000-000000000001",
+      "messageId": "00000000-0000-4000-8000-000000000001",
+      "createdNew": true
+    },
+    "replayed": true,
+    "state": "SAVED",
+    "mode": "QUEUED"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current verified customer session required; 403 Customer identity, trusted origin or CSRF verification failed; 404 Owned current support/help resource unavailable; existence hidden; 409 Changed/expired review, closed case or mismatched/expired operation; 422 Strict bounded payload, consent or excerpt selection invalid; 429 Bounded handoff request limit reached; ordinary Customer Care retained; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/customers/support/handoff/receipts/{operationKey}`
+
+- Operation ID: `getCustomersSupportHandoffReceiptsByOperationKey`
+- Purpose: The operation key is a non-bearer random identifier. Current customer session and canonical ownership are required; another customer receives 404. Absence does not prove a failed submission. Recovery expires after twenty-four hours; inspect canonical support history afterward. Returns no summary, help transcript, internal note or credential. Recover an owned durable handoff reference without a transcript. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: CUSTOMER
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `operationKey` | path | string | Yes | Identifier selecting the operation key resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Recover an owned durable handoff reference without a transcript",
+  "data": {
+    "reference": {
+      "kind": "ENQUIRY",
+      "id": "00000000-0000-4000-8000-000000000001",
+      "branchId": "00000000-0000-4000-8000-000000000001",
+      "messageId": "00000000-0000-4000-8000-000000000001",
+      "createdNew": true
+    },
+    "replayed": true,
+    "state": "SAVED",
+    "mode": "QUEUED"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current verified customer session required; 403 Customer identity, trusted origin or CSRF verification failed; 404 Owned current support/help resource unavailable; existence hidden; 409 Changed/expired review, closed case or mismatched/expired operation; 422 Strict bounded payload, consent or excerpt selection invalid; 429 Bounded handoff request limit reached; ordinary Customer Care retained; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
 ### GET `/customers/support/review-sources`
 
 - Operation ID: `getCustomersSupportReviewSources`

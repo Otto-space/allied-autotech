@@ -339,3 +339,15 @@ actual browser/CSRF/API/restricted-CI-DB composition pass. No customer delivery 
 provider call. Live eligibility is not staffed readiness; canonical reviewed handoff
 and shared transport retain their own unimplemented gates. New guidance has no new
 actual-provider evaluation. Exact-lock/hosted/device/screen-reader gates remain open.
+
+## W15A reviewed asynchronous handoff boundary
+
+Only verified current customer sessions can prepare/submit canonical handoff. Server
+selection reads current owned customer help, never client transcripts or work/guest
+contexts. A keyed exact review binds content/target/version/branch/session and expires
+in10minutes; explicit consent and CSRF protect submission. Twenty-four-hour receipts
+store hashes/minimal owned references. Atomic case/message/audit/notification/context
+ending prevents partial handoff. Delayed mocked-provider completion after handoff
+cannot append an answer; tests include that race and audit rollback. No transcript
+or summary enters receipt/audit/notification previews. New ordinary support content
+never goes to the model. Frontend/reload privacy and shared transport gates remain.

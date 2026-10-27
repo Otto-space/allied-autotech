@@ -7,6 +7,7 @@ export type TokenPurpose =
   | "assistant-owner"
   | "assistant-session"
   | "assistant-idempotency"
+  | "assistant-handoff-review"
   | "session"
   | "csrf"
   | "email-verification"

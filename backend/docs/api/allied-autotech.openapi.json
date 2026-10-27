@@ -103900,6 +103900,1174 @@
         "x-idempotency-required": false
       }
     },
+    "/customers/support/handoff/preview": {
+      "post": {
+        "tags": [
+          "Support"
+        ],
+        "summary": "Prepare an exact review of an asynchronous Customer Care handoff",
+        "description": "No operational case/message is created. Customer identity comes from the session. Optional help excerpts must belong to the current customer session, remain eligible/unexpired, and be explicitly selected. Work/guest context is excluded. The keyed ten-minute review binds exact content, target/version, branch and session. No provider call, live availability or automatic transcript attachment. Prepare an exact review of an asynchronous Customer Care handoff. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+            },
+            "required": true,
+            "name": "x-csrf-token",
+            "in": "header",
+            "description": "Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.",
+            "example": "synthetic-token-value-not-a-real-secret"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "target": {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "NEW_ENQUIRY"
+                            ],
+                            "description": "Kind validated by this operation's strict request contract."
+                          },
+                          "branchId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "description": "Identifier of the branch resource; ownership is resolved server-side."
+                          },
+                          "subject": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 160,
+                            "description": "Subject validated by this operation's strict request contract."
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "subject"
+                        ],
+                        "additionalProperties": false,
+                        "description": "Target validated by this operation's strict request contract."
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "ENQUIRY",
+                              "COMPLAINT"
+                            ],
+                            "description": "Kind validated by this operation's strict request contract."
+                          },
+                          "id": {
+                            "type": "string",
+                            "format": "uuid",
+                            "description": "Identifier of the id resource; ownership is resolved server-side."
+                          },
+                          "expectedVersion": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "description": "Last server version observed by the client; stale writes are rejected."
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "id",
+                          "expectedVersion"
+                        ],
+                        "additionalProperties": false,
+                        "description": "Target validated by this operation's strict request contract."
+                      }
+                    ],
+                    "description": "Target validated by this operation's strict request contract."
+                  },
+                  "summary": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2000,
+                    "description": "Summary validated by this operation's strict request contract."
+                  },
+                  "excerpts": {
+                    "type": "object",
+                    "properties": {
+                      "conversationId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Identifier of the conversation resource; ownership is resolved server-side."
+                      },
+                      "expectedVersion": {
+                        "type": "integer",
+                        "exclusiveMinimum": 0,
+                        "description": "Last server version observed by the client; stale writes are rejected."
+                      },
+                      "selections": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "operationId": {
+                              "type": "string",
+                              "format": "uuid",
+                              "description": "Identifier of the operation resource; ownership is resolved server-side."
+                            },
+                            "part": {
+                              "type": "string",
+                              "enum": [
+                                "QUESTION",
+                                "ANSWER"
+                              ],
+                              "description": "Part validated by this operation's strict request contract."
+                            }
+                          },
+                          "required": [
+                            "operationId",
+                            "part"
+                          ],
+                          "additionalProperties": false,
+                          "description": "Selections Item validated by this operation's strict request contract."
+                        },
+                        "minItems": 1,
+                        "maxItems": 2,
+                        "description": "Selections validated by this operation's strict request contract."
+                      }
+                    },
+                    "required": [
+                      "conversationId",
+                      "expectedVersion",
+                      "selections"
+                    ],
+                    "additionalProperties": false,
+                    "description": "Excerpts validated by this operation's strict request contract."
+                  }
+                },
+                "required": [
+                  "target",
+                  "summary"
+                ],
+                "additionalProperties": false,
+                "description": "Request Body validated by this operation's strict request contract."
+              },
+              "example": {
+                "target": {
+                  "kind": "NEW_ENQUIRY",
+                  "branchId": "00000000-0000-4000-8000-000000000001",
+                  "subject": "synthetic-subject"
+                },
+                "summary": "synthetic-summary",
+                "excerpts": {
+                  "conversationId": "00000000-0000-4000-8000-000000000001",
+                  "expectedVersion": 1,
+                  "selections": [
+                    {
+                      "operationId": "00000000-0000-4000-8000-000000000001",
+                      "part": "QUESTION"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success: Prepare an exact review of an asynchronous Customer Care handoff.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "description": "Success validated by this operation's strict request contract."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "target": {
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "enum": [
+                                "NEW_ENQUIRY",
+                                "ENQUIRY",
+                                "COMPLAINT"
+                              ],
+                              "description": "Kind validated by this operation's strict request contract."
+                            },
+                            "id": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "uuid",
+                              "description": "Identifier of the id resource; ownership is resolved server-side."
+                            },
+                            "branchId": {
+                              "type": "string",
+                              "format": "uuid",
+                              "description": "Identifier of the branch resource; ownership is resolved server-side."
+                            },
+                            "branchName": {
+                              "type": "string",
+                              "description": "Branch Name validated by this operation's strict request contract."
+                            },
+                            "subject": {
+                              "type": "string",
+                              "description": "Subject validated by this operation's strict request contract."
+                            },
+                            "version": {
+                              "type": [
+                                "integer",
+                                "null"
+                              ],
+                              "minimum": 0,
+                              "description": "Version validated by this operation's strict request contract."
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "id",
+                            "branchId",
+                            "branchName",
+                            "subject",
+                            "version"
+                          ],
+                          "additionalProperties": false,
+                          "description": "Target validated by this operation's strict request contract."
+                        },
+                        "body": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 4000,
+                          "description": "Body validated by this operation's strict request contract."
+                        },
+                        "audience": {
+                          "type": "string",
+                          "enum": [
+                            "CUSTOMER_CARE"
+                          ],
+                          "description": "Audience validated by this operation's strict request contract."
+                        },
+                        "mode": {
+                          "type": "string",
+                          "enum": [
+                            "QUEUED"
+                          ],
+                          "description": "Mode validated by this operation's strict request contract."
+                        },
+                        "excerptCount": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 2,
+                          "description": "Excerpt Count validated by this operation's strict request contract."
+                        },
+                        "review": {
+                          "type": "object",
+                          "properties": {
+                            "expiresAt": {
+                              "type": "string",
+                              "format": "date-time",
+                              "description": "ISO 8601 timestamp interpreted and validated by the server."
+                            },
+                            "token": {
+                              "type": "string",
+                              "pattern": "^[a-f0-9]{64}$",
+                              "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+                            }
+                          },
+                          "required": [
+                            "expiresAt",
+                            "token"
+                          ],
+                          "additionalProperties": false,
+                          "description": "Review validated by this operation's strict request contract."
+                        }
+                      },
+                      "required": [
+                        "target",
+                        "body",
+                        "audience",
+                        "mode",
+                        "excerptCount",
+                        "review"
+                      ],
+                      "additionalProperties": false,
+                      "description": "Data validated by this operation's strict request contract."
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string",
+                          "description": "Identifier of the request resource; ownership is resolved server-side."
+                        }
+                      },
+                      "required": [
+                        "requestId"
+                      ],
+                      "description": "Meta validated by this operation's strict request contract."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "data",
+                    "meta"
+                  ],
+                  "description": "Response validated by this operation's strict request contract."
+                },
+                "example": {
+                  "success": true,
+                  "message": "Prepare an exact review of an asynchronous Customer Care handoff",
+                  "data": {
+                    "target": {
+                      "kind": "NEW_ENQUIRY",
+                      "id": "00000000-0000-4000-8000-000000000001",
+                      "branchId": "00000000-0000-4000-8000-000000000001",
+                      "branchName": "synthetic-branchname",
+                      "subject": "synthetic-subject",
+                      "version": "synthetic-version"
+                    },
+                    "body": "synthetic-body",
+                    "audience": "CUSTOMER_CARE",
+                    "mode": "QUEUED",
+                    "excerptCount": 0,
+                    "review": {
+                      "expiresAt": "2030-01-15T10:00:00.000Z",
+                      "token": "synthetic-token-value-not-a-real-secret"
+                    }
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is malformed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request is malformed.",
+                  "error": {
+                    "code": "BAD_REQUEST"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Current verified customer session required"
+          },
+          "403": {
+            "description": "Customer identity, trusted origin or CSRF verification failed"
+          },
+          "404": {
+            "description": "Owned current support/help resource unavailable; existence hidden"
+          },
+          "409": {
+            "description": "Changed/expired review, closed case or mismatched/expired operation"
+          },
+          "422": {
+            "description": "Strict bounded payload, consent or excerpt selection invalid"
+          },
+          "429": {
+            "description": "Bounded handoff request limit reached; ordinary Customer Care retained"
+          },
+          "500": {
+            "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                  "error": {
+                    "code": "INTERNAL_ERROR"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                  "error": {
+                    "code": "DATABASE_UNAVAILABLE"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "postCustomersSupportHandoffPreview",
+        "x-access-boundary": "authenticated-customer",
+        "x-required-roles": [
+          "CUSTOMER"
+        ],
+        "x-csrf-required": true,
+        "x-idempotency-required": false
+      }
+    },
+    "/customers/support/handoff": {
+      "post": {
+        "tags": [
+          "Support"
+        ],
+        "summary": "Persist an explicitly reviewed customer handoff in canonical support",
+        "description": "Creates one General enquiry or adds one public customer message to the explicitly selected owned enquiry/complaint. Session-derived identity, active branch, expected version, current excerpts and exact review are revalidated transactionally. Selected AI context ends after success. Owner/payload-bound operation receipts prevent duplicates and permit replay after transient help expires. Queued/Saved does not establish email delivery or human reading. Requires compatible backend before frontend exposure; no new schema. Persist an explicitly reviewed customer handoff in canonical support. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+            },
+            "required": true,
+            "name": "x-csrf-token",
+            "in": "header",
+            "description": "Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.",
+            "example": "synthetic-token-value-not-a-real-secret"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^handoff-v1\\.\\d{13}\\.[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "description": "Idempotency Key validated by this operation's strict request contract."
+            },
+            "required": true,
+            "name": "idempotency-key",
+            "in": "header",
+            "description": "Unique retry key for this logical mutation. Reuse it only with the identical request.",
+            "example": "synthetic-idempotency-key"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "draft": {
+                    "type": "object",
+                    "properties": {
+                      "target": {
+                        "oneOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "type": "string",
+                                "enum": [
+                                  "NEW_ENQUIRY"
+                                ],
+                                "description": "Kind validated by this operation's strict request contract."
+                              },
+                              "branchId": {
+                                "type": "string",
+                                "format": "uuid",
+                                "description": "Identifier of the branch resource; ownership is resolved server-side."
+                              },
+                              "subject": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 160,
+                                "description": "Subject validated by this operation's strict request contract."
+                              }
+                            },
+                            "required": [
+                              "kind",
+                              "subject"
+                            ],
+                            "additionalProperties": false,
+                            "description": "Target validated by this operation's strict request contract."
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "type": "string",
+                                "enum": [
+                                  "ENQUIRY",
+                                  "COMPLAINT"
+                                ],
+                                "description": "Kind validated by this operation's strict request contract."
+                              },
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "description": "Identifier of the id resource; ownership is resolved server-side."
+                              },
+                              "expectedVersion": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "description": "Last server version observed by the client; stale writes are rejected."
+                              }
+                            },
+                            "required": [
+                              "kind",
+                              "id",
+                              "expectedVersion"
+                            ],
+                            "additionalProperties": false,
+                            "description": "Target validated by this operation's strict request contract."
+                          }
+                        ],
+                        "description": "Target validated by this operation's strict request contract."
+                      },
+                      "summary": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 2000,
+                        "description": "Summary validated by this operation's strict request contract."
+                      },
+                      "excerpts": {
+                        "type": "object",
+                        "properties": {
+                          "conversationId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "description": "Identifier of the conversation resource; ownership is resolved server-side."
+                          },
+                          "expectedVersion": {
+                            "type": "integer",
+                            "exclusiveMinimum": 0,
+                            "description": "Last server version observed by the client; stale writes are rejected."
+                          },
+                          "selections": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "operationId": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "description": "Identifier of the operation resource; ownership is resolved server-side."
+                                },
+                                "part": {
+                                  "type": "string",
+                                  "enum": [
+                                    "QUESTION",
+                                    "ANSWER"
+                                  ],
+                                  "description": "Part validated by this operation's strict request contract."
+                                }
+                              },
+                              "required": [
+                                "operationId",
+                                "part"
+                              ],
+                              "additionalProperties": false,
+                              "description": "Selections Item validated by this operation's strict request contract."
+                            },
+                            "minItems": 1,
+                            "maxItems": 2,
+                            "description": "Selections validated by this operation's strict request contract."
+                          }
+                        },
+                        "required": [
+                          "conversationId",
+                          "expectedVersion",
+                          "selections"
+                        ],
+                        "additionalProperties": false,
+                        "description": "Excerpts validated by this operation's strict request contract."
+                      }
+                    },
+                    "required": [
+                      "target",
+                      "summary"
+                    ],
+                    "additionalProperties": false,
+                    "description": "Draft validated by this operation's strict request contract."
+                  },
+                  "review": {
+                    "type": "object",
+                    "properties": {
+                      "expiresAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "ISO 8601 timestamp interpreted and validated by the server."
+                      },
+                      "token": {
+                        "type": "string",
+                        "pattern": "^[a-f0-9]{64}$",
+                        "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+                      }
+                    },
+                    "required": [
+                      "expiresAt",
+                      "token"
+                    ],
+                    "additionalProperties": false,
+                    "description": "Review validated by this operation's strict request contract."
+                  },
+                  "consent": {
+                    "type": "boolean",
+                    "enum": [
+                      true
+                    ],
+                    "description": "Consent validated by this operation's strict request contract."
+                  }
+                },
+                "required": [
+                  "draft",
+                  "review",
+                  "consent"
+                ],
+                "additionalProperties": false,
+                "description": "Request Body validated by this operation's strict request contract."
+              },
+              "example": {
+                "draft": {
+                  "target": {
+                    "kind": "NEW_ENQUIRY",
+                    "branchId": "00000000-0000-4000-8000-000000000001",
+                    "subject": "synthetic-subject"
+                  },
+                  "summary": "synthetic-summary",
+                  "excerpts": {
+                    "conversationId": "00000000-0000-4000-8000-000000000001",
+                    "expectedVersion": 1,
+                    "selections": [
+                      {
+                        "operationId": "00000000-0000-4000-8000-000000000001",
+                        "part": "QUESTION"
+                      }
+                    ]
+                  }
+                },
+                "review": {
+                  "expiresAt": "2030-01-15T10:00:00.000Z",
+                  "token": "synthetic-token-value-not-a-real-secret"
+                },
+                "consent": true
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Success: Persist an explicitly reviewed customer handoff in canonical support.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "description": "Success validated by this operation's strict request contract."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "reference": {
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "enum": [
+                                "ENQUIRY",
+                                "COMPLAINT"
+                              ],
+                              "description": "Kind validated by this operation's strict request contract."
+                            },
+                            "id": {
+                              "type": "string",
+                              "format": "uuid",
+                              "description": "Identifier of the id resource; ownership is resolved server-side."
+                            },
+                            "branchId": {
+                              "type": "string",
+                              "format": "uuid",
+                              "description": "Identifier of the branch resource; ownership is resolved server-side."
+                            },
+                            "messageId": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "uuid",
+                              "description": "Identifier of the message resource; ownership is resolved server-side."
+                            },
+                            "createdNew": {
+                              "type": "boolean",
+                              "description": "Created New validated by this operation's strict request contract."
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "id",
+                            "branchId",
+                            "messageId",
+                            "createdNew"
+                          ],
+                          "additionalProperties": false,
+                          "description": "Reference validated by this operation's strict request contract."
+                        },
+                        "replayed": {
+                          "type": "boolean",
+                          "description": "Replayed validated by this operation's strict request contract."
+                        },
+                        "state": {
+                          "type": "string",
+                          "enum": [
+                            "SAVED"
+                          ],
+                          "description": "State validated by this operation's strict request contract."
+                        },
+                        "mode": {
+                          "type": "string",
+                          "enum": [
+                            "QUEUED"
+                          ],
+                          "description": "Mode validated by this operation's strict request contract."
+                        }
+                      },
+                      "required": [
+                        "reference",
+                        "replayed",
+                        "state",
+                        "mode"
+                      ],
+                      "additionalProperties": false,
+                      "description": "Data validated by this operation's strict request contract."
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string",
+                          "description": "Identifier of the request resource; ownership is resolved server-side."
+                        }
+                      },
+                      "required": [
+                        "requestId"
+                      ],
+                      "description": "Meta validated by this operation's strict request contract."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "data",
+                    "meta"
+                  ],
+                  "description": "Response validated by this operation's strict request contract."
+                },
+                "example": {
+                  "success": true,
+                  "message": "Persist an explicitly reviewed customer handoff in canonical support",
+                  "data": {
+                    "reference": {
+                      "kind": "ENQUIRY",
+                      "id": "00000000-0000-4000-8000-000000000001",
+                      "branchId": "00000000-0000-4000-8000-000000000001",
+                      "messageId": "00000000-0000-4000-8000-000000000001",
+                      "createdNew": true
+                    },
+                    "replayed": true,
+                    "state": "SAVED",
+                    "mode": "QUEUED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is malformed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request is malformed.",
+                  "error": {
+                    "code": "BAD_REQUEST"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Current verified customer session required"
+          },
+          "403": {
+            "description": "Customer identity, trusted origin or CSRF verification failed"
+          },
+          "404": {
+            "description": "Owned current support/help resource unavailable; existence hidden"
+          },
+          "409": {
+            "description": "Changed/expired review, closed case or mismatched/expired operation"
+          },
+          "422": {
+            "description": "Strict bounded payload, consent or excerpt selection invalid"
+          },
+          "429": {
+            "description": "Bounded handoff request limit reached; ordinary Customer Care retained"
+          },
+          "500": {
+            "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                  "error": {
+                    "code": "INTERNAL_ERROR"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                  "error": {
+                    "code": "DATABASE_UNAVAILABLE"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "postCustomersSupportHandoff",
+        "x-access-boundary": "authenticated-customer",
+        "x-required-roles": [
+          "CUSTOMER"
+        ],
+        "x-csrf-required": true,
+        "x-idempotency-required": true
+      }
+    },
+    "/customers/support/handoff/receipts/{operationKey}": {
+      "get": {
+        "tags": [
+          "Support"
+        ],
+        "summary": "Recover an owned durable handoff reference without a transcript",
+        "description": "The operation key is a non-bearer random identifier. Current customer session and canonical ownership are required; another customer receives 404. Absence does not prove a failed submission. Recovery expires after twenty-four hours; inspect canonical support history afterward. Returns no summary, help transcript, internal note or credential. Recover an owned durable handoff reference without a transcript. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^handoff-v1\\.\\d{13}\\.[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "description": "Operation Key validated by this operation's strict request contract."
+            },
+            "required": true,
+            "name": "operationKey",
+            "in": "path",
+            "description": "Identifier selecting the operation key resource.",
+            "example": "synthetic-operationkey"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success: Recover an owned durable handoff reference without a transcript.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "description": "Success validated by this operation's strict request contract."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "reference": {
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "enum": [
+                                "ENQUIRY",
+                                "COMPLAINT"
+                              ],
+                              "description": "Kind validated by this operation's strict request contract."
+                            },
+                            "id": {
+                              "type": "string",
+                              "format": "uuid",
+                              "description": "Identifier of the id resource; ownership is resolved server-side."
+                            },
+                            "branchId": {
+                              "type": "string",
+                              "format": "uuid",
+                              "description": "Identifier of the branch resource; ownership is resolved server-side."
+                            },
+                            "messageId": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "uuid",
+                              "description": "Identifier of the message resource; ownership is resolved server-side."
+                            },
+                            "createdNew": {
+                              "type": "boolean",
+                              "description": "Created New validated by this operation's strict request contract."
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "id",
+                            "branchId",
+                            "messageId",
+                            "createdNew"
+                          ],
+                          "additionalProperties": false,
+                          "description": "Reference validated by this operation's strict request contract."
+                        },
+                        "replayed": {
+                          "type": "boolean",
+                          "description": "Replayed validated by this operation's strict request contract."
+                        },
+                        "state": {
+                          "type": "string",
+                          "enum": [
+                            "SAVED"
+                          ],
+                          "description": "State validated by this operation's strict request contract."
+                        },
+                        "mode": {
+                          "type": "string",
+                          "enum": [
+                            "QUEUED"
+                          ],
+                          "description": "Mode validated by this operation's strict request contract."
+                        }
+                      },
+                      "required": [
+                        "reference",
+                        "replayed",
+                        "state",
+                        "mode"
+                      ],
+                      "additionalProperties": false,
+                      "description": "Data validated by this operation's strict request contract."
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string",
+                          "description": "Identifier of the request resource; ownership is resolved server-side."
+                        }
+                      },
+                      "required": [
+                        "requestId"
+                      ],
+                      "description": "Meta validated by this operation's strict request contract."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "data",
+                    "meta"
+                  ],
+                  "description": "Response validated by this operation's strict request contract."
+                },
+                "example": {
+                  "success": true,
+                  "message": "Recover an owned durable handoff reference without a transcript",
+                  "data": {
+                    "reference": {
+                      "kind": "ENQUIRY",
+                      "id": "00000000-0000-4000-8000-000000000001",
+                      "branchId": "00000000-0000-4000-8000-000000000001",
+                      "messageId": "00000000-0000-4000-8000-000000000001",
+                      "createdNew": true
+                    },
+                    "replayed": true,
+                    "state": "SAVED",
+                    "mode": "QUEUED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is malformed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request is malformed.",
+                  "error": {
+                    "code": "BAD_REQUEST"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Current verified customer session required"
+          },
+          "403": {
+            "description": "Customer identity, trusted origin or CSRF verification failed"
+          },
+          "404": {
+            "description": "Owned current support/help resource unavailable; existence hidden"
+          },
+          "409": {
+            "description": "Changed/expired review, closed case or mismatched/expired operation"
+          },
+          "422": {
+            "description": "Strict bounded payload, consent or excerpt selection invalid"
+          },
+          "429": {
+            "description": "Bounded handoff request limit reached; ordinary Customer Care retained"
+          },
+          "500": {
+            "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                  "error": {
+                    "code": "INTERNAL_ERROR"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                  "error": {
+                    "code": "DATABASE_UNAVAILABLE"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getCustomersSupportHandoffReceiptsByOperationKey",
+        "x-access-boundary": "authenticated-customer",
+        "x-required-roles": [
+          "CUSTOMER"
+        ],
+        "x-csrf-required": false,
+        "x-idempotency-required": false
+      }
+    },
     "/public/support/reviews/{reviewId}/photo": {
       "get": {
         "tags": [
