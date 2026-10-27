@@ -41,6 +41,7 @@ import type { MonnifyWebhookEvent } from "../../providers/payments/monnify-webho
 import type { ObjectStoragePort } from "../../providers/storage/object-storage.port.js";
 import { objectStorage } from "../../providers/storage/s3-object-storage.adapter.js";
 import { appendAuditEvent } from "../audit/audit.service.js";
+import { lockAccessActor } from "../organization/team-access-security.js";
 import { enqueueNotification } from "../notifications/notifications.service.js";
 import {
   paymentConflict,
@@ -649,6 +650,7 @@ export class PaymentsService {
   ) {
     assertPaymentApprover(actor);
     return withTransactionRetry(this.database, async (tx) => {
+      await lockAccessActor(tx, actor);
       const attempt = await tx.paymentAttempt.findUnique({
         where: { id: attemptId },
         include: { manualReview: true, payment: true },
