@@ -1,7 +1,6 @@
 [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'High')]
 param(
-    [switch] $ExecuteRollback,
-    [switch] $SelfTest
+    [switch] $ExecuteRollback
 )
 
 Set-StrictMode -Version Latest
@@ -12,8 +11,8 @@ $script:ExpectedProjectName = 'allied-autotech'
 $script:ExpectedProjectId = 'prj_LbuHFZ0EY8fBQL2pcOP1L3YHK2cb'
 $script:ExpectedScope = 'michael-enochs-projects-3da06943'
 $script:ExpectedCommit = 'fbb6565a57e484f802e1317d82f6631c55b34b03'
-$script:MockScenario = $null
-$script:MockMutationCount = 0
+$script:DeploymentPageSize = 100
+$script:MaximumDeploymentPages = 1000
 
 function Get-FieldValue {
     param(
@@ -32,57 +31,15 @@ function Get-FieldValue {
 function Invoke-VercelCli {
     param([Parameter(Mandatory = $true)] [string[]] $Arguments)
 
-    if ($null -ne $script:MockScenario) {
-        if ($Arguments[0] -eq 'rollback') {
-            $script:MockMutationCount++
-            throw 'The self-test mock must never receive a rollback command.'
-        }
-
-        if ($Arguments[0] -ne 'api' -or $Arguments.Count -lt 2) {
-            throw 'Unexpected command in the rollback helper mock.'
-        }
-
-        $scopeIndex = [Array]::IndexOf($Arguments, '--scope')
-        if ($scopeIndex -lt 0 -or
-            $scopeIndex + 1 -ge $Arguments.Count -or
-            $Arguments[$scopeIndex + 1] -cne $script:ExpectedScope) {
-            throw 'The helper mock received an unexpected Vercel scope.'
-        }
-
-        $endpoint = $Arguments[1]
-        if ($endpoint.StartsWith('/v9/projects/', [System.StringComparison]::Ordinal)) {
-            $response = @{
-                id = $script:MockScenario.ProjectId
-                name = $script:MockScenario.ProjectName
-            }
-        }
-        elseif ($endpoint.StartsWith('/v13/deployments/', [System.StringComparison]::Ordinal)) {
-            $response = @{
-                id = $script:MockScenario.DeploymentId
-                name = $script:ExpectedProjectName
-                projectId = $script:MockScenario.ProjectId
-                target = 'production'
-                readyState = $script:MockScenario.ReadyState
-                gitSource = @{ sha = $script:MockScenario.Commit }
-            }
-        }
-        elseif ($endpoint.StartsWith('/v7/deployments?', [System.StringComparison]::Ordinal)) {
-            $response = @{ deployments = @($script:MockScenario.Deployments) }
-        }
-        else {
-            throw 'Unexpected API endpoint in the rollback helper mock.'
-        }
-
-        return ConvertTo-Json -InputObject $response -Depth 8 -Compress
-    }
-
     $vercel = Get-Command 'vercel' -ErrorAction SilentlyContinue
     if ($null -eq $vercel) {
         throw 'Vercel CLI was not found. Install/configure it separately, then retry.'
     }
 
-    $output = @(& $vercel.Source @Arguments 2>$null)
-    if ($LASTEXITCODE -ne 0) {
+    $isCommandFunction = $vercel.CommandType -eq [System.Management.Automation.CommandTypes]::Function -or
+        $vercel.CommandType -eq [System.Management.Automation.CommandTypes]::Filter
+    $output = @(& $vercel @Arguments 2>$null)
+    if (-not $isCommandFunction -and $LASTEXITCODE -ne 0) {
         if ($Arguments[0] -eq 'rollback') {
             throw 'The Vercel rollback command returned a non-zero exit code; its outcome is ambiguous. Check rollback status and aliases before retrying.'
         }
@@ -136,103 +93,115 @@ function Assert-TargetIdentity {
 }
 
 function Assert-NoPendingProductionDeployments {
-    $result = Invoke-VercelApi -Endpoint (
-        '/v7/deployments?projectId={0}&target=production&limit=20&slug={1}' -f
-        $script:ExpectedProjectId, $script:ExpectedScope
-    )
-    $deployments = Get-FieldValue $result 'deployments'
-
-    if ($null -eq $deployments -or @($deployments).Count -eq 0) {
-        throw 'Vercel returned no production deployment list. Refusing to treat unknown state as safe.'
-    }
-
     $pendingStates = @('BUILDING', 'INITIALIZING', 'QUEUED', 'BLOCKED')
     $terminalStates = @('READY', 'ERROR', 'CANCELED')
-    foreach ($deployment in @($deployments)) {
-        $state = Get-FieldValue $deployment 'readyState'
-        if ([string]::IsNullOrWhiteSpace([string] $state)) {
-            $state = Get-FieldValue $deployment 'state'
+
+    $deploymentCount = 0
+    $cursor = $null
+    $seenCursors = @{}
+    for ($pageNumber = 1; $pageNumber -le $script:MaximumDeploymentPages; $pageNumber++) {
+        $endpoint = '/v7/deployments?projectId={0}&target=production&limit={1}&slug={2}' -f `
+            $script:ExpectedProjectId, $script:DeploymentPageSize, $script:ExpectedScope
+        if ($null -ne $cursor) {
+            $endpoint = '{0}&until={1}' -f $endpoint, $cursor
         }
 
-        if ($pendingStates -contains [string] $state) {
-            throw 'A production deployment is in progress. Stop and re-check after it reaches a terminal state.'
+        $result = Invoke-VercelApi -Endpoint $endpoint
+        $deploymentsProperty = $result.PSObject.Properties['deployments']
+        $pagination = Get-FieldValue $result 'pagination'
+        $paginationCountProperty = if ($null -eq $pagination) { $null } else { $pagination.PSObject.Properties['count'] }
+        $paginationNextProperty = if ($null -eq $pagination) { $null } else { $pagination.PSObject.Properties['next'] }
+        if ($null -eq $deploymentsProperty -or
+            $deploymentsProperty.Value -isnot [System.Array] -or
+            $null -eq $pagination -or
+            $null -eq $paginationCountProperty -or
+            $null -eq $paginationNextProperty) {
+            throw 'Vercel returned a missing or malformed production deployment page. Refusing to continue.'
         }
-        if ($terminalStates -notcontains [string] $state) {
-            throw 'A production deployment has an unknown state. Refusing to continue.'
+
+        $deployments = $deploymentsProperty.Value
+        $paginationCount = $paginationCountProperty.Value
+        $parsedCount = 0
+        if (-not [int]::TryParse([string] $paginationCount, [ref] $parsedCount) -or
+            $parsedCount -ne $deployments.Count -or
+            $parsedCount -lt 0 -or
+            $parsedCount -gt $script:DeploymentPageSize) {
+            throw 'Vercel returned inconsistent production deployment pagination metadata. Refusing to continue.'
         }
+
+        if ($deployments.Count -eq 0) {
+            throw 'Vercel returned an empty production deployment list/page. Refusing to treat unknown state as safe.'
+        }
+
+        foreach ($deployment in $deployments) {
+            if ($null -eq $deployment) {
+                throw 'Vercel returned an incomplete production deployment record. Refusing to continue.'
+            }
+
+            $state = Get-FieldValue $deployment 'readyState'
+            if ([string]::IsNullOrWhiteSpace([string] $state)) {
+                $state = Get-FieldValue $deployment 'state'
+            }
+            if ([string]::IsNullOrWhiteSpace([string] $state)) {
+                throw 'A production deployment has no recognized state. Refusing to continue.'
+            }
+
+            if ($pendingStates -contains [string] $state) {
+                throw 'A production deployment is in progress. Stop and re-check after it reaches a terminal state.'
+            }
+            if ($terminalStates -notcontains [string] $state) {
+                throw 'A production deployment has an unknown state. Refusing to continue.'
+            }
+        }
+
+        $deploymentCount += $deployments.Count
+        $nextCursor = $paginationNextProperty.Value
+        if ([string]::IsNullOrWhiteSpace([string] $nextCursor)) {
+            if ($deployments.Count -eq $script:DeploymentPageSize) {
+                throw 'Vercel returned a full production deployment page without a continuation cursor. Refusing to assume the list is complete.'
+            }
+            return $deploymentCount
+        }
+
+        $nextCursor = [string] $nextCursor
+        if ($nextCursor -notmatch '^\d+$' -or $seenCursors.ContainsKey($nextCursor)) {
+            throw 'Vercel returned an invalid or repeated production deployment cursor. Refusing to continue.'
+        }
+        $seenCursors[$nextCursor] = $true
+        $cursor = $nextCursor
     }
 
-    return @($deployments).Count
+    throw 'The production deployment list exceeded the helper pagination safety limit. Completeness is uncertain; refusing to continue.'
+}
+
+function Assert-NoActiveRollback {
+    $output = Invoke-VercelCli -Arguments @(
+        'rollback',
+        'status',
+        $script:ExpectedProjectName,
+        '--scope',
+        $script:ExpectedScope
+    )
+    $status = ($output -join [Environment]::NewLine).Trim()
+    if ([string]::IsNullOrWhiteSpace($status)) {
+        throw 'Vercel returned no rollback status. Refusing to treat unknown state as safe.'
+    }
+
+    if ($status -match '(?i)^\s*(?:(?:there\s+(?:are|is)\s+)?no|none|zero)\s+(?:pending|active|current)\s+rollbacks?(?:\s+(?:found|exist|available|to\s+show))?[.!]?\s*$' -or
+        $status -match '(?i)^\s*(?:(?:there\s+(?:are|is)\s+)?no|none|zero)\s+rollbacks?\s+(?:are\s+)?(?:currently\s+)?(?:pending|active|in[\s_-]*progress)[.!]?\s*$') {
+        return
+    }
+    if ($status -match '(?i)\b(pending|queued|initializing|building|in[\s_-]*progress|running|processing|active)\b') {
+        throw 'Vercel reports an active or pending rollback. Stop and re-check after it reaches a terminal state.'
+    }
+
+    throw 'Vercel returned an unrecognized rollback status. Refusing to continue.'
 }
 
 function Assert-SafePreflight {
     Assert-TargetIdentity
+    Assert-NoActiveRollback
     return Assert-NoPendingProductionDeployments
-}
-
-function Invoke-SelfTest {
-    $passingScenario = @{
-        ProjectId = $script:ExpectedProjectId
-        ProjectName = $script:ExpectedProjectName
-        DeploymentId = $script:ExpectedDeploymentId
-        Commit = $script:ExpectedCommit
-        ReadyState = 'READY'
-        Deployments = @(@{ id = 'dpl-current'; readyState = 'READY' })
-    }
-
-    $script:MockScenario = $passingScenario
-    $script:MockMutationCount = 0
-    $count = Assert-SafePreflight
-    if ($count -ne 1 -or $script:MockMutationCount -ne 0) {
-        throw 'Self-test failed: safe dry-run must perform read-only checks and no rollback.'
-    }
-
-    $badScenarios = @(
-        @{ label = 'wrong project ID'; change = { $script:MockScenario.ProjectId = 'prj_wrong' } },
-        @{ label = 'wrong project name'; change = { $script:MockScenario.ProjectName = 'other-project' } },
-        @{ label = 'wrong deployment ID'; change = { $script:MockScenario.DeploymentId = 'dpl_wrong' } },
-        @{ label = 'wrong source commit'; change = { $script:MockScenario.Commit = '0' * 40 } },
-        @{ label = 'unready target'; change = { $script:MockScenario.ReadyState = 'BUILDING' } },
-        @{ label = 'pending production deployment'; change = { $script:MockScenario.Deployments = @(@{ id = 'dpl-pending'; readyState = 'QUEUED' }) } },
-        @{ label = 'unknown production deployment state'; change = { $script:MockScenario.Deployments = @(@{ id = 'dpl-unknown'; readyState = 'UNKNOWN' }) } }
-    )
-
-    foreach ($case in $badScenarios) {
-        $script:MockScenario = @{
-            ProjectId = $passingScenario.ProjectId
-            ProjectName = $passingScenario.ProjectName
-            DeploymentId = $passingScenario.DeploymentId
-            Commit = $passingScenario.Commit
-            ReadyState = $passingScenario.ReadyState
-            Deployments = @($passingScenario.Deployments)
-        }
-        & $case.change
-
-        $rejected = $false
-        try {
-            Assert-SafePreflight | Out-Null
-        }
-        catch {
-            $rejected = $true
-        }
-        if (-not $rejected) {
-            throw ('Self-test failed: did not reject {0}.' -f $case.label)
-        }
-        if ($script:MockMutationCount -ne 0) {
-            throw 'Self-test failed: a rejection path attempted a rollback.'
-        }
-    }
-
-    $script:MockScenario = $null
-    Write-Output 'Rollback helper self-test passed: safe dry-run and seven fail-closed cases; zero mutation calls.'
-}
-
-if ($SelfTest) {
-    if ($ExecuteRollback -or $PSBoundParameters.ContainsKey('WhatIf')) {
-        throw 'SelfTest cannot be combined with rollback or ShouldProcess options.'
-    }
-    Invoke-SelfTest
-    return
 }
 
 if ($ExecuteRollback) {

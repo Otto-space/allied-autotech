@@ -91,10 +91,14 @@ database state.
    .\ops\rollback-production.ps1
    ```
 
-   This is a read-only preflight/plan; it calls only Vercel API GET endpoints.
-   It is not a live health check. Stop if CLI authentication, scope, project,
-   source SHA, target readiness, response shape, or pending-deployment checks
-   fail. Do not work around a failed guard or change its pinned constants.
+   This is a read-only preflight/plan; it makes scoped Vercel API GET requests
+   and checks `vercel rollback status`. It exhaustively follows the
+   production deployment-list pagination; it fails closed on active/unknown
+   rollback state, missing or malformed pages, invalid cursors, or an
+   incomplete list. It is not a live health check. Stop if CLI authentication,
+   scope, project, source SHA, target readiness, response shape,
+   rollback-status, or pending-deployment checks fail. Do not work around a
+   failed guard or change its pinned constants.
 
 ### Explicitly approved rollback
 
