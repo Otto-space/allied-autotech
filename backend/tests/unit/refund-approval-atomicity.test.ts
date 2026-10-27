@@ -16,6 +16,7 @@ const context = { requestId: randomUUID(), ipAddress: null, userAgent: null };
 function refundWorkspace(
   provider: "MANUAL" | "PAYSTACK",
   gatewayTransactionId: string | null,
+  sessionCurrent = true,
 ) {
   const id = randomUUID();
   let record = {
@@ -35,13 +36,20 @@ function refundWorkspace(
         role: "ADMIN",
         status: "ACTIVE",
         emailVerifiedAt: new Date(),
+        passwordHash: "synthetic-hash",
       }),
     },
     userCapability: { findFirst: vi.fn().mockResolvedValue({ id: randomUUID() }) },
   };
   const transaction = {
     ...authorization,
+    $executeRaw: vi.fn().mockResolvedValue(0),
     $queryRaw: vi.fn().mockResolvedValue([{ id }]),
+    session: {
+      findFirst: vi
+        .fn()
+        .mockResolvedValue(sessionCurrent ? { mfaVerifiedAt: new Date() } : null),
+    },
     paymentDispute: { count: vi.fn().mockResolvedValue(0) },
     refund: {
       findUnique: vi.fn(async () => record),
@@ -76,6 +84,23 @@ function refundWorkspace(
 }
 
 describe("refund approval publication", () => {
+  it("denies a revoked approver before reading or changing a refund", async () => {
+    const { id, service, transaction, current } = refundWorkspace(
+      "PAYSTACK",
+      "captured-id",
+      false,
+    );
+
+    await expect(
+      service.decideRefund(actor, id, { decision: "APPROVED" }, context),
+    ).rejects.toMatchObject({ code: "FORBIDDEN", statusCode: 403 });
+    expect(transaction.session.findFirst).toHaveBeenCalledOnce();
+    expect(transaction.refund.findUnique).not.toHaveBeenCalled();
+    expect(transaction.refund.update).not.toHaveBeenCalled();
+    expect(transaction.auditLog.create).not.toHaveBeenCalled();
+    expect(current().status).toBe("REQUESTED");
+  });
+
   it.each([
     { provider: "MANUAL" as const, gatewayTransactionId: null },
     { provider: "PAYSTACK" as const, gatewayTransactionId: null },

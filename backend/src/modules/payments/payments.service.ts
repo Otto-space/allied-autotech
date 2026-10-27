@@ -758,6 +758,7 @@ export class PaymentsService {
       `${input.paymentAttemptId}:${rawKey}`,
     );
     return withTransactionRetry(this.database, async (tx) => {
+      await lockAccessActor(tx, actor);
       await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`refund:${keyHash}`}, 0))`;
       const existing = await tx.refund.findUnique({
         where: { idempotencyKeyHash: keyHash },
@@ -882,6 +883,7 @@ export class PaymentsService {
   ) {
     await assertCapability(this.database, actor, "REFUND_APPROVE");
     await withTransactionRetry(this.database, async (tx) => {
+      await lockAccessActor(tx, actor);
       await assertCapability(tx, actor, "REFUND_APPROVE");
       const rows = await tx.$queryRaw<
         Array<{ id: string }>

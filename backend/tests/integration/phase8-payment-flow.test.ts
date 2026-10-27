@@ -54,7 +54,7 @@ async function session(userId: string, role: UserRole) {
   const csrf = generateOpaqueToken();
   const now = new Date();
   const expiresAt = new Date(now.getTime() + 3_600_000);
-  await prisma.session.create({
+  const stored = await prisma.session.create({
     data: {
       userId,
       tokenHash: hashToken("session", token),
@@ -67,7 +67,7 @@ async function session(userId: string, role: UserRole) {
       mfaVerifiedAt: role === "CUSTOMER" ? null : now,
     },
   });
-  return { cookie: `${sessionCookieName}=${token}`, csrf };
+  return { id: stored.id, cookie: `${sessionCookieName}=${token}`, csrf };
 }
 const headers = (value: Awaited<ReturnType<typeof session>>, key?: string) => ({
   Origin: origin,
@@ -433,7 +433,7 @@ describe.skipIf(!runDatabaseTests)("Phase 8 payment flow", () => {
     };
     const requesterActor = {
       userId: requester.id,
-      sessionId: randomUUID(),
+      sessionId: requesterSession.id,
       email: "requester@example.test",
       role: "ADMIN" as const,
       mfaRequired: true,
@@ -441,7 +441,7 @@ describe.skipIf(!runDatabaseTests)("Phase 8 payment flow", () => {
     };
     const adminActor = {
       userId: admin.id,
-      sessionId: randomUUID(),
+      sessionId: adminSession.id,
       email: "admin@example.test",
       role: "ADMIN" as const,
       mfaRequired: true,
