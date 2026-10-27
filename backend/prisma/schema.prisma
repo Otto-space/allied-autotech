@@ -1924,6 +1924,7 @@ model PaymentReconciliationItem {
   @@index([runId, status])
   @@index([runId, providerGatewayTransactionId], map: "ReconciliationItem_provider_receipt_idx")
   @@index([paymentAttemptId])
+  @@index([paymentAttemptId, createdAt(sort: Desc), id(sort: Desc)], map: "ReconciliationItem_latest_attempt_idx")
   @@index([refundId])
   @@index([disputeId])
 }

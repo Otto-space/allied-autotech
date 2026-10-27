@@ -656,5 +656,77 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       expect(await f.items(abandoned.id)).toEqual([]);
       expect(await f.items(replacement.id)).toHaveLength(1);
     });
+
+    it("rechecks a pending observation, then a discrepancy, and stops after a terminal match", async () => {
+      const f = await fixture();
+      const periodStart = new Date("1900-01-01T00:00:00.000Z");
+      const periodEnd = new Date(periodStart.getTime() + 1_000);
+      const attempt = await f.attempt({ provider: "MONNIFY", initiatedAt: periodStart });
+      const initial = await f.worker.run(periodStart, periodEnd, "MONNIFY");
+      expect(initial).toMatchObject({ status: "MATCHED", attemptNumber: 1 });
+      const intervalMs = 60_000;
+      const countSnapshots = () =>
+        prisma.paymentReconciliationRun.count({
+          where: { provider: "MONNIFY", periodStart, periodEnd },
+        });
+      await f.worker.runNextDueForProvider(
+        "MONNIFY",
+        intervalMs,
+        new Date(initial.completedAt!.getTime() + intervalMs / 2),
+      );
+      expect(await countSnapshots()).toBe(1);
+
+      f.verify.mockResolvedValueOnce({
+        reference: attempt.internalReference,
+        gatewayTransactionId: `synthetic-${attempt.internalReference}`,
+        status: "success",
+        amountKobo: 10000n,
+        currency: "NGN",
+        paidAt: new Date(),
+        providerFeeKobo: null,
+        method: null,
+      });
+      const discrepancy = await f.worker.runNextDueForProvider(
+        "MONNIFY",
+        intervalMs,
+        new Date(initial.completedAt!.getTime() + intervalMs + 1_000),
+      );
+      expect(discrepancy).toMatchObject({
+        status: "DIFFERENCES_FOUND",
+        attemptNumber: 2,
+        differenceCount: 1,
+      });
+
+      await prisma.paymentAttempt.update({
+        where: { id: attempt.id },
+        data: { status: "FAILED", failedAt: new Date() },
+      });
+      f.verify.mockResolvedValueOnce({
+        reference: attempt.internalReference,
+        gatewayTransactionId: `synthetic-${attempt.internalReference}`,
+        status: "failed",
+        amountKobo: 10000n,
+        currency: "NGN",
+        paidAt: null,
+        providerFeeKobo: null,
+        method: null,
+      });
+      const settled = await f.worker.runNextDueForProvider(
+        "MONNIFY",
+        intervalMs,
+        new Date(discrepancy!.completedAt!.getTime() + intervalMs + 1_000),
+      );
+      expect(settled).toMatchObject({
+        status: "MATCHED",
+        attemptNumber: 3,
+        matchedCount: 1,
+      });
+      await f.worker.runNextDueForProvider(
+        "MONNIFY",
+        intervalMs,
+        new Date(settled!.completedAt!.getTime() + intervalMs + 1_000),
+      );
+      expect(await countSnapshots()).toBe(3);
+    });
   },
 );

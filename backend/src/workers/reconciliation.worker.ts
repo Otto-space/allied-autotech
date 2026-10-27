@@ -287,14 +287,7 @@ export class PaymentReconciliationWorker {
     }
   }
 
-  async runConfigured(periodStart: Date, periodEnd: Date) {
-    const results = [];
-    for (const provider of this.providers.enabledProviders())
-      results.push(await this.run(periodStart, periodEnd, provider));
-    return results;
-  }
-
-  /** Process one closed, previously unobserved attempt window per provider. */
+  /** Process one closed window containing an unobserved or still-open attempt. */
   async runNextDueForProvider(
     provider: OnlinePaymentProvider,
     intervalMs: number,
@@ -307,17 +300,32 @@ export class PaymentReconciliationWorker {
     )
       throw new Error("Invalid reconciliation schedule");
     const dueBefore = new Date(now.getTime() - intervalMs);
-    const uncovered = await this.database.paymentAttempt.findFirst({
-      where: {
-        provider,
-        initiatedAt: { lte: dueBefore },
-        reconciliationItems: {
-          none: { run: { status: { in: ["MATCHED", "DIFFERENCES_FOUND"] } } },
-        },
-      },
-      orderBy: [{ initiatedAt: "asc" }, { id: "asc" }],
-      select: { initiatedAt: true },
-    });
+    const [uncovered] = await this.database.$queryRaw<Array<{ initiatedAt: Date }>>`
+      SELECT a."initiatedAt"
+      FROM "PaymentAttempt" AS a
+      LEFT JOIN LATERAL (
+        SELECT i."status", r."completedAt"
+        FROM "PaymentReconciliationItem" AS i
+        JOIN "PaymentReconciliationRun" AS r ON r."id" = i."runId"
+        WHERE i."paymentAttemptId" = a."id"
+          AND r."status" IN ('MATCHED', 'DIFFERENCES_FOUND')
+        ORDER BY i."createdAt" DESC, r."startedAt" DESC,
+          r."attemptNumber" DESC, i."id" DESC
+        LIMIT 1
+      ) AS observed ON TRUE
+      WHERE a."provider" = CAST(${provider} AS "PaymentProvider")
+        AND a."initiatedAt" <= ${dueBefore}
+        AND (
+          observed."status" IS NULL
+          OR (
+            (a."status" IN ('INITIALIZED', 'PENDING', 'PROCESSING')
+              OR observed."status" <> 'MATCHED')
+            AND observed."completedAt" <= ${dueBefore}
+          )
+        )
+      ORDER BY a."initiatedAt", a."id"
+      LIMIT 1
+    `;
     if (!uncovered) return null;
     const running = await this.database.paymentReconciliationRun.findFirst({
       where: {
