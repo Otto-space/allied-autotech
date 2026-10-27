@@ -642,6 +642,13 @@ export function SupportCreateForm({
               <SelectFrame enabled={isContact}>
                 <select
                   id="support-type"
+                  data-scroll-target={
+                    type === "VEHICLE"
+                      ? "support-vehicle-enquiry"
+                      : sourceType
+                        ? "support-source"
+                        : undefined
+                  }
                   name={isDashboard ? "supportType" : undefined}
                   data-draft-context={isDashboard || undefined}
                   value={type}
@@ -668,13 +675,16 @@ export function SupportCreateForm({
             </div>
           )}
           {kind === "enquiries" && type === "VEHICLE" && (
-            <fieldset className="field contact-field-wide">
+            <fieldset id="support-vehicle-enquiry" className="field contact-field-wide">
               <legend>Vehicle enquiry</legend>
               {(["LISTING", "REQUIREMENTS"] as const).map((intent) => (
                 <label className="check-label" key={intent}>
                   <input
                     type="radio"
                     name="vehicleEnquiryIntent"
+                    data-scroll-target={
+                      intent === "LISTING" ? "support-source" : "support-opening"
+                    }
                     value={intent}
                     checked={vehicleIntent === intent}
                     onChange={() => {
@@ -861,6 +871,9 @@ export function SupportCreateForm({
                 <input
                   type="checkbox"
                   name="visitRequested"
+                  aria-controls={
+                    visitRequested ? "support-visit-date support-visit-time" : undefined
+                  }
                   checked={visitRequested}
                   onChange={(event) => {
                     setVisitRequested(event.target.checked);

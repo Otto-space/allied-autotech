@@ -106,23 +106,25 @@ export function LearningCompanion() {
             <X size={20} aria-hidden="true" />
           </button>
         </header>
-        {open && (
-          <Suspense fallback={<p role="status">Loading help…</p>}>
-            <Panel onNavigate={close} />
-          </Suspense>
-        )}
-        <button
-          className="allie-hide learning-text-button"
-          onClick={() => {
-            try {
-              sessionStorage.setItem(ASSISTANT_HIDDEN_KEY, "true");
-            } catch {}
-            window.dispatchEvent(new Event(ASSISTANT_VISIBILITY));
-            close();
-          }}
-        >
-          Hide floating help for this session
-        </button>
+        <div className="allie-dialog-body">
+          {open && (
+            <Suspense fallback={<p role="status">Loading help…</p>}>
+              <Panel onNavigate={close} />
+            </Suspense>
+          )}
+          <button
+            className="allie-hide learning-text-button"
+            onClick={() => {
+              try {
+                sessionStorage.setItem(ASSISTANT_HIDDEN_KEY, "true");
+              } catch {}
+              window.dispatchEvent(new Event(ASSISTANT_VISIBILITY));
+              close();
+            }}
+          >
+            Hide floating help for this session
+          </button>
+        </div>
       </dialog>
       {guide && (
         <Suspense fallback={<p role="status">Loading optional guide…</p>}>

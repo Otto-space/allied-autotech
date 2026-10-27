@@ -110,15 +110,28 @@ function Answers({
             onChange={(e) => setQuestion(e.target.value)}
             placeholder="For example: find a part"
           />
-          <button className="button" aria-label="Find reviewed help">
+          <button
+            className="button"
+            aria-label="Find reviewed help"
+            aria-controls={uid + "-response"}
+          >
             <Search size={18} aria-hidden="true" />
           </button>
         </div>
       </form>
       <div className="allie-prompts" aria-label="Suggested help">
-        <button onClick={() => selectIntent("context")}>Explain this page</button>
-        <button onClick={() => selectIntent("guide")}>Show me the steps</button>
-        <button onClick={() => selectIntent("practice")}>Let me practise</button>
+        <button aria-controls={uid + "-response"} onClick={() => selectIntent("context")}>
+          Explain this page
+        </button>
+        <button aria-controls={uid + "-response"} onClick={() => selectIntent("guide")}>
+          Show me the steps
+        </button>
+        <button
+          aria-controls={uid + "-response"}
+          onClick={() => selectIntent("practice")}
+        >
+          Let me practise
+        </button>
       </div>
       {!intent && (
         <p className="allie-welcome">
@@ -126,7 +139,12 @@ function Answers({
           starting point.
         </p>
       )}
-      <div className="allie-response" aria-live="polite" aria-atomic="false">
+      <div
+        id={uid + "-response"}
+        className="allie-response"
+        aria-live="polite"
+        aria-atomic="false"
+      >
         {intent === "answer" && !article && (
           <p>
             I couldn’t find a reviewed answer for that. Try a task such as parts, support
