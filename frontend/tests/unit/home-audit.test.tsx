@@ -31,6 +31,7 @@ afterEach(() => {
 it("keeps service, vehicle and Shop journeys with keyboard wraparound and reduced motion", () => {
   render(<HomeHero />);
   expect(screen.getAllByRole("button", { name: /Show slide/ })).toHaveLength(3);
+  expect(screen.getByText("01 / 03")).toBeTruthy();
   expect(screen.queryByRole("button", { name: "Pause slideshow" })).toBeNull();
   const region = screen.getByRole("region", { name: "Explore Allied AutoTech" });
   fireEvent.keyDown(region, { key: "ArrowRight" });
@@ -44,6 +45,7 @@ it("keeps service, vehicle and Shop journeys with keyboard wraparound and reduce
   expect(screen.getByRole("link", { name: "Visit the Shop" }).getAttribute("href")).toBe(
     "/parts",
   );
+  expect(screen.getByText("03 / 03")).toBeTruthy();
   fireEvent.keyDown(region, { key: "ArrowRight" });
   expect(screen.getByRole("heading", { level: 1 }).textContent).toContain(
     "Built on trust",

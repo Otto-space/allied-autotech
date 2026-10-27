@@ -169,7 +169,8 @@ export function HomeHero() {
           <div className="hero-arrows">
             <span className="hero-caption">{current.caption}</span>
             <span className="hero-count" aria-hidden="true">
-              {String(index + 1).padStart(2, "0")} / 04
+              {String(index + 1).padStart(2, "0")} /{" "}
+              {String(slides.length).padStart(2, "0")}
             </span>
             <button
               type="button"
