@@ -589,13 +589,15 @@
         "frontend/tests/e2e/workforce-session-revocation.spec.ts",
         "docs/help-learn/ALLIE_PROVIDER_CORE_W6.md",
         "docs/help-learn/ALLIE_CONVERSATIONS_W7.md",
-        "backend/tests/integration/allie-conversations.test.ts"
+        "backend/tests/integration/allie-conversations.test.ts",
+        "docs/help-learn/ALLIE_CONVERSATION_UI_W8.md",
+        "frontend/tests/e2e/allie-conversation.spec.ts"
       ],
       "gaps": [
         "Complete legacy/owner route-specific learning and walkthrough/practice decisions remain open.",
         "Actual hosted role changes, physical devices and full screen-reader acceptance remain open.",
         "W5 evidence covers managed-workforce boundaries; real conversational AI and staffed chat are not implemented.",
-        "W7 owned encrypted conversation API and shared quotas are isolated-tested with mocked provider. Frontend conversational journey, configured-provider evaluation, reviewed persisted handoff and staffed chat remain unfinished."
+        "W8 conversation/privacy UI and W7 owned API are isolated-tested in separate browser/API and native provider-mocked layers. Real combined backend/provider journeys, >=100 reviewed evaluation, persisted handoff and staffed chat remain unfinished."
       ],
       "subviews": []
     },
@@ -1312,13 +1314,15 @@
         "frontend/tests/e2e/workforce-session-revocation.spec.ts",
         "docs/help-learn/ALLIE_PROVIDER_CORE_W6.md",
         "docs/help-learn/ALLIE_CONVERSATIONS_W7.md",
-        "backend/tests/integration/allie-conversations.test.ts"
+        "backend/tests/integration/allie-conversations.test.ts",
+        "docs/help-learn/ALLIE_CONVERSATION_UI_W8.md",
+        "frontend/tests/e2e/allie-conversation.spec.ts"
       ],
       "gaps": [
         "Full independent-grant/baseline composition and real chat subscription authorisation remain open; W5 verifies the managed-workforce registry and HTTP/session invalidation only.",
         "Completely unknown historical template/scope display and actual hosted role mutations remain unverified.",
         "Allie conversation, complete page-context guidance, walkthrough/practice mode decisions and full Revision 4 task-state acceptance remain open.",
-        "W7 owned encrypted conversation API and shared quotas are isolated-tested with mocked provider. Frontend conversational journey, configured-provider evaluation, reviewed persisted handoff and staffed chat remain unfinished."
+        "W8 conversation/privacy UI and W7 owned API are isolated-tested in separate browser/API and native provider-mocked layers. Real combined backend/provider journeys, >=100 reviewed evaluation, persisted handoff and staffed chat remain unfinished."
       ],
       "subviews": [
         {
@@ -2000,11 +2004,13 @@
       "evidence": [
         "docs/help-learn/ALLIE_PROVIDER_CORE_W6.md",
         "docs/help-learn/ALLIE_CONVERSATIONS_W7.md",
-        "backend/tests/integration/allie-conversations.test.ts"
+        "backend/tests/integration/allie-conversations.test.ts",
+        "docs/help-learn/ALLIE_CONVERSATION_UI_W8.md",
+        "frontend/tests/e2e/allie-conversation.spec.ts"
       ],
       "gaps": [
         "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4.",
-        "W7 owned encrypted conversation API and shared quotas are isolated-tested with mocked provider. Frontend conversational journey, configured-provider evaluation, reviewed persisted handoff and staffed chat remain unfinished."
+        "W8 conversation/privacy UI and W7 owned API are isolated-tested in separate browser/API and native provider-mocked layers. Real combined backend/provider journeys, >=100 reviewed evaluation, persisted handoff and staffed chat remain unfinished."
       ],
       "subviews": []
     },
@@ -2026,11 +2032,13 @@
       "evidence": [
         "docs/help-learn/ALLIE_PROVIDER_CORE_W6.md",
         "docs/help-learn/ALLIE_CONVERSATIONS_W7.md",
-        "backend/tests/integration/allie-conversations.test.ts"
+        "backend/tests/integration/allie-conversations.test.ts",
+        "docs/help-learn/ALLIE_CONVERSATION_UI_W8.md",
+        "frontend/tests/e2e/allie-conversation.spec.ts"
       ],
       "gaps": [
         "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4.",
-        "W7 owned encrypted conversation API and shared quotas are isolated-tested with mocked provider. Frontend conversational journey, configured-provider evaluation, reviewed persisted handoff and staffed chat remain unfinished."
+        "W8 conversation/privacy UI and W7 owned API are isolated-tested in separate browser/API and native provider-mocked layers. Real combined backend/provider journeys, >=100 reviewed evaluation, persisted handoff and staffed chat remain unfinished."
       ],
       "subviews": []
     },

@@ -1,6 +1,7 @@
 ## Executive summary
 
-The highest residual risks are restricted guidance surviving an access transition,
+This is the W7 threat-model baseline; W8 verification updates are recorded under
+Notes on use. The highest residual risks are restricted guidance surviving an access transition,
 unreviewed text reaching the provider, anonymous cost abuse and model claims that
 exceed reviewed evidence. W7 adds shared ownership, encrypted transient state,
 atomic quotas and final access checks; UI integration, real-provider evaluation,
@@ -189,6 +190,15 @@ software are outside the remote-attacker assumption, but key handling is still n
 Reviewed against W7 local source on 27 October 2026. Native cases use actual HTTP,
 current authenticated resolver and synthetic PostgreSQL, with mocked provider output.
 No configured-provider quality, real deployment topology or hosted security claim.
+
+W8 update: conversation controls now integrate current-catalogue disposal, request
+abort/unmount, explicit send/clear, safe current links, uncertain-result checks and
+provider/privacy notices. Sixteen intercepted browser cases and 37 native
+provider-mocked cases passed in separate evidence layers. The baseline's pending UI
+implementation items have advanced to combined real backend/provider and hosted
+acceptance gates. No real model call, account data-control verification or release.
+Review also identified a guest-row/advisory-lock ordering scenario in retention;
+targeted reproduction is required before exposure. See `ALLIE_CONVERSATION_UI_W8.md`.
 
 - Covered guest bootstrap, both namespaces' state/turn/cancel routes, content/provider,
   retention/logging and local evaluation setup; no new upload or operational tool.

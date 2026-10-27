@@ -44,6 +44,25 @@ It refuses to overwrite existing configuration. Do not send that file to anyone.
 Windows-user encryption protects the stored key from other identities; it is not
 protection from malicious software already running as your Windows user.
 
+If your terminal does not paste into masked input, start this command **before**
+copying the key:
+
+```powershell
+powershell -NoProfile -File "C:\Users\PC\.codex\worktrees\allied-home-restoration-20261025\backend\scripts\configure-allie-evaluation.ps1" -KeyFromClipboard
+```
+
+Answer the ordinary prompts. At the explicit clipboard pause, switch to OpenAI and
+use Copy for the full secret key. Return to the terminal and press Enter without
+pasting or copying any other text. The clipboard is read only after this pause,
+never displayed, and left unchanged. Do not copy a masked key-list entry. If the
+full key is no longer available, create a replacement in the dedicated project.
+The helper accepts `Yes` or `YES`; neither mode sends an API request.
+
+The credit purchase, project spending cap and evaluation allowance are separate.
+The owner's payment screen required a US$5 minimum initial credit purchase; that
+does not require spending the full balance on evaluation. A configured allowance
+does not override the provider project's enforced cap.
+
 The recorded approval is restricted to isolated evaluation, at most 120 provider
 requests and the USD amount you entered. It does not approve app enablement,
 production deployment or real customer content. A bounded evaluation runner must

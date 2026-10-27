@@ -10922,7 +10922,7 @@ export interface operations {
                      *         "flags": {
                      *           "guides": true,
                      *           "practice": true,
-                     *           "ai": false
+                     *           "ai": true
                      *         },
                      *         "articles": [
                      *           {
@@ -11010,11 +11010,8 @@ export interface operations {
                                 guides: boolean;
                                 /** @description Practice validated by this operation's strict request contract. */
                                 practice: boolean;
-                                /**
-                                 * @description Ai validated by this operation's strict request contract.
-                                 * @enum {boolean}
-                                 */
-                                ai: false;
+                                /** @description Ai validated by this operation's strict request contract. */
+                                ai: boolean;
                             };
                             /** @description Articles validated by this operation's strict request contract. */
                             articles: {
@@ -11920,7 +11917,7 @@ export interface operations {
                      *         "flags": {
                      *           "guides": true,
                      *           "practice": true,
-                     *           "ai": false
+                     *           "ai": true
                      *         },
                      *         "articles": [
                      *           {
@@ -12008,11 +12005,8 @@ export interface operations {
                                 guides: boolean;
                                 /** @description Practice validated by this operation's strict request contract. */
                                 practice: boolean;
-                                /**
-                                 * @description Ai validated by this operation's strict request contract.
-                                 * @enum {boolean}
-                                 */
-                                ai: false;
+                                /** @description Ai validated by this operation's strict request contract. */
+                                ai: boolean;
                             };
                             /** @description Articles validated by this operation's strict request contract. */
                             articles: {

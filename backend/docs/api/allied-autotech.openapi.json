@@ -5031,9 +5031,6 @@
                             },
                             "ai": {
                               "type": "boolean",
-                              "enum": [
-                                false
-                              ],
                               "description": "Ai validated by this operation's strict request contract."
                             }
                           },
@@ -5309,7 +5306,7 @@
                     "flags": {
                       "guides": true,
                       "practice": true,
-                      "ai": false
+                      "ai": true
                     },
                     "articles": [
                       {
@@ -6465,9 +6462,6 @@
                             },
                             "ai": {
                               "type": "boolean",
-                              "enum": [
-                                false
-                              ],
                               "description": "Ai validated by this operation's strict request contract."
                             }
                           },
@@ -6743,7 +6737,7 @@
                     "flags": {
                       "guides": true,
                       "practice": true,
-                      "ai": false
+                      "ai": true
                     },
                     "articles": [
                       {

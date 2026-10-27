@@ -10,6 +10,10 @@ import * as provider from "../../src/modules/learning/allie.provider.js";
 import { allieResponseSchemas } from "../../src/modules/learning/allie.schemas.js";
 import { purgeExpiredAllieState } from "../../src/modules/learning/allie.retention.js";
 import { encodeAllieState } from "../../src/modules/learning/allie.storage.js";
+import {
+  learningCatalogue,
+  publicLearningAccess,
+} from "../../src/modules/learning/learning.service.js";
 import { workforceFixture } from "../fixtures/workforce.js";
 import { assertIsolatedLoopbackDatabase } from "../helpers/isolated-database.js";
 
@@ -161,10 +165,38 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
           ).status,
         ).toBe(404);
         expect((await create(f.customer.headers)).status).toBe(404);
+        expect(learningCatalogue(publicLearningAccess).flags.ai).toBe(false);
         expect(await prisma.assistantGuestSession.count()).toBe(before);
         expect(outbound).not.toHaveBeenCalled();
       } finally {
         env.HELP_LEARN_AI_ENABLED = true;
+      }
+    });
+    it("advertises AI only with current help/provider/budget configuration and a release that permits conversation writes", () => {
+      const configured = {
+        key: env.OPENAI_API_KEY,
+        model: env.ALLIE_OPENAI_MODEL,
+        budget: env.ALLIE_AI_DAILY_TOKEN_LIMIT,
+        mode: env.PUBLIC_LAUNCH_MODE,
+      };
+      try {
+        expect(learningCatalogue(publicLearningAccess).flags.ai).toBe(true);
+        env.PUBLIC_LAUNCH_MODE = "catalogue";
+        expect(learningCatalogue(publicLearningAccess).flags.ai).toBe(false);
+        env.PUBLIC_LAUNCH_MODE = "browse_enquiries";
+        env.OPENAI_API_KEY = undefined;
+        expect(learningCatalogue(publicLearningAccess).flags.ai).toBe(false);
+        env.OPENAI_API_KEY = configured.key;
+        env.ALLIE_OPENAI_MODEL = undefined;
+        expect(learningCatalogue(publicLearningAccess).flags.ai).toBe(false);
+        env.ALLIE_OPENAI_MODEL = configured.model;
+        env.ALLIE_AI_DAILY_TOKEN_LIMIT = 0;
+        expect(learningCatalogue(publicLearningAccess).flags.ai).toBe(false);
+      } finally {
+        env.OPENAI_API_KEY = configured.key;
+        env.ALLIE_OPENAI_MODEL = configured.model;
+        env.ALLIE_AI_DAILY_TOKEN_LIMIT = configured.budget;
+        env.PUBLIC_LAUNCH_MODE = configured.mode;
       }
     });
     it("requires trusted origins and separate guest CSRF, then safely reuses the opaque guest session", async () => {
@@ -501,7 +533,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         absoluteExpiresAt: new Date(at.getTime() + 3600000),
       };
       await prisma.assistantConversation.create({
-        data: { ...base, expiresAt: new Date(at.getTime() - 10000) },
+        data: { ...base, expiresAt: new Date(-10000) },
       });
       const id = randomUUID(),
         value = { history: { accessKey, sourceSet, turns: [] }, messages: [] };
@@ -509,7 +541,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         data: {
           ...base,
           id,
-          expiresAt: new Date(at.getTime() - 5000),
+          expiresAt: new Date(0),
           encryptedState: encodeAllieState(
             value,
             JSON.stringify([id, ownerKey, "PUBLIC"]),
@@ -528,17 +560,10 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
           ),
         },
       });
-      // Earlier retained fixtures can expire between repeated runs. The worker
-      // must process that legitimate backlog before this newly expired row.
-      for (let batch = 0; batch < 10; batch++) {
-        const result = await purgeExpiredAllieState(1);
-        expect(result.payloadBatchesReviewed).toBeLessThanOrEqual(1);
-        if (
-          (await prisma.assistantConversation.findUniqueOrThrow({ where: { id } }))
-            .encryptedState === null
-        )
-          break;
-      }
+      // Fixed ancient synthetic expiries put this pair ahead of retained fixtures
+      // from earlier campaigns. No backlog size assumption or database reset.
+      const result = await purgeExpiredAllieState(1);
+      expect(result.payloadBatchesReviewed).toBe(1);
       expect(
         (await prisma.assistantConversation.findUniqueOrThrow({ where: { id } }))
           .encryptedState,

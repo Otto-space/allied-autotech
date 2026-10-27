@@ -215,7 +215,13 @@ export function learningCatalogue(access: LearningAccess, query = "") {
     flags: {
       guides: env.HELP_LEARN_GUIDES_ENABLED,
       practice: env.HELP_LEARN_PRACTICE_ENABLED,
-      ai: false as const,
+      ai:
+        env.HELP_LEARN_ENABLED &&
+        env.HELP_LEARN_AI_ENABLED &&
+        env.PUBLIC_LAUNCH_MODE !== "catalogue" &&
+        !!env.OPENAI_API_KEY &&
+        !!env.ALLIE_OPENAI_MODEL &&
+        env.ALLIE_AI_DAILY_TOKEN_LIMIT >= 32000,
     },
     articles,
     guides: env.HELP_LEARN_GUIDES_ENABLED

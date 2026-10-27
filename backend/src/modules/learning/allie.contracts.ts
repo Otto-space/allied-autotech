@@ -2,7 +2,7 @@ import { z } from "zod";
 import type { learningCatalogue } from "./learning.service.js";
 
 // Internal server boundary. No request handler accepts a catalogue, history,
-// access key or source text from a browser. The future session store owns these.
+// access key or source text from a browser. The server conversation store owns these.
 export type AllieCatalogue = ReturnType<typeof learningCatalogue>;
 export const alliePageSchema = z.enum([
   "home",

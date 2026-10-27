@@ -158,3 +158,6 @@ customer-table-responsive.spec.ts
 workforce-directory.spec.ts
 # Revision 4 W5: current-access redirects, private draft disposal and cross-tab rechecks.
 workforce-session-revocation.spec.ts
+
+# Revision 4 W8: Allie conversation controls and role/privacy boundaries with isolated fixtures.
+allie-conversation.spec.ts

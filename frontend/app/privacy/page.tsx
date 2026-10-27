@@ -102,6 +102,27 @@ export default function PrivacyPage() {
           relevant to your information; we do not promise that all processing stays in
           Nigeria or London.
         </p>
+        <h2>Optional AI help</h2>
+        <p>
+          If conversational Allie is available and you choose to use it, your typed help
+          questions, eligible reviewed website instructions and recent help context are
+          processed by OpenAI. We do not include private records, support threads, uploads
+          or form contents. Do not type personal records, passwords, codes or banking
+          details; automatic secret screening can miss sensitive text. Allie can make
+          mistakes and cannot change your records or send a message for you. Reviewed help
+          remains available without AI.
+        </p>
+        <p>
+          Active conversation data and temporary turn receipts are encrypted on our server
+          and expire after 15 minutes without a completed answer or one hour overall,
+          possibly sooner with your session. Up to six recent turns are used as context.
+          Clear removes active server history; expired payload cleanup depends on our
+          retention worker, and backups follow their own policy. We request no stored
+          provider response, but OpenAI&apos;s abuse-monitoring rules may still apply.
+          Clearing local help does not promise provider deletion. Conversations are not
+          saved in browser storage. Choosing a contact link does not submit your question
+          or conversation to Customer Care.
+        </p>
         <h2>Links, cookies and your browser</h2>
         <p>
           WhatsApp, email and map links open the service you choose. That service&apos;s

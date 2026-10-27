@@ -12,7 +12,7 @@ import { containsAllieSecret, validateAllieOutput } from "./allie.safety.js";
 /** Internal orchestration only. getCatalogue must resolve current server identity,
  * session/MFA, permissions and publication rules on BOTH calls. History must come
  * from the bounded server-owned conversation store, never a client request body.
- * No route exposes this until shared quotas, ownership and expiry are implemented.
+ * Conversation routes call this behind shared quotas, ownership and expiry.
  */
 export async function answerAllie(input: {
   question: unknown;

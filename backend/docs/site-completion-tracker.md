@@ -1786,3 +1786,29 @@ again before execution by automatic approval review (blocked by policy). No alte
 removal attempted; 895,695,897 logical bytes remain. C: final-check preflight 26.93
 GiB free. No Docker resources, dependency install, new worktree or duplicate profile.
 Full Revision 4 and broader Item 6 remain open.
+
+27 October 2026 - Revision 4 W8 local checkpoint: existing Allie panel gains explicit
+conversation/send, safe current source/actions, stop, unknown-outcome checks, recent
+sessions, reviewed clear and accurate provider/privacy disclosures with search fallback.
+Default AI remains off. Security paths suppress conversation; existing auth launcher
+exclusion preserved. Public/account namespaces and CSRF remain separate; no transcript
+browser storage, form capture, automatic resend or implicit Customer Care submission.
+Full frontend lint/types and 1,109 units passed; final polish rechecked 26 focused
+cases. Final optimized build passed with cached Next 16.3.8; exact-lock 16.4.3 CI open.
+16 distinct intercepted Chromium cases at 320/360/390/768/1024/1440 plus 390x844
+follow-up/composer passed, with keyboard/focus return/reduced motion, Axe and inspected
+screenshots. Initial login-launcher test assumption corrected to actual intended UI.
+37 native HTTP/DB cases plus 60 provider/state units and schema db:check passed on
+W7 synthetic CI; provider mocked. No W8 schema change. The retention test now uses
+explicit ancient synthetic expiries rather than assuming a fixed backlog size.
+Further guest-lock/retention ordering reproduction remains required before exposure.
+Contracts/types, secret guard and structural coverage passed; all 106 gates stay open.
+Evidence: docs/help-learn/ALLIE_CONVERSATION_UI_W8.md. Real combined browser/backend/
+provider acceptance, >=100 reviewed evaluation, full workforce policy/history and
+route learning, persisted reviewed handoff and availability-gated chat remain open.
+Owner reports purchased credits, model 60k TPM/10 RPM and enforced US$1 project cap;
+private key setup ongoing, no real model call or deployment. Helper accepts Yes and
+clipboard entry after an explicit pause; synthetic checks never read real clipboard.
+C: about 26.40 GiB free. No Docker/install/worktree/profile duplication or deletion;
+read-only Docker inventory retained. Denied four dev-folder targets remain preserved.
+Full Revision 4/Item 6 active; unrelated newer releases require reconciliation.

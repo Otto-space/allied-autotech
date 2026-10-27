@@ -540,7 +540,7 @@ Success: HTTP 200.
     "flags": {
       "guides": true,
       "practice": true,
-      "ai": false
+      "ai": true
     },
     "articles": [
       {
@@ -24619,7 +24619,7 @@ Success: HTTP 200.
     "flags": {
       "guides": true,
       "practice": true,
-      "ai": false
+      "ai": true
     },
     "articles": [
       {

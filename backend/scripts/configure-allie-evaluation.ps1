@@ -1,6 +1,6 @@
 # Local Windows setup only. Does not call a provider, change app settings or deploy.
 [CmdletBinding()]
-param()
+param([switch]$KeyFromClipboard)
 
 $ErrorActionPreference = 'Stop'
 if ($env:OS -ne 'Windows_NT') { throw 'This helper requires Windows current-user secret protection.' }
@@ -31,10 +31,24 @@ if (-not [decimal]::TryParse($budgetText, [Globalization.NumberStyles]::AllowDec
     $budgetUsd -le 0 -or $budgetUsd -gt 100) {
     throw 'Enter a positive USD evaluation limit of at most 100. No spending has occurred.'
 }
-$hardLimit = Read-Host 'Have you enabled the project hard spend limit? Type YES to confirm'
-if ($hardLimit -cne 'YES') { throw 'Configure the project hard limit first. Nothing was saved.' }
-$secret = Read-Host 'Paste the project API key here (hidden; never paste it into chat)' -AsSecureString
+$hardLimit = (Read-Host 'Have you enabled the project hard spend limit? Type YES to confirm').Trim()
+if ($hardLimit -ine 'YES') { throw 'Configure the project hard limit first. Nothing was saved.' }
+$secret = $null
+$clipboardKey = $null
 try {
+    if ($KeyFromClipboard) {
+        Write-Output 'Now switch to OpenAI and use Copy for the full secret key. Do not copy any command or other text afterward.'
+        [void](Read-Host 'Return to this terminal and press Enter after copying the key; do not paste it here')
+        try { $clipboardKey = Get-Clipboard -Raw -ErrorAction Stop }
+        catch { throw 'Could not read the clipboard. Copy the secret key using the OpenAI Copy button, then retry locally.' }
+        if ($clipboardKey -isnot [string] -or $clipboardKey.Trim() -notmatch '^\S{20,1000}$') {
+            throw 'The clipboard does not contain a complete key. Copy the secret key using the OpenAI Copy button, then retry locally.'
+        }
+        $secret = ConvertTo-SecureString $clipboardKey.Trim() -AsPlainText -Force
+        $clipboardKey = $null
+    } else {
+        $secret = Read-Host 'Paste the project API key here (hidden; never paste it into chat)' -AsSecureString
+    }
     if ($secret.Length -lt 20 -or $secret.Length -gt 1000) { throw 'API key length is invalid.' }
     $configuration = [ordered]@{
         version = 1
@@ -56,5 +70,6 @@ try {
     Write-Output "Saved Windows-user-encrypted evaluation settings to $configPath"
     Write-Output 'No API request, app enablement, environment-file change or deployment was performed.'
 } finally {
-    $secret.Dispose()
+    $clipboardKey = $null
+    if ($secret) { $secret.Dispose() }
 }

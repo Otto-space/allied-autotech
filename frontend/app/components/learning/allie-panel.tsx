@@ -1,5 +1,5 @@
 "use client";
-import { useId, useState } from "react";
+import { lazy, Suspense, useId, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ArrowRight, Search } from "lucide-react";
@@ -8,15 +8,22 @@ import { assistantArticles, assistantName } from "@/lib/learning/search";
 import { useLearningCatalogue } from "@/lib/learning/read";
 import { START_LEARNING_GUIDE } from "./learning-entry";
 import { AllieAvatar } from "./allie-avatar";
+const Conversation = lazy(() =>
+  import("./allie-conversation").then((m) => ({ default: m.AllieConversationPanel })),
+);
 
 export function AlliePanel({ onNavigate }: { onNavigate: () => void }) {
   const resource = useLearningCatalogue();
+  const page = learningPage(usePathname());
+  const conversational = resource.data?.flags.ai && page !== "security";
   return (
     <div className="allie-content">
-      <p className="allie-boundary">
-        Answers from reviewed help. I cannot view or change your records. Keep personal
-        details, passwords and codes out of questions.
-      </p>
+      {!conversational && (
+        <p className="allie-boundary">
+          Answers from reviewed help. I cannot view or change your records. Keep personal
+          details, passwords and codes out of questions.
+        </p>
+      )}
       {resource.loading && <p role="status">Checking available help…</p>}
       {resource.error && (
         <div role="alert">
@@ -28,8 +35,8 @@ export function AlliePanel({ onNavigate }: { onNavigate: () => void }) {
       )}
       {resource.data && (
         <div hidden={resource.loading} inert={resource.loading}>
-          <Answers
-            key={resource.data.accessKey}
+          <Assistance
+            key={JSON.stringify(resource.data)}
             data={resource.data}
             onNavigate={onNavigate}
           />
@@ -47,6 +54,52 @@ export function AlliePanel({ onNavigate }: { onNavigate: () => void }) {
         </Link>
       </footer>
     </div>
+  );
+}
+function Assistance({
+  data,
+  onNavigate,
+}: {
+  data: LearningCatalogue;
+  onNavigate: () => void;
+}) {
+  const page = learningPage(usePathname());
+  const ai = data.flags.ai && page !== "security";
+  const [mode, setMode] = useState<"ai" | "reviewed">(ai ? "ai" : "reviewed");
+  return (
+    <>
+      {ai && (
+        <div className="allie-modes" aria-label="Help mode">
+          <button
+            type="button"
+            aria-pressed={mode === "ai"}
+            onClick={() => setMode("ai")}
+          >
+            Ask Allie
+          </button>
+          <button
+            type="button"
+            aria-pressed={mode === "reviewed"}
+            onClick={() => setMode("reviewed")}
+          >
+            Reviewed help
+          </button>
+        </div>
+      )}
+      {ai && mode === "ai" ? (
+        <Suspense fallback={<p role="status">Loading conversation controls…</p>}>
+          <Conversation data={data} onNavigate={onNavigate} />
+        </Suspense>
+      ) : (
+        <Answers data={data} onNavigate={onNavigate} />
+      )}
+      {page === "security" && (
+        <p className="allie-boundary">
+          On account and security pages, use reviewed recovery help. Conversational input
+          is unavailable here.
+        </p>
+      )}
+    </>
   );
 }
 function Answers({
