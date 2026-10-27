@@ -18,6 +18,39 @@ function catalogue(overrides: Partial<LearningAccess>) {
   }
 }
 describe("provider-observed role guidance regressions", () => {
+  it("keeps new Care viewing and same-branch reply eligibility distinct in sources and practice", () => {
+    const previous = [env.HELP_LEARN_GUIDES_ENABLED, env.HELP_LEARN_PRACTICE_ENABLED];
+    env.HELP_LEARN_GUIDES_ENABLED = env.HELP_LEARN_PRACTICE_ENABLED = true;
+    try {
+      const access = {
+        role: "STAFF" as const,
+        managed: true,
+        permissions: ["CARE_CASE_VIEW", "CARE_PUBLIC_REPLY"],
+        careScope: { enquiries: true, complaints: true, reply: false, assign: false },
+      };
+      const view = catalogue(access);
+      const article = view.articles.find((a) => a.id === "care-triage")!;
+      expect(article.summary).toContain("do not permit customer replies");
+      expect(article.steps.join(" ")).toContain("do not establish staffed live chat");
+      expect(view.guides.some((g) => g.id === "care-queue")).toBe(true);
+      expect(view.scenarios.some((s) => s.id === "care-triage")).toBe(false);
+      const permitted = catalogue({
+        ...access,
+        careScope: { ...access.careScope, reply: true },
+      });
+      expect(permitted.scenarios.some((s) => s.id === "care-triage")).toBe(true);
+      expect(
+        catalogue({ ...access, careScope: undefined }).scenarios.some(
+          (s) => s.id === "care-triage",
+        ),
+      ).toBe(false);
+    } finally {
+      [env.HELP_LEARN_GUIDES_ENABLED, env.HELP_LEARN_PRACTICE_ENABLED] = previous as [
+        boolean,
+        boolean,
+      ];
+    }
+  });
   it("requires both scoped finance reading and the separate financial duty for aftercare guidance", () => {
     const base = { role: "STAFF" as const, managed: true };
     for (const partial of [

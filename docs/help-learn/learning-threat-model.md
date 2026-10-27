@@ -301,7 +301,6 @@ public feature enablement occurred. The new guidance has no fresh real-provider 
 under W9's exhausted allowance. Hosted proxy/role/device acceptance and all-route
 learning remain open; persisted handoff and live transport still need their own review.
 
-
 ## W14A branch contact and read-time expiry
 
 A Care permission in one branch cannot expose structured customer contact in
@@ -311,7 +310,6 @@ and after its parent record lock, then before final projection; list scope is
 refreshed after query/audit work. Six restricted-CI HTTP/DB tests include both
 real lock-wait expiry outcomes, plus13 parser and8 rendered fixture cases.
 Production prevalence was not inspected. No new authority or public feature.
-
 
 ## W14B separate Care duty definitions
 
@@ -325,3 +323,19 @@ responsive fixtures provide local management evidence. Operational Care composit
 is still required: view and action must intersect on the same case branch, and
 live acceptance must additionally satisfy staffing/availability/transport checks.
 No real assignment or public feature was enabled; this is not live-chat acceptance.
+
+## W14C operational Care boundary
+
+View, reply, assign and live intersect on the actual case branch; a title or global
+permission union grants nothing. Read-only scope also governs contact, notifications,
+help and direct practice. Handler eligibility is filtered before pagination, rechecked
+after locks and before assignment commit. Public reply rechecks expiry after real
+row-lock waits. Internal reasons stay in audit; malformed INTERNAL_NOTE/CUSTOMER
+responses fail closed in both clients. Unknown outcomes retain only reference/token/
+fingerprint metadata and block both actions through reload without auto retry.
+
+Fourteen native cases,61 regressions,36 new and50 legacy browser fixtures and one
+actual browser/CSRF/API/restricted-CI-DB composition pass. No customer delivery or
+provider call. Live eligibility is not staffed readiness; canonical reviewed handoff
+and shared transport retain their own unimplemented gates. New guidance has no new
+actual-provider evaluation. Exact-lock/hosted/device/screen-reader gates remain open.

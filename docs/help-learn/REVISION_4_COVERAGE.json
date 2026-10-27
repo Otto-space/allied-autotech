@@ -1378,12 +1378,12 @@
         {
           "pattern": "/admin/workforce/access",
           "task": "Scoped workforce account directory",
-          "verification": "W1: isolated HTTP, component and rendered browser checks passed; see W1 evidence; W3 hosted fixture release evidence and W4 local impact/role regression accepted; full route learning remains open; W14B reviewed v1/v2 management, separate positions,45 native regressions/final5 focused,8 final responsive fixtures and review-draft retention accepted locally. Operational new Care adapters and full route learning/hosted/device gates remain open."
+          "verification": "W1: isolated HTTP, component and rendered browser checks passed; see W1 evidence; W3 hosted fixture release evidence and W4 local impact/role regression accepted; full route learning remains open; W14B reviewed v1/v2 management, separate positions,45 native regressions/final5 focused,8 final responsive fixtures and review-draft retention accepted locally. W14C operational Care adapters accepted locally; canonical handoff/live transport and full route learning/hosted/device gates remain open."
         },
         {
           "pattern": "/admin/workforce/access/[userId]",
           "task": "Existing reviewed position/responsibility editor",
-          "verification": "W1: existing editor enrollment/assignment/revocation/delegation/recovery regression passed; full effective-access foundation still pending; W3 hosted fixture release evidence and W4 local impact/role regression accepted; full route learning remains open; W14B reviewed v1/v2 management, separate positions,45 native regressions/final5 focused,8 final responsive fixtures and review-draft retention accepted locally. Operational new Care adapters and full route learning/hosted/device gates remain open."
+          "verification": "W1: existing editor enrollment/assignment/revocation/delegation/recovery regression passed; full effective-access foundation still pending; W3 hosted fixture release evidence and W4 local impact/role regression accepted; full route learning remains open; W14B reviewed v1/v2 management, separate positions,45 native regressions/final5 focused,8 final responsive fixtures and review-draft retention accepted locally. W14C operational Care adapters accepted locally; canonical handoff/live transport and full route learning/hosted/device gates remain open."
         },
         {
           "pattern": "/admin/workforce/jobs",
@@ -1408,12 +1408,12 @@
         {
           "pattern": "/admin/workforce/enquiries",
           "task": "Scoped sales/care enquiry queue",
-          "verification": "W14A: branch contact/native expiry lock-wait acceptance,13 parser units and8 responsive fixtures at390/1440. Granular duties, full learning modes/hosted/device acceptance remain open."
+          "verification": "W14C:14 native branch/action/handler/race/expiry/privacy cases,61 workforce/session/learning regressions,36 responsive Care fixtures,50 legacy browser cases and1 actual browser/CSRF/API/CI-DB composition pass. Read-only help and reply-practice gates verified. Full route learning modes/hosted/device acceptance remain open."
         },
         {
           "pattern": "/admin/workforce/complaints",
           "task": "Scoped complaint queue",
-          "verification": "W5 source predicate/native policy tests; full route-specific rendered states and learning modes remain open."
+          "verification": "W14C:14 native branch/action/handler/race/expiry/privacy cases,61 workforce/session/learning regressions,36 responsive Care fixtures,50 legacy browser cases and1 actual browser/CSRF/API/CI-DB composition pass. Read-only help and reply-practice gates verified. Full route learning modes/hosted/device acceptance remain open."
         },
         {
           "pattern": "/admin/workforce/orders",

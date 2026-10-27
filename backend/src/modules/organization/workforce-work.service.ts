@@ -4,13 +4,18 @@ import {
   projectWorkforceEnquiryContact,
 } from "./workforce-care-contact.js";
 import { enquiryScope } from "./workforce-enquiry-scope.js";
+import { careBranchesFor, complaintScope } from "./workforce-care-scope.js";
+import type { WorkforceCareKind } from "./workforce-care-scope.js";
+import {
+  assignWorkforceCareCase,
+  workforceCareAssignees,
+} from "./workforce-care-assignment.js";
 import {
   enqueueSupportCustomerUpdate,
   dismissSupportDeliveryNotices,
   supportEmailDeliveries,
 } from "../support/customer-email.js";
 import type { z } from "zod";
-import { notifySupportTeam } from "../notifications/team-notifications.js";
 import { enqueueNotification } from "../notifications/notifications.service.js";
 import type { AuthenticatedActor } from "../../common/contracts/actor.js";
 import type { RequestSecurityContext } from "../../common/contracts/request-security.js";
@@ -174,6 +179,7 @@ export class WorkforceWorkService {
         });
       if (
         access.permissions.includes("CUSTOMER_ENQUIRIES") ||
+        access.permissions.includes("CARE_CASE_VIEW") ||
         access.permissions.includes("SALES_ENQUIRIES")
       )
         counts["enquiries"] = await tx.enquiry.count({
@@ -181,10 +187,10 @@ export class WorkforceWorkService {
             AND: [enquiryScope(access), { status: { notIn: ["RESOLVED", "CLOSED"] } }],
           },
         });
-      if (access.permissions.includes("COMPLAINTS"))
+      if (careBranchesFor(access, "COMPLAINT").length)
         counts["complaints"] = await tx.complaint.count({
           where: {
-            branchId: { in: branchesFor(access, "COMPLAINTS") },
+            ...complaintScope(access),
             status: { notIn: ["RESOLVED", "CLOSED"] },
           },
         });
@@ -403,26 +409,15 @@ export class WorkforceWorkService {
     kind: "jobs" | "enquiries",
     query?: z.infer<typeof workforceJobAssigneesQuerySchema>,
   ) {
+    if (kind === "enquiries")
+      return this.careAssignees(actor, id, context, "ENQUIRY", query);
     return this.run(actor, async (tx, access) => {
-      const branches = branchesFor(
-        access,
-        kind === "jobs" ? "JOBS_ASSIGN" : "ENQUIRIES_ASSIGN",
-      );
+      const branches = branchesFor(access, "JOBS_ASSIGN");
       if (!branches.length) workforceDenied();
-      const record =
-        kind === "jobs"
-          ? await tx.booking.findFirst({
-              where: { id, branchId: { in: branches } },
-              select: { branchId: true, version: true },
-            })
-          : await tx.enquiry.findFirst({
-              where: {
-                id,
-                branchId: { in: branches },
-                type: { in: ["PRODUCT", "VEHICLE"] },
-              },
-              select: { branchId: true, version: true },
-            });
+      const record = await tx.booking.findFirst({
+        where: { id, branchId: { in: branches } },
+        select: { branchId: true, version: true },
+      });
       if (!record?.branchId) workforceNotFound();
       const paginated = query && Object.keys(query).length > 0;
       const limit = query?.limit ?? 25;
@@ -434,7 +429,7 @@ export class WorkforceWorkService {
         : [];
       const now = new Date();
       const pairs = supportedAssignmentPolicies().filter((pair) =>
-        assignmentAllows(pair, kind === "jobs" ? "JOBS_UPDATE" : "SALES_ENQUIRIES"),
+        assignmentAllows(pair, "JOBS_UPDATE"),
       );
       const items = await tx.staffProfile.findMany({
         where: {
@@ -479,7 +474,7 @@ export class WorkforceWorkService {
         tx,
         actor,
         context,
-        kind === "jobs" ? "BOOKING" : "ENQUIRY",
+        "BOOKING",
         id,
         {
           workforceAction: "ASSIGNEE_OPTIONS",
@@ -492,9 +487,8 @@ export class WorkforceWorkService {
             ...page(items, limit),
             access,
             generatedAt: new Date().toISOString(),
-            ...(kind === "jobs"
-              ? { jobId: id, jobVersion: record.version }
-              : { enquiryId: id, enquiryVersion: record.version }),
+            jobId: id,
+            jobVersion: record.version,
             branchId: record.branchId,
           }
         : { items };
@@ -700,7 +694,7 @@ export class WorkforceWorkService {
         },
         select: {
           ...workforceEnquirySelect,
-          ...(access.permissions.includes("CUSTOMER_ENQUIRIES")
+          ...(careBranchesFor(access, "ENQUIRY").length
             ? workforceCareContactSelect
             : {}),
         },
@@ -769,13 +763,12 @@ export class WorkforceWorkService {
     context: RequestSecurityContext,
   ) {
     return this.run(actor, async (tx, access) => {
-      if (!access.permissions.includes("COMPLAINTS")) workforceDenied();
       const paging = pagination(query);
       const rows = await tx.complaint.findMany({
         ...paging,
         where: {
           AND: [
-            { branchId: { in: branchesFor(access, "COMPLAINTS") } },
+            complaintScope(access),
             paging.where ?? {},
             ...(query.priority ? [{ priority: query.priority }] : []),
             ...(query.status ? [{ status: query.status }] : []),
@@ -796,9 +789,17 @@ export class WorkforceWorkService {
         },
         true,
       );
+      const current = await workforceSnapshot(tx, actor);
+      const visible = await tx.complaint.findMany({
+        where: {
+          AND: [{ id: { in: rows.map((row) => row.id) } }, complaintScope(current)],
+        },
+        select: { id: true },
+      });
+      if (visible.length !== rows.length) workforceConflict();
       return {
         ...page(rows.map(projectWorkforceCareContact), query.limit),
-        access,
+        access: current,
         generatedAt: new Date().toISOString(),
       };
     });
@@ -810,14 +811,7 @@ export class WorkforceWorkService {
     context: RequestSecurityContext,
   ) {
     return this.run(actor, async (tx, access) => {
-      if (!access.permissions.includes("COMPLAINTS")) workforceDenied();
-      const result = await readWorkforceComplaint(
-        tx,
-        access,
-        id,
-        branchesFor(access, "COMPLAINTS"),
-        query,
-      );
+      const result = await readWorkforceComplaint(tx, actor, access, id, query);
       await audit(
         tx,
         actor,
@@ -844,17 +838,12 @@ export class WorkforceWorkService {
     context: RequestSecurityContext,
   ) {
     return this.run(actor, async (tx, access) => {
-      if (
-        !access.permissions.includes(
-          kind === "enquiries" ? "CUSTOMER_ENQUIRIES" : "COMPLAINTS",
-        )
-      )
+      if (!careBranchesFor(access, kind === "enquiries" ? "ENQUIRY" : "COMPLAINT").length)
         workforceDenied();
       if (kind === "enquiries")
         await readWorkforceEnquiry(tx, actor, access, id, { limit: 20 });
       else {
-        if (!access.permissions.includes("COMPLAINTS")) workforceDenied();
-        await readWorkforceComplaint(tx, access, id, branchesFor(access, "COMPLAINTS"), {
+        await readWorkforceComplaint(tx, actor, access, id, {
           limit: 20,
         });
       }
@@ -877,9 +866,17 @@ export class WorkforceWorkService {
     context: RequestSecurityContext,
   ) {
     return this.run(actor, async (tx, access) => {
+      if (
+        !(await tx.enquiry.findFirst({
+          where: { AND: [{ id }, enquiryScope(access, "reply")] },
+          select: { id: true },
+        }))
+      )
+        workforceNotFound();
       await tx.$queryRaw`SELECT "id" FROM "Enquiry" WHERE "id" = ${id}::uuid FOR UPDATE`;
+      const current = await workforceSnapshot(tx, actor);
       const row = await tx.enquiry.findFirst({
-        where: { AND: [{ id }, enquiryScope(access)] },
+        where: { AND: [{ id }, enquiryScope(current, "reply")] },
         select: {
           id: true,
           branchId: true,
@@ -928,13 +925,21 @@ export class WorkforceWorkService {
         workforceAction: "REPLY",
         messageId: created.id,
       });
+      const finalAccess = await workforceSnapshot(tx, actor);
+      if (
+        !(await tx.enquiry.findFirst({
+          where: { AND: [{ id }, enquiryScope(finalAccess, "reply")] },
+          select: { id: true },
+        }))
+      )
+        workforceNotFound();
       return {
         id,
         version: input.expectedVersion + 1,
         branchId: row.branchId,
         action: "reply" as const,
         actorUserId: actor.userId,
-        access,
+        access: finalAccess,
         generatedAt: new Date().toISOString(),
         messageReceipt: {
           id: created.id,
@@ -957,10 +962,17 @@ export class WorkforceWorkService {
     context: RequestSecurityContext,
   ) {
     return this.run(actor, async (tx, access) => {
-      if (!access.permissions.includes("COMPLAINTS")) workforceDenied();
+      if (
+        !(await tx.complaint.findFirst({
+          where: { AND: [{ id }, complaintScope(access, "reply")] },
+          select: { id: true },
+        }))
+      )
+        workforceNotFound();
       await tx.$queryRaw`SELECT "id" FROM "Complaint" WHERE "id" = ${id}::uuid FOR UPDATE`;
+      const current = await workforceSnapshot(tx, actor);
       const row = await tx.complaint.findFirst({
-        where: { id, branchId: { in: branchesFor(access, "COMPLAINTS") } },
+        where: { AND: [{ id }, complaintScope(current, "reply")] },
         select: {
           id: true,
           branchId: true,
@@ -1009,13 +1021,21 @@ export class WorkforceWorkService {
         workforceAction: "REPLY",
         messageId: created.id,
       });
+      const finalAccess = await workforceSnapshot(tx, actor);
+      if (
+        !(await tx.complaint.findFirst({
+          where: { AND: [{ id }, complaintScope(finalAccess, "reply")] },
+          select: { id: true },
+        }))
+      )
+        workforceNotFound();
       return {
         id,
         version: input.expectedVersion + 1,
         branchId: row.branchId,
         action: "reply" as const,
         actorUserId: actor.userId,
-        access,
+        access: finalAccess,
         generatedAt: new Date().toISOString(),
         messageReceipt: {
           id: created.id,
@@ -1037,83 +1057,32 @@ export class WorkforceWorkService {
     input: z.infer<typeof workforceEnquiryAssignmentSchema>,
     context: RequestSecurityContext,
   ) {
-    return this.run(actor, async (tx, access) => {
-      await tx.$queryRaw`SELECT "id" FROM "Enquiry" WHERE "id" = ${id}::uuid FOR UPDATE`;
-      if (!access.permissions.includes("ENQUIRIES_ASSIGN")) workforceDenied();
-      const row = await tx.enquiry.findFirst({
-        where: {
-          id,
-          branchId: { in: branchesFor(access, "ENQUIRIES_ASSIGN") },
-          type: { in: ["PRODUCT", "VEHICLE"] },
-        },
-        select: {
-          id: true,
-          branchId: true,
-          version: true,
-          status: true,
-          assignedStaffId: true,
-        },
-      });
-      if (!row) workforceNotFound();
-      if (
-        row.version !== input.expectedVersion ||
-        ["RESOLVED", "CLOSED"].includes(row.status)
-      )
-        workforceConflict();
-      const target = await tx.staffProfile.findFirst({
-        where: {
-          id: input.staffId,
-          user: { status: "ACTIVE", emailVerifiedAt: { not: null } },
-        },
-        select: { userId: true, user: { select: { role: true } } },
-      });
-      if (!target) workforceNotFound();
-      const targetAccess = await workforceSnapshot(tx, {
-        ...actor,
-        userId: target.userId,
-        role: target.user.role,
-      });
-      if (
-        !row.branchId ||
-        !branchesFor(targetAccess, "SALES_ENQUIRIES").includes(row.branchId)
-      )
-        workforceDenied();
-      const changed = await tx.enquiry.updateMany({
-        where: { id, version: input.expectedVersion },
-        data: { assignedStaffId: input.staffId, version: { increment: 1 } },
-      });
-      if (changed.count !== 1) workforceConflict();
-      await audit(tx, actor, context, "ENQUIRY", id, {
-        workforceAction: "ENQUIRY_ASSIGNED",
-        staffId: input.staffId,
-        previousStaffId: row.assignedStaffId,
-        reason: input.reason,
-      });
-      if (input.staffId !== row.assignedStaffId)
-        await notifySupportTeam(tx, {
-          kind: "ENQUIRY",
-          id,
-          event: `assigned:${id}:${input.expectedVersion + 1}`,
-          title: "Support conversation assigned to you",
-          actorUserId: actor.userId,
-          assignedOnly: true,
-        });
-      return {
-        id,
-        version: input.expectedVersion + 1,
-        branchId: row.branchId,
-        action: "assignment" as const,
-        actorUserId: actor.userId,
-        access,
-        generatedAt: new Date().toISOString(),
-        assignmentReceipt: {
-          staffId: input.staffId,
-          previousStaffId: row.assignedStaffId,
-          reason: input.reason,
-        },
-      };
-    });
+    return this.run(actor, (tx, access) =>
+      assignWorkforceCareCase(tx, actor, access, "ENQUIRY", id, input, context),
+    );
   }
+  assignComplaint(
+    actor: AuthenticatedActor,
+    id: string,
+    input: z.infer<typeof workforceEnquiryAssignmentSchema>,
+    context: RequestSecurityContext,
+  ) {
+    return this.run(actor, (tx, access) =>
+      assignWorkforceCareCase(tx, actor, access, "COMPLAINT", id, input, context),
+    );
+  }
+  careAssignees(
+    actor: AuthenticatedActor,
+    id: string,
+    context: RequestSecurityContext,
+    kind: WorkforceCareKind,
+    query?: z.infer<typeof workforceJobAssigneesQuerySchema>,
+  ) {
+    return this.run(actor, (tx, access) =>
+      workforceCareAssignees(tx, actor, access, kind, id, context, query),
+    );
+  }
+
   orders(
     actor: AuthenticatedActor,
     query: z.infer<typeof workforceOrdersQuerySchema>,

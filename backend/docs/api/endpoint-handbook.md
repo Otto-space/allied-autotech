@@ -107,16 +107,16 @@ Relevant errors: 400 The request is malformed.; 401 Current account session requ
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `origin` | header | string (uri) | Yes | Origin used to constrain this request. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type         | Required | Purpose                                                                         |
+| -------------- | -------- | ------------ | -------- | ------------------------------------------------------------------------------- |
+| `origin`       | header   | string (uri) | Yes      | Origin used to constrain this request.                                          |
+| `x-csrf-token` | header   | string       | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `operationId` | string (uuid) | Yes | Identifier of the operation resource; ownership is resolved server-side. |
+| Field         | Type          | Required | Purpose                                                                  |
+| ------------- | ------------- | -------- | ------------------------------------------------------------------------ |
+| `operationId` | string (uuid) | Yes      | Identifier of the operation resource; ownership is resolved server-side. |
 
 Synthetic request example:
 
@@ -146,16 +146,10 @@ Success: HTTP 200.
           "answer": {
             "kind": "answer",
             "answer": "synthetic-answer",
-            "steps": [
-              "synthetic-steps-item"
-            ],
+            "steps": ["synthetic-steps-item"],
             "caveat": "2030-01-15T10:00:00.000Z",
-            "sourceIds": [
-              "synthetic-sourceids-item"
-            ],
-            "actionIds": [
-              "synthetic-actionids-item"
-            ],
+            "sourceIds": ["synthetic-sourceids-item"],
+            "actionIds": ["synthetic-actionids-item"],
             "sources": [
               {
                 "id": "synthetic-id",
@@ -203,9 +197,9 @@ Relevant errors: 400 The request is malformed.; 401 Current account session requ
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `conversationId` | path | string (uuid) | Yes | Identifier selecting the conversation resource. |
+| Parameter        | Location | Type          | Required | Purpose                                         |
+| ---------------- | -------- | ------------- | -------- | ----------------------------------------------- |
+| `conversationId` | path     | string (uuid) | Yes      | Identifier selecting the conversation resource. |
 
 Success: HTTP 200.
 
@@ -225,16 +219,10 @@ Success: HTTP 200.
         "answer": {
           "kind": "answer",
           "answer": "synthetic-answer",
-          "steps": [
-            "synthetic-steps-item"
-          ],
+          "steps": ["synthetic-steps-item"],
           "caveat": "2030-01-15T10:00:00.000Z",
-          "sourceIds": [
-            "synthetic-sourceids-item"
-          ],
-          "actionIds": [
-            "synthetic-actionids-item"
-          ],
+          "sourceIds": ["synthetic-sourceids-item"],
+          "actionIds": ["synthetic-actionids-item"],
           "sources": [
             {
               "id": "synthetic-id",
@@ -281,16 +269,16 @@ Relevant errors: 400 The request is malformed.; 401 Current account session requ
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `conversationId` | path | string (uuid) | Yes | Identifier selecting the conversation resource. |
-| `origin` | header | string (uri) | Yes | Origin used to constrain this request. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter        | Location | Type          | Required | Purpose                                                                         |
+| ---------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `conversationId` | path     | string (uuid) | Yes      | Identifier selecting the conversation resource.                                 |
+| `origin`         | header   | string (uri)  | Yes      | Origin used to constrain this request.                                          |
+| `x-csrf-token`   | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
 | Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
+| ----- | ---- | -------- | ------- |
 
 Synthetic request example:
 
@@ -326,17 +314,17 @@ Relevant errors: 400 The request is malformed.; 401 Current account session requ
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `conversationId` | path | string (uuid) | Yes | Identifier selecting the conversation resource. |
-| `origin` | header | string (uri) | Yes | Origin used to constrain this request. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter        | Location | Type          | Required | Purpose                                                                         |
+| ---------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `conversationId` | path     | string (uuid) | Yes      | Identifier selecting the conversation resource.                                 |
+| `origin`         | header   | string (uri)  | Yes      | Origin used to constrain this request.                                          |
+| `x-csrf-token`   | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `operationId` | string (uuid) | Yes | Identifier of the operation resource; ownership is resolved server-side. |
+| Field         | Type          | Required | Purpose                                                                  |
+| ------------- | ------------- | -------- | ------------------------------------------------------------------------ |
+| `operationId` | string (uuid) | Yes      | Identifier of the operation resource; ownership is resolved server-side. |
 
 Synthetic request example:
 
@@ -375,20 +363,20 @@ Relevant errors: 400 The request is malformed.; 401 Current account session requ
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `conversationId` | path | string (uuid) | Yes | Identifier selecting the conversation resource. |
-| `origin` | header | string (uri) | Yes | Origin used to constrain this request. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter        | Location | Type          | Required | Purpose                                                                         |
+| ---------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `conversationId` | path     | string (uuid) | Yes      | Identifier selecting the conversation resource.                                 |
+| `origin`         | header   | string (uri)  | Yes      | Origin used to constrain this request.                                          |
+| `x-csrf-token`   | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `operationId` | string (uuid) | Yes | Identifier of the operation resource; ownership is resolved server-side. |
-| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
-| `question` | string | Yes | Question validated by this operation's strict request contract. |
-| `page` | home / parts / vehicles / services / contact / help / learn / customer-care / staff-care / work / security / other | Yes | Page validated by this operation's strict request contract. |
+| Field             | Type                                                                                                               | Required | Purpose                                                                  |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------ | -------- | ------------------------------------------------------------------------ |
+| `operationId`     | string (uuid)                                                                                                      | Yes      | Identifier of the operation resource; ownership is resolved server-side. |
+| `expectedVersion` | integer                                                                                                            | Yes      | Last server version observed by the client; stale writes are rejected.   |
+| `question`        | string                                                                                                             | Yes      | Question validated by this operation's strict request contract.          |
+| `page`            | home / parts / vehicles / services / contact / help / learn / customer-care / staff-care / work / security / other | Yes      | Page validated by this operation's strict request contract.              |
 
 Synthetic request example:
 
@@ -421,16 +409,10 @@ Success: HTTP 200.
           "answer": {
             "kind": "answer",
             "answer": "synthetic-answer",
-            "steps": [
-              "synthetic-steps-item"
-            ],
+            "steps": ["synthetic-steps-item"],
             "caveat": "2030-01-15T10:00:00.000Z",
-            "sourceIds": [
-              "synthetic-sourceids-item"
-            ],
-            "actionIds": [
-              "synthetic-actionids-item"
-            ],
+            "sourceIds": ["synthetic-sourceids-item"],
+            "actionIds": ["synthetic-actionids-item"],
             "sources": [
               {
                 "id": "synthetic-id",
@@ -478,14 +460,14 @@ Relevant errors: 400 The request is malformed.; 401 Current account session requ
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `origin` | header | string (uri) | Yes | Origin used to constrain this request. |
+| Parameter | Location | Type         | Required | Purpose                                |
+| --------- | -------- | ------------ | -------- | -------------------------------------- |
+| `origin`  | header   | string (uri) | Yes      | Origin used to constrain this request. |
 
 JSON request fields:
 
 | Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
+| ----- | ---- | -------- | ------- |
 
 Synthetic request example:
 
@@ -522,9 +504,9 @@ Relevant errors: 400 The request is malformed.; 401 Current account session requ
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `q` | query | string | No | Q used to constrain this request. |
+| Parameter | Location | Type   | Required | Purpose                           |
+| --------- | -------- | ------ | -------- | --------------------------------- |
+| `q`       | query    | string | No       | Q used to constrain this request. |
 
 Success: HTTP 200.
 
@@ -548,9 +530,7 @@ Success: HTTP 200.
         "title": "synthetic-title",
         "summary": "synthetic-summary",
         "prerequisites": "synthetic-prerequisites",
-        "steps": [
-          "synthetic-steps-item"
-        ],
+        "steps": ["synthetic-steps-item"],
         "outcome": "synthetic-outcome",
         "recovery": "synthetic-recovery",
         "keywords": "synthetic-keywords",
@@ -609,9 +589,9 @@ Relevant errors: 400 The request is malformed.; 401 Current session required; 40
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `id` | path | string | Yes | Identifier selecting the id resource. |
+| Parameter | Location | Type   | Required | Purpose                               |
+| --------- | -------- | ------ | -------- | ------------------------------------- |
+| `id`      | path     | string | Yes      | Identifier selecting the id resource. |
 
 Success: HTTP 200.
 
@@ -624,9 +604,7 @@ Success: HTTP 200.
     "title": "synthetic-title",
     "summary": "synthetic-summary",
     "prerequisites": "synthetic-prerequisites",
-    "steps": [
-      "synthetic-steps-item"
-    ],
+    "steps": ["synthetic-steps-item"],
     "outcome": "synthetic-outcome",
     "recovery": "synthetic-recovery",
     "keywords": "synthetic-keywords",
@@ -656,9 +634,9 @@ Relevant errors: 400 The request is malformed.; 401 Current session required; 40
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `id` | path | string | Yes | Identifier selecting the id resource. |
+| Parameter | Location | Type   | Required | Purpose                               |
+| --------- | -------- | ------ | -------- | ------------------------------------- |
+| `id`      | path     | string | Yes      | Identifier selecting the id resource. |
 
 Success: HTTP 200.
 
@@ -701,9 +679,9 @@ Relevant errors: 400 The request is malformed.; 401 Current session required; 40
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `id` | path | string | Yes | Identifier selecting the id resource. |
+| Parameter | Location | Type   | Required | Purpose                               |
+| --------- | -------- | ------ | -------- | ------------------------------------- |
+| `id`      | path     | string | Yes      | Identifier selecting the id resource. |
 
 Success: HTTP 200.
 
@@ -725,9 +703,7 @@ Success: HTTP 200.
         "example": "synthetic-example",
         "min": 1,
         "max": 1,
-        "options": [
-          "synthetic-options-item"
-        ],
+        "options": ["synthetic-options-item"],
         "dependsOn": "synthetic-dependson"
       }
     ],
@@ -761,9 +737,9 @@ Relevant errors: 400 The request is malformed.; 401 Current session required; 40
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `imageId` | path | string (uuid) | Yes | Identifier selecting the image resource. |
+| Parameter | Location | Type          | Required | Purpose                                  |
+| --------- | -------- | ------------- | -------- | ---------------------------------------- |
+| `imageId` | path     | string (uuid) | Yes      | Identifier selecting the image resource. |
 
 Success: HTTP 200.
 Binary image/webp bytes (no JSON envelope).
@@ -781,9 +757,9 @@ Relevant errors: 400 The request is malformed.; 404 NOT_FOUND for unavailable or
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `imageId` | path | string (uuid) | Yes | Identifier selecting the image resource. |
+| Parameter | Location | Type          | Required | Purpose                                  |
+| --------- | -------- | ------------- | -------- | ---------------------------------------- |
+| `imageId` | path     | string (uuid) | Yes      | Identifier selecting the image resource. |
 
 Success: HTTP 200.
 Binary image/webp bytes (no JSON envelope).
@@ -801,12 +777,12 @@ Relevant errors: 400 The request is malformed.; 404 NOT_FOUND for unavailable or
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-| `city` | query | string | No | City used to constrain this request. |
-| `state` | query | string | No | State used to constrain this request. |
+| Parameter | Location | Type          | Required | Purpose                                                  |
+| --------- | -------- | ------------- | -------- | -------------------------------------------------------- |
+| `cursor`  | query    | string (uuid) | No       | Opaque cursor returned by the preceding page.            |
+| `limit`   | query    | integer       | No       | Maximum number of records to return, bounded by the API. |
+| `city`    | query    | string        | No       | City used to constrain this request.                     |
+| `state`   | query    | string        | No       | State used to constrain this request.                    |
 
 Success: HTTP 200.
 
@@ -853,9 +829,9 @@ Relevant errors: 400 The request is malformed.; 422 One or more request fields a
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `branchId` | path | string (uuid) | Yes | Identifier selecting the branch resource. |
+| Parameter  | Location | Type          | Required | Purpose                                   |
+| ---------- | -------- | ------------- | -------- | ----------------------------------------- |
+| `branchId` | path     | string (uuid) | Yes      | Identifier selecting the branch resource. |
 
 Success: HTTP 200.
 
@@ -897,13 +873,13 @@ Relevant errors: 400 The request is malformed.; 404 The requested resource is no
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `field` | query | brand / family / productType / oilViscosityGrade / packVolumeMl | Yes | Field used to constrain this request. |
-| `scope` | query | string | No | Scope used to constrain this request. |
-| `search` | query | string | No | Search used to constrain this request. |
-| `cursor` | query | string | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | string | No | Maximum number of records to return, bounded by the API. |
+| Parameter | Location | Type                                                            | Required | Purpose                                                  |
+| --------- | -------- | --------------------------------------------------------------- | -------- | -------------------------------------------------------- |
+| `field`   | query    | brand / family / productType / oilViscosityGrade / packVolumeMl | Yes      | Field used to constrain this request.                    |
+| `scope`   | query    | string                                                          | No       | Scope used to constrain this request.                    |
+| `search`  | query    | string                                                          | No       | Search used to constrain this request.                   |
+| `cursor`  | query    | string                                                          | No       | Opaque cursor returned by the preceding page.            |
+| `limit`   | query    | string                                                          | No       | Maximum number of records to return, bounded by the API. |
 
 Success: HTTP 200.
 
@@ -939,41 +915,41 @@ Relevant errors: 400 The request is malformed.; 422 One or more request fields a
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `cursor` | query | object | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | string | No | Maximum number of records to return, bounded by the API. |
-| `categoryId` | query | string (uuid) | No | Category Id used to constrain this request. |
-| `parentCategoryId` | query | string (uuid) | No | Parent Category Id used to constrain this request. |
-| `condition` | query | NEW / USED / REFURBISHED | No | Condition used to constrain this request. |
-| `classification` | query | GENUINE_OEM / AFTERMARKET | No | Classification used to constrain this request. |
-| `productType` | query | string | No | Product Type used to constrain this request. |
-| `family` | query | REPLACEMENT_PART / ENGINE_OIL | No | Family used to constrain this request. |
-| `oilViscosityGrade` | query | string | No | Oil Viscosity Grade used to constrain this request. |
-| `packVolumeMl` | query | integer | No | Pack Volume Ml used to constrain this request. |
-| `vehicleMakeId` | query | string (uuid) | No | Vehicle Make Id used to constrain this request. |
-| `vehicleModelId` | query | string (uuid) | No | Vehicle Model Id used to constrain this request. |
-| `fitment` | query | candidates / verified | No | Fitment used to constrain this request. |
-| `trim` | query | string | No | Trim used to constrain this request. |
-| `engineCode` | query | string | No | Engine Code used to constrain this request. |
-| `market` | query | string | No | Market used to constrain this request. |
-| `position` | query | string | No | Position used to constrain this request. |
-| `brakeSystem` | query | string | No | Brake System used to constrain this request. |
-| `brakeDiameterMm` | query | string | No | Brake Diameter Mm used to constrain this request. |
-| `bodyType` | query | string | No | Body Type used to constrain this request. |
-| `transmission` | query | string | No | Transmission used to constrain this request. |
-| `generation` | query | string | No | Generation used to constrain this request. |
-| `chassisCode` | query | string | No | Chassis Code used to constrain this request. |
-| `brand` | query | string | No | Brand used to constrain this request. |
-| `search` | query | string | No | Search used to constrain this request. |
-| `make` | query | string | No | Make used to constrain this request. |
-| `model` | query | string | No | Model used to constrain this request. |
-| `year` | query | string | No | Year used to constrain this request. |
-| `featured` | query | true / false | No | Featured used to constrain this request. |
-| `sort` | query | best_match / newest / name / price_asc / price_desc | No | Sort used to constrain this request. |
-| `minPriceKobo` | query | string | No | Min Price Kobo used to constrain this request. |
-| `maxPriceKobo` | query | string | No | Max Price Kobo used to constrain this request. |
-| `availability` | query | in_stock / out_of_stock | No | Availability used to constrain this request. |
+| Parameter           | Location | Type                                                | Required | Purpose                                                  |
+| ------------------- | -------- | --------------------------------------------------- | -------- | -------------------------------------------------------- |
+| `cursor`            | query    | object                                              | No       | Opaque cursor returned by the preceding page.            |
+| `limit`             | query    | string                                              | No       | Maximum number of records to return, bounded by the API. |
+| `categoryId`        | query    | string (uuid)                                       | No       | Category Id used to constrain this request.              |
+| `parentCategoryId`  | query    | string (uuid)                                       | No       | Parent Category Id used to constrain this request.       |
+| `condition`         | query    | NEW / USED / REFURBISHED                            | No       | Condition used to constrain this request.                |
+| `classification`    | query    | GENUINE_OEM / AFTERMARKET                           | No       | Classification used to constrain this request.           |
+| `productType`       | query    | string                                              | No       | Product Type used to constrain this request.             |
+| `family`            | query    | REPLACEMENT_PART / ENGINE_OIL                       | No       | Family used to constrain this request.                   |
+| `oilViscosityGrade` | query    | string                                              | No       | Oil Viscosity Grade used to constrain this request.      |
+| `packVolumeMl`      | query    | integer                                             | No       | Pack Volume Ml used to constrain this request.           |
+| `vehicleMakeId`     | query    | string (uuid)                                       | No       | Vehicle Make Id used to constrain this request.          |
+| `vehicleModelId`    | query    | string (uuid)                                       | No       | Vehicle Model Id used to constrain this request.         |
+| `fitment`           | query    | candidates / verified                               | No       | Fitment used to constrain this request.                  |
+| `trim`              | query    | string                                              | No       | Trim used to constrain this request.                     |
+| `engineCode`        | query    | string                                              | No       | Engine Code used to constrain this request.              |
+| `market`            | query    | string                                              | No       | Market used to constrain this request.                   |
+| `position`          | query    | string                                              | No       | Position used to constrain this request.                 |
+| `brakeSystem`       | query    | string                                              | No       | Brake System used to constrain this request.             |
+| `brakeDiameterMm`   | query    | string                                              | No       | Brake Diameter Mm used to constrain this request.        |
+| `bodyType`          | query    | string                                              | No       | Body Type used to constrain this request.                |
+| `transmission`      | query    | string                                              | No       | Transmission used to constrain this request.             |
+| `generation`        | query    | string                                              | No       | Generation used to constrain this request.               |
+| `chassisCode`       | query    | string                                              | No       | Chassis Code used to constrain this request.             |
+| `brand`             | query    | string                                              | No       | Brand used to constrain this request.                    |
+| `search`            | query    | string                                              | No       | Search used to constrain this request.                   |
+| `make`              | query    | string                                              | No       | Make used to constrain this request.                     |
+| `model`             | query    | string                                              | No       | Model used to constrain this request.                    |
+| `year`              | query    | string                                              | No       | Year used to constrain this request.                     |
+| `featured`          | query    | true / false                                        | No       | Featured used to constrain this request.                 |
+| `sort`              | query    | best_match / newest / name / price_asc / price_desc | No       | Sort used to constrain this request.                     |
+| `minPriceKobo`      | query    | string                                              | No       | Min Price Kobo used to constrain this request.           |
+| `maxPriceKobo`      | query    | string                                              | No       | Max Price Kobo used to constrain this request.           |
+| `availability`      | query    | in_stock / out_of_stock                             | No       | Availability used to constrain this request.             |
 
 Success: HTTP 200.
 
@@ -1031,9 +1007,7 @@ Success: HTTP 200.
             "yearTo": "synthetic-yearto",
             "notes": "synthetic-notes",
             "scope": "MODEL",
-            "requiredQualifiers": [
-              "trim"
-            ],
+            "requiredQualifiers": ["trim"],
             "trim": "synthetic-trim",
             "engineCode": "synthetic-enginecode",
             "market": "synthetic-market",
@@ -1081,14 +1055,14 @@ Relevant errors: 400 The request is malformed.; 422 One or more request fields a
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `field` | query | category / brand / make / model | Yes | Field used to constrain this request. |
-| `categoryId` | query | string (uuid) | No | Category Id used to constrain this request. |
-| `make` | query | string | No | Make used to constrain this request. |
-| `search` | query | string | No | Search used to constrain this request. |
-| `cursor` | query | string | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | string | No | Maximum number of records to return, bounded by the API. |
+| Parameter    | Location | Type                            | Required | Purpose                                                  |
+| ------------ | -------- | ------------------------------- | -------- | -------------------------------------------------------- |
+| `field`      | query    | category / brand / make / model | Yes      | Field used to constrain this request.                    |
+| `categoryId` | query    | string (uuid)                   | No       | Category Id used to constrain this request.              |
+| `make`       | query    | string                          | No       | Make used to constrain this request.                     |
+| `search`     | query    | string                          | No       | Search used to constrain this request.                   |
+| `cursor`     | query    | string                          | No       | Opaque cursor returned by the preceding page.            |
+| `limit`      | query    | string                          | No       | Maximum number of records to return, bounded by the API. |
 
 Success: HTTP 200.
 
@@ -1124,13 +1098,13 @@ Relevant errors: 400 The request is malformed.; 422 One or more request fields a
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-| `rootOnly` | query | true / false | No | Root Only used to constrain this request. |
-| `parentId` | query | string (uuid) | No | Parent Id used to constrain this request. |
-| `search` | query | string | No | Search used to constrain this request. |
+| Parameter  | Location | Type          | Required | Purpose                                                  |
+| ---------- | -------- | ------------- | -------- | -------------------------------------------------------- |
+| `cursor`   | query    | string (uuid) | No       | Opaque cursor returned by the preceding page.            |
+| `limit`    | query    | integer       | No       | Maximum number of records to return, bounded by the API. |
+| `rootOnly` | query    | true / false  | No       | Root Only used to constrain this request.                |
+| `parentId` | query    | string (uuid) | No       | Parent Id used to constrain this request.                |
+| `search`   | query    | string        | No       | Search used to constrain this request.                   |
 
 Success: HTTP 200.
 
@@ -1166,9 +1140,9 @@ Relevant errors: 400 The request is malformed.; 422 One or more request fields a
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `categoryId` | path | string (uuid) | Yes | Identifier selecting the category resource. |
+| Parameter    | Location | Type          | Required | Purpose                                     |
+| ------------ | -------- | ------------- | -------- | ------------------------------------------- |
+| `categoryId` | path     | string (uuid) | Yes      | Identifier selecting the category resource. |
 
 Success: HTTP 200.
 
@@ -1199,38 +1173,38 @@ Relevant errors: 400 The request is malformed.; 404 The requested resource is no
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-| `categoryId` | query | string (uuid) | No | Category Id used to constrain this request. |
-| `parentCategoryId` | query | string (uuid) | No | Parent Category Id used to constrain this request. |
-| `condition` | query | NEW / USED / REFURBISHED | No | Condition used to constrain this request. |
-| `classification` | query | GENUINE_OEM / AFTERMARKET | No | Classification used to constrain this request. |
-| `productType` | query | string | No | Product Type used to constrain this request. |
-| `family` | query | REPLACEMENT_PART / ENGINE_OIL | No | Family used to constrain this request. |
-| `oilViscosityGrade` | query | string | No | Oil Viscosity Grade used to constrain this request. |
-| `packVolumeMl` | query | integer | No | Pack Volume Ml used to constrain this request. |
-| `vehicleMakeId` | query | string (uuid) | No | Vehicle Make Id used to constrain this request. |
-| `vehicleModelId` | query | string (uuid) | No | Vehicle Model Id used to constrain this request. |
-| `fitment` | query | candidates / verified | No | Fitment used to constrain this request. |
-| `trim` | query | string | No | Trim used to constrain this request. |
-| `engineCode` | query | string | No | Engine Code used to constrain this request. |
-| `market` | query | string | No | Market used to constrain this request. |
-| `position` | query | string | No | Position used to constrain this request. |
-| `brakeSystem` | query | string | No | Brake System used to constrain this request. |
-| `brakeDiameterMm` | query | string | No | Brake Diameter Mm used to constrain this request. |
-| `bodyType` | query | string | No | Body Type used to constrain this request. |
-| `transmission` | query | string | No | Transmission used to constrain this request. |
-| `generation` | query | string | No | Generation used to constrain this request. |
-| `chassisCode` | query | string | No | Chassis Code used to constrain this request. |
-| `brand` | query | string | No | Brand used to constrain this request. |
-| `search` | query | string | No | Search used to constrain this request. |
-| `make` | query | string | No | Make used to constrain this request. |
-| `model` | query | string | No | Model used to constrain this request. |
-| `year` | query | integer | No | Year used to constrain this request. |
-| `featured` | query | true / false | No | Featured used to constrain this request. |
-| `sort` | query | newest / name / price_asc / price_desc | No | Sort used to constrain this request. |
+| Parameter           | Location | Type                                   | Required | Purpose                                                  |
+| ------------------- | -------- | -------------------------------------- | -------- | -------------------------------------------------------- |
+| `cursor`            | query    | string (uuid)                          | No       | Opaque cursor returned by the preceding page.            |
+| `limit`             | query    | integer                                | No       | Maximum number of records to return, bounded by the API. |
+| `categoryId`        | query    | string (uuid)                          | No       | Category Id used to constrain this request.              |
+| `parentCategoryId`  | query    | string (uuid)                          | No       | Parent Category Id used to constrain this request.       |
+| `condition`         | query    | NEW / USED / REFURBISHED               | No       | Condition used to constrain this request.                |
+| `classification`    | query    | GENUINE_OEM / AFTERMARKET              | No       | Classification used to constrain this request.           |
+| `productType`       | query    | string                                 | No       | Product Type used to constrain this request.             |
+| `family`            | query    | REPLACEMENT_PART / ENGINE_OIL          | No       | Family used to constrain this request.                   |
+| `oilViscosityGrade` | query    | string                                 | No       | Oil Viscosity Grade used to constrain this request.      |
+| `packVolumeMl`      | query    | integer                                | No       | Pack Volume Ml used to constrain this request.           |
+| `vehicleMakeId`     | query    | string (uuid)                          | No       | Vehicle Make Id used to constrain this request.          |
+| `vehicleModelId`    | query    | string (uuid)                          | No       | Vehicle Model Id used to constrain this request.         |
+| `fitment`           | query    | candidates / verified                  | No       | Fitment used to constrain this request.                  |
+| `trim`              | query    | string                                 | No       | Trim used to constrain this request.                     |
+| `engineCode`        | query    | string                                 | No       | Engine Code used to constrain this request.              |
+| `market`            | query    | string                                 | No       | Market used to constrain this request.                   |
+| `position`          | query    | string                                 | No       | Position used to constrain this request.                 |
+| `brakeSystem`       | query    | string                                 | No       | Brake System used to constrain this request.             |
+| `brakeDiameterMm`   | query    | string                                 | No       | Brake Diameter Mm used to constrain this request.        |
+| `bodyType`          | query    | string                                 | No       | Body Type used to constrain this request.                |
+| `transmission`      | query    | string                                 | No       | Transmission used to constrain this request.             |
+| `generation`        | query    | string                                 | No       | Generation used to constrain this request.               |
+| `chassisCode`       | query    | string                                 | No       | Chassis Code used to constrain this request.             |
+| `brand`             | query    | string                                 | No       | Brand used to constrain this request.                    |
+| `search`            | query    | string                                 | No       | Search used to constrain this request.                   |
+| `make`              | query    | string                                 | No       | Make used to constrain this request.                     |
+| `model`             | query    | string                                 | No       | Model used to constrain this request.                    |
+| `year`              | query    | integer                                | No       | Year used to constrain this request.                     |
+| `featured`          | query    | true / false                           | No       | Featured used to constrain this request.                 |
+| `sort`              | query    | newest / name / price_asc / price_desc | No       | Sort used to constrain this request.                     |
 
 Success: HTTP 200.
 
@@ -1288,9 +1262,7 @@ Success: HTTP 200.
             "yearTo": "synthetic-yearto",
             "notes": "synthetic-notes",
             "scope": "MODEL",
-            "requiredQualifiers": [
-              "trim"
-            ],
+            "requiredQualifiers": ["trim"],
             "trim": "synthetic-trim",
             "engineCode": "synthetic-enginecode",
             "market": "synthetic-market",
@@ -1336,9 +1308,9 @@ Relevant errors: 400 The request is malformed.; 422 One or more request fields a
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `productId` | path | string (uuid) | Yes | Identifier selecting the product resource. |
+| Parameter   | Location | Type          | Required | Purpose                                    |
+| ----------- | -------- | ------------- | -------- | ------------------------------------------ |
+| `productId` | path     | string (uuid) | Yes      | Identifier selecting the product resource. |
 
 Success: HTTP 200.
 
@@ -1394,9 +1366,7 @@ Success: HTTP 200.
         "yearTo": "synthetic-yearto",
         "notes": "synthetic-notes",
         "scope": "MODEL",
-        "requiredQualifiers": [
-          "trim"
-        ],
+        "requiredQualifiers": ["trim"],
         "trim": "synthetic-trim",
         "engineCode": "synthetic-enginecode",
         "market": "synthetic-market",
@@ -1439,11 +1409,11 @@ Relevant errors: 400 The request is malformed.; 404 The requested resource is no
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-| `pricingType` | query | FIXED / QUOTE_REQUIRED | No | Pricing Type used to constrain this request. |
+| Parameter     | Location | Type                   | Required | Purpose                                                  |
+| ------------- | -------- | ---------------------- | -------- | -------------------------------------------------------- |
+| `cursor`      | query    | string (uuid)          | No       | Opaque cursor returned by the preceding page.            |
+| `limit`       | query    | integer                | No       | Maximum number of records to return, bounded by the API. |
+| `pricingType` | query    | FIXED / QUOTE_REQUIRED | No       | Pricing Type used to constrain this request.             |
 
 Success: HTTP 200.
 
@@ -1505,9 +1475,9 @@ Relevant errors: 400 The request is malformed.; 422 One or more request fields a
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `serviceId` | path | string (uuid) | Yes | Identifier selecting the service resource. |
+| Parameter   | Location | Type          | Required | Purpose                                    |
+| ----------- | -------- | ------------- | -------- | ------------------------------------------ |
+| `serviceId` | path     | string (uuid) | Yes      | Identifier selecting the service resource. |
 
 Success: HTTP 200.
 
@@ -1591,14 +1561,14 @@ Relevant errors: 400 The request is malformed.; 422 One or more request fields a
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `serviceId` | path | string (uuid) | Yes | Identifier selecting the service resource. |
-| `branchId` | query | string (uuid) | Yes | Branch Id used to constrain this request. |
-| `from` | query | string (date-time) | No | From used to constrain this request. |
-| `to` | query | string (date-time) | No | To used to constrain this request. |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+| Parameter   | Location | Type               | Required | Purpose                                                  |
+| ----------- | -------- | ------------------ | -------- | -------------------------------------------------------- |
+| `serviceId` | path     | string (uuid)      | Yes      | Identifier selecting the service resource.               |
+| `branchId`  | query    | string (uuid)      | Yes      | Branch Id used to constrain this request.                |
+| `from`      | query    | string (date-time) | No       | From used to constrain this request.                     |
+| `to`        | query    | string (date-time) | No       | To used to constrain this request.                       |
+| `cursor`    | query    | string (uuid)      | No       | Opaque cursor returned by the preceding page.            |
+| `limit`     | query    | integer            | No       | Maximum number of records to return, bounded by the API. |
 
 Success: HTTP 200.
 
@@ -1634,14 +1604,14 @@ Relevant errors: 400 The request is malformed.; 404 The requested resource is no
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `search` | query | string | No | Search used to constrain this request. |
-| `categoryId` | query | string (uuid) | No | Category Id used to constrain this request. |
-| `pricingType` | query | FIXED / QUOTE_REQUIRED | No | Pricing Type used to constrain this request. |
-| `sort` | query | name / newest / duration_asc | No | Sort used to constrain this request. |
-| `cursor` | query | object | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | string | No | Maximum number of records to return, bounded by the API. |
+| Parameter     | Location | Type                         | Required | Purpose                                                  |
+| ------------- | -------- | ---------------------------- | -------- | -------------------------------------------------------- |
+| `search`      | query    | string                       | No       | Search used to constrain this request.                   |
+| `categoryId`  | query    | string (uuid)                | No       | Category Id used to constrain this request.              |
+| `pricingType` | query    | FIXED / QUOTE_REQUIRED       | No       | Pricing Type used to constrain this request.             |
+| `sort`        | query    | name / newest / duration_asc | No       | Sort used to constrain this request.                     |
+| `cursor`      | query    | object                       | No       | Opaque cursor returned by the preceding page.            |
+| `limit`       | query    | string                       | No       | Maximum number of records to return, bounded by the API. |
 
 Success: HTTP 200.
 
@@ -1704,11 +1674,11 @@ Relevant errors: 400 The request is malformed.; 422 One or more request fields a
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `search` | query | string | No | Search used to constrain this request. |
-| `cursor` | query | string | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | string | No | Maximum number of records to return, bounded by the API. |
+| Parameter | Location | Type   | Required | Purpose                                                  |
+| --------- | -------- | ------ | -------- | -------------------------------------------------------- |
+| `search`  | query    | string | No       | Search used to constrain this request.                   |
+| `cursor`  | query    | string | No       | Opaque cursor returned by the preceding page.            |
+| `limit`   | query    | string | No       | Maximum number of records to return, bounded by the API. |
 
 Success: HTTP 200.
 
@@ -1745,9 +1715,9 @@ Relevant errors: 400 The request is malformed.; 422 One or more request fields a
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `categoryId` | path | string (uuid) | Yes | Identifier selecting the category resource. |
+| Parameter    | Location | Type          | Required | Purpose                                     |
+| ------------ | -------- | ------------- | -------- | ------------------------------------------- |
+| `categoryId` | path     | string (uuid) | Yes      | Identifier selecting the category resource. |
 
 Success: HTTP 200.
 
@@ -1779,39 +1749,39 @@ Relevant errors: 400 The request is malformed.; 404 Inactive, empty or unknown c
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `cursor` | query | object | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | string | No | Maximum number of records to return, bounded by the API. |
-| `search` | query | string | No | Search used to constrain this request. |
-| `make` | query | string | No | Make used to constrain this request. |
-| `model` | query | string | No | Model used to constrain this request. |
-| `year` | query | string | No | Year used to constrain this request. |
-| `trim` | query | string | No | Trim used to constrain this request. |
-| `condition` | query | NEW / USED / FOREIGN_USED / LOCALLY_USED | No | Condition used to constrain this request. |
-| `conditions` | query | string | No | Comma-separated distinct choices: NEW, USED, FOREIGN_USED, LOCALLY_USED. Matches any selected choice; do not combine with the singular filter. |
-| `powertrains` | query | string | No | Comma-separated distinct choices: BEV, HEV, PHEV, ICE. Matches any selected choice; do not combine with the singular filter. |
-| `manufactureCountryCode` | query | string | No | Manufacture Country Code used to constrain this request. |
-| `manufactureRegion` | query | EUROPE | No | Manufacture Region used to constrain this request. |
-| `powertrain` | query | BEV / HEV / PHEV / ICE | No | Powertrain used to constrain this request. |
-| `driveType` | query | FWD / RWD / AWD / FOUR_WD / OTHER | No | Drive Type used to constrain this request. |
-| `minYear` | query | string | No | Min Year used to constrain this request. |
-| `maxYear` | query | string | No | Max Year used to constrain this request. |
-| `minMileageKm` | query | string | No | Min Mileage Km used to constrain this request. |
-| `maxMileageKm` | query | string | No | Max Mileage Km used to constrain this request. |
-| `minEngineCapacityCc` | query | string | No | Min Engine Capacity Cc used to constrain this request. |
-| `maxEngineCapacityCc` | query | string | No | Max Engine Capacity Cc used to constrain this request. |
-| `seats` | query | string | No | Seats used to constrain this request. |
-| `color` | query | string | No | Color used to constrain this request. |
-| `feature` | query | string | No | Feature used to constrain this request. |
-| `inspected` | query | true / false | No | Inspected used to constrain this request. |
-| `bodyType` | query | SEDAN / SUV / COUPE / HATCHBACK / WAGON / PICKUP / VAN / TRUCK / BUS / OTHER | No | Body Type used to constrain this request. |
-| `transmission` | query | AUTOMATIC / MANUAL / CVT / OTHER | No | Transmission used to constrain this request. |
-| `fuelType` | query | PETROL / DIESEL / HYBRID / ELECTRIC / OTHER | No | Fuel Type used to constrain this request. |
-| `featured` | query | true / false | No | Featured used to constrain this request. |
-| `minPriceKobo` | query | object | No | Min Price Kobo used to constrain this request. |
-| `maxPriceKobo` | query | object | No | Max Price Kobo used to constrain this request. |
-| `sort` | query | best_match / newest / price_asc / price_desc / year_desc / year_asc / mileage_asc / mileage_desc | No | Sort used to constrain this request. |
+| Parameter                | Location | Type                                                                                             | Required | Purpose                                                                                                                                        |
+| ------------------------ | -------- | ------------------------------------------------------------------------------------------------ | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `cursor`                 | query    | object                                                                                           | No       | Opaque cursor returned by the preceding page.                                                                                                  |
+| `limit`                  | query    | string                                                                                           | No       | Maximum number of records to return, bounded by the API.                                                                                       |
+| `search`                 | query    | string                                                                                           | No       | Search used to constrain this request.                                                                                                         |
+| `make`                   | query    | string                                                                                           | No       | Make used to constrain this request.                                                                                                           |
+| `model`                  | query    | string                                                                                           | No       | Model used to constrain this request.                                                                                                          |
+| `year`                   | query    | string                                                                                           | No       | Year used to constrain this request.                                                                                                           |
+| `trim`                   | query    | string                                                                                           | No       | Trim used to constrain this request.                                                                                                           |
+| `condition`              | query    | NEW / USED / FOREIGN_USED / LOCALLY_USED                                                         | No       | Condition used to constrain this request.                                                                                                      |
+| `conditions`             | query    | string                                                                                           | No       | Comma-separated distinct choices: NEW, USED, FOREIGN_USED, LOCALLY_USED. Matches any selected choice; do not combine with the singular filter. |
+| `powertrains`            | query    | string                                                                                           | No       | Comma-separated distinct choices: BEV, HEV, PHEV, ICE. Matches any selected choice; do not combine with the singular filter.                   |
+| `manufactureCountryCode` | query    | string                                                                                           | No       | Manufacture Country Code used to constrain this request.                                                                                       |
+| `manufactureRegion`      | query    | EUROPE                                                                                           | No       | Manufacture Region used to constrain this request.                                                                                             |
+| `powertrain`             | query    | BEV / HEV / PHEV / ICE                                                                           | No       | Powertrain used to constrain this request.                                                                                                     |
+| `driveType`              | query    | FWD / RWD / AWD / FOUR_WD / OTHER                                                                | No       | Drive Type used to constrain this request.                                                                                                     |
+| `minYear`                | query    | string                                                                                           | No       | Min Year used to constrain this request.                                                                                                       |
+| `maxYear`                | query    | string                                                                                           | No       | Max Year used to constrain this request.                                                                                                       |
+| `minMileageKm`           | query    | string                                                                                           | No       | Min Mileage Km used to constrain this request.                                                                                                 |
+| `maxMileageKm`           | query    | string                                                                                           | No       | Max Mileage Km used to constrain this request.                                                                                                 |
+| `minEngineCapacityCc`    | query    | string                                                                                           | No       | Min Engine Capacity Cc used to constrain this request.                                                                                         |
+| `maxEngineCapacityCc`    | query    | string                                                                                           | No       | Max Engine Capacity Cc used to constrain this request.                                                                                         |
+| `seats`                  | query    | string                                                                                           | No       | Seats used to constrain this request.                                                                                                          |
+| `color`                  | query    | string                                                                                           | No       | Color used to constrain this request.                                                                                                          |
+| `feature`                | query    | string                                                                                           | No       | Feature used to constrain this request.                                                                                                        |
+| `inspected`              | query    | true / false                                                                                     | No       | Inspected used to constrain this request.                                                                                                      |
+| `bodyType`               | query    | SEDAN / SUV / COUPE / HATCHBACK / WAGON / PICKUP / VAN / TRUCK / BUS / OTHER                     | No       | Body Type used to constrain this request.                                                                                                      |
+| `transmission`           | query    | AUTOMATIC / MANUAL / CVT / OTHER                                                                 | No       | Transmission used to constrain this request.                                                                                                   |
+| `fuelType`               | query    | PETROL / DIESEL / HYBRID / ELECTRIC / OTHER                                                      | No       | Fuel Type used to constrain this request.                                                                                                      |
+| `featured`               | query    | true / false                                                                                     | No       | Featured used to constrain this request.                                                                                                       |
+| `minPriceKobo`           | query    | object                                                                                           | No       | Min Price Kobo used to constrain this request.                                                                                                 |
+| `maxPriceKobo`           | query    | object                                                                                           | No       | Max Price Kobo used to constrain this request.                                                                                                 |
+| `sort`                   | query    | best_match / newest / price_asc / price_desc / year_desc / year_asc / mileage_asc / mileage_desc | No       | Sort used to constrain this request.                                                                                                           |
 
 Success: HTTP 200.
 
@@ -1902,13 +1872,13 @@ Relevant errors: 400 The request is malformed.; 422 One or more request fields a
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `field` | query | make / model | Yes | Field used to constrain this request. |
-| `make` | query | string | No | Make used to constrain this request. |
-| `search` | query | string | No | Search used to constrain this request. |
-| `cursor` | query | string | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | string | No | Maximum number of records to return, bounded by the API. |
+| Parameter | Location | Type         | Required | Purpose                                                  |
+| --------- | -------- | ------------ | -------- | -------------------------------------------------------- |
+| `field`   | query    | make / model | Yes      | Field used to constrain this request.                    |
+| `make`    | query    | string       | No       | Make used to constrain this request.                     |
+| `search`  | query    | string       | No       | Search used to constrain this request.                   |
+| `cursor`  | query    | string       | No       | Opaque cursor returned by the preceding page.            |
+| `limit`   | query    | string       | No       | Maximum number of records to return, bounded by the API. |
 
 Success: HTTP 200.
 
@@ -1944,39 +1914,39 @@ Relevant errors: 400 The request is malformed.; 422 One or more request fields a
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-| `search` | query | string | No | Search used to constrain this request. |
-| `make` | query | string | No | Make used to constrain this request. |
-| `model` | query | string | No | Model used to constrain this request. |
-| `year` | query | integer | No | Year used to constrain this request. |
-| `trim` | query | string | No | Trim used to constrain this request. |
-| `condition` | query | NEW / USED / FOREIGN_USED / LOCALLY_USED | No | Condition used to constrain this request. |
-| `conditions` | query | string | No | Comma-separated distinct choices: NEW, USED, FOREIGN_USED, LOCALLY_USED. Matches any selected choice; do not combine with the singular filter. |
-| `powertrains` | query | string | No | Comma-separated distinct choices: BEV, HEV, PHEV, ICE. Matches any selected choice; do not combine with the singular filter. |
-| `manufactureCountryCode` | query | string | No | Manufacture Country Code used to constrain this request. |
-| `manufactureRegion` | query | EUROPE | No | Manufacture Region used to constrain this request. |
-| `powertrain` | query | BEV / HEV / PHEV / ICE | No | Powertrain used to constrain this request. |
-| `driveType` | query | FWD / RWD / AWD / FOUR_WD / OTHER | No | Drive Type used to constrain this request. |
-| `minYear` | query | string | No | Min Year used to constrain this request. |
-| `maxYear` | query | string | No | Max Year used to constrain this request. |
-| `minMileageKm` | query | string | No | Min Mileage Km used to constrain this request. |
-| `maxMileageKm` | query | string | No | Max Mileage Km used to constrain this request. |
-| `minEngineCapacityCc` | query | string | No | Min Engine Capacity Cc used to constrain this request. |
-| `maxEngineCapacityCc` | query | string | No | Max Engine Capacity Cc used to constrain this request. |
-| `seats` | query | string | No | Seats used to constrain this request. |
-| `color` | query | string | No | Color used to constrain this request. |
-| `feature` | query | string | No | Feature used to constrain this request. |
-| `inspected` | query | true / false | No | Inspected used to constrain this request. |
-| `bodyType` | query | SEDAN / SUV / COUPE / HATCHBACK / WAGON / PICKUP / VAN / TRUCK / BUS / OTHER | No | Body Type used to constrain this request. |
-| `transmission` | query | AUTOMATIC / MANUAL / CVT / OTHER | No | Transmission used to constrain this request. |
-| `fuelType` | query | PETROL / DIESEL / HYBRID / ELECTRIC / OTHER | No | Fuel Type used to constrain this request. |
-| `featured` | query | true / false | No | Featured used to constrain this request. |
-| `minPriceKobo` | query | object | No | Min Price Kobo used to constrain this request. |
-| `maxPriceKobo` | query | object | No | Max Price Kobo used to constrain this request. |
-| `sort` | query | newest / price_asc / price_desc / year_desc / year_asc / mileage_asc / mileage_desc | No | Sort used to constrain this request. |
+| Parameter                | Location | Type                                                                                | Required | Purpose                                                                                                                                        |
+| ------------------------ | -------- | ----------------------------------------------------------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `cursor`                 | query    | string (uuid)                                                                       | No       | Opaque cursor returned by the preceding page.                                                                                                  |
+| `limit`                  | query    | integer                                                                             | No       | Maximum number of records to return, bounded by the API.                                                                                       |
+| `search`                 | query    | string                                                                              | No       | Search used to constrain this request.                                                                                                         |
+| `make`                   | query    | string                                                                              | No       | Make used to constrain this request.                                                                                                           |
+| `model`                  | query    | string                                                                              | No       | Model used to constrain this request.                                                                                                          |
+| `year`                   | query    | integer                                                                             | No       | Year used to constrain this request.                                                                                                           |
+| `trim`                   | query    | string                                                                              | No       | Trim used to constrain this request.                                                                                                           |
+| `condition`              | query    | NEW / USED / FOREIGN_USED / LOCALLY_USED                                            | No       | Condition used to constrain this request.                                                                                                      |
+| `conditions`             | query    | string                                                                              | No       | Comma-separated distinct choices: NEW, USED, FOREIGN_USED, LOCALLY_USED. Matches any selected choice; do not combine with the singular filter. |
+| `powertrains`            | query    | string                                                                              | No       | Comma-separated distinct choices: BEV, HEV, PHEV, ICE. Matches any selected choice; do not combine with the singular filter.                   |
+| `manufactureCountryCode` | query    | string                                                                              | No       | Manufacture Country Code used to constrain this request.                                                                                       |
+| `manufactureRegion`      | query    | EUROPE                                                                              | No       | Manufacture Region used to constrain this request.                                                                                             |
+| `powertrain`             | query    | BEV / HEV / PHEV / ICE                                                              | No       | Powertrain used to constrain this request.                                                                                                     |
+| `driveType`              | query    | FWD / RWD / AWD / FOUR_WD / OTHER                                                   | No       | Drive Type used to constrain this request.                                                                                                     |
+| `minYear`                | query    | string                                                                              | No       | Min Year used to constrain this request.                                                                                                       |
+| `maxYear`                | query    | string                                                                              | No       | Max Year used to constrain this request.                                                                                                       |
+| `minMileageKm`           | query    | string                                                                              | No       | Min Mileage Km used to constrain this request.                                                                                                 |
+| `maxMileageKm`           | query    | string                                                                              | No       | Max Mileage Km used to constrain this request.                                                                                                 |
+| `minEngineCapacityCc`    | query    | string                                                                              | No       | Min Engine Capacity Cc used to constrain this request.                                                                                         |
+| `maxEngineCapacityCc`    | query    | string                                                                              | No       | Max Engine Capacity Cc used to constrain this request.                                                                                         |
+| `seats`                  | query    | string                                                                              | No       | Seats used to constrain this request.                                                                                                          |
+| `color`                  | query    | string                                                                              | No       | Color used to constrain this request.                                                                                                          |
+| `feature`                | query    | string                                                                              | No       | Feature used to constrain this request.                                                                                                        |
+| `inspected`              | query    | true / false                                                                        | No       | Inspected used to constrain this request.                                                                                                      |
+| `bodyType`               | query    | SEDAN / SUV / COUPE / HATCHBACK / WAGON / PICKUP / VAN / TRUCK / BUS / OTHER        | No       | Body Type used to constrain this request.                                                                                                      |
+| `transmission`           | query    | AUTOMATIC / MANUAL / CVT / OTHER                                                    | No       | Transmission used to constrain this request.                                                                                                   |
+| `fuelType`               | query    | PETROL / DIESEL / HYBRID / ELECTRIC / OTHER                                         | No       | Fuel Type used to constrain this request.                                                                                                      |
+| `featured`               | query    | true / false                                                                        | No       | Featured used to constrain this request.                                                                                                       |
+| `minPriceKobo`           | query    | object                                                                              | No       | Min Price Kobo used to constrain this request.                                                                                                 |
+| `maxPriceKobo`           | query    | object                                                                              | No       | Max Price Kobo used to constrain this request.                                                                                                 |
+| `sort`                   | query    | newest / price_asc / price_desc / year_desc / year_asc / mileage_asc / mileage_desc | No       | Sort used to constrain this request.                                                                                                           |
 
 Success: HTTP 200.
 
@@ -2012,9 +1982,9 @@ Relevant errors: 400 The request is malformed.; 422 One or more request fields a
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `listingId` | path | string (uuid) | Yes | Identifier selecting the listing resource. |
+| Parameter   | Location | Type          | Required | Purpose                                    |
+| ----------- | -------- | ------------- | -------- | ------------------------------------------ |
+| `listingId` | path     | string (uuid) | Yes      | Identifier selecting the listing resource. |
 
 Success: HTTP 200.
 
@@ -2050,9 +2020,9 @@ Relevant errors: 400 The request is malformed.; 404 The requested resource is no
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `imageId` | path | string (uuid) | Yes | Identifier selecting the image resource. |
+| Parameter | Location | Type          | Required | Purpose                                  |
+| --------- | -------- | ------------- | -------- | ---------------------------------------- |
+| `imageId` | path     | string (uuid) | Yes      | Identifier selecting the image resource. |
 
 Success: HTTP 200.
 Binary image/webp bytes (no JSON envelope).
@@ -2070,11 +2040,11 @@ Relevant errors: 400 The request is malformed.; 404 NOT_FOUND for unavailable or
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `search` | query | string | No | Search used to constrain this request. |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+| Parameter | Location | Type          | Required | Purpose                                                  |
+| --------- | -------- | ------------- | -------- | -------------------------------------------------------- |
+| `search`  | query    | string        | No       | Search used to constrain this request.                   |
+| `cursor`  | query    | string (uuid) | No       | Opaque cursor returned by the preceding page.            |
+| `limit`   | query    | integer       | No       | Maximum number of records to return, bounded by the API. |
 
 Success: HTTP 200.
 
@@ -2110,12 +2080,12 @@ Relevant errors: 400 The request is malformed.; 401 Authentication required for 
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `makeId` | query | string (uuid) | Yes | Make Id used to constrain this request. |
-| `search` | query | string | No | Search used to constrain this request. |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+| Parameter | Location | Type          | Required | Purpose                                                  |
+| --------- | -------- | ------------- | -------- | -------------------------------------------------------- |
+| `makeId`  | query    | string (uuid) | Yes      | Make Id used to constrain this request.                  |
+| `search`  | query    | string        | No       | Search used to constrain this request.                   |
+| `cursor`  | query    | string (uuid) | No       | Opaque cursor returned by the preceding page.            |
+| `limit`   | query    | integer       | No       | Maximum number of records to return, bounded by the API. |
 
 Success: HTTP 200.
 
@@ -2154,9 +2124,9 @@ Relevant errors: 400 The request is malformed.; 401 Authentication required for 
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `modelId` | path | string (uuid) | Yes | Identifier selecting the model resource. |
+| Parameter | Location | Type          | Required | Purpose                                  |
+| --------- | -------- | ------------- | -------- | ---------------------------------------- |
+| `modelId` | path     | string (uuid) | Yes      | Identifier selecting the model resource. |
 
 Success: HTTP 200.
 
@@ -2194,9 +2164,9 @@ Relevant errors: 400 The request is malformed.; 401 Authentication required for 
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `modelId` | query | string (uuid) | Yes | Model Id used to constrain this request. |
+| Parameter | Location | Type          | Required | Purpose                                  |
+| --------- | -------- | ------------- | -------- | ---------------------------------------- |
+| `modelId` | query    | string (uuid) | Yes      | Model Id used to constrain this request. |
 
 Success: HTTP 200.
 
@@ -2205,9 +2175,7 @@ Success: HTTP 200.
   "success": true,
   "message": "Vehicle catalogue and reviewed parts fitment: years",
   "data": {
-    "years": [
-      1
-    ]
+    "years": [1]
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -2228,22 +2196,22 @@ Relevant errors: 400 The request is malformed.; 401 Authentication required for 
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `productId` | path | string (uuid) | Yes | Identifier selecting the product resource. |
-| `vehicleMakeId` | query | string (uuid) | No | Vehicle Make Id used to constrain this request. |
-| `vehicleModelId` | query | string (uuid) | Yes | Vehicle Model Id used to constrain this request. |
-| `year` | query | string | Yes | Year used to constrain this request. |
-| `trim` | query | string | No | Trim used to constrain this request. |
-| `engineCode` | query | string | No | Engine Code used to constrain this request. |
-| `market` | query | string | No | Market used to constrain this request. |
-| `position` | query | string | No | Position used to constrain this request. |
-| `brakeSystem` | query | string | No | Brake System used to constrain this request. |
-| `brakeDiameterMm` | query | string | No | Brake Diameter Mm used to constrain this request. |
-| `bodyType` | query | string | No | Body Type used to constrain this request. |
-| `transmission` | query | string | No | Transmission used to constrain this request. |
-| `generation` | query | string | No | Generation used to constrain this request. |
-| `chassisCode` | query | string | No | Chassis Code used to constrain this request. |
+| Parameter         | Location | Type          | Required | Purpose                                           |
+| ----------------- | -------- | ------------- | -------- | ------------------------------------------------- |
+| `productId`       | path     | string (uuid) | Yes      | Identifier selecting the product resource.        |
+| `vehicleMakeId`   | query    | string (uuid) | No       | Vehicle Make Id used to constrain this request.   |
+| `vehicleModelId`  | query    | string (uuid) | Yes      | Vehicle Model Id used to constrain this request.  |
+| `year`            | query    | string        | Yes      | Year used to constrain this request.              |
+| `trim`            | query    | string        | No       | Trim used to constrain this request.              |
+| `engineCode`      | query    | string        | No       | Engine Code used to constrain this request.       |
+| `market`          | query    | string        | No       | Market used to constrain this request.            |
+| `position`        | query    | string        | No       | Position used to constrain this request.          |
+| `brakeSystem`     | query    | string        | No       | Brake System used to constrain this request.      |
+| `brakeDiameterMm` | query    | string        | No       | Brake Diameter Mm used to constrain this request. |
+| `bodyType`        | query    | string        | No       | Body Type used to constrain this request.         |
+| `transmission`    | query    | string        | No       | Transmission used to constrain this request.      |
+| `generation`      | query    | string        | No       | Generation used to constrain this request.        |
+| `chassisCode`     | query    | string        | No       | Chassis Code used to constrain this request.      |
 
 Success: HTTP 200.
 
@@ -2255,12 +2223,8 @@ Success: HTTP 200.
     "status": "VERIFIED_FIT",
     "scope": "MODEL",
     "message": "synthetic-message",
-    "missingQualifiers": [
-      "trim"
-    ],
-    "matchedRuleIds": [
-      "00000000-0000-4000-8000-000000000001"
-    ]
+    "missingQualifiers": ["trim"],
+    "matchedRuleIds": ["00000000-0000-4000-8000-000000000001"]
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -2281,10 +2245,10 @@ Relevant errors: 400 The request is malformed.; 401 Authentication required for 
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `reviewId` | path | string (uuid) | Yes | Identifier selecting the review resource. |
-| `v` | query | integer | No | Current profile media version, used to reload a replaced portrait. |
+| Parameter  | Location | Type          | Required | Purpose                                                            |
+| ---------- | -------- | ------------- | -------- | ------------------------------------------------------------------ |
+| `reviewId` | path     | string (uuid) | Yes      | Identifier selecting the review resource.                          |
+| `v`        | query    | integer       | No       | Current profile media version, used to reload a replaced portrait. |
 
 Success: HTTP 200.
 Binary image/webp bytes (no JSON envelope).
@@ -2302,13 +2266,13 @@ Relevant errors: 400 The request is malformed.; 404 No published review portrait
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-| `targetType` | query | BUSINESS / PRODUCT / SERVICE / ORDER / VEHICLE_TRANSACTION | No | Target Type used to constrain this request. |
-| `productId` | query | string (uuid) | No | Product Id used to constrain this request. |
-| `serviceId` | query | string (uuid) | No | Service Id used to constrain this request. |
+| Parameter    | Location | Type                                                       | Required | Purpose                                                  |
+| ------------ | -------- | ---------------------------------------------------------- | -------- | -------------------------------------------------------- |
+| `cursor`     | query    | string (uuid)                                              | No       | Opaque cursor returned by the preceding page.            |
+| `limit`      | query    | integer                                                    | No       | Maximum number of records to return, bounded by the API. |
+| `targetType` | query    | BUSINESS / PRODUCT / SERVICE / ORDER / VEHICLE_TRANSACTION | No       | Target Type used to constrain this request.              |
+| `productId`  | query    | string (uuid)                                              | No       | Product Id used to constrain this request.               |
+| `serviceId`  | query    | string (uuid)                                              | No       | Service Id used to constrain this request.               |
 
 Success: HTTP 200.
 
@@ -2403,14 +2367,14 @@ Relevant errors: 400 The request is malformed.; 409 The request conflicts with c
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `branchId` | string (uuid) | No | Identifier of the branch resource; ownership is resolved server-side. |
-| `subject` | string | Yes | Subject validated by this operation's strict request contract. |
-| `description` | string | Yes | Description validated by this operation's strict request contract. |
-| `name` | string | Yes | Name validated by this operation's strict request contract. |
-| `email` | string (email) | Yes | Normalized account email address. |
-| `phone` | string | No | Customer or business phone number in international format. |
+| Field         | Type           | Required | Purpose                                                               |
+| ------------- | -------------- | -------- | --------------------------------------------------------------------- |
+| `branchId`    | string (uuid)  | No       | Identifier of the branch resource; ownership is resolved server-side. |
+| `subject`     | string         | Yes      | Subject validated by this operation's strict request contract.        |
+| `description` | string         | Yes      | Description validated by this operation's strict request contract.    |
+| `name`        | string         | Yes      | Name validated by this operation's strict request contract.           |
+| `email`       | string (email) | Yes      | Normalized account email address.                                     |
+| `phone`       | string         | No       | Customer or business phone number in international format.            |
 
 Synthetic request example:
 
@@ -2553,9 +2517,9 @@ Relevant errors: 400 The request is malformed.; 422 One or more request fields a
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `token` | query | string | Yes | Token used to constrain this request. |
+| Parameter | Location | Type   | Required | Purpose                               |
+| --------- | -------- | ------ | -------- | ------------------------------------- |
+| `token`   | query    | string | Yes      | Token used to constrain this request. |
 
 Success: HTTP 200.
 
@@ -2582,7 +2546,6 @@ Success: HTTP 200.
 
 Relevant errors: 400 The request is malformed.; 403 Untrusted origin; recovery HTML (global CORS denial may use JSON); 409 Invalid, expired, changed or unavailable appointment link; recovery HTML; 413 Form exceeds 4 KiB; recovery HTML; 422 Invalid query or form; recovery HTML; 429 The route-specific request limit was exceeded.; 500 Result unavailable; recovery HTML without exception details; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
-
 ## Authentication
 
 ### POST `/auth/register`
@@ -2596,13 +2559,13 @@ Relevant errors: 400 The request is malformed.; 403 Untrusted origin; recovery H
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `email` | string (email) | Yes | Normalized account email address. |
-| `password` | string | Yes | Sensitive password value sent only over HTTPS and never logged or persisted by the client. |
-| `firstName` | string | Yes | First Name validated by this operation's strict request contract. |
-| `lastName` | string | Yes | Last Name validated by this operation's strict request contract. |
-| `phone` | string | Yes | Customer or business phone number in international format. |
+| Field       | Type           | Required | Purpose                                                                                    |
+| ----------- | -------------- | -------- | ------------------------------------------------------------------------------------------ |
+| `email`     | string (email) | Yes      | Normalized account email address.                                                          |
+| `password`  | string         | Yes      | Sensitive password value sent only over HTTPS and never logged or persisted by the client. |
+| `firstName` | string         | Yes      | First Name validated by this operation's strict request contract.                          |
+| `lastName`  | string         | Yes      | Last Name validated by this operation's strict request contract.                           |
+| `phone`     | string         | Yes      | Customer or business phone number in international format.                                 |
 
 Synthetic request example:
 
@@ -2645,9 +2608,9 @@ Relevant errors: 400 The request is malformed.; 409 The request conflicts with c
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `token` | string | Yes | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
+| Field   | Type   | Required | Purpose                                                                                     |
+| ------- | ------ | -------- | ------------------------------------------------------------------------------------------- |
+| `token` | string | Yes      | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
 
 Synthetic request example:
 
@@ -2686,9 +2649,9 @@ Relevant errors: 400 The request is malformed.; 404 The requested resource is no
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `email` | string (email) | Yes | Normalized account email address. |
+| Field   | Type           | Required | Purpose                           |
+| ------- | -------------- | -------- | --------------------------------- |
+| `email` | string (email) | Yes      | Normalized account email address. |
 
 Synthetic request example:
 
@@ -2723,10 +2686,10 @@ Relevant errors: 400 The request is malformed.; 404 The requested resource is no
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `email` | string (email) | Yes | Normalized account email address. |
-| `password` | string | Yes | Sensitive password value sent only over HTTPS and never logged or persisted by the client. |
+| Field      | Type           | Required | Purpose                                                                                    |
+| ---------- | -------------- | -------- | ------------------------------------------------------------------------------------------ |
+| `email`    | string (email) | Yes      | Normalized account email address.                                                          |
+| `password` | string         | Yes      | Sensitive password value sent only over HTTPS and never logged or persisted by the client. |
 
 Synthetic request example:
 
@@ -2766,9 +2729,9 @@ Relevant errors: 400 The request is malformed.; 409 The request conflicts with c
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type   | Required | Purpose                                                                         |
+| -------------- | -------- | ------ | -------- | ------------------------------------------------------------------------------- |
+| `x-csrf-token` | header   | string | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 Success: HTTP 200.
 
@@ -2795,9 +2758,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type   | Required | Purpose                                                                         |
+| -------------- | -------- | ------ | -------- | ------------------------------------------------------------------------------- |
+| `x-csrf-token` | header   | string | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 Success: HTTP 200.
 
@@ -2827,9 +2790,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `email` | string (email) | Yes | Normalized account email address. |
+| Field   | Type           | Required | Purpose                           |
+| ------- | -------------- | -------- | --------------------------------- |
+| `email` | string (email) | Yes      | Normalized account email address. |
 
 Synthetic request example:
 
@@ -2868,10 +2831,10 @@ Relevant errors: 400 The request is malformed.; 404 The requested resource is no
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `token` | string | Yes | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
-| `password` | string | Yes | Sensitive password value sent only over HTTPS and never logged or persisted by the client. |
+| Field      | Type   | Required | Purpose                                                                                     |
+| ---------- | ------ | -------- | ------------------------------------------------------------------------------------------- |
+| `token`    | string | Yes      | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
+| `password` | string | Yes      | Sensitive password value sent only over HTTPS and never logged or persisted by the client.  |
 
 Synthetic request example:
 
@@ -2911,16 +2874,16 @@ Relevant errors: 400 The request is malformed.; 404 The requested resource is no
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type   | Required | Purpose                                                                         |
+| -------------- | -------- | ------ | -------- | ------------------------------------------------------------------------------- |
+| `x-csrf-token` | header   | string | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `currentPassword` | string | Yes | Sensitive password value sent only over HTTPS and never logged or persisted by the client. |
-| `newPassword` | string | Yes | Sensitive password value sent only over HTTPS and never logged or persisted by the client. |
+| Field             | Type   | Required | Purpose                                                                                    |
+| ----------------- | ------ | -------- | ------------------------------------------------------------------------------------------ |
+| `currentPassword` | string | Yes      | Sensitive password value sent only over HTTPS and never logged or persisted by the client. |
+| `newPassword`     | string | Yes      | Sensitive password value sent only over HTTPS and never logged or persisted by the client. |
 
 Synthetic request example:
 
@@ -2960,9 +2923,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type   | Required | Purpose                                                                         |
+| -------------- | -------- | ------ | -------- | ------------------------------------------------------------------------------- |
+| `x-csrf-token` | header   | string | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 Success: HTTP 201.
 
@@ -2993,17 +2956,17 @@ Relevant errors: 400 The request is malformed.; 401 Session unavailable, expired
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type   | Required | Purpose                                                                         |
+| -------------- | -------- | ------ | -------- | ------------------------------------------------------------------------------- |
+| `x-csrf-token` | header   | string | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `factorId` | string (uuid) | Yes | Identifier of the factor resource; ownership is resolved server-side. |
-| `code` | string | Yes | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
-| `replaceFactorId` | string (uuid) | No | Identifier of the replace factor resource; ownership is resolved server-side. |
+| Field             | Type          | Required | Purpose                                                                                     |
+| ----------------- | ------------- | -------- | ------------------------------------------------------------------------------------------- |
+| `factorId`        | string (uuid) | Yes      | Identifier of the factor resource; ownership is resolved server-side.                       |
+| `code`            | string        | Yes      | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
+| `replaceFactorId` | string (uuid) | No       | Identifier of the replace factor resource; ownership is resolved server-side.               |
 
 Synthetic request example:
 
@@ -3044,15 +3007,15 @@ Relevant errors: 400 The request is malformed.; 401 Session unavailable, expired
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type   | Required | Purpose                                                                         |
+| -------------- | -------- | ------ | -------- | ------------------------------------------------------------------------------- |
+| `x-csrf-token` | header   | string | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `name` | string | No | Name validated by this operation's strict request contract. |
+| Field  | Type   | Required | Purpose                                                     |
+| ------ | ------ | -------- | ----------------------------------------------------------- |
+| `name` | string | No       | Name validated by this operation's strict request contract. |
 
 Synthetic request example:
 
@@ -3091,16 +3054,16 @@ Relevant errors: 400 The request is malformed.; 401 Session unavailable, expired
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type   | Required | Purpose                                                                         |
+| -------------- | -------- | ------ | -------- | ------------------------------------------------------------------------------- |
+| `x-csrf-token` | header   | string | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `name` | string | No | Name validated by this operation's strict request contract. |
-| `response` | object | Yes | Response validated by this operation's strict request contract. |
+| Field      | Type   | Required | Purpose                                                         |
+| ---------- | ------ | -------- | --------------------------------------------------------------- |
+| `name`     | string | No       | Name validated by this operation's strict request contract.     |
+| `response` | object | Yes      | Response validated by this operation's strict request contract. |
 
 Synthetic request example:
 
@@ -3147,15 +3110,15 @@ Relevant errors: 400 The request is malformed.; 401 Session unavailable, expired
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type   | Required | Purpose                                                                         |
+| -------------- | -------- | ------ | -------- | ------------------------------------------------------------------------------- |
+| `x-csrf-token` | header   | string | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `method` | totp / webauthn / recovery-code | Yes | Method validated by this operation's strict request contract. |
+| Field    | Type                            | Required | Purpose                                                       |
+| -------- | ------------------------------- | -------- | ------------------------------------------------------------- |
+| `method` | totp / webauthn / recovery-code | Yes      | Method validated by this operation's strict request contract. |
 
 Synthetic request example:
 
@@ -3194,9 +3157,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type   | Required | Purpose                                                                         |
+| -------------- | -------- | ------ | -------- | ------------------------------------------------------------------------------- |
+| `x-csrf-token` | header   | string | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 Synthetic request example:
 
@@ -3237,9 +3200,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type   | Required | Purpose                                                                         |
+| -------------- | -------- | ------ | -------- | ------------------------------------------------------------------------------- |
+| `x-csrf-token` | header   | string | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 Success: HTTP 200.
 
@@ -3329,9 +3292,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type   | Required | Purpose                                                                         |
+| -------------- | -------- | ------ | -------- | ------------------------------------------------------------------------------- |
+| `x-csrf-token` | header   | string | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 Success: HTTP 200.
 
@@ -3358,10 +3321,10 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `sessionId` | path | string (uuid) | Yes | Identifier selecting the session resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `sessionId`    | path     | string (uuid) | Yes      | Identifier selecting the session resource.                                      |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 Success: HTTP 200.
 
@@ -3420,16 +3383,16 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `factorId` | path | string (uuid) | Yes | Identifier selecting the factor resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `factorId`     | path     | string (uuid) | Yes      | Identifier selecting the factor resource.                                       |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `password` | string | Yes | Sensitive password value sent only over HTTPS and never logged or persisted by the client. |
+| Field      | Type   | Required | Purpose                                                                                    |
+| ---------- | ------ | -------- | ------------------------------------------------------------------------------------------ |
+| `password` | string | Yes      | Sensitive password value sent only over HTTPS and never logged or persisted by the client. |
 
 Synthetic request example:
 
@@ -3464,16 +3427,16 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type   | Required | Purpose                                                                         |
+| -------------- | -------- | ------ | -------- | ------------------------------------------------------------------------------- |
+| `x-csrf-token` | header   | string | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `token` | string | Yes | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
-| `currentPassword` | string | Yes | Sensitive password value sent only over HTTPS and never logged or persisted by the client. |
+| Field             | Type   | Required | Purpose                                                                                     |
+| ----------------- | ------ | -------- | ------------------------------------------------------------------------------------------- |
+| `token`           | string | Yes      | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
+| `currentPassword` | string | Yes      | Sensitive password value sent only over HTTPS and never logged or persisted by the client.  |
 
 Synthetic request example:
 
@@ -3501,7 +3464,6 @@ Success: HTTP 200.
 ```
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
-
 
 ## Customer API
 
@@ -3568,22 +3530,22 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type   | Required | Purpose                                                                         |
+| -------------- | -------- | ------ | -------- | ------------------------------------------------------------------------------- |
+| `x-csrf-token` | header   | string | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
-| `firstName` | string | No | First Name validated by this operation's strict request contract. |
-| `lastName` | string | No | Last Name validated by this operation's strict request contract. |
-| `phone` | string | No | Customer or business phone number in international format. |
-| `address` | string / null | No | Address validated by this operation's strict request contract. |
-| `city` | string / null | No | City validated by this operation's strict request contract. |
-| `state` | string / null | No | State validated by this operation's strict request contract. |
-| `country` | Nigeria | No | Country validated by this operation's strict request contract. |
+| Field             | Type          | Required | Purpose                                                                |
+| ----------------- | ------------- | -------- | ---------------------------------------------------------------------- |
+| `expectedVersion` | integer       | Yes      | Last server version observed by the client; stale writes are rejected. |
+| `firstName`       | string        | No       | First Name validated by this operation's strict request contract.      |
+| `lastName`        | string        | No       | Last Name validated by this operation's strict request contract.       |
+| `phone`           | string        | No       | Customer or business phone number in international format.             |
+| `address`         | string / null | No       | Address validated by this operation's strict request contract.         |
+| `city`            | string / null | No       | City validated by this operation's strict request contract.            |
+| `state`           | string / null | No       | State validated by this operation's strict request contract.           |
+| `country`         | Nigeria       | No       | Country validated by this operation's strict request contract.         |
 
 Synthetic request example:
 
@@ -3654,11 +3616,11 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `defaultOnly` | query | true / false | No | Default Only used to constrain this request. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+| Parameter     | Location | Type          | Required | Purpose                                                  |
+| ------------- | -------- | ------------- | -------- | -------------------------------------------------------- |
+| `cursor`      | query    | string (uuid) | No       | Opaque cursor returned by the preceding page.            |
+| `defaultOnly` | query    | true / false  | No       | Default Only used to constrain this request.             |
+| `limit`       | query    | integer       | No       | Maximum number of records to return, bounded by the API. |
 
 Success: HTTP 200.
 
@@ -3738,33 +3700,33 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type   | Required | Purpose                                                                         |
+| -------------- | -------- | ------ | -------- | ------------------------------------------------------------------------------- |
+| `x-csrf-token` | header   | string | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `nickname` | string / null | No | Nickname validated by this operation's strict request contract. |
-| `isDefault` | boolean | No | Boolean control for is default; authorization is still enforced server-side. |
-| `vehicleModelId` | string / null | No | Identifier of the vehicle model resource; ownership is resolved server-side. |
-| `trim` | string / null | No | Trim validated by this operation's strict request contract. |
-| `engineCode` | string / null | No | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
-| `market` | string / null | No | Market validated by this operation's strict request contract. |
-| `brakeSystem` | string / null | No | Brake System validated by this operation's strict request contract. |
-| `brakeDiameterMm` | string / null | No | Brake Diameter Mm validated by this operation's strict request contract. |
-| `bodyType` | string / null | No | Body Type validated by this operation's strict request contract. |
-| `transmission` | string / null | No | Transmission validated by this operation's strict request contract. |
-| `generation` | string / null | No | Generation validated by this operation's strict request contract. |
-| `chassisCode` | string / null | No | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
-| `make` | string | Yes | Make validated by this operation's strict request contract. |
-| `model` | string | Yes | Model validated by this operation's strict request contract. |
-| `year` | integer | Yes | Year validated by this operation's strict request contract. |
-| `registrationNumber` | string / null | No | Registration Number validated by this operation's strict request contract. |
-| `vin` | string / null | No | Vin validated by this operation's strict request contract. |
-| `color` | string / null | No | Color validated by this operation's strict request contract. |
-| `mileageKm` | integer / null | No | Mileage Km validated by this operation's strict request contract. |
+| Field                | Type           | Required | Purpose                                                                                     |
+| -------------------- | -------------- | -------- | ------------------------------------------------------------------------------------------- |
+| `nickname`           | string / null  | No       | Nickname validated by this operation's strict request contract.                             |
+| `isDefault`          | boolean        | No       | Boolean control for is default; authorization is still enforced server-side.                |
+| `vehicleModelId`     | string / null  | No       | Identifier of the vehicle model resource; ownership is resolved server-side.                |
+| `trim`               | string / null  | No       | Trim validated by this operation's strict request contract.                                 |
+| `engineCode`         | string / null  | No       | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
+| `market`             | string / null  | No       | Market validated by this operation's strict request contract.                               |
+| `brakeSystem`        | string / null  | No       | Brake System validated by this operation's strict request contract.                         |
+| `brakeDiameterMm`    | string / null  | No       | Brake Diameter Mm validated by this operation's strict request contract.                    |
+| `bodyType`           | string / null  | No       | Body Type validated by this operation's strict request contract.                            |
+| `transmission`       | string / null  | No       | Transmission validated by this operation's strict request contract.                         |
+| `generation`         | string / null  | No       | Generation validated by this operation's strict request contract.                           |
+| `chassisCode`        | string / null  | No       | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
+| `make`               | string         | Yes      | Make validated by this operation's strict request contract.                                 |
+| `model`              | string         | Yes      | Model validated by this operation's strict request contract.                                |
+| `year`               | integer        | Yes      | Year validated by this operation's strict request contract.                                 |
+| `registrationNumber` | string / null  | No       | Registration Number validated by this operation's strict request contract.                  |
+| `vin`                | string / null  | No       | Vin validated by this operation's strict request contract.                                  |
+| `color`              | string / null  | No       | Color validated by this operation's strict request contract.                                |
+| `mileageKm`          | integer / null | No       | Mileage Km validated by this operation's strict request contract.                           |
 
 Synthetic request example:
 
@@ -3838,9 +3800,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `vehicleId` | path | string (uuid) | Yes | Identifier selecting the vehicle resource. |
+| Parameter   | Location | Type          | Required | Purpose                                    |
+| ----------- | -------- | ------------- | -------- | ------------------------------------------ |
+| `vehicleId` | path     | string (uuid) | Yes      | Identifier selecting the vehicle resource. |
 
 Success: HTTP 200.
 
@@ -3916,35 +3878,35 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `vehicleId` | path | string (uuid) | Yes | Identifier selecting the vehicle resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `vehicleId`    | path     | string (uuid) | Yes      | Identifier selecting the vehicle resource.                                      |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `nickname` | string / null | No | Nickname validated by this operation's strict request contract. |
-| `isDefault` | boolean | No | Boolean control for is default; authorization is still enforced server-side. |
-| `vehicleModelId` | string / null | No | Identifier of the vehicle model resource; ownership is resolved server-side. |
-| `trim` | string / null | No | Trim validated by this operation's strict request contract. |
-| `engineCode` | string / null | No | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
-| `market` | string / null | No | Market validated by this operation's strict request contract. |
-| `brakeSystem` | string / null | No | Brake System validated by this operation's strict request contract. |
-| `brakeDiameterMm` | string / null | No | Brake Diameter Mm validated by this operation's strict request contract. |
-| `bodyType` | string / null | No | Body Type validated by this operation's strict request contract. |
-| `transmission` | string / null | No | Transmission validated by this operation's strict request contract. |
-| `generation` | string / null | No | Generation validated by this operation's strict request contract. |
-| `chassisCode` | string / null | No | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
-| `expectedUpdatedAt` | string (date-time) | No | ISO 8601 timestamp interpreted and validated by the server. |
-| `make` | string | No | Make validated by this operation's strict request contract. |
-| `model` | string | No | Model validated by this operation's strict request contract. |
-| `year` | integer | No | Year validated by this operation's strict request contract. |
-| `registrationNumber` | string / null | No | Registration Number validated by this operation's strict request contract. |
-| `vin` | string / null | No | Vin validated by this operation's strict request contract. |
-| `color` | string / null | No | Color validated by this operation's strict request contract. |
-| `mileageKm` | integer / null | No | Mileage Km validated by this operation's strict request contract. |
+| Field                | Type               | Required | Purpose                                                                                     |
+| -------------------- | ------------------ | -------- | ------------------------------------------------------------------------------------------- |
+| `nickname`           | string / null      | No       | Nickname validated by this operation's strict request contract.                             |
+| `isDefault`          | boolean            | No       | Boolean control for is default; authorization is still enforced server-side.                |
+| `vehicleModelId`     | string / null      | No       | Identifier of the vehicle model resource; ownership is resolved server-side.                |
+| `trim`               | string / null      | No       | Trim validated by this operation's strict request contract.                                 |
+| `engineCode`         | string / null      | No       | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
+| `market`             | string / null      | No       | Market validated by this operation's strict request contract.                               |
+| `brakeSystem`        | string / null      | No       | Brake System validated by this operation's strict request contract.                         |
+| `brakeDiameterMm`    | string / null      | No       | Brake Diameter Mm validated by this operation's strict request contract.                    |
+| `bodyType`           | string / null      | No       | Body Type validated by this operation's strict request contract.                            |
+| `transmission`       | string / null      | No       | Transmission validated by this operation's strict request contract.                         |
+| `generation`         | string / null      | No       | Generation validated by this operation's strict request contract.                           |
+| `chassisCode`        | string / null      | No       | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
+| `expectedUpdatedAt`  | string (date-time) | No       | ISO 8601 timestamp interpreted and validated by the server.                                 |
+| `make`               | string             | No       | Make validated by this operation's strict request contract.                                 |
+| `model`              | string             | No       | Model validated by this operation's strict request contract.                                |
+| `year`               | integer            | No       | Year validated by this operation's strict request contract.                                 |
+| `registrationNumber` | string / null      | No       | Registration Number validated by this operation's strict request contract.                  |
+| `vin`                | string / null      | No       | Vin validated by this operation's strict request contract.                                  |
+| `color`              | string / null      | No       | Color validated by this operation's strict request contract.                                |
+| `mileageKm`          | integer / null     | No       | Mileage Km validated by this operation's strict request contract.                           |
 
 Synthetic request example:
 
@@ -4014,10 +3976,10 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `vehicleId` | path | string (uuid) | Yes | Identifier selecting the vehicle resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `vehicleId`    | path     | string (uuid) | Yes      | Identifier selecting the vehicle resource.                                      |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 Success: HTTP 200.
 
@@ -4044,17 +4006,17 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type   | Required | Purpose                                                                         |
+| -------------- | -------- | ------ | -------- | ------------------------------------------------------------------------------- |
+| `x-csrf-token` | header   | string | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `mimeType` | image/jpeg / image/png / image/webp | Yes | Mime Type validated by this operation's strict request contract. |
-| `sizeBytes` | integer | Yes | Size Bytes validated by this operation's strict request contract. |
-| `checksumSha256` | string | Yes | Checksum Sha256 validated by this operation's strict request contract. |
+| Field            | Type                                | Required | Purpose                                                                |
+| ---------------- | ----------------------------------- | -------- | ---------------------------------------------------------------------- |
+| `mimeType`       | image/jpeg / image/png / image/webp | Yes      | Mime Type validated by this operation's strict request contract.       |
+| `sizeBytes`      | integer                             | Yes      | Size Bytes validated by this operation's strict request contract.      |
+| `checksumSha256` | string                              | Yes      | Checksum Sha256 validated by this operation's strict request contract. |
 
 Synthetic request example:
 
@@ -4105,17 +4067,17 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type   | Required | Purpose                                                                         |
+| -------------- | -------- | ------ | -------- | ------------------------------------------------------------------------------- |
+| `x-csrf-token` | header   | string | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
-| `assetToken` | string | Yes | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
-| `altText` | string / null | No | Alt Text validated by this operation's strict request contract. |
+| Field             | Type          | Required | Purpose                                                                                     |
+| ----------------- | ------------- | -------- | ------------------------------------------------------------------------------------------- |
+| `expectedVersion` | integer       | Yes      | Last server version observed by the client; stale writes are rejected.                      |
+| `assetToken`      | string        | Yes      | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
+| `altText`         | string / null | No       | Alt Text validated by this operation's strict request contract.                             |
 
 Synthetic request example:
 
@@ -4166,15 +4128,15 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type   | Required | Purpose                                                                         |
+| -------------- | -------- | ------ | -------- | ------------------------------------------------------------------------------- |
+| `x-csrf-token` | header   | string | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+| Field             | Type    | Required | Purpose                                                                |
+| ----------------- | ------- | -------- | ---------------------------------------------------------------------- |
+| `expectedVersion` | integer | Yes      | Last server version observed by the client; stale writes are rejected. |
 
 Synthetic request example:
 
@@ -4223,9 +4185,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `imageId` | path | string (uuid) | Yes | Identifier selecting the image resource. |
+| Parameter | Location | Type          | Required | Purpose                                  |
+| --------- | -------- | ------------- | -------- | ---------------------------------------- |
+| `imageId` | path     | string (uuid) | Yes      | Identifier selecting the image resource. |
 
 Success: HTTP 200.
 Binary image/webp bytes (no JSON envelope).
@@ -4243,18 +4205,18 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `vehicleId` | path | string (uuid) | Yes | Identifier selecting the vehicle resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `vehicleId`    | path     | string (uuid) | Yes      | Identifier selecting the vehicle resource.                                      |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `mimeType` | image/jpeg / image/png / image/webp | Yes | Mime Type validated by this operation's strict request contract. |
-| `sizeBytes` | integer | Yes | Size Bytes validated by this operation's strict request contract. |
-| `checksumSha256` | string | Yes | Checksum Sha256 validated by this operation's strict request contract. |
+| Field            | Type                                | Required | Purpose                                                                |
+| ---------------- | ----------------------------------- | -------- | ---------------------------------------------------------------------- |
+| `mimeType`       | image/jpeg / image/png / image/webp | Yes      | Mime Type validated by this operation's strict request contract.       |
+| `sizeBytes`      | integer                             | Yes      | Size Bytes validated by this operation's strict request contract.      |
+| `checksumSha256` | string                              | Yes      | Checksum Sha256 validated by this operation's strict request contract. |
 
 Synthetic request example:
 
@@ -4305,20 +4267,20 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `vehicleId` | path | string (uuid) | Yes | Identifier selecting the vehicle resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `vehicleId`    | path     | string (uuid) | Yes      | Identifier selecting the vehicle resource.                                      |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
-| `assetToken` | string | Yes | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
-| `altText` | string / null | No | Alt Text validated by this operation's strict request contract. |
-| `sortOrder` | integer | No | Sort Order validated by this operation's strict request contract. |
-| `isPrimary` | boolean | No | Boolean control for is primary; authorization is still enforced server-side. |
+| Field             | Type          | Required | Purpose                                                                                     |
+| ----------------- | ------------- | -------- | ------------------------------------------------------------------------------------------- |
+| `expectedVersion` | integer       | Yes      | Last server version observed by the client; stale writes are rejected.                      |
+| `assetToken`      | string        | Yes      | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
+| `altText`         | string / null | No       | Alt Text validated by this operation's strict request contract.                             |
+| `sortOrder`       | integer       | No       | Sort Order validated by this operation's strict request contract.                           |
+| `isPrimary`       | boolean       | No       | Boolean control for is primary; authorization is still enforced server-side.                |
 
 Synthetic request example:
 
@@ -4371,20 +4333,20 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `vehicleId` | path | string (uuid) | Yes | Identifier selecting the vehicle resource. |
-| `imageId` | path | string (uuid) | Yes | Identifier selecting the image resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `vehicleId`    | path     | string (uuid) | Yes      | Identifier selecting the vehicle resource.                                      |
+| `imageId`      | path     | string (uuid) | Yes      | Identifier selecting the image resource.                                        |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
-| `altText` | string / null | No | Alt Text validated by this operation's strict request contract. |
-| `sortOrder` | integer | No | Sort Order validated by this operation's strict request contract. |
-| `isPrimary` | true | No | Boolean control for is primary; authorization is still enforced server-side. |
+| Field             | Type          | Required | Purpose                                                                      |
+| ----------------- | ------------- | -------- | ---------------------------------------------------------------------------- |
+| `expectedVersion` | integer       | Yes      | Last server version observed by the client; stale writes are rejected.       |
+| `altText`         | string / null | No       | Alt Text validated by this operation's strict request contract.              |
+| `sortOrder`       | integer       | No       | Sort Order validated by this operation's strict request contract.            |
+| `isPrimary`       | true          | No       | Boolean control for is primary; authorization is still enforced server-side. |
 
 Synthetic request example:
 
@@ -4436,17 +4398,17 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `vehicleId` | path | string (uuid) | Yes | Identifier selecting the vehicle resource. |
-| `imageId` | path | string (uuid) | Yes | Identifier selecting the image resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `vehicleId`    | path     | string (uuid) | Yes      | Identifier selecting the vehicle resource.                                      |
+| `imageId`      | path     | string (uuid) | Yes      | Identifier selecting the image resource.                                        |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+| Field             | Type    | Required | Purpose                                                                |
+| ----------------- | ------- | -------- | ---------------------------------------------------------------------- |
+| `expectedVersion` | integer | Yes      | Last server version observed by the client; stale writes are rejected. |
 
 Synthetic request example:
 
@@ -4495,10 +4457,10 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+| Parameter | Location | Type          | Required | Purpose                                                  |
+| --------- | -------- | ------------- | -------- | -------------------------------------------------------- |
+| `cursor`  | query    | string (uuid) | No       | Opaque cursor returned by the preceding page.            |
+| `limit`   | query    | integer       | No       | Maximum number of records to return, bounded by the API. |
 
 Success: HTTP 200.
 
@@ -4534,10 +4496,10 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `productId` | path | string (uuid) | Yes | Identifier selecting the product resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `productId`    | path     | string (uuid) | Yes      | Identifier selecting the product resource.                                      |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 Success: HTTP 200.
 
@@ -4568,10 +4530,10 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `productId` | path | string (uuid) | Yes | Identifier selecting the product resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `productId`    | path     | string (uuid) | Yes      | Identifier selecting the product resource.                                      |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 Success: HTTP 200.
 
@@ -4625,15 +4587,15 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type   | Required | Purpose                                                                         |
+| -------------- | -------- | ------ | -------- | ------------------------------------------------------------------------------- |
+| `x-csrf-token` | header   | string | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `expectedItems` | array<object> | Yes | Expected Items validated by this operation's strict request contract. |
+| Field           | Type          | Required | Purpose                                                               |
+| --------------- | ------------- | -------- | --------------------------------------------------------------------- |
+| `expectedItems` | array<object> | Yes      | Expected Items validated by this operation's strict request contract. |
 
 Synthetic request example:
 
@@ -4675,16 +4637,16 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `productId` | path | string (uuid) | Yes | Identifier selecting the product resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `productId`    | path     | string (uuid) | Yes      | Identifier selecting the product resource.                                      |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `quantity` | integer | Yes | Quantity validated by this operation's strict request contract. |
+| Field      | Type    | Required | Purpose                                                         |
+| ---------- | ------- | -------- | --------------------------------------------------------------- |
+| `quantity` | integer | Yes      | Quantity validated by this operation's strict request contract. |
 
 Synthetic request example:
 
@@ -4723,10 +4685,10 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `productId` | path | string (uuid) | Yes | Identifier selecting the product resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `productId`    | path     | string (uuid) | Yes      | Identifier selecting the product resource.                                      |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 Success: HTTP 200.
 
@@ -4753,11 +4715,11 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `bookingId` | path | string (uuid) | Yes | Identifier selecting the booking resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
-| `idempotency-key` | header | string | Yes | Unique retry key for this logical mutation. Reuse it only with the identical request. |
+| Parameter         | Location | Type          | Required | Purpose                                                                               |
+| ----------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------------- |
+| `bookingId`       | path     | string (uuid) | Yes      | Identifier selecting the booking resource.                                            |
+| `x-csrf-token`    | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.       |
+| `idempotency-key` | header   | string        | Yes      | Unique retry key for this logical mutation. Reuse it only with the identical request. |
 
 Synthetic request example:
 
@@ -4798,11 +4760,11 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-| `status` | query | REQUESTED / AWAITING_DEPOSIT / CONFIRMED / IN_PROGRESS / COMPLETED / CANCELLED / NO_SHOW / EXPIRED | No | Status used to constrain this request. |
+| Parameter | Location | Type                                                                                               | Required | Purpose                                                  |
+| --------- | -------- | -------------------------------------------------------------------------------------------------- | -------- | -------------------------------------------------------- |
+| `cursor`  | query    | string (uuid)                                                                                      | No       | Opaque cursor returned by the preceding page.            |
+| `limit`   | query    | integer                                                                                            | No       | Maximum number of records to return, bounded by the API. |
+| `status`  | query    | REQUESTED / AWAITING_DEPOSIT / CONFIRMED / IN_PROGRESS / COMPLETED / CANCELLED / NO_SHOW / EXPIRED | No       | Status used to constrain this request.                   |
 
 Success: HTTP 200.
 
@@ -4838,20 +4800,20 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
-| `idempotency-key` | header | string | Yes | Unique retry key for this logical mutation. Reuse it only with the identical request. |
+| Parameter         | Location | Type   | Required | Purpose                                                                               |
+| ----------------- | -------- | ------ | -------- | ------------------------------------------------------------------------------------- |
+| `x-csrf-token`    | header   | string | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.       |
+| `idempotency-key` | header   | string | Yes      | Unique retry key for this logical mutation. Reuse it only with the identical request. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `slotId` | string (uuid) | Yes | Identifier of the slot resource; ownership is resolved server-side. |
-| `vehicleId` | string (uuid) | No | Identifier of the vehicle resource; ownership is resolved server-side. |
-| `customerNotes` | string / null | No | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
-| `policyVersion` | string | Yes | Policy Version validated by this operation's strict request contract. |
-| `acceptNonRefundableDeposit` | boolean | No | Deprecated compatibility field; new bookings require no deposit and cancellation is free. |
+| Field                        | Type          | Required | Purpose                                                                                   |
+| ---------------------------- | ------------- | -------- | ----------------------------------------------------------------------------------------- |
+| `slotId`                     | string (uuid) | Yes      | Identifier of the slot resource; ownership is resolved server-side.                       |
+| `vehicleId`                  | string (uuid) | No       | Identifier of the vehicle resource; ownership is resolved server-side.                    |
+| `customerNotes`              | string / null | No       | Plain-text business context; HTML is not accepted or rendered as trusted markup.          |
+| `policyVersion`              | string        | Yes      | Policy Version validated by this operation's strict request contract.                     |
+| `acceptNonRefundableDeposit` | boolean       | No       | Deprecated compatibility field; new bookings require no deposit and cancellation is free. |
 
 Synthetic request example:
 
@@ -4894,9 +4856,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `bookingId` | path | string (uuid) | Yes | Identifier selecting the booking resource. |
+| Parameter   | Location | Type          | Required | Purpose                                    |
+| ----------- | -------- | ------------- | -------- | ------------------------------------------ |
+| `bookingId` | path     | string (uuid) | Yes      | Identifier selecting the booking resource. |
 
 Success: HTTP 200.
 
@@ -4927,18 +4889,18 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `bookingId` | path | string (uuid) | Yes | Identifier selecting the booking resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
-| `idempotency-key` | header | string | Yes | Unique retry key for this logical mutation. Reuse it only with the identical request. |
+| Parameter         | Location | Type          | Required | Purpose                                                                               |
+| ----------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------------- |
+| `bookingId`       | path     | string (uuid) | Yes      | Identifier selecting the booking resource.                                            |
+| `x-csrf-token`    | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.       |
+| `idempotency-key` | header   | string        | Yes      | Unique retry key for this logical mutation. Reuse it only with the identical request. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `slotId` | string (uuid) | Yes | Identifier of the slot resource; ownership is resolved server-side. |
-| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+| Field             | Type          | Required | Purpose                                                                |
+| ----------------- | ------------- | -------- | ---------------------------------------------------------------------- |
+| `slotId`          | string (uuid) | Yes      | Identifier of the slot resource; ownership is resolved server-side.    |
+| `expectedVersion` | integer       | Yes      | Last server version observed by the client; stale writes are rejected. |
 
 Synthetic request example:
 
@@ -4978,17 +4940,17 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `bookingId` | path | string (uuid) | Yes | Identifier selecting the booking resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `bookingId`    | path     | string (uuid) | Yes      | Identifier selecting the booking resource.                                      |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `reason` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
-| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+| Field             | Type    | Required | Purpose                                                                          |
+| ----------------- | ------- | -------- | -------------------------------------------------------------------------------- |
+| `reason`          | string  | Yes      | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| `expectedVersion` | integer | Yes      | Last server version observed by the client; stale writes are rejected.           |
 
 Synthetic request example:
 
@@ -5028,17 +4990,17 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `bookingId` | path | string (uuid) | Yes | Identifier selecting the booking resource. |
-| `quoteId` | path | string (uuid) | Yes | Identifier selecting the quote resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `bookingId`    | path     | string (uuid) | Yes      | Identifier selecting the booking resource.                                      |
+| `quoteId`      | path     | string (uuid) | Yes      | Identifier selecting the quote resource.                                        |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `expectedRevision` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+| Field              | Type    | Required | Purpose                                                                |
+| ------------------ | ------- | -------- | ---------------------------------------------------------------------- |
+| `expectedRevision` | integer | Yes      | Last server version observed by the client; stale writes are rejected. |
 
 Synthetic request example:
 
@@ -5077,17 +5039,17 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `bookingId` | path | string (uuid) | Yes | Identifier selecting the booking resource. |
-| `quoteId` | path | string (uuid) | Yes | Identifier selecting the quote resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `bookingId`    | path     | string (uuid) | Yes      | Identifier selecting the booking resource.                                      |
+| `quoteId`      | path     | string (uuid) | Yes      | Identifier selecting the quote resource.                                        |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `expectedRevision` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+| Field              | Type    | Required | Purpose                                                                |
+| ------------------ | ------- | -------- | ---------------------------------------------------------------------- |
+| `expectedRevision` | integer | Yes      | Last server version observed by the client; stale writes are rejected. |
 
 Synthetic request example:
 
@@ -5126,18 +5088,18 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
-| `idempotency-key` | header | string | Yes | Unique retry key for this logical mutation. Reuse it only with the identical request. |
+| Parameter         | Location | Type   | Required | Purpose                                                                               |
+| ----------------- | -------- | ------ | -------- | ------------------------------------------------------------------------------------- |
+| `x-csrf-token`    | header   | string | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.       |
+| `idempotency-key` | header   | string | Yes      | Unique retry key for this logical mutation. Reuse it only with the identical request. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `branchId` | string (uuid) | Yes | Identifier of the branch resource; ownership is resolved server-side. |
-| `fulfillmentMethod` | COLLECTION | No | Fulfillment Method validated by this operation's strict request contract. |
-| `promotionCode` | string | No | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
+| Field               | Type          | Required | Purpose                                                                                     |
+| ------------------- | ------------- | -------- | ------------------------------------------------------------------------------------------- |
+| `branchId`          | string (uuid) | Yes      | Identifier of the branch resource; ownership is resolved server-side.                       |
+| `fulfillmentMethod` | COLLECTION    | No       | Fulfillment Method validated by this operation's strict request contract.                   |
+| `promotionCode`     | string        | No       | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
 
 Synthetic request example:
 
@@ -5178,11 +5140,11 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-| `status` | query | PENDING / CONFIRMED / PROCESSING / READY / COMPLETED / CANCELLED | No | Status used to constrain this request. |
+| Parameter | Location | Type                                                             | Required | Purpose                                                  |
+| --------- | -------- | ---------------------------------------------------------------- | -------- | -------------------------------------------------------- |
+| `cursor`  | query    | string (uuid)                                                    | No       | Opaque cursor returned by the preceding page.            |
+| `limit`   | query    | integer                                                          | No       | Maximum number of records to return, bounded by the API. |
+| `status`  | query    | PENDING / CONFIRMED / PROCESSING / READY / COMPLETED / CANCELLED | No       | Status used to constrain this request.                   |
 
 Success: HTTP 200.
 
@@ -5218,9 +5180,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `orderId` | path | string (uuid) | Yes | Identifier selecting the order resource. |
+| Parameter | Location | Type          | Required | Purpose                                  |
+| --------- | -------- | ------------- | -------- | ---------------------------------------- |
+| `orderId` | path     | string (uuid) | Yes      | Identifier selecting the order resource. |
 
 Success: HTTP 200.
 
@@ -5251,17 +5213,17 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `orderId` | path | string (uuid) | Yes | Identifier selecting the order resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `orderId`      | path     | string (uuid) | Yes      | Identifier selecting the order resource.                                        |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
-| `reason` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| Field             | Type    | Required | Purpose                                                                          |
+| ----------------- | ------- | -------- | -------------------------------------------------------------------------------- |
+| `expectedVersion` | integer | Yes      | Last server version observed by the client; stale writes are rejected.           |
+| `reason`          | string  | Yes      | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
 
 Synthetic request example:
 
@@ -5301,16 +5263,16 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type   | Required | Purpose                                                                         |
+| -------------- | -------- | ------ | -------- | ------------------------------------------------------------------------------- |
+| `x-csrf-token` | header   | string | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `code` | string | Yes | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
-| `subtotalKobo` | string | Yes | Subtotal Kobo validated by this operation's strict request contract. |
+| Field          | Type   | Required | Purpose                                                                                     |
+| -------------- | ------ | -------- | ------------------------------------------------------------------------------------------- |
+| `code`         | string | Yes      | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
+| `subtotalKobo` | string | Yes      | Subtotal Kobo validated by this operation's strict request contract.                        |
 
 Synthetic request example:
 
@@ -5350,9 +5312,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `invoiceId` | path | string (uuid) | Yes | Identifier selecting the invoice resource. |
+| Parameter   | Location | Type          | Required | Purpose                                    |
+| ----------- | -------- | ------------- | -------- | ------------------------------------------ |
+| `invoiceId` | path     | string (uuid) | Yes      | Identifier selecting the invoice resource. |
 
 Success: HTTP 200.
 
@@ -5439,9 +5401,9 @@ Relevant errors: 400 The request is malformed.; 401 Authentication required; 403
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `invoiceId` | path | string (uuid) | Yes | Identifier selecting the invoice resource. |
+| Parameter   | Location | Type          | Required | Purpose                                    |
+| ----------- | -------- | ------------- | -------- | ------------------------------------------ |
+| `invoiceId` | path     | string (uuid) | Yes      | Identifier selecting the invoice resource. |
 
 Success: HTTP 200.
 Binary application/pdf bytes (no JSON envelope).
@@ -5459,9 +5421,9 @@ Relevant errors: 400 The request is malformed.; 401 Authentication required; 403
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `paymentId` | path | string (uuid) | Yes | Identifier selecting the payment resource. |
+| Parameter   | Location | Type          | Required | Purpose                                    |
+| ----------- | -------- | ------------- | -------- | ------------------------------------------ |
+| `paymentId` | path     | string (uuid) | Yes      | Identifier selecting the payment resource. |
 
 Success: HTTP 200.
 
@@ -5509,9 +5471,9 @@ Relevant errors: 400 The request is malformed.; 401 Authentication required; 403
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `paymentId` | path | string (uuid) | Yes | Identifier selecting the payment resource. |
+| Parameter   | Location | Type          | Required | Purpose                                    |
+| ----------- | -------- | ------------- | -------- | ------------------------------------------ |
+| `paymentId` | path     | string (uuid) | Yes      | Identifier selecting the payment resource. |
 
 Success: HTTP 200.
 Binary application/pdf bytes (no JSON envelope).
@@ -5529,11 +5491,11 @@ Relevant errors: 400 The request is malformed.; 401 Authentication required; 403
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-| `status` | query | ISSUED / PAID / VOID | No | Status used to constrain this request. |
+| Parameter | Location | Type                 | Required | Purpose                                                  |
+| --------- | -------- | -------------------- | -------- | -------------------------------------------------------- |
+| `cursor`  | query    | string (uuid)        | No       | Opaque cursor returned by the preceding page.            |
+| `limit`   | query    | integer              | No       | Maximum number of records to return, bounded by the API. |
+| `status`  | query    | ISSUED / PAID / VOID | No       | Status used to constrain this request.                   |
 
 Success: HTTP 200.
 
@@ -5569,9 +5531,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `invoiceId` | path | string (uuid) | Yes | Identifier selecting the invoice resource. |
+| Parameter   | Location | Type          | Required | Purpose                                    |
+| ----------- | -------- | ------------- | -------- | ------------------------------------------ |
+| `invoiceId` | path     | string (uuid) | Yes      | Identifier selecting the invoice resource. |
 
 Success: HTTP 200.
 
@@ -5634,10 +5596,10 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `cursor` | query | string | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | string | No | Maximum number of records to return, bounded by the API. |
+| Parameter | Location | Type   | Required | Purpose                                                  |
+| --------- | -------- | ------ | -------- | -------------------------------------------------------- |
+| `cursor`  | query    | string | No       | Opaque cursor returned by the preceding page.            |
+| `limit`   | query    | string | No       | Maximum number of records to return, bounded by the API. |
 
 Success: HTTP 200.
 
@@ -5731,10 +5693,10 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `listingId` | path | string (uuid) | Yes | Identifier selecting the listing resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `listingId`    | path     | string (uuid) | Yes      | Identifier selecting the listing resource.                                      |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 Success: HTTP 200.
 
@@ -5765,10 +5727,10 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `listingId` | path | string (uuid) | Yes | Identifier selecting the listing resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `listingId`    | path     | string (uuid) | Yes      | Identifier selecting the listing resource.                                      |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 Success: HTTP 200.
 
@@ -5795,11 +5757,11 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-| `status` | query | REQUESTED / CONFIRMED / COMPLETED / RESCHEDULED / CANCELLED / NO_SHOW | No | Status used to constrain this request. |
+| Parameter | Location | Type                                                                  | Required | Purpose                                                  |
+| --------- | -------- | --------------------------------------------------------------------- | -------- | -------------------------------------------------------- |
+| `cursor`  | query    | string (uuid)                                                         | No       | Opaque cursor returned by the preceding page.            |
+| `limit`   | query    | integer                                                               | No       | Maximum number of records to return, bounded by the API. |
+| `status`  | query    | REQUESTED / CONFIRMED / COMPLETED / RESCHEDULED / CANCELLED / NO_SHOW | No       | Status used to constrain this request.                   |
 
 Success: HTTP 200.
 
@@ -5835,19 +5797,19 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
-| `idempotency-key` | header | string | No | Optional for compatibility. Use a random key for each new intent and reuse it with the same validated body for retries. Keys are scoped to the authenticated customer and operation and retained for at least 24 hours. A retained matching key returns the original record with its current authorized state (201); changed input returns 409 IDEMPOTENCY_CONFLICT. No retry guarantee after retention or without a key. Check account history before submitting again after expiry. |
+| Parameter         | Location | Type   | Required | Purpose                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| ----------------- | -------- | ------ | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `x-csrf-token`    | header   | string | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `idempotency-key` | header   | string | No       | Optional for compatibility. Use a random key for each new intent and reuse it with the same validated body for retries. Keys are scoped to the authenticated customer and operation and retained for at least 24 hours. A retained matching key returns the original record with its current authorized state (201); changed input returns 409 IDEMPOTENCY_CONFLICT. No retry guarantee after retention or without a key. Check account history before submitting again after expiry. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `vehicleListingId` | string (uuid) | Yes | Identifier of the vehicle listing resource; ownership is resolved server-side. |
-| `preferredStartAt` | string (date-time) | Yes | ISO 8601 timestamp interpreted and validated by the server. |
-| `preferredEndAt` | string (date-time) | No | ISO 8601 timestamp interpreted and validated by the server. |
-| `notes` | string | No | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| Field              | Type               | Required | Purpose                                                                          |
+| ------------------ | ------------------ | -------- | -------------------------------------------------------------------------------- |
+| `vehicleListingId` | string (uuid)      | Yes      | Identifier of the vehicle listing resource; ownership is resolved server-side.   |
+| `preferredStartAt` | string (date-time) | Yes      | ISO 8601 timestamp interpreted and validated by the server.                      |
+| `preferredEndAt`   | string (date-time) | No       | ISO 8601 timestamp interpreted and validated by the server.                      |
+| `notes`            | string             | No       | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
 
 Synthetic request example:
 
@@ -5889,11 +5851,11 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-| `status` | query | ENQUIRY / INSPECTION_SCHEDULED / INSPECTION_COMPLETED / NEGOTIATING / PAYMENT_PENDING / RESERVED / PARTIALLY_PAID / PAID / HANDOVER_PENDING / COMPLETED / CANCELLED / EXPIRED | No | Status used to constrain this request. |
+| Parameter | Location | Type                                                                                                                                                                          | Required | Purpose                                                  |
+| --------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | -------------------------------------------------------- |
+| `cursor`  | query    | string (uuid)                                                                                                                                                                 | No       | Opaque cursor returned by the preceding page.            |
+| `limit`   | query    | integer                                                                                                                                                                       | No       | Maximum number of records to return, bounded by the API. |
+| `status`  | query    | ENQUIRY / INSPECTION_SCHEDULED / INSPECTION_COMPLETED / NEGOTIATING / PAYMENT_PENDING / RESERVED / PARTIALLY_PAID / PAID / HANDOVER_PENDING / COMPLETED / CANCELLED / EXPIRED | No       | Status used to constrain this request.                   |
 
 Success: HTTP 200.
 
@@ -5929,17 +5891,17 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
-| `idempotency-key` | header | string | No | Optional for compatibility. Use a random key for each new intent and reuse it with the same validated body for retries. Keys are scoped to the authenticated customer and operation and retained for at least 24 hours. A retained matching key returns the original record with its current authorized state (201); changed input returns 409 IDEMPOTENCY_CONFLICT. No retry guarantee after retention or without a key. Check account history before submitting again after expiry. |
+| Parameter         | Location | Type   | Required | Purpose                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| ----------------- | -------- | ------ | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `x-csrf-token`    | header   | string | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `idempotency-key` | header   | string | No       | Optional for compatibility. Use a random key for each new intent and reuse it with the same validated body for retries. Keys are scoped to the authenticated customer and operation and retained for at least 24 hours. A retained matching key returns the original record with its current authorized state (201); changed input returns 409 IDEMPOTENCY_CONFLICT. No retry guarantee after retention or without a key. Check account history before submitting again after expiry. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `vehicleListingId` | string (uuid) | Yes | Identifier of the vehicle listing resource; ownership is resolved server-side. |
-| `sourceInspectionId` | string (uuid) | No | Identifier of the source inspection resource; ownership is resolved server-side. |
+| Field                | Type          | Required | Purpose                                                                          |
+| -------------------- | ------------- | -------- | -------------------------------------------------------------------------------- |
+| `vehicleListingId`   | string (uuid) | Yes      | Identifier of the vehicle listing resource; ownership is resolved server-side.   |
+| `sourceInspectionId` | string (uuid) | No       | Identifier of the source inspection resource; ownership is resolved server-side. |
 
 Synthetic request example:
 
@@ -5979,9 +5941,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `transactionId` | path | string (uuid) | Yes | Identifier selecting the transaction resource. |
+| Parameter       | Location | Type          | Required | Purpose                                        |
+| --------------- | -------- | ------------- | -------- | ---------------------------------------------- |
+| `transactionId` | path     | string (uuid) | Yes      | Identifier selecting the transaction resource. |
 
 Success: HTTP 200.
 
@@ -6012,19 +5974,19 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `transactionId` | path | string (uuid) | Yes | Identifier selecting the transaction resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
-| `idempotency-key` | header | string | Yes | Unique retry key for this logical mutation. Reuse it only with the identical request. |
+| Parameter         | Location | Type          | Required | Purpose                                                                               |
+| ----------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------------- |
+| `transactionId`   | path     | string (uuid) | Yes      | Identifier selecting the transaction resource.                                        |
+| `x-csrf-token`    | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.       |
+| `idempotency-key` | header   | string        | Yes      | Unique retry key for this logical mutation. Reuse it only with the identical request. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
-| `termsVersion` | string | Yes | Terms Version validated by this operation's strict request contract. |
-| `termsAccepted` | true | Yes | Terms Accepted validated by this operation's strict request contract. |
+| Field             | Type    | Required | Purpose                                                                |
+| ----------------- | ------- | -------- | ---------------------------------------------------------------------- |
+| `expectedVersion` | integer | Yes      | Last server version observed by the client; stale writes are rejected. |
+| `termsVersion`    | string  | Yes      | Terms Version validated by this operation's strict request contract.   |
+| `termsAccepted`   | true    | Yes      | Terms Accepted validated by this operation's strict request contract.  |
 
 Synthetic request example:
 
@@ -6065,9 +6027,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `transactionId` | path | string (uuid) | Yes | Identifier selecting the transaction resource. |
+| Parameter       | Location | Type          | Required | Purpose                                        |
+| --------------- | -------- | ------------- | -------- | ---------------------------------------------- |
+| `transactionId` | path     | string (uuid) | Yes      | Identifier selecting the transaction resource. |
 
 Success: HTTP 200.
 
@@ -6116,11 +6078,11 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-| `status` | query | REQUIRES_PAYMENT / PROCESSING / REQUIRES_REVIEW / SUCCEEDED / CANCELLED / EXPIRED | No | Status used to constrain this request. |
+| Parameter | Location | Type                                                                              | Required | Purpose                                                  |
+| --------- | -------- | --------------------------------------------------------------------------------- | -------- | -------------------------------------------------------- |
+| `cursor`  | query    | string (uuid)                                                                     | No       | Opaque cursor returned by the preceding page.            |
+| `limit`   | query    | integer                                                                           | No       | Maximum number of records to return, bounded by the API. |
+| `status`  | query    | REQUIRES_PAYMENT / PROCESSING / REQUIRES_REVIEW / SUCCEEDED / CANCELLED / EXPIRED | No       | Status used to constrain this request.                   |
 
 Success: HTTP 200.
 
@@ -6156,10 +6118,10 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
-| `idempotency-key` | header | string | Yes | Unique retry key for this logical mutation. Reuse it only with the identical request. |
+| Parameter         | Location | Type   | Required | Purpose                                                                               |
+| ----------------- | -------- | ------ | -------- | ------------------------------------------------------------------------------------- |
+| `x-csrf-token`    | header   | string | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.       |
+| `idempotency-key` | header   | string | Yes      | Unique retry key for this logical mutation. Reuse it only with the identical request. |
 
 Synthetic request example:
 
@@ -6200,9 +6162,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `paymentId` | path | string (uuid) | Yes | Identifier selecting the payment resource. |
+| Parameter   | Location | Type          | Required | Purpose                                    |
+| ----------- | -------- | ------------- | -------- | ------------------------------------------ |
+| `paymentId` | path     | string (uuid) | Yes      | Identifier selecting the payment resource. |
 
 Success: HTTP 200.
 
@@ -6213,9 +6175,7 @@ Success: HTTP 200.
   "data": {
     "id": "00000000-0000-4000-8000-000000000001",
     "status": "synthetic-status",
-    "checkoutProviders": [
-      "PAYSTACK"
-    ]
+    "checkoutProviders": ["PAYSTACK"]
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -6236,11 +6196,11 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `paymentId` | path | string (uuid) | Yes | Identifier selecting the payment resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
-| `idempotency-key` | header | string | Yes | Unique retry key for this logical mutation. Reuse it only with the identical request. |
+| Parameter         | Location | Type          | Required | Purpose                                                                               |
+| ----------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------------- |
+| `paymentId`       | path     | string (uuid) | Yes      | Identifier selecting the payment resource.                                            |
+| `x-csrf-token`    | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.       |
+| `idempotency-key` | header   | string        | Yes      | Unique retry key for this logical mutation. Reuse it only with the identical request. |
 
 Success: HTTP 201.
 
@@ -6273,11 +6233,11 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `paymentId` | path | string (uuid) | Yes | Identifier selecting the payment resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
-| `idempotency-key` | header | string | Yes | Unique retry key for this logical mutation. Reuse it only with the identical request. |
+| Parameter         | Location | Type          | Required | Purpose                                                                               |
+| ----------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------------- |
+| `paymentId`       | path     | string (uuid) | Yes      | Identifier selecting the payment resource.                                            |
+| `x-csrf-token`    | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.       |
+| `idempotency-key` | header   | string        | Yes      | Unique retry key for this logical mutation. Reuse it only with the identical request. |
 
 Success: HTTP 201.
 
@@ -6310,11 +6270,11 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `paymentId` | path | string (uuid) | Yes | Identifier selecting the payment resource. |
-| `attemptId` | path | string (uuid) | Yes | Identifier selecting the attempt resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `paymentId`    | path     | string (uuid) | Yes      | Identifier selecting the payment resource.                                      |
+| `attemptId`    | path     | string (uuid) | Yes      | Identifier selecting the attempt resource.                                      |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 Success: HTTP 200.
 
@@ -6345,21 +6305,21 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `paymentId` | path | string (uuid) | Yes | Identifier selecting the payment resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
-| `idempotency-key` | header | string | Yes | Unique retry key for this logical mutation. Reuse it only with the identical request. |
+| Parameter         | Location | Type          | Required | Purpose                                                                               |
+| ----------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------------- |
+| `paymentId`       | path     | string (uuid) | Yes      | Identifier selecting the payment resource.                                            |
+| `x-csrf-token`    | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.       |
+| `idempotency-key` | header   | string        | Yes      | Unique retry key for this logical mutation. Reuse it only with the identical request. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `method` | BANK_TRANSFER / POS / CASH | Yes | Method validated by this operation's strict request contract. |
-| `bankReference` | string | No | Bank Reference validated by this operation's strict request contract. |
-| `payerName` | string | Yes | Payer Name validated by this operation's strict request contract. |
-| `transferredAt` | string (date-time) | Yes | ISO 8601 timestamp interpreted and validated by the server. |
-| `evidenceToken` | string | No | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
+| Field           | Type                       | Required | Purpose                                                                                     |
+| --------------- | -------------------------- | -------- | ------------------------------------------------------------------------------------------- |
+| `method`        | BANK_TRANSFER / POS / CASH | Yes      | Method validated by this operation's strict request contract.                               |
+| `bankReference` | string                     | No       | Bank Reference validated by this operation's strict request contract.                       |
+| `payerName`     | string                     | Yes      | Payer Name validated by this operation's strict request contract.                           |
+| `transferredAt` | string (date-time)         | Yes      | ISO 8601 timestamp interpreted and validated by the server.                                 |
+| `evidenceToken` | string                     | No       | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
 
 Synthetic request example:
 
@@ -6402,18 +6362,18 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `paymentId` | path | string (uuid) | Yes | Identifier selecting the payment resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `paymentId`    | path     | string (uuid) | Yes      | Identifier selecting the payment resource.                                      |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `mimeType` | application/pdf / image/jpeg / image/png | Yes | Mime Type validated by this operation's strict request contract. |
-| `sizeBytes` | integer | Yes | Size Bytes validated by this operation's strict request contract. |
-| `checksumSha256` | string | Yes | Checksum Sha256 validated by this operation's strict request contract. |
+| Field            | Type                                     | Required | Purpose                                                                |
+| ---------------- | ---------------------------------------- | -------- | ---------------------------------------------------------------------- |
+| `mimeType`       | application/pdf / image/jpeg / image/png | Yes      | Mime Type validated by this operation's strict request contract.       |
+| `sizeBytes`      | integer                                  | Yes      | Size Bytes validated by this operation's strict request contract.      |
+| `checksumSha256` | string                                   | Yes      | Checksum Sha256 validated by this operation's strict request contract. |
 
 Synthetic request example:
 
@@ -6454,12 +6414,12 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-| `targetType` | query | PRODUCT / SERVICE / ORDER / VEHICLE_TRANSACTION | Yes | Target Type used to constrain this request. |
-| `sourceId` | query | string (uuid) | No | Source Id used to constrain this request. |
+| Parameter    | Location | Type                                            | Required | Purpose                                                  |
+| ------------ | -------- | ----------------------------------------------- | -------- | -------------------------------------------------------- |
+| `cursor`     | query    | string (uuid)                                   | No       | Opaque cursor returned by the preceding page.            |
+| `limit`      | query    | integer                                         | No       | Maximum number of records to return, bounded by the API. |
+| `targetType` | query    | PRODUCT / SERVICE / ORDER / VEHICLE_TRANSACTION | Yes      | Target Type used to constrain this request.              |
+| `sourceId`   | query    | string (uuid)                                   | No       | Source Id used to constrain this request.                |
 
 Success: HTTP 200.
 
@@ -6498,12 +6458,12 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `supportId` | path | string (uuid) | Yes | Identifier selecting the support resource. |
-| `messageId` | query | string (uuid) | No | Message Id used to constrain this request. |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+| Parameter   | Location | Type          | Required | Purpose                                                  |
+| ----------- | -------- | ------------- | -------- | -------------------------------------------------------- |
+| `supportId` | path     | string (uuid) | Yes      | Identifier selecting the support resource.               |
+| `messageId` | query    | string (uuid) | No       | Message Id used to constrain this request.               |
+| `cursor`    | query    | string (uuid) | No       | Opaque cursor returned by the preceding page.            |
+| `limit`     | query    | integer       | No       | Maximum number of records to return, bounded by the API. |
 
 Success: HTTP 200.
 
@@ -6547,17 +6507,17 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `supportId` | path | string (uuid) | Yes | Identifier selecting the support resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
-| `idempotency-key` | header | string | Yes | Unique retry key for this logical mutation. Reuse it only with the identical request. |
+| Parameter         | Location | Type          | Required | Purpose                                                                               |
+| ----------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------------- |
+| `supportId`       | path     | string (uuid) | Yes      | Identifier selecting the support resource.                                            |
+| `x-csrf-token`    | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.       |
+| `idempotency-key` | header   | string        | Yes      | Unique retry key for this logical mutation. Reuse it only with the identical request. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `message` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| Field     | Type   | Required | Purpose                                                                          |
+| --------- | ------ | -------- | -------------------------------------------------------------------------------- |
+| `message` | string | Yes      | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
 
 Synthetic request example:
 
@@ -6603,12 +6563,12 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `supportId` | path | string (uuid) | Yes | Identifier selecting the support resource. |
-| `messageId` | query | string (uuid) | No | Message Id used to constrain this request. |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+| Parameter   | Location | Type          | Required | Purpose                                                  |
+| ----------- | -------- | ------------- | -------- | -------------------------------------------------------- |
+| `supportId` | path     | string (uuid) | Yes      | Identifier selecting the support resource.               |
+| `messageId` | query    | string (uuid) | No       | Message Id used to constrain this request.               |
+| `cursor`    | query    | string (uuid) | No       | Opaque cursor returned by the preceding page.            |
+| `limit`     | query    | integer       | No       | Maximum number of records to return, bounded by the API. |
 
 Success: HTTP 200.
 
@@ -6652,17 +6612,17 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `supportId` | path | string (uuid) | Yes | Identifier selecting the support resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
-| `idempotency-key` | header | string | Yes | Unique retry key for this logical mutation. Reuse it only with the identical request. |
+| Parameter         | Location | Type          | Required | Purpose                                                                               |
+| ----------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------------- |
+| `supportId`       | path     | string (uuid) | Yes      | Identifier selecting the support resource.                                            |
+| `x-csrf-token`    | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.       |
+| `idempotency-key` | header   | string        | Yes      | Unique retry key for this logical mutation. Reuse it only with the identical request. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `message` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| Field     | Type   | Required | Purpose                                                                          |
+| --------- | ------ | -------- | -------------------------------------------------------------------------------- |
+| `message` | string | Yes      | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
 
 Synthetic request example:
 
@@ -6708,11 +6668,11 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-| `status` | query | OPEN / IN_PROGRESS / RESOLVED / CLOSED | No | Status used to constrain this request. |
+| Parameter | Location | Type                                   | Required | Purpose                                                  |
+| --------- | -------- | -------------------------------------- | -------- | -------------------------------------------------------- |
+| `cursor`  | query    | string (uuid)                          | No       | Opaque cursor returned by the preceding page.            |
+| `limit`   | query    | integer                                | No       | Maximum number of records to return, bounded by the API. |
+| `status`  | query    | OPEN / IN_PROGRESS / RESOLVED / CLOSED | No       | Status used to constrain this request.                   |
 
 Success: HTTP 200.
 
@@ -6748,10 +6708,10 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
-| `idempotency-key` | header | string | Yes | Unique retry key for this logical mutation. Reuse it only with the identical request. |
+| Parameter         | Location | Type   | Required | Purpose                                                                               |
+| ----------------- | -------- | ------ | -------- | ------------------------------------------------------------------------------------- |
+| `x-csrf-token`    | header   | string | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.       |
+| `idempotency-key` | header   | string | Yes      | Unique retry key for this logical mutation. Reuse it only with the identical request. |
 
 Synthetic request example:
 
@@ -6820,9 +6780,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `supportId` | path | string (uuid) | Yes | Identifier selecting the support resource. |
+| Parameter   | Location | Type          | Required | Purpose                                    |
+| ----------- | -------- | ------------- | -------- | ------------------------------------------ |
+| `supportId` | path     | string (uuid) | Yes      | Identifier selecting the support resource. |
 
 Success: HTTP 200.
 
@@ -6858,11 +6818,11 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-| `status` | query | OPEN / INVESTIGATING / RESOLVED / CLOSED | No | Status used to constrain this request. |
+| Parameter | Location | Type                                     | Required | Purpose                                                  |
+| --------- | -------- | ---------------------------------------- | -------- | -------------------------------------------------------- |
+| `cursor`  | query    | string (uuid)                            | No       | Opaque cursor returned by the preceding page.            |
+| `limit`   | query    | integer                                  | No       | Maximum number of records to return, bounded by the API. |
+| `status`  | query    | OPEN / INVESTIGATING / RESOLVED / CLOSED | No       | Status used to constrain this request.                   |
 
 Success: HTTP 200.
 
@@ -6898,21 +6858,21 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
-| `idempotency-key` | header | string | Yes | Unique retry key for this logical mutation. Reuse it only with the identical request. |
+| Parameter         | Location | Type   | Required | Purpose                                                                               |
+| ----------------- | -------- | ------ | -------- | ------------------------------------------------------------------------------------- |
+| `x-csrf-token`    | header   | string | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.       |
+| `idempotency-key` | header   | string | Yes      | Unique retry key for this logical mutation. Reuse it only with the identical request. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `branchId` | string (uuid) | No | Identifier of the branch resource; ownership is resolved server-side. |
-| `subject` | string | Yes | Subject validated by this operation's strict request contract. |
-| `description` | string | Yes | Description validated by this operation's strict request contract. |
-| `bookingId` | string (uuid) | No | Identifier of the booking resource; ownership is resolved server-side. |
-| `orderId` | string (uuid) | No | Identifier of the order resource; ownership is resolved server-side. |
-| `vehicleTransactionId` | string (uuid) | No | Identifier of the vehicle transaction resource; ownership is resolved server-side. |
+| Field                  | Type          | Required | Purpose                                                                            |
+| ---------------------- | ------------- | -------- | ---------------------------------------------------------------------------------- |
+| `branchId`             | string (uuid) | No       | Identifier of the branch resource; ownership is resolved server-side.              |
+| `subject`              | string        | Yes      | Subject validated by this operation's strict request contract.                     |
+| `description`          | string        | Yes      | Description validated by this operation's strict request contract.                 |
+| `bookingId`            | string (uuid) | No       | Identifier of the booking resource; ownership is resolved server-side.             |
+| `orderId`              | string (uuid) | No       | Identifier of the order resource; ownership is resolved server-side.               |
+| `vehicleTransactionId` | string (uuid) | No       | Identifier of the vehicle transaction resource; ownership is resolved server-side. |
 
 Synthetic request example:
 
@@ -6984,9 +6944,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `supportId` | path | string (uuid) | Yes | Identifier selecting the support resource. |
+| Parameter   | Location | Type          | Required | Purpose                                    |
+| ----------- | -------- | ------------- | -------- | ------------------------------------------ |
+| `supportId` | path     | string (uuid) | Yes      | Identifier selecting the support resource. |
 
 Success: HTTP 200.
 
@@ -7022,12 +6982,12 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-| `reviewId` | query | string (uuid) | No | Review Id used to constrain this request. |
-| `status` | query | PENDING / APPROVED / REJECTED | No | Status used to constrain this request. |
+| Parameter  | Location | Type                          | Required | Purpose                                                  |
+| ---------- | -------- | ----------------------------- | -------- | -------------------------------------------------------- |
+| `cursor`   | query    | string (uuid)                 | No       | Opaque cursor returned by the preceding page.            |
+| `limit`    | query    | integer                       | No       | Maximum number of records to return, bounded by the API. |
+| `reviewId` | query    | string (uuid)                 | No       | Review Id used to constrain this request.                |
+| `status`   | query    | PENDING / APPROVED / REJECTED | No       | Status used to constrain this request.                   |
 
 Success: HTTP 200.
 
@@ -7063,10 +7023,10 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
-| `idempotency-key` | header | string | Yes | Unique retry key for this logical mutation. Reuse it only with the identical request. |
+| Parameter         | Location | Type   | Required | Purpose                                                                               |
+| ----------------- | -------- | ------ | -------- | ------------------------------------------------------------------------------------- |
+| `x-csrf-token`    | header   | string | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.       |
+| `idempotency-key` | header   | string | Yes      | Unique retry key for this logical mutation. Reuse it only with the identical request. |
 
 Synthetic request example:
 
@@ -7134,11 +7094,11 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `section` | query | /dashboard/bookings / /dashboard/orders / /dashboard/payments / /dashboard/invoices / /dashboard/vehicle-transactions / /dashboard/support / /dashboard/reviews / /admin/bookings / /admin/orders / /admin/payments / /admin/invoices / /admin/vehicle-sales / /admin/support / /admin/refunds / /admin/payment-disputes / /admin/payment-disputes/work / /admin/workforce/jobs / /admin/workforce/bookings / /admin/workforce/orders / /admin/workforce/enquiries / /admin/workforce/complaints / /admin/workforce/finance | Yes | Section used to constrain this request. |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+| Parameter | Location | Type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | Required | Purpose                                                  |
+| --------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | -------------------------------------------------------- |
+| `section` | query    | /dashboard/bookings / /dashboard/orders / /dashboard/payments / /dashboard/invoices / /dashboard/vehicle-transactions / /dashboard/support / /dashboard/reviews / /admin/bookings / /admin/orders / /admin/payments / /admin/invoices / /admin/vehicle-sales / /admin/support / /admin/refunds / /admin/payment-disputes / /admin/payment-disputes/work / /admin/workforce/jobs / /admin/workforce/bookings / /admin/workforce/orders / /admin/workforce/enquiries / /admin/workforce/complaints / /admin/workforce/finance | Yes      | Section used to constrain this request.                  |
+| `cursor`  | query    | string (uuid)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | No       | Opaque cursor returned by the preceding page.            |
+| `limit`   | query    | integer                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | No       | Maximum number of records to return, bounded by the API. |
 
 Success: HTTP 200.
 
@@ -7188,11 +7148,11 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `resourceType` | query | BOOKING / WORKFORCE_JOB / ORDER / PAYMENT / INVOICE / VEHICLE_TRANSACTION / ENQUIRY / COMPLAINT / REVIEW / REFUND / DISPUTE | Yes | Resource Type used to constrain this request. |
-| `resourceId` | query | string (uuid) | Yes | Resource Id used to constrain this request. |
-| `messageIds` | query | string | No | Message Ids used to constrain this request. |
+| Parameter      | Location | Type                                                                                                                        | Required | Purpose                                       |
+| -------------- | -------- | --------------------------------------------------------------------------------------------------------------------------- | -------- | --------------------------------------------- |
+| `resourceType` | query    | BOOKING / WORKFORCE_JOB / ORDER / PAYMENT / INVOICE / VEHICLE_TRANSACTION / ENQUIRY / COMPLAINT / REVIEW / REFUND / DISPUTE | Yes      | Resource Type used to constrain this request. |
+| `resourceId`   | query    | string (uuid)                                                                                                               | Yes      | Resource Id used to constrain this request.   |
+| `messageIds`   | query    | string                                                                                                                      | No       | Message Ids used to constrain this request.   |
 
 Success: HTTP 200.
 
@@ -7242,17 +7202,17 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type   | Required | Purpose                                                                         |
+| -------------- | -------- | ------ | -------- | ------------------------------------------------------------------------------- |
+| `x-csrf-token` | header   | string | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `resourceType` | BOOKING / WORKFORCE_JOB / ORDER / PAYMENT / INVOICE / VEHICLE_TRANSACTION / ENQUIRY / COMPLAINT / REVIEW / REFUND / DISPUTE | Yes | Resource Type validated by this operation's strict request contract. |
-| `resourceId` | string (uuid) | Yes | Identifier of the resource resource; ownership is resolved server-side. |
-| `notificationIds` | array<string (uuid)> | Yes | Notification Ids validated by this operation's strict request contract. |
+| Field             | Type                                                                                                                        | Required | Purpose                                                                 |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------------- | -------- | ----------------------------------------------------------------------- |
+| `resourceType`    | BOOKING / WORKFORCE_JOB / ORDER / PAYMENT / INVOICE / VEHICLE_TRANSACTION / ENQUIRY / COMPLAINT / REVIEW / REFUND / DISPUTE | Yes      | Resource Type validated by this operation's strict request contract.    |
+| `resourceId`      | string (uuid)                                                                                                               | Yes      | Identifier of the resource resource; ownership is resolved server-side. |
+| `notificationIds` | array<string (uuid)>                                                                                                        | Yes      | Notification Ids validated by this operation's strict request contract. |
 
 Synthetic request example:
 
@@ -7260,9 +7220,7 @@ Synthetic request example:
 {
   "resourceType": "BOOKING",
   "resourceId": "00000000-0000-4000-8000-000000000001",
-  "notificationIds": [
-    "00000000-0000-4000-8000-000000000001"
-  ]
+  "notificationIds": ["00000000-0000-4000-8000-000000000001"]
 }
 ```
 
@@ -7294,9 +7252,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `notificationId` | path | string (uuid) | Yes | Identifier selecting the notification resource. |
+| Parameter        | Location | Type          | Required | Purpose                                         |
+| ---------------- | -------- | ------------- | -------- | ----------------------------------------------- |
+| `notificationId` | path     | string (uuid) | Yes      | Identifier selecting the notification resource. |
 
 Success: HTTP 200.
 
@@ -7349,9 +7307,7 @@ Success: HTTP 200.
     "available": true,
     "publicKey": "synthetic-publickey",
     "enabled": true,
-    "endpointHashes": [
-      "synthetic-endpointhashes-item"
-    ]
+    "endpointHashes": ["synthetic-endpointhashes-item"]
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -7372,16 +7328,16 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type   | Required | Purpose                                                                         |
+| -------------- | -------- | ------ | -------- | ------------------------------------------------------------------------------- |
+| `x-csrf-token` | header   | string | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `endpoint` | string | Yes | Endpoint validated by this operation's strict request contract. |
-| `keys` | object | Yes | Keys validated by this operation's strict request contract. |
+| Field      | Type   | Required | Purpose                                                         |
+| ---------- | ------ | -------- | --------------------------------------------------------------- |
+| `endpoint` | string | Yes      | Endpoint validated by this operation's strict request contract. |
+| `keys`     | object | Yes      | Keys validated by this operation's strict request contract.     |
 
 Synthetic request example:
 
@@ -7424,9 +7380,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type   | Required | Purpose                                                                         |
+| -------------- | -------- | ------ | -------- | ------------------------------------------------------------------------------- |
+| `x-csrf-token` | header   | string | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 Success: HTTP 200.
 
@@ -7495,13 +7451,13 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-| `unreadOnly` | query | true / false | No | Unread Only used to constrain this request. |
-| `type` | query | BOOKING / QUOTATION / WORK_ORDER / ORDER / PAYMENT / REFUND / DISPUTE / INSPECTION / VEHICLE_TRANSACTION / ENQUIRY / COMPLAINT / REVIEW / PROMOTION / SYSTEM | No | Type used to constrain this request. |
-| `category` | query | SECURITY / TRANSACTIONAL / OPERATIONAL / MARKETING | No | Category used to constrain this request. |
+| Parameter    | Location | Type                                                                                                                                                         | Required | Purpose                                                  |
+| ------------ | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------- | -------------------------------------------------------- |
+| `cursor`     | query    | string (uuid)                                                                                                                                                | No       | Opaque cursor returned by the preceding page.            |
+| `limit`      | query    | integer                                                                                                                                                      | No       | Maximum number of records to return, bounded by the API. |
+| `unreadOnly` | query    | true / false                                                                                                                                                 | No       | Unread Only used to constrain this request.              |
+| `type`       | query    | BOOKING / QUOTATION / WORK_ORDER / ORDER / PAYMENT / REFUND / DISPUTE / INSPECTION / VEHICLE_TRANSACTION / ENQUIRY / COMPLAINT / REVIEW / PROMOTION / SYSTEM | No       | Type used to constrain this request.                     |
+| `category`   | query    | SECURITY / TRANSACTIONAL / OPERATIONAL / MARKETING                                                                                                           | No       | Category used to constrain this request.                 |
 
 Success: HTTP 200.
 
@@ -7551,9 +7507,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type   | Required | Purpose                                                                         |
+| -------------- | -------- | ------ | -------- | ------------------------------------------------------------------------------- |
+| `x-csrf-token` | header   | string | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 Success: HTTP 200.
 
@@ -7584,10 +7540,10 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `notificationId` | path | string (uuid) | Yes | Identifier selecting the notification resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter        | Location | Type          | Required | Purpose                                                                         |
+| ---------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `notificationId` | path     | string (uuid) | Yes      | Identifier selecting the notification resource.                                 |
+| `x-csrf-token`   | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 Success: HTTP 200.
 
@@ -7632,10 +7588,10 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `notificationId` | path | string (uuid) | Yes | Identifier selecting the notification resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter        | Location | Type          | Required | Purpose                                                                         |
+| ---------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `notificationId` | path     | string (uuid) | Yes      | Identifier selecting the notification resource.                                 |
+| `x-csrf-token`   | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 Success: HTTP 200.
 
@@ -7685,9 +7641,7 @@ Success: HTTP 200.
   "success": true,
   "message": "Get mutable operational and marketing preferences",
   "data": {
-    "immutableCategories": [
-      "SECURITY"
-    ],
+    "immutableCategories": ["SECURITY"],
     "channels": {
       "email": "customer@example.test",
       "sms": true,
@@ -7723,19 +7677,19 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
-| `idempotency-key` | header | string | Yes | Unique retry key for this logical mutation. Reuse it only with the identical request. |
+| Parameter         | Location | Type   | Required | Purpose                                                                               |
+| ----------------- | -------- | ------ | -------- | ------------------------------------------------------------------------------------- |
+| `x-csrf-token`    | header   | string | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.       |
+| `idempotency-key` | header   | string | Yes      | Unique retry key for this logical mutation. Reuse it only with the identical request. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `category` | OPERATIONAL / MARKETING | Yes | Category validated by this operation's strict request contract. |
-| `channel` | EMAIL / SMS | Yes | Channel validated by this operation's strict request contract. |
-| `enabled` | boolean | Yes | Enabled validated by this operation's strict request contract. |
-| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+| Field             | Type                    | Required | Purpose                                                                |
+| ----------------- | ----------------------- | -------- | ---------------------------------------------------------------------- |
+| `category`        | OPERATIONAL / MARKETING | Yes      | Category validated by this operation's strict request contract.        |
+| `channel`         | EMAIL / SMS             | Yes      | Channel validated by this operation's strict request contract.         |
+| `enabled`         | boolean                 | Yes      | Enabled validated by this operation's strict request contract.         |
+| `expectedVersion` | integer                 | Yes      | Last server version observed by the client; stale writes are rejected. |
 
 Synthetic request example:
 
@@ -7785,10 +7739,10 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `from` | query | string (date) | Yes | From used to constrain this request. |
-| `to` | query | string (date) | Yes | To used to constrain this request. |
+| Parameter | Location | Type          | Required | Purpose                              |
+| --------- | -------- | ------------- | -------- | ------------------------------------ |
+| `from`    | query    | string (date) | Yes      | From used to constrain this request. |
+| `to`      | query    | string (date) | Yes      | To used to constrain this request.   |
 
 Success: HTTP 200.
 
@@ -7867,10 +7821,10 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+| Parameter | Location | Type          | Required | Purpose                                                  |
+| --------- | -------- | ------------- | -------- | -------------------------------------------------------- |
+| `cursor`  | query    | string (uuid) | No       | Opaque cursor returned by the preceding page.            |
+| `limit`   | query    | integer       | No       | Maximum number of records to return, bounded by the API. |
 
 Success: HTTP 200.
 
@@ -7912,16 +7866,16 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type   | Required | Purpose                                                                         |
+| -------------- | -------- | ------ | -------- | ------------------------------------------------------------------------------- |
+| `x-csrf-token` | header   | string | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `kind` | ANONYMIZATION / DELETION | Yes | Kind validated by this operation's strict request contract. |
-| `reason` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| Field    | Type                     | Required | Purpose                                                                          |
+| -------- | ------------------------ | -------- | -------------------------------------------------------------------------------- |
+| `kind`   | ANONYMIZATION / DELETION | Yes      | Kind validated by this operation's strict request contract.                      |
+| `reason` | string                   | Yes      | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
 
 Synthetic request example:
 
@@ -7967,9 +7921,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
+| Parameter | Location | Type          | Required | Purpose                               |
+| --------- | -------- | ------------- | -------- | ------------------------------------- |
+| `id`      | path     | string (uuid) | Yes      | Identifier selecting the id resource. |
 
 Success: HTTP 200.
 
@@ -8020,19 +7974,19 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
-| `idempotency-key` | header | string | Yes | Unique retry key for this logical mutation. Reuse it only with the identical request. |
+| Parameter         | Location | Type          | Required | Purpose                                                                               |
+| ----------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------------- |
+| `id`              | path     | string (uuid) | Yes      | Identifier selecting the id resource.                                                 |
+| `x-csrf-token`    | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.       |
+| `idempotency-key` | header   | string        | Yes      | Unique retry key for this logical mutation. Reuse it only with the identical request. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `reason` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
-| `kind` | RETURN / CANCELLATION | Yes | Kind validated by this operation's strict request contract. |
-| `items` | array<object> | Yes | Items validated by this operation's strict request contract. |
+| Field    | Type                  | Required | Purpose                                                                          |
+| -------- | --------------------- | -------- | -------------------------------------------------------------------------------- |
+| `reason` | string                | Yes      | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| `kind`   | RETURN / CANCELLATION | Yes      | Kind validated by this operation's strict request contract.                      |
+| `items`  | array<object>         | Yes      | Items validated by this operation's strict request contract.                     |
 
 Synthetic request example:
 
@@ -8097,17 +8051,17 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
-| `idempotency-key` | header | string | Yes | Unique retry key for this logical mutation. Reuse it only with the identical request. |
+| Parameter         | Location | Type          | Required | Purpose                                                                               |
+| ----------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------------- |
+| `id`              | path     | string (uuid) | Yes      | Identifier selecting the id resource.                                                 |
+| `x-csrf-token`    | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.       |
+| `idempotency-key` | header   | string        | Yes      | Unique retry key for this logical mutation. Reuse it only with the identical request. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `reason` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| Field    | Type   | Required | Purpose                                                                          |
+| -------- | ------ | -------- | -------------------------------------------------------------------------------- |
+| `reason` | string | Yes      | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
 
 Synthetic request example:
 
@@ -8154,7 +8108,6 @@ Success: HTTP 201.
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
-
 ## Staff API
 
 ### GET `/staff/profile`
@@ -8180,9 +8133,7 @@ Success: HTTP 200.
     "emailVerifiedAt": "2030-01-15T10:00:00.000Z",
     "createdAt": "2030-01-15T10:00:00.000Z",
     "updatedAt": "2030-01-15T10:00:00.000Z",
-    "capabilities": [
-      "synthetic-capabilities-item"
-    ],
+    "capabilities": ["synthetic-capabilities-item"],
     "staffProfile": {
       "id": "00000000-0000-4000-8000-000000000001",
       "firstName": "synthetic-firstname",
@@ -8219,14 +8170,14 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-| `branchId` | query | string (uuid) | No | Branch Id used to constrain this request. |
-| `productId` | query | string (uuid) | No | Product Id used to constrain this request. |
-| `search` | query | string | No | Search used to constrain this request. |
-| `lowStock` | query | true / false | No | Low Stock used to constrain this request. |
+| Parameter   | Location | Type          | Required | Purpose                                                  |
+| ----------- | -------- | ------------- | -------- | -------------------------------------------------------- |
+| `cursor`    | query    | string (uuid) | No       | Opaque cursor returned by the preceding page.            |
+| `limit`     | query    | integer       | No       | Maximum number of records to return, bounded by the API. |
+| `branchId`  | query    | string (uuid) | No       | Branch Id used to constrain this request.                |
+| `productId` | query    | string (uuid) | No       | Product Id used to constrain this request.               |
+| `search`    | query    | string        | No       | Search used to constrain this request.                   |
+| `lowStock`  | query    | true / false  | No       | Low Stock used to constrain this request.                |
 
 Success: HTTP 200.
 
@@ -8262,9 +8213,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `inventoryId` | path | string (uuid) | Yes | Identifier selecting the inventory resource. |
+| Parameter     | Location | Type          | Required | Purpose                                      |
+| ------------- | -------- | ------------- | -------- | -------------------------------------------- |
+| `inventoryId` | path     | string (uuid) | Yes      | Identifier selecting the inventory resource. |
 
 Success: HTTP 200.
 
@@ -8295,17 +8246,17 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `inventoryId` | path | string (uuid) | Yes | Identifier selecting the inventory resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `inventoryId`  | path     | string (uuid) | Yes      | Identifier selecting the inventory resource.                                    |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `reorderLevel` | integer | Yes | Reorder Level validated by this operation's strict request contract. |
-| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+| Field             | Type    | Required | Purpose                                                                |
+| ----------------- | ------- | -------- | ---------------------------------------------------------------------- |
+| `reorderLevel`    | integer | Yes      | Reorder Level validated by this operation's strict request contract.   |
+| `expectedVersion` | integer | Yes      | Last server version observed by the client; stale writes are rejected. |
 
 Synthetic request example:
 
@@ -8345,11 +8296,11 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `inventoryId` | path | string (uuid) | Yes | Identifier selecting the inventory resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
-| `idempotency-key` | header | string | Yes | Unique retry key for this logical mutation. Reuse it only with the identical request. |
+| Parameter         | Location | Type          | Required | Purpose                                                                               |
+| ----------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------------- |
+| `inventoryId`     | path     | string (uuid) | Yes      | Identifier selecting the inventory resource.                                          |
+| `x-csrf-token`    | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.       |
+| `idempotency-key` | header   | string        | Yes      | Unique retry key for this logical mutation. Reuse it only with the identical request. |
 
 Synthetic request example:
 
@@ -8392,12 +8343,12 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `inventoryId` | path | string (uuid) | Yes | Identifier selecting the inventory resource. |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-| `type` | query | STOCK_IN / SALE / RESERVATION / RESERVATION_RELEASE / RETURN / ADJUSTMENT / DAMAGE / RESTOCK | No | Type used to constrain this request. |
+| Parameter     | Location | Type                                                                                         | Required | Purpose                                                  |
+| ------------- | -------- | -------------------------------------------------------------------------------------------- | -------- | -------------------------------------------------------- |
+| `inventoryId` | path     | string (uuid)                                                                                | Yes      | Identifier selecting the inventory resource.             |
+| `cursor`      | query    | string (uuid)                                                                                | No       | Opaque cursor returned by the preceding page.            |
+| `limit`       | query    | integer                                                                                      | No       | Maximum number of records to return, bounded by the API. |
+| `type`        | query    | STOCK_IN / SALE / RESERVATION / RESERVATION_RELEASE / RETURN / ADJUSTMENT / DAMAGE / RESTOCK | No       | Type used to constrain this request.                     |
 
 Success: HTTP 200.
 
@@ -8433,12 +8384,12 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `inventoryId` | path | string (uuid) | Yes | Identifier selecting the inventory resource. |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-| `status` | query | ACTIVE / RELEASED / CONSUMED / EXPIRED | No | Status used to constrain this request. |
+| Parameter     | Location | Type                                   | Required | Purpose                                                  |
+| ------------- | -------- | -------------------------------------- | -------- | -------------------------------------------------------- |
+| `inventoryId` | path     | string (uuid)                          | Yes      | Identifier selecting the inventory resource.             |
+| `cursor`      | query    | string (uuid)                          | No       | Opaque cursor returned by the preceding page.            |
+| `limit`       | query    | integer                                | No       | Maximum number of records to return, bounded by the API. |
+| `status`      | query    | ACTIVE / RELEASED / CONSUMED / EXPIRED | No       | Status used to constrain this request.                   |
 
 Success: HTTP 200.
 
@@ -8474,21 +8425,21 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `inventoryId` | path | string (uuid) | Yes | Identifier selecting the inventory resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
-| `idempotency-key` | header | string | Yes | Unique retry key for this logical mutation. Reuse it only with the identical request. |
+| Parameter         | Location | Type          | Required | Purpose                                                                               |
+| ----------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------------- |
+| `inventoryId`     | path     | string (uuid) | Yes      | Identifier selecting the inventory resource.                                          |
+| `x-csrf-token`    | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.       |
+| `idempotency-key` | header   | string        | Yes      | Unique retry key for this logical mutation. Reuse it only with the identical request. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `quantity` | integer | Yes | Quantity validated by this operation's strict request contract. |
-| `customerId` | string (uuid) | No | Identifier of the customer resource; ownership is resolved server-side. |
-| `expiresAt` | string (date-time) | Yes | ISO 8601 timestamp interpreted and validated by the server. |
-| `referenceType` | ORDER / WORK_ORDER / CART / MANUAL | No | Reference Type validated by this operation's strict request contract. |
-| `referenceId` | string | No | Identifier of the reference resource; ownership is resolved server-side. |
+| Field           | Type                               | Required | Purpose                                                                  |
+| --------------- | ---------------------------------- | -------- | ------------------------------------------------------------------------ |
+| `quantity`      | integer                            | Yes      | Quantity validated by this operation's strict request contract.          |
+| `customerId`    | string (uuid)                      | No       | Identifier of the customer resource; ownership is resolved server-side.  |
+| `expiresAt`     | string (date-time)                 | Yes      | ISO 8601 timestamp interpreted and validated by the server.              |
+| `referenceType` | ORDER / WORK_ORDER / CART / MANUAL | No       | Reference Type validated by this operation's strict request contract.    |
+| `referenceId`   | string                             | No       | Identifier of the reference resource; ownership is resolved server-side. |
 
 Synthetic request example:
 
@@ -8531,18 +8482,18 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `inventoryId` | path | string (uuid) | Yes | Identifier selecting the inventory resource. |
-| `reservationId` | path | string (uuid) | Yes | Identifier selecting the reservation resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
-| `idempotency-key` | header | string | Yes | Unique retry key for this logical mutation. Reuse it only with the identical request. |
+| Parameter         | Location | Type          | Required | Purpose                                                                               |
+| ----------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------------- |
+| `inventoryId`     | path     | string (uuid) | Yes      | Identifier selecting the inventory resource.                                          |
+| `reservationId`   | path     | string (uuid) | Yes      | Identifier selecting the reservation resource.                                        |
+| `x-csrf-token`    | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.       |
+| `idempotency-key` | header   | string        | Yes      | Unique retry key for this logical mutation. Reuse it only with the identical request. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `note` | string | No | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| Field  | Type   | Required | Purpose                                                                          |
+| ------ | ------ | -------- | -------------------------------------------------------------------------------- |
+| `note` | string | No       | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
 
 Synthetic request example:
 
@@ -8581,15 +8532,15 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-| `status` | query | REQUESTED / AWAITING_DEPOSIT / CONFIRMED / IN_PROGRESS / COMPLETED / CANCELLED / NO_SHOW / EXPIRED | No | Status used to constrain this request. |
-| `branchId` | query | string (uuid) | No | Branch Id used to constrain this request. |
-| `assignedStaffId` | query | string (uuid) | No | Assigned Staff Id used to constrain this request. |
-| `scheduledFrom` | query | string (date-time) | No | Scheduled From used to constrain this request. |
-| `scheduledTo` | query | string (date-time) | No | Scheduled To used to constrain this request. |
+| Parameter         | Location | Type                                                                                               | Required | Purpose                                                  |
+| ----------------- | -------- | -------------------------------------------------------------------------------------------------- | -------- | -------------------------------------------------------- |
+| `cursor`          | query    | string (uuid)                                                                                      | No       | Opaque cursor returned by the preceding page.            |
+| `limit`           | query    | integer                                                                                            | No       | Maximum number of records to return, bounded by the API. |
+| `status`          | query    | REQUESTED / AWAITING_DEPOSIT / CONFIRMED / IN_PROGRESS / COMPLETED / CANCELLED / NO_SHOW / EXPIRED | No       | Status used to constrain this request.                   |
+| `branchId`        | query    | string (uuid)                                                                                      | No       | Branch Id used to constrain this request.                |
+| `assignedStaffId` | query    | string (uuid)                                                                                      | No       | Assigned Staff Id used to constrain this request.        |
+| `scheduledFrom`   | query    | string (date-time)                                                                                 | No       | Scheduled From used to constrain this request.           |
+| `scheduledTo`     | query    | string (date-time)                                                                                 | No       | Scheduled To used to constrain this request.             |
 
 Success: HTTP 200.
 
@@ -8625,16 +8576,16 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `branchId` | query | string (uuid) | No | Branch Id used to constrain this request. |
-| `serviceId` | query | string (uuid) | No | Service Id used to constrain this request. |
-| `staffId` | query | string (uuid) | No | Staff Id used to constrain this request. |
-| `status` | query | OPEN / CLOSED | No | Status used to constrain this request. |
-| `startsFrom` | query | string (date-time) | No | Starts From used to constrain this request. |
-| `startsTo` | query | string (date-time) | No | Starts To used to constrain this request. |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+| Parameter    | Location | Type               | Required | Purpose                                                  |
+| ------------ | -------- | ------------------ | -------- | -------------------------------------------------------- |
+| `branchId`   | query    | string (uuid)      | No       | Branch Id used to constrain this request.                |
+| `serviceId`  | query    | string (uuid)      | No       | Service Id used to constrain this request.               |
+| `staffId`    | query    | string (uuid)      | No       | Staff Id used to constrain this request.                 |
+| `status`     | query    | OPEN / CLOSED      | No       | Status used to constrain this request.                   |
+| `startsFrom` | query    | string (date-time) | No       | Starts From used to constrain this request.              |
+| `startsTo`   | query    | string (date-time) | No       | Starts To used to constrain this request.                |
+| `cursor`     | query    | string (uuid)      | No       | Opaque cursor returned by the preceding page.            |
+| `limit`      | query    | integer            | No       | Maximum number of records to return, bounded by the API. |
 
 Success: HTTP 200.
 
@@ -8670,18 +8621,18 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type   | Required | Purpose                                                                         |
+| -------------- | -------- | ------ | -------- | ------------------------------------------------------------------------------- |
+| `x-csrf-token` | header   | string | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `branchId` | string (uuid) | Yes | Identifier of the branch resource; ownership is resolved server-side. |
-| `serviceId` | string (uuid) | Yes | Identifier of the service resource; ownership is resolved server-side. |
-| `staffId` | string (uuid) | Yes | Identifier of the staff resource; ownership is resolved server-side. |
-| `startsAt` | string (date-time) | Yes | ISO 8601 timestamp interpreted and validated by the server. |
+| Field       | Type               | Required | Purpose                                                                |
+| ----------- | ------------------ | -------- | ---------------------------------------------------------------------- |
+| `branchId`  | string (uuid)      | Yes      | Identifier of the branch resource; ownership is resolved server-side.  |
+| `serviceId` | string (uuid)      | Yes      | Identifier of the service resource; ownership is resolved server-side. |
+| `staffId`   | string (uuid)      | Yes      | Identifier of the staff resource; ownership is resolved server-side.   |
+| `startsAt`  | string (date-time) | Yes      | ISO 8601 timestamp interpreted and validated by the server.            |
 
 Synthetic request example:
 
@@ -8723,17 +8674,17 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `slotId` | path | string (uuid) | Yes | Identifier selecting the slot resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `slotId`       | path     | string (uuid) | Yes      | Identifier selecting the slot resource.                                         |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
-| `status` | OPEN / CLOSED | Yes | Requested or filtered lifecycle state from the documented enum. |
+| Field             | Type          | Required | Purpose                                                                |
+| ----------------- | ------------- | -------- | ---------------------------------------------------------------------- |
+| `expectedVersion` | integer       | Yes      | Last server version observed by the client; stale writes are rejected. |
+| `status`          | OPEN / CLOSED | Yes      | Requested or filtered lifecycle state from the documented enum.        |
 
 Synthetic request example:
 
@@ -8773,9 +8724,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `bookingId` | path | string (uuid) | Yes | Identifier selecting the booking resource. |
+| Parameter   | Location | Type          | Required | Purpose                                    |
+| ----------- | -------- | ------------- | -------- | ------------------------------------------ |
+| `bookingId` | path     | string (uuid) | Yes      | Identifier selecting the booking resource. |
 
 Success: HTTP 200.
 
@@ -8806,17 +8757,17 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `bookingId` | path | string (uuid) | Yes | Identifier selecting the booking resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `bookingId`    | path     | string (uuid) | Yes      | Identifier selecting the booking resource.                                      |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `assignedStaffId` | string (uuid) | Yes | Identifier of the assigned staff resource; ownership is resolved server-side. |
-| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+| Field             | Type          | Required | Purpose                                                                       |
+| ----------------- | ------------- | -------- | ----------------------------------------------------------------------------- |
+| `assignedStaffId` | string (uuid) | Yes      | Identifier of the assigned staff resource; ownership is resolved server-side. |
+| `expectedVersion` | integer       | Yes      | Last server version observed by the client; stale writes are rejected.        |
 
 Synthetic request example:
 
@@ -8856,17 +8807,17 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `bookingId` | path | string (uuid) | Yes | Identifier selecting the booking resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `bookingId`    | path     | string (uuid) | Yes      | Identifier selecting the booking resource.                                      |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
-| `reason` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| Field             | Type    | Required | Purpose                                                                          |
+| ----------------- | ------- | -------- | -------------------------------------------------------------------------------- |
+| `expectedVersion` | integer | Yes      | Last server version observed by the client; stale writes are rejected.           |
+| `reason`          | string  | Yes      | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
 
 Synthetic request example:
 
@@ -8906,20 +8857,20 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `bookingId` | path | string (uuid) | Yes | Identifier selecting the booking resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `bookingId`    | path     | string (uuid) | Yes      | Identifier selecting the booking resource.                                      |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `status` | CONFIRMED / IN_PROGRESS / COMPLETED / CANCELLED / NO_SHOW | Yes | Requested or filtered lifecycle state from the documented enum. |
-| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
-| `reason` | string | No | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
-| `staffNotes` | string / null | No | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
-| `resourceReviewNote` | string | No | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| Field                | Type                                                      | Required | Purpose                                                                          |
+| -------------------- | --------------------------------------------------------- | -------- | -------------------------------------------------------------------------------- |
+| `status`             | CONFIRMED / IN_PROGRESS / COMPLETED / CANCELLED / NO_SHOW | Yes      | Requested or filtered lifecycle state from the documented enum.                  |
+| `expectedVersion`    | integer                                                   | Yes      | Last server version observed by the client; stale writes are rejected.           |
+| `reason`             | string                                                    | No       | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| `staffNotes`         | string / null                                             | No       | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| `resourceReviewNote` | string                                                    | No       | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
 
 Synthetic request example:
 
@@ -8962,19 +8913,19 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `bookingId` | path | string (uuid) | Yes | Identifier selecting the booking resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `bookingId`    | path     | string (uuid) | Yes      | Identifier selecting the booking resource.                                      |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `items` | array<object> | Yes | Items validated by this operation's strict request contract. |
-| `taxKobo` | string | No | Legacy compatibility field; ignored. The server calculates quotation tax from its priced subtotal. |
-| `notes` | string / null | No | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
-| `expiresAt` | string (date-time) | Yes | ISO 8601 timestamp interpreted and validated by the server. |
+| Field       | Type               | Required | Purpose                                                                                            |
+| ----------- | ------------------ | -------- | -------------------------------------------------------------------------------------------------- |
+| `items`     | array<object>      | Yes      | Items validated by this operation's strict request contract.                                       |
+| `taxKobo`   | string             | No       | Legacy compatibility field; ignored. The server calculates quotation tax from its priced subtotal. |
+| `notes`     | string / null      | No       | Plain-text business context; HTML is not accepted or rendered as trusted markup.                   |
+| `expiresAt` | string (date-time) | Yes      | ISO 8601 timestamp interpreted and validated by the server.                                        |
 
 Synthetic request example:
 
@@ -9023,21 +8974,21 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `bookingId` | path | string (uuid) | Yes | Identifier selecting the booking resource. |
-| `quoteId` | path | string (uuid) | Yes | Identifier selecting the quote resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `bookingId`    | path     | string (uuid) | Yes      | Identifier selecting the booking resource.                                      |
+| `quoteId`      | path     | string (uuid) | Yes      | Identifier selecting the quote resource.                                        |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `items` | array<object> | Yes | Items validated by this operation's strict request contract. |
-| `taxKobo` | string | No | Legacy compatibility field; ignored. The server calculates quotation tax from its priced subtotal. |
-| `notes` | string / null | No | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
-| `expiresAt` | string (date-time) | Yes | ISO 8601 timestamp interpreted and validated by the server. |
-| `expectedRevision` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+| Field              | Type               | Required | Purpose                                                                                            |
+| ------------------ | ------------------ | -------- | -------------------------------------------------------------------------------------------------- |
+| `items`            | array<object>      | Yes      | Items validated by this operation's strict request contract.                                       |
+| `taxKobo`          | string             | No       | Legacy compatibility field; ignored. The server calculates quotation tax from its priced subtotal. |
+| `notes`            | string / null      | No       | Plain-text business context; HTML is not accepted or rendered as trusted markup.                   |
+| `expiresAt`        | string (date-time) | Yes      | ISO 8601 timestamp interpreted and validated by the server.                                        |
+| `expectedRevision` | integer            | Yes      | Last server version observed by the client; stale writes are rejected.                             |
 
 Synthetic request example:
 
@@ -9087,17 +9038,17 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `bookingId` | path | string (uuid) | Yes | Identifier selecting the booking resource. |
-| `quoteId` | path | string (uuid) | Yes | Identifier selecting the quote resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `bookingId`    | path     | string (uuid) | Yes      | Identifier selecting the booking resource.                                      |
+| `quoteId`      | path     | string (uuid) | Yes      | Identifier selecting the quote resource.                                        |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `expectedRevision` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+| Field              | Type    | Required | Purpose                                                                |
+| ------------------ | ------- | -------- | ---------------------------------------------------------------------- |
+| `expectedRevision` | integer | Yes      | Last server version observed by the client; stale writes are rejected. |
 
 Synthetic request example:
 
@@ -9136,17 +9087,17 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `bookingId` | path | string (uuid) | Yes | Identifier selecting the booking resource. |
-| `quoteId` | path | string (uuid) | Yes | Identifier selecting the quote resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `bookingId`    | path     | string (uuid) | Yes      | Identifier selecting the booking resource.                                      |
+| `quoteId`      | path     | string (uuid) | Yes      | Identifier selecting the quote resource.                                        |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `expectedRevision` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+| Field              | Type    | Required | Purpose                                                                |
+| ------------------ | ------- | -------- | ---------------------------------------------------------------------- |
+| `expectedRevision` | integer | Yes      | Last server version observed by the client; stale writes are rejected. |
 
 Synthetic request example:
 
@@ -9185,17 +9136,17 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `bookingId` | path | string (uuid) | Yes | Identifier selecting the booking resource. |
-| `quoteId` | path | string (uuid) | Yes | Identifier selecting the quote resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `bookingId`    | path     | string (uuid) | Yes      | Identifier selecting the booking resource.                                      |
+| `quoteId`      | path     | string (uuid) | Yes      | Identifier selecting the quote resource.                                        |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `expectedRevision` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+| Field              | Type    | Required | Purpose                                                                |
+| ------------------ | ------- | -------- | ---------------------------------------------------------------------- |
+| `expectedRevision` | integer | Yes      | Last server version observed by the client; stale writes are rejected. |
 
 Synthetic request example:
 
@@ -9234,19 +9185,19 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `bookingId` | path | string (uuid) | Yes | Identifier selecting the booking resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `bookingId`    | path     | string (uuid) | Yes      | Identifier selecting the booking resource.                                      |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `expectedBookingVersion` | integer | Yes | Expected Booking Version validated by this operation's strict request contract. |
-| `diagnosis` | string / null | No | Diagnosis validated by this operation's strict request contract. |
-| `internalNotes` | string / null | No | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
-| `items` | array<object> | No | Items validated by this operation's strict request contract. |
+| Field                    | Type          | Required | Purpose                                                                          |
+| ------------------------ | ------------- | -------- | -------------------------------------------------------------------------------- |
+| `expectedBookingVersion` | integer       | Yes      | Expected Booking Version validated by this operation's strict request contract.  |
+| `diagnosis`              | string / null | No       | Diagnosis validated by this operation's strict request contract.                 |
+| `internalNotes`          | string / null | No       | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| `items`                  | array<object> | No       | Items validated by this operation's strict request contract.                     |
 
 Synthetic request example:
 
@@ -9295,20 +9246,20 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `bookingId` | path | string (uuid) | Yes | Identifier selecting the booking resource. |
-| `workOrderId` | path | string (uuid) | Yes | Identifier selecting the work order resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `bookingId`    | path     | string (uuid) | Yes      | Identifier selecting the booking resource.                                      |
+| `workOrderId`  | path     | string (uuid) | Yes      | Identifier selecting the work order resource.                                   |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
-| `diagnosis` | string / null | No | Diagnosis validated by this operation's strict request contract. |
-| `internalNotes` | string / null | No | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
-| `addItems` | array<object> | No | Add Items validated by this operation's strict request contract. |
+| Field             | Type          | Required | Purpose                                                                          |
+| ----------------- | ------------- | -------- | -------------------------------------------------------------------------------- |
+| `expectedVersion` | integer       | Yes      | Last server version observed by the client; stale writes are rejected.           |
+| `diagnosis`       | string / null | No       | Diagnosis validated by this operation's strict request contract.                 |
+| `internalNotes`   | string / null | No       | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| `addItems`        | array<object> | No       | Add Items validated by this operation's strict request contract.                 |
 
 Synthetic request example:
 
@@ -9357,18 +9308,18 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `bookingId` | path | string (uuid) | Yes | Identifier selecting the booking resource. |
-| `workOrderId` | path | string (uuid) | Yes | Identifier selecting the work order resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `bookingId`    | path     | string (uuid) | Yes      | Identifier selecting the booking resource.                                      |
+| `workOrderId`  | path     | string (uuid) | Yes      | Identifier selecting the work order resource.                                   |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `status` | APPROVED / IN_PROGRESS / AWAITING_PARTS / QUALITY_CHECK / COMPLETED / CANCELLED | Yes | Requested or filtered lifecycle state from the documented enum. |
-| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+| Field             | Type                                                                            | Required | Purpose                                                                |
+| ----------------- | ------------------------------------------------------------------------------- | -------- | ---------------------------------------------------------------------- |
+| `status`          | APPROVED / IN_PROGRESS / AWAITING_PARTS / QUALITY_CHECK / COMPLETED / CANCELLED | Yes      | Requested or filtered lifecycle state from the documented enum.        |
+| `expectedVersion` | integer                                                                         | Yes      | Last server version observed by the client; stale writes are rejected. |
 
 Synthetic request example:
 
@@ -9408,14 +9359,14 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-| `orderNumber` | query | string | No | Exact, case-sensitive full order number; restricted to authorized branches |
-| `branchId` | query | string (uuid) | No | Branch Id used to constrain this request. |
-| `customerId` | query | string (uuid) | No | Customer Id used to constrain this request. |
-| `status` | query | PENDING / CONFIRMED / PROCESSING / READY / COMPLETED / CANCELLED | No | Status used to constrain this request. |
+| Parameter     | Location | Type                                                             | Required | Purpose                                                                    |
+| ------------- | -------- | ---------------------------------------------------------------- | -------- | -------------------------------------------------------------------------- |
+| `cursor`      | query    | string (uuid)                                                    | No       | Opaque cursor returned by the preceding page.                              |
+| `limit`       | query    | integer                                                          | No       | Maximum number of records to return, bounded by the API.                   |
+| `orderNumber` | query    | string                                                           | No       | Exact, case-sensitive full order number; restricted to authorized branches |
+| `branchId`    | query    | string (uuid)                                                    | No       | Branch Id used to constrain this request.                                  |
+| `customerId`  | query    | string (uuid)                                                    | No       | Customer Id used to constrain this request.                                |
+| `status`      | query    | PENDING / CONFIRMED / PROCESSING / READY / COMPLETED / CANCELLED | No       | Status used to constrain this request.                                     |
 
 Success: HTTP 200.
 
@@ -9451,9 +9402,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `orderId` | path | string (uuid) | Yes | Identifier selecting the order resource. |
+| Parameter | Location | Type          | Required | Purpose                                  |
+| --------- | -------- | ------------- | -------- | ---------------------------------------- |
+| `orderId` | path     | string (uuid) | Yes      | Identifier selecting the order resource. |
 
 Success: HTTP 200.
 
@@ -9484,18 +9435,18 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `orderId` | path | string (uuid) | Yes | Identifier selecting the order resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `orderId`      | path     | string (uuid) | Yes      | Identifier selecting the order resource.                                        |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
-| `status` | CONFIRMED / PROCESSING / READY / COMPLETED / CANCELLED | Yes | Requested or filtered lifecycle state from the documented enum. |
-| `reason` | string | No | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| Field             | Type                                                   | Required | Purpose                                                                          |
+| ----------------- | ------------------------------------------------------ | -------- | -------------------------------------------------------------------------------- |
+| `expectedVersion` | integer                                                | Yes      | Last server version observed by the client; stale writes are rejected.           |
+| `status`          | CONFIRMED / PROCESSING / READY / COMPLETED / CANCELLED | Yes      | Requested or filtered lifecycle state from the documented enum.                  |
+| `reason`          | string                                                 | No       | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
 
 Synthetic request example:
 
@@ -9536,9 +9487,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `invoiceId` | path | string (uuid) | Yes | Identifier selecting the invoice resource. |
+| Parameter   | Location | Type          | Required | Purpose                                    |
+| ----------- | -------- | ------------- | -------- | ------------------------------------------ |
+| `invoiceId` | path     | string (uuid) | Yes      | Identifier selecting the invoice resource. |
 
 Success: HTTP 200.
 
@@ -9628,11 +9579,11 @@ Relevant errors: 400 The request is malformed.; 401 Authentication required; 403
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `invoiceId` | path | string (uuid) | Yes | Identifier selecting the invoice resource. |
-| `expectedVersion` | query | integer / null | No | Expected Version used to constrain this request. |
-| `expectedStatus` | query | DRAFT / ISSUED / PAID / VOID | Yes | Expected Status used to constrain this request. |
+| Parameter         | Location | Type                         | Required | Purpose                                          |
+| ----------------- | -------- | ---------------------------- | -------- | ------------------------------------------------ |
+| `invoiceId`       | path     | string (uuid)                | Yes      | Identifier selecting the invoice resource.       |
+| `expectedVersion` | query    | integer / null               | No       | Expected Version used to constrain this request. |
+| `expectedStatus`  | query    | DRAFT / ISSUED / PAID / VOID | Yes      | Expected Status used to constrain this request.  |
 
 Success: HTTP 200.
 Binary application/pdf bytes (no JSON envelope).
@@ -9650,13 +9601,13 @@ Relevant errors: 400 The request is malformed.; 401 Authentication required; 403
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-| `sourceType` | query | ORDER / BOOKING / VEHICLE_TRANSACTION | Yes | Source Type used to constrain this request. |
-| `sourceId` | query | string (uuid) | No | Source Id used to constrain this request. |
-| `search` | query | string | No | Search used to constrain this request. |
+| Parameter    | Location | Type                                  | Required | Purpose                                                  |
+| ------------ | -------- | ------------------------------------- | -------- | -------------------------------------------------------- |
+| `cursor`     | query    | string (uuid)                         | No       | Opaque cursor returned by the preceding page.            |
+| `limit`      | query    | integer                               | No       | Maximum number of records to return, bounded by the API. |
+| `sourceType` | query    | ORDER / BOOKING / VEHICLE_TRANSACTION | Yes      | Source Type used to constrain this request.              |
+| `sourceId`   | query    | string (uuid)                         | No       | Source Id used to constrain this request.                |
+| `search`     | query    | string                                | No       | Search used to constrain this request.                   |
 
 Success: HTTP 200.
 
@@ -9692,16 +9643,16 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-| `status` | query | DRAFT / ISSUED / PAID / VOID | No | Status used to constrain this request. |
-| `customerId` | query | string (uuid) | No | Customer Id used to constrain this request. |
-| `branchId` | query | string (uuid) | No | Branch Id used to constrain this request. |
-| `invoiceNumber` | query | string | No | Invoice Number used to constrain this request. |
-| `sourceType` | query | ORDER / BOOKING / VEHICLE_TRANSACTION | No | Source Type used to constrain this request. |
-| `sourceId` | query | string (uuid) | No | Source Id used to constrain this request. |
+| Parameter       | Location | Type                                  | Required | Purpose                                                  |
+| --------------- | -------- | ------------------------------------- | -------- | -------------------------------------------------------- |
+| `cursor`        | query    | string (uuid)                         | No       | Opaque cursor returned by the preceding page.            |
+| `limit`         | query    | integer                               | No       | Maximum number of records to return, bounded by the API. |
+| `status`        | query    | DRAFT / ISSUED / PAID / VOID          | No       | Status used to constrain this request.                   |
+| `customerId`    | query    | string (uuid)                         | No       | Customer Id used to constrain this request.              |
+| `branchId`      | query    | string (uuid)                         | No       | Branch Id used to constrain this request.                |
+| `invoiceNumber` | query    | string                                | No       | Invoice Number used to constrain this request.           |
+| `sourceType`    | query    | ORDER / BOOKING / VEHICLE_TRANSACTION | No       | Source Type used to constrain this request.              |
+| `sourceId`      | query    | string (uuid)                         | No       | Source Id used to constrain this request.                |
 
 Success: HTTP 200.
 
@@ -9737,17 +9688,17 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type   | Required | Purpose                                                                         |
+| -------------- | -------- | ------ | -------- | ------------------------------------------------------------------------------- |
+| `x-csrf-token` | header   | string | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `sourceType` | ORDER / BOOKING / VEHICLE_TRANSACTION | Yes | Source Type validated by this operation's strict request contract. |
-| `sourceId` | string (uuid) | Yes | Identifier of the source resource; ownership is resolved server-side. |
-| `dueAt` | string (date-time) | No | ISO 8601 timestamp interpreted and validated by the server. |
+| Field        | Type                                  | Required | Purpose                                                               |
+| ------------ | ------------------------------------- | -------- | --------------------------------------------------------------------- |
+| `sourceType` | ORDER / BOOKING / VEHICLE_TRANSACTION | Yes      | Source Type validated by this operation's strict request contract.    |
+| `sourceId`   | string (uuid)                         | Yes      | Identifier of the source resource; ownership is resolved server-side. |
+| `dueAt`      | string (date-time)                    | No       | ISO 8601 timestamp interpreted and validated by the server.           |
 
 Synthetic request example:
 
@@ -9788,9 +9739,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `invoiceId` | path | string (uuid) | Yes | Identifier selecting the invoice resource. |
+| Parameter   | Location | Type          | Required | Purpose                                    |
+| ----------- | -------- | ------------- | -------- | ------------------------------------------ |
+| `invoiceId` | path     | string (uuid) | Yes      | Identifier selecting the invoice resource. |
 
 Success: HTTP 200.
 
@@ -9821,16 +9772,16 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `invoiceId` | path | string (uuid) | Yes | Identifier selecting the invoice resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `invoiceId`    | path     | string (uuid) | Yes      | Identifier selecting the invoice resource.                                      |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+| Field             | Type    | Required | Purpose                                                                |
+| ----------------- | ------- | -------- | ---------------------------------------------------------------------- |
+| `expectedVersion` | integer | Yes      | Last server version observed by the client; stale writes are rejected. |
 
 Synthetic request example:
 
@@ -9869,16 +9820,16 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `invoiceId` | path | string (uuid) | Yes | Identifier selecting the invoice resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `invoiceId`    | path     | string (uuid) | Yes      | Identifier selecting the invoice resource.                                      |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+| Field             | Type    | Required | Purpose                                                                |
+| ----------------- | ------- | -------- | ---------------------------------------------------------------------- |
+| `expectedVersion` | integer | Yes      | Last server version observed by the client; stale writes are rejected. |
 
 Synthetic request example:
 
@@ -9917,42 +9868,42 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-| `search` | query | string | No | Search used to constrain this request. |
-| `make` | query | string | No | Make used to constrain this request. |
-| `model` | query | string | No | Model used to constrain this request. |
-| `year` | query | integer | No | Year used to constrain this request. |
-| `trim` | query | string | No | Trim used to constrain this request. |
-| `condition` | query | NEW / USED / FOREIGN_USED / LOCALLY_USED | No | Condition used to constrain this request. |
-| `conditions` | query | string | No | Comma-separated distinct choices: NEW, USED, FOREIGN_USED, LOCALLY_USED. Matches any selected choice; do not combine with the singular filter. |
-| `powertrains` | query | string | No | Comma-separated distinct choices: BEV, HEV, PHEV, ICE. Matches any selected choice; do not combine with the singular filter. |
-| `manufactureCountryCode` | query | string | No | Manufacture Country Code used to constrain this request. |
-| `manufactureRegion` | query | EUROPE | No | Manufacture Region used to constrain this request. |
-| `powertrain` | query | BEV / HEV / PHEV / ICE | No | Powertrain used to constrain this request. |
-| `driveType` | query | FWD / RWD / AWD / FOUR_WD / OTHER | No | Drive Type used to constrain this request. |
-| `minYear` | query | string | No | Min Year used to constrain this request. |
-| `maxYear` | query | string | No | Max Year used to constrain this request. |
-| `minMileageKm` | query | string | No | Min Mileage Km used to constrain this request. |
-| `maxMileageKm` | query | string | No | Max Mileage Km used to constrain this request. |
-| `minEngineCapacityCc` | query | string | No | Min Engine Capacity Cc used to constrain this request. |
-| `maxEngineCapacityCc` | query | string | No | Max Engine Capacity Cc used to constrain this request. |
-| `seats` | query | string | No | Seats used to constrain this request. |
-| `color` | query | string | No | Color used to constrain this request. |
-| `feature` | query | string | No | Feature used to constrain this request. |
-| `inspected` | query | true / false | No | Inspected used to constrain this request. |
-| `bodyType` | query | SEDAN / SUV / COUPE / HATCHBACK / WAGON / PICKUP / VAN / TRUCK / BUS / OTHER | No | Body Type used to constrain this request. |
-| `transmission` | query | AUTOMATIC / MANUAL / CVT / OTHER | No | Transmission used to constrain this request. |
-| `fuelType` | query | PETROL / DIESEL / HYBRID / ELECTRIC / OTHER | No | Fuel Type used to constrain this request. |
-| `featured` | query | true / false | No | Featured used to constrain this request. |
-| `minPriceKobo` | query | object | No | Min Price Kobo used to constrain this request. |
-| `maxPriceKobo` | query | object | No | Max Price Kobo used to constrain this request. |
-| `sort` | query | newest / year_desc / year_asc / mileage_asc / mileage_desc | No | Sort used to constrain this request. |
-| `status` | query | DRAFT / AVAILABLE / RESERVED / SOLD / INACTIVE / ARCHIVED | No | Status used to constrain this request. |
-| `branchId` | query | string (uuid) | No | Branch Id used to constrain this request. |
-| `listed` | query | true / false | No | Listed used to constrain this request. |
+| Parameter                | Location | Type                                                                         | Required | Purpose                                                                                                                                        |
+| ------------------------ | -------- | ---------------------------------------------------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `cursor`                 | query    | string (uuid)                                                                | No       | Opaque cursor returned by the preceding page.                                                                                                  |
+| `limit`                  | query    | integer                                                                      | No       | Maximum number of records to return, bounded by the API.                                                                                       |
+| `search`                 | query    | string                                                                       | No       | Search used to constrain this request.                                                                                                         |
+| `make`                   | query    | string                                                                       | No       | Make used to constrain this request.                                                                                                           |
+| `model`                  | query    | string                                                                       | No       | Model used to constrain this request.                                                                                                          |
+| `year`                   | query    | integer                                                                      | No       | Year used to constrain this request.                                                                                                           |
+| `trim`                   | query    | string                                                                       | No       | Trim used to constrain this request.                                                                                                           |
+| `condition`              | query    | NEW / USED / FOREIGN_USED / LOCALLY_USED                                     | No       | Condition used to constrain this request.                                                                                                      |
+| `conditions`             | query    | string                                                                       | No       | Comma-separated distinct choices: NEW, USED, FOREIGN_USED, LOCALLY_USED. Matches any selected choice; do not combine with the singular filter. |
+| `powertrains`            | query    | string                                                                       | No       | Comma-separated distinct choices: BEV, HEV, PHEV, ICE. Matches any selected choice; do not combine with the singular filter.                   |
+| `manufactureCountryCode` | query    | string                                                                       | No       | Manufacture Country Code used to constrain this request.                                                                                       |
+| `manufactureRegion`      | query    | EUROPE                                                                       | No       | Manufacture Region used to constrain this request.                                                                                             |
+| `powertrain`             | query    | BEV / HEV / PHEV / ICE                                                       | No       | Powertrain used to constrain this request.                                                                                                     |
+| `driveType`              | query    | FWD / RWD / AWD / FOUR_WD / OTHER                                            | No       | Drive Type used to constrain this request.                                                                                                     |
+| `minYear`                | query    | string                                                                       | No       | Min Year used to constrain this request.                                                                                                       |
+| `maxYear`                | query    | string                                                                       | No       | Max Year used to constrain this request.                                                                                                       |
+| `minMileageKm`           | query    | string                                                                       | No       | Min Mileage Km used to constrain this request.                                                                                                 |
+| `maxMileageKm`           | query    | string                                                                       | No       | Max Mileage Km used to constrain this request.                                                                                                 |
+| `minEngineCapacityCc`    | query    | string                                                                       | No       | Min Engine Capacity Cc used to constrain this request.                                                                                         |
+| `maxEngineCapacityCc`    | query    | string                                                                       | No       | Max Engine Capacity Cc used to constrain this request.                                                                                         |
+| `seats`                  | query    | string                                                                       | No       | Seats used to constrain this request.                                                                                                          |
+| `color`                  | query    | string                                                                       | No       | Color used to constrain this request.                                                                                                          |
+| `feature`                | query    | string                                                                       | No       | Feature used to constrain this request.                                                                                                        |
+| `inspected`              | query    | true / false                                                                 | No       | Inspected used to constrain this request.                                                                                                      |
+| `bodyType`               | query    | SEDAN / SUV / COUPE / HATCHBACK / WAGON / PICKUP / VAN / TRUCK / BUS / OTHER | No       | Body Type used to constrain this request.                                                                                                      |
+| `transmission`           | query    | AUTOMATIC / MANUAL / CVT / OTHER                                             | No       | Transmission used to constrain this request.                                                                                                   |
+| `fuelType`               | query    | PETROL / DIESEL / HYBRID / ELECTRIC / OTHER                                  | No       | Fuel Type used to constrain this request.                                                                                                      |
+| `featured`               | query    | true / false                                                                 | No       | Featured used to constrain this request.                                                                                                       |
+| `minPriceKobo`           | query    | object                                                                       | No       | Min Price Kobo used to constrain this request.                                                                                                 |
+| `maxPriceKobo`           | query    | object                                                                       | No       | Max Price Kobo used to constrain this request.                                                                                                 |
+| `sort`                   | query    | newest / year_desc / year_asc / mileage_asc / mileage_desc                   | No       | Sort used to constrain this request.                                                                                                           |
+| `status`                 | query    | DRAFT / AVAILABLE / RESERVED / SOLD / INACTIVE / ARCHIVED                    | No       | Status used to constrain this request.                                                                                                         |
+| `branchId`               | query    | string (uuid)                                                                | No       | Branch Id used to constrain this request.                                                                                                      |
+| `listed`                 | query    | true / false                                                                 | No       | Listed used to constrain this request.                                                                                                         |
 
 Success: HTTP 200.
 
@@ -9988,39 +9939,39 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type   | Required | Purpose                                                                         |
+| -------------- | -------- | ------ | -------- | ------------------------------------------------------------------------------- |
+| `x-csrf-token` | header   | string | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `branchId` | string (uuid) | Yes | Identifier of the branch resource; ownership is resolved server-side. |
-| `stockNumber` | string | Yes | Stock Number validated by this operation's strict request contract. |
-| `make` | string | Yes | Make validated by this operation's strict request contract. |
-| `model` | string | Yes | Model validated by this operation's strict request contract. |
-| `trim` | string / null | No | Trim validated by this operation's strict request contract. |
-| `year` | integer | Yes | Year validated by this operation's strict request contract. |
-| `mileageKm` | integer / null | No | Mileage Km validated by this operation's strict request contract. |
-| `transmission` | AUTOMATIC / MANUAL / CVT / OTHER / null | No | Transmission validated by this operation's strict request contract. |
-| `fuelType` | PETROL / DIESEL / HYBRID / ELECTRIC / OTHER / null | No | Fuel Type validated by this operation's strict request contract. |
-| `condition` | NEW / USED / FOREIGN_USED / LOCALLY_USED | No | Condition validated by this operation's strict request contract. |
-| `bodyType` | SEDAN / SUV / COUPE / HATCHBACK / WAGON / PICKUP / VAN / TRUCK / BUS / OTHER / null | No | Body Type validated by this operation's strict request contract. |
-| `manufactureCountryCode` | string / null | No | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
-| `powertrain` | BEV / HEV / PHEV / ICE / null | No | Powertrain validated by this operation's strict request contract. |
-| `engineCapacityCc` | integer / null | No | Engine Capacity Cc validated by this operation's strict request contract. |
-| `features` | array<string> | No | Features validated by this operation's strict request contract. |
-| `engineSize` | string / null | No | Engine Size validated by this operation's strict request contract. |
-| `driveType` | FWD / RWD / AWD / FOUR_WD / OTHER / null | No | Drive Type validated by this operation's strict request contract. |
-| `color` | string / null | No | Color validated by this operation's strict request contract. |
-| `doors` | integer / null | No | Doors validated by this operation's strict request contract. |
-| `seats` | integer / null | No | Seats validated by this operation's strict request contract. |
-| `vin` | string / null | No | Vin validated by this operation's strict request contract. |
-| `chassisNumber` | string / null | No | Chassis Number validated by this operation's strict request contract. |
-| `registrationNumber` | string / null | No | Registration Number validated by this operation's strict request contract. |
-| `acquisitionCostKobo` | string / null | No | Acquisition Cost Kobo validated by this operation's strict request contract. |
-| `acquiredAt` | string / null | No | ISO 8601 timestamp interpreted and validated by the server. |
+| Field                    | Type                                                                                | Required | Purpose                                                                                     |
+| ------------------------ | ----------------------------------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------- |
+| `branchId`               | string (uuid)                                                                       | Yes      | Identifier of the branch resource; ownership is resolved server-side.                       |
+| `stockNumber`            | string                                                                              | Yes      | Stock Number validated by this operation's strict request contract.                         |
+| `make`                   | string                                                                              | Yes      | Make validated by this operation's strict request contract.                                 |
+| `model`                  | string                                                                              | Yes      | Model validated by this operation's strict request contract.                                |
+| `trim`                   | string / null                                                                       | No       | Trim validated by this operation's strict request contract.                                 |
+| `year`                   | integer                                                                             | Yes      | Year validated by this operation's strict request contract.                                 |
+| `mileageKm`              | integer / null                                                                      | No       | Mileage Km validated by this operation's strict request contract.                           |
+| `transmission`           | AUTOMATIC / MANUAL / CVT / OTHER / null                                             | No       | Transmission validated by this operation's strict request contract.                         |
+| `fuelType`               | PETROL / DIESEL / HYBRID / ELECTRIC / OTHER / null                                  | No       | Fuel Type validated by this operation's strict request contract.                            |
+| `condition`              | NEW / USED / FOREIGN_USED / LOCALLY_USED                                            | No       | Condition validated by this operation's strict request contract.                            |
+| `bodyType`               | SEDAN / SUV / COUPE / HATCHBACK / WAGON / PICKUP / VAN / TRUCK / BUS / OTHER / null | No       | Body Type validated by this operation's strict request contract.                            |
+| `manufactureCountryCode` | string / null                                                                       | No       | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
+| `powertrain`             | BEV / HEV / PHEV / ICE / null                                                       | No       | Powertrain validated by this operation's strict request contract.                           |
+| `engineCapacityCc`       | integer / null                                                                      | No       | Engine Capacity Cc validated by this operation's strict request contract.                   |
+| `features`               | array<string>                                                                       | No       | Features validated by this operation's strict request contract.                             |
+| `engineSize`             | string / null                                                                       | No       | Engine Size validated by this operation's strict request contract.                          |
+| `driveType`              | FWD / RWD / AWD / FOUR_WD / OTHER / null                                            | No       | Drive Type validated by this operation's strict request contract.                           |
+| `color`                  | string / null                                                                       | No       | Color validated by this operation's strict request contract.                                |
+| `doors`                  | integer / null                                                                      | No       | Doors validated by this operation's strict request contract.                                |
+| `seats`                  | integer / null                                                                      | No       | Seats validated by this operation's strict request contract.                                |
+| `vin`                    | string / null                                                                       | No       | Vin validated by this operation's strict request contract.                                  |
+| `chassisNumber`          | string / null                                                                       | No       | Chassis Number validated by this operation's strict request contract.                       |
+| `registrationNumber`     | string / null                                                                       | No       | Registration Number validated by this operation's strict request contract.                  |
+| `acquisitionCostKobo`    | string / null                                                                       | No       | Acquisition Cost Kobo validated by this operation's strict request contract.                |
+| `acquiredAt`             | string / null                                                                       | No       | ISO 8601 timestamp interpreted and validated by the server.                                 |
 
 Synthetic request example:
 
@@ -10063,9 +10014,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `vehicleId` | path | string (uuid) | Yes | Identifier selecting the vehicle resource. |
+| Parameter   | Location | Type          | Required | Purpose                                    |
+| ----------- | -------- | ------------- | -------- | ------------------------------------------ |
+| `vehicleId` | path     | string (uuid) | Yes      | Identifier selecting the vehicle resource. |
 
 Success: HTTP 200.
 
@@ -10096,39 +10047,39 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `vehicleId` | path | string (uuid) | Yes | Identifier selecting the vehicle resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `vehicleId`    | path     | string (uuid) | Yes      | Identifier selecting the vehicle resource.                                      |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `make` | string | No | Make validated by this operation's strict request contract. |
-| `model` | string | No | Model validated by this operation's strict request contract. |
-| `trim` | string / null | No | Trim validated by this operation's strict request contract. |
-| `year` | integer | No | Year validated by this operation's strict request contract. |
-| `mileageKm` | integer / null | No | Mileage Km validated by this operation's strict request contract. |
-| `transmission` | AUTOMATIC / MANUAL / CVT / OTHER / null | No | Transmission validated by this operation's strict request contract. |
-| `fuelType` | PETROL / DIESEL / HYBRID / ELECTRIC / OTHER / null | No | Fuel Type validated by this operation's strict request contract. |
-| `condition` | NEW / USED / FOREIGN_USED / LOCALLY_USED | No | Condition validated by this operation's strict request contract. |
-| `bodyType` | SEDAN / SUV / COUPE / HATCHBACK / WAGON / PICKUP / VAN / TRUCK / BUS / OTHER / null | No | Body Type validated by this operation's strict request contract. |
-| `manufactureCountryCode` | string / null | No | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
-| `powertrain` | BEV / HEV / PHEV / ICE / null | No | Powertrain validated by this operation's strict request contract. |
-| `engineCapacityCc` | integer / null | No | Engine Capacity Cc validated by this operation's strict request contract. |
-| `features` | array<string> | No | Features validated by this operation's strict request contract. |
-| `engineSize` | string / null | No | Engine Size validated by this operation's strict request contract. |
-| `driveType` | FWD / RWD / AWD / FOUR_WD / OTHER / null | No | Drive Type validated by this operation's strict request contract. |
-| `color` | string / null | No | Color validated by this operation's strict request contract. |
-| `doors` | integer / null | No | Doors validated by this operation's strict request contract. |
-| `seats` | integer / null | No | Seats validated by this operation's strict request contract. |
-| `vin` | string / null | No | Vin validated by this operation's strict request contract. |
-| `chassisNumber` | string / null | No | Chassis Number validated by this operation's strict request contract. |
-| `registrationNumber` | string / null | No | Registration Number validated by this operation's strict request contract. |
-| `acquisitionCostKobo` | string / null | No | Acquisition Cost Kobo validated by this operation's strict request contract. |
-| `acquiredAt` | string / null | No | ISO 8601 timestamp interpreted and validated by the server. |
-| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+| Field                    | Type                                                                                | Required | Purpose                                                                                     |
+| ------------------------ | ----------------------------------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------- |
+| `make`                   | string                                                                              | No       | Make validated by this operation's strict request contract.                                 |
+| `model`                  | string                                                                              | No       | Model validated by this operation's strict request contract.                                |
+| `trim`                   | string / null                                                                       | No       | Trim validated by this operation's strict request contract.                                 |
+| `year`                   | integer                                                                             | No       | Year validated by this operation's strict request contract.                                 |
+| `mileageKm`              | integer / null                                                                      | No       | Mileage Km validated by this operation's strict request contract.                           |
+| `transmission`           | AUTOMATIC / MANUAL / CVT / OTHER / null                                             | No       | Transmission validated by this operation's strict request contract.                         |
+| `fuelType`               | PETROL / DIESEL / HYBRID / ELECTRIC / OTHER / null                                  | No       | Fuel Type validated by this operation's strict request contract.                            |
+| `condition`              | NEW / USED / FOREIGN_USED / LOCALLY_USED                                            | No       | Condition validated by this operation's strict request contract.                            |
+| `bodyType`               | SEDAN / SUV / COUPE / HATCHBACK / WAGON / PICKUP / VAN / TRUCK / BUS / OTHER / null | No       | Body Type validated by this operation's strict request contract.                            |
+| `manufactureCountryCode` | string / null                                                                       | No       | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
+| `powertrain`             | BEV / HEV / PHEV / ICE / null                                                       | No       | Powertrain validated by this operation's strict request contract.                           |
+| `engineCapacityCc`       | integer / null                                                                      | No       | Engine Capacity Cc validated by this operation's strict request contract.                   |
+| `features`               | array<string>                                                                       | No       | Features validated by this operation's strict request contract.                             |
+| `engineSize`             | string / null                                                                       | No       | Engine Size validated by this operation's strict request contract.                          |
+| `driveType`              | FWD / RWD / AWD / FOUR_WD / OTHER / null                                            | No       | Drive Type validated by this operation's strict request contract.                           |
+| `color`                  | string / null                                                                       | No       | Color validated by this operation's strict request contract.                                |
+| `doors`                  | integer / null                                                                      | No       | Doors validated by this operation's strict request contract.                                |
+| `seats`                  | integer / null                                                                      | No       | Seats validated by this operation's strict request contract.                                |
+| `vin`                    | string / null                                                                       | No       | Vin validated by this operation's strict request contract.                                  |
+| `chassisNumber`          | string / null                                                                       | No       | Chassis Number validated by this operation's strict request contract.                       |
+| `registrationNumber`     | string / null                                                                       | No       | Registration Number validated by this operation's strict request contract.                  |
+| `acquisitionCostKobo`    | string / null                                                                       | No       | Acquisition Cost Kobo validated by this operation's strict request contract.                |
+| `acquiredAt`             | string / null                                                                       | No       | ISO 8601 timestamp interpreted and validated by the server.                                 |
+| `expectedVersion`        | integer                                                                             | Yes      | Last server version observed by the client; stale writes are rejected.                      |
 
 Synthetic request example:
 
@@ -10167,20 +10118,20 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type   | Required | Purpose                                                                         |
+| -------------- | -------- | ------ | -------- | ------------------------------------------------------------------------------- |
+| `x-csrf-token` | header   | string | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `vehicleId` | string (uuid) | Yes | Identifier of the vehicle resource; ownership is resolved server-side. |
-| `title` | string | Yes | Title validated by this operation's strict request contract. |
-| `slug` | string | Yes | Slug validated by this operation's strict request contract. |
-| `priceKobo` | string | Yes | Integer price in Nigerian kobo; client-calculated values are never authoritative. |
-| `description` | string / null | No | Description validated by this operation's strict request contract. |
-| `featured` | boolean | No | Featured validated by this operation's strict request contract. |
+| Field         | Type          | Required | Purpose                                                                           |
+| ------------- | ------------- | -------- | --------------------------------------------------------------------------------- |
+| `vehicleId`   | string (uuid) | Yes      | Identifier of the vehicle resource; ownership is resolved server-side.            |
+| `title`       | string        | Yes      | Title validated by this operation's strict request contract.                      |
+| `slug`        | string        | Yes      | Slug validated by this operation's strict request contract.                       |
+| `priceKobo`   | string        | Yes      | Integer price in Nigerian kobo; client-calculated values are never authoritative. |
+| `description` | string / null | No       | Description validated by this operation's strict request contract.                |
+| `featured`    | boolean       | No       | Featured validated by this operation's strict request contract.                   |
 
 Synthetic request example:
 
@@ -10229,20 +10180,20 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `listingId` | path | string (uuid) | Yes | Identifier selecting the listing resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `listingId`    | path     | string (uuid) | Yes      | Identifier selecting the listing resource.                                      |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
-| `title` | string | No | Title validated by this operation's strict request contract. |
-| `slug` | string | No | Slug validated by this operation's strict request contract. |
-| `description` | string / null | No | Description validated by this operation's strict request contract. |
-| `featured` | boolean | No | Featured validated by this operation's strict request contract. |
+| Field             | Type          | Required | Purpose                                                                |
+| ----------------- | ------------- | -------- | ---------------------------------------------------------------------- |
+| `expectedVersion` | integer       | Yes      | Last server version observed by the client; stale writes are rejected. |
+| `title`           | string        | No       | Title validated by this operation's strict request contract.           |
+| `slug`            | string        | No       | Slug validated by this operation's strict request contract.            |
+| `description`     | string / null | No       | Description validated by this operation's strict request contract.     |
+| `featured`        | boolean       | No       | Featured validated by this operation's strict request contract.        |
 
 Synthetic request example:
 
@@ -10290,17 +10241,17 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `listingId` | path | string (uuid) | Yes | Identifier selecting the listing resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `listingId`    | path     | string (uuid) | Yes      | Identifier selecting the listing resource.                                      |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
-| `status` | AVAILABLE / INACTIVE / ARCHIVED | Yes | Requested or filtered lifecycle state from the documented enum. |
+| Field             | Type                            | Required | Purpose                                                                |
+| ----------------- | ------------------------------- | -------- | ---------------------------------------------------------------------- |
+| `expectedVersion` | integer                         | Yes      | Last server version observed by the client; stale writes are rejected. |
+| `status`          | AVAILABLE / INACTIVE / ARCHIVED | Yes      | Requested or filtered lifecycle state from the documented enum.        |
 
 Synthetic request example:
 
@@ -10345,18 +10296,18 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `listingId` | path | string (uuid) | Yes | Identifier selecting the listing resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `listingId`    | path     | string (uuid) | Yes      | Identifier selecting the listing resource.                                      |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
-| `priceKobo` | string | Yes | Integer price in Nigerian kobo; client-calculated values are never authoritative. |
-| `reason` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| Field             | Type    | Required | Purpose                                                                           |
+| ----------------- | ------- | -------- | --------------------------------------------------------------------------------- |
+| `expectedVersion` | integer | Yes      | Last server version observed by the client; stale writes are rejected.            |
+| `priceKobo`       | string  | Yes      | Integer price in Nigerian kobo; client-calculated values are never authoritative. |
+| `reason`          | string  | Yes      | Plain-text business context; HTML is not accepted or rendered as trusted markup.  |
 
 Synthetic request example:
 
@@ -10402,20 +10353,20 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `vehicleId` | path | string (uuid) | Yes | Identifier selecting the vehicle resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `vehicleId`    | path     | string (uuid) | Yes      | Identifier selecting the vehicle resource.                                      |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `kind` | IMAGE / DOCUMENT / CONDITION_REPORT / HANDOVER | Yes | Kind validated by this operation's strict request contract. |
-| `replaceImageId` | string (uuid) | No | Identifier of the replace image resource; ownership is resolved server-side. |
-| `mimeType` | image/jpeg / image/png / image/webp / application/pdf | Yes | Mime Type validated by this operation's strict request contract. |
-| `sizeBytes` | integer | Yes | Size Bytes validated by this operation's strict request contract. |
-| `checksumSha256` | string | Yes | Checksum Sha256 validated by this operation's strict request contract. |
+| Field            | Type                                                  | Required | Purpose                                                                      |
+| ---------------- | ----------------------------------------------------- | -------- | ---------------------------------------------------------------------------- |
+| `kind`           | IMAGE / DOCUMENT / CONDITION_REPORT / HANDOVER        | Yes      | Kind validated by this operation's strict request contract.                  |
+| `replaceImageId` | string (uuid)                                         | No       | Identifier of the replace image resource; ownership is resolved server-side. |
+| `mimeType`       | image/jpeg / image/png / image/webp / application/pdf | Yes      | Mime Type validated by this operation's strict request contract.             |
+| `sizeBytes`      | integer                                               | Yes      | Size Bytes validated by this operation's strict request contract.            |
+| `checksumSha256` | string                                                | Yes      | Checksum Sha256 validated by this operation's strict request contract.       |
 
 Synthetic request example:
 
@@ -10468,21 +10419,21 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `vehicleId` | path | string (uuid) | Yes | Identifier selecting the vehicle resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `vehicleId`    | path     | string (uuid) | Yes      | Identifier selecting the vehicle resource.                                      |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `expectedVersion` | integer | No | Last server version observed by the client; stale writes are rejected. |
-| `replaceImageId` | string (uuid) | No | Identifier of the replace image resource; ownership is resolved server-side. |
-| `assetToken` | string | Yes | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
-| `altText` | string / null | No | Alt Text validated by this operation's strict request contract. |
-| `sortOrder` | integer | No | Sort Order validated by this operation's strict request contract. |
-| `isPrimary` | boolean | No | Boolean control for is primary; authorization is still enforced server-side. |
+| Field             | Type          | Required | Purpose                                                                                     |
+| ----------------- | ------------- | -------- | ------------------------------------------------------------------------------------------- |
+| `expectedVersion` | integer       | No       | Last server version observed by the client; stale writes are rejected.                      |
+| `replaceImageId`  | string (uuid) | No       | Identifier of the replace image resource; ownership is resolved server-side.                |
+| `assetToken`      | string        | Yes      | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
+| `altText`         | string / null | No       | Alt Text validated by this operation's strict request contract.                             |
+| `sortOrder`       | integer       | No       | Sort Order validated by this operation's strict request contract.                           |
+| `isPrimary`       | boolean       | No       | Boolean control for is primary; authorization is still enforced server-side.                |
 
 Synthetic request example:
 
@@ -10534,20 +10485,20 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `vehicleId` | path | string (uuid) | Yes | Identifier selecting the vehicle resource. |
-| `imageId` | path | string (uuid) | Yes | Identifier selecting the image resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `vehicleId`    | path     | string (uuid) | Yes      | Identifier selecting the vehicle resource.                                      |
+| `imageId`      | path     | string (uuid) | Yes      | Identifier selecting the image resource.                                        |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
-| `altText` | string / null | No | Alt Text validated by this operation's strict request contract. |
-| `sortOrder` | integer | No | Sort Order validated by this operation's strict request contract. |
-| `isPrimary` | boolean | No | Boolean control for is primary; authorization is still enforced server-side. |
+| Field             | Type          | Required | Purpose                                                                      |
+| ----------------- | ------------- | -------- | ---------------------------------------------------------------------------- |
+| `expectedVersion` | integer       | Yes      | Last server version observed by the client; stale writes are rejected.       |
+| `altText`         | string / null | No       | Alt Text validated by this operation's strict request contract.              |
+| `sortOrder`       | integer       | No       | Sort Order validated by this operation's strict request contract.            |
+| `isPrimary`       | boolean       | No       | Boolean control for is primary; authorization is still enforced server-side. |
 
 Synthetic request example:
 
@@ -10600,17 +10551,17 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `vehicleId` | path | string (uuid) | Yes | Identifier selecting the vehicle resource. |
-| `imageId` | path | string (uuid) | Yes | Identifier selecting the image resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `vehicleId`    | path     | string (uuid) | Yes      | Identifier selecting the vehicle resource.                                      |
+| `imageId`      | path     | string (uuid) | Yes      | Identifier selecting the image resource.                                        |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+| Field             | Type    | Required | Purpose                                                                |
+| ----------------- | ------- | -------- | ---------------------------------------------------------------------- |
+| `expectedVersion` | integer | Yes      | Last server version observed by the client; stale writes are rejected. |
 
 Synthetic request example:
 
@@ -10660,10 +10611,10 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `vehicleId` | path | string (uuid) | Yes | Identifier selecting the vehicle resource. |
-| `imageId` | path | string (uuid) | Yes | Identifier selecting the image resource. |
+| Parameter   | Location | Type          | Required | Purpose                                    |
+| ----------- | -------- | ------------- | -------- | ------------------------------------------ |
+| `vehicleId` | path     | string (uuid) | Yes      | Identifier selecting the vehicle resource. |
+| `imageId`   | path     | string (uuid) | Yes      | Identifier selecting the image resource.   |
 
 Success: HTTP 200.
 Binary image/webp bytes (no JSON envelope).
@@ -10681,19 +10632,19 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `vehicleId` | path | string (uuid) | Yes | Identifier selecting the vehicle resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `vehicleId`    | path     | string (uuid) | Yes      | Identifier selecting the vehicle resource.                                      |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `assetToken` | string | Yes | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
-| `type` | OWNERSHIP / REGISTRATION / CUSTOMS_CLEARANCE / PURCHASE_RECEIPT / INSPECTION_REPORT / SERVICE_HISTORY / OTHER | Yes | Type validated by this operation's strict request contract. |
-| `issuedAt` | string / null | No | ISO 8601 timestamp interpreted and validated by the server. |
-| `expiresAt` | string / null | No | ISO 8601 timestamp interpreted and validated by the server. |
+| Field        | Type                                                                                                          | Required | Purpose                                                                                     |
+| ------------ | ------------------------------------------------------------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------- |
+| `assetToken` | string                                                                                                        | Yes      | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
+| `type`       | OWNERSHIP / REGISTRATION / CUSTOMS_CLEARANCE / PURCHASE_RECEIPT / INSPECTION_REPORT / SERVICE_HISTORY / OTHER | Yes      | Type validated by this operation's strict request contract.                                 |
+| `issuedAt`   | string / null                                                                                                 | No       | ISO 8601 timestamp interpreted and validated by the server.                                 |
+| `expiresAt`  | string / null                                                                                                 | No       | ISO 8601 timestamp interpreted and validated by the server.                                 |
 
 Synthetic request example:
 
@@ -10735,22 +10686,22 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `vehicleId` | path | string (uuid) | Yes | Identifier selecting the vehicle resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `vehicleId`    | path     | string (uuid) | Yes      | Identifier selecting the vehicle resource.                                      |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `inspectionId` | string / null | No | Identifier of the inspection resource; ownership is resolved server-side. |
-| `odometerKm` | integer / null | No | Odometer Km validated by this operation's strict request contract. |
-| `conditionScore` | integer / null | No | Condition Score validated by this operation's strict request contract. |
-| `summary` | string | Yes | Summary validated by this operation's strict request contract. |
-| `findings` | object | No | Findings validated by this operation's strict request contract. |
-| `inspectedAt` | string (date-time) | Yes | ISO 8601 timestamp interpreted and validated by the server. |
-| `assetToken` | string | No | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
+| Field            | Type               | Required | Purpose                                                                                     |
+| ---------------- | ------------------ | -------- | ------------------------------------------------------------------------------------------- |
+| `inspectionId`   | string / null      | No       | Identifier of the inspection resource; ownership is resolved server-side.                   |
+| `odometerKm`     | integer / null     | No       | Odometer Km validated by this operation's strict request contract.                          |
+| `conditionScore` | integer / null     | No       | Condition Score validated by this operation's strict request contract.                      |
+| `summary`        | string             | Yes      | Summary validated by this operation's strict request contract.                              |
+| `findings`       | object             | No       | Findings validated by this operation's strict request contract.                             |
+| `inspectedAt`    | string (date-time) | Yes      | ISO 8601 timestamp interpreted and validated by the server.                                 |
+| `assetToken`     | string             | No       | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
 
 Synthetic request example:
 
@@ -10795,19 +10746,19 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `vehicleId` | path | string (uuid) | Yes | Identifier selecting the vehicle resource. |
-| `documentId` | path | string (uuid) | Yes | Identifier selecting the document resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `vehicleId`    | path     | string (uuid) | Yes      | Identifier selecting the vehicle resource.                                      |
+| `documentId`   | path     | string (uuid) | Yes      | Identifier selecting the document resource.                                     |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
-| `status` | VERIFIED / REJECTED | Yes | Requested or filtered lifecycle state from the documented enum. |
-| `rejectionReason` | string | No | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| Field             | Type                | Required | Purpose                                                                          |
+| ----------------- | ------------------- | -------- | -------------------------------------------------------------------------------- |
+| `expectedVersion` | integer             | Yes      | Last server version observed by the client; stale writes are rejected.           |
+| `status`          | VERIFIED / REJECTED | Yes      | Requested or filtered lifecycle state from the documented enum.                  |
+| `rejectionReason` | string              | No       | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
 
 Synthetic request example:
 
@@ -10848,11 +10799,11 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `vehicleId` | path | string (uuid) | Yes | Identifier selecting the vehicle resource. |
-| `documentId` | path | string (uuid) | Yes | Identifier selecting the document resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `vehicleId`    | path     | string (uuid) | Yes      | Identifier selecting the vehicle resource.                                      |
+| `documentId`   | path     | string (uuid) | Yes      | Identifier selecting the document resource.                                     |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 Success: HTTP 200.
 
@@ -10892,12 +10843,8 @@ Success: HTTP 200.
     "canReview": true,
     "globalAuthor": true,
     "globalReviewer": true,
-    "authorBranches": [
-      "00000000-0000-4000-8000-000000000001"
-    ],
-    "reviewBranches": [
-      "00000000-0000-4000-8000-000000000001"
-    ],
+    "authorBranches": ["00000000-0000-4000-8000-000000000001"],
+    "reviewBranches": ["00000000-0000-4000-8000-000000000001"],
     "branches": [
       {
         "id": "00000000-0000-4000-8000-000000000001",
@@ -10924,11 +10871,11 @@ Relevant errors: 400 The request is malformed.; 401 Authentication required for 
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `search` | query | string | No | Search used to constrain this request. |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+| Parameter | Location | Type          | Required | Purpose                                                  |
+| --------- | -------- | ------------- | -------- | -------------------------------------------------------- |
+| `search`  | query    | string        | No       | Search used to constrain this request.                   |
+| `cursor`  | query    | string (uuid) | No       | Opaque cursor returned by the preceding page.            |
+| `limit`   | query    | integer       | No       | Maximum number of records to return, bounded by the API. |
 
 Success: HTTP 200.
 
@@ -10967,9 +10914,9 @@ Relevant errors: 400 The request is malformed.; 401 Authentication required for 
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `productId` | path | string (uuid) | Yes | Identifier selecting the product resource. |
+| Parameter   | Location | Type          | Required | Purpose                                    |
+| ----------- | -------- | ------------- | -------- | ------------------------------------------ |
+| `productId` | path     | string (uuid) | Yes      | Identifier selecting the product resource. |
 
 Success: HTTP 200.
 
@@ -11003,10 +10950,10 @@ Relevant errors: 400 The request is malformed.; 401 Authentication required for 
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `productId` | path | string (uuid) | Yes | Identifier selecting the product resource. |
-| `ruleId` | path | string (uuid) | Yes | Identifier selecting the rule resource. |
+| Parameter   | Location | Type          | Required | Purpose                                    |
+| ----------- | -------- | ------------- | -------- | ------------------------------------------ |
+| `productId` | path     | string (uuid) | Yes      | Identifier selecting the product resource. |
+| `ruleId`    | path     | string (uuid) | Yes      | Identifier selecting the rule resource.    |
 
 Success: HTTP 200.
 
@@ -11024,9 +10971,7 @@ Success: HTTP 200.
     "reviewStatus": "DRAFT",
     "safetyCritical": true,
     "allVariantsConfirmed": true,
-    "requiredQualifiers": [
-      "synthetic-requiredqualifiers-item"
-    ],
+    "requiredQualifiers": ["synthetic-requiredqualifiers-item"],
     "trim": "synthetic-trim",
     "engineCode": "synthetic-enginecode",
     "market": "synthetic-market",
@@ -11113,39 +11058,39 @@ Relevant errors: 400 The request is malformed.; 401 Authentication required for 
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `productId` | path | string (uuid) | Yes | Identifier selecting the product resource. |
-| `ruleId` | path | string (uuid) | Yes | Identifier selecting the rule resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `productId`    | path     | string (uuid) | Yes      | Identifier selecting the product resource.                                      |
+| `ruleId`       | path     | string (uuid) | Yes      | Identifier selecting the rule resource.                                         |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `scope` | MODEL / UNIVERSAL | No | Scope validated by this operation's strict request contract. |
-| `vehicleModelId` | string / null | No | Identifier of the vehicle model resource; ownership is resolved server-side. |
-| `branchId` | string / null | No | Identifier of the branch resource; ownership is resolved server-side. |
-| `yearFrom` | integer / null | No | Year From validated by this operation's strict request contract. |
-| `yearTo` | integer / null | No | Year To validated by this operation's strict request contract. |
-| `effect` | INCLUDE / EXCLUDE | No | Effect validated by this operation's strict request contract. |
-| `safetyCritical` | boolean | No | Safety Critical validated by this operation's strict request contract. |
-| `allVariantsConfirmed` | boolean | No | All Variants Confirmed validated by this operation's strict request contract. |
-| `requiredQualifiers` | array<trim / engineCode / market / position / brakeSystem / brakeDiameterMm / bodyType / transmission / generation / chassisCode> | No | Required Qualifiers validated by this operation's strict request contract. |
-| `trim` | string / null | No | Trim validated by this operation's strict request contract. |
-| `engineCode` | string / null | No | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
-| `market` | string / null | No | Market validated by this operation's strict request contract. |
-| `position` | string / null | No | Position validated by this operation's strict request contract. |
-| `brakeSystem` | string / null | No | Brake System validated by this operation's strict request contract. |
-| `brakeDiameterMm` | string / null | No | Brake Diameter Mm validated by this operation's strict request contract. |
-| `bodyType` | string / null | No | Body Type validated by this operation's strict request contract. |
-| `transmission` | string / null | No | Transmission validated by this operation's strict request contract. |
-| `generation` | string / null | No | Generation validated by this operation's strict request contract. |
-| `chassisCode` | string / null | No | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
-| `sourceReference` | string / null | No | Source Reference validated by this operation's strict request contract. |
-| `evidenceNotes` | string / null | No | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
-| `notes` | string / null | No | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
-| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+| Field                  | Type                                                                                                                              | Required | Purpose                                                                                     |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------- |
+| `scope`                | MODEL / UNIVERSAL                                                                                                                 | No       | Scope validated by this operation's strict request contract.                                |
+| `vehicleModelId`       | string / null                                                                                                                     | No       | Identifier of the vehicle model resource; ownership is resolved server-side.                |
+| `branchId`             | string / null                                                                                                                     | No       | Identifier of the branch resource; ownership is resolved server-side.                       |
+| `yearFrom`             | integer / null                                                                                                                    | No       | Year From validated by this operation's strict request contract.                            |
+| `yearTo`               | integer / null                                                                                                                    | No       | Year To validated by this operation's strict request contract.                              |
+| `effect`               | INCLUDE / EXCLUDE                                                                                                                 | No       | Effect validated by this operation's strict request contract.                               |
+| `safetyCritical`       | boolean                                                                                                                           | No       | Safety Critical validated by this operation's strict request contract.                      |
+| `allVariantsConfirmed` | boolean                                                                                                                           | No       | All Variants Confirmed validated by this operation's strict request contract.               |
+| `requiredQualifiers`   | array<trim / engineCode / market / position / brakeSystem / brakeDiameterMm / bodyType / transmission / generation / chassisCode> | No       | Required Qualifiers validated by this operation's strict request contract.                  |
+| `trim`                 | string / null                                                                                                                     | No       | Trim validated by this operation's strict request contract.                                 |
+| `engineCode`           | string / null                                                                                                                     | No       | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
+| `market`               | string / null                                                                                                                     | No       | Market validated by this operation's strict request contract.                               |
+| `position`             | string / null                                                                                                                     | No       | Position validated by this operation's strict request contract.                             |
+| `brakeSystem`          | string / null                                                                                                                     | No       | Brake System validated by this operation's strict request contract.                         |
+| `brakeDiameterMm`      | string / null                                                                                                                     | No       | Brake Diameter Mm validated by this operation's strict request contract.                    |
+| `bodyType`             | string / null                                                                                                                     | No       | Body Type validated by this operation's strict request contract.                            |
+| `transmission`         | string / null                                                                                                                     | No       | Transmission validated by this operation's strict request contract.                         |
+| `generation`           | string / null                                                                                                                     | No       | Generation validated by this operation's strict request contract.                           |
+| `chassisCode`          | string / null                                                                                                                     | No       | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
+| `sourceReference`      | string / null                                                                                                                     | No       | Source Reference validated by this operation's strict request contract.                     |
+| `evidenceNotes`        | string / null                                                                                                                     | No       | Plain-text business context; HTML is not accepted or rendered as trusted markup.            |
+| `notes`                | string / null                                                                                                                     | No       | Plain-text business context; HTML is not accepted or rendered as trusted markup.            |
+| `expectedVersion`      | integer                                                                                                                           | Yes      | Last server version observed by the client; stale writes are rejected.                      |
 
 Synthetic request example:
 
@@ -11171,9 +11116,7 @@ Success: HTTP 200.
     "reviewStatus": "DRAFT",
     "safetyCritical": true,
     "allVariantsConfirmed": true,
-    "requiredQualifiers": [
-      "synthetic-requiredqualifiers-item"
-    ],
+    "requiredQualifiers": ["synthetic-requiredqualifiers-item"],
     "trim": "synthetic-trim",
     "engineCode": "synthetic-enginecode",
     "market": "synthetic-market",
@@ -11220,12 +11163,12 @@ Relevant errors: 400 The request is malformed.; 401 Authentication required for 
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `productId` | query | string (uuid) | No | Product Id used to constrain this request. |
-| `reviewStatus` | query | DRAFT / PENDING / APPROVED / REJECTED / RETIRED | No | Review Status used to constrain this request. |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+| Parameter      | Location | Type                                            | Required | Purpose                                                  |
+| -------------- | -------- | ----------------------------------------------- | -------- | -------------------------------------------------------- |
+| `productId`    | query    | string (uuid)                                   | No       | Product Id used to constrain this request.               |
+| `reviewStatus` | query    | DRAFT / PENDING / APPROVED / REJECTED / RETIRED | No       | Review Status used to constrain this request.            |
+| `cursor`       | query    | string (uuid)                                   | No       | Opaque cursor returned by the preceding page.            |
+| `limit`        | query    | integer                                         | No       | Maximum number of records to return, bounded by the API. |
 
 Success: HTTP 200.
 
@@ -11245,9 +11188,7 @@ Success: HTTP 200.
         "reviewStatus": "DRAFT",
         "safetyCritical": true,
         "allVariantsConfirmed": true,
-        "requiredQualifiers": [
-          "synthetic-requiredqualifiers-item"
-        ],
+        "requiredQualifiers": ["synthetic-requiredqualifiers-item"],
         "trim": "synthetic-trim",
         "engineCode": "synthetic-enginecode",
         "market": "synthetic-market",
@@ -11337,12 +11278,12 @@ Relevant errors: 400 The request is malformed.; 401 Authentication required for 
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `productId` | path | string (uuid) | Yes | Identifier selecting the product resource. |
-| `ruleId` | path | string (uuid) | Yes | Identifier selecting the rule resource. |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+| Parameter   | Location | Type          | Required | Purpose                                                  |
+| ----------- | -------- | ------------- | -------- | -------------------------------------------------------- |
+| `productId` | path     | string (uuid) | Yes      | Identifier selecting the product resource.               |
+| `ruleId`    | path     | string (uuid) | Yes      | Identifier selecting the rule resource.                  |
+| `cursor`    | query    | string (uuid) | No       | Opaque cursor returned by the preceding page.            |
+| `limit`     | query    | integer       | No       | Maximum number of records to return, bounded by the API. |
 
 Success: HTTP 200.
 
@@ -11391,15 +11332,15 @@ Relevant errors: 400 The request is malformed.; 401 Authentication required for 
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type   | Required | Purpose                                                                         |
+| -------------- | -------- | ------ | -------- | ------------------------------------------------------------------------------- |
+| `x-csrf-token` | header   | string | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `name` | string | Yes | Name validated by this operation's strict request contract. |
+| Field  | Type   | Required | Purpose                                                     |
+| ------ | ------ | -------- | ----------------------------------------------------------- |
+| `name` | string | Yes      | Name validated by this operation's strict request contract. |
 
 Synthetic request example:
 
@@ -11438,19 +11379,19 @@ Relevant errors: 400 The request is malformed.; 401 Authentication required for 
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type   | Required | Purpose                                                                         |
+| -------------- | -------- | ------ | -------- | ------------------------------------------------------------------------------- |
+| `x-csrf-token` | header   | string | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `makeId` | string (uuid) | Yes | Identifier of the make resource; ownership is resolved server-side. |
-| `name` | string | Yes | Name validated by this operation's strict request contract. |
-| `yearFrom` | integer | Yes | Year From validated by this operation's strict request contract. |
-| `yearTo` | integer | Yes | Year To validated by this operation's strict request contract. |
-| `sourceReference` | string | Yes | Source Reference validated by this operation's strict request contract. |
+| Field             | Type          | Required | Purpose                                                                 |
+| ----------------- | ------------- | -------- | ----------------------------------------------------------------------- |
+| `makeId`          | string (uuid) | Yes      | Identifier of the make resource; ownership is resolved server-side.     |
+| `name`            | string        | Yes      | Name validated by this operation's strict request contract.             |
+| `yearFrom`        | integer       | Yes      | Year From validated by this operation's strict request contract.        |
+| `yearTo`          | integer       | Yes      | Year To validated by this operation's strict request contract.          |
+| `sourceReference` | string        | Yes      | Source Reference validated by this operation's strict request contract. |
 
 Synthetic request example:
 
@@ -11496,37 +11437,37 @@ Relevant errors: 400 The request is malformed.; 401 Authentication required for 
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `productId` | path | string (uuid) | Yes | Identifier selecting the product resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `productId`    | path     | string (uuid) | Yes      | Identifier selecting the product resource.                                      |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `scope` | MODEL / UNIVERSAL | No | Scope validated by this operation's strict request contract. |
-| `vehicleModelId` | string / null | No | Identifier of the vehicle model resource; ownership is resolved server-side. |
-| `branchId` | string / null | No | Identifier of the branch resource; ownership is resolved server-side. |
-| `yearFrom` | integer / null | No | Year From validated by this operation's strict request contract. |
-| `yearTo` | integer / null | No | Year To validated by this operation's strict request contract. |
-| `effect` | INCLUDE / EXCLUDE | No | Effect validated by this operation's strict request contract. |
-| `safetyCritical` | boolean | No | Safety Critical validated by this operation's strict request contract. |
-| `allVariantsConfirmed` | boolean | No | All Variants Confirmed validated by this operation's strict request contract. |
-| `requiredQualifiers` | array<trim / engineCode / market / position / brakeSystem / brakeDiameterMm / bodyType / transmission / generation / chassisCode> | No | Required Qualifiers validated by this operation's strict request contract. |
-| `trim` | string / null | No | Trim validated by this operation's strict request contract. |
-| `engineCode` | string / null | No | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
-| `market` | string / null | No | Market validated by this operation's strict request contract. |
-| `position` | string / null | No | Position validated by this operation's strict request contract. |
-| `brakeSystem` | string / null | No | Brake System validated by this operation's strict request contract. |
-| `brakeDiameterMm` | string / null | No | Brake Diameter Mm validated by this operation's strict request contract. |
-| `bodyType` | string / null | No | Body Type validated by this operation's strict request contract. |
-| `transmission` | string / null | No | Transmission validated by this operation's strict request contract. |
-| `generation` | string / null | No | Generation validated by this operation's strict request contract. |
-| `chassisCode` | string / null | No | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
-| `sourceReference` | string / null | No | Source Reference validated by this operation's strict request contract. |
-| `evidenceNotes` | string / null | No | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
-| `notes` | string / null | No | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| Field                  | Type                                                                                                                              | Required | Purpose                                                                                     |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------- |
+| `scope`                | MODEL / UNIVERSAL                                                                                                                 | No       | Scope validated by this operation's strict request contract.                                |
+| `vehicleModelId`       | string / null                                                                                                                     | No       | Identifier of the vehicle model resource; ownership is resolved server-side.                |
+| `branchId`             | string / null                                                                                                                     | No       | Identifier of the branch resource; ownership is resolved server-side.                       |
+| `yearFrom`             | integer / null                                                                                                                    | No       | Year From validated by this operation's strict request contract.                            |
+| `yearTo`               | integer / null                                                                                                                    | No       | Year To validated by this operation's strict request contract.                              |
+| `effect`               | INCLUDE / EXCLUDE                                                                                                                 | No       | Effect validated by this operation's strict request contract.                               |
+| `safetyCritical`       | boolean                                                                                                                           | No       | Safety Critical validated by this operation's strict request contract.                      |
+| `allVariantsConfirmed` | boolean                                                                                                                           | No       | All Variants Confirmed validated by this operation's strict request contract.               |
+| `requiredQualifiers`   | array<trim / engineCode / market / position / brakeSystem / brakeDiameterMm / bodyType / transmission / generation / chassisCode> | No       | Required Qualifiers validated by this operation's strict request contract.                  |
+| `trim`                 | string / null                                                                                                                     | No       | Trim validated by this operation's strict request contract.                                 |
+| `engineCode`           | string / null                                                                                                                     | No       | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
+| `market`               | string / null                                                                                                                     | No       | Market validated by this operation's strict request contract.                               |
+| `position`             | string / null                                                                                                                     | No       | Position validated by this operation's strict request contract.                             |
+| `brakeSystem`          | string / null                                                                                                                     | No       | Brake System validated by this operation's strict request contract.                         |
+| `brakeDiameterMm`      | string / null                                                                                                                     | No       | Brake Diameter Mm validated by this operation's strict request contract.                    |
+| `bodyType`             | string / null                                                                                                                     | No       | Body Type validated by this operation's strict request contract.                            |
+| `transmission`         | string / null                                                                                                                     | No       | Transmission validated by this operation's strict request contract.                         |
+| `generation`           | string / null                                                                                                                     | No       | Generation validated by this operation's strict request contract.                           |
+| `chassisCode`          | string / null                                                                                                                     | No       | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
+| `sourceReference`      | string / null                                                                                                                     | No       | Source Reference validated by this operation's strict request contract.                     |
+| `evidenceNotes`        | string / null                                                                                                                     | No       | Plain-text business context; HTML is not accepted or rendered as trusted markup.            |
+| `notes`                | string / null                                                                                                                     | No       | Plain-text business context; HTML is not accepted or rendered as trusted markup.            |
 
 Synthetic request example:
 
@@ -11550,9 +11491,7 @@ Success: HTTP 200.
     "reviewStatus": "DRAFT",
     "safetyCritical": true,
     "allVariantsConfirmed": true,
-    "requiredQualifiers": [
-      "synthetic-requiredqualifiers-item"
-    ],
+    "requiredQualifiers": ["synthetic-requiredqualifiers-item"],
     "trim": "synthetic-trim",
     "engineCode": "synthetic-enginecode",
     "market": "synthetic-market",
@@ -11599,19 +11538,19 @@ Relevant errors: 400 The request is malformed.; 401 Authentication required for 
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `productId` | path | string (uuid) | Yes | Identifier selecting the product resource. |
-| `ruleId` | path | string (uuid) | Yes | Identifier selecting the rule resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `productId`    | path     | string (uuid) | Yes      | Identifier selecting the product resource.                                      |
+| `ruleId`       | path     | string (uuid) | Yes      | Identifier selecting the rule resource.                                         |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `action` | SUBMIT / APPROVE / REJECT / RETIRE | Yes | Action validated by this operation's strict request contract. |
-| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
-| `note` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| Field             | Type                               | Required | Purpose                                                                          |
+| ----------------- | ---------------------------------- | -------- | -------------------------------------------------------------------------------- |
+| `action`          | SUBMIT / APPROVE / REJECT / RETIRE | Yes      | Action validated by this operation's strict request contract.                    |
+| `expectedVersion` | integer                            | Yes      | Last server version observed by the client; stale writes are rejected.           |
+| `note`            | string                             | Yes      | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
 
 Synthetic request example:
 
@@ -11639,9 +11578,7 @@ Success: HTTP 200.
     "reviewStatus": "DRAFT",
     "safetyCritical": true,
     "allVariantsConfirmed": true,
-    "requiredQualifiers": [
-      "synthetic-requiredqualifiers-item"
-    ],
+    "requiredQualifiers": ["synthetic-requiredqualifiers-item"],
     "trim": "synthetic-trim",
     "engineCode": "synthetic-enginecode",
     "market": "synthetic-market",
@@ -11688,12 +11625,12 @@ Relevant errors: 400 The request is malformed.; 401 Authentication required for 
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-| `status` | query | REQUESTED / CONFIRMED / COMPLETED / RESCHEDULED / CANCELLED / NO_SHOW | No | Status used to constrain this request. |
-| `branchId` | query | string (uuid) | No | Branch Id used to constrain this request. |
+| Parameter  | Location | Type                                                                  | Required | Purpose                                                  |
+| ---------- | -------- | --------------------------------------------------------------------- | -------- | -------------------------------------------------------- |
+| `cursor`   | query    | string (uuid)                                                         | No       | Opaque cursor returned by the preceding page.            |
+| `limit`    | query    | integer                                                               | No       | Maximum number of records to return, bounded by the API. |
+| `status`   | query    | REQUESTED / CONFIRMED / COMPLETED / RESCHEDULED / CANCELLED / NO_SHOW | No       | Status used to constrain this request.                   |
+| `branchId` | query    | string (uuid)                                                         | No       | Branch Id used to constrain this request.                |
 
 Success: HTTP 200.
 
@@ -11729,21 +11666,21 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `inspectionId` | path | string (uuid) | Yes | Identifier selecting the inspection resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `inspectionId` | path     | string (uuid) | Yes      | Identifier selecting the inspection resource.                                   |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
-| `status` | CONFIRMED / COMPLETED / RESCHEDULED / CANCELLED / NO_SHOW | Yes | Requested or filtered lifecycle state from the documented enum. |
-| `assignedStaffId` | string (uuid) | No | Identifier of the assigned staff resource; ownership is resolved server-side. |
-| `scheduledStartAt` | string (date-time) | No | ISO 8601 timestamp interpreted and validated by the server. |
-| `scheduledEndAt` | string (date-time) | No | ISO 8601 timestamp interpreted and validated by the server. |
-| `reason` | string | No | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| Field              | Type                                                      | Required | Purpose                                                                          |
+| ------------------ | --------------------------------------------------------- | -------- | -------------------------------------------------------------------------------- |
+| `expectedVersion`  | integer                                                   | Yes      | Last server version observed by the client; stale writes are rejected.           |
+| `status`           | CONFIRMED / COMPLETED / RESCHEDULED / CANCELLED / NO_SHOW | Yes      | Requested or filtered lifecycle state from the documented enum.                  |
+| `assignedStaffId`  | string (uuid)                                             | No       | Identifier of the assigned staff resource; ownership is resolved server-side.    |
+| `scheduledStartAt` | string (date-time)                                        | No       | ISO 8601 timestamp interpreted and validated by the server.                      |
+| `scheduledEndAt`   | string (date-time)                                        | No       | ISO 8601 timestamp interpreted and validated by the server.                      |
+| `reason`           | string                                                    | No       | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
 
 Synthetic request example:
 
@@ -11787,12 +11724,12 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-| `status` | query | ENQUIRY / INSPECTION_SCHEDULED / INSPECTION_COMPLETED / NEGOTIATING / PAYMENT_PENDING / RESERVED / PARTIALLY_PAID / PAID / HANDOVER_PENDING / COMPLETED / CANCELLED / EXPIRED | No | Status used to constrain this request. |
-| `branchId` | query | string (uuid) | No | Branch Id used to constrain this request. |
+| Parameter  | Location | Type                                                                                                                                                                          | Required | Purpose                                                  |
+| ---------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | -------------------------------------------------------- |
+| `cursor`   | query    | string (uuid)                                                                                                                                                                 | No       | Opaque cursor returned by the preceding page.            |
+| `limit`    | query    | integer                                                                                                                                                                       | No       | Maximum number of records to return, bounded by the API. |
+| `status`   | query    | ENQUIRY / INSPECTION_SCHEDULED / INSPECTION_COMPLETED / NEGOTIATING / PAYMENT_PENDING / RESERVED / PARTIALLY_PAID / PAID / HANDOVER_PENDING / COMPLETED / CANCELLED / EXPIRED | No       | Status used to constrain this request.                   |
+| `branchId` | query    | string (uuid)                                                                                                                                                                 | No       | Branch Id used to constrain this request.                |
 
 Success: HTTP 200.
 
@@ -11828,9 +11765,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `transactionId` | path | string (uuid) | Yes | Identifier selecting the transaction resource. |
+| Parameter       | Location | Type          | Required | Purpose                                        |
+| --------------- | -------- | ------------- | -------- | ---------------------------------------------- |
+| `transactionId` | path     | string (uuid) | Yes      | Identifier selecting the transaction resource. |
 
 Success: HTTP 200.
 
@@ -11861,19 +11798,19 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `transactionId` | path | string (uuid) | Yes | Identifier selecting the transaction resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter       | Location | Type          | Required | Purpose                                                                         |
+| --------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `transactionId` | path     | string (uuid) | Yes      | Identifier selecting the transaction resource.                                  |
+| `x-csrf-token`  | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
-| `agreedPriceKobo` | string | Yes | Integer price in Nigerian kobo; client-calculated values are never authoritative. |
-| `reservationRequiredKobo` | string / null | No | Reservation Required Kobo validated by this operation's strict request contract. |
-| `notes` | string | No | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| Field                     | Type          | Required | Purpose                                                                           |
+| ------------------------- | ------------- | -------- | --------------------------------------------------------------------------------- |
+| `expectedVersion`         | integer       | Yes      | Last server version observed by the client; stale writes are rejected.            |
+| `agreedPriceKobo`         | string        | Yes      | Integer price in Nigerian kobo; client-calculated values are never authoritative. |
+| `reservationRequiredKobo` | string / null | No       | Reservation Required Kobo validated by this operation's strict request contract.  |
+| `notes`                   | string        | No       | Plain-text business context; HTML is not accepted or rendered as trusted markup.  |
 
 Synthetic request example:
 
@@ -11915,18 +11852,18 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `transactionId` | path | string (uuid) | Yes | Identifier selecting the transaction resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter       | Location | Type          | Required | Purpose                                                                         |
+| --------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `transactionId` | path     | string (uuid) | Yes      | Identifier selecting the transaction resource.                                  |
+| `x-csrf-token`  | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
-| `status` | INSPECTION_SCHEDULED / INSPECTION_COMPLETED / NEGOTIATING / PAYMENT_PENDING / CANCELLED | Yes | Requested or filtered lifecycle state from the documented enum. |
-| `reason` | string | No | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| Field             | Type                                                                                    | Required | Purpose                                                                          |
+| ----------------- | --------------------------------------------------------------------------------------- | -------- | -------------------------------------------------------------------------------- |
+| `expectedVersion` | integer                                                                                 | Yes      | Last server version observed by the client; stale writes are rejected.           |
+| `status`          | INSPECTION_SCHEDULED / INSPECTION_COMPLETED / NEGOTIATING / PAYMENT_PENDING / CANCELLED | Yes      | Requested or filtered lifecycle state from the documented enum.                  |
+| `reason`          | string                                                                                  | No       | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
 
 Synthetic request example:
 
@@ -11967,20 +11904,20 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `transactionId` | path | string (uuid) | Yes | Identifier selecting the transaction resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter       | Location | Type          | Required | Purpose                                                                         |
+| --------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `transactionId` | path     | string (uuid) | Yes      | Identifier selecting the transaction resource.                                  |
+| `x-csrf-token`  | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `recipientName` | string | Yes | Recipient Name validated by this operation's strict request contract. |
-| `recipientPhone` | string | Yes | Customer or business phone number in international format. |
-| `odometerKm` | integer | Yes | Odometer Km validated by this operation's strict request contract. |
-| `keysDelivered` | integer | Yes | Keys Delivered validated by this operation's strict request contract. |
-| `assetToken` | string | No | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
+| Field            | Type    | Required | Purpose                                                                                     |
+| ---------------- | ------- | -------- | ------------------------------------------------------------------------------------------- |
+| `recipientName`  | string  | Yes      | Recipient Name validated by this operation's strict request contract.                       |
+| `recipientPhone` | string  | Yes      | Customer or business phone number in international format.                                  |
+| `odometerKm`     | integer | Yes      | Odometer Km validated by this operation's strict request contract.                          |
+| `keysDelivered`  | integer | Yes      | Keys Delivered validated by this operation's strict request contract.                       |
+| `assetToken`     | string  | No       | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
 
 Synthetic request example:
 
@@ -12023,18 +11960,18 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `transactionId` | path | string (uuid) | Yes | Identifier selecting the transaction resource. |
-| `handoverId` | path | string (uuid) | Yes | Identifier selecting the handover resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter       | Location | Type          | Required | Purpose                                                                         |
+| --------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `transactionId` | path     | string (uuid) | Yes      | Identifier selecting the transaction resource.                                  |
+| `handoverId`    | path     | string (uuid) | Yes      | Identifier selecting the handover resource.                                     |
+| `x-csrf-token`  | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
-| `status` | READY / COMPLETED / CANCELLED | Yes | Requested or filtered lifecycle state from the documented enum. |
+| Field             | Type                          | Required | Purpose                                                                |
+| ----------------- | ----------------------------- | -------- | ---------------------------------------------------------------------- |
+| `expectedVersion` | integer                       | Yes      | Last server version observed by the client; stale writes are rejected. |
+| `status`          | READY / COMPLETED / CANCELLED | Yes      | Requested or filtered lifecycle state from the documented enum.        |
 
 Synthetic request example:
 
@@ -12074,11 +12011,11 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `transactionId` | path | string (uuid) | Yes | Identifier selecting the transaction resource. |
-| `handoverId` | path | string (uuid) | Yes | Identifier selecting the handover resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter       | Location | Type          | Required | Purpose                                                                         |
+| --------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `transactionId` | path     | string (uuid) | Yes      | Identifier selecting the transaction resource.                                  |
+| `handoverId`    | path     | string (uuid) | Yes      | Identifier selecting the handover resource.                                     |
+| `x-csrf-token`  | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 Success: HTTP 200.
 
@@ -12109,13 +12046,13 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-| `status` | query | REQUIRES_PAYMENT / PROCESSING / REQUIRES_REVIEW / SUCCEEDED / CANCELLED / EXPIRED | No | Status used to constrain this request. |
-| `customerId` | query | string (uuid) | No | Customer Id used to constrain this request. |
-| `provider` | query | PAYSTACK / MONNIFY / MANUAL | No | Provider used to constrain this request. |
+| Parameter    | Location | Type                                                                              | Required | Purpose                                                  |
+| ------------ | -------- | --------------------------------------------------------------------------------- | -------- | -------------------------------------------------------- |
+| `cursor`     | query    | string (uuid)                                                                     | No       | Opaque cursor returned by the preceding page.            |
+| `limit`      | query    | integer                                                                           | No       | Maximum number of records to return, bounded by the API. |
+| `status`     | query    | REQUIRES_PAYMENT / PROCESSING / REQUIRES_REVIEW / SUCCEEDED / CANCELLED / EXPIRED | No       | Status used to constrain this request.                   |
+| `customerId` | query    | string (uuid)                                                                     | No       | Customer Id used to constrain this request.              |
+| `provider`   | query    | PAYSTACK / MONNIFY / MANUAL                                                       | No       | Provider used to constrain this request.                 |
 
 Success: HTTP 200.
 
@@ -12151,9 +12088,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `paymentId` | path | string (uuid) | Yes | Identifier selecting the payment resource. |
+| Parameter   | Location | Type          | Required | Purpose                                    |
+| ----------- | -------- | ------------- | -------- | ------------------------------------------ |
+| `paymentId` | path     | string (uuid) | Yes      | Identifier selecting the payment resource. |
 
 Success: HTTP 200.
 
@@ -12184,10 +12121,10 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `paymentAttemptId` | query | string (uuid) | Yes | Payment Attempt Id used to constrain this request. |
-| `idempotency-key` | header | string | Yes | Unique retry key for this logical mutation. Reuse it only with the identical request. |
+| Parameter          | Location | Type          | Required | Purpose                                                                               |
+| ------------------ | -------- | ------------- | -------- | ------------------------------------------------------------------------------------- |
+| `paymentAttemptId` | query    | string (uuid) | Yes      | Payment Attempt Id used to constrain this request.                                    |
+| `idempotency-key`  | header   | string        | Yes      | Unique retry key for this logical mutation. Reuse it only with the identical request. |
 
 Success: HTTP 200.
 
@@ -12218,17 +12155,17 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `attemptId` | path | string (uuid) | Yes | Identifier selecting the attempt resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `attemptId`    | path     | string (uuid) | Yes      | Identifier selecting the attempt resource.                                      |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `decision` | APPROVED / REJECTED | Yes | Decision validated by this operation's strict request contract. |
-| `reviewerNote` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| Field          | Type                | Required | Purpose                                                                          |
+| -------------- | ------------------- | -------- | -------------------------------------------------------------------------------- |
+| `decision`     | APPROVED / REJECTED | Yes      | Decision validated by this operation's strict request contract.                  |
+| `reviewerNote` | string              | Yes      | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
 
 Synthetic request example:
 
@@ -12268,10 +12205,10 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `attemptId` | path | string (uuid) | Yes | Identifier selecting the attempt resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `attemptId`    | path     | string (uuid) | Yes      | Identifier selecting the attempt resource.                                      |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 Success: HTTP 200.
 
@@ -12302,18 +12239,18 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
-| `idempotency-key` | header | string | Yes | Unique retry key for this logical mutation. Reuse it only with the identical request. |
+| Parameter         | Location | Type   | Required | Purpose                                                                               |
+| ----------------- | -------- | ------ | -------- | ------------------------------------------------------------------------------------- |
+| `x-csrf-token`    | header   | string | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.       |
+| `idempotency-key` | header   | string | Yes      | Unique retry key for this logical mutation. Reuse it only with the identical request. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `paymentAttemptId` | string (uuid) | Yes | Identifier of the payment attempt resource; ownership is resolved server-side. |
-| `amountKobo` | string | Yes | Integer amount in Nigerian kobo; the server remains authoritative. |
-| `reason` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| Field              | Type          | Required | Purpose                                                                          |
+| ------------------ | ------------- | -------- | -------------------------------------------------------------------------------- |
+| `paymentAttemptId` | string (uuid) | Yes      | Identifier of the payment attempt resource; ownership is resolved server-side.   |
+| `amountKobo`       | string        | Yes      | Integer amount in Nigerian kobo; the server remains authoritative.               |
+| `reason`           | string        | Yes      | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
 
 Synthetic request example:
 
@@ -12354,17 +12291,17 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `refundId` | path | string (uuid) | Yes | Identifier selecting the refund resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `refundId`     | path     | string (uuid) | Yes      | Identifier selecting the refund resource.                                       |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `decision` | APPROVED / CANCELLED | Yes | Decision validated by this operation's strict request contract. |
-| `note` | string | No | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| Field      | Type                 | Required | Purpose                                                                          |
+| ---------- | -------------------- | -------- | -------------------------------------------------------------------------------- |
+| `decision` | APPROVED / CANCELLED | Yes      | Decision validated by this operation's strict request contract.                  |
+| `note`     | string               | No       | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
 
 Synthetic request example:
 
@@ -12404,16 +12341,16 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `supportId` | path | string (uuid) | Yes | Identifier selecting the support resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `supportId`    | path     | string (uuid) | Yes      | Identifier selecting the support resource.                                      |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `notices` | array<object> | Yes | Notices validated by this operation's strict request contract. |
+| Field     | Type          | Required | Purpose                                                        |
+| --------- | ------------- | -------- | -------------------------------------------------------------- |
+| `notices` | array<object> | Yes      | Notices validated by this operation's strict request contract. |
 
 Synthetic request example:
 
@@ -12468,16 +12405,16 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `supportId` | path | string (uuid) | Yes | Identifier selecting the support resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `supportId`    | path     | string (uuid) | Yes      | Identifier selecting the support resource.                                      |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `notices` | array<object> | Yes | Notices validated by this operation's strict request contract. |
+| Field     | Type          | Required | Purpose                                                        |
+| --------- | ------------- | -------- | -------------------------------------------------------------- |
+| `notices` | array<object> | Yes      | Notices validated by this operation's strict request contract. |
 
 Synthetic request example:
 
@@ -12532,9 +12469,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `supportId` | path | string (uuid) | Yes | Identifier selecting the support resource. |
+| Parameter   | Location | Type          | Required | Purpose                                    |
+| ----------- | -------- | ------------- | -------- | ------------------------------------------ |
+| `supportId` | path     | string (uuid) | Yes      | Identifier selecting the support resource. |
 
 Success: HTTP 200.
 
@@ -12576,9 +12513,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `supportId` | path | string (uuid) | Yes | Identifier selecting the support resource. |
+| Parameter   | Location | Type          | Required | Purpose                                    |
+| ----------- | -------- | ------------- | -------- | ------------------------------------------ |
+| `supportId` | path     | string (uuid) | Yes      | Identifier selecting the support resource. |
 
 Success: HTTP 200.
 
@@ -12620,12 +12557,12 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `supportId` | path | string (uuid) | Yes | Identifier selecting the support resource. |
-| `messageId` | query | string (uuid) | No | Message Id used to constrain this request. |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+| Parameter   | Location | Type          | Required | Purpose                                                  |
+| ----------- | -------- | ------------- | -------- | -------------------------------------------------------- |
+| `supportId` | path     | string (uuid) | Yes      | Identifier selecting the support resource.               |
+| `messageId` | query    | string (uuid) | No       | Message Id used to constrain this request.               |
+| `cursor`    | query    | string (uuid) | No       | Opaque cursor returned by the preceding page.            |
+| `limit`     | query    | integer       | No       | Maximum number of records to return, bounded by the API. |
 
 Success: HTTP 200.
 
@@ -12669,17 +12606,17 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `supportId` | path | string (uuid) | Yes | Identifier selecting the support resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `supportId`    | path     | string (uuid) | Yes      | Identifier selecting the support resource.                                      |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `message` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
-| `visibility` | CUSTOMER / INTERNAL | No | Visibility validated by this operation's strict request contract. |
+| Field        | Type                | Required | Purpose                                                                          |
+| ------------ | ------------------- | -------- | -------------------------------------------------------------------------------- |
+| `message`    | string              | Yes      | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| `visibility` | CUSTOMER / INTERNAL | No       | Visibility validated by this operation's strict request contract.                |
 
 Synthetic request example:
 
@@ -12719,12 +12656,12 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `supportId` | path | string (uuid) | Yes | Identifier selecting the support resource. |
-| `messageId` | query | string (uuid) | No | Message Id used to constrain this request. |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+| Parameter   | Location | Type          | Required | Purpose                                                  |
+| ----------- | -------- | ------------- | -------- | -------------------------------------------------------- |
+| `supportId` | path     | string (uuid) | Yes      | Identifier selecting the support resource.               |
+| `messageId` | query    | string (uuid) | No       | Message Id used to constrain this request.               |
+| `cursor`    | query    | string (uuid) | No       | Opaque cursor returned by the preceding page.            |
+| `limit`     | query    | integer       | No       | Maximum number of records to return, bounded by the API. |
 
 Success: HTTP 200.
 
@@ -12768,17 +12705,17 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `supportId` | path | string (uuid) | Yes | Identifier selecting the support resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `supportId`    | path     | string (uuid) | Yes      | Identifier selecting the support resource.                                      |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `message` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
-| `visibility` | CUSTOMER / INTERNAL | No | Visibility validated by this operation's strict request contract. |
+| Field        | Type                | Required | Purpose                                                                          |
+| ------------ | ------------------- | -------- | -------------------------------------------------------------------------------- |
+| `message`    | string              | Yes      | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| `visibility` | CUSTOMER / INTERNAL | No       | Visibility validated by this operation's strict request contract.                |
 
 Synthetic request example:
 
@@ -12818,15 +12755,15 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-| `q` | query | string | No | Q used to constrain this request. |
-| `branchId` | query | string (uuid) | No | Branch Id used to constrain this request. |
-| `type` | query | GENERAL / PRODUCT / VEHICLE / SERVICE / BOOKING / QUOTATION | No | Type used to constrain this request. |
-| `status` | query | OPEN / IN_PROGRESS / RESOLVED / CLOSED | No | Status used to constrain this request. |
-| `assignedStaffId` | query | string (uuid) | No | Assigned Staff Id used to constrain this request. |
+| Parameter         | Location | Type                                                        | Required | Purpose                                                  |
+| ----------------- | -------- | ----------------------------------------------------------- | -------- | -------------------------------------------------------- |
+| `cursor`          | query    | string (uuid)                                               | No       | Opaque cursor returned by the preceding page.            |
+| `limit`           | query    | integer                                                     | No       | Maximum number of records to return, bounded by the API. |
+| `q`               | query    | string                                                      | No       | Q used to constrain this request.                        |
+| `branchId`        | query    | string (uuid)                                               | No       | Branch Id used to constrain this request.                |
+| `type`            | query    | GENERAL / PRODUCT / VEHICLE / SERVICE / BOOKING / QUOTATION | No       | Type used to constrain this request.                     |
+| `status`          | query    | OPEN / IN_PROGRESS / RESOLVED / CLOSED                      | No       | Status used to constrain this request.                   |
+| `assignedStaffId` | query    | string (uuid)                                               | No       | Assigned Staff Id used to constrain this request.        |
 
 Success: HTTP 200.
 
@@ -12862,9 +12799,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `supportId` | path | string (uuid) | Yes | Identifier selecting the support resource. |
+| Parameter   | Location | Type          | Required | Purpose                                    |
+| ----------- | -------- | ------------- | -------- | ------------------------------------------ |
+| `supportId` | path     | string (uuid) | Yes      | Identifier selecting the support resource. |
 
 Success: HTTP 200.
 
@@ -12895,17 +12832,17 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `supportId` | path | string (uuid) | Yes | Identifier selecting the support resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `supportId`    | path     | string (uuid) | Yes      | Identifier selecting the support resource.                                      |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `expectedVersion` | integer / null | Yes | Last server version observed by the client; stale writes are rejected. |
-| `assignedStaffId` | string / null | Yes | Identifier of the assigned staff resource; ownership is resolved server-side. |
+| Field             | Type           | Required | Purpose                                                                       |
+| ----------------- | -------------- | -------- | ----------------------------------------------------------------------------- |
+| `expectedVersion` | integer / null | Yes      | Last server version observed by the client; stale writes are rejected.        |
+| `assignedStaffId` | string / null  | Yes      | Identifier of the assigned staff resource; ownership is resolved server-side. |
 
 Synthetic request example:
 
@@ -12945,18 +12882,18 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `supportId` | path | string (uuid) | Yes | Identifier selecting the support resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `supportId`    | path     | string (uuid) | Yes      | Identifier selecting the support resource.                                      |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `expectedVersion` | integer / null | Yes | Last server version observed by the client; stale writes are rejected. |
-| `status` | IN_PROGRESS / RESOLVED / CLOSED | Yes | Requested or filtered lifecycle state from the documented enum. |
-| `response` | string | No | Response validated by this operation's strict request contract. |
+| Field             | Type                            | Required | Purpose                                                                |
+| ----------------- | ------------------------------- | -------- | ---------------------------------------------------------------------- |
+| `expectedVersion` | integer / null                  | Yes      | Last server version observed by the client; stale writes are rejected. |
+| `status`          | IN_PROGRESS / RESOLVED / CLOSED | Yes      | Requested or filtered lifecycle state from the documented enum.        |
+| `response`        | string                          | No       | Response validated by this operation's strict request contract.        |
 
 Synthetic request example:
 
@@ -12997,15 +12934,15 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-| `q` | query | string | No | Q used to constrain this request. |
-| `branchId` | query | string (uuid) | No | Branch Id used to constrain this request. |
-| `status` | query | OPEN / INVESTIGATING / RESOLVED / CLOSED | No | Status used to constrain this request. |
-| `priority` | query | LOW / MEDIUM / HIGH / URGENT | No | Priority used to constrain this request. |
-| `assignedStaffId` | query | string (uuid) | No | Assigned Staff Id used to constrain this request. |
+| Parameter         | Location | Type                                     | Required | Purpose                                                  |
+| ----------------- | -------- | ---------------------------------------- | -------- | -------------------------------------------------------- |
+| `cursor`          | query    | string (uuid)                            | No       | Opaque cursor returned by the preceding page.            |
+| `limit`           | query    | integer                                  | No       | Maximum number of records to return, bounded by the API. |
+| `q`               | query    | string                                   | No       | Q used to constrain this request.                        |
+| `branchId`        | query    | string (uuid)                            | No       | Branch Id used to constrain this request.                |
+| `status`          | query    | OPEN / INVESTIGATING / RESOLVED / CLOSED | No       | Status used to constrain this request.                   |
+| `priority`        | query    | LOW / MEDIUM / HIGH / URGENT             | No       | Priority used to constrain this request.                 |
+| `assignedStaffId` | query    | string (uuid)                            | No       | Assigned Staff Id used to constrain this request.        |
 
 Success: HTTP 200.
 
@@ -13041,9 +12978,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `supportId` | path | string (uuid) | Yes | Identifier selecting the support resource. |
+| Parameter   | Location | Type          | Required | Purpose                                    |
+| ----------- | -------- | ------------- | -------- | ------------------------------------------ |
+| `supportId` | path     | string (uuid) | Yes      | Identifier selecting the support resource. |
 
 Success: HTTP 200.
 
@@ -13074,17 +13011,17 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `supportId` | path | string (uuid) | Yes | Identifier selecting the support resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `supportId`    | path     | string (uuid) | Yes      | Identifier selecting the support resource.                                      |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `expectedVersion` | integer / null | Yes | Last server version observed by the client; stale writes are rejected. |
-| `assignedStaffId` | string / null | Yes | Identifier of the assigned staff resource; ownership is resolved server-side. |
+| Field             | Type           | Required | Purpose                                                                       |
+| ----------------- | -------------- | -------- | ----------------------------------------------------------------------------- |
+| `expectedVersion` | integer / null | Yes      | Last server version observed by the client; stale writes are rejected.        |
+| `assignedStaffId` | string / null  | Yes      | Identifier of the assigned staff resource; ownership is resolved server-side. |
 
 Synthetic request example:
 
@@ -13124,18 +13061,18 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `supportId` | path | string (uuid) | Yes | Identifier selecting the support resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `supportId`    | path     | string (uuid) | Yes      | Identifier selecting the support resource.                                      |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `expectedVersion` | integer / null | Yes | Last server version observed by the client; stale writes are rejected. |
-| `status` | INVESTIGATING / RESOLVED / CLOSED | Yes | Requested or filtered lifecycle state from the documented enum. |
-| `resolution` | string | No | Resolution validated by this operation's strict request contract. |
+| Field             | Type                              | Required | Purpose                                                                |
+| ----------------- | --------------------------------- | -------- | ---------------------------------------------------------------------- |
+| `expectedVersion` | integer / null                    | Yes      | Last server version observed by the client; stale writes are rejected. |
+| `status`          | INVESTIGATING / RESOLVED / CLOSED | Yes      | Requested or filtered lifecycle state from the documented enum.        |
+| `resolution`      | string                            | No       | Resolution validated by this operation's strict request contract.      |
 
 Synthetic request example:
 
@@ -13176,17 +13113,17 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `supportId` | path | string (uuid) | Yes | Identifier selecting the support resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `supportId`    | path     | string (uuid) | Yes      | Identifier selecting the support resource.                                      |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `expectedVersion` | integer / null | Yes | Last server version observed by the client; stale writes are rejected. |
-| `priority` | LOW / MEDIUM / HIGH / URGENT | Yes | Priority validated by this operation's strict request contract. |
+| Field             | Type                         | Required | Purpose                                                                |
+| ----------------- | ---------------------------- | -------- | ---------------------------------------------------------------------- |
+| `expectedVersion` | integer / null               | Yes      | Last server version observed by the client; stale writes are rejected. |
+| `priority`        | LOW / MEDIUM / HIGH / URGENT | Yes      | Priority validated by this operation's strict request contract.        |
 
 Synthetic request example:
 
@@ -13226,13 +13163,13 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-| `reviewId` | query | string (uuid) | No | Review Id used to constrain this request. |
-| `status` | query | PENDING / APPROVED / REJECTED | No | Status used to constrain this request. |
-| `targetType` | query | BUSINESS / PRODUCT / SERVICE / ORDER / VEHICLE_TRANSACTION | No | Target Type used to constrain this request. |
+| Parameter    | Location | Type                                                       | Required | Purpose                                                  |
+| ------------ | -------- | ---------------------------------------------------------- | -------- | -------------------------------------------------------- |
+| `cursor`     | query    | string (uuid)                                              | No       | Opaque cursor returned by the preceding page.            |
+| `limit`      | query    | integer                                                    | No       | Maximum number of records to return, bounded by the API. |
+| `reviewId`   | query    | string (uuid)                                              | No       | Review Id used to constrain this request.                |
+| `status`     | query    | PENDING / APPROVED / REJECTED                              | No       | Status used to constrain this request.                   |
+| `targetType` | query    | BUSINESS / PRODUCT / SERVICE / ORDER / VEHICLE_TRANSACTION | No       | Target Type used to constrain this request.              |
 
 Success: HTTP 200.
 
@@ -13268,9 +13205,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `reviewId` | path | string (uuid) | Yes | Identifier selecting the review resource. |
+| Parameter  | Location | Type          | Required | Purpose                                   |
+| ---------- | -------- | ------------- | -------- | ----------------------------------------- |
+| `reviewId` | path     | string (uuid) | Yes      | Identifier selecting the review resource. |
 
 Success: HTTP 200.
 
@@ -13301,18 +13238,18 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `reviewId` | path | string (uuid) | Yes | Identifier selecting the review resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `reviewId`     | path     | string (uuid) | Yes      | Identifier selecting the review resource.                                       |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `expectedVersion` | integer / null | Yes | Last server version observed by the client; stale writes are rejected. |
-| `decision` | APPROVED / REJECTED | Yes | Decision validated by this operation's strict request contract. |
-| `note` | string | No | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| Field             | Type                | Required | Purpose                                                                          |
+| ----------------- | ------------------- | -------- | -------------------------------------------------------------------------------- |
+| `expectedVersion` | integer / null      | Yes      | Last server version observed by the client; stale writes are rejected.           |
+| `decision`        | APPROVED / REJECTED | Yes      | Decision validated by this operation's strict request contract.                  |
+| `note`            | string              | No       | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
 
 Synthetic request example:
 
@@ -13353,11 +13290,11 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `section` | query | /dashboard/bookings / /dashboard/orders / /dashboard/payments / /dashboard/invoices / /dashboard/vehicle-transactions / /dashboard/support / /dashboard/reviews / /admin/bookings / /admin/orders / /admin/payments / /admin/invoices / /admin/vehicle-sales / /admin/support / /admin/refunds / /admin/payment-disputes / /admin/payment-disputes/work / /admin/workforce/jobs / /admin/workforce/bookings / /admin/workforce/orders / /admin/workforce/enquiries / /admin/workforce/complaints / /admin/workforce/finance | Yes | Section used to constrain this request. |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+| Parameter | Location | Type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | Required | Purpose                                                  |
+| --------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | -------------------------------------------------------- |
+| `section` | query    | /dashboard/bookings / /dashboard/orders / /dashboard/payments / /dashboard/invoices / /dashboard/vehicle-transactions / /dashboard/support / /dashboard/reviews / /admin/bookings / /admin/orders / /admin/payments / /admin/invoices / /admin/vehicle-sales / /admin/support / /admin/refunds / /admin/payment-disputes / /admin/payment-disputes/work / /admin/workforce/jobs / /admin/workforce/bookings / /admin/workforce/orders / /admin/workforce/enquiries / /admin/workforce/complaints / /admin/workforce/finance | Yes      | Section used to constrain this request.                  |
+| `cursor`  | query    | string (uuid)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | No       | Opaque cursor returned by the preceding page.            |
+| `limit`   | query    | integer                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | No       | Maximum number of records to return, bounded by the API. |
 
 Success: HTTP 200.
 
@@ -13407,11 +13344,11 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `resourceType` | query | BOOKING / WORKFORCE_JOB / ORDER / PAYMENT / INVOICE / VEHICLE_TRANSACTION / ENQUIRY / COMPLAINT / REVIEW / REFUND / DISPUTE | Yes | Resource Type used to constrain this request. |
-| `resourceId` | query | string (uuid) | Yes | Resource Id used to constrain this request. |
-| `messageIds` | query | string | No | Message Ids used to constrain this request. |
+| Parameter      | Location | Type                                                                                                                        | Required | Purpose                                       |
+| -------------- | -------- | --------------------------------------------------------------------------------------------------------------------------- | -------- | --------------------------------------------- |
+| `resourceType` | query    | BOOKING / WORKFORCE_JOB / ORDER / PAYMENT / INVOICE / VEHICLE_TRANSACTION / ENQUIRY / COMPLAINT / REVIEW / REFUND / DISPUTE | Yes      | Resource Type used to constrain this request. |
+| `resourceId`   | query    | string (uuid)                                                                                                               | Yes      | Resource Id used to constrain this request.   |
+| `messageIds`   | query    | string                                                                                                                      | No       | Message Ids used to constrain this request.   |
 
 Success: HTTP 200.
 
@@ -13461,17 +13398,17 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type   | Required | Purpose                                                                         |
+| -------------- | -------- | ------ | -------- | ------------------------------------------------------------------------------- |
+| `x-csrf-token` | header   | string | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `resourceType` | BOOKING / WORKFORCE_JOB / ORDER / PAYMENT / INVOICE / VEHICLE_TRANSACTION / ENQUIRY / COMPLAINT / REVIEW / REFUND / DISPUTE | Yes | Resource Type validated by this operation's strict request contract. |
-| `resourceId` | string (uuid) | Yes | Identifier of the resource resource; ownership is resolved server-side. |
-| `notificationIds` | array<string (uuid)> | Yes | Notification Ids validated by this operation's strict request contract. |
+| Field             | Type                                                                                                                        | Required | Purpose                                                                 |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------------- | -------- | ----------------------------------------------------------------------- |
+| `resourceType`    | BOOKING / WORKFORCE_JOB / ORDER / PAYMENT / INVOICE / VEHICLE_TRANSACTION / ENQUIRY / COMPLAINT / REVIEW / REFUND / DISPUTE | Yes      | Resource Type validated by this operation's strict request contract.    |
+| `resourceId`      | string (uuid)                                                                                                               | Yes      | Identifier of the resource resource; ownership is resolved server-side. |
+| `notificationIds` | array<string (uuid)>                                                                                                        | Yes      | Notification Ids validated by this operation's strict request contract. |
 
 Synthetic request example:
 
@@ -13479,9 +13416,7 @@ Synthetic request example:
 {
   "resourceType": "BOOKING",
   "resourceId": "00000000-0000-4000-8000-000000000001",
-  "notificationIds": [
-    "00000000-0000-4000-8000-000000000001"
-  ]
+  "notificationIds": ["00000000-0000-4000-8000-000000000001"]
 }
 ```
 
@@ -13513,9 +13448,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `notificationId` | path | string (uuid) | Yes | Identifier selecting the notification resource. |
+| Parameter        | Location | Type          | Required | Purpose                                         |
+| ---------------- | -------- | ------------- | -------- | ----------------------------------------------- |
+| `notificationId` | path     | string (uuid) | Yes      | Identifier selecting the notification resource. |
 
 Success: HTTP 200.
 
@@ -13568,9 +13503,7 @@ Success: HTTP 200.
     "available": true,
     "publicKey": "synthetic-publickey",
     "enabled": true,
-    "endpointHashes": [
-      "synthetic-endpointhashes-item"
-    ]
+    "endpointHashes": ["synthetic-endpointhashes-item"]
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -13591,16 +13524,16 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type   | Required | Purpose                                                                         |
+| -------------- | -------- | ------ | -------- | ------------------------------------------------------------------------------- |
+| `x-csrf-token` | header   | string | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `endpoint` | string | Yes | Endpoint validated by this operation's strict request contract. |
-| `keys` | object | Yes | Keys validated by this operation's strict request contract. |
+| Field      | Type   | Required | Purpose                                                         |
+| ---------- | ------ | -------- | --------------------------------------------------------------- |
+| `endpoint` | string | Yes      | Endpoint validated by this operation's strict request contract. |
+| `keys`     | object | Yes      | Keys validated by this operation's strict request contract.     |
 
 Synthetic request example:
 
@@ -13643,9 +13576,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type   | Required | Purpose                                                                         |
+| -------------- | -------- | ------ | -------- | ------------------------------------------------------------------------------- |
+| `x-csrf-token` | header   | string | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 Success: HTTP 200.
 
@@ -13714,13 +13647,13 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-| `unreadOnly` | query | true / false | No | Unread Only used to constrain this request. |
-| `type` | query | BOOKING / QUOTATION / WORK_ORDER / ORDER / PAYMENT / REFUND / DISPUTE / INSPECTION / VEHICLE_TRANSACTION / ENQUIRY / COMPLAINT / REVIEW / PROMOTION / SYSTEM | No | Type used to constrain this request. |
-| `category` | query | SECURITY / TRANSACTIONAL / OPERATIONAL / MARKETING | No | Category used to constrain this request. |
+| Parameter    | Location | Type                                                                                                                                                         | Required | Purpose                                                  |
+| ------------ | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------- | -------------------------------------------------------- |
+| `cursor`     | query    | string (uuid)                                                                                                                                                | No       | Opaque cursor returned by the preceding page.            |
+| `limit`      | query    | integer                                                                                                                                                      | No       | Maximum number of records to return, bounded by the API. |
+| `unreadOnly` | query    | true / false                                                                                                                                                 | No       | Unread Only used to constrain this request.              |
+| `type`       | query    | BOOKING / QUOTATION / WORK_ORDER / ORDER / PAYMENT / REFUND / DISPUTE / INSPECTION / VEHICLE_TRANSACTION / ENQUIRY / COMPLAINT / REVIEW / PROMOTION / SYSTEM | No       | Type used to constrain this request.                     |
+| `category`   | query    | SECURITY / TRANSACTIONAL / OPERATIONAL / MARKETING                                                                                                           | No       | Category used to constrain this request.                 |
 
 Success: HTTP 200.
 
@@ -13770,9 +13703,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type   | Required | Purpose                                                                         |
+| -------------- | -------- | ------ | -------- | ------------------------------------------------------------------------------- |
+| `x-csrf-token` | header   | string | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 Success: HTTP 200.
 
@@ -13803,10 +13736,10 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `notificationId` | path | string (uuid) | Yes | Identifier selecting the notification resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter        | Location | Type          | Required | Purpose                                                                         |
+| ---------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `notificationId` | path     | string (uuid) | Yes      | Identifier selecting the notification resource.                                 |
+| `x-csrf-token`   | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 Success: HTTP 200.
 
@@ -13851,10 +13784,10 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `notificationId` | path | string (uuid) | Yes | Identifier selecting the notification resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter        | Location | Type          | Required | Purpose                                                                         |
+| ---------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `notificationId` | path     | string (uuid) | Yes      | Identifier selecting the notification resource.                                 |
+| `x-csrf-token`   | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 Success: HTTP 200.
 
@@ -13904,9 +13837,7 @@ Success: HTTP 200.
   "success": true,
   "message": "Get mutable operational and marketing preferences",
   "data": {
-    "immutableCategories": [
-      "SECURITY"
-    ],
+    "immutableCategories": ["SECURITY"],
     "channels": {
       "email": "customer@example.test",
       "sms": true,
@@ -13942,19 +13873,19 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
-| `idempotency-key` | header | string | Yes | Unique retry key for this logical mutation. Reuse it only with the identical request. |
+| Parameter         | Location | Type   | Required | Purpose                                                                               |
+| ----------------- | -------- | ------ | -------- | ------------------------------------------------------------------------------------- |
+| `x-csrf-token`    | header   | string | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.       |
+| `idempotency-key` | header   | string | Yes      | Unique retry key for this logical mutation. Reuse it only with the identical request. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `category` | OPERATIONAL / MARKETING | Yes | Category validated by this operation's strict request contract. |
-| `channel` | EMAIL / SMS | Yes | Channel validated by this operation's strict request contract. |
-| `enabled` | boolean | Yes | Enabled validated by this operation's strict request contract. |
-| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+| Field             | Type                    | Required | Purpose                                                                |
+| ----------------- | ----------------------- | -------- | ---------------------------------------------------------------------- |
+| `category`        | OPERATIONAL / MARKETING | Yes      | Category validated by this operation's strict request contract.        |
+| `channel`         | EMAIL / SMS             | Yes      | Channel validated by this operation's strict request contract.         |
+| `enabled`         | boolean                 | Yes      | Enabled validated by this operation's strict request contract.         |
+| `expectedVersion` | integer                 | Yes      | Last server version observed by the client; stale writes are rejected. |
 
 Synthetic request example:
 
@@ -14004,10 +13935,10 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `from` | query | string (date) | Yes | From used to constrain this request. |
-| `to` | query | string (date) | Yes | To used to constrain this request. |
+| Parameter | Location | Type          | Required | Purpose                              |
+| --------- | -------- | ------------- | -------- | ------------------------------------ |
+| `from`    | query    | string (date) | Yes      | From used to constrain this request. |
+| `to`      | query    | string (date) | Yes      | To used to constrain this request.   |
 
 Success: HTTP 200.
 
@@ -14204,13 +14135,13 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-| `kind` | query | ANONYMIZATION / DELETION | No | Kind used to constrain this request. |
-| `status` | query | REQUESTED / UNDER_REVIEW / ON_HOLD / APPROVED_PENDING_POLICY / REJECTED | No | Status used to constrain this request. |
-| `userId` | query | string (uuid) | No | User Id used to constrain this request. |
+| Parameter | Location | Type                                                                    | Required | Purpose                                                  |
+| --------- | -------- | ----------------------------------------------------------------------- | -------- | -------------------------------------------------------- |
+| `cursor`  | query    | string (uuid)                                                           | No       | Opaque cursor returned by the preceding page.            |
+| `limit`   | query    | integer                                                                 | No       | Maximum number of records to return, bounded by the API. |
+| `kind`    | query    | ANONYMIZATION / DELETION                                                | No       | Kind used to constrain this request.                     |
+| `status`  | query    | REQUESTED / UNDER_REVIEW / ON_HOLD / APPROVED_PENDING_POLICY / REJECTED | No       | Status used to constrain this request.                   |
+| `userId`  | query    | string (uuid)                                                           | No       | User Id used to constrain this request.                  |
 
 Success: HTTP 200.
 
@@ -14253,18 +14184,18 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `id`           | path     | string (uuid) | Yes      | Identifier selecting the id resource.                                           |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `status` | UNDER_REVIEW / ON_HOLD / APPROVED_PENDING_POLICY / REJECTED | Yes | Requested or filtered lifecycle state from the documented enum. |
-| `note` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
-| `expectedReviewedAt` | string / null | No | ISO 8601 timestamp interpreted and validated by the server. |
+| Field                | Type                                                        | Required | Purpose                                                                          |
+| -------------------- | ----------------------------------------------------------- | -------- | -------------------------------------------------------------------------------- |
+| `status`             | UNDER_REVIEW / ON_HOLD / APPROVED_PENDING_POLICY / REJECTED | Yes      | Requested or filtered lifecycle state from the documented enum.                  |
+| `note`               | string                                                      | Yes      | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| `expectedReviewedAt` | string / null                                               | No       | ISO 8601 timestamp interpreted and validated by the server.                      |
 
 Synthetic request example:
 
@@ -14312,9 +14243,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `userId` | query | string (uuid) | Yes | User Id used to constrain this request. |
+| Parameter | Location | Type          | Required | Purpose                                 |
+| --------- | -------- | ------------- | -------- | --------------------------------------- |
+| `userId`  | query    | string (uuid) | Yes      | User Id used to constrain this request. |
 
 Success: HTTP 200.
 
@@ -14354,18 +14285,18 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type   | Required | Purpose                                                                         |
+| -------------- | -------- | ------ | -------- | ------------------------------------------------------------------------------- |
+| `x-csrf-token` | header   | string | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `userId` | string (uuid) | Yes | Identifier of the user resource; ownership is resolved server-side. |
-| `recordType` | ALL / ACCOUNT / PAYMENT / INVOICE / AUDIT / SUPPORT | Yes | Record Type validated by this operation's strict request contract. |
-| `recordId` | string (uuid) | No | Identifier of the record resource; ownership is resolved server-side. |
-| `reason` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| Field        | Type                                                | Required | Purpose                                                                          |
+| ------------ | --------------------------------------------------- | -------- | -------------------------------------------------------------------------------- |
+| `userId`     | string (uuid)                                       | Yes      | Identifier of the user resource; ownership is resolved server-side.              |
+| `recordType` | ALL / ACCOUNT / PAYMENT / INVOICE / AUDIT / SUPPORT | Yes      | Record Type validated by this operation's strict request contract.               |
+| `recordId`   | string (uuid)                                       | No       | Identifier of the record resource; ownership is resolved server-side.            |
+| `reason`     | string                                              | Yes      | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
 
 Synthetic request example:
 
@@ -14414,16 +14345,16 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `id`           | path     | string (uuid) | Yes      | Identifier selecting the id resource.                                           |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `reason` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| Field    | Type   | Required | Purpose                                                                          |
+| -------- | ------ | -------- | -------------------------------------------------------------------------------- |
+| `reason` | string | Yes      | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
 
 Synthetic request example:
 
@@ -14464,9 +14395,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
+| Parameter | Location | Type          | Required | Purpose                               |
+| --------- | -------- | ------------- | -------- | ------------------------------------- |
+| `id`      | path     | string (uuid) | Yes      | Identifier selecting the id resource. |
 
 Success: HTTP 200.
 
@@ -14522,9 +14453,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
+| Parameter | Location | Type          | Required | Purpose                               |
+| --------- | -------- | ------------- | -------- | ------------------------------------- |
+| `id`      | path     | string (uuid) | Yes      | Identifier selecting the id resource. |
 
 Success: HTTP 200.
 
@@ -14578,17 +14509,17 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `id`           | path     | string (uuid) | Yes      | Identifier selecting the id resource.                                           |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `at` | string (date-time) | Yes | ISO 8601 timestamp interpreted and validated by the server. |
-| `reference` | string | Yes | Reference validated by this operation's strict request contract. |
+| Field       | Type               | Required | Purpose                                                          |
+| ----------- | ------------------ | -------- | ---------------------------------------------------------------- |
+| `at`        | string (date-time) | Yes      | ISO 8601 timestamp interpreted and validated by the server.      |
+| `reference` | string             | Yes      | Reference validated by this operation's strict request contract. |
 
 Synthetic request example:
 
@@ -14629,20 +14560,20 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `id`           | path     | string (uuid) | Yes      | Identifier selecting the id resource.                                           |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `stage` | RECEIVED / INSPECTED / APPROVED / REJECTED | Yes | Stage validated by this operation's strict request contract. |
-| `note` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
-| `goodCondition` | boolean | No | Good Condition validated by this operation's strict request contract. |
-| `approvedFeeKobo` | string | No | Approved Fee Kobo validated by this operation's strict request contract. |
-| `expectedStatus` | REQUESTED / RECEIVED / INSPECTED / APPROVED / REJECTED | No | Expected Status validated by this operation's strict request contract. |
+| Field             | Type                                                   | Required | Purpose                                                                          |
+| ----------------- | ------------------------------------------------------ | -------- | -------------------------------------------------------------------------------- |
+| `stage`           | RECEIVED / INSPECTED / APPROVED / REJECTED             | Yes      | Stage validated by this operation's strict request contract.                     |
+| `note`            | string                                                 | Yes      | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| `goodCondition`   | boolean                                                | No       | Good Condition validated by this operation's strict request contract.            |
+| `approvedFeeKobo` | string                                                 | No       | Approved Fee Kobo validated by this operation's strict request contract.         |
+| `expectedStatus`  | REQUESTED / RECEIVED / INSPECTED / APPROVED / REJECTED | No       | Expected Status validated by this operation's strict request contract.           |
 
 Synthetic request example:
 
@@ -14708,16 +14639,16 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `supportId` | path | string (uuid) | Yes | Identifier selecting the support resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `supportId`    | path     | string (uuid) | Yes      | Identifier selecting the support resource.                                      |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `message` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| Field     | Type   | Required | Purpose                                                                          |
+| --------- | ------ | -------- | -------------------------------------------------------------------------------- |
+| `message` | string | Yes      | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
 
 Synthetic request example:
 
@@ -14756,17 +14687,17 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `refundId` | path | string (uuid) | Yes | Identifier selecting the refund resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `refundId`     | path     | string (uuid) | Yes      | Identifier selecting the refund resource.                                       |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `decision` | APPROVED / CANCELLED | Yes | Decision validated by this operation's strict request contract. |
-| `note` | string | No | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| Field      | Type                 | Required | Purpose                                                                          |
+| ---------- | -------------------- | -------- | -------------------------------------------------------------------------------- |
+| `decision` | APPROVED / CANCELLED | Yes      | Decision validated by this operation's strict request contract.                  |
+| `note`     | string               | No       | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
 
 Synthetic request example:
 
@@ -14835,9 +14766,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `refundId` | path | string (uuid) | Yes | Identifier selecting the refund resource. |
+| Parameter  | Location | Type          | Required | Purpose                                   |
+| ---------- | -------- | ------------- | -------- | ----------------------------------------- |
+| `refundId` | path     | string (uuid) | Yes      | Identifier selecting the refund resource. |
 
 Success: HTTP 200.
 
@@ -14897,11 +14828,11 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-| `status` | query | REQUESTED / APPROVED / PENDING / PROCESSING / NEEDS_ATTENTION / SUCCEEDED / FAILED / CANCELLED | No | Status used to constrain this request. |
+| Parameter | Location | Type                                                                                           | Required | Purpose                                                  |
+| --------- | -------- | ---------------------------------------------------------------------------------------------- | -------- | -------------------------------------------------------- |
+| `cursor`  | query    | string (uuid)                                                                                  | No       | Opaque cursor returned by the preceding page.            |
+| `limit`   | query    | integer                                                                                        | No       | Maximum number of records to return, bounded by the API. |
+| `status`  | query    | REQUESTED / APPROVED / PENDING / PROCESSING / NEEDS_ATTENTION / SUCCEEDED / FAILED / CANCELLED | No       | Status used to constrain this request.                   |
 
 Success: HTTP 200.
 
@@ -14964,18 +14895,18 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `refundId` | path | string (uuid) | Yes | Identifier selecting the refund resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `refundId`     | path     | string (uuid) | Yes      | Identifier selecting the refund resource.                                       |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `mimeType` | application/pdf / image/jpeg / image/png | Yes | Mime Type validated by this operation's strict request contract. |
-| `sizeBytes` | integer | Yes | Size Bytes validated by this operation's strict request contract. |
-| `checksumSha256` | string | Yes | Checksum Sha256 validated by this operation's strict request contract. |
+| Field            | Type                                     | Required | Purpose                                                                |
+| ---------------- | ---------------------------------------- | -------- | ---------------------------------------------------------------------- |
+| `mimeType`       | application/pdf / image/jpeg / image/png | Yes      | Mime Type validated by this operation's strict request contract.       |
+| `sizeBytes`      | integer                                  | Yes      | Size Bytes validated by this operation's strict request contract.      |
+| `checksumSha256` | string                                   | Yes      | Checksum Sha256 validated by this operation's strict request contract. |
 
 Synthetic request example:
 
@@ -15021,19 +14952,19 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `refundId` | path | string (uuid) | Yes | Identifier selecting the refund resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `refundId`     | path     | string (uuid) | Yes      | Identifier selecting the refund resource.                                       |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `bankReference` | string | Yes | Bank Reference validated by this operation's strict request contract. |
-| `transferredAt` | string (date-time) | Yes | ISO 8601 timestamp interpreted and validated by the server. |
-| `evidenceToken` | string | Yes | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
-| `beneficiary` | object | Yes | Beneficiary validated by this operation's strict request contract. |
+| Field           | Type               | Required | Purpose                                                                                     |
+| --------------- | ------------------ | -------- | ------------------------------------------------------------------------------------------- |
+| `bankReference` | string             | Yes      | Bank Reference validated by this operation's strict request contract.                       |
+| `transferredAt` | string (date-time) | Yes      | ISO 8601 timestamp interpreted and validated by the server.                                 |
+| `evidenceToken` | string             | Yes      | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
+| `beneficiary`   | object             | Yes      | Beneficiary validated by this operation's strict request contract.                          |
 
 Synthetic request example:
 
@@ -15085,15 +15016,15 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `refundId` | path | string (uuid) | Yes | Identifier selecting the refund resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `refundId`     | path     | string (uuid) | Yes      | Identifier selecting the refund resource.                                       |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
 | Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
+| ----- | ---- | -------- | ------- |
 
 Synthetic request example:
 
@@ -15138,18 +15069,18 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `refundId` | path | string (uuid) | Yes | Identifier selecting the refund resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `refundId`     | path     | string (uuid) | Yes      | Identifier selecting the refund resource.                                       |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `accepted` | boolean | Yes | Accepted validated by this operation's strict request contract. |
-| `note` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
-| `evidenceChecked` | true | Yes | Evidence Checked validated by this operation's strict request contract. |
+| Field             | Type    | Required | Purpose                                                                          |
+| ----------------- | ------- | -------- | -------------------------------------------------------------------------------- |
+| `accepted`        | boolean | Yes      | Accepted validated by this operation's strict request contract.                  |
+| `note`            | string  | Yes      | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| `evidenceChecked` | true    | Yes      | Evidence Checked validated by this operation's strict request contract.          |
 
 Synthetic request example:
 
@@ -15196,11 +15127,11 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-| `openOnly` | query | true / false | No | Open Only used to constrain this request. |
+| Parameter  | Location | Type          | Required | Purpose                                                  |
+| ---------- | -------- | ------------- | -------- | -------------------------------------------------------- |
+| `cursor`   | query    | string (uuid) | No       | Opaque cursor returned by the preceding page.            |
+| `limit`    | query    | integer       | No       | Maximum number of records to return, bounded by the API. |
+| `openOnly` | query    | true / false  | No       | Open Only used to constrain this request.                |
 
 Success: HTTP 200.
 
@@ -15267,11 +15198,11 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-| `q` | query | string | No | Q used to constrain this request. |
+| Parameter | Location | Type          | Required | Purpose                                                  |
+| --------- | -------- | ------------- | -------- | -------------------------------------------------------- |
+| `cursor`  | query    | string (uuid) | No       | Opaque cursor returned by the preceding page.            |
+| `limit`   | query    | integer       | No       | Maximum number of records to return, bounded by the API. |
+| `q`       | query    | string        | No       | Q used to constrain this request.                        |
 
 Success: HTTP 200.
 
@@ -15307,9 +15238,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
+| Parameter | Location | Type          | Required | Purpose                               |
+| --------- | -------- | ------------- | -------- | ------------------------------------- |
+| `id`      | path     | string (uuid) | Yes      | Identifier selecting the id resource. |
 
 Success: HTTP 200.
 
@@ -15371,18 +15302,18 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `id`           | path     | string (uuid) | Yes      | Identifier selecting the id resource.                                           |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `primaryUserId` | string (uuid) | Yes | Identifier of the primary user resource; ownership is resolved server-side. |
-| `backupUserId` | string (uuid) | Yes | Identifier of the backup user resource; ownership is resolved server-side. |
-| `expectedUpdatedAt` | string (date-time) | No | ISO 8601 timestamp interpreted and validated by the server. |
+| Field               | Type               | Required | Purpose                                                                     |
+| ------------------- | ------------------ | -------- | --------------------------------------------------------------------------- |
+| `primaryUserId`     | string (uuid)      | Yes      | Identifier of the primary user resource; ownership is resolved server-side. |
+| `backupUserId`      | string (uuid)      | Yes      | Identifier of the backup user resource; ownership is resolved server-side.  |
+| `expectedUpdatedAt` | string (date-time) | No       | ISO 8601 timestamp interpreted and validated by the server.                 |
 
 Synthetic request example:
 
@@ -15454,17 +15385,17 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `id`           | path     | string (uuid) | Yes      | Identifier selecting the id resource.                                           |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `note` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
-| `expectedUpdatedAt` | string (date-time) | No | ISO 8601 timestamp interpreted and validated by the server. |
+| Field               | Type               | Required | Purpose                                                                          |
+| ------------------- | ------------------ | -------- | -------------------------------------------------------------------------------- |
+| `note`              | string             | Yes      | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| `expectedUpdatedAt` | string (date-time) | No       | ISO 8601 timestamp interpreted and validated by the server.                      |
 
 Synthetic request example:
 
@@ -15535,18 +15466,18 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `id`           | path     | string (uuid) | Yes      | Identifier selecting the id resource.                                           |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `mimeType` | application/pdf / image/jpeg / image/png | Yes | Mime Type validated by this operation's strict request contract. |
-| `sizeBytes` | integer | Yes | Size Bytes validated by this operation's strict request contract. |
-| `checksumSha256` | string | Yes | Checksum Sha256 validated by this operation's strict request contract. |
+| Field            | Type                                     | Required | Purpose                                                                |
+| ---------------- | ---------------------------------------- | -------- | ---------------------------------------------------------------------- |
+| `mimeType`       | application/pdf / image/jpeg / image/png | Yes      | Mime Type validated by this operation's strict request contract.       |
+| `sizeBytes`      | integer                                  | Yes      | Size Bytes validated by this operation's strict request contract.      |
+| `checksumSha256` | string                                   | Yes      | Checksum Sha256 validated by this operation's strict request contract. |
 
 Synthetic request example:
 
@@ -15592,21 +15523,21 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `id`           | path     | string (uuid) | Yes      | Identifier selecting the id resource.                                           |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `evidenceToken` | string | Yes | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
-| `invoice` | true | Yes | Invoice validated by this operation's strict request contract. |
-| `fulfillmentOrHandoverProof` | true | Yes | Fulfillment Or Handover Proof validated by this operation's strict request contract. |
-| `relevantCustomerMessages` | true | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
-| `note` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
-| `expectedUpdatedAt` | string (date-time) | No | ISO 8601 timestamp interpreted and validated by the server. |
+| Field                        | Type               | Required | Purpose                                                                                     |
+| ---------------------------- | ------------------ | -------- | ------------------------------------------------------------------------------------------- |
+| `evidenceToken`              | string             | Yes      | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
+| `invoice`                    | true               | Yes      | Invoice validated by this operation's strict request contract.                              |
+| `fulfillmentOrHandoverProof` | true               | Yes      | Fulfillment Or Handover Proof validated by this operation's strict request contract.        |
+| `relevantCustomerMessages`   | true               | Yes      | Plain-text business context; HTML is not accepted or rendered as trusted markup.            |
+| `note`                       | string             | Yes      | Plain-text business context; HTML is not accepted or rendered as trusted markup.            |
+| `expectedUpdatedAt`          | string (date-time) | No       | ISO 8601 timestamp interpreted and validated by the server.                                 |
 
 Synthetic request example:
 
@@ -15681,15 +15612,15 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `id`           | path     | string (uuid) | Yes      | Identifier selecting the id resource.                                           |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
 | Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
+| ----- | ---- | -------- | ------- |
 
 Synthetic request example:
 
@@ -15726,19 +15657,19 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `id`           | path     | string (uuid) | Yes      | Identifier selecting the id resource.                                           |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `providerSubmissionReference` | string | Yes | Provider Submission Reference validated by this operation's strict request contract. |
-| `submittedAt` | string (date-time) | Yes | ISO 8601 timestamp interpreted and validated by the server. |
-| `note` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
-| `expectedUpdatedAt` | string (date-time) | No | ISO 8601 timestamp interpreted and validated by the server. |
+| Field                         | Type               | Required | Purpose                                                                              |
+| ----------------------------- | ------------------ | -------- | ------------------------------------------------------------------------------------ |
+| `providerSubmissionReference` | string             | Yes      | Provider Submission Reference validated by this operation's strict request contract. |
+| `submittedAt`                 | string (date-time) | Yes      | ISO 8601 timestamp interpreted and validated by the server.                          |
+| `note`                        | string             | Yes      | Plain-text business context; HTML is not accepted or rendered as trusted markup.     |
+| `expectedUpdatedAt`           | string (date-time) | No       | ISO 8601 timestamp interpreted and validated by the server.                          |
 
 Synthetic request example:
 
@@ -15811,13 +15742,13 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `q` | query | string | No | Q used to constrain this request. |
-| `status` | query | REQUESTED / RECEIVED / INSPECTED / APPROVED / REJECTED | No | Status used to constrain this request. |
-| `kind` | query | RETURN / CANCELLATION | No | Kind used to constrain this request. |
+| Parameter | Location | Type                                                   | Required | Purpose                                                  |
+| --------- | -------- | ------------------------------------------------------ | -------- | -------------------------------------------------------- |
+| `limit`   | query    | integer                                                | No       | Maximum number of records to return, bounded by the API. |
+| `cursor`  | query    | string (uuid)                                          | No       | Opaque cursor returned by the preceding page.            |
+| `q`       | query    | string                                                 | No       | Q used to constrain this request.                        |
+| `status`  | query    | REQUESTED / RECEIVED / INSPECTED / APPROVED / REJECTED | No       | Status used to constrain this request.                   |
+| `kind`    | query    | RETURN / CANCELLATION                                  | No       | Kind used to constrain this request.                     |
 
 Success: HTTP 200.
 
@@ -15879,12 +15810,8 @@ Success: HTTP 200.
           "revocationReason": "synthetic-revocationreason"
         }
       ],
-      "permissions": [
-        "synthetic-permissions-item"
-      ],
-      "independentCapabilities": [
-        "REFUND_APPROVE"
-      ],
+      "permissions": ["synthetic-permissions-item"],
+      "independentCapabilities": ["REFUND_APPROVE"],
       "canManageAssignments": true,
       "canInviteAdmins": true,
       "accessRevision": "synthetic-accessrevision",
@@ -15919,9 +15846,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
+| Parameter | Location | Type          | Required | Purpose                               |
+| --------- | -------- | ------------- | -------- | ------------------------------------- |
+| `id`      | path     | string (uuid) | Yes      | Identifier selecting the id resource. |
 
 Success: HTTP 200.
 
@@ -15994,12 +15921,8 @@ Success: HTTP 200.
           "revocationReason": "synthetic-revocationreason"
         }
       ],
-      "permissions": [
-        "synthetic-permissions-item"
-      ],
-      "independentCapabilities": [
-        "REFUND_APPROVE"
-      ],
+      "permissions": ["synthetic-permissions-item"],
+      "independentCapabilities": ["REFUND_APPROVE"],
       "canManageAssignments": true,
       "canInviteAdmins": true,
       "accessRevision": "synthetic-accessrevision",
@@ -16034,20 +15957,20 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `id`           | path     | string (uuid) | Yes      | Identifier selecting the id resource.                                           |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `note` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
-| `approvedFeeKobo` | string | No | Approved Fee Kobo validated by this operation's strict request contract. |
-| `stage` | APPROVED / REJECTED | Yes | Stage validated by this operation's strict request contract. |
-| `expectedStatus` | REQUESTED / RECEIVED / INSPECTED / APPROVED / REJECTED | Yes | Expected Status validated by this operation's strict request contract. |
-| `expectedRevision` | string | Yes | Last server version observed by the client; stale writes are rejected. |
+| Field              | Type                                                   | Required | Purpose                                                                          |
+| ------------------ | ------------------------------------------------------ | -------- | -------------------------------------------------------------------------------- |
+| `note`             | string                                                 | Yes      | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| `approvedFeeKobo`  | string                                                 | No       | Approved Fee Kobo validated by this operation's strict request contract.         |
+| `stage`            | APPROVED / REJECTED                                    | Yes      | Stage validated by this operation's strict request contract.                     |
+| `expectedStatus`   | REQUESTED / RECEIVED / INSPECTED / APPROVED / REJECTED | Yes      | Expected Status validated by this operation's strict request contract.           |
+| `expectedRevision` | string                                                 | Yes      | Last server version observed by the client; stale writes are rejected.           |
 
 Synthetic request example:
 
@@ -16096,16 +16019,16 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `id`           | path     | string (uuid) | Yes      | Identifier selecting the id resource.                                           |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `notices` | array<object> | Yes | Notices validated by this operation's strict request contract. |
+| Field     | Type          | Required | Purpose                                                        |
+| --------- | ------------- | -------- | -------------------------------------------------------------- |
+| `notices` | array<object> | Yes      | Notices validated by this operation's strict request contract. |
 
 Synthetic request example:
 
@@ -16160,16 +16083,16 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `id`           | path     | string (uuid) | Yes      | Identifier selecting the id resource.                                           |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `notices` | array<object> | Yes | Notices validated by this operation's strict request contract. |
+| Field     | Type          | Required | Purpose                                                        |
+| --------- | ------------- | -------- | -------------------------------------------------------------- |
+| `notices` | array<object> | Yes      | Notices validated by this operation's strict request contract. |
 
 Synthetic request example:
 
@@ -16224,12 +16147,12 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `q` | query | string | No | Q used to constrain this request. |
+| Parameter | Location | Type          | Required | Purpose                                                  |
+| --------- | -------- | ------------- | -------- | -------------------------------------------------------- |
+| `id`      | path     | string (uuid) | Yes      | Identifier selecting the id resource.                    |
+| `limit`   | query    | integer       | No       | Maximum number of records to return, bounded by the API. |
+| `cursor`  | query    | string (uuid) | No       | Opaque cursor returned by the preceding page.            |
+| `q`       | query    | string        | No       | Q used to constrain this request.                        |
 
 Success: HTTP 200.
 
@@ -16273,12 +16196,8 @@ Success: HTTP 200.
           "revocationReason": "synthetic-revocationreason"
         }
       ],
-      "permissions": [
-        "synthetic-permissions-item"
-      ],
-      "independentCapabilities": [
-        "REFUND_APPROVE"
-      ],
+      "permissions": ["synthetic-permissions-item"],
+      "independentCapabilities": ["REFUND_APPROVE"],
       "canManageAssignments": true,
       "canInviteAdmins": true,
       "accessRevision": "synthetic-accessrevision",
@@ -16315,12 +16234,12 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `q` | query | string | No | Q used to constrain this request. |
+| Parameter | Location | Type          | Required | Purpose                                                  |
+| --------- | -------- | ------------- | -------- | -------------------------------------------------------- |
+| `id`      | path     | string (uuid) | Yes      | Identifier selecting the id resource.                    |
+| `limit`   | query    | integer       | No       | Maximum number of records to return, bounded by the API. |
+| `cursor`  | query    | string (uuid) | No       | Opaque cursor returned by the preceding page.            |
+| `q`       | query    | string        | No       | Q used to constrain this request.                        |
 
 Success: HTTP 200.
 
@@ -16364,12 +16283,8 @@ Success: HTTP 200.
           "revocationReason": "synthetic-revocationreason"
         }
       ],
-      "permissions": [
-        "synthetic-permissions-item"
-      ],
-      "independentCapabilities": [
-        "REFUND_APPROVE"
-      ],
+      "permissions": ["synthetic-permissions-item"],
+      "independentCapabilities": ["REFUND_APPROVE"],
       "canManageAssignments": true,
       "canInviteAdmins": true,
       "accessRevision": "synthetic-accessrevision",
@@ -16406,18 +16321,18 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `id`           | path     | string (uuid) | Yes      | Identifier selecting the id resource.                                           |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
-| `body` | string | Yes | Body validated by this operation's strict request contract. |
-| `expectedLatestMessageId` | string / null | No | Identifier of the expected latest message resource; ownership is resolved server-side. |
+| Field                     | Type          | Required | Purpose                                                                                |
+| ------------------------- | ------------- | -------- | -------------------------------------------------------------------------------------- |
+| `expectedVersion`         | integer       | Yes      | Last server version observed by the client; stale writes are rejected.                 |
+| `body`                    | string        | Yes      | Body validated by this operation's strict request contract.                            |
+| `expectedLatestMessageId` | string / null | No       | Identifier of the expected latest message resource; ownership is resolved server-side. |
 
 Synthetic request example:
 
@@ -16467,12 +16382,8 @@ Success: HTTP 200.
           "revocationReason": "synthetic-revocationreason"
         }
       ],
-      "permissions": [
-        "synthetic-permissions-item"
-      ],
-      "independentCapabilities": [
-        "REFUND_APPROVE"
-      ],
+      "permissions": ["synthetic-permissions-item"],
+      "independentCapabilities": ["REFUND_APPROVE"],
       "canManageAssignments": true,
       "canInviteAdmins": true,
       "accessRevision": "synthetic-accessrevision",
@@ -16507,6 +16418,195 @@ Success: HTTP 200.
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 Current access does not permit this request; 404 Record unavailable in permitted scope; 409 Stale version or invalid state; 422 Invalid fields; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
+### GET `/staff/workforce/complaints/{id}/assignees`
+
+- Operation ID: `getStaffWorkforceComplaintsByIdAssignees`
+- Purpose: Explicit enrollment required for operational queues. Current assignments, branch, field projections and state are enforced in a transaction. Access changes require MFA, current password, target/version review and an owner-configured delegation envelope. No financial execution, exports or collection release authority is conferred by a title. Responsibility-based workspace: complaintAssignees. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type          | Required | Purpose                                                  |
+| --------- | -------- | ------------- | -------- | -------------------------------------------------------- |
+| `id`      | path     | string (uuid) | Yes      | Identifier selecting the id resource.                    |
+| `limit`   | query    | integer       | No       | Maximum number of records to return, bounded by the API. |
+| `cursor`  | query    | string (uuid) | No       | Opaque cursor returned by the preceding page.            |
+| `q`       | query    | string        | No       | Q used to constrain this request.                        |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Responsibility-based workspace: complaintAssignees",
+  "data": {
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "firstName": "synthetic-firstname",
+        "lastName": "synthetic-lastname"
+      }
+    ],
+    "nextCursor": "00000000-0000-4000-8000-000000000001",
+    "generatedAt": "2030-01-15T10:00:00.000Z",
+    "access": {
+      "managed": true,
+      "userId": "00000000-0000-4000-8000-000000000001",
+      "staffId": "00000000-0000-4000-8000-000000000001",
+      "position": "synthetic-position",
+      "department": "synthetic-department",
+      "version": 0,
+      "assignments": [
+        {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "userId": "00000000-0000-4000-8000-000000000001",
+          "template": "OPERATIONS",
+          "templateVersion": 1,
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH",
+          "temporary": true,
+          "startsAt": "2030-01-15T10:00:00.000Z",
+          "expiresAt": "2030-01-15T10:00:00.000Z",
+          "reason": "synthetic-reason",
+          "assignedByUserId": "00000000-0000-4000-8000-000000000001",
+          "createdAt": "2030-01-15T10:00:00.000Z",
+          "revokedAt": "2030-01-15T10:00:00.000Z",
+          "revokedByUserId": "00000000-0000-4000-8000-000000000001",
+          "revocationReason": "synthetic-revocationreason"
+        }
+      ],
+      "permissions": ["synthetic-permissions-item"],
+      "independentCapabilities": ["REFUND_APPROVE"],
+      "canManageAssignments": true,
+      "canInviteAdmins": true,
+      "accessRevision": "synthetic-accessrevision",
+      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+      "capabilityScopes": [
+        {
+          "capability": "synthetic-capability",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH"
+        }
+      ],
+      "serverTime": "2030-01-15T10:00:00.000Z"
+    },
+    "complaintId": "00000000-0000-4000-8000-000000000001",
+    "complaintVersion": 0,
+    "branchId": "00000000-0000-4000-8000-000000000001"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 Current access does not permit this request; 404 Record unavailable in permitted scope; 409 Stale version or invalid state; 422 Invalid fields; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### PATCH `/staff/workforce/complaints/{id}/assignment`
+
+- Operation ID: `patchStaffWorkforceComplaintsByIdAssignment`
+- Purpose: Explicit enrollment required for operational queues. Current assignments, branch, field projections and state are enforced in a transaction. Access changes require MFA, current password, target/version review and an owner-configured delegation envelope. No financial execution, exports or collection release authority is conferred by a title. Responsibility-based workspace: complaintAssignment. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `id`           | path     | string (uuid) | Yes      | Identifier selecting the id resource.                                           |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field             | Type          | Required | Purpose                                                                          |
+| ----------------- | ------------- | -------- | -------------------------------------------------------------------------------- |
+| `expectedVersion` | integer       | Yes      | Last server version observed by the client; stale writes are rejected.           |
+| `staffId`         | string (uuid) | Yes      | Identifier of the staff resource; ownership is resolved server-side.             |
+| `reason`          | string        | Yes      | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+
+Synthetic request example:
+
+```json
+{
+  "expectedVersion": 0,
+  "staffId": "00000000-0000-4000-8000-000000000001",
+  "reason": "synthetic-reason"
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Responsibility-based workspace: complaintAssignment",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "version": 0,
+    "branchId": "00000000-0000-4000-8000-000000000001",
+    "actorUserId": "00000000-0000-4000-8000-000000000001",
+    "generatedAt": "2030-01-15T10:00:00.000Z",
+    "access": {
+      "managed": true,
+      "userId": "00000000-0000-4000-8000-000000000001",
+      "staffId": "00000000-0000-4000-8000-000000000001",
+      "position": "synthetic-position",
+      "department": "synthetic-department",
+      "version": 0,
+      "assignments": [
+        {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "userId": "00000000-0000-4000-8000-000000000001",
+          "template": "OPERATIONS",
+          "templateVersion": 1,
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH",
+          "temporary": true,
+          "startsAt": "2030-01-15T10:00:00.000Z",
+          "expiresAt": "2030-01-15T10:00:00.000Z",
+          "reason": "synthetic-reason",
+          "assignedByUserId": "00000000-0000-4000-8000-000000000001",
+          "createdAt": "2030-01-15T10:00:00.000Z",
+          "revokedAt": "2030-01-15T10:00:00.000Z",
+          "revokedByUserId": "00000000-0000-4000-8000-000000000001",
+          "revocationReason": "synthetic-revocationreason"
+        }
+      ],
+      "permissions": ["synthetic-permissions-item"],
+      "independentCapabilities": ["REFUND_APPROVE"],
+      "canManageAssignments": true,
+      "canInviteAdmins": true,
+      "accessRevision": "synthetic-accessrevision",
+      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+      "capabilityScopes": [
+        {
+          "capability": "synthetic-capability",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH"
+        }
+      ],
+      "serverTime": "2030-01-15T10:00:00.000Z"
+    },
+    "action": "assignment",
+    "assignmentReceipt": {
+      "staffId": "00000000-0000-4000-8000-000000000001",
+      "previousStaffId": "00000000-0000-4000-8000-000000000001",
+      "reason": "synthetic-reason"
+    }
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 Current access does not permit this request; 404 Record unavailable in permitted scope; 409 Stale version or invalid state; 422 Invalid fields; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
 ### PATCH `/staff/workforce/enquiries/{id}/assignment`
 
 - Operation ID: `patchStaffWorkforceEnquiriesByIdAssignment`
@@ -16518,18 +16618,18 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `id`           | path     | string (uuid) | Yes      | Identifier selecting the id resource.                                           |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
-| `staffId` | string (uuid) | Yes | Identifier of the staff resource; ownership is resolved server-side. |
-| `reason` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| Field             | Type          | Required | Purpose                                                                          |
+| ----------------- | ------------- | -------- | -------------------------------------------------------------------------------- |
+| `expectedVersion` | integer       | Yes      | Last server version observed by the client; stale writes are rejected.           |
+| `staffId`         | string (uuid) | Yes      | Identifier of the staff resource; ownership is resolved server-side.             |
+| `reason`          | string        | Yes      | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
 
 Synthetic request example:
 
@@ -16579,12 +16679,8 @@ Success: HTTP 200.
           "revocationReason": "synthetic-revocationreason"
         }
       ],
-      "permissions": [
-        "synthetic-permissions-item"
-      ],
-      "independentCapabilities": [
-        "REFUND_APPROVE"
-      ],
+      "permissions": ["synthetic-permissions-item"],
+      "independentCapabilities": ["REFUND_APPROVE"],
       "canManageAssignments": true,
       "canInviteAdmins": true,
       "accessRevision": "synthetic-accessrevision",
@@ -16654,12 +16750,8 @@ Success: HTTP 200.
         "revocationReason": "synthetic-revocationreason"
       }
     ],
-    "permissions": [
-      "synthetic-permissions-item"
-    ],
-    "independentCapabilities": [
-      "REFUND_APPROVE"
-    ],
+    "permissions": ["synthetic-permissions-item"],
+    "independentCapabilities": ["REFUND_APPROVE"],
     "canManageAssignments": true,
     "canInviteAdmins": true,
     "accessRevision": "synthetic-accessrevision",
@@ -16725,12 +16817,8 @@ Success: HTTP 200.
           "revocationReason": "synthetic-revocationreason"
         }
       ],
-      "permissions": [
-        "synthetic-permissions-item"
-      ],
-      "independentCapabilities": [
-        "REFUND_APPROVE"
-      ],
+      "permissions": ["synthetic-permissions-item"],
+      "independentCapabilities": ["REFUND_APPROVE"],
       "canManageAssignments": true,
       "canInviteAdmins": true,
       "accessRevision": "synthetic-accessrevision",
@@ -16770,12 +16858,12 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `q` | query | string | No | Q used to constrain this request. |
-| `workStatus` | query | DRAFT / APPROVED / IN_PROGRESS / AWAITING_PARTS / QUALITY_CHECK / COMPLETED / CANCELLED / NOT_CREATED | No | Work Status used to constrain this request. |
+| Parameter    | Location | Type                                                                                                  | Required | Purpose                                                  |
+| ------------ | -------- | ----------------------------------------------------------------------------------------------------- | -------- | -------------------------------------------------------- |
+| `limit`      | query    | integer                                                                                               | No       | Maximum number of records to return, bounded by the API. |
+| `cursor`     | query    | string (uuid)                                                                                         | No       | Opaque cursor returned by the preceding page.            |
+| `q`          | query    | string                                                                                                | No       | Q used to constrain this request.                        |
+| `workStatus` | query    | DRAFT / APPROVED / IN_PROGRESS / AWAITING_PARTS / QUALITY_CHECK / COMPLETED / CANCELLED / NOT_CREATED | No       | Work Status used to constrain this request.              |
 
 Success: HTTP 200.
 
@@ -16809,9 +16897,7 @@ Success: HTTP 200.
           "diagnosis": "synthetic-diagnosis",
           "internalNotes": "synthetic-internalnotes",
           "version": 0,
-          "workedByUserIds": [
-            "00000000-0000-4000-8000-000000000001"
-          ],
+          "workedByUserIds": ["00000000-0000-4000-8000-000000000001"],
           "qualityApprovedByUserId": "00000000-0000-4000-8000-000000000001",
           "qualityApprovedAt": "2030-01-15T10:00:00.000Z"
         }
@@ -16845,12 +16931,8 @@ Success: HTTP 200.
           "revocationReason": "synthetic-revocationreason"
         }
       ],
-      "permissions": [
-        "synthetic-permissions-item"
-      ],
-      "independentCapabilities": [
-        "REFUND_APPROVE"
-      ],
+      "permissions": ["synthetic-permissions-item"],
+      "independentCapabilities": ["REFUND_APPROVE"],
       "canManageAssignments": true,
       "canInviteAdmins": true,
       "accessRevision": "synthetic-accessrevision",
@@ -16884,12 +16966,12 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `q` | query | string | No | Q used to constrain this request. |
-| `status` | query | REQUESTED / AWAITING_DEPOSIT / CONFIRMED / IN_PROGRESS / COMPLETED / CANCELLED / NO_SHOW / EXPIRED | No | Status used to constrain this request. |
+| Parameter | Location | Type                                                                                               | Required | Purpose                                                  |
+| --------- | -------- | -------------------------------------------------------------------------------------------------- | -------- | -------------------------------------------------------- |
+| `limit`   | query    | integer                                                                                            | No       | Maximum number of records to return, bounded by the API. |
+| `cursor`  | query    | string (uuid)                                                                                      | No       | Opaque cursor returned by the preceding page.            |
+| `q`       | query    | string                                                                                             | No       | Q used to constrain this request.                        |
+| `status`  | query    | REQUESTED / AWAITING_DEPOSIT / CONFIRMED / IN_PROGRESS / COMPLETED / CANCELLED / NO_SHOW / EXPIRED | No       | Status used to constrain this request.                   |
 
 Success: HTTP 200.
 
@@ -16952,12 +17034,8 @@ Success: HTTP 200.
           "revocationReason": "synthetic-revocationreason"
         }
       ],
-      "permissions": [
-        "synthetic-permissions-item"
-      ],
-      "independentCapabilities": [
-        "REFUND_APPROVE"
-      ],
+      "permissions": ["synthetic-permissions-item"],
+      "independentCapabilities": ["REFUND_APPROVE"],
       "canManageAssignments": true,
       "canInviteAdmins": true,
       "accessRevision": "synthetic-accessrevision",
@@ -16992,9 +17070,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
+| Parameter | Location | Type          | Required | Purpose                               |
+| --------- | -------- | ------------- | -------- | ------------------------------------- |
+| `id`      | path     | string (uuid) | Yes      | Identifier selecting the id resource. |
 
 Success: HTTP 200.
 
@@ -17026,9 +17104,7 @@ Success: HTTP 200.
       "diagnosis": "synthetic-diagnosis",
       "internalNotes": "synthetic-internalnotes",
       "version": 0,
-      "workedByUserIds": [
-        "00000000-0000-4000-8000-000000000001"
-      ],
+      "workedByUserIds": ["00000000-0000-4000-8000-000000000001"],
       "qualityApprovedByUserId": "00000000-0000-4000-8000-000000000001",
       "qualityApprovedAt": "2030-01-15T10:00:00.000Z"
     },
@@ -17059,12 +17135,8 @@ Success: HTTP 200.
           "revocationReason": "synthetic-revocationreason"
         }
       ],
-      "permissions": [
-        "synthetic-permissions-item"
-      ],
-      "independentCapabilities": [
-        "REFUND_APPROVE"
-      ],
+      "permissions": ["synthetic-permissions-item"],
+      "independentCapabilities": ["REFUND_APPROVE"],
       "canManageAssignments": true,
       "canInviteAdmins": true,
       "accessRevision": "synthetic-accessrevision",
@@ -17107,17 +17179,17 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `id`           | path     | string (uuid) | Yes      | Identifier selecting the id resource.                                           |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
-| `resourceReviewNote` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| Field                | Type    | Required | Purpose                                                                          |
+| -------------------- | ------- | -------- | -------------------------------------------------------------------------------- |
+| `expectedVersion`    | integer | Yes      | Last server version observed by the client; stale writes are rejected.           |
+| `resourceReviewNote` | string  | Yes      | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
 
 Synthetic request example:
 
@@ -17165,9 +17237,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
+| Parameter | Location | Type          | Required | Purpose                               |
+| --------- | -------- | ------------- | -------- | ------------------------------------- |
+| `id`      | path     | string (uuid) | Yes      | Identifier selecting the id resource. |
 
 Success: HTTP 200.
 
@@ -17232,12 +17304,8 @@ Success: HTTP 200.
           "revocationReason": "synthetic-revocationreason"
         }
       ],
-      "permissions": [
-        "synthetic-permissions-item"
-      ],
-      "independentCapabilities": [
-        "REFUND_APPROVE"
-      ],
+      "permissions": ["synthetic-permissions-item"],
+      "independentCapabilities": ["REFUND_APPROVE"],
       "canManageAssignments": true,
       "canInviteAdmins": true,
       "accessRevision": "synthetic-accessrevision",
@@ -17272,12 +17340,12 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `messageId` | query | string (uuid) | No | Message Id used to constrain this request. |
+| Parameter   | Location | Type          | Required | Purpose                                                  |
+| ----------- | -------- | ------------- | -------- | -------------------------------------------------------- |
+| `id`        | path     | string (uuid) | Yes      | Identifier selecting the id resource.                    |
+| `limit`     | query    | integer       | No       | Maximum number of records to return, bounded by the API. |
+| `cursor`    | query    | string (uuid) | No       | Opaque cursor returned by the preceding page.            |
+| `messageId` | query    | string (uuid) | No       | Message Id used to constrain this request.               |
 
 Success: HTTP 200.
 
@@ -17332,12 +17400,8 @@ Success: HTTP 200.
           "revocationReason": "synthetic-revocationreason"
         }
       ],
-      "permissions": [
-        "synthetic-permissions-item"
-      ],
-      "independentCapabilities": [
-        "REFUND_APPROVE"
-      ],
+      "permissions": ["synthetic-permissions-item"],
+      "independentCapabilities": ["REFUND_APPROVE"],
       "canManageAssignments": true,
       "canInviteAdmins": true,
       "accessRevision": "synthetic-accessrevision",
@@ -17404,19 +17468,19 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `id`           | path     | string (uuid) | Yes      | Identifier selecting the id resource.                                           |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
-| `diagnosis` | string | No | Diagnosis validated by this operation's strict request contract. |
-| `internalNotes` | string | No | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
-| `status` | IN_PROGRESS / AWAITING_PARTS / QUALITY_CHECK | No | Requested or filtered lifecycle state from the documented enum. |
+| Field             | Type                                         | Required | Purpose                                                                          |
+| ----------------- | -------------------------------------------- | -------- | -------------------------------------------------------------------------------- |
+| `expectedVersion` | integer                                      | Yes      | Last server version observed by the client; stale writes are rejected.           |
+| `diagnosis`       | string                                       | No       | Diagnosis validated by this operation's strict request contract.                 |
+| `internalNotes`   | string                                       | No       | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| `status`          | IN_PROGRESS / AWAITING_PARTS / QUALITY_CHECK | No       | Requested or filtered lifecycle state from the documented enum.                  |
 
 Synthetic request example:
 
@@ -17459,9 +17523,7 @@ Success: HTTP 200.
       "diagnosis": "synthetic-diagnosis",
       "internalNotes": "synthetic-internalnotes",
       "version": 0,
-      "workedByUserIds": [
-        "00000000-0000-4000-8000-000000000001"
-      ],
+      "workedByUserIds": ["00000000-0000-4000-8000-000000000001"],
       "qualityApprovedByUserId": "00000000-0000-4000-8000-000000000001",
       "qualityApprovedAt": "2030-01-15T10:00:00.000Z"
     },
@@ -17492,12 +17554,8 @@ Success: HTTP 200.
           "revocationReason": "synthetic-revocationreason"
         }
       ],
-      "permissions": [
-        "synthetic-permissions-item"
-      ],
-      "independentCapabilities": [
-        "REFUND_APPROVE"
-      ],
+      "permissions": ["synthetic-permissions-item"],
+      "independentCapabilities": ["REFUND_APPROVE"],
       "canManageAssignments": true,
       "canInviteAdmins": true,
       "accessRevision": "synthetic-accessrevision",
@@ -17540,17 +17598,17 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `id`           | path     | string (uuid) | Yes      | Identifier selecting the id resource.                                           |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
-| `reason` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| Field             | Type    | Required | Purpose                                                                          |
+| ----------------- | ------- | -------- | -------------------------------------------------------------------------------- |
+| `expectedVersion` | integer | Yes      | Last server version observed by the client; stale writes are rejected.           |
+| `reason`          | string  | Yes      | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
 
 Synthetic request example:
 
@@ -17591,9 +17649,7 @@ Success: HTTP 200.
       "diagnosis": "synthetic-diagnosis",
       "internalNotes": "synthetic-internalnotes",
       "version": 0,
-      "workedByUserIds": [
-        "00000000-0000-4000-8000-000000000001"
-      ],
+      "workedByUserIds": ["00000000-0000-4000-8000-000000000001"],
       "qualityApprovedByUserId": "00000000-0000-4000-8000-000000000001",
       "qualityApprovedAt": "2030-01-15T10:00:00.000Z"
     },
@@ -17624,12 +17680,8 @@ Success: HTTP 200.
           "revocationReason": "synthetic-revocationreason"
         }
       ],
-      "permissions": [
-        "synthetic-permissions-item"
-      ],
-      "independentCapabilities": [
-        "REFUND_APPROVE"
-      ],
+      "permissions": ["synthetic-permissions-item"],
+      "independentCapabilities": ["REFUND_APPROVE"],
       "canManageAssignments": true,
       "canInviteAdmins": true,
       "accessRevision": "synthetic-accessrevision",
@@ -17672,18 +17724,18 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `id`           | path     | string (uuid) | Yes      | Identifier selecting the id resource.                                           |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
-| `staffId` | string (uuid) | Yes | Identifier of the staff resource; ownership is resolved server-side. |
-| `reason` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| Field             | Type          | Required | Purpose                                                                          |
+| ----------------- | ------------- | -------- | -------------------------------------------------------------------------------- |
+| `expectedVersion` | integer       | Yes      | Last server version observed by the client; stale writes are rejected.           |
+| `staffId`         | string (uuid) | Yes      | Identifier of the staff resource; ownership is resolved server-side.             |
+| `reason`          | string        | Yes      | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
 
 Synthetic request example:
 
@@ -17725,9 +17777,7 @@ Success: HTTP 200.
       "diagnosis": "synthetic-diagnosis",
       "internalNotes": "synthetic-internalnotes",
       "version": 0,
-      "workedByUserIds": [
-        "00000000-0000-4000-8000-000000000001"
-      ],
+      "workedByUserIds": ["00000000-0000-4000-8000-000000000001"],
       "qualityApprovedByUserId": "00000000-0000-4000-8000-000000000001",
       "qualityApprovedAt": "2030-01-15T10:00:00.000Z"
     },
@@ -17758,12 +17808,8 @@ Success: HTTP 200.
           "revocationReason": "synthetic-revocationreason"
         }
       ],
-      "permissions": [
-        "synthetic-permissions-item"
-      ],
-      "independentCapabilities": [
-        "REFUND_APPROVE"
-      ],
+      "permissions": ["synthetic-permissions-item"],
+      "independentCapabilities": ["REFUND_APPROVE"],
       "canManageAssignments": true,
       "canInviteAdmins": true,
       "accessRevision": "synthetic-accessrevision",
@@ -17806,13 +17852,13 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `q` | query | string | No | Q used to constrain this request. |
-| `type` | query | GENERAL / PRODUCT / VEHICLE / SERVICE / BOOKING / QUOTATION | No | Type used to constrain this request. |
-| `status` | query | OPEN / IN_PROGRESS / RESOLVED / CLOSED | No | Status used to constrain this request. |
+| Parameter | Location | Type                                                        | Required | Purpose                                                  |
+| --------- | -------- | ----------------------------------------------------------- | -------- | -------------------------------------------------------- |
+| `limit`   | query    | integer                                                     | No       | Maximum number of records to return, bounded by the API. |
+| `cursor`  | query    | string (uuid)                                               | No       | Opaque cursor returned by the preceding page.            |
+| `q`       | query    | string                                                      | No       | Q used to constrain this request.                        |
+| `type`    | query    | GENERAL / PRODUCT / VEHICLE / SERVICE / BOOKING / QUOTATION | No       | Type used to constrain this request.                     |
+| `status`  | query    | OPEN / IN_PROGRESS / RESOLVED / CLOSED                      | No       | Status used to constrain this request.                   |
 
 Success: HTTP 200.
 
@@ -17872,12 +17918,8 @@ Success: HTTP 200.
           "revocationReason": "synthetic-revocationreason"
         }
       ],
-      "permissions": [
-        "synthetic-permissions-item"
-      ],
-      "independentCapabilities": [
-        "REFUND_APPROVE"
-      ],
+      "permissions": ["synthetic-permissions-item"],
+      "independentCapabilities": ["REFUND_APPROVE"],
       "canManageAssignments": true,
       "canInviteAdmins": true,
       "accessRevision": "synthetic-accessrevision",
@@ -17912,18 +17954,18 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `id`           | path     | string (uuid) | Yes      | Identifier selecting the id resource.                                           |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
-| `body` | string | Yes | Body validated by this operation's strict request contract. |
-| `expectedLatestMessageId` | string / null | No | Identifier of the expected latest message resource; ownership is resolved server-side. |
+| Field                     | Type          | Required | Purpose                                                                                |
+| ------------------------- | ------------- | -------- | -------------------------------------------------------------------------------------- |
+| `expectedVersion`         | integer       | Yes      | Last server version observed by the client; stale writes are rejected.                 |
+| `body`                    | string        | Yes      | Body validated by this operation's strict request contract.                            |
+| `expectedLatestMessageId` | string / null | No       | Identifier of the expected latest message resource; ownership is resolved server-side. |
 
 Synthetic request example:
 
@@ -17973,12 +18015,8 @@ Success: HTTP 200.
           "revocationReason": "synthetic-revocationreason"
         }
       ],
-      "permissions": [
-        "synthetic-permissions-item"
-      ],
-      "independentCapabilities": [
-        "REFUND_APPROVE"
-      ],
+      "permissions": ["synthetic-permissions-item"],
+      "independentCapabilities": ["REFUND_APPROVE"],
       "canManageAssignments": true,
       "canInviteAdmins": true,
       "accessRevision": "synthetic-accessrevision",
@@ -18024,13 +18062,13 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `q` | query | string | No | Q used to constrain this request. |
-| `priority` | query | LOW / MEDIUM / HIGH / URGENT | No | Priority used to constrain this request. |
-| `status` | query | OPEN / INVESTIGATING / RESOLVED / CLOSED | No | Status used to constrain this request. |
+| Parameter  | Location | Type                                     | Required | Purpose                                                  |
+| ---------- | -------- | ---------------------------------------- | -------- | -------------------------------------------------------- |
+| `limit`    | query    | integer                                  | No       | Maximum number of records to return, bounded by the API. |
+| `cursor`   | query    | string (uuid)                            | No       | Opaque cursor returned by the preceding page.            |
+| `q`        | query    | string                                   | No       | Q used to constrain this request.                        |
+| `priority` | query    | LOW / MEDIUM / HIGH / URGENT             | No       | Priority used to constrain this request.                 |
+| `status`   | query    | OPEN / INVESTIGATING / RESOLVED / CLOSED | No       | Status used to constrain this request.                   |
 
 Success: HTTP 200.
 
@@ -18083,12 +18121,8 @@ Success: HTTP 200.
           "revocationReason": "synthetic-revocationreason"
         }
       ],
-      "permissions": [
-        "synthetic-permissions-item"
-      ],
-      "independentCapabilities": [
-        "REFUND_APPROVE"
-      ],
+      "permissions": ["synthetic-permissions-item"],
+      "independentCapabilities": ["REFUND_APPROVE"],
       "canManageAssignments": true,
       "canInviteAdmins": true,
       "accessRevision": "synthetic-accessrevision",
@@ -18123,12 +18157,12 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `messageId` | query | string (uuid) | No | Message Id used to constrain this request. |
+| Parameter   | Location | Type          | Required | Purpose                                                  |
+| ----------- | -------- | ------------- | -------- | -------------------------------------------------------- |
+| `id`        | path     | string (uuid) | Yes      | Identifier selecting the id resource.                    |
+| `limit`     | query    | integer       | No       | Maximum number of records to return, bounded by the API. |
+| `cursor`    | query    | string (uuid) | No       | Opaque cursor returned by the preceding page.            |
+| `messageId` | query    | string (uuid) | No       | Message Id used to constrain this request.               |
 
 Success: HTTP 200.
 
@@ -18182,12 +18216,8 @@ Success: HTTP 200.
           "revocationReason": "synthetic-revocationreason"
         }
       ],
-      "permissions": [
-        "synthetic-permissions-item"
-      ],
-      "independentCapabilities": [
-        "REFUND_APPROVE"
-      ],
+      "permissions": ["synthetic-permissions-item"],
+      "independentCapabilities": ["REFUND_APPROVE"],
       "canManageAssignments": true,
       "canInviteAdmins": true,
       "accessRevision": "synthetic-accessrevision",
@@ -18254,13 +18284,13 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `q` | query | string | No | Q used to constrain this request. |
-| `status` | query | PENDING / CONFIRMED / PROCESSING / READY / COMPLETED / CANCELLED | No | Status used to constrain this request. |
-| `fulfillmentMethod` | query | COLLECTION / DELIVERY | No | Fulfillment Method used to constrain this request. |
+| Parameter           | Location | Type                                                             | Required | Purpose                                                  |
+| ------------------- | -------- | ---------------------------------------------------------------- | -------- | -------------------------------------------------------- |
+| `limit`             | query    | integer                                                          | No       | Maximum number of records to return, bounded by the API. |
+| `cursor`            | query    | string (uuid)                                                    | No       | Opaque cursor returned by the preceding page.            |
+| `q`                 | query    | string                                                           | No       | Q used to constrain this request.                        |
+| `status`            | query    | PENDING / CONFIRMED / PROCESSING / READY / COMPLETED / CANCELLED | No       | Status used to constrain this request.                   |
+| `fulfillmentMethod` | query    | COLLECTION / DELIVERY                                            | No       | Fulfillment Method used to constrain this request.       |
 
 Success: HTTP 200.
 
@@ -18284,9 +18314,7 @@ Success: HTTP 200.
         },
         "updatedAt": "2030-01-15T10:00:00.000Z",
         "paidAt": "2030-01-15T10:00:00.000Z",
-        "availableNextStates": [
-          "PROCESSING"
-        ],
+        "availableNextStates": ["PROCESSING"],
         "items": [
           {
             "productName": "synthetic-productname",
@@ -18322,12 +18350,8 @@ Success: HTTP 200.
           "revocationReason": "synthetic-revocationreason"
         }
       ],
-      "permissions": [
-        "synthetic-permissions-item"
-      ],
-      "independentCapabilities": [
-        "REFUND_APPROVE"
-      ],
+      "permissions": ["synthetic-permissions-item"],
+      "independentCapabilities": ["REFUND_APPROVE"],
       "canManageAssignments": true,
       "canInviteAdmins": true,
       "accessRevision": "synthetic-accessrevision",
@@ -18362,9 +18386,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
+| Parameter | Location | Type          | Required | Purpose                               |
+| --------- | -------- | ------------- | -------- | ------------------------------------- |
+| `id`      | path     | string (uuid) | Yes      | Identifier selecting the id resource. |
 
 Success: HTTP 200.
 
@@ -18386,9 +18410,7 @@ Success: HTTP 200.
     },
     "updatedAt": "2030-01-15T10:00:00.000Z",
     "paidAt": "2030-01-15T10:00:00.000Z",
-    "availableNextStates": [
-      "PROCESSING"
-    ],
+    "availableNextStates": ["PROCESSING"],
     "items": [
       {
         "productName": "synthetic-productname",
@@ -18426,12 +18448,8 @@ Success: HTTP 200.
           "revocationReason": "synthetic-revocationreason"
         }
       ],
-      "permissions": [
-        "synthetic-permissions-item"
-      ],
-      "independentCapabilities": [
-        "REFUND_APPROVE"
-      ],
+      "permissions": ["synthetic-permissions-item"],
+      "independentCapabilities": ["REFUND_APPROVE"],
       "canManageAssignments": true,
       "canInviteAdmins": true,
       "accessRevision": "synthetic-accessrevision",
@@ -18466,18 +18484,18 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `id`           | path     | string (uuid) | Yes      | Identifier selecting the id resource.                                           |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
-| `status` | PROCESSING / READY | Yes | Requested or filtered lifecycle state from the documented enum. |
-| `reason` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| Field             | Type               | Required | Purpose                                                                          |
+| ----------------- | ------------------ | -------- | -------------------------------------------------------------------------------- |
+| `expectedVersion` | integer            | Yes      | Last server version observed by the client; stale writes are rejected.           |
+| `status`          | PROCESSING / READY | Yes      | Requested or filtered lifecycle state from the documented enum.                  |
+| `reason`          | string             | Yes      | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
 
 Synthetic request example:
 
@@ -18509,9 +18527,7 @@ Success: HTTP 200.
     },
     "updatedAt": "2030-01-15T10:00:00.000Z",
     "paidAt": "2030-01-15T10:00:00.000Z",
-    "availableNextStates": [
-      "PROCESSING"
-    ],
+    "availableNextStates": ["PROCESSING"],
     "items": [
       {
         "productName": "synthetic-productname",
@@ -18549,12 +18565,8 @@ Success: HTTP 200.
           "revocationReason": "synthetic-revocationreason"
         }
       ],
-      "permissions": [
-        "synthetic-permissions-item"
-      ],
-      "independentCapabilities": [
-        "REFUND_APPROVE"
-      ],
+      "permissions": ["synthetic-permissions-item"],
+      "independentCapabilities": ["REFUND_APPROVE"],
       "canManageAssignments": true,
       "canInviteAdmins": true,
       "accessRevision": "synthetic-accessrevision",
@@ -18594,13 +18606,13 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `q` | query | string | No | Q used to constrain this request. |
-| `status` | query | REQUIRES_PAYMENT / PROCESSING / REQUIRES_REVIEW / SUCCEEDED / CANCELLED / EXPIRED | No | Status used to constrain this request. |
-| `purpose` | query | ORDER_PAYMENT / SERVICE_INVOICE / BOOKING_DEPOSIT / VEHICLE_RESERVATION / VEHICLE_PARTIAL_PAYMENT / VEHICLE_BALANCE_PAYMENT / VEHICLE_FULL_PAYMENT | No | Purpose used to constrain this request. |
+| Parameter | Location | Type                                                                                                                                               | Required | Purpose                                                  |
+| --------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | -------------------------------------------------------- |
+| `limit`   | query    | integer                                                                                                                                            | No       | Maximum number of records to return, bounded by the API. |
+| `cursor`  | query    | string (uuid)                                                                                                                                      | No       | Opaque cursor returned by the preceding page.            |
+| `q`       | query    | string                                                                                                                                             | No       | Q used to constrain this request.                        |
+| `status`  | query    | REQUIRES_PAYMENT / PROCESSING / REQUIRES_REVIEW / SUCCEEDED / CANCELLED / EXPIRED                                                                  | No       | Status used to constrain this request.                   |
+| `purpose` | query    | ORDER_PAYMENT / SERVICE_INVOICE / BOOKING_DEPOSIT / VEHICLE_RESERVATION / VEHICLE_PARTIAL_PAYMENT / VEHICLE_BALANCE_PAYMENT / VEHICLE_FULL_PAYMENT | No       | Purpose used to constrain this request.                  |
 
 Success: HTTP 200.
 
@@ -18658,12 +18670,8 @@ Success: HTTP 200.
           "revocationReason": "synthetic-revocationreason"
         }
       ],
-      "permissions": [
-        "synthetic-permissions-item"
-      ],
-      "independentCapabilities": [
-        "REFUND_APPROVE"
-      ],
+      "permissions": ["synthetic-permissions-item"],
+      "independentCapabilities": ["REFUND_APPROVE"],
       "canManageAssignments": true,
       "canInviteAdmins": true,
       "accessRevision": "synthetic-accessrevision",
@@ -18698,9 +18706,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
+| Parameter | Location | Type          | Required | Purpose                               |
+| --------- | -------- | ------------- | -------- | ------------------------------------- |
+| `id`      | path     | string (uuid) | Yes      | Identifier selecting the id resource. |
 
 Success: HTTP 200.
 
@@ -18757,12 +18765,8 @@ Success: HTTP 200.
           "revocationReason": "synthetic-revocationreason"
         }
       ],
-      "permissions": [
-        "synthetic-permissions-item"
-      ],
-      "independentCapabilities": [
-        "REFUND_APPROVE"
-      ],
+      "permissions": ["synthetic-permissions-item"],
+      "independentCapabilities": ["REFUND_APPROVE"],
       "canManageAssignments": true,
       "canInviteAdmins": true,
       "accessRevision": "synthetic-accessrevision",
@@ -18786,7 +18790,6 @@ Success: HTTP 200.
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 Current access does not permit this request; 404 Record unavailable in permitted scope; 409 Stale version or invalid state; 422 Invalid fields; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
-
 ## Administration
 
 ### POST `/admin/customers/{customerId}/account-status`
@@ -18800,18 +18803,18 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `customerId` | path | string (uuid) | Yes | Identifier selecting the customer resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `customerId`   | path     | string (uuid) | Yes      | Identifier selecting the customer resource.                                     |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `expectedStatus` | ACTIVE / SUSPENDED | Yes | Expected Status validated by this operation's strict request contract. |
-| `status` | ACTIVE / SUSPENDED | Yes | Requested or filtered lifecycle state from the documented enum. |
-| `reason` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| Field            | Type               | Required | Purpose                                                                          |
+| ---------------- | ------------------ | -------- | -------------------------------------------------------------------------------- |
+| `expectedStatus` | ACTIVE / SUSPENDED | Yes      | Expected Status validated by this operation's strict request contract.           |
+| `status`         | ACTIVE / SUSPENDED | Yes      | Requested or filtered lifecycle state from the documented enum.                  |
+| `reason`         | string             | Yes      | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
 
 Synthetic request example:
 
@@ -18853,15 +18856,15 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `search` | query | string | No | Search used to constrain this request. |
-| `field` | query | name / email / phone / id | No | Field used to constrain this request. |
-| `status` | query | ACTIVE / SUSPENDED / DEACTIVATED | No | Status used to constrain this request. |
-| `verified` | query | true / false | No | Verified used to constrain this request. |
-| `sort` | query | newest / oldest | No | Sort used to constrain this request. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-| `cursor` | query | string | No | Opaque cursor returned by the preceding page. |
+| Parameter  | Location | Type                             | Required | Purpose                                                  |
+| ---------- | -------- | -------------------------------- | -------- | -------------------------------------------------------- |
+| `search`   | query    | string                           | No       | Search used to constrain this request.                   |
+| `field`    | query    | name / email / phone / id        | No       | Field used to constrain this request.                    |
+| `status`   | query    | ACTIVE / SUSPENDED / DEACTIVATED | No       | Status used to constrain this request.                   |
+| `verified` | query    | true / false                     | No       | Verified used to constrain this request.                 |
+| `sort`     | query    | newest / oldest                  | No       | Sort used to constrain this request.                     |
+| `limit`    | query    | integer                          | No       | Maximum number of records to return, bounded by the API. |
+| `cursor`   | query    | string                           | No       | Opaque cursor returned by the preceding page.            |
 
 Success: HTTP 200.
 
@@ -18904,9 +18907,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `customerId` | path | string (uuid) | Yes | Identifier selecting the customer resource. |
+| Parameter    | Location | Type          | Required | Purpose                                     |
+| ------------ | -------- | ------------- | -------- | ------------------------------------------- |
+| `customerId` | path     | string (uuid) | Yes      | Identifier selecting the customer resource. |
 
 Success: HTTP 200.
 
@@ -18948,11 +18951,11 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `customerId` | path | string (uuid) | Yes | Identifier selecting the customer resource. |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+| Parameter    | Location | Type          | Required | Purpose                                                  |
+| ------------ | -------- | ------------- | -------- | -------------------------------------------------------- |
+| `customerId` | path     | string (uuid) | Yes      | Identifier selecting the customer resource.              |
+| `cursor`     | query    | string (uuid) | No       | Opaque cursor returned by the preceding page.            |
+| `limit`      | query    | integer       | No       | Maximum number of records to return, bounded by the API. |
 
 Success: HTTP 200.
 
@@ -18992,11 +18995,11 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `customerId` | path | string (uuid) | Yes | Identifier selecting the customer resource. |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+| Parameter    | Location | Type          | Required | Purpose                                                  |
+| ------------ | -------- | ------------- | -------- | -------------------------------------------------------- |
+| `customerId` | path     | string (uuid) | Yes      | Identifier selecting the customer resource.              |
+| `cursor`     | query    | string (uuid) | No       | Opaque cursor returned by the preceding page.            |
+| `limit`      | query    | integer       | No       | Maximum number of records to return, bounded by the API. |
 
 Success: HTTP 200.
 
@@ -19036,11 +19039,11 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `customerId` | path | string (uuid) | Yes | Identifier selecting the customer resource. |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+| Parameter    | Location | Type          | Required | Purpose                                                  |
+| ------------ | -------- | ------------- | -------- | -------------------------------------------------------- |
+| `customerId` | path     | string (uuid) | Yes      | Identifier selecting the customer resource.              |
+| `cursor`     | query    | string (uuid) | No       | Opaque cursor returned by the preceding page.            |
+| `limit`      | query    | integer       | No       | Maximum number of records to return, bounded by the API. |
 
 Success: HTTP 200.
 
@@ -19080,11 +19083,11 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `customerId` | path | string (uuid) | Yes | Identifier selecting the customer resource. |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+| Parameter    | Location | Type          | Required | Purpose                                                  |
+| ------------ | -------- | ------------- | -------- | -------------------------------------------------------- |
+| `customerId` | path     | string (uuid) | Yes      | Identifier selecting the customer resource.              |
+| `cursor`     | query    | string (uuid) | No       | Opaque cursor returned by the preceding page.            |
+| `limit`      | query    | integer       | No       | Maximum number of records to return, bounded by the API. |
 
 Success: HTTP 200.
 
@@ -19124,11 +19127,11 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `customerId` | path | string (uuid) | Yes | Identifier selecting the customer resource. |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+| Parameter    | Location | Type          | Required | Purpose                                                  |
+| ------------ | -------- | ------------- | -------- | -------------------------------------------------------- |
+| `customerId` | path     | string (uuid) | Yes      | Identifier selecting the customer resource.              |
+| `cursor`     | query    | string (uuid) | No       | Opaque cursor returned by the preceding page.            |
+| `limit`      | query    | integer       | No       | Maximum number of records to return, bounded by the API. |
 
 Success: HTTP 200.
 
@@ -19168,11 +19171,11 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `customerId` | path | string (uuid) | Yes | Identifier selecting the customer resource. |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+| Parameter    | Location | Type          | Required | Purpose                                                  |
+| ------------ | -------- | ------------- | -------- | -------------------------------------------------------- |
+| `customerId` | path     | string (uuid) | Yes      | Identifier selecting the customer resource.              |
+| `cursor`     | query    | string (uuid) | No       | Opaque cursor returned by the preceding page.            |
+| `limit`      | query    | integer       | No       | Maximum number of records to return, bounded by the API. |
 
 Success: HTTP 200.
 
@@ -19212,11 +19215,11 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `customerId` | path | string (uuid) | Yes | Identifier selecting the customer resource. |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+| Parameter    | Location | Type          | Required | Purpose                                                  |
+| ------------ | -------- | ------------- | -------- | -------------------------------------------------------- |
+| `customerId` | path     | string (uuid) | Yes      | Identifier selecting the customer resource.              |
+| `cursor`     | query    | string (uuid) | No       | Opaque cursor returned by the preceding page.            |
+| `limit`      | query    | integer       | No       | Maximum number of records to return, bounded by the API. |
 
 Success: HTTP 200.
 
@@ -19256,9 +19259,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `serviceId` | path | string (uuid) | Yes | Identifier selecting the service resource. |
+| Parameter   | Location | Type          | Required | Purpose                                    |
+| ----------- | -------- | ------------- | -------- | ------------------------------------------ |
+| `serviceId` | path     | string (uuid) | Yes      | Identifier selecting the service resource. |
 
 Success: HTTP 200.
 
@@ -19299,18 +19302,18 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `serviceId` | path | string (uuid) | Yes | Identifier selecting the service resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `serviceId`    | path     | string (uuid) | Yes      | Identifier selecting the service resource.                                      |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `mimeType` | image/jpeg / image/png / image/webp | Yes | Mime Type validated by this operation's strict request contract. |
-| `sizeBytes` | integer | Yes | Size Bytes validated by this operation's strict request contract. |
-| `checksumSha256` | string | Yes | Checksum Sha256 validated by this operation's strict request contract. |
+| Field            | Type                                | Required | Purpose                                                                |
+| ---------------- | ----------------------------------- | -------- | ---------------------------------------------------------------------- |
+| `mimeType`       | image/jpeg / image/png / image/webp | Yes      | Mime Type validated by this operation's strict request contract.       |
+| `sizeBytes`      | integer                             | Yes      | Size Bytes validated by this operation's strict request contract.      |
+| `checksumSha256` | string                              | Yes      | Checksum Sha256 validated by this operation's strict request contract. |
 
 Synthetic request example:
 
@@ -19361,18 +19364,18 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `serviceId` | path | string (uuid) | Yes | Identifier selecting the service resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `serviceId`    | path     | string (uuid) | Yes      | Identifier selecting the service resource.                                      |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
-| `assetToken` | string | Yes | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
-| `altText` | string / null | No | Alt Text validated by this operation's strict request contract. |
+| Field             | Type          | Required | Purpose                                                                                     |
+| ----------------- | ------------- | -------- | ------------------------------------------------------------------------------------------- |
+| `expectedVersion` | integer       | Yes      | Last server version observed by the client; stale writes are rejected.                      |
+| `assetToken`      | string        | Yes      | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
+| `altText`         | string / null | No       | Alt Text validated by this operation's strict request contract.                             |
 
 Synthetic request example:
 
@@ -19423,18 +19426,18 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `serviceId` | path | string (uuid) | Yes | Identifier selecting the service resource. |
-| `imageId` | path | string (uuid) | Yes | Identifier selecting the image resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `serviceId`    | path     | string (uuid) | Yes      | Identifier selecting the service resource.                                      |
+| `imageId`      | path     | string (uuid) | Yes      | Identifier selecting the image resource.                                        |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
-| `altText` | string / null | Yes | Alt Text validated by this operation's strict request contract. |
+| Field             | Type          | Required | Purpose                                                                |
+| ----------------- | ------------- | -------- | ---------------------------------------------------------------------- |
+| `expectedVersion` | integer       | Yes      | Last server version observed by the client; stale writes are rejected. |
+| `altText`         | string / null | Yes      | Alt Text validated by this operation's strict request contract.        |
 
 Synthetic request example:
 
@@ -19484,17 +19487,17 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `serviceId` | path | string (uuid) | Yes | Identifier selecting the service resource. |
-| `imageId` | path | string (uuid) | Yes | Identifier selecting the image resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `serviceId`    | path     | string (uuid) | Yes      | Identifier selecting the service resource.                                      |
+| `imageId`      | path     | string (uuid) | Yes      | Identifier selecting the image resource.                                        |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+| Field             | Type    | Required | Purpose                                                                |
+| ----------------- | ------- | -------- | ---------------------------------------------------------------------- |
+| `expectedVersion` | integer | Yes      | Last server version observed by the client; stale writes are rejected. |
 
 Synthetic request example:
 
@@ -19543,10 +19546,10 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `serviceId` | path | string (uuid) | Yes | Identifier selecting the service resource. |
-| `imageId` | path | string (uuid) | Yes | Identifier selecting the image resource. |
+| Parameter   | Location | Type          | Required | Purpose                                    |
+| ----------- | -------- | ------------- | -------- | ------------------------------------------ |
+| `serviceId` | path     | string (uuid) | Yes      | Identifier selecting the service resource. |
+| `imageId`   | path     | string (uuid) | Yes      | Identifier selecting the image resource.   |
 
 Success: HTTP 200.
 Binary image/webp bytes (no JSON envelope).
@@ -19564,26 +19567,24 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `productId` | path | string (uuid) | Yes | Identifier selecting the product resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `productId`    | path     | string (uuid) | Yes      | Identifier selecting the product resource.                                      |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
-| `imageIds` | array<string (uuid)> | Yes | Image Ids validated by this operation's strict request contract. |
+| Field             | Type                 | Required | Purpose                                                                |
+| ----------------- | -------------------- | -------- | ---------------------------------------------------------------------- |
+| `expectedVersion` | integer              | Yes      | Last server version observed by the client; stale writes are rejected. |
+| `imageIds`        | array<string (uuid)> | Yes      | Image Ids validated by this operation's strict request contract.       |
 
 Synthetic request example:
 
 ```json
 {
   "expectedVersion": 0,
-  "imageIds": [
-    "00000000-0000-4000-8000-000000000001"
-  ]
+  "imageIds": ["00000000-0000-4000-8000-000000000001"]
 }
 ```
 
@@ -19595,9 +19596,7 @@ Success: HTTP 200.
   "message": "Atomically reorder the complete product image gallery without changing main selection",
   "data": {
     "version": 0,
-    "imageIds": [
-      "00000000-0000-4000-8000-000000000001"
-    ]
+    "imageIds": ["00000000-0000-4000-8000-000000000001"]
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -19618,18 +19617,18 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `productId` | path | string (uuid) | Yes | Identifier selecting the product resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `productId`    | path     | string (uuid) | Yes      | Identifier selecting the product resource.                                      |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `mimeType` | image/jpeg / image/png / image/webp | Yes | Mime Type validated by this operation's strict request contract. |
-| `sizeBytes` | integer | Yes | Size Bytes validated by this operation's strict request contract. |
-| `checksumSha256` | string | Yes | Checksum Sha256 validated by this operation's strict request contract. |
+| Field            | Type                                | Required | Purpose                                                                |
+| ---------------- | ----------------------------------- | -------- | ---------------------------------------------------------------------- |
+| `mimeType`       | image/jpeg / image/png / image/webp | Yes      | Mime Type validated by this operation's strict request contract.       |
+| `sizeBytes`      | integer                             | Yes      | Size Bytes validated by this operation's strict request contract.      |
+| `checksumSha256` | string                              | Yes      | Checksum Sha256 validated by this operation's strict request contract. |
 
 Synthetic request example:
 
@@ -19680,20 +19679,20 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `productId` | path | string (uuid) | Yes | Identifier selecting the product resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `productId`    | path     | string (uuid) | Yes      | Identifier selecting the product resource.                                      |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
-| `assetToken` | string | Yes | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
-| `altText` | string / null | No | Alt Text validated by this operation's strict request contract. |
-| `sortOrder` | integer | No | Sort Order validated by this operation's strict request contract. |
-| `isPrimary` | boolean | No | Boolean control for is primary; authorization is still enforced server-side. |
+| Field             | Type          | Required | Purpose                                                                                     |
+| ----------------- | ------------- | -------- | ------------------------------------------------------------------------------------------- |
+| `expectedVersion` | integer       | Yes      | Last server version observed by the client; stale writes are rejected.                      |
+| `assetToken`      | string        | Yes      | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
+| `altText`         | string / null | No       | Alt Text validated by this operation's strict request contract.                             |
+| `sortOrder`       | integer       | No       | Sort Order validated by this operation's strict request contract.                           |
+| `isPrimary`       | boolean       | No       | Boolean control for is primary; authorization is still enforced server-side.                |
 
 Synthetic request example:
 
@@ -19746,10 +19745,10 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `productId` | path | string (uuid) | Yes | Identifier selecting the product resource. |
-| `imageId` | path | string (uuid) | Yes | Identifier selecting the image resource. |
+| Parameter   | Location | Type          | Required | Purpose                                    |
+| ----------- | -------- | ------------- | -------- | ------------------------------------------ |
+| `productId` | path     | string (uuid) | Yes      | Identifier selecting the product resource. |
+| `imageId`   | path     | string (uuid) | Yes      | Identifier selecting the image resource.   |
 
 Success: HTTP 200.
 Binary image/webp bytes (no JSON envelope).
@@ -19767,13 +19766,13 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-| `isActive` | query | true / false | No | Is Active used to constrain this request. |
-| `q` | query | string | No | Q used to constrain this request. |
-| `code` | query | string | No | Code used to constrain this request. |
+| Parameter  | Location | Type          | Required | Purpose                                                  |
+| ---------- | -------- | ------------- | -------- | -------------------------------------------------------- |
+| `cursor`   | query    | string (uuid) | No       | Opaque cursor returned by the preceding page.            |
+| `limit`    | query    | integer       | No       | Maximum number of records to return, bounded by the API. |
+| `isActive` | query    | true / false  | No       | Is Active used to constrain this request.                |
+| `q`        | query    | string        | No       | Q used to constrain this request.                        |
+| `code`     | query    | string        | No       | Code used to constrain this request.                     |
 
 Success: HTTP 200.
 
@@ -19820,24 +19819,24 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type   | Required | Purpose                                                                         |
+| -------------- | -------- | ------ | -------- | ------------------------------------------------------------------------------- |
+| `x-csrf-token` | header   | string | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `code` | string | Yes | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
-| `name` | string | Yes | Name validated by this operation's strict request contract. |
-| `phone` | string / null | No | Customer or business phone number in international format. |
-| `email` | string / null | No | Normalized account email address. |
-| `address` | string | Yes | Address validated by this operation's strict request contract. |
-| `city` | string | Yes | City validated by this operation's strict request contract. |
-| `state` | string | Yes | State validated by this operation's strict request contract. |
-| `country` | Nigeria | No | Country validated by this operation's strict request contract. |
-| `timezone` | string | No | ISO 8601 timestamp interpreted and validated by the server. |
-| `isActive` | boolean | No | Boolean control for is active; authorization is still enforced server-side. |
+| Field      | Type          | Required | Purpose                                                                                     |
+| ---------- | ------------- | -------- | ------------------------------------------------------------------------------------------- |
+| `code`     | string        | Yes      | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
+| `name`     | string        | Yes      | Name validated by this operation's strict request contract.                                 |
+| `phone`    | string / null | No       | Customer or business phone number in international format.                                  |
+| `email`    | string / null | No       | Normalized account email address.                                                           |
+| `address`  | string        | Yes      | Address validated by this operation's strict request contract.                              |
+| `city`     | string        | Yes      | City validated by this operation's strict request contract.                                 |
+| `state`    | string        | Yes      | State validated by this operation's strict request contract.                                |
+| `country`  | Nigeria       | No       | Country validated by this operation's strict request contract.                              |
+| `timezone` | string        | No       | ISO 8601 timestamp interpreted and validated by the server.                                 |
+| `isActive` | boolean       | No       | Boolean control for is active; authorization is still enforced server-side.                 |
 
 Synthetic request example:
 
@@ -19891,9 +19890,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `branchId` | path | string (uuid) | Yes | Identifier selecting the branch resource. |
+| Parameter  | Location | Type          | Required | Purpose                                   |
+| ---------- | -------- | ------------- | -------- | ----------------------------------------- |
+| `branchId` | path     | string (uuid) | Yes      | Identifier selecting the branch resource. |
 
 Success: HTTP 200.
 
@@ -19935,26 +19934,26 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `branchId` | path | string (uuid) | Yes | Identifier selecting the branch resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `branchId`     | path     | string (uuid) | Yes      | Identifier selecting the branch resource.                                       |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `code` | string | No | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
-| `name` | string | No | Name validated by this operation's strict request contract. |
-| `phone` | string / null | No | Customer or business phone number in international format. |
-| `email` | string / null | No | Normalized account email address. |
-| `address` | string | No | Address validated by this operation's strict request contract. |
-| `city` | string | No | City validated by this operation's strict request contract. |
-| `state` | string | No | State validated by this operation's strict request contract. |
-| `country` | Nigeria | No | Country validated by this operation's strict request contract. |
-| `timezone` | string | No | ISO 8601 timestamp interpreted and validated by the server. |
-| `isActive` | boolean | No | Boolean control for is active; authorization is still enforced server-side. |
-| `expectedRevision` | string (date-time) | No | Last server version observed by the client; stale writes are rejected. |
+| Field              | Type               | Required | Purpose                                                                                     |
+| ------------------ | ------------------ | -------- | ------------------------------------------------------------------------------------------- |
+| `code`             | string             | No       | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
+| `name`             | string             | No       | Name validated by this operation's strict request contract.                                 |
+| `phone`            | string / null      | No       | Customer or business phone number in international format.                                  |
+| `email`            | string / null      | No       | Normalized account email address.                                                           |
+| `address`          | string             | No       | Address validated by this operation's strict request contract.                              |
+| `city`             | string             | No       | City validated by this operation's strict request contract.                                 |
+| `state`            | string             | No       | State validated by this operation's strict request contract.                                |
+| `country`          | Nigeria            | No       | Country validated by this operation's strict request contract.                              |
+| `timezone`         | string             | No       | ISO 8601 timestamp interpreted and validated by the server.                                 |
+| `isActive`         | boolean            | No       | Boolean control for is active; authorization is still enforced server-side.                 |
+| `expectedRevision` | string (date-time) | No       | Last server version observed by the client; stale writes are rejected.                      |
 
 Synthetic request example:
 
@@ -20002,14 +20001,14 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-| `q` | query | string | No | Q used to constrain this request. |
-| `branchId` | query | string (uuid) | No | Branch Id used to constrain this request. |
-| `role` | query | STAFF / ADMIN / SUPER_ADMIN | No | Role used to constrain this request. |
-| `status` | query | ACTIVE / SUSPENDED / DEACTIVATED | No | Status used to constrain this request. |
+| Parameter  | Location | Type                             | Required | Purpose                                                  |
+| ---------- | -------- | -------------------------------- | -------- | -------------------------------------------------------- |
+| `cursor`   | query    | string (uuid)                    | No       | Opaque cursor returned by the preceding page.            |
+| `limit`    | query    | integer                          | No       | Maximum number of records to return, bounded by the API. |
+| `q`        | query    | string                           | No       | Q used to constrain this request.                        |
+| `branchId` | query    | string (uuid)                    | No       | Branch Id used to constrain this request.                |
+| `role`     | query    | STAFF / ADMIN / SUPER_ADMIN      | No       | Role used to constrain this request.                     |
+| `status`   | query    | ACTIVE / SUSPENDED / DEACTIVATED | No       | Status used to constrain this request.                   |
 
 Success: HTTP 200.
 
@@ -20066,9 +20065,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `staffUserId` | path | string (uuid) | Yes | Identifier selecting the staff user resource. |
+| Parameter     | Location | Type          | Required | Purpose                                       |
+| ------------- | -------- | ------------- | -------- | --------------------------------------------- |
+| `staffUserId` | path     | string (uuid) | Yes      | Identifier selecting the staff user resource. |
 
 Success: HTTP 200.
 
@@ -20120,11 +20119,11 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-| `status` | query | PENDING / ACCEPTED / REVOKED / EXPIRED | No | Status used to constrain this request. |
+| Parameter | Location | Type                                   | Required | Purpose                                                  |
+| --------- | -------- | -------------------------------------- | -------- | -------------------------------------------------------- |
+| `cursor`  | query    | string (uuid)                          | No       | Opaque cursor returned by the preceding page.            |
+| `limit`   | query    | integer                                | No       | Maximum number of records to return, bounded by the API. |
+| `status`  | query    | PENDING / ACCEPTED / REVOKED / EXPIRED | No       | Status used to constrain this request.                   |
 
 Success: HTTP 200.
 
@@ -20168,17 +20167,17 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type   | Required | Purpose                                                                         |
+| -------------- | -------- | ------ | -------- | ------------------------------------------------------------------------------- |
+| `x-csrf-token` | header   | string | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `email` | string (email) | Yes | Normalized account email address. |
-| `role` | ADMIN | Yes | Role validated by this operation's strict request contract. |
-| `currentPassword` | string | Yes | Sensitive password value sent only over HTTPS and never logged or persisted by the client. |
+| Field             | Type           | Required | Purpose                                                                                    |
+| ----------------- | -------------- | -------- | ------------------------------------------------------------------------------------------ |
+| `email`           | string (email) | Yes      | Normalized account email address.                                                          |
+| `role`            | ADMIN          | Yes      | Role validated by this operation's strict request contract.                                |
+| `currentPassword` | string         | Yes      | Sensitive password value sent only over HTTPS and never logged or persisted by the client. |
 
 Synthetic request example:
 
@@ -20230,17 +20229,17 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `staffUserId` | path | string (uuid) | Yes | Identifier selecting the staff user resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `staffUserId`  | path     | string (uuid) | Yes      | Identifier selecting the staff user resource.                                   |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `status` | ACTIVE / SUSPENDED / DEACTIVATED | Yes | Requested or filtered lifecycle state from the documented enum. |
-| `expectedRevision` | string | Yes | Required account revision derived from updatedAt, role, status, profile updatedAt and branchId joined with colons. Checked atomically while the account and profile are locked. |
+| Field              | Type                             | Required | Purpose                                                                                                                                                                         |
+| ------------------ | -------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `status`           | ACTIVE / SUSPENDED / DEACTIVATED | Yes      | Requested or filtered lifecycle state from the documented enum.                                                                                                                 |
+| `expectedRevision` | string                           | Yes      | Required account revision derived from updatedAt, role, status, profile updatedAt and branchId joined with colons. Checked atomically while the account and profile are locked. |
 
 Synthetic request example:
 
@@ -20280,17 +20279,17 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `staffUserId` | path | string (uuid) | Yes | Identifier selecting the staff user resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `staffUserId`  | path     | string (uuid) | Yes      | Identifier selecting the staff user resource.                                   |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `branchId` | string (uuid) | Yes | Identifier of the branch resource; ownership is resolved server-side. |
-| `expectedRevision` | string | Yes | Required account revision derived from updatedAt, role, status, profile updatedAt and branchId joined with colons. Checked atomically while the account and profile are locked. |
+| Field              | Type          | Required | Purpose                                                                                                                                                                         |
+| ------------------ | ------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `branchId`         | string (uuid) | Yes      | Identifier of the branch resource; ownership is resolved server-side.                                                                                                           |
+| `expectedRevision` | string        | Yes      | Required account revision derived from updatedAt, role, status, profile updatedAt and branchId joined with colons. Checked atomically while the account and profile are locked. |
 
 Synthetic request example:
 
@@ -20330,20 +20329,20 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `staffUserId` | path | string (uuid) | Yes | Identifier selecting the staff user resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `staffUserId`  | path     | string (uuid) | Yes      | Identifier selecting the staff user resource.                                   |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `role` | STAFF | Yes | Role validated by this operation's strict request contract. |
-| `branchId` | string (uuid) | Yes | Identifier of the branch resource; ownership is resolved server-side. |
-| `expectedRevision` | string | Yes | Required account revision derived from updatedAt, role, status, profile updatedAt and branchId joined with colons. Checked atomically while the account and profile are locked. |
-| `reason` | string | No | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
-| `expectedWorkforceVersion` | integer / null | No | Required for an enrolled account; null for a reviewed account without workforce enrollment. Checked atomically with the role change. |
+| Field                      | Type           | Required | Purpose                                                                                                                                                                         |
+| -------------------------- | -------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `role`                     | STAFF          | Yes      | Role validated by this operation's strict request contract.                                                                                                                     |
+| `branchId`                 | string (uuid)  | Yes      | Identifier of the branch resource; ownership is resolved server-side.                                                                                                           |
+| `expectedRevision`         | string         | Yes      | Required account revision derived from updatedAt, role, status, profile updatedAt and branchId joined with colons. Checked atomically while the account and profile are locked. |
+| `reason`                   | string         | No       | Plain-text business context; HTML is not accepted or rendered as trusted markup.                                                                                                |
+| `expectedWorkforceVersion` | integer / null | No       | Required for an enrolled account; null for a reviewed account without workforce enrollment. Checked atomically with the role change.                                            |
 
 Synthetic request example:
 
@@ -20407,9 +20406,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `email` | query | string (email) | Yes | Email used to constrain this request. |
+| Parameter | Location | Type           | Required | Purpose                               |
+| --------- | -------- | -------------- | -------- | ------------------------------------- |
+| `email`   | query    | string (email) | Yes      | Email used to constrain this request. |
 
 Success: HTTP 200.
 
@@ -20464,17 +20463,17 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type   | Required | Purpose                                                                         |
+| -------------- | -------- | ------ | -------- | ------------------------------------------------------------------------------- |
+| `x-csrf-token` | header   | string | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `customerUserId` | string (uuid) | Yes | Identifier of the customer user resource; ownership is resolved server-side. |
-| `branchId` | string (uuid) | Yes | Identifier of the branch resource; ownership is resolved server-side. |
-| `currentPassword` | string | Yes | Sensitive password value sent only over HTTPS and never logged or persisted by the client. |
+| Field             | Type          | Required | Purpose                                                                                    |
+| ----------------- | ------------- | -------- | ------------------------------------------------------------------------------------------ |
+| `customerUserId`  | string (uuid) | Yes      | Identifier of the customer user resource; ownership is resolved server-side.               |
+| `branchId`        | string (uuid) | Yes      | Identifier of the branch resource; ownership is resolved server-side.                      |
+| `currentPassword` | string        | Yes      | Sensitive password value sent only over HTTPS and never logged or persisted by the client. |
 
 Synthetic request example:
 
@@ -20536,9 +20535,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `invitationId` | path | string (uuid) | Yes | Identifier selecting the invitation resource. |
+| Parameter      | Location | Type          | Required | Purpose                                       |
+| -------------- | -------- | ------------- | -------- | --------------------------------------------- |
+| `invitationId` | path     | string (uuid) | Yes      | Identifier selecting the invitation resource. |
 
 Success: HTTP 200.
 
@@ -20577,16 +20576,16 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `invitationId` | path | string (uuid) | Yes | Identifier selecting the invitation resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `invitationId` | path     | string (uuid) | Yes      | Identifier selecting the invitation resource.                                   |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `currentPassword` | string | Yes | Sensitive password value sent only over HTTPS and never logged or persisted by the client. |
+| Field             | Type   | Required | Purpose                                                                                    |
+| ----------------- | ------ | -------- | ------------------------------------------------------------------------------------------ |
+| `currentPassword` | string | Yes      | Sensitive password value sent only over HTTPS and never logged or persisted by the client. |
 
 Synthetic request example:
 
@@ -20633,14 +20632,14 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-| `rootOnly` | query | true / false | No | Root Only used to constrain this request. |
-| `parentId` | query | string (uuid) | No | Parent Id used to constrain this request. |
-| `search` | query | string | No | Search used to constrain this request. |
-| `isActive` | query | true / false | No | Is Active used to constrain this request. |
+| Parameter  | Location | Type          | Required | Purpose                                                  |
+| ---------- | -------- | ------------- | -------- | -------------------------------------------------------- |
+| `cursor`   | query    | string (uuid) | No       | Opaque cursor returned by the preceding page.            |
+| `limit`    | query    | integer       | No       | Maximum number of records to return, bounded by the API. |
+| `rootOnly` | query    | true / false  | No       | Root Only used to constrain this request.                |
+| `parentId` | query    | string (uuid) | No       | Parent Id used to constrain this request.                |
+| `search`   | query    | string        | No       | Search used to constrain this request.                   |
+| `isActive` | query    | true / false  | No       | Is Active used to constrain this request.                |
 
 Success: HTTP 200.
 
@@ -20676,20 +20675,20 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type   | Required | Purpose                                                                         |
+| -------------- | -------- | ------ | -------- | ------------------------------------------------------------------------------- |
+| `x-csrf-token` | header   | string | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `family` | REPLACEMENT_PART / ENGINE_OIL / null | No | Family validated by this operation's strict request contract. |
-| `name` | string | Yes | Name validated by this operation's strict request contract. |
-| `slug` | string | Yes | Slug validated by this operation's strict request contract. |
-| `description` | string / null | No | Description validated by this operation's strict request contract. |
-| `parentId` | string / null | No | Identifier of the parent resource; ownership is resolved server-side. |
-| `isActive` | boolean | No | Boolean control for is active; authorization is still enforced server-side. |
+| Field         | Type                                 | Required | Purpose                                                                     |
+| ------------- | ------------------------------------ | -------- | --------------------------------------------------------------------------- |
+| `family`      | REPLACEMENT_PART / ENGINE_OIL / null | No       | Family validated by this operation's strict request contract.               |
+| `name`        | string                               | Yes      | Name validated by this operation's strict request contract.                 |
+| `slug`        | string                               | Yes      | Slug validated by this operation's strict request contract.                 |
+| `description` | string / null                        | No       | Description validated by this operation's strict request contract.          |
+| `parentId`    | string / null                        | No       | Identifier of the parent resource; ownership is resolved server-side.       |
+| `isActive`    | boolean                              | No       | Boolean control for is active; authorization is still enforced server-side. |
 
 Synthetic request example:
 
@@ -20733,9 +20732,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `categoryId` | path | string (uuid) | Yes | Identifier selecting the category resource. |
+| Parameter    | Location | Type          | Required | Purpose                                     |
+| ------------ | -------- | ------------- | -------- | ------------------------------------------- |
+| `categoryId` | path     | string (uuid) | Yes      | Identifier selecting the category resource. |
 
 Success: HTTP 200.
 
@@ -20771,22 +20770,22 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `categoryId` | path | string (uuid) | Yes | Identifier selecting the category resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `categoryId`   | path     | string (uuid) | Yes      | Identifier selecting the category resource.                                     |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `family` | REPLACEMENT_PART / ENGINE_OIL / null | No | Family validated by this operation's strict request contract. |
-| `expectedUpdatedAt` | string (date-time) | No | ISO 8601 timestamp interpreted and validated by the server. |
-| `name` | string | No | Name validated by this operation's strict request contract. |
-| `slug` | string | No | Slug validated by this operation's strict request contract. |
-| `description` | string / null | No | Description validated by this operation's strict request contract. |
-| `parentId` | string / null | No | Identifier of the parent resource; ownership is resolved server-side. |
-| `isActive` | boolean | No | Boolean control for is active; authorization is still enforced server-side. |
+| Field               | Type                                 | Required | Purpose                                                                     |
+| ------------------- | ------------------------------------ | -------- | --------------------------------------------------------------------------- |
+| `family`            | REPLACEMENT_PART / ENGINE_OIL / null | No       | Family validated by this operation's strict request contract.               |
+| `expectedUpdatedAt` | string (date-time)                   | No       | ISO 8601 timestamp interpreted and validated by the server.                 |
+| `name`              | string                               | No       | Name validated by this operation's strict request contract.                 |
+| `slug`              | string                               | No       | Slug validated by this operation's strict request contract.                 |
+| `description`       | string / null                        | No       | Description validated by this operation's strict request contract.          |
+| `parentId`          | string / null                        | No       | Identifier of the parent resource; ownership is resolved server-side.       |
+| `isActive`          | boolean                              | No       | Boolean control for is active; authorization is still enforced server-side. |
 
 Synthetic request example:
 
@@ -20831,39 +20830,39 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-| `categoryId` | query | string (uuid) | No | Category Id used to constrain this request. |
-| `parentCategoryId` | query | string (uuid) | No | Parent Category Id used to constrain this request. |
-| `condition` | query | NEW / USED / REFURBISHED | No | Condition used to constrain this request. |
-| `classification` | query | GENUINE_OEM / AFTERMARKET | No | Classification used to constrain this request. |
-| `productType` | query | string | No | Product Type used to constrain this request. |
-| `family` | query | REPLACEMENT_PART / ENGINE_OIL | No | Family used to constrain this request. |
-| `oilViscosityGrade` | query | string | No | Oil Viscosity Grade used to constrain this request. |
-| `packVolumeMl` | query | integer | No | Pack Volume Ml used to constrain this request. |
-| `vehicleMakeId` | query | string (uuid) | No | Vehicle Make Id used to constrain this request. |
-| `vehicleModelId` | query | string (uuid) | No | Vehicle Model Id used to constrain this request. |
-| `fitment` | query | candidates / verified | No | Fitment used to constrain this request. |
-| `trim` | query | string | No | Trim used to constrain this request. |
-| `engineCode` | query | string | No | Engine Code used to constrain this request. |
-| `market` | query | string | No | Market used to constrain this request. |
-| `position` | query | string | No | Position used to constrain this request. |
-| `brakeSystem` | query | string | No | Brake System used to constrain this request. |
-| `brakeDiameterMm` | query | string | No | Brake Diameter Mm used to constrain this request. |
-| `bodyType` | query | string | No | Body Type used to constrain this request. |
-| `transmission` | query | string | No | Transmission used to constrain this request. |
-| `generation` | query | string | No | Generation used to constrain this request. |
-| `chassisCode` | query | string | No | Chassis Code used to constrain this request. |
-| `brand` | query | string | No | Brand used to constrain this request. |
-| `search` | query | string | No | Search used to constrain this request. |
-| `make` | query | string | No | Make used to constrain this request. |
-| `model` | query | string | No | Model used to constrain this request. |
-| `year` | query | integer | No | Year used to constrain this request. |
-| `featured` | query | true / false | No | Featured used to constrain this request. |
-| `sort` | query | newest / name / price_asc / price_desc | No | Sort used to constrain this request. |
-| `isActive` | query | true / false | No | Is Active used to constrain this request. |
+| Parameter           | Location | Type                                   | Required | Purpose                                                  |
+| ------------------- | -------- | -------------------------------------- | -------- | -------------------------------------------------------- |
+| `cursor`            | query    | string (uuid)                          | No       | Opaque cursor returned by the preceding page.            |
+| `limit`             | query    | integer                                | No       | Maximum number of records to return, bounded by the API. |
+| `categoryId`        | query    | string (uuid)                          | No       | Category Id used to constrain this request.              |
+| `parentCategoryId`  | query    | string (uuid)                          | No       | Parent Category Id used to constrain this request.       |
+| `condition`         | query    | NEW / USED / REFURBISHED               | No       | Condition used to constrain this request.                |
+| `classification`    | query    | GENUINE_OEM / AFTERMARKET              | No       | Classification used to constrain this request.           |
+| `productType`       | query    | string                                 | No       | Product Type used to constrain this request.             |
+| `family`            | query    | REPLACEMENT_PART / ENGINE_OIL          | No       | Family used to constrain this request.                   |
+| `oilViscosityGrade` | query    | string                                 | No       | Oil Viscosity Grade used to constrain this request.      |
+| `packVolumeMl`      | query    | integer                                | No       | Pack Volume Ml used to constrain this request.           |
+| `vehicleMakeId`     | query    | string (uuid)                          | No       | Vehicle Make Id used to constrain this request.          |
+| `vehicleModelId`    | query    | string (uuid)                          | No       | Vehicle Model Id used to constrain this request.         |
+| `fitment`           | query    | candidates / verified                  | No       | Fitment used to constrain this request.                  |
+| `trim`              | query    | string                                 | No       | Trim used to constrain this request.                     |
+| `engineCode`        | query    | string                                 | No       | Engine Code used to constrain this request.              |
+| `market`            | query    | string                                 | No       | Market used to constrain this request.                   |
+| `position`          | query    | string                                 | No       | Position used to constrain this request.                 |
+| `brakeSystem`       | query    | string                                 | No       | Brake System used to constrain this request.             |
+| `brakeDiameterMm`   | query    | string                                 | No       | Brake Diameter Mm used to constrain this request.        |
+| `bodyType`          | query    | string                                 | No       | Body Type used to constrain this request.                |
+| `transmission`      | query    | string                                 | No       | Transmission used to constrain this request.             |
+| `generation`        | query    | string                                 | No       | Generation used to constrain this request.               |
+| `chassisCode`       | query    | string                                 | No       | Chassis Code used to constrain this request.             |
+| `brand`             | query    | string                                 | No       | Brand used to constrain this request.                    |
+| `search`            | query    | string                                 | No       | Search used to constrain this request.                   |
+| `make`              | query    | string                                 | No       | Make used to constrain this request.                     |
+| `model`             | query    | string                                 | No       | Model used to constrain this request.                    |
+| `year`              | query    | integer                                | No       | Year used to constrain this request.                     |
+| `featured`          | query    | true / false                           | No       | Featured used to constrain this request.                 |
+| `sort`              | query    | newest / name / price_asc / price_desc | No       | Sort used to constrain this request.                     |
+| `isActive`          | query    | true / false                           | No       | Is Active used to constrain this request.                |
 
 Success: HTTP 200.
 
@@ -20921,9 +20920,7 @@ Success: HTTP 200.
             "yearTo": "synthetic-yearto",
             "notes": "synthetic-notes",
             "scope": "MODEL",
-            "requiredQualifiers": [
-              "trim"
-            ],
+            "requiredQualifiers": ["trim"],
             "trim": "synthetic-trim",
             "engineCode": "synthetic-enginecode",
             "market": "synthetic-market",
@@ -20970,32 +20967,32 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type   | Required | Purpose                                                                         |
+| -------------- | -------- | ------ | -------- | ------------------------------------------------------------------------------- |
+| `x-csrf-token` | header   | string | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `family` | REPLACEMENT_PART / ENGINE_OIL / null | No | Family validated by this operation's strict request contract. |
-| `oilViscosityGrade` | string / null | No | Oil Viscosity Grade validated by this operation's strict request contract. |
-| `packVolumeMl` | integer / null | No | Pack Volume Ml validated by this operation's strict request contract. |
-| `categoryId` | string (uuid) | Yes | Identifier of the category resource; ownership is resolved server-side. |
-| `condition` | NEW / USED / REFURBISHED / null | No | Condition validated by this operation's strict request contract. |
-| `classification` | GENUINE_OEM / AFTERMARKET / null | No | Classification validated by this operation's strict request contract. |
-| `productType` | string / null | No | Product Type validated by this operation's strict request contract. |
-| `name` | string | Yes | Name validated by this operation's strict request contract. |
-| `slug` | string | Yes | Slug validated by this operation's strict request contract. |
-| `sku` | string | Yes | Sku validated by this operation's strict request contract. |
-| `brand` | string / null | No | Brand validated by this operation's strict request contract. |
-| `manufacturerPartNumber` | string / null | No | Manufacturer Part Number validated by this operation's strict request contract. |
-| `description` | string / null | No | Description validated by this operation's strict request contract. |
-| `priceKobo` | string | Yes | Integer price in Nigerian kobo; client-calculated values are never authoritative. |
-| `compareAtPriceKobo` | string / null | No | Integer price in Nigerian kobo; client-calculated values are never authoritative. |
-| `currency` | NGN | No | Currency validated by this operation's strict request contract. |
-| `isActive` | boolean | No | Boolean control for is active; authorization is still enforced server-side. |
-| `featured` | boolean | No | Featured validated by this operation's strict request contract. |
+| Field                    | Type                                 | Required | Purpose                                                                           |
+| ------------------------ | ------------------------------------ | -------- | --------------------------------------------------------------------------------- |
+| `family`                 | REPLACEMENT_PART / ENGINE_OIL / null | No       | Family validated by this operation's strict request contract.                     |
+| `oilViscosityGrade`      | string / null                        | No       | Oil Viscosity Grade validated by this operation's strict request contract.        |
+| `packVolumeMl`           | integer / null                       | No       | Pack Volume Ml validated by this operation's strict request contract.             |
+| `categoryId`             | string (uuid)                        | Yes      | Identifier of the category resource; ownership is resolved server-side.           |
+| `condition`              | NEW / USED / REFURBISHED / null      | No       | Condition validated by this operation's strict request contract.                  |
+| `classification`         | GENUINE_OEM / AFTERMARKET / null     | No       | Classification validated by this operation's strict request contract.             |
+| `productType`            | string / null                        | No       | Product Type validated by this operation's strict request contract.               |
+| `name`                   | string                               | Yes      | Name validated by this operation's strict request contract.                       |
+| `slug`                   | string                               | Yes      | Slug validated by this operation's strict request contract.                       |
+| `sku`                    | string                               | Yes      | Sku validated by this operation's strict request contract.                        |
+| `brand`                  | string / null                        | No       | Brand validated by this operation's strict request contract.                      |
+| `manufacturerPartNumber` | string / null                        | No       | Manufacturer Part Number validated by this operation's strict request contract.   |
+| `description`            | string / null                        | No       | Description validated by this operation's strict request contract.                |
+| `priceKobo`              | string                               | Yes      | Integer price in Nigerian kobo; client-calculated values are never authoritative. |
+| `compareAtPriceKobo`     | string / null                        | No       | Integer price in Nigerian kobo; client-calculated values are never authoritative. |
+| `currency`               | NGN                                  | No       | Currency validated by this operation's strict request contract.                   |
+| `isActive`               | boolean                              | No       | Boolean control for is active; authorization is still enforced server-side.       |
+| `featured`               | boolean                              | No       | Featured validated by this operation's strict request contract.                   |
 
 Synthetic request example:
 
@@ -21063,9 +21060,7 @@ Success: HTTP 201.
         "yearTo": "synthetic-yearto",
         "notes": "synthetic-notes",
         "scope": "MODEL",
-        "requiredQualifiers": [
-          "trim"
-        ],
+        "requiredQualifiers": ["trim"],
         "trim": "synthetic-trim",
         "engineCode": "synthetic-enginecode",
         "market": "synthetic-market",
@@ -21109,9 +21104,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `productId` | path | string (uuid) | Yes | Identifier selecting the product resource. |
+| Parameter   | Location | Type          | Required | Purpose                                    |
+| ----------- | -------- | ------------- | -------- | ------------------------------------------ |
+| `productId` | path     | string (uuid) | Yes      | Identifier selecting the product resource. |
 
 Success: HTTP 200.
 
@@ -21167,9 +21162,7 @@ Success: HTTP 200.
         "yearTo": "synthetic-yearto",
         "notes": "synthetic-notes",
         "scope": "MODEL",
-        "requiredQualifiers": [
-          "trim"
-        ],
+        "requiredQualifiers": ["trim"],
         "trim": "synthetic-trim",
         "engineCode": "synthetic-enginecode",
         "market": "synthetic-market",
@@ -21213,34 +21206,34 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `productId` | path | string (uuid) | Yes | Identifier selecting the product resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `productId`    | path     | string (uuid) | Yes      | Identifier selecting the product resource.                                      |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `family` | REPLACEMENT_PART / ENGINE_OIL / null | No | Family validated by this operation's strict request contract. |
-| `oilViscosityGrade` | string / null | No | Oil Viscosity Grade validated by this operation's strict request contract. |
-| `packVolumeMl` | integer / null | No | Pack Volume Ml validated by this operation's strict request contract. |
-| `expectedUpdatedAt` | string (date-time) | No | ISO 8601 timestamp interpreted and validated by the server. |
-| `categoryId` | string (uuid) | No | Identifier of the category resource; ownership is resolved server-side. |
-| `condition` | NEW / USED / REFURBISHED / null | No | Condition validated by this operation's strict request contract. |
-| `classification` | GENUINE_OEM / AFTERMARKET / null | No | Classification validated by this operation's strict request contract. |
-| `productType` | string / null | No | Product Type validated by this operation's strict request contract. |
-| `name` | string | No | Name validated by this operation's strict request contract. |
-| `slug` | string | No | Slug validated by this operation's strict request contract. |
-| `sku` | string | No | Sku validated by this operation's strict request contract. |
-| `brand` | string / null | No | Brand validated by this operation's strict request contract. |
-| `manufacturerPartNumber` | string / null | No | Manufacturer Part Number validated by this operation's strict request contract. |
-| `description` | string / null | No | Description validated by this operation's strict request contract. |
-| `priceKobo` | string | No | Integer price in Nigerian kobo; client-calculated values are never authoritative. |
-| `compareAtPriceKobo` | string / null | No | Integer price in Nigerian kobo; client-calculated values are never authoritative. |
-| `currency` | NGN | No | Currency validated by this operation's strict request contract. |
-| `isActive` | boolean | No | Boolean control for is active; authorization is still enforced server-side. |
-| `featured` | boolean | No | Featured validated by this operation's strict request contract. |
+| Field                    | Type                                 | Required | Purpose                                                                           |
+| ------------------------ | ------------------------------------ | -------- | --------------------------------------------------------------------------------- |
+| `family`                 | REPLACEMENT_PART / ENGINE_OIL / null | No       | Family validated by this operation's strict request contract.                     |
+| `oilViscosityGrade`      | string / null                        | No       | Oil Viscosity Grade validated by this operation's strict request contract.        |
+| `packVolumeMl`           | integer / null                       | No       | Pack Volume Ml validated by this operation's strict request contract.             |
+| `expectedUpdatedAt`      | string (date-time)                   | No       | ISO 8601 timestamp interpreted and validated by the server.                       |
+| `categoryId`             | string (uuid)                        | No       | Identifier of the category resource; ownership is resolved server-side.           |
+| `condition`              | NEW / USED / REFURBISHED / null      | No       | Condition validated by this operation's strict request contract.                  |
+| `classification`         | GENUINE_OEM / AFTERMARKET / null     | No       | Classification validated by this operation's strict request contract.             |
+| `productType`            | string / null                        | No       | Product Type validated by this operation's strict request contract.               |
+| `name`                   | string                               | No       | Name validated by this operation's strict request contract.                       |
+| `slug`                   | string                               | No       | Slug validated by this operation's strict request contract.                       |
+| `sku`                    | string                               | No       | Sku validated by this operation's strict request contract.                        |
+| `brand`                  | string / null                        | No       | Brand validated by this operation's strict request contract.                      |
+| `manufacturerPartNumber` | string / null                        | No       | Manufacturer Part Number validated by this operation's strict request contract.   |
+| `description`            | string / null                        | No       | Description validated by this operation's strict request contract.                |
+| `priceKobo`              | string                               | No       | Integer price in Nigerian kobo; client-calculated values are never authoritative. |
+| `compareAtPriceKobo`     | string / null                        | No       | Integer price in Nigerian kobo; client-calculated values are never authoritative. |
+| `currency`               | NGN                                  | No       | Currency validated by this operation's strict request contract.                   |
+| `isActive`               | boolean                              | No       | Boolean control for is active; authorization is still enforced server-side.       |
+| `featured`               | boolean                              | No       | Featured validated by this operation's strict request contract.                   |
 
 Synthetic request example:
 
@@ -21302,9 +21295,7 @@ Success: HTTP 200.
         "yearTo": "synthetic-yearto",
         "notes": "synthetic-notes",
         "scope": "MODEL",
-        "requiredQualifiers": [
-          "trim"
-        ],
+        "requiredQualifiers": ["trim"],
         "trim": "synthetic-trim",
         "engineCode": "synthetic-enginecode",
         "market": "synthetic-market",
@@ -21348,20 +21339,20 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `productId` | path | string (uuid) | Yes | Identifier selecting the product resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `productId`    | path     | string (uuid) | Yes      | Identifier selecting the product resource.                                      |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `make` | string | Yes | Make validated by this operation's strict request contract. |
-| `model` | string / null | No | Model validated by this operation's strict request contract. |
-| `yearFrom` | integer / null | No | Year From validated by this operation's strict request contract. |
-| `yearTo` | integer / null | No | Year To validated by this operation's strict request contract. |
-| `notes` | string / null | No | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| Field      | Type           | Required | Purpose                                                                          |
+| ---------- | -------------- | -------- | -------------------------------------------------------------------------------- |
+| `make`     | string         | Yes      | Make validated by this operation's strict request contract.                      |
+| `model`    | string / null  | No       | Model validated by this operation's strict request contract.                     |
+| `yearFrom` | integer / null | No       | Year From validated by this operation's strict request contract.                 |
+| `yearTo`   | integer / null | No       | Year To validated by this operation's strict request contract.                   |
+| `notes`    | string / null  | No       | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
 
 Synthetic request example:
 
@@ -21404,22 +21395,22 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `productId` | path | string (uuid) | Yes | Identifier selecting the product resource. |
-| `compatibilityId` | path | string (uuid) | Yes | Identifier selecting the compatibility resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter         | Location | Type          | Required | Purpose                                                                         |
+| ----------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `productId`       | path     | string (uuid) | Yes      | Identifier selecting the product resource.                                      |
+| `compatibilityId` | path     | string (uuid) | Yes      | Identifier selecting the compatibility resource.                                |
+| `x-csrf-token`    | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `expectedVersion` | integer | No | Last server version observed by the client; stale writes are rejected. |
-| `make` | string | No | Make validated by this operation's strict request contract. |
-| `model` | string / null | No | Model validated by this operation's strict request contract. |
-| `yearFrom` | integer / null | No | Year From validated by this operation's strict request contract. |
-| `yearTo` | integer / null | No | Year To validated by this operation's strict request contract. |
-| `notes` | string / null | No | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| Field             | Type           | Required | Purpose                                                                          |
+| ----------------- | -------------- | -------- | -------------------------------------------------------------------------------- |
+| `expectedVersion` | integer        | No       | Last server version observed by the client; stale writes are rejected.           |
+| `make`            | string         | No       | Make validated by this operation's strict request contract.                      |
+| `model`           | string / null  | No       | Model validated by this operation's strict request contract.                     |
+| `yearFrom`        | integer / null | No       | Year From validated by this operation's strict request contract.                 |
+| `yearTo`          | integer / null | No       | Year To validated by this operation's strict request contract.                   |
+| `notes`           | string / null  | No       | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
 
 Synthetic request example:
 
@@ -21463,17 +21454,17 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `productId` | path | string (uuid) | Yes | Identifier selecting the product resource. |
-| `compatibilityId` | path | string (uuid) | Yes | Identifier selecting the compatibility resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter         | Location | Type          | Required | Purpose                                                                         |
+| ----------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `productId`       | path     | string (uuid) | Yes      | Identifier selecting the product resource.                                      |
+| `compatibilityId` | path     | string (uuid) | Yes      | Identifier selecting the compatibility resource.                                |
+| `x-csrf-token`    | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `expectedVersion` | integer | No | Last server version observed by the client; stale writes are rejected. |
+| Field             | Type    | Required | Purpose                                                                |
+| ----------------- | ------- | -------- | ---------------------------------------------------------------------- |
+| `expectedVersion` | integer | No       | Last server version observed by the client; stale writes are rejected. |
 
 Synthetic request example:
 
@@ -21508,20 +21499,20 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `productId` | path | string (uuid) | Yes | Identifier selecting the product resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `productId`    | path     | string (uuid) | Yes      | Identifier selecting the product resource.                                      |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `expectedVersion` | integer | No | Last server version observed by the client; stale writes are rejected. |
-| `url` | string (uri) | Yes | HTTPS location validated against the operation's server-side allowlist. |
-| `altText` | string / null | No | Alt Text validated by this operation's strict request contract. |
-| `sortOrder` | integer | No | Sort Order validated by this operation's strict request contract. |
-| `isPrimary` | boolean | No | Boolean control for is primary; authorization is still enforced server-side. |
+| Field             | Type          | Required | Purpose                                                                      |
+| ----------------- | ------------- | -------- | ---------------------------------------------------------------------------- |
+| `expectedVersion` | integer       | No       | Last server version observed by the client; stale writes are rejected.       |
+| `url`             | string (uri)  | Yes      | HTTPS location validated against the operation's server-side allowlist.      |
+| `altText`         | string / null | No       | Alt Text validated by this operation's strict request contract.              |
+| `sortOrder`       | integer       | No       | Sort Order validated by this operation's strict request contract.            |
+| `isPrimary`       | boolean       | No       | Boolean control for is primary; authorization is still enforced server-side. |
 
 Synthetic request example:
 
@@ -21571,21 +21562,21 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `productId` | path | string (uuid) | Yes | Identifier selecting the product resource. |
-| `imageId` | path | string (uuid) | Yes | Identifier selecting the image resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `productId`    | path     | string (uuid) | Yes      | Identifier selecting the product resource.                                      |
+| `imageId`      | path     | string (uuid) | Yes      | Identifier selecting the image resource.                                        |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `expectedVersion` | integer | No | Last server version observed by the client; stale writes are rejected. |
-| `url` | string (uri) | No | HTTPS location validated against the operation's server-side allowlist. |
-| `altText` | string / null | No | Alt Text validated by this operation's strict request contract. |
-| `sortOrder` | integer | No | Sort Order validated by this operation's strict request contract. |
-| `isPrimary` | boolean | No | Boolean control for is primary; authorization is still enforced server-side. |
+| Field             | Type          | Required | Purpose                                                                      |
+| ----------------- | ------------- | -------- | ---------------------------------------------------------------------------- |
+| `expectedVersion` | integer       | No       | Last server version observed by the client; stale writes are rejected.       |
+| `url`             | string (uri)  | No       | HTTPS location validated against the operation's server-side allowlist.      |
+| `altText`         | string / null | No       | Alt Text validated by this operation's strict request contract.              |
+| `sortOrder`       | integer       | No       | Sort Order validated by this operation's strict request contract.            |
+| `isPrimary`       | boolean       | No       | Boolean control for is primary; authorization is still enforced server-side. |
 
 Synthetic request example:
 
@@ -21635,17 +21626,17 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `productId` | path | string (uuid) | Yes | Identifier selecting the product resource. |
-| `imageId` | path | string (uuid) | Yes | Identifier selecting the image resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `productId`    | path     | string (uuid) | Yes      | Identifier selecting the product resource.                                      |
+| `imageId`      | path     | string (uuid) | Yes      | Identifier selecting the image resource.                                        |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `expectedVersion` | integer | No | Last server version observed by the client; stale writes are rejected. |
+| Field             | Type    | Required | Purpose                                                                |
+| ----------------- | ------- | -------- | ---------------------------------------------------------------------- |
+| `expectedVersion` | integer | No       | Last server version observed by the client; stale writes are rejected. |
 
 Synthetic request example:
 
@@ -21680,17 +21671,17 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type   | Required | Purpose                                                                         |
+| -------------- | -------- | ------ | -------- | ------------------------------------------------------------------------------- |
+| `x-csrf-token` | header   | string | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `productId` | string (uuid) | Yes | Identifier of the product resource; ownership is resolved server-side. |
-| `branchId` | string (uuid) | Yes | Identifier of the branch resource; ownership is resolved server-side. |
-| `reorderLevel` | integer | No | Reorder Level validated by this operation's strict request contract. |
+| Field          | Type          | Required | Purpose                                                                |
+| -------------- | ------------- | -------- | ---------------------------------------------------------------------- |
+| `productId`    | string (uuid) | Yes      | Identifier of the product resource; ownership is resolved server-side. |
+| `branchId`     | string (uuid) | Yes      | Identifier of the branch resource; ownership is resolved server-side.  |
+| `reorderLevel` | integer       | No       | Reorder Level validated by this operation's strict request contract.   |
 
 Synthetic request example:
 
@@ -21731,14 +21722,14 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-| `pricingType` | query | FIXED / QUOTE_REQUIRED | No | Pricing Type used to constrain this request. |
-| `isActive` | query | true / false | No | Is Active used to constrain this request. |
-| `search` | query | string | No | Search used to constrain this request. |
-| `categoryId` | query | string (uuid) | No | Category Id used to constrain this request. |
+| Parameter     | Location | Type                   | Required | Purpose                                                  |
+| ------------- | -------- | ---------------------- | -------- | -------------------------------------------------------- |
+| `cursor`      | query    | string (uuid)          | No       | Opaque cursor returned by the preceding page.            |
+| `limit`       | query    | integer                | No       | Maximum number of records to return, bounded by the API. |
+| `pricingType` | query    | FIXED / QUOTE_REQUIRED | No       | Pricing Type used to constrain this request.             |
+| `isActive`    | query    | true / false           | No       | Is Active used to constrain this request.                |
+| `search`      | query    | string                 | No       | Search used to constrain this request.                   |
+| `categoryId`  | query    | string (uuid)          | No       | Category Id used to constrain this request.              |
 
 Success: HTTP 200.
 
@@ -21800,25 +21791,25 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
-| `idempotency-key` | header | string | Yes | Unique retry key for this logical mutation. Reuse it only with the identical request. |
+| Parameter         | Location | Type   | Required | Purpose                                                                               |
+| ----------------- | -------- | ------ | -------- | ------------------------------------------------------------------------------------- |
+| `x-csrf-token`    | header   | string | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.       |
+| `idempotency-key` | header   | string | Yes      | Unique retry key for this logical mutation. Reuse it only with the identical request. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `categoryId` | string / null | No | Identifier of the category resource; ownership is resolved server-side. |
-| `name` | string | Yes | Name validated by this operation's strict request contract. |
-| `slug` | string | Yes | Slug validated by this operation's strict request contract. |
-| `description` | string / null | No | Description validated by this operation's strict request contract. |
-| `shortDescription` | string / null | No | Short Description validated by this operation's strict request contract. |
-| `pricingType` | FIXED / QUOTE_REQUIRED | Yes | Pricing Type validated by this operation's strict request contract. |
-| `priceKobo` | string / null | Yes | Integer price in Nigerian kobo; client-calculated values are never authoritative. |
-| `currency` | NGN | No | Currency validated by this operation's strict request contract. |
-| `durationMinutes` | integer | Yes | Duration Minutes validated by this operation's strict request contract. |
-| `isActive` | boolean | No | Boolean control for is active; authorization is still enforced server-side. |
+| Field              | Type                   | Required | Purpose                                                                           |
+| ------------------ | ---------------------- | -------- | --------------------------------------------------------------------------------- |
+| `categoryId`       | string / null          | No       | Identifier of the category resource; ownership is resolved server-side.           |
+| `name`             | string                 | Yes      | Name validated by this operation's strict request contract.                       |
+| `slug`             | string                 | Yes      | Slug validated by this operation's strict request contract.                       |
+| `description`      | string / null          | No       | Description validated by this operation's strict request contract.                |
+| `shortDescription` | string / null          | No       | Short Description validated by this operation's strict request contract.          |
+| `pricingType`      | FIXED / QUOTE_REQUIRED | Yes      | Pricing Type validated by this operation's strict request contract.               |
+| `priceKobo`        | string / null          | Yes      | Integer price in Nigerian kobo; client-calculated values are never authoritative. |
+| `currency`         | NGN                    | No       | Currency validated by this operation's strict request contract.                   |
+| `durationMinutes`  | integer                | Yes      | Duration Minutes validated by this operation's strict request contract.           |
+| `isActive`         | boolean                | No       | Boolean control for is active; authorization is still enforced server-side.       |
 
 Synthetic request example:
 
@@ -21861,9 +21852,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `serviceId` | path | string (uuid) | Yes | Identifier selecting the service resource. |
+| Parameter   | Location | Type          | Required | Purpose                                    |
+| ----------- | -------- | ------------- | -------- | ------------------------------------------ |
+| `serviceId` | path     | string (uuid) | Yes      | Identifier selecting the service resource. |
 
 Success: HTTP 200.
 
@@ -21920,26 +21911,26 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `serviceId` | path | string (uuid) | Yes | Identifier selecting the service resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `serviceId`    | path     | string (uuid) | Yes      | Identifier selecting the service resource.                                      |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
-| `name` | string | No | Name validated by this operation's strict request contract. |
-| `categoryId` | string / null | No | Identifier of the category resource; ownership is resolved server-side. |
-| `slug` | string | No | Slug validated by this operation's strict request contract. |
-| `description` | string / null | No | Description validated by this operation's strict request contract. |
-| `shortDescription` | string / null | No | Short Description validated by this operation's strict request contract. |
-| `pricingType` | FIXED / QUOTE_REQUIRED | No | Pricing Type validated by this operation's strict request contract. |
-| `priceKobo` | string / null | No | Integer price in Nigerian kobo; client-calculated values are never authoritative. |
-| `currency` | NGN | No | Currency validated by this operation's strict request contract. |
-| `durationMinutes` | integer | No | Duration Minutes validated by this operation's strict request contract. |
-| `isActive` | boolean | No | Boolean control for is active; authorization is still enforced server-side. |
+| Field              | Type                   | Required | Purpose                                                                           |
+| ------------------ | ---------------------- | -------- | --------------------------------------------------------------------------------- |
+| `expectedVersion`  | integer                | Yes      | Last server version observed by the client; stale writes are rejected.            |
+| `name`             | string                 | No       | Name validated by this operation's strict request contract.                       |
+| `categoryId`       | string / null          | No       | Identifier of the category resource; ownership is resolved server-side.           |
+| `slug`             | string                 | No       | Slug validated by this operation's strict request contract.                       |
+| `description`      | string / null          | No       | Description validated by this operation's strict request contract.                |
+| `shortDescription` | string / null          | No       | Short Description validated by this operation's strict request contract.          |
+| `pricingType`      | FIXED / QUOTE_REQUIRED | No       | Pricing Type validated by this operation's strict request contract.               |
+| `priceKobo`        | string / null          | No       | Integer price in Nigerian kobo; client-calculated values are never authoritative. |
+| `currency`         | NGN                    | No       | Currency validated by this operation's strict request contract.                   |
+| `durationMinutes`  | integer                | No       | Duration Minutes validated by this operation's strict request contract.           |
+| `isActive`         | boolean                | No       | Boolean control for is active; authorization is still enforced server-side.       |
 
 Synthetic request example:
 
@@ -21978,12 +21969,12 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `search` | query | string | No | Search used to constrain this request. |
-| `cursor` | query | string | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | string | No | Maximum number of records to return, bounded by the API. |
-| `isActive` | query | true / false | No | Is Active used to constrain this request. |
+| Parameter  | Location | Type         | Required | Purpose                                                  |
+| ---------- | -------- | ------------ | -------- | -------------------------------------------------------- |
+| `search`   | query    | string       | No       | Search used to constrain this request.                   |
+| `cursor`   | query    | string       | No       | Opaque cursor returned by the preceding page.            |
+| `limit`    | query    | string       | No       | Maximum number of records to return, bounded by the API. |
+| `isActive` | query    | true / false | No       | Is Active used to constrain this request.                |
 
 Success: HTTP 200.
 
@@ -22025,18 +22016,18 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type   | Required | Purpose                                                                         |
+| -------------- | -------- | ------ | -------- | ------------------------------------------------------------------------------- |
+| `x-csrf-token` | header   | string | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `name` | string | Yes | Name validated by this operation's strict request contract. |
-| `slug` | string | Yes | Slug validated by this operation's strict request contract. |
-| `description` | string / null | No | Description validated by this operation's strict request contract. |
-| `isActive` | boolean | No | Boolean control for is active; authorization is still enforced server-side. |
+| Field         | Type          | Required | Purpose                                                                     |
+| ------------- | ------------- | -------- | --------------------------------------------------------------------------- |
+| `name`        | string        | Yes      | Name validated by this operation's strict request contract.                 |
+| `slug`        | string        | Yes      | Slug validated by this operation's strict request contract.                 |
+| `description` | string / null | No       | Description validated by this operation's strict request contract.          |
+| `isActive`    | boolean       | No       | Boolean control for is active; authorization is still enforced server-side. |
 
 Synthetic request example:
 
@@ -22084,9 +22075,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `categoryId` | path | string (uuid) | Yes | Identifier selecting the category resource. |
+| Parameter    | Location | Type          | Required | Purpose                                     |
+| ------------ | -------- | ------------- | -------- | ------------------------------------------- |
+| `categoryId` | path     | string (uuid) | Yes      | Identifier selecting the category resource. |
 
 Success: HTTP 200.
 
@@ -22123,20 +22114,20 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `categoryId` | path | string (uuid) | Yes | Identifier selecting the category resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `categoryId`   | path     | string (uuid) | Yes      | Identifier selecting the category resource.                                     |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `name` | string | No | Name validated by this operation's strict request contract. |
-| `slug` | string | No | Slug validated by this operation's strict request contract. |
-| `description` | string / null | No | Description validated by this operation's strict request contract. |
-| `isActive` | boolean | No | Boolean control for is active; authorization is still enforced server-side. |
-| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+| Field             | Type          | Required | Purpose                                                                     |
+| ----------------- | ------------- | -------- | --------------------------------------------------------------------------- |
+| `name`            | string        | No       | Name validated by this operation's strict request contract.                 |
+| `slug`            | string        | No       | Slug validated by this operation's strict request contract.                 |
+| `description`     | string / null | No       | Description validated by this operation's strict request contract.          |
+| `isActive`        | boolean       | No       | Boolean control for is active; authorization is still enforced server-side. |
+| `expectedVersion` | integer       | Yes      | Last server version observed by the client; stale writes are rejected.      |
 
 Synthetic request example:
 
@@ -22185,15 +22176,15 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type   | Required | Purpose                                                                         |
+| -------------- | -------- | ------ | -------- | ------------------------------------------------------------------------------- |
+| `x-csrf-token` | header   | string | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `limit` | integer | No | Maximum page size, subject to the documented server bound. |
+| Field   | Type    | Required | Purpose                                                    |
+| ------- | ------- | -------- | ---------------------------------------------------------- |
+| `limit` | integer | No       | Maximum page size, subject to the documented server bound. |
 
 Synthetic request example:
 
@@ -22232,9 +22223,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `requestKey` | path | string | Yes | Identifier selecting the request key resource. |
+| Parameter    | Location | Type   | Required | Purpose                                        |
+| ------------ | -------- | ------ | -------- | ---------------------------------------------- |
+| `requestKey` | path     | string | Yes      | Identifier selecting the request key resource. |
 
 Success: HTTP 200.
 
@@ -22265,13 +22256,13 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-| `isActive` | query | true / false | No | Is Active used to constrain this request. |
-| `search` | query | string | No | Search used to constrain this request. |
-| `discountType` | query | PERCENTAGE / FIXED_AMOUNT | No | Discount Type used to constrain this request. |
+| Parameter      | Location | Type                      | Required | Purpose                                                  |
+| -------------- | -------- | ------------------------- | -------- | -------------------------------------------------------- |
+| `cursor`       | query    | string (uuid)             | No       | Opaque cursor returned by the preceding page.            |
+| `limit`        | query    | integer                   | No       | Maximum number of records to return, bounded by the API. |
+| `isActive`     | query    | true / false              | No       | Is Active used to constrain this request.                |
+| `search`       | query    | string                    | No       | Search used to constrain this request.                   |
+| `discountType` | query    | PERCENTAGE / FIXED_AMOUNT | No       | Discount Type used to constrain this request.            |
 
 Success: HTTP 200.
 
@@ -22307,28 +22298,28 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
-| `idempotency-key` | header | string | No | Unique retry key for this logical mutation. Reuse it only with the identical request. |
+| Parameter         | Location | Type   | Required | Purpose                                                                               |
+| ----------------- | -------- | ------ | -------- | ------------------------------------------------------------------------------------- |
+| `x-csrf-token`    | header   | string | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.       |
+| `idempotency-key` | header   | string | No       | Unique retry key for this logical mutation. Reuse it only with the identical request. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `name` | string | Yes | Name validated by this operation's strict request contract. |
-| `code` | string / null | No | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
-| `description` | string / null | No | Description validated by this operation's strict request contract. |
-| `discountType` | PERCENTAGE / FIXED_AMOUNT | Yes | Discount Type validated by this operation's strict request contract. |
-| `percentageBasisPoints` | integer / null | No | Percentage Basis Points validated by this operation's strict request contract. |
-| `fixedAmountKobo` | string / null | No | Integer amount in Nigerian kobo; the server remains authoritative. |
-| `minimumOrderAmountKobo` | string / null | No | Integer amount in Nigerian kobo; the server remains authoritative. |
-| `maximumDiscountAmountKobo` | string / null | No | Integer amount in Nigerian kobo; the server remains authoritative. |
-| `usageLimit` | integer / null | No | Usage Limit validated by this operation's strict request contract. |
-| `perCustomerLimit` | integer / null | No | Per Customer Limit validated by this operation's strict request contract. |
-| `startsAt` | string (date-time) | Yes | ISO 8601 timestamp interpreted and validated by the server. |
-| `endsAt` | string (date-time) | Yes | ISO 8601 timestamp interpreted and validated by the server. |
-| `isActive` | boolean | No | Boolean control for is active; authorization is still enforced server-side. |
+| Field                       | Type                      | Required | Purpose                                                                                     |
+| --------------------------- | ------------------------- | -------- | ------------------------------------------------------------------------------------------- |
+| `name`                      | string                    | Yes      | Name validated by this operation's strict request contract.                                 |
+| `code`                      | string / null             | No       | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
+| `description`               | string / null             | No       | Description validated by this operation's strict request contract.                          |
+| `discountType`              | PERCENTAGE / FIXED_AMOUNT | Yes      | Discount Type validated by this operation's strict request contract.                        |
+| `percentageBasisPoints`     | integer / null            | No       | Percentage Basis Points validated by this operation's strict request contract.              |
+| `fixedAmountKobo`           | string / null             | No       | Integer amount in Nigerian kobo; the server remains authoritative.                          |
+| `minimumOrderAmountKobo`    | string / null             | No       | Integer amount in Nigerian kobo; the server remains authoritative.                          |
+| `maximumDiscountAmountKobo` | string / null             | No       | Integer amount in Nigerian kobo; the server remains authoritative.                          |
+| `usageLimit`                | integer / null            | No       | Usage Limit validated by this operation's strict request contract.                          |
+| `perCustomerLimit`          | integer / null            | No       | Per Customer Limit validated by this operation's strict request contract.                   |
+| `startsAt`                  | string (date-time)        | Yes      | ISO 8601 timestamp interpreted and validated by the server.                                 |
+| `endsAt`                    | string (date-time)        | Yes      | ISO 8601 timestamp interpreted and validated by the server.                                 |
+| `isActive`                  | boolean                   | No       | Boolean control for is active; authorization is still enforced server-side.                 |
 
 Synthetic request example:
 
@@ -22370,9 +22361,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `promotionId` | path | string (uuid) | Yes | Identifier selecting the promotion resource. |
+| Parameter     | Location | Type          | Required | Purpose                                      |
+| ------------- | -------- | ------------- | -------- | -------------------------------------------- |
+| `promotionId` | path     | string (uuid) | Yes      | Identifier selecting the promotion resource. |
 
 Success: HTTP 200.
 
@@ -22403,29 +22394,29 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `promotionId` | path | string (uuid) | Yes | Identifier selecting the promotion resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `promotionId`  | path     | string (uuid) | Yes      | Identifier selecting the promotion resource.                                    |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
-| `name` | string | No | Name validated by this operation's strict request contract. |
-| `code` | string / null | No | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
-| `description` | string / null | No | Description validated by this operation's strict request contract. |
-| `discountType` | PERCENTAGE / FIXED_AMOUNT | No | Discount Type validated by this operation's strict request contract. |
-| `percentageBasisPoints` | integer / null | No | Percentage Basis Points validated by this operation's strict request contract. |
-| `fixedAmountKobo` | string / null | No | Integer amount in Nigerian kobo; the server remains authoritative. |
-| `minimumOrderAmountKobo` | string / null | No | Integer amount in Nigerian kobo; the server remains authoritative. |
-| `maximumDiscountAmountKobo` | string / null | No | Integer amount in Nigerian kobo; the server remains authoritative. |
-| `usageLimit` | integer / null | No | Usage Limit validated by this operation's strict request contract. |
-| `perCustomerLimit` | integer / null | No | Per Customer Limit validated by this operation's strict request contract. |
-| `startsAt` | string (date-time) | No | ISO 8601 timestamp interpreted and validated by the server. |
-| `endsAt` | string (date-time) | No | ISO 8601 timestamp interpreted and validated by the server. |
-| `isActive` | boolean | No | Boolean control for is active; authorization is still enforced server-side. |
+| Field                       | Type                      | Required | Purpose                                                                                     |
+| --------------------------- | ------------------------- | -------- | ------------------------------------------------------------------------------------------- |
+| `expectedVersion`           | integer                   | Yes      | Last server version observed by the client; stale writes are rejected.                      |
+| `name`                      | string                    | No       | Name validated by this operation's strict request contract.                                 |
+| `code`                      | string / null             | No       | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
+| `description`               | string / null             | No       | Description validated by this operation's strict request contract.                          |
+| `discountType`              | PERCENTAGE / FIXED_AMOUNT | No       | Discount Type validated by this operation's strict request contract.                        |
+| `percentageBasisPoints`     | integer / null            | No       | Percentage Basis Points validated by this operation's strict request contract.              |
+| `fixedAmountKobo`           | string / null             | No       | Integer amount in Nigerian kobo; the server remains authoritative.                          |
+| `minimumOrderAmountKobo`    | string / null             | No       | Integer amount in Nigerian kobo; the server remains authoritative.                          |
+| `maximumDiscountAmountKobo` | string / null             | No       | Integer amount in Nigerian kobo; the server remains authoritative.                          |
+| `usageLimit`                | integer / null            | No       | Usage Limit validated by this operation's strict request contract.                          |
+| `perCustomerLimit`          | integer / null            | No       | Per Customer Limit validated by this operation's strict request contract.                   |
+| `startsAt`                  | string (date-time)        | No       | ISO 8601 timestamp interpreted and validated by the server.                                 |
+| `endsAt`                    | string (date-time)        | No       | ISO 8601 timestamp interpreted and validated by the server.                                 |
+| `isActive`                  | boolean                   | No       | Boolean control for is active; authorization is still enforced server-side.                 |
 
 Synthetic request example:
 
@@ -22464,15 +22455,15 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type   | Required | Purpose                                                                         |
+| -------------- | -------- | ------ | -------- | ------------------------------------------------------------------------------- |
+| `x-csrf-token` | header   | string | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `limit` | integer | No | Maximum page size, subject to the documented server bound. |
+| Field   | Type    | Required | Purpose                                                    |
+| ------- | ------- | -------- | ---------------------------------------------------------- |
+| `limit` | integer | No       | Maximum page size, subject to the documented server bound. |
 
 Synthetic request example:
 
@@ -22511,10 +22502,10 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `source` | path | outbox / webhook | Yes | Identifier selecting the source resource. |
-| `jobId` | path | string (uuid) | Yes | Identifier selecting the job resource. |
+| Parameter | Location | Type             | Required | Purpose                                   |
+| --------- | -------- | ---------------- | -------- | ----------------------------------------- |
+| `source`  | path     | outbox / webhook | Yes      | Identifier selecting the source resource. |
+| `jobId`   | path     | string (uuid)    | Yes      | Identifier selecting the job resource.    |
 
 Success: HTTP 200.
 
@@ -22556,17 +22547,17 @@ Relevant errors: 400 The request is malformed.; 401 Authentication required; 403
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-| `userId` | query | string (uuid) | No | User Id used to constrain this request. |
-| `action` | query | READ / CREATE / UPDATE / DELETE / LOGIN / LOGOUT / LOGIN_FAILED / PASSWORD_RESET / EMAIL_VERIFIED / MFA_ENABLED / MFA_DISABLED / ROLE_CHANGE / ACCOUNT_SUSPENDED / ACCOUNT_DEACTIVATED / SESSION_REVOKED / STATUS_CHANGE / INVENTORY_ADJUSTED / PAYMENT_INITIALIZED / PAYMENT_VERIFIED / MANUAL_PAYMENT_APPROVED / REFUND_REQUESTED / REFUND_APPROVED / PAYMENT_REFUNDED / DISPUTE_UPDATED / VEHICLE_RESERVED / VEHICLE_RELEASED / INVITATION_CREATED / INVITATION_ACCEPTED / BRANCH_ASSIGNED | No | Action used to constrain this request. |
-| `entityType` | query | FITMENT_MAKE / FITMENT_MODEL / PRODUCT_FITMENT / USER / BRANCH / PRIVILEGED_INVITATION / SESSION / MFA_FACTOR / CUSTOMER_PROFILE / STAFF_PROFILE / CUSTOMER_VEHICLE / SERVICE / SERVICE_CATEGORY / BOOKING_SLOT / BOOKING / QUOTE / WORK_ORDER / PRODUCT / INVENTORY / ORDER / PAYMENT / PAYMENT_ATTEMPT / REFUND / DISPUTE / VEHICLE / VEHICLE_LISTING / VEHICLE_TRANSACTION / INSPECTION / REVIEW / ENQUIRY / COMPLAINT / PROMOTION / INVOICE | No | Entity Type used to constrain this request. |
-| `entityId` | query | string | No | Entity Id used to constrain this request. |
-| `requestId` | query | string | No | Request Id used to constrain this request. |
-| `from` | query | string (date-time) | No | From used to constrain this request. |
-| `to` | query | string (date-time) | No | To used to constrain this request. |
+| Parameter    | Location | Type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | Required | Purpose                                                  |
+| ------------ | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | -------------------------------------------------------- |
+| `cursor`     | query    | string (uuid)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | No       | Opaque cursor returned by the preceding page.            |
+| `limit`      | query    | integer                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | No       | Maximum number of records to return, bounded by the API. |
+| `userId`     | query    | string (uuid)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | No       | User Id used to constrain this request.                  |
+| `action`     | query    | READ / CREATE / UPDATE / DELETE / LOGIN / LOGOUT / LOGIN_FAILED / PASSWORD_RESET / EMAIL_VERIFIED / MFA_ENABLED / MFA_DISABLED / ROLE_CHANGE / ACCOUNT_SUSPENDED / ACCOUNT_DEACTIVATED / SESSION_REVOKED / STATUS_CHANGE / INVENTORY_ADJUSTED / PAYMENT_INITIALIZED / PAYMENT_VERIFIED / MANUAL_PAYMENT_APPROVED / REFUND_REQUESTED / REFUND_APPROVED / PAYMENT_REFUNDED / DISPUTE_UPDATED / VEHICLE_RESERVED / VEHICLE_RELEASED / INVITATION_CREATED / INVITATION_ACCEPTED / BRANCH_ASSIGNED | No       | Action used to constrain this request.                   |
+| `entityType` | query    | FITMENT_MAKE / FITMENT_MODEL / PRODUCT_FITMENT / USER / BRANCH / PRIVILEGED_INVITATION / SESSION / MFA_FACTOR / CUSTOMER_PROFILE / STAFF_PROFILE / CUSTOMER_VEHICLE / SERVICE / SERVICE_CATEGORY / BOOKING_SLOT / BOOKING / QUOTE / WORK_ORDER / PRODUCT / INVENTORY / ORDER / PAYMENT / PAYMENT_ATTEMPT / REFUND / DISPUTE / VEHICLE / VEHICLE_LISTING / VEHICLE_TRANSACTION / INSPECTION / REVIEW / ENQUIRY / COMPLAINT / PROMOTION / INVOICE                                               | No       | Entity Type used to constrain this request.              |
+| `entityId`   | query    | string                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | No       | Entity Id used to constrain this request.                |
+| `requestId`  | query    | string                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | No       | Request Id used to constrain this request.               |
+| `from`       | query    | string (date-time)                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | No       | From used to constrain this request.                     |
+| `to`         | query    | string (date-time)                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | No       | To used to constrain this request.                       |
 
 Success: HTTP 200.
 
@@ -22674,12 +22665,12 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `cursor` | query | string | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-| `source` | query | OUTBOX / PAYMENT_WEBHOOK | No | Source used to constrain this request. |
-| `status` | query | FAILED / DEAD_LETTER / PROCESSING | No | Status used to constrain this request. |
+| Parameter | Location | Type                              | Required | Purpose                                                  |
+| --------- | -------- | --------------------------------- | -------- | -------------------------------------------------------- |
+| `cursor`  | query    | string                            | No       | Opaque cursor returned by the preceding page.            |
+| `limit`   | query    | integer                           | No       | Maximum number of records to return, bounded by the API. |
+| `source`  | query    | OUTBOX / PAYMENT_WEBHOOK          | No       | Source used to constrain this request.                   |
+| `status`  | query    | FAILED / DEAD_LETTER / PROCESSING | No       | Status used to constrain this request.                   |
 
 Success: HTTP 200.
 
@@ -22726,12 +22717,12 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-| `status` | query | OPEN / INVESTIGATING / RESOLVED / IGNORED | No | Status used to constrain this request. |
-| `type` | query | UNKNOWN_REFERENCE / AMOUNT_MISMATCH / CURRENCY_MISMATCH / DUPLICATE_SUCCESS / LATE_SUCCESS / REFUND_MISMATCH / WEBHOOK_REPLAY / OTHER | No | Type used to constrain this request. |
+| Parameter | Location | Type                                                                                                                                  | Required | Purpose                                                  |
+| --------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------- | -------- | -------------------------------------------------------- |
+| `cursor`  | query    | string (uuid)                                                                                                                         | No       | Opaque cursor returned by the preceding page.            |
+| `limit`   | query    | integer                                                                                                                               | No       | Maximum number of records to return, bounded by the API. |
+| `status`  | query    | OPEN / INVESTIGATING / RESOLVED / IGNORED                                                                                             | No       | Status used to constrain this request.                   |
+| `type`    | query    | UNKNOWN_REFERENCE / AMOUNT_MISMATCH / CURRENCY_MISMATCH / DUPLICATE_SUCCESS / LATE_SUCCESS / REFUND_MISMATCH / WEBHOOK_REPLAY / OTHER | No       | Type used to constrain this request.                     |
 
 Success: HTTP 200.
 
@@ -22778,12 +22769,12 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-| `status` | query | AWAITING_RESPONSE / UNDER_REVIEW / WON / LOST / ACCEPTED / EXPIRED | No | Status used to constrain this request. |
-| `category` | query | NOT_RECOGNIZED / FRAUD / NOT_RECEIVED / NOT_AS_DESCRIBED / DUPLICATE_CHARGE / REFUND_NOT_RECEIVED / OTHER | No | Category used to constrain this request. |
+| Parameter  | Location | Type                                                                                                      | Required | Purpose                                                  |
+| ---------- | -------- | --------------------------------------------------------------------------------------------------------- | -------- | -------------------------------------------------------- |
+| `cursor`   | query    | string (uuid)                                                                                             | No       | Opaque cursor returned by the preceding page.            |
+| `limit`    | query    | integer                                                                                                   | No       | Maximum number of records to return, bounded by the API. |
+| `status`   | query    | AWAITING_RESPONSE / UNDER_REVIEW / WON / LOST / ACCEPTED / EXPIRED                                        | No       | Status used to constrain this request.                   |
+| `category` | query    | NOT_RECOGNIZED / FRAUD / NOT_RECEIVED / NOT_AS_DESCRIBED / DUPLICATE_CHARGE / REFUND_NOT_RECEIVED / OTHER | No       | Category used to constrain this request.                 |
 
 Success: HTTP 200.
 
@@ -22836,11 +22827,11 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-| `status` | query | REQUESTED / APPROVED / PENDING / PROCESSING / NEEDS_ATTENTION / SUCCEEDED / FAILED / CANCELLED | No | Status used to constrain this request. |
+| Parameter | Location | Type                                                                                           | Required | Purpose                                                  |
+| --------- | -------- | ---------------------------------------------------------------------------------------------- | -------- | -------------------------------------------------------- |
+| `cursor`  | query    | string (uuid)                                                                                  | No       | Opaque cursor returned by the preceding page.            |
+| `limit`   | query    | integer                                                                                        | No       | Maximum number of records to return, bounded by the API. |
+| `status`  | query    | REQUESTED / APPROVED / PENDING / PROCESSING / NEEDS_ATTENTION / SUCCEEDED / FAILED / CANCELLED | No       | Status used to constrain this request.                   |
 
 Success: HTTP 200.
 
@@ -22876,19 +22867,19 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `source` | path | outbox / webhook | Yes | Identifier selecting the source resource. |
-| `jobId` | path | string (uuid) | Yes | Identifier selecting the job resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type             | Required | Purpose                                                                         |
+| -------------- | -------- | ---------------- | -------- | ------------------------------------------------------------------------------- |
+| `source`       | path     | outbox / webhook | Yes      | Identifier selecting the source resource.                                       |
+| `jobId`        | path     | string (uuid)    | Yes      | Identifier selecting the job resource.                                          |
+| `x-csrf-token` | header   | string           | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `expectedAttempts` | integer | Yes | Expected Attempts validated by this operation's strict request contract. |
-| `expectedUpdatedAt` | string (date-time) | No | ISO 8601 timestamp interpreted and validated by the server. |
-| `reason` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| Field               | Type               | Required | Purpose                                                                          |
+| ------------------- | ------------------ | -------- | -------------------------------------------------------------------------------- |
+| `expectedAttempts`  | integer            | Yes      | Expected Attempts validated by this operation's strict request contract.         |
+| `expectedUpdatedAt` | string (date-time) | No       | ISO 8601 timestamp interpreted and validated by the server.                      |
+| `reason`            | string             | Yes      | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
 
 Synthetic request example:
 
@@ -22931,9 +22922,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `anomalyId` | path | string (uuid) | Yes | Identifier selecting the anomaly resource. |
+| Parameter   | Location | Type          | Required | Purpose                                    |
+| ----------- | -------- | ------------- | -------- | ------------------------------------------ |
+| `anomalyId` | path     | string (uuid) | Yes      | Identifier selecting the anomaly resource. |
 
 Success: HTTP 200.
 
@@ -22975,18 +22966,18 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `anomalyId` | path | string (uuid) | Yes | Identifier selecting the anomaly resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `anomalyId`    | path     | string (uuid) | Yes      | Identifier selecting the anomaly resource.                                      |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `expectedStatus` | OPEN / INVESTIGATING | Yes | Expected Status validated by this operation's strict request contract. |
-| `status` | INVESTIGATING / RESOLVED / IGNORED | Yes | Requested or filtered lifecycle state from the documented enum. |
-| `resolutionNote` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| Field            | Type                               | Required | Purpose                                                                          |
+| ---------------- | ---------------------------------- | -------- | -------------------------------------------------------------------------------- |
+| `expectedStatus` | OPEN / INVESTIGATING               | Yes      | Expected Status validated by this operation's strict request contract.           |
+| `status`         | INVESTIGATING / RESOLVED / IGNORED | Yes      | Requested or filtered lifecycle state from the documented enum.                  |
+| `resolutionNote` | string                             | Yes      | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
 
 Synthetic request example:
 
@@ -23522,9 +23513,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `branchId` | path | string (uuid) | Yes | Identifier selecting the branch resource. |
+| Parameter  | Location | Type          | Required | Purpose                                   |
+| ---------- | -------- | ------------- | -------- | ----------------------------------------- |
+| `branchId` | path     | string (uuid) | Yes      | Identifier selecting the branch resource. |
 
 Success: HTTP 200.
 
@@ -23614,10 +23605,10 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `key` | query | string | Yes | Key used to constrain this request. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+| Parameter | Location | Type    | Required | Purpose                                                  |
+| --------- | -------- | ------- | -------- | -------------------------------------------------------- |
+| `key`     | query    | string  | Yes      | Key used to constrain this request.                      |
+| `limit`   | query    | integer | No       | Maximum number of records to return, bounded by the API. |
 
 Success: HTTP 200.
 
@@ -23653,9 +23644,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type   | Required | Purpose                                                                         |
+| -------------- | -------- | ------ | -------- | ------------------------------------------------------------------------------- |
+| `x-csrf-token` | header   | string | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 Synthetic request example:
 
@@ -23712,10 +23703,10 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `userId` | query | string (uuid) | Yes | User Id used to constrain this request. |
-| `activeOnly` | query | true / false | No | Active Only used to constrain this request. |
+| Parameter    | Location | Type          | Required | Purpose                                     |
+| ------------ | -------- | ------------- | -------- | ------------------------------------------- |
+| `userId`     | query    | string (uuid) | Yes      | User Id used to constrain this request.     |
+| `activeOnly` | query    | true / false  | No       | Active Only used to constrain this request. |
 
 Success: HTTP 200.
 
@@ -23752,16 +23743,16 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type   | Required | Purpose                                                                         |
+| -------------- | -------- | ------ | -------- | ------------------------------------------------------------------------------- |
+| `x-csrf-token` | header   | string | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `userId` | string (uuid) | Yes | Identifier of the user resource; ownership is resolved server-side. |
-| `capability` | REFUND_APPROVE / REFUND_TRANSFER / REFUND_CHECK / FINANCE_POLICY_APPROVE / BOOKING_CONFIRM / PRIVACY_REVIEW / DISPUTE_MANAGE | Yes | Capability validated by this operation's strict request contract. |
+| Field        | Type                                                                                                                         | Required | Purpose                                                             |
+| ------------ | ---------------------------------------------------------------------------------------------------------------------------- | -------- | ------------------------------------------------------------------- |
+| `userId`     | string (uuid)                                                                                                                | Yes      | Identifier of the user resource; ownership is resolved server-side. |
+| `capability` | REFUND_APPROVE / REFUND_TRANSFER / REFUND_CHECK / FINANCE_POLICY_APPROVE / BOOKING_CONFIRM / PRIVACY_REVIEW / DISPUTE_MANAGE | Yes      | Capability validated by this operation's strict request contract.   |
 
 Synthetic request example:
 
@@ -23805,16 +23796,16 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `id`           | path     | string (uuid) | Yes      | Identifier selecting the id resource.                                           |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `reason` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| Field    | Type   | Required | Purpose                                                                          |
+| -------- | ------ | -------- | -------------------------------------------------------------------------------- |
+| `reason` | string | Yes      | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
 
 Synthetic request example:
 
@@ -23853,15 +23844,15 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `q` | query | string | No | Q used to constrain this request. |
-| `role` | query | STAFF / ADMIN / SUPER_ADMIN | No | Role used to constrain this request. |
-| `status` | query | ACTIVE / SUSPENDED / DEACTIVATED | No | Status used to constrain this request. |
-| `position` | query | CEO_MD / OPERATIONS / CUSTOMER_SERVICE / SALES_SUPERVISOR / SALES_CASHIER / ACCOUNTANT / WORKSHOP_LEAD / ELECTRICAL_TECHNICIAN / MECHANICAL_TECHNICIAN | No | Position used to constrain this request. |
-| `branchId` | query | string (uuid) | No | Branch Id used to constrain this request. |
+| Parameter  | Location | Type                                                                                                                                                   | Required | Purpose                                                  |
+| ---------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | -------- | -------------------------------------------------------- |
+| `limit`    | query    | integer                                                                                                                                                | No       | Maximum number of records to return, bounded by the API. |
+| `cursor`   | query    | string (uuid)                                                                                                                                          | No       | Opaque cursor returned by the preceding page.            |
+| `q`        | query    | string                                                                                                                                                 | No       | Q used to constrain this request.                        |
+| `role`     | query    | STAFF / ADMIN / SUPER_ADMIN                                                                                                                            | No       | Role used to constrain this request.                     |
+| `status`   | query    | ACTIVE / SUSPENDED / DEACTIVATED                                                                                                                       | No       | Status used to constrain this request.                   |
+| `position` | query    | CEO_MD / OPERATIONS / CUSTOMER_SERVICE / SALES_SUPERVISOR / SALES_CASHIER / ACCOUNTANT / WORKSHOP_LEAD / ELECTRICAL_TECHNICIAN / MECHANICAL_TECHNICIAN | No       | Position used to constrain this request.                 |
+| `branchId` | query    | string (uuid)                                                                                                                                          | No       | Branch Id used to constrain this request.                |
 
 Success: HTTP 200.
 
@@ -23925,17 +23916,17 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type   | Required | Purpose                                                                         |
+| -------------- | -------- | ------ | -------- | ------------------------------------------------------------------------------- |
+| `x-csrf-token` | header   | string | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `email` | string (email) | Yes | Normalized account email address. |
-| `role` | ADMIN | Yes | Role validated by this operation's strict request contract. |
-| `currentPassword` | string | Yes | Sensitive password value sent only over HTTPS and never logged or persisted by the client. |
+| Field             | Type           | Required | Purpose                                                                                    |
+| ----------------- | -------------- | -------- | ------------------------------------------------------------------------------------------ |
+| `email`           | string (email) | Yes      | Normalized account email address.                                                          |
+| `role`            | ADMIN          | Yes      | Role validated by this operation's strict request contract.                                |
+| `currentPassword` | string         | Yes      | Sensitive password value sent only over HTTPS and never logged or persisted by the client. |
 
 Synthetic request example:
 
@@ -23987,9 +23978,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `userId` | path | string (uuid) | Yes | Identifier selecting the user resource. |
+| Parameter | Location | Type          | Required | Purpose                                 |
+| --------- | -------- | ------------- | -------- | --------------------------------------- |
+| `userId`  | path     | string (uuid) | Yes      | Identifier selecting the user resource. |
 
 Success: HTTP 200.
 
@@ -24013,9 +24004,7 @@ Success: HTTP 200.
       "canAssign": true,
       "canRevoke": true,
       "canDelegate": true,
-      "templates": [
-        "OPERATIONS"
-      ],
+      "templates": ["OPERATIONS"],
       "branchIds": "synthetic-branchids",
       "delegationCapabilities": "synthetic-delegationcapabilities"
     },
@@ -24025,12 +24014,8 @@ Success: HTTP 200.
       "enabledAt": "2030-01-15T10:00:00.000Z",
       "updatedByUserId": "00000000-0000-4000-8000-000000000001",
       "version": 0,
-      "delegatedTemplates": [
-        "synthetic-delegatedtemplates-item"
-      ],
-      "delegatedBranchIds": [
-        "00000000-0000-4000-8000-000000000001"
-      ],
+      "delegatedTemplates": ["synthetic-delegatedtemplates-item"],
+      "delegatedBranchIds": ["00000000-0000-4000-8000-000000000001"],
       "delegationPolicyVersion": 1
     },
     "assignments": [
@@ -24052,9 +24037,7 @@ Success: HTTP 200.
         "revocationReason": "synthetic-revocationreason"
       }
     ],
-    "activeAssignmentIds": [
-      "00000000-0000-4000-8000-000000000001"
-    ],
+    "activeAssignmentIds": ["00000000-0000-4000-8000-000000000001"],
     "effectiveAccess": {
       "baseline": "OWNER",
       "visibility": "FULL",
@@ -24079,9 +24062,7 @@ Success: HTTP 200.
         }
       ],
       "responsibilityGrantsOnly": true,
-      "independentCapabilities": [
-        "REFUND_APPROVE"
-      ]
+      "independentCapabilities": ["REFUND_APPROVE"]
     },
     "templatesVersion": 1,
     "assignmentDefinitions": {},
@@ -24106,20 +24087,20 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `userId` | path | string (uuid) | Yes | Identifier selecting the user resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `userId`       | path     | string (uuid) | Yes      | Identifier selecting the user resource.                                         |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `receiptVersion` | 2 | No | Opt in to pinned-definition metadata; omission preserves the published legacy mutation receipt. |
-| `position` | CEO_MD / OPERATIONS / CUSTOMER_SERVICE / SALES_SUPERVISOR / SALES_CASHIER / ACCOUNTANT / WORKSHOP_LEAD / ELECTRICAL_TECHNICIAN / MECHANICAL_TECHNICIAN | Yes | Position validated by this operation's strict request contract. |
-| `expectedVersion` | integer / null | Yes | Last server version observed by the client; stale writes are rejected. |
-| `currentPassword` | string | Yes | Sensitive password value sent only over HTTPS and never logged or persisted by the client. |
-| `reason` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| Field             | Type                                                                                                                                                   | Required | Purpose                                                                                         |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | -------- | ----------------------------------------------------------------------------------------------- |
+| `receiptVersion`  | 2                                                                                                                                                      | No       | Opt in to pinned-definition metadata; omission preserves the published legacy mutation receipt. |
+| `position`        | CEO_MD / OPERATIONS / CUSTOMER_SERVICE / SALES_SUPERVISOR / SALES_CASHIER / ACCOUNTANT / WORKSHOP_LEAD / ELECTRICAL_TECHNICIAN / MECHANICAL_TECHNICIAN | Yes      | Position validated by this operation's strict request contract.                                 |
+| `expectedVersion` | integer / null                                                                                                                                         | Yes      | Last server version observed by the client; stale writes are rejected.                          |
+| `currentPassword` | string                                                                                                                                                 | Yes      | Sensitive password value sent only over HTTPS and never logged or persisted by the client.      |
+| `reason`          | string                                                                                                                                                 | Yes      | Plain-text business context; HTML is not accepted or rendered as trusted markup.                |
 
 Synthetic request example:
 
@@ -24145,12 +24126,8 @@ Success: HTTP 200.
     "enabledAt": "2030-01-15T10:00:00.000Z",
     "updatedByUserId": "00000000-0000-4000-8000-000000000001",
     "version": 0,
-    "delegatedTemplates": [
-      "synthetic-delegatedtemplates-item"
-    ],
-    "delegatedBranchIds": [
-      "00000000-0000-4000-8000-000000000001"
-    ],
+    "delegatedTemplates": ["synthetic-delegatedtemplates-item"],
+    "delegatedBranchIds": ["00000000-0000-4000-8000-000000000001"],
     "delegationPolicyVersion": 1
   },
   "meta": {
@@ -24172,10 +24149,10 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `userId` | path | string (uuid) | Yes | Identifier selecting the user resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `userId`       | path     | string (uuid) | Yes      | Identifier selecting the user resource.                                         |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 Synthetic request example:
 
@@ -24283,26 +24260,26 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `userId` | path | string (uuid) | Yes | Identifier selecting the user resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `userId`       | path     | string (uuid) | Yes      | Identifier selecting the user resource.                                         |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `receiptVersion` | 2 | No | Receipt Version validated by this operation's strict request contract. |
-| `expectedAccessPreview` | string | No | Expected Access Preview validated by this operation's strict request contract. |
-| `template` | OPERATIONS / CUSTOMER_SERVICE / SALES_SUPERVISOR / SALES_CASHIER / ACCOUNTANT / WORKSHOP_LEAD / ELECTRICAL_TECHNICIAN / MECHANICAL_TECHNICIAN / CARE_VIEWER / CARE_RESPONDER / CARE_ASSIGNER / CARE_LIVE_AGENT | Yes | Template validated by this operation's strict request contract. |
-| `expectedTemplateVersion` | integer | No | Expected Template Version validated by this operation's strict request contract. |
-| `branchId` | string (uuid) | Yes | Identifier of the branch resource; ownership is resolved server-side. |
-| `temporary` | boolean | Yes | Temporary validated by this operation's strict request contract. |
-| `startsAt` | string (date-time) | Yes | ISO 8601 timestamp interpreted and validated by the server. |
-| `expiresAt` | string / null | Yes | ISO 8601 timestamp interpreted and validated by the server. |
-| `reason` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
-| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
-| `currentPassword` | string | Yes | Sensitive password value sent only over HTTPS and never logged or persisted by the client. |
+| Field                     | Type                                                                                                                                                                                                           | Required | Purpose                                                                                    |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------ |
+| `receiptVersion`          | 2                                                                                                                                                                                                              | No       | Receipt Version validated by this operation's strict request contract.                     |
+| `expectedAccessPreview`   | string                                                                                                                                                                                                         | No       | Expected Access Preview validated by this operation's strict request contract.             |
+| `template`                | OPERATIONS / CUSTOMER_SERVICE / SALES_SUPERVISOR / SALES_CASHIER / ACCOUNTANT / WORKSHOP_LEAD / ELECTRICAL_TECHNICIAN / MECHANICAL_TECHNICIAN / CARE_VIEWER / CARE_RESPONDER / CARE_ASSIGNER / CARE_LIVE_AGENT | Yes      | Template validated by this operation's strict request contract.                            |
+| `expectedTemplateVersion` | integer                                                                                                                                                                                                        | No       | Expected Template Version validated by this operation's strict request contract.           |
+| `branchId`                | string (uuid)                                                                                                                                                                                                  | Yes      | Identifier of the branch resource; ownership is resolved server-side.                      |
+| `temporary`               | boolean                                                                                                                                                                                                        | Yes      | Temporary validated by this operation's strict request contract.                           |
+| `startsAt`                | string (date-time)                                                                                                                                                                                             | Yes      | ISO 8601 timestamp interpreted and validated by the server.                                |
+| `expiresAt`               | string / null                                                                                                                                                                                                  | Yes      | ISO 8601 timestamp interpreted and validated by the server.                                |
+| `reason`                  | string                                                                                                                                                                                                         | Yes      | Plain-text business context; HTML is not accepted or rendered as trusted markup.           |
+| `expectedVersion`         | integer                                                                                                                                                                                                        | Yes      | Last server version observed by the client; stale writes are rejected.                     |
+| `currentPassword`         | string                                                                                                                                                                                                         | Yes      | Sensitive password value sent only over HTTPS and never logged or persisted by the client. |
 
 Synthetic request example:
 
@@ -24360,21 +24337,21 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `userId` | path | string (uuid) | Yes | Identifier selecting the user resource. |
-| `assignmentId` | path | string (uuid) | Yes | Identifier selecting the assignment resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `userId`       | path     | string (uuid) | Yes      | Identifier selecting the user resource.                                         |
+| `assignmentId` | path     | string (uuid) | Yes      | Identifier selecting the assignment resource.                                   |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `receiptVersion` | 2 | No | Receipt Version validated by this operation's strict request contract. |
-| `expectedAccessPreview` | string | No | Expected Access Preview validated by this operation's strict request contract. |
-| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
-| `reason` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
-| `currentPassword` | string | Yes | Sensitive password value sent only over HTTPS and never logged or persisted by the client. |
+| Field                   | Type    | Required | Purpose                                                                                    |
+| ----------------------- | ------- | -------- | ------------------------------------------------------------------------------------------ |
+| `receiptVersion`        | 2       | No       | Receipt Version validated by this operation's strict request contract.                     |
+| `expectedAccessPreview` | string  | No       | Expected Access Preview validated by this operation's strict request contract.             |
+| `expectedVersion`       | integer | Yes      | Last server version observed by the client; stale writes are rejected.                     |
+| `reason`                | string  | Yes      | Plain-text business context; HTML is not accepted or rendered as trusted markup.           |
+| `currentPassword`       | string  | Yes      | Sensitive password value sent only over HTTPS and never logged or persisted by the client. |
 
 Synthetic request example:
 
@@ -24429,23 +24406,23 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `userId` | path | string (uuid) | Yes | Identifier selecting the user resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type          | Required | Purpose                                                                         |
+| -------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `userId`       | path     | string (uuid) | Yes      | Identifier selecting the user resource.                                         |
+| `x-csrf-token` | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `receiptVersion` | 2 | No | Receipt Version validated by this operation's strict request contract. |
-| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
-| `reason` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
-| `currentPassword` | string | Yes | Sensitive password value sent only over HTTPS and never logged or persisted by the client. |
-| `expectedPolicyVersion` | integer | No | Expected Policy Version validated by this operation's strict request contract. |
-| `allowAdminInvitations` | boolean | No | Boolean control for allow admin invitations; authorization is still enforced server-side. |
-| `templates` | array<OPERATIONS / CUSTOMER_SERVICE / SALES_SUPERVISOR / SALES_CASHIER / ACCOUNTANT / WORKSHOP_LEAD / ELECTRICAL_TECHNICIAN / MECHANICAL_TECHNICIAN / CARE_VIEWER / CARE_RESPONDER / CARE_ASSIGNER / CARE_LIVE_AGENT> | Yes | Templates validated by this operation's strict request contract. |
-| `branchIds` | array<string (uuid)> | Yes | Branch Ids validated by this operation's strict request contract. |
+| Field                   | Type                                                                                                                                                                                                                  | Required | Purpose                                                                                    |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------ |
+| `receiptVersion`        | 2                                                                                                                                                                                                                     | No       | Receipt Version validated by this operation's strict request contract.                     |
+| `expectedVersion`       | integer                                                                                                                                                                                                               | Yes      | Last server version observed by the client; stale writes are rejected.                     |
+| `reason`                | string                                                                                                                                                                                                                | Yes      | Plain-text business context; HTML is not accepted or rendered as trusted markup.           |
+| `currentPassword`       | string                                                                                                                                                                                                                | Yes      | Sensitive password value sent only over HTTPS and never logged or persisted by the client. |
+| `expectedPolicyVersion` | integer                                                                                                                                                                                                               | No       | Expected Policy Version validated by this operation's strict request contract.             |
+| `allowAdminInvitations` | boolean                                                                                                                                                                                                               | No       | Boolean control for allow admin invitations; authorization is still enforced server-side.  |
+| `templates`             | array<OPERATIONS / CUSTOMER_SERVICE / SALES_SUPERVISOR / SALES_CASHIER / ACCOUNTANT / WORKSHOP_LEAD / ELECTRICAL_TECHNICIAN / MECHANICAL_TECHNICIAN / CARE_VIEWER / CARE_RESPONDER / CARE_ASSIGNER / CARE_LIVE_AGENT> | Yes      | Templates validated by this operation's strict request contract.                           |
+| `branchIds`             | array<string (uuid)>                                                                                                                                                                                                  | Yes      | Branch Ids validated by this operation's strict request contract.                          |
 
 Synthetic request example:
 
@@ -24457,12 +24434,8 @@ Synthetic request example:
   "currentPassword": "correct horse battery staple",
   "expectedPolicyVersion": 1,
   "allowAdminInvitations": true,
-  "templates": [
-    "OPERATIONS"
-  ],
-  "branchIds": [
-    "00000000-0000-4000-8000-000000000001"
-  ]
+  "templates": ["OPERATIONS"],
+  "branchIds": ["00000000-0000-4000-8000-000000000001"]
 }
 ```
 
@@ -24478,12 +24451,8 @@ Success: HTTP 200.
     "enabledAt": "2030-01-15T10:00:00.000Z",
     "updatedByUserId": "00000000-0000-4000-8000-000000000001",
     "version": 0,
-    "delegatedTemplates": [
-      "synthetic-delegatedtemplates-item"
-    ],
-    "delegatedBranchIds": [
-      "00000000-0000-4000-8000-000000000001"
-    ],
+    "delegatedTemplates": ["synthetic-delegatedtemplates-item"],
+    "delegatedBranchIds": ["00000000-0000-4000-8000-000000000001"],
     "delegationPolicyVersion": 1
   },
   "meta": {
@@ -24493,7 +24462,6 @@ Success: HTTP 200.
 ```
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 Current access does not permit this request; 404 Record unavailable in permitted scope; 409 Stale version or invalid state; 422 Invalid fields; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
-
 
 ## Payment webhooks
 
@@ -24508,9 +24476,9 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-paystack-signature` | header | string | Yes | Provider-generated webhook signature verified against the exact raw request bytes. |
+| Parameter              | Location | Type   | Required | Purpose                                                                            |
+| ---------------------- | -------- | ------ | -------- | ---------------------------------------------------------------------------------- |
+| `x-paystack-signature` | header   | string | Yes      | Provider-generated webhook signature verified against the exact raw request bytes. |
 
 Success: HTTP 200.
 
@@ -24543,9 +24511,9 @@ Relevant errors: 400 The request is malformed.; 401 Invalid signature; 409 The r
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `monnify-signature` | header | string | No | Provider-generated webhook signature verified against the exact raw request bytes. |
+| Parameter           | Location | Type   | Required | Purpose                                                                            |
+| ------------------- | -------- | ------ | -------- | ---------------------------------------------------------------------------------- |
+| `monnify-signature` | header   | string | No       | Provider-generated webhook signature verified against the exact raw request bytes. |
 
 Success: HTTP 200.
 
@@ -24567,7 +24535,6 @@ Success: HTTP 200.
 
 Relevant errors: 400 The request is malformed.; 401 Missing or invalid production signature; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required provider or database is temporarily unavailable.
 
-
 ## Messaging webhooks
 
 ### POST `/webhooks/resend`
@@ -24581,11 +24548,11 @@ Relevant errors: 400 The request is malformed.; 401 Missing or invalid productio
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `svix-id` | header | string | Yes | Svix Id used to constrain this request. |
-| `svix-timestamp` | header | string | Yes | Svix Timestamp used to constrain this request. |
-| `svix-signature` | header | string | Yes | Provider-generated webhook signature verified against the exact raw request bytes. |
+| Parameter        | Location | Type   | Required | Purpose                                                                            |
+| ---------------- | -------- | ------ | -------- | ---------------------------------------------------------------------------------- |
+| `svix-id`        | header   | string | Yes      | Svix Id used to constrain this request.                                            |
+| `svix-timestamp` | header   | string | Yes      | Svix Timestamp used to constrain this request.                                     |
+| `svix-signature` | header   | string | Yes      | Provider-generated webhook signature verified against the exact raw request bytes. |
 
 Success: HTTP 204.
 
@@ -24605,7 +24572,6 @@ Success: HTTP 204.
 ```
 
 Relevant errors: 400 The request is malformed.; 401 Invalid signature; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 Webhook secret not configured
-
 
 ## Operational
 
@@ -24652,16 +24618,16 @@ Relevant errors: 400 The request is malformed.; 401 Current account session requ
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `origin` | header | string (uri) | Yes | Origin used to constrain this request. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter      | Location | Type         | Required | Purpose                                                                         |
+| -------------- | -------- | ------------ | -------- | ------------------------------------------------------------------------------- |
+| `origin`       | header   | string (uri) | Yes      | Origin used to constrain this request.                                          |
+| `x-csrf-token` | header   | string       | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `operationId` | string (uuid) | Yes | Identifier of the operation resource; ownership is resolved server-side. |
+| Field         | Type          | Required | Purpose                                                                  |
+| ------------- | ------------- | -------- | ------------------------------------------------------------------------ |
+| `operationId` | string (uuid) | Yes      | Identifier of the operation resource; ownership is resolved server-side. |
 
 Synthetic request example:
 
@@ -24691,16 +24657,10 @@ Success: HTTP 200.
           "answer": {
             "kind": "answer",
             "answer": "synthetic-answer",
-            "steps": [
-              "synthetic-steps-item"
-            ],
+            "steps": ["synthetic-steps-item"],
             "caveat": "2030-01-15T10:00:00.000Z",
-            "sourceIds": [
-              "synthetic-sourceids-item"
-            ],
-            "actionIds": [
-              "synthetic-actionids-item"
-            ],
+            "sourceIds": ["synthetic-sourceids-item"],
+            "actionIds": ["synthetic-actionids-item"],
             "sources": [
               {
                 "id": "synthetic-id",
@@ -24748,9 +24708,9 @@ Relevant errors: 400 The request is malformed.; 401 Current account session requ
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `conversationId` | path | string (uuid) | Yes | Identifier selecting the conversation resource. |
+| Parameter        | Location | Type          | Required | Purpose                                         |
+| ---------------- | -------- | ------------- | -------- | ----------------------------------------------- |
+| `conversationId` | path     | string (uuid) | Yes      | Identifier selecting the conversation resource. |
 
 Success: HTTP 200.
 
@@ -24770,16 +24730,10 @@ Success: HTTP 200.
         "answer": {
           "kind": "answer",
           "answer": "synthetic-answer",
-          "steps": [
-            "synthetic-steps-item"
-          ],
+          "steps": ["synthetic-steps-item"],
           "caveat": "2030-01-15T10:00:00.000Z",
-          "sourceIds": [
-            "synthetic-sourceids-item"
-          ],
-          "actionIds": [
-            "synthetic-actionids-item"
-          ],
+          "sourceIds": ["synthetic-sourceids-item"],
+          "actionIds": ["synthetic-actionids-item"],
           "sources": [
             {
               "id": "synthetic-id",
@@ -24826,16 +24780,16 @@ Relevant errors: 400 The request is malformed.; 401 Current account session requ
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `conversationId` | path | string (uuid) | Yes | Identifier selecting the conversation resource. |
-| `origin` | header | string (uri) | Yes | Origin used to constrain this request. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter        | Location | Type          | Required | Purpose                                                                         |
+| ---------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `conversationId` | path     | string (uuid) | Yes      | Identifier selecting the conversation resource.                                 |
+| `origin`         | header   | string (uri)  | Yes      | Origin used to constrain this request.                                          |
+| `x-csrf-token`   | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
 | Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
+| ----- | ---- | -------- | ------- |
 
 Synthetic request example:
 
@@ -24871,17 +24825,17 @@ Relevant errors: 400 The request is malformed.; 401 Current account session requ
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `conversationId` | path | string (uuid) | Yes | Identifier selecting the conversation resource. |
-| `origin` | header | string (uri) | Yes | Origin used to constrain this request. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter        | Location | Type          | Required | Purpose                                                                         |
+| ---------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `conversationId` | path     | string (uuid) | Yes      | Identifier selecting the conversation resource.                                 |
+| `origin`         | header   | string (uri)  | Yes      | Origin used to constrain this request.                                          |
+| `x-csrf-token`   | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `operationId` | string (uuid) | Yes | Identifier of the operation resource; ownership is resolved server-side. |
+| Field         | Type          | Required | Purpose                                                                  |
+| ------------- | ------------- | -------- | ------------------------------------------------------------------------ |
+| `operationId` | string (uuid) | Yes      | Identifier of the operation resource; ownership is resolved server-side. |
 
 Synthetic request example:
 
@@ -24920,20 +24874,20 @@ Relevant errors: 400 The request is malformed.; 401 Current account session requ
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `conversationId` | path | string (uuid) | Yes | Identifier selecting the conversation resource. |
-| `origin` | header | string (uri) | Yes | Origin used to constrain this request. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| Parameter        | Location | Type          | Required | Purpose                                                                         |
+| ---------------- | -------- | ------------- | -------- | ------------------------------------------------------------------------------- |
+| `conversationId` | path     | string (uuid) | Yes      | Identifier selecting the conversation resource.                                 |
+| `origin`         | header   | string (uri)  | Yes      | Origin used to constrain this request.                                          |
+| `x-csrf-token`   | header   | string        | Yes      | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `operationId` | string (uuid) | Yes | Identifier of the operation resource; ownership is resolved server-side. |
-| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
-| `question` | string | Yes | Question validated by this operation's strict request contract. |
-| `page` | home / parts / vehicles / services / contact / help / learn / customer-care / staff-care / work / security / other | Yes | Page validated by this operation's strict request contract. |
+| Field             | Type                                                                                                               | Required | Purpose                                                                  |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------ | -------- | ------------------------------------------------------------------------ |
+| `operationId`     | string (uuid)                                                                                                      | Yes      | Identifier of the operation resource; ownership is resolved server-side. |
+| `expectedVersion` | integer                                                                                                            | Yes      | Last server version observed by the client; stale writes are rejected.   |
+| `question`        | string                                                                                                             | Yes      | Question validated by this operation's strict request contract.          |
+| `page`            | home / parts / vehicles / services / contact / help / learn / customer-care / staff-care / work / security / other | Yes      | Page validated by this operation's strict request contract.              |
 
 Synthetic request example:
 
@@ -24966,16 +24920,10 @@ Success: HTTP 200.
           "answer": {
             "kind": "answer",
             "answer": "synthetic-answer",
-            "steps": [
-              "synthetic-steps-item"
-            ],
+            "steps": ["synthetic-steps-item"],
             "caveat": "2030-01-15T10:00:00.000Z",
-            "sourceIds": [
-              "synthetic-sourceids-item"
-            ],
-            "actionIds": [
-              "synthetic-actionids-item"
-            ],
+            "sourceIds": ["synthetic-sourceids-item"],
+            "actionIds": ["synthetic-actionids-item"],
             "sources": [
               {
                 "id": "synthetic-id",
@@ -25023,9 +24971,9 @@ Relevant errors: 400 The request is malformed.; 401 Current account session requ
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `q` | query | string | No | Q used to constrain this request. |
+| Parameter | Location | Type   | Required | Purpose                           |
+| --------- | -------- | ------ | -------- | --------------------------------- |
+| `q`       | query    | string | No       | Q used to constrain this request. |
 
 Success: HTTP 200.
 
@@ -25049,9 +24997,7 @@ Success: HTTP 200.
         "title": "synthetic-title",
         "summary": "synthetic-summary",
         "prerequisites": "synthetic-prerequisites",
-        "steps": [
-          "synthetic-steps-item"
-        ],
+        "steps": ["synthetic-steps-item"],
         "outcome": "synthetic-outcome",
         "recovery": "synthetic-recovery",
         "keywords": "synthetic-keywords",
@@ -25110,9 +25056,9 @@ Relevant errors: 400 The request is malformed.; 401 Current session required; 40
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `id` | path | string | Yes | Identifier selecting the id resource. |
+| Parameter | Location | Type   | Required | Purpose                               |
+| --------- | -------- | ------ | -------- | ------------------------------------- |
+| `id`      | path     | string | Yes      | Identifier selecting the id resource. |
 
 Success: HTTP 200.
 
@@ -25125,9 +25071,7 @@ Success: HTTP 200.
     "title": "synthetic-title",
     "summary": "synthetic-summary",
     "prerequisites": "synthetic-prerequisites",
-    "steps": [
-      "synthetic-steps-item"
-    ],
+    "steps": ["synthetic-steps-item"],
     "outcome": "synthetic-outcome",
     "recovery": "synthetic-recovery",
     "keywords": "synthetic-keywords",
@@ -25157,9 +25101,9 @@ Relevant errors: 400 The request is malformed.; 401 Current session required; 40
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `id` | path | string | Yes | Identifier selecting the id resource. |
+| Parameter | Location | Type   | Required | Purpose                               |
+| --------- | -------- | ------ | -------- | ------------------------------------- |
+| `id`      | path     | string | Yes      | Identifier selecting the id resource. |
 
 Success: HTTP 200.
 
@@ -25202,9 +25146,9 @@ Relevant errors: 400 The request is malformed.; 401 Current session required; 40
 
 Parameters:
 
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `id` | path | string | Yes | Identifier selecting the id resource. |
+| Parameter | Location | Type   | Required | Purpose                               |
+| --------- | -------- | ------ | -------- | ------------------------------------- |
+| `id`      | path     | string | Yes      | Identifier selecting the id resource. |
 
 Success: HTTP 200.
 
@@ -25226,9 +25170,7 @@ Success: HTTP 200.
         "example": "synthetic-example",
         "min": 1,
         "max": 1,
-        "options": [
-          "synthetic-options-item"
-        ],
+        "options": ["synthetic-options-item"],
         "dependsOn": "synthetic-dependson"
       }
     ],
@@ -25250,4 +25192,3 @@ Success: HTTP 200.
 ```
 
 Relevant errors: 400 The request is malformed.; 401 Current session required; 403 Current assurance/access unavailable; 404 Disabled, unpublished or unavailable; no restricted existence disclosure; 422 Invalid query or definition ID; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
-

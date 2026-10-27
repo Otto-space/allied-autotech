@@ -1,5 +1,6 @@
 import type { Prisma } from "../../generated/prisma/client.js";
-import { branchesFor, type WorkforceSnapshot } from "./workforce.policy.js";
+import { type WorkforceSnapshot } from "./workforce.policy.js";
+import { careBranchesFor } from "./workforce-care-scope.js";
 
 // Only Customer Care responsibility readers request this projection. Sales-only
 // enquiry readers retain their existing field boundary, even on a shared branch.
@@ -26,8 +27,7 @@ export function projectWorkforceEnquiryContact<T extends { branchId: string | nu
 ) {
   return projectContact(
     row,
-    row.branchId !== null &&
-      branchesFor(access, "CUSTOMER_ENQUIRIES").includes(row.branchId),
+    row.branchId !== null && careBranchesFor(access, "ENQUIRY").includes(row.branchId),
   );
 }
 function projectContact<T extends object>(row: T, includeContact: boolean) {

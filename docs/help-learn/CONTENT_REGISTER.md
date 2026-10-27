@@ -94,3 +94,12 @@ no walkthrough or practice mode is invented for them. Native eligibility/removal
 and retrieval tests are included. W9's completed provider allowance is exhausted;
 these new source passages have no fresh real-provider quality evaluation.
 Business publication approval and full per-route learning acceptance remain open.
+
+## W14C operational Care composition (27 October 2026)
+
+care-triage v2 keeps public reply and internal assignment reasons distinct. Managed
+view-only Care gets queue/history/contact and the read-only walkthrough; public-reply
+practice requires current view/reply on the same branch. New duty names require v2.
+Native direct-scenario and retrieval tests pass, with no operational records in the
+provider corpus. This new passage has no fresh real-provider evaluation: W9 allowance
+is exhausted. See WORKFORCE_CARE_CASES_W14C.md; full route acceptance stays open.

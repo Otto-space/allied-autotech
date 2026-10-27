@@ -90,6 +90,20 @@ export const workforceRouteDefinitions = [
     schemas.workforceRecordParams,
   ],
   [
+    "get",
+    "/staff/workforce/complaints/:id/assignees",
+    "complaintAssignees",
+    schemas.workforceEnquiryAssigneesQuerySchema,
+    schemas.workforceRecordParams,
+  ],
+  [
+    "patch",
+    "/staff/workforce/complaints/:id/assignment",
+    "complaintAssignment",
+    schemas.workforceComplaintAssignmentSchema,
+    schemas.workforceRecordParams,
+  ],
+  [
     "patch",
     "/staff/workforce/enquiries/:id/assignment",
     "enquiryAssignment",
@@ -272,6 +286,7 @@ export function createWorkforceRouter(): Router {
             : [
                   "jobAssignees",
                   "enquiryAssignees",
+                  "complaintAssignees",
                   "bookings",
                   "enquiries",
                   "complaints",
@@ -341,6 +356,15 @@ export function createWorkforceRouter(): Router {
             schemas.workforceEnquiryAssigneesQuerySchema.parse(req.query),
           );
           break;
+        case "complaintAssignees":
+          data = await work.careAssignees(
+            actor,
+            id,
+            ctx,
+            "COMPLAINT",
+            schemas.workforceEnquiryAssigneesQuerySchema.parse(req.query),
+          );
+          break;
         case "complaintReply":
           data = await work.complaintReply(
             actor,
@@ -354,6 +378,14 @@ export function createWorkforceRouter(): Router {
             actor,
             id,
             schemas.workforceEnquiryAssignmentSchema.parse(body),
+            ctx,
+          );
+          break;
+        case "complaintAssignment":
+          data = await work.assignComplaint(
+            actor,
+            id,
+            schemas.workforceComplaintAssignmentSchema.parse(body),
             ctx,
           );
           break;

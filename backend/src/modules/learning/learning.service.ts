@@ -6,6 +6,7 @@ import { env } from "../../config/env.js";
 import type { Prisma } from "../../generated/prisma/client.js";
 import { lockAccessActor } from "../organization/team-access-security.js";
 import { workforceSnapshot } from "../organization/workforce.policy.js";
+import { careBranchesFor } from "../organization/workforce-care-scope.js";
 import {
   learningArticles,
   learningGuides,
@@ -22,6 +23,12 @@ export interface LearningAccess {
   position: string | null;
   canManage: boolean;
   salesScope?: "assigned" | "branch" | "mixed";
+  careScope?: {
+    enquiries: boolean;
+    complaints: boolean;
+    reply: boolean;
+    assign: boolean;
+  };
   key: string;
 }
 export const publicLearningAccess: LearningAccess = {
@@ -54,7 +61,13 @@ export function learningEligible(access: LearningAccess, gate: LearningGate) {
     case "work":
       return work;
     case "care":
-      return work && (globalAdmin || can("CUSTOMER_ENQUIRIES") || can("COMPLAINTS"));
+      return (
+        work &&
+        (globalAdmin ||
+          can("CUSTOMER_ENQUIRIES") ||
+          can("COMPLAINTS") ||
+          can("CARE_CASE_VIEW"))
+      );
     case "sales":
       return work && can("SALES_ENQUIRIES");
     case "finance":
@@ -156,6 +169,16 @@ export async function learningAccessInTransaction(
     independentCapabilities: snapshot.independentCapabilities,
     position: snapshot.position,
     canManage: snapshot.canManageAssignments,
+    careScope: {
+      enquiries: careBranchesFor(snapshot, "ENQUIRY").length > 0,
+      complaints: careBranchesFor(snapshot, "COMPLAINT").length > 0,
+      reply:
+        careBranchesFor(snapshot, "ENQUIRY", "reply").length > 0 ||
+        careBranchesFor(snapshot, "COMPLAINT", "reply").length > 0,
+      assign:
+        careBranchesFor(snapshot, "ENQUIRY", "assign").length > 0 ||
+        careBranchesFor(snapshot, "COMPLAINT", "assign").length > 0,
+    },
     ...(salesScopes.size
       ? {
           salesScope:
@@ -211,6 +234,9 @@ function textWords(value: string) {
 }
 export function learningCatalogue(access: LearningAccess, query = "") {
   if (!env.HELP_LEARN_ENABLED) throw learningUnavailable();
+  const careReply =
+    access.careScope?.reply ??
+    access.permissions.some((p) => ["CUSTOMER_ENQUIRIES", "COMPLAINTS"].includes(p));
   const published = learningArticles.filter(
     (a) => a.status === "published" && learningEligible(access, a.gate),
   );
@@ -229,13 +255,36 @@ export function learningCatalogue(access: LearningAccess, query = "") {
     .map(({ gate: _gate, ...a }) => {
       let projected = a;
       if (a.id === "care-triage" && access.managed) {
+        const reply = careReply;
         projected = {
           ...a,
+          summary: reply
+            ? "Read the case in your current branch scope. Reply only where current view and reply duties overlap on that branch."
+            : "Read the cases in your current branch scope. Your current duties do not permit customer replies.",
           steps: a.steps.map((step, index) =>
             index === 2
-              ? "Your managed Customer Care workspace provides customer-visible replies only and does not provide internal notes. Never put internal information in a customer reply. Review the audience before sending."
-              : step,
+              ? reply
+                ? "Your managed Customer Care workspace provides customer-visible replies only where current view and reply authority overlap, and does not provide internal notes. Never put internal information in a customer reply. Review the audience before sending."
+                : "Your current managed Customer Care view does not permit replies and does not provide internal notes. No reply editor is available in a view-only case."
+              : index === 3 && !reply
+                ? "Continue reading the permitted conversation and current status. Ask an authorised manager to review duties if you need to reply; a position title cannot grant that action."
+                : step,
           ),
+        };
+        if (access.careScope?.assign)
+          projected = {
+            ...projected,
+            steps: [
+              ...projected.steps,
+              "For an available assignment action, choose a current eligible colleague in the same branch, enter the internal assignment reason and review the exact change. Assignment does not send that reason as a customer reply.",
+            ],
+          };
+        projected = {
+          ...projected,
+          steps: [
+            ...projected.steps,
+            "These duties do not establish staffed live chat. Use the existing case queue; live acceptance also requires a separately enabled staffed service.",
+          ],
         };
       }
       if (a.id === "sales-enquiries" && access.salesScope) {
@@ -256,7 +305,12 @@ export function learningCatalogue(access: LearningAccess, query = "") {
         ["ADMIN", "SUPER_ADMIN"].includes(access.role)
       )
         return { ...projected, href: "/admin/support" };
-      if (a.id === "care-triage" && !access.permissions.includes("CUSTOMER_ENQUIRIES"))
+      if (
+        a.id === "care-triage" &&
+        !access.permissions.some((p) =>
+          ["CUSTOMER_ENQUIRIES", "CARE_CASE_VIEW"].includes(p),
+        )
+      )
         return { ...projected, href: "/admin/workforce/complaints" };
       if (a.id === "access-review" && !access.managed && access.role === "ADMIN")
         return { ...projected, href: "/admin/staff" };
@@ -300,7 +354,9 @@ export function learningCatalogue(access: LearningAccess, query = "") {
               ) &&
               !(
                 g.id === "care-queue" &&
-                !access.permissions.includes("CUSTOMER_ENQUIRIES")
+                !access.permissions.some((p) =>
+                  ["CUSTOMER_ENQUIRIES", "CARE_CASE_VIEW"].includes(p),
+                )
               ),
           )
           .map(({ gate: _gate, ...g }) => g)
@@ -311,6 +367,7 @@ export function learningCatalogue(access: LearningAccess, query = "") {
             (s) =>
               visibleIds.has(s.articleId) &&
               learningEligible(access, s.gate) &&
+              !(s.id === "care-triage" && access.managed && !careReply) &&
               matches(
                 "practice practise sample",
                 s.title,
@@ -347,7 +404,10 @@ export function learningItem(
     ["ADMIN", "SUPER_ADMIN"].includes(access.role)
   )
     return { ...definition, liveHref: "/admin/support" };
-  if (id === "care-triage" && !access.permissions.includes("CUSTOMER_ENQUIRIES"))
+  if (
+    id === "care-triage" &&
+    !access.permissions.some((p) => ["CUSTOMER_ENQUIRIES", "CARE_CASE_VIEW"].includes(p))
+  )
     return { ...definition, liveHref: "/admin/workforce/complaints" };
   if (id === "access-review" && !access.managed && access.role === "ADMIN")
     return { ...definition, liveHref: "/admin/staff" };

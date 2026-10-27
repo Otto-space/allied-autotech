@@ -7,6 +7,7 @@ import type { AuthenticatedActor } from "../../common/contracts/actor.js";
 import type { WorkforceSnapshot } from "./workforce.policy.js";
 import { workforceNotFound, workforceSnapshot } from "./workforce.policy.js";
 import { enquiryScope } from "./workforce-enquiry-scope.js";
+import { careBranchesFor } from "./workforce-care-scope.js";
 
 export const workforceEnquirySelect = {
   id: true,
@@ -73,9 +74,7 @@ export async function readWorkforceEnquiry(
     where: { AND: [{ id }, enquiryScope(current)] },
     select: {
       ...workforceEnquirySelect,
-      ...(current.permissions.includes("CUSTOMER_ENQUIRIES")
-        ? workforceCareContactSelect
-        : {}),
+      ...(careBranchesFor(current, "ENQUIRY").length ? workforceCareContactSelect : {}),
     },
   });
   if (!row) workforceNotFound();

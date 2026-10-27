@@ -106,7 +106,7 @@ export const workforceDestinations = [
     label: "Enquiries",
     feature: "managed-workforce",
     predicate: {
-      any: ["CUSTOMER_ENQUIRIES", "SALES_ENQUIRIES"],
+      any: ["CUSTOMER_ENQUIRIES", "SALES_ENQUIRIES", "CARE_CASE_VIEW"],
       scope: "responsibility",
     },
     articleIds: ["care-triage", "sales-enquiries"],
@@ -118,7 +118,7 @@ export const workforceDestinations = [
     order: 40,
     label: "Complaints",
     feature: "managed-workforce",
-    predicate: { any: ["COMPLAINTS"], scope: "responsibility" },
+    predicate: { any: ["COMPLAINTS", "CARE_CASE_VIEW"], scope: "responsibility" },
     articleIds: ["care-triage"],
   },
   {

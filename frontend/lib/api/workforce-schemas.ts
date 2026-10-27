@@ -131,8 +131,8 @@ export const parseWorkforceAccess = (value: unknown) =>
 export const workforceCounterPermissions = {
   jobs: ["JOBS_READ"],
   bookings: ["BOOKINGS_READ"],
-  enquiries: ["CUSTOMER_ENQUIRIES", "SALES_ENQUIRIES"],
-  complaints: ["COMPLAINTS"],
+  enquiries: ["CUSTOMER_ENQUIRIES", "SALES_ENQUIRIES", "CARE_CASE_VIEW"],
+  complaints: ["COMPLAINTS", "CARE_CASE_VIEW"],
   orders: ["ORDERS_READ"],
 } as const;
 const counter = z.number().int().min(0).max(Number.MAX_SAFE_INTEGER).optional();

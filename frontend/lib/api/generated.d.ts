@@ -7312,6 +7312,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/staff/workforce/complaints/{id}/assignees": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Responsibility-based workspace: complaintAssignees
+         * @description Explicit enrollment required for operational queues. Current assignments, branch, field projections and state are enforced in a transaction. Access changes require MFA, current password, target/version review and an owner-configured delegation envelope. No financial execution, exports or collection release authority is conferred by a title. Responsibility-based workspace: complaintAssignees. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+         */
+        get: operations["getStaffWorkforceComplaintsByIdAssignees"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/staff/workforce/complaints/{id}/assignment": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Responsibility-based workspace: complaintAssignment
+         * @description Explicit enrollment required for operational queues. Current assignments, branch, field projections and state are enforced in a transaction. Access changes require MFA, current password, target/version review and an owner-configured delegation envelope. No financial execution, exports or collection release authority is conferred by a title. Responsibility-based workspace: complaintAssignment. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         */
+        patch: operations["patchStaffWorkforceComplaintsByIdAssignment"];
+        trace?: never;
+    };
     "/staff/workforce/enquiries/{id}/assignment": {
         parameters: {
             query?: never;
@@ -124673,7 +124713,7 @@ export interface operations {
                                  * @description Kind validated by this operation's strict request contract.
                                  * @enum {string}
                                  */
-                                kind: "LEGACY" | "REPLY" | "INTERNAL_NOTE" | "STATUS_CHANGE";
+                                kind: "LEGACY" | "REPLY" | "STATUS_CHANGE";
                                 /** @description From Status validated by this operation's strict request contract. */
                                 fromStatus: string | null;
                                 /** @description To Status validated by this operation's strict request contract. */
@@ -124705,6 +124745,858 @@ export interface operations {
                                  * @description Identifier of the complaint resource; ownership is resolved server-side.
                                  */
                                 complaintId: string;
+                            };
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                            /** @description ISO 8601 timestamp interpreted and validated by the server. */
+                            serverTime: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A valid session and required assurance are missing. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A valid session and required assurance are missing.",
+                     *       "error": {
+                     *         "code": "UNAUTHORIZED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Current access does not permit this request */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Record unavailable in permitted scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Stale version or invalid state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid fields */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getStaffWorkforceComplaintsByIdAssignees: {
+        parameters: {
+            query?: {
+                /**
+                 * @description Maximum number of records to return, bounded by the API.
+                 * @example 1
+                 */
+                limit?: number;
+                /**
+                 * @description Opaque cursor returned by the preceding page.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                cursor?: string;
+                /**
+                 * @description Q used to constrain this request.
+                 * @example synthetic-q
+                 */
+                q?: string;
+            };
+            header?: never;
+            path: {
+                /**
+                 * @description Identifier selecting the id resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success: Responsibility-based workspace: complaintAssignees. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Responsibility-based workspace: complaintAssignees",
+                     *       "data": {
+                     *         "items": [
+                     *           {
+                     *             "id": "00000000-0000-4000-8000-000000000001",
+                     *             "firstName": "synthetic-firstname",
+                     *             "lastName": "synthetic-lastname"
+                     *           }
+                     *         ],
+                     *         "nextCursor": "00000000-0000-4000-8000-000000000001",
+                     *         "generatedAt": "2030-01-15T10:00:00.000Z",
+                     *         "access": {
+                     *           "managed": true,
+                     *           "userId": "00000000-0000-4000-8000-000000000001",
+                     *           "staffId": "00000000-0000-4000-8000-000000000001",
+                     *           "position": "synthetic-position",
+                     *           "department": "synthetic-department",
+                     *           "version": 0,
+                     *           "assignments": [
+                     *             {
+                     *               "id": "00000000-0000-4000-8000-000000000001",
+                     *               "userId": "00000000-0000-4000-8000-000000000001",
+                     *               "template": "OPERATIONS",
+                     *               "templateVersion": 1,
+                     *               "branchId": "00000000-0000-4000-8000-000000000001",
+                     *               "scope": "BRANCH",
+                     *               "temporary": true,
+                     *               "startsAt": "2030-01-15T10:00:00.000Z",
+                     *               "expiresAt": "2030-01-15T10:00:00.000Z",
+                     *               "reason": "synthetic-reason",
+                     *               "assignedByUserId": "00000000-0000-4000-8000-000000000001",
+                     *               "createdAt": "2030-01-15T10:00:00.000Z",
+                     *               "revokedAt": "2030-01-15T10:00:00.000Z",
+                     *               "revokedByUserId": "00000000-0000-4000-8000-000000000001",
+                     *               "revocationReason": "synthetic-revocationreason"
+                     *             }
+                     *           ],
+                     *           "permissions": [
+                     *             "synthetic-permissions-item"
+                     *           ],
+                     *           "independentCapabilities": [
+                     *             "REFUND_APPROVE"
+                     *           ],
+                     *           "canManageAssignments": true,
+                     *           "canInviteAdmins": true,
+                     *           "accessRevision": "synthetic-accessrevision",
+                     *           "nextChangeAt": "2030-01-15T10:00:00.000Z",
+                     *           "capabilityScopes": [
+                     *             {
+                     *               "capability": "synthetic-capability",
+                     *               "branchId": "00000000-0000-4000-8000-000000000001",
+                     *               "scope": "BRANCH"
+                     *             }
+                     *           ],
+                     *           "serverTime": "2030-01-15T10:00:00.000Z"
+                     *         },
+                     *         "complaintId": "00000000-0000-4000-8000-000000000001",
+                     *         "complaintVersion": 0,
+                     *         "branchId": "00000000-0000-4000-8000-000000000001"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /**
+                         * @description Success validated by this operation's strict request contract.
+                         * @enum {boolean}
+                         */
+                        success: true;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /** @description Items validated by this operation's strict request contract. */
+                            items: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
+                                 */
+                                id: string;
+                                /** @description First Name validated by this operation's strict request contract. */
+                                firstName: string;
+                                /** @description Last Name validated by this operation's strict request contract. */
+                                lastName: string;
+                            }[];
+                            /**
+                             * Format: uuid
+                             * @description Next Cursor validated by this operation's strict request contract.
+                             */
+                            nextCursor?: string;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            generatedAt?: string;
+                            /** @description Access validated by this operation's strict request contract. */
+                            access?: {
+                                /** @description Managed validated by this operation's strict request contract. */
+                                managed: boolean;
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the user resource; ownership is resolved server-side.
+                                 */
+                                userId: string;
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the staff resource; ownership is resolved server-side.
+                                 */
+                                staffId: string | null;
+                                /** @description Position validated by this operation's strict request contract. */
+                                position: string | null;
+                                /** @description Department validated by this operation's strict request contract. */
+                                department: string | null;
+                                /** @description Version validated by this operation's strict request contract. */
+                                version: number;
+                                /** @description Assignments validated by this operation's strict request contract. */
+                                assignments: {
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the id resource; ownership is resolved server-side.
+                                     */
+                                    id: string;
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the user resource; ownership is resolved server-side.
+                                     */
+                                    userId: string;
+                                    /**
+                                     * @description Template validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    template: "OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN" | "CARE_VIEWER" | "CARE_RESPONDER" | "CARE_ASSIGNER" | "CARE_LIVE_AGENT";
+                                    /** @description Template Version validated by this operation's strict request contract. */
+                                    templateVersion: number;
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the branch resource; ownership is resolved server-side.
+                                     */
+                                    branchId: string;
+                                    /**
+                                     * @description Scope validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    scope: "BRANCH" | "ASSIGNED";
+                                    /** @description Temporary validated by this operation's strict request contract. */
+                                    temporary: boolean;
+                                    /**
+                                     * Format: date-time
+                                     * @description ISO 8601 timestamp interpreted and validated by the server.
+                                     */
+                                    startsAt: string;
+                                    /**
+                                     * Format: date-time
+                                     * @description ISO 8601 timestamp interpreted and validated by the server.
+                                     */
+                                    expiresAt: string | null;
+                                    /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                                    reason: string;
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the assigned by user resource; ownership is resolved server-side.
+                                     */
+                                    assignedByUserId: string;
+                                    /**
+                                     * Format: date-time
+                                     * @description ISO 8601 timestamp interpreted and validated by the server.
+                                     */
+                                    createdAt: string;
+                                    /**
+                                     * Format: date-time
+                                     * @description ISO 8601 timestamp interpreted and validated by the server.
+                                     */
+                                    revokedAt: string | null;
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the revoked by user resource; ownership is resolved server-side.
+                                     */
+                                    revokedByUserId: string | null;
+                                    /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                                    revocationReason: string | null;
+                                }[];
+                                /** @description Permissions validated by this operation's strict request contract. */
+                                permissions: string[];
+                                /** @description Independent Capabilities validated by this operation's strict request contract. */
+                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
+                                /** @description Can Manage Assignments validated by this operation's strict request contract. */
+                                canManageAssignments: boolean;
+                                /** @description Can Invite Admins validated by this operation's strict request contract. */
+                                canInviteAdmins: boolean;
+                                /** @description Access Revision validated by this operation's strict request contract. */
+                                accessRevision: string;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                nextChangeAt: string | null;
+                                /** @description Capability Scopes validated by this operation's strict request contract. */
+                                capabilityScopes: {
+                                    /** @description Capability validated by this operation's strict request contract. */
+                                    capability: string;
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the branch resource; ownership is resolved server-side.
+                                     */
+                                    branchId: string;
+                                    /**
+                                     * @description Scope validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    scope: "BRANCH" | "ASSIGNED";
+                                }[];
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                serverTime: string;
+                            };
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the complaint resource; ownership is resolved server-side.
+                             */
+                            complaintId?: string;
+                            /** @description Complaint Version validated by this operation's strict request contract. */
+                            complaintVersion?: number;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the branch resource; ownership is resolved server-side.
+                             */
+                            branchId?: string;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                            /** @description ISO 8601 timestamp interpreted and validated by the server. */
+                            serverTime: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A valid session and required assurance are missing. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A valid session and required assurance are missing.",
+                     *       "error": {
+                     *         "code": "UNAUTHORIZED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Current access does not permit this request */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Record unavailable in permitted scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Stale version or invalid state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid fields */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    patchStaffWorkforceComplaintsByIdAssignment: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+                 * @example synthetic-token-value-not-a-real-secret
+                 */
+                "x-csrf-token": string;
+            };
+            path: {
+                /**
+                 * @description Identifier selecting the id resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "expectedVersion": 0,
+                 *       "staffId": "00000000-0000-4000-8000-000000000001",
+                 *       "reason": "synthetic-reason"
+                 *     }
+                 */
+                "application/json": {
+                    /** @description Last server version observed by the client; stale writes are rejected. */
+                    expectedVersion: number;
+                    /**
+                     * Format: uuid
+                     * @description Identifier of the staff resource; ownership is resolved server-side.
+                     */
+                    staffId: string;
+                    /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                    reason: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Success: Responsibility-based workspace: complaintAssignment. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Responsibility-based workspace: complaintAssignment",
+                     *       "data": {
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "version": 0,
+                     *         "branchId": "00000000-0000-4000-8000-000000000001",
+                     *         "actorUserId": "00000000-0000-4000-8000-000000000001",
+                     *         "generatedAt": "2030-01-15T10:00:00.000Z",
+                     *         "access": {
+                     *           "managed": true,
+                     *           "userId": "00000000-0000-4000-8000-000000000001",
+                     *           "staffId": "00000000-0000-4000-8000-000000000001",
+                     *           "position": "synthetic-position",
+                     *           "department": "synthetic-department",
+                     *           "version": 0,
+                     *           "assignments": [
+                     *             {
+                     *               "id": "00000000-0000-4000-8000-000000000001",
+                     *               "userId": "00000000-0000-4000-8000-000000000001",
+                     *               "template": "OPERATIONS",
+                     *               "templateVersion": 1,
+                     *               "branchId": "00000000-0000-4000-8000-000000000001",
+                     *               "scope": "BRANCH",
+                     *               "temporary": true,
+                     *               "startsAt": "2030-01-15T10:00:00.000Z",
+                     *               "expiresAt": "2030-01-15T10:00:00.000Z",
+                     *               "reason": "synthetic-reason",
+                     *               "assignedByUserId": "00000000-0000-4000-8000-000000000001",
+                     *               "createdAt": "2030-01-15T10:00:00.000Z",
+                     *               "revokedAt": "2030-01-15T10:00:00.000Z",
+                     *               "revokedByUserId": "00000000-0000-4000-8000-000000000001",
+                     *               "revocationReason": "synthetic-revocationreason"
+                     *             }
+                     *           ],
+                     *           "permissions": [
+                     *             "synthetic-permissions-item"
+                     *           ],
+                     *           "independentCapabilities": [
+                     *             "REFUND_APPROVE"
+                     *           ],
+                     *           "canManageAssignments": true,
+                     *           "canInviteAdmins": true,
+                     *           "accessRevision": "synthetic-accessrevision",
+                     *           "nextChangeAt": "2030-01-15T10:00:00.000Z",
+                     *           "capabilityScopes": [
+                     *             {
+                     *               "capability": "synthetic-capability",
+                     *               "branchId": "00000000-0000-4000-8000-000000000001",
+                     *               "scope": "BRANCH"
+                     *             }
+                     *           ],
+                     *           "serverTime": "2030-01-15T10:00:00.000Z"
+                     *         },
+                     *         "action": "assignment",
+                     *         "assignmentReceipt": {
+                     *           "staffId": "00000000-0000-4000-8000-000000000001",
+                     *           "previousStaffId": "00000000-0000-4000-8000-000000000001",
+                     *           "reason": "synthetic-reason"
+                     *         }
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /**
+                         * @description Success validated by this operation's strict request contract.
+                         * @enum {boolean}
+                         */
+                        success: true;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the id resource; ownership is resolved server-side.
+                             */
+                            id: string;
+                            /** @description Version validated by this operation's strict request contract. */
+                            version: number;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the branch resource; ownership is resolved server-side.
+                             */
+                            branchId: string;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the actor user resource; ownership is resolved server-side.
+                             */
+                            actorUserId: string;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            generatedAt: string;
+                            /** @description Access validated by this operation's strict request contract. */
+                            access: {
+                                /** @description Managed validated by this operation's strict request contract. */
+                                managed: boolean;
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the user resource; ownership is resolved server-side.
+                                 */
+                                userId: string;
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the staff resource; ownership is resolved server-side.
+                                 */
+                                staffId: string | null;
+                                /** @description Position validated by this operation's strict request contract. */
+                                position: string | null;
+                                /** @description Department validated by this operation's strict request contract. */
+                                department: string | null;
+                                /** @description Version validated by this operation's strict request contract. */
+                                version: number;
+                                /** @description Assignments validated by this operation's strict request contract. */
+                                assignments: {
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the id resource; ownership is resolved server-side.
+                                     */
+                                    id: string;
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the user resource; ownership is resolved server-side.
+                                     */
+                                    userId: string;
+                                    /**
+                                     * @description Template validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    template: "OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN" | "CARE_VIEWER" | "CARE_RESPONDER" | "CARE_ASSIGNER" | "CARE_LIVE_AGENT";
+                                    /** @description Template Version validated by this operation's strict request contract. */
+                                    templateVersion: number;
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the branch resource; ownership is resolved server-side.
+                                     */
+                                    branchId: string;
+                                    /**
+                                     * @description Scope validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    scope: "BRANCH" | "ASSIGNED";
+                                    /** @description Temporary validated by this operation's strict request contract. */
+                                    temporary: boolean;
+                                    /**
+                                     * Format: date-time
+                                     * @description ISO 8601 timestamp interpreted and validated by the server.
+                                     */
+                                    startsAt: string;
+                                    /**
+                                     * Format: date-time
+                                     * @description ISO 8601 timestamp interpreted and validated by the server.
+                                     */
+                                    expiresAt: string | null;
+                                    /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                                    reason: string;
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the assigned by user resource; ownership is resolved server-side.
+                                     */
+                                    assignedByUserId: string;
+                                    /**
+                                     * Format: date-time
+                                     * @description ISO 8601 timestamp interpreted and validated by the server.
+                                     */
+                                    createdAt: string;
+                                    /**
+                                     * Format: date-time
+                                     * @description ISO 8601 timestamp interpreted and validated by the server.
+                                     */
+                                    revokedAt: string | null;
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the revoked by user resource; ownership is resolved server-side.
+                                     */
+                                    revokedByUserId: string | null;
+                                    /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                                    revocationReason: string | null;
+                                }[];
+                                /** @description Permissions validated by this operation's strict request contract. */
+                                permissions: string[];
+                                /** @description Independent Capabilities validated by this operation's strict request contract. */
+                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
+                                /** @description Can Manage Assignments validated by this operation's strict request contract. */
+                                canManageAssignments: boolean;
+                                /** @description Can Invite Admins validated by this operation's strict request contract. */
+                                canInviteAdmins: boolean;
+                                /** @description Access Revision validated by this operation's strict request contract. */
+                                accessRevision: string;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                nextChangeAt: string | null;
+                                /** @description Capability Scopes validated by this operation's strict request contract. */
+                                capabilityScopes: {
+                                    /** @description Capability validated by this operation's strict request contract. */
+                                    capability: string;
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the branch resource; ownership is resolved server-side.
+                                     */
+                                    branchId: string;
+                                    /**
+                                     * @description Scope validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    scope: "BRANCH" | "ASSIGNED";
+                                }[];
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                serverTime: string;
+                            };
+                            /**
+                             * @description Action validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            action: "assignment";
+                            /** @description Assignment Receipt validated by this operation's strict request contract. */
+                            assignmentReceipt: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the staff resource; ownership is resolved server-side.
+                                 */
+                                staffId: string;
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the previous staff resource; ownership is resolved server-side.
+                                 */
+                                previousStaffId: string | null;
+                                /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                                reason: string;
                             };
                         };
                         /** @description Meta validated by this operation's strict request contract. */
@@ -128835,7 +129727,7 @@ export interface operations {
                                      * @description Kind validated by this operation's strict request contract.
                                      * @enum {string}
                                      */
-                                    kind: "LEGACY" | "REPLY" | "INTERNAL_NOTE" | "STATUS_CHANGE";
+                                    kind: "LEGACY" | "REPLY" | "STATUS_CHANGE";
                                     /** @description From Status validated by this operation's strict request contract. */
                                     fromStatus: string | null;
                                     /** @description To Status validated by this operation's strict request contract. */
@@ -131404,7 +132296,7 @@ export interface operations {
                                  * @description Kind validated by this operation's strict request contract.
                                  * @enum {string}
                                  */
-                                kind: "LEGACY" | "REPLY" | "INTERNAL_NOTE" | "STATUS_CHANGE";
+                                kind: "LEGACY" | "REPLY" | "STATUS_CHANGE";
                                 /** @description From Status validated by this operation's strict request contract. */
                                 fromStatus: string | null;
                                 /** @description To Status validated by this operation's strict request contract. */
@@ -131725,6 +132617,23 @@ export interface operations {
                                  * @description ISO 8601 timestamp interpreted and validated by the server.
                                  */
                                 createdAt: string;
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the assigned staff resource; ownership is resolved server-side.
+                                 */
+                                assignedStaffId?: string | null;
+                                /** @description Assigned Staff validated by this operation's strict request contract. */
+                                assignedStaff?: {
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the id resource; ownership is resolved server-side.
+                                     */
+                                    id: string;
+                                    /** @description First Name validated by this operation's strict request contract. */
+                                    firstName: string;
+                                    /** @description Last Name validated by this operation's strict request contract. */
+                                    lastName: string;
+                                } | null;
                                 /** @description Contact validated by this operation's strict request contract. */
                                 contact?: {
                                     /** @description Name validated by this operation's strict request contract. */
@@ -132213,6 +133122,23 @@ export interface operations {
                              * @description ISO 8601 timestamp interpreted and validated by the server.
                              */
                             createdAt: string;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the assigned staff resource; ownership is resolved server-side.
+                             */
+                            assignedStaffId?: string | null;
+                            /** @description Assigned Staff validated by this operation's strict request contract. */
+                            assignedStaff?: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
+                                 */
+                                id: string;
+                                /** @description First Name validated by this operation's strict request contract. */
+                                firstName: string;
+                                /** @description Last Name validated by this operation's strict request contract. */
+                                lastName: string;
+                            } | null;
                             /** @description Contact validated by this operation's strict request contract. */
                             contact?: {
                                 /** @description Name validated by this operation's strict request contract. */
@@ -132420,7 +133346,7 @@ export interface operations {
                                      * @description Kind validated by this operation's strict request contract.
                                      * @enum {string}
                                      */
-                                    kind: "LEGACY" | "REPLY" | "INTERNAL_NOTE" | "STATUS_CHANGE";
+                                    kind: "LEGACY" | "REPLY" | "STATUS_CHANGE";
                                     /** @description From Status validated by this operation's strict request contract. */
                                     fromStatus: string | null;
                                     /** @description To Status validated by this operation's strict request contract. */

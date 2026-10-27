@@ -326,6 +326,7 @@ export const workforceEnquiryAssignmentSchema = z.strictObject({
   staffId: z.uuid(),
   reason,
 });
+export const workforceComplaintAssignmentSchema = workforceEnquiryAssignmentSchema;
 
 const timestamp = z.iso.datetime({ offset: true });
 export const workforceAssignmentResponseSchema = z.object({
@@ -472,7 +473,7 @@ const enquiryRow = queueBase.extend({
   assignedStaffId: z.uuid().nullable(),
 });
 const enquiryMessage = z.object({
-  kind: z.enum(["LEGACY", "REPLY", "INTERNAL_NOTE", "STATUS_CHANGE"]),
+  kind: z.enum(["LEGACY", "REPLY", "STATUS_CHANGE"]),
   fromStatus: z.string().nullable(),
   toStatus: z.string().nullable(),
   id: z.uuid(),
@@ -490,6 +491,11 @@ const enquiryReceiptBase = z.object({
   access: workforceOwnResponseSchema,
 });
 const complaintRow = queueBase.extend({
+  assignedStaffId: z.uuid().nullable().optional(),
+  assignedStaff: z
+    .object({ id: z.uuid(), firstName: z.string(), lastName: z.string() })
+    .nullable()
+    .optional(),
   contact: z
     .object({
       name: z.string().nullable(),
@@ -615,6 +621,7 @@ export function workforceResponseSchema(action: string): z.ZodType {
         branchId: z.uuid().optional(),
       });
     case "enquiryAssignees":
+    case "complaintAssignees":
       return z.object({
         items: z.array(
           z.object({ id: z.uuid(), firstName: z.string(), lastName: z.string() }),
@@ -622,8 +629,12 @@ export function workforceResponseSchema(action: string): z.ZodType {
         nextCursor: z.uuid().optional(),
         generatedAt: timestamp.optional(),
         access: workforceOwnResponseSchema.optional(),
-        enquiryId: z.uuid().optional(),
-        enquiryVersion: version.optional(),
+        ...(action === "enquiryAssignees"
+          ? {
+              enquiryId: z.uuid().optional(),
+              enquiryVersion: version.optional(),
+            }
+          : { complaintId: z.uuid().optional(), complaintVersion: version.optional() }),
         branchId: z.uuid().optional(),
       });
     case "own":
@@ -838,6 +849,7 @@ export function workforceResponseSchema(action: string): z.ZodType {
         messageReceipt: enquiryMessage.extend({ enquiryId: z.uuid() }),
       });
     case "enquiryAssignment":
+    case "complaintAssignment":
       return enquiryReceiptBase.extend({
         action: z.literal("assignment"),
         assignmentReceipt: z.object({

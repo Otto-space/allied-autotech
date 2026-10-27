@@ -206,6 +206,8 @@ describe("managed enquiry scope and reviewed changes", () => {
       branchId: id(4),
       template: "CUSTOMER_SERVICE",
     });
+    expect(enquiryInScope(value, value.access)).toBe(false);
+    value.access.permissions.push("CUSTOMER_ENQUIRIES");
     expect(enquiryInScope(value, value.access)).toBe(true);
     expect(canAssignEnquiry(value, value.access)).toBe(false);
   });

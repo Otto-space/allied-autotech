@@ -134,6 +134,7 @@ export function WorkforceEnquiries({
               .filter(
                 ([value]) =>
                   access.permissions.includes("CUSTOMER_ENQUIRIES") ||
+                  access.permissions.includes("CARE_CASE_VIEW") ||
                   ["PRODUCT", "VEHICLE"].includes(value),
               )
               .map(([value, label]) => (

@@ -1869,3 +1869,20 @@ retired; frontend preview retained. C:25.43GiB measured free; Docker useful reso
 preserved and denied dev-folder cleanup untouched. Next: granular Care permissions,
 canonical reviewed persisted handoff and shared staffed/gated transport. All106
 route learning decisions, exact-lock/hosted/device gates and fullRevision4 remain open.
+
+27 October 2026 - Revision4 W14C local checkpoint: operational Care view/reply/assign
+intersect on the actual branch. General enquiries and complaints use canonical
+reviewed assignment with checked eligible-handler pagination, CAS/audit/notifications.
+Read-only controls, current help/practice predicates, public/internal separation,
+revocation and reference-only uncertainty recovery implemented; unsent cross-action
+drafts retained after verified success. Final14 native+61 regressions,21 backend
+units, full1145 frontend/171files+36 focused,36 new responsive and50 legacy browser
+cases pass. One real browser/CSRF/API/restricted-CI-DB flow saved2 assignments and
+2 public replies,4 audits,zero internal messages,unchanged inventory/bookings.
+OpenAPI381/routes445+4,types/lint/secret3260/correctly configured cached build pass.
+Screens inspected; synthetic sessions revoked/cookie removed. No schema/provider
+call,real delivery or publication. Evidence: docs/help-learn/WORKFORCE_CARE_CASES_W14C.md.
+FullRevision4 remains active: next canonical reviewed persisted Allie handoff, then
+shared staffed/gated transport and all106 exact route-learning decisions. W9 allowance
+exhausted; new Care guidance has no actual-provider re-evaluation. Exact-lock16.4.3,
+hosted/actual-role/device/screen-reader gates stay open. Useful Docker/caches retained.

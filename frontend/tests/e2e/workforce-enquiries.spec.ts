@@ -160,7 +160,7 @@ test("assignment searches colleagues, requires reason, prevents current assignee
   await page.getByRole("radio", { name: /Ada Okoro/ }).check();
   await page.getByRole("button", { name: "Review reassignment", exact: true }).click();
   await expect(
-    page.getByText("Choose a different eligible sales colleague.", { exact: true }),
+    page.getByText("Choose a different eligible colleague.", { exact: true }),
   ).toBeVisible();
   await page
     .getByRole("searchbox", { name: "Search eligible staff", exact: true })
@@ -453,7 +453,7 @@ test("staff options expose empty, failure, retry and mismatched revision states"
   state.candidateMismatch = true;
   await page.getByRole("button", { name: "Search staff", exact: true }).click();
   await expect(
-    page.getByText("Staff options changed. Refresh the enquiry before assigning.", {
+    page.getByText("Staff options changed. Refresh this case before assigning.", {
       exact: true,
     }),
   ).toBeVisible();

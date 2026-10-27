@@ -6,6 +6,7 @@ import {
   workforceSnapshot,
 } from "../organization/workforce.policy.js";
 import { enquiryScope } from "../organization/workforce-enquiry-scope.js";
+import { complaintScope } from "../organization/workforce-care-scope.js";
 import { financeScope } from "../organization/workforce-finance-workspace.js";
 import { ManualRefundsService } from "../payments/manual-refunds.service.js";
 
@@ -120,9 +121,11 @@ export async function resolveNotificationTargets(
             managed &&
             !(enquiries
               ? access!.permissions.some((p) =>
-                  ["CUSTOMER_ENQUIRIES", "SALES_ENQUIRIES"].includes(p),
+                  ["CUSTOMER_ENQUIRIES", "SALES_ENQUIRIES", "CARE_CASE_VIEW"].includes(p),
                 )
-              : access!.permissions.includes("COMPLAINTS"))
+              : access!.permissions.some((p) =>
+                  ["COMPLAINTS", "CARE_CASE_VIEW"].includes(p),
+                ))
           )
             break;
           rows = enquiries
@@ -139,11 +142,7 @@ export async function resolveNotificationTargets(
                 where: {
                   AND: [
                     identity,
-                    customer
-                      ? own
-                      : managed
-                        ? { branchId: { in: branchesFor(access!, "COMPLAINTS") } }
-                        : legacyBranch,
+                    customer ? own : managed ? complaintScope(access!) : legacyBranch,
                   ],
                 },
                 select: { id: true },

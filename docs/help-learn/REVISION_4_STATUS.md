@@ -126,7 +126,6 @@ No schema change, model call or publication. See WORKFORCE_AFTERCARE_W13.md. Gra
 Care duties, persisted reviewed handoff, shared staffed/gated transport, exact-lock/
 hosted/device checks and all106 route completion decisions remain open.
 
-
 27 October 2026 - Revision4 W14A contact boundary: Staff/Admin mixed-branch
 Care authority no longer supplies contacts for a Sales-only case in another branch.
 Natural expiry after a blocked record read is rechecked; inaccessible cases fail
@@ -137,7 +136,6 @@ Source types, changed lint and cached build pass. No schema/model call/publicati
 See docs/help-learn/WORKFORCE_CARE_CONTACT_W14A.md. C:25.32GiB free at last check.
 Granular Care duties, persisted handoff/shared staffed transport and all106 route
 completion gates remain open; fullRevision4/Item6 stays active.
-
 
 27 October 2026 - Revision4 W14B local foundation checkpoint: immutable version1
 retained; reviewed version2 adds independent Care view/reply/assign/live duties.
@@ -154,3 +152,33 @@ Docker retained after read-only review. Next required: operational Care view/rep
 assign adapters and notification/help predicates before these new journeys are
 declared usable, then canonical persisted handoff/shared staffed transport. All106
 route completion gates and fullRevision4/Item6 remain active; W9 allowance exhausted.
+
+27 October 2026 - Active Revision4 W14C operational Care adapters, branch
+feat/workforce-care-case-adapters-20261027 based on W14B daaa2e2a. Initial8 native
+cases reproduced7 missing behaviours; expanded12 now pass. Backend current branch
+view/reply/assignment, checked eligible-handler pagination, complaint assignment,
+notification recipients/revocation, lock-wait expiry and customer ownership verified.
+Separate61 workforce/session/learning regressions pass across12 current templates.
+Frontend scope/nav/read-only controls partially implemented;44 focused units pass.
+Complaint assignment controls/shared candidates/pending recovery are in progress,
+not accepted. New browser fixtures, help predicates, original browser regressions,
+contracts/build/final review remain. Existing3167 preview serves W14B only. See
+docs/help-learn/WORKFORCE_CARE_CASES_W14C.md. No schema/model call/publication.
+FullRevision4, canonical handoff/shared staffed transport and all106 route gates active.
+
+27 October 2026 - Revision4 W14C local checkpoint: operational Care view/reply/assign
+intersect on the actual branch. General enquiries and complaints use canonical
+reviewed assignment with checked eligible-handler pagination, CAS/audit/notifications.
+Read-only controls, current help/practice predicates, public/internal separation,
+revocation and reference-only uncertainty recovery implemented; unsent cross-action
+drafts retained after verified success. Final14 native+61 regressions,21 backend
+units, full1145 frontend/171files+36 focused,36 new responsive and50 legacy browser
+cases pass. One real browser/CSRF/API/restricted-CI-DB flow saved2 assignments and
+2 public replies,4 audits,zero internal messages,unchanged inventory/bookings.
+OpenAPI381/routes445+4,types/lint/secret3260/correctly configured cached build pass.
+Screens inspected; synthetic sessions revoked/cookie removed. No schema/provider
+call,real delivery or publication. Evidence: docs/help-learn/WORKFORCE_CARE_CASES_W14C.md.
+FullRevision4 remains active: next canonical reviewed persisted Allie handoff, then
+shared staffed/gated transport and all106 exact route-learning decisions. W9 allowance
+exhausted; new Care guidance has no actual-provider re-evaluation. Exact-lock16.4.3,
+hosted/actual-role/device/screen-reader gates stay open. Useful Docker/caches retained.
