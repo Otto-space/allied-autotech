@@ -155,3 +155,11 @@ deploy a source-compatible API/general worker. Provider sandbox, hold resolution
 real-role acceptance and enabled-payment cutover remain separate. The current
 production backend still has no reconciliation recovery migrations, and payment
 providers remain disabled.
+
+Exact runtime `1cb7b0b74dcd98a1aa73d623af4d9fd4db5674a7` passed
+[backend database-safety CI](https://github.com/Otto-space/allied-autotech/actions/runs/40457237952)
+and the [redacted secret guard](https://github.com/Otto-space/allied-autotech/actions/runs/40457237957).
+The local backend build, scoped lint/format, 75-migration replay, 27 focused
+reconciliation cases, adjacent Monnify case and synthetic 50,000-row plan
+probe all used this runtime source. This does not certify the unreleased worker
+against live payment data or an actual provider.
