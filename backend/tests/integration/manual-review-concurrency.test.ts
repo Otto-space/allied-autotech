@@ -25,15 +25,18 @@ async function actor(role: "CUSTOMER" | "ADMIN"): Promise<AuthenticatedActor> {
         : {}),
     },
   });
-  const expiresAt = new Date(Date.now() + 3_600_000);
+  const now = new Date();
+  const expiresAt = new Date(now.getTime() + 3_600_000);
   const session = await prisma.session.create({
     data: {
       userId: account.id,
       tokenHash: randomUUID(),
       expiresAt,
       idleExpiresAt: expiresAt,
+      createdAt: now,
+      lastRotatedAt: now,
       mfaRequired: role !== "CUSTOMER",
-      mfaVerifiedAt: role === "CUSTOMER" ? null : new Date(),
+      mfaVerifiedAt: role === "CUSTOMER" ? null : now,
     },
   });
   return {
