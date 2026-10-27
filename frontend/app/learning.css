@@ -391,6 +391,23 @@
   max-height: calc(100dvh - 36px);
   margin: 0;
   padding: 0;
+  overflow: hidden;
+}
+.learning-dialog.allie-dialog[open] {
+  display: flex;
+  flex-direction: column;
+}
+.allie-dialog-body {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+}
+.allie-dialog-body::-webkit-scrollbar {
+  display: none;
+}
+.allie-dialog .learning-dialog-head {
+  flex-shrink: 0;
 }
 .learning-dialog-head {
   display: flex;

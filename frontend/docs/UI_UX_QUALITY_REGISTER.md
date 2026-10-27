@@ -1908,3 +1908,54 @@ Four isolated actual-component Home Edge cases passed at 360/390/768/1440; earli
 Full Next journeys, exact-lock CI, remaining audit findings and actual-role/device
 acceptance remain open. Candidate is not yet published. See checkpoint for precise
 evidence, dependencies, local-preview restriction and preserved unrelated work.
+
+27 October 2026 - Contact visit-preference validation, P1. The released
+`8fa386cb` source sent every visit-preference error to the date field and marked
+both date and time invalid, even when time or the message needed correction.
+Runtime `317b1678` targets and announces the actual date, time or message field,
+clears stale feedback when edited, and keeps the request subject to staff
+confirmation. Eleven focused units, six Edge Contact scenarios (including
+320/390/1440px), TypeScript, changed-file lint/format and an optimized Next
+16.4.3 build passed. The local build used a junction to matching installed
+dependencies, so standalone tracing warned about paths outside the worktree;
+the exact-source locked frontend CI `40472135463` and secret guard `40472135440`
+passed independently. Vercel `dpl_24sXMLFwUuX6ag8PqMTtGaVH2xPh` is READY on
+both apex and www. Live Edge at 390/1440px used the published Tyre Change
+service and confirmed field focus, `aria-invalid`, visible error text and zero
+API writes. API readiness returned 200. No backend, schema, provider, payment,
+customer record or business policy changed. Other authenticated journeys,
+physical devices and complete screen-reader acceptance remain open.
+
+27 October 2026 - Shared viewport and support UX, P1/P2. The owner explicitly
+requested a fixed mobile Ask Allie/Whatsapp dock, no visible Allie scrollbar,
+breadcrumb-first page entry and scrolling to linked controls/selection targets.
+The mobile rule had changed the dock to position: static. It now stays fixed
+above the safe area with reserved document space and focus clearance. Allie
+keeps a fixed header/close action and a separate scrollable body with hidden
+scrollbar styling; scrolling and keyboard access remain available.
+
+ViewportNavigation is mounted once in the shared root layout. New pathname
+entries reveal breadcrumbs (or main content when none exist); explicit hashes
+reveal their targets. Same-page hash links, linked buttons/tabs, selectors and
+checked controls reveal visible aria-controls/data-scroll-target destinations.
+Ordinary controls remain visible. Contact enquiry type, vehicle-intent radios,
+visit preferences and Allie responses identify their actual target fields.
+Keyboard focus stays clear of the header and support dock. Pointer activation
+finishes before scrolling; validation/dialog focus takes precedence, pending
+entry adjustments cancel on fresh user input, and optional learning walkthroughs
+retain their own focus. A duplicate legacy support focus handler was removed.
+
+The first fixture run rejected an invalid synthetic learning href and incomplete
+API envelopes; fixtures were corrected without weakening production validation.
+Subsequent checks caught pointer-focus scrolling cancelling a checkbox click;
+that defect was fixed and the picker/validation/review regressions passed.
+Reload acceptance checks actual hash visibility below the header, allowing native
+browser focus restoration. Browser plugin not available; existing Playwright/Edge
+was reused with intercepted synthetic API responses and no real writes. Final
+14-case browser matrix passed: 320x568, 390x844, 768x900, 844x390, 1024x900 and
+1440x900 support/modal tests with axe scans; 390/1440 page entry, repeated anchors,
+hash/reload, selection, checkbox and radio journeys; and four adjacent Contact
+validation, review/confirmation and pointer-picker regressions. No horizontal
+overflow or page errors were observed. Screenshots: %TEMP%/allied-allie-viewport-
+390.png and matching 1440.png. Native keyboard, physical devices, screen readers
+and exhaustive authenticated-role combinations remain unverified.
