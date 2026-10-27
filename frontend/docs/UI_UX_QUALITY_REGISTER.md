@@ -1840,3 +1840,18 @@ campaign image loaded. The local reused Next installation is 16.3.8 while the
 project requests 16.4.3, so locked CI and an exact-version hosted candidate
 remain required before release. The local preview's unrelated authentication
 proxy aimed at absent localhost:5000; no account or API mutation was tested.
+
+Production follow-up: exact frontend source `8fa386cba46836adfaf43d8529b985c83c47255a`
+passed locked frontend CI and the secret guard, then deployed as Vercel
+`dpl_6wmkNSL8eWDvHKKmqafU6rkb9C5k` READY. Independent apex and www
+inspection resolved to that ID; the previous `dpl_A8CLYwBc6h4tYAwNqconFJTXfQFZ`
+remains a rollback candidate. A protected exact-source preview first measured
+zero or about 0.0000056 CLS at 390px. On the live apex, three fresh 390px
+About loads each measured 0.0000056. About at 320/481/1440 and Home, Contact
+and Help at 390 returned 200, with titles/headings, no page errors or overflow.
+The About campaign artwork loaded; its Services/Contact CTAs kept valid
+destinations and the sampled 390px Axe scan reported no violations. API
+mutations were blocked and none attempted. Backend readiness remained 200;
+no backend image, schema, payment, provider or business record changed.
+This is sampled lab/browser evidence, not a field Core Web Vitals claim or
+physical-device/complete screen-reader acceptance.
