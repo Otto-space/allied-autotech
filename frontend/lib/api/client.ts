@@ -41,6 +41,7 @@ import { redactDisputeChanges } from "../admin/work-dispute-pending";
 import { redactSupportReplyRecoveries } from "../support/reply-recovery";
 import { redactSupportCreationRecoveries } from "../support/creation-recovery";
 import { redactReviewRecoveries } from "../reviews/review-recovery";
+import { redactHandoffPending } from "../learning/handoff-pending";
 import { redactSupportCreateRecoveries } from "../support/support-recovery";
 import {
   captureDraftSubmission,
@@ -255,6 +256,7 @@ export function invalidateSession(reason?: "password-changed"): void {
   redactVehicleRetries();
   redactReservationRetries();
   redactReviewRecoveries();
+  redactHandoffPending();
   redactSupportCreateRecoveries();
   redactSupportCreationRecoveries();
   redactSupportReplyRecoveries();

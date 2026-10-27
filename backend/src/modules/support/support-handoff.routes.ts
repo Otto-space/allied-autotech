@@ -10,11 +10,14 @@ import {
   handoffSubmitSchema,
   handoffHeadersSchema,
   handoffReceiptParamsSchema,
+  handoffPreviewHeadersSchema,
 } from "./support-handoff.schemas.js";
 import {
   previewCustomerHandoff,
   submitCustomerHandoff,
   customerHandoffReceipt,
+  recoverCustomerHandoff,
+  cancelCustomerHandoff,
 } from "./support-handoff.js";
 
 /** Mounted after the canonical customer router's authentication/customer guard. */
@@ -29,11 +32,14 @@ export function customerHandoffRouter() {
     "/preview",
     requireCsrf,
     createSensitiveRateLimit(60, 3600000),
-    validate({ body: handoffDraftSchema, query }),
+    validate({ body: handoffDraftSchema, headers: handoffPreviewHeadersSchema, query }),
     async (req, res) => {
       const data = await previewCustomerHandoff(
         req.actor as AuthenticatedActor,
         handoffDraftSchema.parse(res.locals.validated?.["body"]),
+        handoffPreviewHeadersSchema.parse(res.locals.validated?.["headers"])[
+          "idempotency-key"
+        ],
       );
       res.json(
         successResponse("Review the exact queued Customer Care message", req.id, data),
@@ -72,6 +78,45 @@ export function customerHandoffRouter() {
         operationKey,
       );
       res.json(successResponse("Saved handoff reference verified", req.id, data));
+    },
+  );
+  router.get(
+    "/drafts/:operationKey",
+    createSensitiveRateLimit(60, 3600000),
+    validate({ params: handoffReceiptParamsSchema, query }),
+    async (req, res) => {
+      const { operationKey } = handoffReceiptParamsSchema.parse(
+        res.locals.validated?.["params"],
+      );
+      res.json(
+        successResponse(
+          "Reviewed handoff recovery checked",
+          req.id,
+          await recoverCustomerHandoff(req.actor as AuthenticatedActor, operationKey),
+        ),
+      );
+    },
+  );
+  router.delete(
+    "/drafts/:operationKey",
+    requireCsrf,
+    createSensitiveRateLimit(30, 3600000),
+    validate({
+      params: handoffReceiptParamsSchema,
+      body: z.strictObject({}).default({}),
+      query,
+    }),
+    async (req, res) => {
+      const { operationKey } = handoffReceiptParamsSchema.parse(
+        res.locals.validated?.["params"],
+      );
+      res.json(
+        successResponse(
+          "Handoff operation checked or cancelled",
+          req.id,
+          await cancelCustomerHandoff(req.actor as AuthenticatedActor, operationKey),
+        ),
+      );
     },
   );
   return router;

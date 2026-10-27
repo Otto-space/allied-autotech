@@ -307,7 +307,13 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       expect(customer.body.data.steps.join(" ")).toContain(
         "Internal staff notes are not shown",
       );
-      expect(customer.body.data.version).toBe(4);
+      expect(customer.body.data.version).toBe(5);
+      expect(customer.body.data.steps.join(" ")).toContain(
+        "no help transcript is attached automatically",
+      );
+      expect(customer.body.data.steps.join(" ")).toContain(
+        "exact message, branch and destination",
+      );
       expect(customer.body.data.steps.join(" ")).toContain("Go back to edit your draft");
     });
     it("removes revoked/expired assignments and session assurance on the next read", async () => {

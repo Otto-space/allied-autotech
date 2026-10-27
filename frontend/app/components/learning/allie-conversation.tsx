@@ -26,15 +26,24 @@ function failureCopy(error: unknown) {
 export function AllieConversationPanel({
   data,
   onNavigate,
+  onContextChange,
+  onHuman,
+  handoffEndedId,
 }: {
   data: LearningCatalogue;
   onNavigate: () => void;
+  onContextChange?: (conversation: AllieConversation | null) => void;
+  onHuman?: () => void;
+  handoffEndedId?: string | null;
 }) {
   const uid = useId(),
     path = usePathname(),
     page = learningPage(path);
   const [client] = useState(() => createConversationClient(data));
   const [conversation, setConversation] = useState<AllieConversation | null>(null);
+  useEffect(() => {
+    onContextChange?.(conversation);
+  }, [conversation, onContextChange]);
   const [recent, setRecent] = useState<AllieRecent>([]);
   const [question, setQuestion] = useState("");
   const [busy, setBusy] = useState("Checking recent conversations…");
@@ -53,6 +62,30 @@ export function AllieConversationPanel({
     operationId: string;
     question: string;
   } | null>(null);
+  useEffect(() => {
+    if (!handoffEndedId || handoffEndedId !== conversation?.id) return;
+    let active = true;
+    queueMicrotask(() => {
+      if (!active) return;
+      generation.current++;
+      controller.current?.abort();
+      setConversation(null);
+      setBusy("");
+      setAttemptId(null);
+      setUncertain(false);
+      setChecking(false);
+      setClearReview(false);
+      setRecent((items) => items.filter((item) => item.id !== handoffEndedId));
+      lastAttempt.current = null;
+      // An unrelated typed question remains editable when separate AI help is started.
+      setNotice(
+        "Your reviewed message is in Customer Care. You can start separate AI help when ready.",
+      );
+    });
+    return () => {
+      active = false;
+    };
+  }, [handoffEndedId, conversation?.id]);
 
   function adopt(next: AllieConversation) {
     creationId.current = null;
@@ -436,17 +469,30 @@ export function AllieConversationPanel({
                       </div>
                     )}
                     <div className="learning-actions">
-                      {message.answer.actions.map((action) => (
-                        <Link
-                          className="button secondary"
-                          key={action.id}
-                          href={action.href}
-                          prefetch={false}
-                          onClick={onNavigate}
-                        >
-                          {action.label}
-                        </Link>
-                      ))}
+                      {message.answer.actions.map((action) =>
+                        action.kind === "human" &&
+                        data.audience === "customer" &&
+                        onHuman ? (
+                          <button
+                            type="button"
+                            className="button secondary"
+                            key={action.id}
+                            onClick={onHuman}
+                          >
+                            {action.label}
+                          </button>
+                        ) : (
+                          <Link
+                            className="button secondary"
+                            key={action.id}
+                            href={action.href}
+                            prefetch={false}
+                            onClick={onNavigate}
+                          >
+                            {action.label}
+                          </Link>
+                        ),
+                      )}
                     </div>
                   </article>
                 </li>

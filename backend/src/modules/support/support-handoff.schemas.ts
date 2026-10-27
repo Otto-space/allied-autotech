@@ -62,6 +62,9 @@ export const handoffKeySchema = z
     /^handoff-v1\.\d{13}\.[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/,
   );
 export const handoffHeadersSchema = z.object({ "idempotency-key": handoffKeySchema });
+export const handoffPreviewHeadersSchema = z.object({
+  "idempotency-key": handoffKeySchema.optional(),
+});
 export const handoffReceiptParamsSchema = z.strictObject({
   operationKey: handoffKeySchema,
 });
@@ -86,6 +89,7 @@ export const handoffPreviewSchema = z.strictObject({
   mode: z.literal("QUEUED"),
   excerptCount: z.number().int().min(0).max(2),
   review: handoffReviewSchema,
+  recoveryExpiresAt: z.iso.datetime().optional(),
 });
 export const handoffSavedSchema = z.strictObject({
   reference: handoffReferenceSchema,
@@ -93,7 +97,29 @@ export const handoffSavedSchema = z.strictObject({
   state: z.literal("SAVED"),
   mode: z.literal("QUEUED"),
 });
+export const handoffCancelledSchema = z.strictObject({
+  state: z.literal("CANCELLED"),
+  cancelled: z.literal(true),
+});
+export const handoffRecoverySchema = z.union([
+  handoffSavedSchema,
+  handoffCancelledSchema,
+  z.strictObject({
+    state: z.literal("REVIEW"),
+    draft: handoffDraftSchema,
+    preview: handoffPreviewSchema,
+    expiresAt: z.iso.datetime(),
+  }),
+  z.strictObject({
+    state: z.literal("NEEDS_REVIEW"),
+    draft: handoffDraftSchema,
+    preview: z.null(),
+    expiresAt: z.iso.datetime(),
+    excerptsCleared: z.boolean(),
+  }),
+]);
 export type HandoffDraft = z.infer<typeof handoffDraftSchema>;
 export type HandoffSubmit = z.infer<typeof handoffSubmitSchema>;
 export type HandoffReference = z.infer<typeof handoffReferenceSchema>;
 export type HandoffExcerpts = NonNullable<HandoffDraft["excerpts"]>;
+export type HandoffPreview = z.infer<typeof handoffPreviewSchema>;

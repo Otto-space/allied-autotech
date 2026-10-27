@@ -84,3 +84,101 @@ responsive screenshots and actual browser/API/DB composition are not implemented
 or accepted yet. Complete these next, then shared staffed/gated transport and106-route
 learning acceptance. Existing preview3167 still serves W14C. No publication, real
 customer message, external delivery, new database/worktree/install or Docker build.
+
+## W15A2/B implementation and local acceptance (27 October 2026)
+
+The preceding frontend-incomplete checkpoint is superseded by this implementation.
+The existing panel now offers Customer Care immediately to a verified customer,
+including when AI is disabled. Customers edit the issue, choose a branch/new enquiry
+or one of their own existing open enquiries/complaints, and optionally select up to
+two individual current help message parts. Nothing is selected automatically. The
+exact review repeats the branch, canonical destination, audience and queued status.
+Sending is a deterministic CSRF-protected application action, never a model tool.
+Guests use Contact without an attached transcript. Work guidance has no customer
+forwarding form; no unverified internal escalation link is invented.
+
+Preparing a keyed review stores an immutable encrypted draft in the existing
+IdempotencyRecord, bound to user/session/operation. At most three active reviews
+per session expire within 15 minutes. Ordinary unkeyed preview callers remain
+compatible. GET/DELETE handoff/drafts/:operationKey recover or cancel a review;
+the current session and target/source eligibility are checked again. Stale selected
+help is removed while the manual summary stays editable. Cancellation and submission
+serialize on the same operation lock. A late original request cannot write after
+cancellation; if saving won, cancellation returns its owned reference and preserves
+the case. An expired operation can be cleared without extending its write window or
+allocating a fresh receipt. Bounded retention cleanup removes only expired transient
+encrypted drafts, never canonical cases or durable handoff receipts. No migration.
+
+The browser retains only a non-bearer operation ID in sessionStorage. Unsubmitted
+manual editing stays in identity-bound React memory when help is closed/reopened;
+it is not copied into general form recovery or sent to the provider. Review recovery
+uses the server-encrypted exact draft, not browser transcript storage. Corrupt or
+unavailable recovery storage fails closed. Unknown/malformed/lost results retain the
+operation and block a different submission until checked or safely cancelled. No
+automatic send/retry. Separate unsent AI and support drafts are retained. After a
+selected source is handed off, separate AI help requires an explicit new start.
+
+Local evidence:
+
+- 21 focused native handoff cases, including encrypted recovery/session ownership,
+  concurrent save/cancel, lost acknowledgement, expired cancellation, bounded cleanup,
+  audit rollback, public/internal privacy and delayed mocked-provider completion.
+- Seven-suite regression run accepted 115 cases; its remaining learning case still
+  expected article v4. The maintained customer article is now v5 and explains exact
+  review, selected sharing and queued recovery. Its revised HTTP check is being
+  revalidated separately. The preceding pre-content-change full116 run passed.
+- 84 provider/state/evaluation/guidance unit cases and eight handoff component cases
+  pass, in addition to eight contract/privacy/operation-marker cases. The first new
+  component run lacked the test matchers import; adding it fixed that harness error.
+- 32 distinct rendered fixture cases accepted across the existing Allie conversation
+  and new handoff suites, including 320/360/390/768/1024/1440 widths, all account tiers,
+  AI-off fallback, explicit sharing, existing destinations, cancellation, loss/reload,
+  stale review, storage privacy, draft continuity, keyboard/focus and scoped Axe.
+  A new fixture initially omitted the API envelope's message; the client correctly
+  rejected its choices. Correcting that fixture restored populated choices. Three
+  legacy console checks now use the existing response-verified not-found stylesheet
+  warning classification; operational CSS/runtime errors remain asserted. The
+  source fixture now returns a fresh context after handoff, as the real API does.
+- One actual browser/CSRF/API/restricted-CI-DB composition saved exactly one General
+  enquiry and one public reply to an existing complaint. Both were read in canonical
+  customer history and the scoped operator queue. Two audit entries, one preserved
+  internal note, and unchanged inventory/bookings were verified. This used synthetic
+  accounts only, AI off, no worker or external delivery. Test sessions were revoked
+  and the temporary cookie file removed after verification.
+- Optimized build/postbuild, source/script/native helper typechecks and full frontend
+  lint pass. Full frontend units, final contracts and exact-source checks remain in
+  progress until recorded in the final addendum below. Installed Next16.3.8 remains
+  different from locked16.4.3; no duplicate install was made.
+
+Screenshots outside Git: %TEMP%/allied-handoff-review-{360,390,768,1024,1440}.png,
+allied-handoff-native-review-{390,1440}.png, native-customer-history-1440.png and
+native-operator-390.png (the latter two share the allied-handoff- prefix). The 360px
+fixture and1440px native exact reviews were visually inspected. Browser plugin not
+available; repository Playwright and the installed Chromium were used. Physical
+devices, native zoom and complete screen-reader acceptance remain unverified.
+
+No provider call, real customer message, production seed, install, Docker image or
+publication occurred. W9's provider allowance stays exhausted; v5 has no new actual
+provider evaluation. The owner's later instruction authorises a reviewed committed
+production release, but actual current-source reconciliation, migration73, backup/
+restore, exact-lock CI and provider/domain verification remain separate release gates.
+Full Revision4 is active: shared staffed/gated transport, operational readiness and
+all106 exact-route completion decisions remain open. Two customer support matrix
+entries now carry the partial W15 evidence without claiming route completion.
+
+### Final local verification addendum
+
+All116 distinct native cases across the seven suites are accepted:115 passed in
+the final broad run and all11 learning cases passed after updating the maintained
+v5 assertion. No runtime behaviour was weakened. Full frontend1161/173files,84
+Allie backend units,32 distinct browser fixtures plus the real native composition,
+optimized build/postbuild, full frontend lint, backend lint, source/script/helper
+types and secret guard3277 pass. OpenAPI385paths/450operations+4infrastructure
+validates; all106 route entries remain explicitly incomplete. Generated frontend
+contracts are checked against the canonical exporter. No real-provider re-evaluation.
+
+The broad frontend run took604.64seconds with a single worker; no duplicate run or
+dependency install was created. C: postflight measured23.34GiB free. Read-only Docker
+review retained91 image references,200 cache records,13 stopped containers and14
+volumes; current/rollback/other-task usefulness was not inferred away. No deletion
+or new image build. These are point-in-time measurements, not an OS quota.

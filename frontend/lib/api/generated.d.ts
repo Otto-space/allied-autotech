@@ -4927,7 +4927,7 @@ export interface paths {
         put?: never;
         /**
          * Prepare an exact review of an asynchronous Customer Care handoff
-         * @description No operational case/message is created. Customer identity comes from the session. Optional help excerpts must belong to the current customer session, remain eligible/unexpired, and be explicitly selected. Work/guest context is excluded. The keyed ten-minute review binds exact content, target/version, branch and session. No provider call, live availability or automatic transcript attachment. Prepare an exact review of an asynchronous Customer Care handoff. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         * @description No operational case/message is created. Customer identity comes from the session. Optional help excerpts must belong to the current customer session, remain eligible/unexpired, and be explicitly selected. Work/guest context is excluded. The keyed ten-minute review binds exact content, target/version, branch and session. No provider call, live availability or automatic transcript attachment. Prepare an exact review of an asynchronous Customer Care handoff. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Supports an optional Idempotency-Key; see the header contract for compatibility, replay and retention rules.
          */
         post: operations["postCustomersSupportHandoffPreview"];
         delete?: never;
@@ -4971,6 +4971,30 @@ export interface paths {
         put?: never;
         post?: never;
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/customers/support/handoff/drafts/{operationKey}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Recover an encrypted short-lived handoff review after reload
+         * @description When preview included an operation key, its exact draft/review is encrypted for this customer session for at most fifteen minutes, with three active reviews allowed. Current identity and support/help access are rechecked. Stale help text is omitted; the editable summary remains with NEEDS_REVIEW. A saved canonical reference takes precedence. No transcript is stored in the browser or passed to the model. Recover an encrypted short-lived handoff review after reload. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+         */
+        get: operations["getCustomersSupportHandoffDraftsByOperationKey"];
+        put?: never;
+        post?: never;
+        /**
+         * Cancel an unsaved handoff operation without deleting a support record
+         * @description Serialises with submission, records a durable cancellation for the operation window and erases only this session's transient draft. A delayed original submission is then denied. If submission already committed, returns its owned saved reference instead; never deletes the canonical case/message. Explicitly cancel/check before creating a replacement review after uncertainty. Cancel an unsaved handoff operation without deleting a support record. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         */
+        delete: operations["deleteCustomersSupportHandoffDraftsByOperationKey"];
         options?: never;
         head?: never;
         patch?: never;
@@ -83161,6 +83185,11 @@ export interface operations {
                  * @example synthetic-token-value-not-a-real-secret
                  */
                 "x-csrf-token": string;
+                /**
+                 * @description Unique retry key for this logical mutation. Reuse it only with the identical request.
+                 * @example synthetic-idempotency-key
+                 */
+                "idempotency-key"?: string;
             };
             path?: never;
             cookie?: never;
@@ -83271,7 +83300,8 @@ export interface operations {
                      *         "review": {
                      *           "expiresAt": "2030-01-15T10:00:00.000Z",
                      *           "token": "synthetic-token-value-not-a-real-secret"
-                     *         }
+                     *         },
+                     *         "recoveryExpiresAt": "2030-01-15T10:00:00.000Z"
                      *       },
                      *       "meta": {
                      *         "requestId": "req_0000000000000001"
@@ -83333,6 +83363,11 @@ export interface operations {
                                 /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
                                 token: string;
                             };
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            recoveryExpiresAt?: string;
                         };
                         /** @description Meta validated by this operation's strict request contract. */
                         meta: {
@@ -83845,6 +83880,632 @@ export interface operations {
                              * @enum {string}
                              */
                             mode: "QUEUED";
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Current verified customer session required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Customer identity, trusted origin or CSRF verification failed */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Owned current support/help resource unavailable; existence hidden */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Changed/expired review, closed case or mismatched/expired operation */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Strict bounded payload, consent or excerpt selection invalid */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Bounded handoff request limit reached; ordinary Customer Care retained */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getCustomersSupportHandoffDraftsByOperationKey: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description Identifier selecting the operation key resource.
+                 * @example synthetic-operationkey
+                 */
+                operationKey: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success: Recover an encrypted short-lived handoff review after reload. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Recover an encrypted short-lived handoff review after reload",
+                     *       "data": {
+                     *         "reference": {
+                     *           "kind": "ENQUIRY",
+                     *           "id": "00000000-0000-4000-8000-000000000001",
+                     *           "branchId": "00000000-0000-4000-8000-000000000001",
+                     *           "messageId": "00000000-0000-4000-8000-000000000001",
+                     *           "createdNew": true
+                     *         },
+                     *         "replayed": true,
+                     *         "state": "SAVED",
+                     *         "mode": "QUEUED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /** @description Reference validated by this operation's strict request contract. */
+                            reference: {
+                                /**
+                                 * @description Kind validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                kind: "ENQUIRY" | "COMPLAINT";
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
+                                 */
+                                id: string;
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the branch resource; ownership is resolved server-side.
+                                 */
+                                branchId: string;
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the message resource; ownership is resolved server-side.
+                                 */
+                                messageId: string | null;
+                                /** @description Created New validated by this operation's strict request contract. */
+                                createdNew: boolean;
+                            };
+                            /** @description Replayed validated by this operation's strict request contract. */
+                            replayed: boolean;
+                            /**
+                             * @description State validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            state: "SAVED";
+                            /**
+                             * @description Mode validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            mode: "QUEUED";
+                        } | {
+                            /**
+                             * @description State validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            state: "CANCELLED";
+                            /**
+                             * @description Cancelled validated by this operation's strict request contract.
+                             * @enum {boolean}
+                             */
+                            cancelled: true;
+                        } | {
+                            /**
+                             * @description State validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            state: "REVIEW";
+                            /** @description Draft validated by this operation's strict request contract. */
+                            draft: {
+                                /** @description Target validated by this operation's strict request contract. */
+                                target: {
+                                    /**
+                                     * @description Kind validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    kind: "NEW_ENQUIRY";
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the branch resource; ownership is resolved server-side.
+                                     */
+                                    branchId?: string;
+                                    /** @description Subject validated by this operation's strict request contract. */
+                                    subject: string;
+                                } | {
+                                    /**
+                                     * @description Kind validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    kind: "ENQUIRY" | "COMPLAINT";
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the id resource; ownership is resolved server-side.
+                                     */
+                                    id: string;
+                                    /** @description Last server version observed by the client; stale writes are rejected. */
+                                    expectedVersion: number;
+                                };
+                                /** @description Summary validated by this operation's strict request contract. */
+                                summary: string;
+                                /** @description Excerpts validated by this operation's strict request contract. */
+                                excerpts?: {
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the conversation resource; ownership is resolved server-side.
+                                     */
+                                    conversationId: string;
+                                    /** @description Last server version observed by the client; stale writes are rejected. */
+                                    expectedVersion: number;
+                                    /** @description Selections validated by this operation's strict request contract. */
+                                    selections: {
+                                        /**
+                                         * Format: uuid
+                                         * @description Identifier of the operation resource; ownership is resolved server-side.
+                                         */
+                                        operationId: string;
+                                        /**
+                                         * @description Part validated by this operation's strict request contract.
+                                         * @enum {string}
+                                         */
+                                        part: "QUESTION" | "ANSWER";
+                                    }[];
+                                };
+                            };
+                            /** @description Preview validated by this operation's strict request contract. */
+                            preview: {
+                                /** @description Target validated by this operation's strict request contract. */
+                                target: {
+                                    /**
+                                     * @description Kind validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    kind: "NEW_ENQUIRY" | "ENQUIRY" | "COMPLAINT";
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the id resource; ownership is resolved server-side.
+                                     */
+                                    id: string | null;
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the branch resource; ownership is resolved server-side.
+                                     */
+                                    branchId: string;
+                                    /** @description Branch Name validated by this operation's strict request contract. */
+                                    branchName: string;
+                                    /** @description Subject validated by this operation's strict request contract. */
+                                    subject: string;
+                                    /** @description Version validated by this operation's strict request contract. */
+                                    version: number | null;
+                                };
+                                /** @description Body validated by this operation's strict request contract. */
+                                body: string;
+                                /**
+                                 * @description Audience validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                audience: "CUSTOMER_CARE";
+                                /**
+                                 * @description Mode validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                mode: "QUEUED";
+                                /** @description Excerpt Count validated by this operation's strict request contract. */
+                                excerptCount: number;
+                                /** @description Review validated by this operation's strict request contract. */
+                                review: {
+                                    /**
+                                     * Format: date-time
+                                     * @description ISO 8601 timestamp interpreted and validated by the server.
+                                     */
+                                    expiresAt: string;
+                                    /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                                    token: string;
+                                };
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                recoveryExpiresAt?: string;
+                            };
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            expiresAt: string;
+                        } | {
+                            /**
+                             * @description State validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            state: "NEEDS_REVIEW";
+                            /** @description Draft validated by this operation's strict request contract. */
+                            draft: {
+                                /** @description Target validated by this operation's strict request contract. */
+                                target: {
+                                    /**
+                                     * @description Kind validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    kind: "NEW_ENQUIRY";
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the branch resource; ownership is resolved server-side.
+                                     */
+                                    branchId?: string;
+                                    /** @description Subject validated by this operation's strict request contract. */
+                                    subject: string;
+                                } | {
+                                    /**
+                                     * @description Kind validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    kind: "ENQUIRY" | "COMPLAINT";
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the id resource; ownership is resolved server-side.
+                                     */
+                                    id: string;
+                                    /** @description Last server version observed by the client; stale writes are rejected. */
+                                    expectedVersion: number;
+                                };
+                                /** @description Summary validated by this operation's strict request contract. */
+                                summary: string;
+                                /** @description Excerpts validated by this operation's strict request contract. */
+                                excerpts?: {
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the conversation resource; ownership is resolved server-side.
+                                     */
+                                    conversationId: string;
+                                    /** @description Last server version observed by the client; stale writes are rejected. */
+                                    expectedVersion: number;
+                                    /** @description Selections validated by this operation's strict request contract. */
+                                    selections: {
+                                        /**
+                                         * Format: uuid
+                                         * @description Identifier of the operation resource; ownership is resolved server-side.
+                                         */
+                                        operationId: string;
+                                        /**
+                                         * @description Part validated by this operation's strict request contract.
+                                         * @enum {string}
+                                         */
+                                        part: "QUESTION" | "ANSWER";
+                                    }[];
+                                };
+                            };
+                            /** @description Preview validated by this operation's strict request contract. */
+                            preview: null;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            expiresAt: string;
+                            /** @description Excerpts Cleared validated by this operation's strict request contract. */
+                            excerptsCleared: boolean;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Current verified customer session required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Customer identity, trusted origin or CSRF verification failed */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Owned current support/help resource unavailable; existence hidden */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Changed/expired review, closed case or mismatched/expired operation */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Strict bounded payload, consent or excerpt selection invalid */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Bounded handoff request limit reached; ordinary Customer Care retained */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    deleteCustomersSupportHandoffDraftsByOperationKey: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+                 * @example synthetic-token-value-not-a-real-secret
+                 */
+                "x-csrf-token": string;
+            };
+            path: {
+                /**
+                 * @description Identifier selecting the operation key resource.
+                 * @example synthetic-operationkey
+                 */
+                operationKey: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success: Cancel an unsaved handoff operation without deleting a support record. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Cancel an unsaved handoff operation without deleting a support record",
+                     *       "data": {
+                     *         "reference": {
+                     *           "kind": "ENQUIRY",
+                     *           "id": "00000000-0000-4000-8000-000000000001",
+                     *           "branchId": "00000000-0000-4000-8000-000000000001",
+                     *           "messageId": "00000000-0000-4000-8000-000000000001",
+                     *           "createdNew": true
+                     *         },
+                     *         "replayed": true,
+                     *         "state": "SAVED",
+                     *         "mode": "QUEUED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /** @description Reference validated by this operation's strict request contract. */
+                            reference: {
+                                /**
+                                 * @description Kind validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                kind: "ENQUIRY" | "COMPLAINT";
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
+                                 */
+                                id: string;
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the branch resource; ownership is resolved server-side.
+                                 */
+                                branchId: string;
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the message resource; ownership is resolved server-side.
+                                 */
+                                messageId: string | null;
+                                /** @description Created New validated by this operation's strict request contract. */
+                                createdNew: boolean;
+                            };
+                            /** @description Replayed validated by this operation's strict request contract. */
+                            replayed: boolean;
+                            /**
+                             * @description State validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            state: "SAVED";
+                            /**
+                             * @description Mode validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            mode: "QUEUED";
+                        } | {
+                            /**
+                             * @description State validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            state: "CANCELLED";
+                            /**
+                             * @description Cancelled validated by this operation's strict request contract.
+                             * @enum {boolean}
+                             */
+                            cancelled: true;
                         };
                         /** @description Meta validated by this operation's strict request contract. */
                         meta: {

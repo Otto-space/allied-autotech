@@ -14,6 +14,7 @@ import {
 } from "@/lib/learning/search";
 import { AllieAvatar } from "./allie-avatar";
 import { X } from "lucide-react";
+import type { HandoffMemory } from "./allie-handoff";
 const Panel = lazy(() =>
   import("./allie-panel").then((m) => ({ default: m.AlliePanel })),
 );
@@ -25,6 +26,7 @@ export function LearningCompanion() {
   const path = usePathname(),
     dialog = useRef<HTMLDialogElement>(null),
     launcher = useRef<HTMLElement | null>(null);
+  const [handoffMemory, setHandoffMemory] = useState<HandoffMemory>(null);
   const [open, setOpen] = useState(false),
     [guide, setGuide] = useState<string | null>(null);
   function close() {
@@ -57,6 +59,7 @@ export function LearningCompanion() {
       if (match) setGuide(match[1]);
     }
     function invalidate() {
+      setHandoffMemory(null);
       clearLearningProgress();
       dialog.current?.close();
       setOpen(false);
@@ -111,7 +114,11 @@ export function LearningCompanion() {
         </header>
         {open && (
           <Suspense fallback={<p role="status">Loading help…</p>}>
-            <Panel onNavigate={close} />
+            <Panel
+              onNavigate={close}
+              handoffMemory={handoffMemory}
+              onHandoffMemoryChange={setHandoffMemory}
+            />
           </Suspense>
         )}
         <button

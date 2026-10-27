@@ -103,3 +103,14 @@ practice requires current view/reply on the same branch. New duty names require 
 Native direct-scenario and retrieval tests pass, with no operational records in the
 provider corpus. This new passage has no fresh real-provider evaluation: W9 allowance
 is exhausted. See WORKFORCE_CARE_CASES_W14C.md; full route acceptance stays open.
+
+## W15 reviewed human handoff (27 October 2026)
+
+own-conversation v5 describes the verified customer review/edit/selected-sharing,
+queued persistence and recovery flow. Existing guide/practice IDs remain stable;
+no new walkthrough is claimed for the handoff form. Customer ownership is independent
+of workforce Care duties, and neither public nor work help gains customer-history
+access. New source passages have unit/native eligibility checks and rendered/native
+handoff evidence; no fresh real-provider evaluation is authorised under the exhausted
+W9 allowance. See REVIEWED_HANDOFF_W15.md. Shared staffed transport and all106 full
+route completion decisions remain open.

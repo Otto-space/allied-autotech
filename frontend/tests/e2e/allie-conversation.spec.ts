@@ -2,6 +2,7 @@ import { test, expect, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import path from "node:path";
 import os from "node:os";
+import { verifyConsole } from "../fixtures/preview-console";
 import {
   allieConversationFixture,
   type AllieFixtureRole,
@@ -9,6 +10,7 @@ import {
 
 function observe(page: Page) {
   const errors: string[] = [],
+    warnings: string[] = [],
     external: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
   page.on("console", (message) => {
@@ -18,7 +20,10 @@ function observe(page: Page) {
       /\/api\/v1\/(?:auth\/session|(?:public\/)?learning\/assistant\/)/.test(
         message.location().url,
       );
-    if (!knownFailure) errors.push(message.text());
+    if (!knownFailure) {
+      if (message.type() === "warning") warnings.push(message.text());
+      else errors.push(message.text());
+    }
   });
   page.on("request", (request) => {
     if (
@@ -27,7 +32,7 @@ function observe(page: Page) {
     )
       external.push(request.url());
   });
-  return { errors, external };
+  return { errors, warnings, external };
 }
 async function open(page: Page) {
   await page.getByRole("button", { name: "Ask Allie", exact: true }).first().click();
@@ -83,7 +88,7 @@ test("short mobile viewport keeps follow-up composer and keyboard send usable", 
   await page.screenshot({
     path: path.join(os.tmpdir(), "allied-allie-composer-390.png"),
   });
-  expect(seen.errors).toEqual([]);
+  await verifyConsole(page, seen.errors, seen.warnings);
   expect(state.unexpected).toEqual([]);
 });
 for (const width of [320, 360, 390, 768, 1024, 1440])
@@ -140,7 +145,7 @@ for (const width of [320, 360, 390, 768, 1024, 1440])
     );
     expect(storage).not.toContain("Find compatible parts");
     expect(state.unexpected).toEqual([]);
-    expect(seen.errors).toEqual([]);
+    await verifyConsole(page, seen.errors, seen.warnings);
     expect(seen.external).toEqual([]);
     await page.keyboard.press("Escape");
     await expect(panel).not.toBeVisible();
@@ -171,7 +176,7 @@ for (const role of ["CUSTOMER", "STAFF", "ADMIN", "SUPER_ADMIN"] as AllieFixture
     await expect(page).toHaveURL(/\/learn\?article=parts-fitment$/);
     await expect(panel).not.toBeVisible();
     expect(state.unexpected).toEqual([]);
-    expect(seen.errors).toEqual([]);
+    await verifyConsole(page, seen.errors, seen.warnings);
   });
 test("stop prevents a late answer and supports explicit recovery without another question", async ({
   page,

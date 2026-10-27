@@ -6446,7 +6446,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### POST `/customers/support/handoff/preview`
 
 - Operation ID: `postCustomersSupportHandoffPreview`
-- Purpose: No operational case/message is created. Customer identity comes from the session. Optional help excerpts must belong to the current customer session, remain eligible/unexpired, and be explicitly selected. Work/guest context is excluded. The keyed ten-minute review binds exact content, target/version, branch and session. No provider call, live availability or automatic transcript attachment. Prepare an exact review of an asynchronous Customer Care handoff. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: No operational case/message is created. Customer identity comes from the session. Optional help excerpts must belong to the current customer session, remain eligible/unexpired, and be explicitly selected. Work/guest context is excluded. The keyed ten-minute review binds exact content, target/version, branch and session. No provider call, live availability or automatic transcript attachment. Prepare an exact review of an asynchronous Customer Care handoff. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Supports an optional Idempotency-Key; see the header contract for compatibility, replay and retention rules.
 - Roles: CUSTOMER
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -6457,6 +6457,7 @@ Parameters:
 | Parameter | Location | Type | Required | Purpose |
 | --- | --- | --- | --- | --- |
 | `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| `idempotency-key` | header | string | No | Unique retry key for this logical mutation. Reuse it only with the identical request. |
 
 JSON request fields:
 
@@ -6511,7 +6512,8 @@ Success: HTTP 200.
     "review": {
       "expiresAt": "2030-01-15T10:00:00.000Z",
       "token": "synthetic-token-value-not-a-real-secret"
-    }
+    },
+    "recoveryExpiresAt": "2030-01-15T10:00:00.000Z"
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -6622,6 +6624,89 @@ Success: HTTP 200.
 {
   "success": true,
   "message": "Recover an owned durable handoff reference without a transcript",
+  "data": {
+    "reference": {
+      "kind": "ENQUIRY",
+      "id": "00000000-0000-4000-8000-000000000001",
+      "branchId": "00000000-0000-4000-8000-000000000001",
+      "messageId": "00000000-0000-4000-8000-000000000001",
+      "createdNew": true
+    },
+    "replayed": true,
+    "state": "SAVED",
+    "mode": "QUEUED"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current verified customer session required; 403 Customer identity, trusted origin or CSRF verification failed; 404 Owned current support/help resource unavailable; existence hidden; 409 Changed/expired review, closed case or mismatched/expired operation; 422 Strict bounded payload, consent or excerpt selection invalid; 429 Bounded handoff request limit reached; ordinary Customer Care retained; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/customers/support/handoff/drafts/{operationKey}`
+
+- Operation ID: `getCustomersSupportHandoffDraftsByOperationKey`
+- Purpose: When preview included an operation key, its exact draft/review is encrypted for this customer session for at most fifteen minutes, with three active reviews allowed. Current identity and support/help access are rechecked. Stale help text is omitted; the editable summary remains with NEEDS_REVIEW. A saved canonical reference takes precedence. No transcript is stored in the browser or passed to the model. Recover an encrypted short-lived handoff review after reload. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: CUSTOMER
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `operationKey` | path | string | Yes | Identifier selecting the operation key resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Recover an encrypted short-lived handoff review after reload",
+  "data": {
+    "reference": {
+      "kind": "ENQUIRY",
+      "id": "00000000-0000-4000-8000-000000000001",
+      "branchId": "00000000-0000-4000-8000-000000000001",
+      "messageId": "00000000-0000-4000-8000-000000000001",
+      "createdNew": true
+    },
+    "replayed": true,
+    "state": "SAVED",
+    "mode": "QUEUED"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current verified customer session required; 403 Customer identity, trusted origin or CSRF verification failed; 404 Owned current support/help resource unavailable; existence hidden; 409 Changed/expired review, closed case or mismatched/expired operation; 422 Strict bounded payload, consent or excerpt selection invalid; 429 Bounded handoff request limit reached; ordinary Customer Care retained; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### DELETE `/customers/support/handoff/drafts/{operationKey}`
+
+- Operation ID: `deleteCustomersSupportHandoffDraftsByOperationKey`
+- Purpose: Serialises with submission, records a durable cancellation for the operation window and erases only this session's transient draft. A delayed original submission is then denied. If submission already committed, returns its owned saved reference instead; never deletes the canonical case/message. Explicitly cancel/check before creating a replacement review after uncertainty. Cancel an unsaved handoff operation without deleting a support record. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: CUSTOMER
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `operationKey` | path | string | Yes | Identifier selecting the operation key resource. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Cancel an unsaved handoff operation without deleting a support record",
   "data": {
     "reference": {
       "kind": "ENQUIRY",

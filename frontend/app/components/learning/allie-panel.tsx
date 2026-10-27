@@ -1,5 +1,7 @@
 "use client";
-import { lazy, Suspense, useId, useState } from "react";
+import { lazy, Suspense, useEffect, useId, useState } from "react";
+import type { AllieConversation } from "@/lib/learning/conversation";
+import type { HandoffMemory } from "./allie-handoff";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ArrowRight, Search } from "lucide-react";
@@ -11,9 +13,27 @@ import { AllieAvatar } from "./allie-avatar";
 const Conversation = lazy(() =>
   import("./allie-conversation").then((m) => ({ default: m.AllieConversationPanel })),
 );
+const Handoff = lazy(() =>
+  import("./allie-handoff").then((m) => ({ default: m.AllieHandoff })),
+);
 
-export function AlliePanel({ onNavigate }: { onNavigate: () => void }) {
+export function AlliePanel({
+  onNavigate,
+  handoffMemory,
+  onHandoffMemoryChange,
+}: {
+  onNavigate: () => void;
+  handoffMemory?: HandoffMemory;
+  onHandoffMemoryChange?: (value: HandoffMemory) => void;
+}) {
+  const [localMemory, setLocalMemory] = useState<HandoffMemory>(null);
+  const memory = handoffMemory === undefined ? localMemory : handoffMemory;
+  const onMemoryChange = onHandoffMemoryChange ?? setLocalMemory;
   const resource = useLearningCatalogue();
+  useEffect(() => {
+    if (resource.data && memory && memory.owner !== resource.data.accessKey)
+      onMemoryChange(null);
+  }, [resource.data, memory, onMemoryChange]);
   const page = learningPage(usePathname());
   const conversational = resource.data?.flags.ai && page !== "security";
   return (
@@ -39,6 +59,8 @@ export function AlliePanel({ onNavigate }: { onNavigate: () => void }) {
             key={JSON.stringify(resource.data)}
             data={resource.data}
             onNavigate={onNavigate}
+            memory={memory}
+            onMemoryChange={onMemoryChange}
           />
         </div>
       )}
@@ -59,46 +81,99 @@ export function AlliePanel({ onNavigate }: { onNavigate: () => void }) {
 function Assistance({
   data,
   onNavigate,
+  memory,
+  onMemoryChange,
 }: {
   data: LearningCatalogue;
   onNavigate: () => void;
+  memory: HandoffMemory;
+  onMemoryChange: (value: HandoffMemory) => void;
 }) {
   const page = learningPage(usePathname());
   const ai = data.flags.ai && page !== "security";
   const [mode, setMode] = useState<"ai" | "reviewed">(ai ? "ai" : "reviewed");
+  const [human, setHuman] = useState(false),
+    [context, setContext] = useState<AllieConversation | null>(null),
+    [endedId, setEndedId] = useState<string | null>(null);
   return (
     <>
-      {ai && (
-        <div className="allie-modes" aria-label="Help mode">
-          <button
-            type="button"
-            aria-pressed={mode === "ai"}
-            onClick={() => setMode("ai")}
-          >
-            Ask Allie
-          </button>
-          <button
-            type="button"
-            aria-pressed={mode === "reviewed"}
-            onClick={() => setMode("reviewed")}
-          >
-            Reviewed help
-          </button>
-        </div>
-      )}
-      {ai && mode === "ai" ? (
-        <Suspense fallback={<p role="status">Loading conversation controls…</p>}>
-          <Conversation data={data} onNavigate={onNavigate} />
-        </Suspense>
+      {data.audience === "customer" ? (
+        <>
+          {!human && (
+            <button
+              type="button"
+              className="button secondary allie-human-option"
+              onClick={() => setHuman(true)}
+            >
+              Customer Care · leave a message
+            </button>
+          )}
+          {human && (
+            <Suspense fallback={<p role="status">Loading Customer Care…</p>}>
+              <Handoff
+                data={data}
+                conversation={context}
+                memory={memory}
+                onMemoryChange={onMemoryChange}
+                onReturn={() => setHuman(false)}
+                onNavigate={onNavigate}
+                onSaved={setEndedId}
+              />
+            </Suspense>
+          )}
+        </>
+      ) : data.audience === "public" ? (
+        <p className="allie-human-option">
+          <Link href="/contact" onClick={onNavigate}>
+            Leave a message for Customer Care
+          </Link>
+          . Your help conversation is not attached.
+        </p>
       ) : (
-        <Answers data={data} onNavigate={onNavigate} />
-      )}
-      {page === "security" && (
         <p className="allie-boundary">
-          On account and security pages, use reviewed recovery help. Conversational input
-          is unavailable here.
+          Workforce guidance is not forwarded to public Customer Care. An internal
+          escalation route has not been verified here.
         </p>
       )}
+      <div hidden={human} inert={human}>
+        {ai && (
+          <div className="allie-modes" aria-label="Help mode">
+            <button
+              type="button"
+              aria-pressed={mode === "ai"}
+              onClick={() => setMode("ai")}
+            >
+              Ask Allie
+            </button>
+            <button
+              type="button"
+              aria-pressed={mode === "reviewed"}
+              onClick={() => setMode("reviewed")}
+            >
+              Reviewed help
+            </button>
+          </div>
+        )}
+        {ai && mode === "ai" ? (
+          <Suspense fallback={<p role="status">Loading conversation controls…</p>}>
+            <Conversation
+              data={data}
+              onNavigate={onNavigate}
+              onContextChange={setContext}
+              onHuman={() => setHuman(true)}
+              handoffEndedId={endedId}
+            />
+          </Suspense>
+        ) : (
+          <Answers data={data} onNavigate={onNavigate} />
+        )}
+        {page === "security" && (
+          <p className="allie-boundary">
+            On account and security pages, use reviewed recovery help. Conversational
+            input is unavailable here.
+          </p>
+        )}
+      </div>
     </>
   );
 }

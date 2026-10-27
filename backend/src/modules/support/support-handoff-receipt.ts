@@ -1,4 +1,10 @@
 import { createHash } from "node:crypto";
+import { z } from "zod";
+import type { AuthenticatedActor } from "../../common/contracts/actor.js";
+import {
+  encryptAssistantContext,
+  decryptAssistantContext,
+} from "../../common/security/mfa-encryption.js";
 import type { Prisma } from "../../generated/prisma/client.js";
 import { AppError } from "../../common/errors/app-error.js";
 import {
@@ -6,6 +12,10 @@ import {
   handoffReferenceSchema,
   type HandoffReference,
   type HandoffSubmit,
+  handoffDraftSchema,
+  handoffPreviewSchema,
+  type HandoffDraft,
+  type HandoffPreview,
 } from "./support-handoff.schemas.js";
 import { supportNotFound } from "./support.errors.js";
 
@@ -50,14 +60,17 @@ async function ownedReference(tx: Tx, userId: string, value: unknown) {
     throw supportNotFound();
   return ref;
 }
-async function locate(tx: Tx, userId: string, rawKey: string) {
+async function locate(tx: Tx, userId: string, rawKey: string, allowExpired = false) {
   const key = handoffKeySchema.parse(rawKey),
     scope = `support-handoff:${userId}`,
     keyHash = digest(key);
   await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${scope + ":" + keyHash}, 0))`;
   const at = await clock(tx),
     issuedAt = Number(key.split(".")[1]);
-  if (issuedAt > at.getTime() + 60000 || issuedAt + 86400000 <= at.getTime())
+  if (
+    issuedAt > at.getTime() + 60000 ||
+    (!allowExpired && issuedAt + 86400000 <= at.getTime())
+  )
     throw new AppError({
       code: "IDEMPOTENCY_EXPIRED",
       statusCode: 409,
@@ -91,6 +104,7 @@ export async function withHandoffReceipt(
   key: string,
   input: HandoffSubmit,
   create: () => Promise<HandoffReference>,
+  actor?: AuthenticatedActor,
 ) {
   const { scope, keyHash, at, issuedAt, prior } = await locate(tx, userId, key);
   const requestHash = digest(JSON.stringify(input));
@@ -109,6 +123,20 @@ export async function withHandoffReceipt(
       mode: "QUEUED" as const,
     };
   }
+  if (actor) {
+    const stored = await readTransientDraft(tx, actor, key);
+    if (
+      stored &&
+      digest(
+        JSON.stringify({
+          draft: stored.value.draft,
+          review: stored.value.preview.review,
+          consent: true,
+        }),
+      ) !== requestHash
+    )
+      throw conflict();
+  }
   const reference = handoffReferenceSchema.parse(await create());
   await tx.idempotencyRecord.create({
     data: {
@@ -124,4 +152,155 @@ export async function withHandoffReceipt(
     },
   });
   return { reference, replayed: false, state: "SAVED" as const, mode: "QUEUED" as const };
+}
+
+const envelopeSchema = z.strictObject({
+  version: z.literal(1),
+  keyId: z.string().min(1).max(120),
+  iv: z.string().max(32),
+  ciphertext: z.string().max(131072),
+  tag: z.string().max(32),
+});
+const storedSchema = z.strictObject({
+  draft: handoffDraftSchema,
+  preview: handoffPreviewSchema,
+});
+const draftScope = (actor: AuthenticatedActor) =>
+  `support-handoff-draft:${actor.userId}:${actor.sessionId}`;
+const draftBinding = (actor: AuthenticatedActor, key: string) =>
+  JSON.stringify(["support-handoff-draft:v1", actor.userId, actor.sessionId, key]);
+async function readTransientDraft(tx: Tx, actor: AuthenticatedActor, key: string) {
+  const row = await tx.idempotencyRecord.findUnique({
+    where: { scope_keyHash: { scope: draftScope(actor), keyHash: digest(key) } },
+  });
+  if (!row || row.userId !== actor.userId || row.status !== "IN_PROGRESS") return null;
+  if (row.expiresAt <= (await clock(tx))) throw supportNotFound();
+  try {
+    const value = storedSchema.parse(
+      decryptAssistantContext(
+        envelopeSchema.parse(row.responseBody),
+        draftBinding(actor, key),
+      ),
+    );
+    return { row, value };
+  } catch {
+    throw supportNotFound();
+  }
+}
+export async function saveHandoffDraft(
+  tx: Tx,
+  actor: AuthenticatedActor,
+  key: string,
+  draft: HandoffDraft,
+  preview: HandoffPreview,
+) {
+  const { prior, at, issuedAt, keyHash } = await locate(tx, actor.userId, key);
+  if (prior) throw conflict();
+  const existing = await readTransientDraft(tx, actor, key);
+  if (existing) {
+    if (
+      JSON.stringify(existing.value.draft) !== JSON.stringify(draft) ||
+      JSON.stringify(existing.value.preview.target) !== JSON.stringify(preview.target) ||
+      existing.value.preview.body !== preview.body
+    )
+      throw conflict();
+    return existing.value.preview;
+  }
+  if (
+    (await tx.idempotencyRecord.count({
+      where: {
+        userId: actor.userId,
+        scope: draftScope(actor),
+        status: "IN_PROGRESS",
+        expiresAt: { gt: at },
+      },
+    })) >= 3
+  )
+    throw new AppError({
+      code: "RATE_LIMITED",
+      statusCode: 429,
+      message: "Finish or cancel an earlier handoff review before preparing another.",
+    });
+  const expiresAt = new Date(Math.min(at.getTime() + 15 * 60000, issuedAt + 86400000));
+  const result = handoffPreviewSchema.parse({
+    ...preview,
+    recoveryExpiresAt: expiresAt.toISOString(),
+  });
+  await tx.idempotencyRecord.create({
+    data: {
+      userId: actor.userId,
+      scope: draftScope(actor),
+      keyHash,
+      requestHash: digest(JSON.stringify(draft)),
+      status: "IN_PROGRESS",
+      responseBody: {
+        ...encryptAssistantContext({ draft, preview: result }, draftBinding(actor, key)),
+      },
+      expiresAt,
+    },
+  });
+  return result;
+}
+export async function forgetHandoffDraft(tx: Tx, actor: AuthenticatedActor, key: string) {
+  // Only this session's unsubmitted transient draft. Never deletes a case or receipt.
+  await tx.idempotencyRecord.deleteMany({
+    where: {
+      userId: actor.userId,
+      scope: draftScope(actor),
+      keyHash: digest(key),
+      status: "IN_PROGRESS",
+    },
+  });
+}
+export async function recoverHandoffDraft(
+  tx: Tx,
+  actor: AuthenticatedActor,
+  key: string,
+) {
+  const { prior } = await locate(tx, actor.userId, key);
+  if (prior?.status === "COMPLETED")
+    return { saved: await readHandoffReceipt(tx, actor.userId, key) };
+  if (prior?.status === "FAILED") return { cancelled: true as const };
+  const stored = await readTransientDraft(tx, actor, key);
+  if (!stored) throw supportNotFound();
+  return { stored };
+}
+export async function cancelHandoffOperation(
+  tx: Tx,
+  actor: AuthenticatedActor,
+  key: string,
+) {
+  const { scope, keyHash, at, issuedAt, prior } = await locate(
+    tx,
+    actor.userId,
+    key,
+    true,
+  );
+  if (prior?.status === "COMPLETED") {
+    if (prior.userId !== actor.userId || prior.responseStatus !== 201)
+      throw supportNotFound();
+    return {
+      reference: await ownedReference(tx, actor.userId, prior.responseBody),
+      replayed: true,
+      state: "SAVED" as const,
+      mode: "QUEUED" as const,
+    };
+  }
+  // An expired operation is already forbidden from writing. Clear its session draft
+  // without allocating a new receipt or extending any retention/write deadline.
+  if (!prior && issuedAt + 86400000 > at.getTime())
+    await tx.idempotencyRecord.create({
+      data: {
+        userId: actor.userId,
+        scope,
+        keyHash,
+        requestHash: digest("cancelled:" + key),
+        status: "FAILED",
+        responseStatus: 409,
+        completedAt: at,
+        expiresAt: new Date(issuedAt + 86400000),
+      },
+    });
+  await forgetHandoffDraft(tx, actor, key);
+  return { state: "CANCELLED" as const, cancelled: true as const };
 }

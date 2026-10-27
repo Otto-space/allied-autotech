@@ -1,6 +1,7 @@
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import request from "supertest";
-import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { purgeExpiredAllieState } from "../../src/modules/learning/allie.retention.js";
 import { createApp } from "../../src/app.js";
 import { prisma } from "../../src/config/database.js";
 import { env } from "../../src/config/env.js";
@@ -19,7 +20,10 @@ import { assertIsolatedLoopbackDatabase } from "../helpers/isolated-database.js"
 describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
   "reviewed canonical Care handoff",
   () => {
-    const app = createApp({ checkReadiness: async () => undefined, rateLimit: 10000 });
+    let app = createApp({ checkReadiness: async () => undefined, rateLimit: 10000 });
+    beforeEach(() => {
+      app = createApp({ checkReadiness: async () => undefined, rateLimit: 10000 });
+    });
     let f: Awaited<ReturnType<typeof workforceFixture>>;
     let complaint: { id: string },
       inactive: { id: string },
@@ -676,6 +680,213 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         env.ALLIE_OPENAI_MODEL = previous.model;
         env.ALLIE_AI_DAILY_TOKEN_LIMIT = previous.budget;
       }
+    });
+    const saveReview = (input: object, operationKey: string) =>
+      request(app)
+        .post(root + "/preview")
+        .set(f.customer.headers)
+        .set("Idempotency-Key", operationKey)
+        .send(input);
+    const recover = (operationKey: string) =>
+      request(app)
+        .get(root + "/drafts/" + operationKey)
+        .set(f.customer.headers);
+    const cancel = (operationKey: string) =>
+      request(app)
+        .delete(root + "/drafts/" + operationKey)
+        .set(f.customer.headers)
+        .send({});
+    it("recovers an encrypted immutable review after reload, only in its owning customer session", async () => {
+      const input = draft(),
+        operationKey = key(),
+        first = await saveReview(input, operationKey);
+      expect(first.status).toBe(200);
+      expect(first.body.data.recoveryExpiresAt).toBeTruthy();
+      const repeated = await saveReview(input, operationKey);
+      expect(repeated.body.data).toEqual(first.body.data);
+      expect(
+        (
+          await saveReview(
+            { ...input, summary: "Changed input needs a separate review" },
+            operationKey,
+          )
+        ).status,
+      ).toBe(409);
+      const restored = await recover(operationKey);
+      expect(restored.body.data).toMatchObject({
+        state: "REVIEW",
+        draft: input,
+        preview: first.body.data,
+      });
+      const stored = await prisma.idempotencyRecord.findFirstOrThrow({
+        where: {
+          userId: f.customer.user.id,
+          scope: `support-handoff-draft:${f.customer.user.id}:${f.customer.record.id}`,
+        },
+      });
+      expect(JSON.stringify(stored.responseBody)).not.toContain(input.summary);
+      const anotherSession = await f.session(f.customer.user.id, "CUSTOMER");
+      expect(
+        (
+          await request(app)
+            .get(root + "/drafts/" + operationKey)
+            .set(anotherSession.headers)
+        ).status,
+      ).toBe(404);
+      expect(
+        (
+          await request(app)
+            .get(root + "/drafts/" + operationKey)
+            .set(f.stranger.headers)
+        ).status,
+      ).toBe(404);
+      expect((await cancel(operationKey)).body.data.state).toBe("CANCELLED");
+    });
+    it("cancels an uncertain operation so a late original request cannot create a duplicate", async () => {
+      const input = draft(),
+        operationKey = key(),
+        review = await saveReview(input, operationKey);
+      expect(review.status).toBe(200);
+      const body = { draft: input, review: review.body.data.review, consent: true },
+        before = await prisma.enquiry.count();
+      expect((await cancel(operationKey)).body.data).toEqual({
+        state: "CANCELLED",
+        cancelled: true,
+      });
+      expect((await send(body, operationKey)).status).toBe(409);
+      expect((await recover(operationKey)).body.data.state).toBe("CANCELLED");
+      expect(await prisma.enquiry.count()).toBe(before);
+      const replacement = key(),
+        fresh = await saveReview(input, replacement);
+      expect(
+        (await send({ ...body, review: fresh.body.data.review }, replacement)).status,
+      ).toBe(201);
+    });
+    it("lets a customer clear an expired operation without extending its write window", async () => {
+      const input = draft(),
+        review = await preview(input),
+        expiredKey = `handoff-v1.${Date.now() - 86401000}.${randomUUID()}`,
+        before = await prisma.enquiry.count();
+      expect((await recover(expiredKey)).status).toBe(409);
+      expect((await cancel(expiredKey)).body.data).toEqual({
+        state: "CANCELLED",
+        cancelled: true,
+      });
+      expect(
+        (
+          await send(
+            { draft: input, review: review.body.data.review, consent: true },
+            expiredKey,
+          )
+        ).status,
+      ).toBe(409);
+      expect(await prisma.enquiry.count()).toBe(before);
+      expect(
+        await prisma.idempotencyRecord.count({
+          where: {
+            scope: "support-handoff:" + f.customer.user.id,
+            keyHash: createHash("sha256").update(expiredKey).digest("hex"),
+          },
+        }),
+      ).toBe(0);
+    });
+    it("returns the saved canonical reference on recovery/cancel after commit, never deletes the case", async () => {
+      const input = draft(),
+        operationKey = key(),
+        review = await saveReview(input, operationKey);
+      const saved = await send(
+        { draft: input, review: review.body.data.review, consent: true },
+        operationKey,
+      );
+      expect(saved.status).toBe(201);
+      expect((await recover(operationKey)).body.data.reference).toEqual(
+        saved.body.data.reference,
+      );
+      expect((await cancel(operationKey)).body.data.reference).toEqual(
+        saved.body.data.reference,
+      );
+      expect(
+        await prisma.enquiry.count({ where: { id: saved.body.data.reference.id } }),
+      ).toBe(1);
+      expect(
+        await prisma.idempotencyRecord.count({
+          where: {
+            userId: f.customer.user.id,
+            scope: `support-handoff-draft:${f.customer.user.id}:${f.customer.record.id}`,
+          },
+        }),
+      ).toBe(0);
+    });
+    it("preserves an editable summary while clearing stale selected help from recovery", async () => {
+      const seed = await seededHelp(),
+        input = {
+          ...draft(),
+          excerpts: {
+            conversationId: seed.id,
+            expectedVersion: 1,
+            selections: [{ operationId: seed.operationId, part: "ANSWER" }],
+          },
+        },
+        operationKey = key();
+      expect((await saveReview(input, operationKey)).status).toBe(200);
+      await prisma.assistantConversation.update({
+        where: { id: seed.id },
+        data: { sourceSet: "0".repeat(64) },
+      });
+      const response = await recover(operationKey);
+      expect(response.status).toBe(200);
+      expect(response.body.data).toMatchObject({
+        state: "NEEDS_REVIEW",
+        draft: { summary: input.summary },
+        preview: null,
+        excerptsCleared: true,
+      });
+      expect(response.body.data.draft.excerpts).toBeUndefined();
+      expect(JSON.stringify(response.body.data)).not.toContain(seed.answer);
+      await cancel(operationKey);
+    });
+    it("resolves a cancel/send race to one saved case or a durable cancellation", async () => {
+      const input = draft(),
+        operationKey = key(),
+        review = await saveReview(input, operationKey),
+        body = { draft: input, review: review.body.data.review, consent: true };
+      const before = await prisma.enquiry.count();
+      const [sent, cancelled] = await Promise.all([
+        send(body, operationKey),
+        cancel(operationKey),
+      ]);
+      expect(cancelled.status).toBe(200);
+      expect([201, 409]).toContain(sent.status);
+      expect(await prisma.enquiry.count()).toBe(before + (sent.status === 201 ? 1 : 0));
+      expect((await recover(operationKey)).body.data.state).toBe(
+        sent.status === 201 ? "SAVED" : "CANCELLED",
+      );
+    });
+    it("bounds active reviews and retires only expired transient drafts, preserving durable receipts", async () => {
+      const keys = [key(), key(), key()];
+      for (const operationKey of keys)
+        expect((await saveReview(draft(), operationKey)).status).toBe(200);
+      expect((await saveReview(draft(), key())).status).toBe(429);
+      const scope = `support-handoff-draft:${f.customer.user.id}:${f.customer.record.id}`;
+      await prisma.idempotencyRecord.updateMany({
+        where: { scope },
+        data: {
+          createdAt: new Date(Date.now() - 20000),
+          expiresAt: new Date(Date.now() - 10000),
+        },
+      });
+      const durableBefore = await prisma.idempotencyRecord.count({
+        where: { scope: "support-handoff:" + f.customer.user.id },
+      });
+      expect((await recover(keys[0]!)).status).toBe(404);
+      const result = await purgeExpiredAllieState(500);
+      expect(result.handoffDraftsRetired).toBeGreaterThanOrEqual(3);
+      expect(await prisma.idempotencyRecord.count({ where: { scope } })).toBe(0);
+      expect(
+        await prisma.idempotencyRecord.count({
+          where: { scope: "support-handoff:" + f.customer.user.id },
+        }),
+      ).toBe(durableBefore);
     });
   },
 );

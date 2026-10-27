@@ -421,6 +421,121 @@
   line-height: 1.6;
   font-weight: 500;
 }
+.allie-human-option {
+  margin: 16px 0;
+}
+.allie-handoff {
+  padding: 12px 0 20px;
+  font-size: 0.9rem;
+}
+.allie-handoff h3 {
+  font-size: 1.2rem;
+  line-height: 1.4;
+  margin: 8px 0 12px;
+}
+.allie-handoff fieldset {
+  min-width: 0;
+  border: 1px solid #b5c0ca;
+  border-radius: 8px;
+  padding: 12px;
+  margin: 16px 0;
+}
+.allie-handoff legend {
+  font-weight: 700;
+  padding: 0 5px;
+}
+.allie-handoff form > label,
+.allie-handoff fieldset > label:not(.handoff-choice) {
+  display: block;
+  font-weight: 700;
+  margin: 12px 0 6px;
+}
+.allie-handoff input:not([type="radio"]):not([type="checkbox"]),
+.allie-handoff select,
+.allie-handoff textarea {
+  box-sizing: border-box;
+  min-height: 44px;
+  width: 100%;
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid #8594a2;
+  border-radius: 6px;
+  color: #182129;
+  background: #fff;
+  font: inherit;
+}
+.allie-handoff input[type="radio"],
+.allie-handoff input[type="checkbox"] {
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  margin: 2px 0;
+  accent-color: #b80201;
+}
+.handoff-choice,
+.handoff-excerpt label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-height: 44px;
+  padding: 12px 0;
+  border-bottom: 1px solid #d5dbe1;
+  cursor: pointer;
+}
+.handoff-choice span,
+.handoff-excerpt label > span {
+  min-width: 0;
+  flex: 1;
+}
+.handoff-choice small,
+.handoff-excerpt span span {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.85rem;
+  white-space: pre-wrap;
+}
+.handoff-destinations .pagination {
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.handoff-destinations .pagination .button {
+  padding: 8px 12px;
+  font-size: 0.85rem;
+}
+.handoff-selected {
+  font-size: 0.85rem;
+}
+.handoff-review-facts {
+  margin: 16px 0;
+}
+.handoff-review-facts dt {
+  font-weight: 700;
+  margin-top: 12px;
+}
+.handoff-review-facts dd {
+  margin: 4px 0 0;
+}
+.handoff-exact-message {
+  padding: 16px;
+  border: 1px solid #a5b3bf;
+  border-radius: 8px;
+  background: #f5f8fa;
+  white-space: pre-wrap;
+  line-height: 1.65;
+}
+.handoff-recovery {
+  padding: 12px;
+  border: 1px solid #a4433f;
+  border-radius: 8px;
+  margin: 16px 0;
+}
+.handoff-reference {
+  font-family: inherit;
+  overflow-wrap: anywhere;
+}
+.allie-handoff .learning-actions {
+  flex-wrap: wrap;
+}
 .allie-modes {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

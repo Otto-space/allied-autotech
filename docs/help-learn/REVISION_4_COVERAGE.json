@@ -1860,44 +1860,57 @@
     "/dashboard/support/[kind]/[supportId]": {
       "source": "app/dashboard/support/[kind]/[supportId]/page.tsx",
       "audience": "customer",
-      "accessPredicate": "authenticated customer; per-route confirmation required",
+      "accessPredicate": "Current verified CUSTOMER session; server enforces owned enquiry/complaint reads and reviewed handoff writes independently of workforce grants.",
       "decision": "pending",
-      "purpose": null,
+      "purpose": "Read and follow up in one owned canonical support conversation.",
       "contextualAnswer": null,
-      "articleIds": [],
+      "articleIds": ["own-conversation"],
       "guideIds": [],
       "practiceIds": [],
-      "statusDefinitions": [],
-      "recovery": [],
+      "statusDefinitions": [
+        "Handoff QUEUED/SAVED confirms database persistence, not email delivery or human reading; support business status remains independent."
+      ],
+      "recovery": [
+        "Check an uncertain handoff by operation ID, then retry the identical review or cancel safely before editing. Browser stores no summary or transcript."
+      ],
       "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
       "fixture": "Identify the permitted role/scope and realistic state for this route.",
       "verification": "pending",
-      "evidence": [],
+      "evidence": [
+        "W15: docs/help-learn/REVIEWED_HANDOFF_W15.md; provider-off real browser/CSRF/API/restricted-CI-DB new enquiry and existing complaint handoff, owned history and scoped operator queue; partial route evidence."
+      ],
       "gaps": [
-        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4.",
+        "Shared staffed transport, complete exact-route learning modes and hosted/actual-role/device acceptance remain open."
       ],
       "subviews": []
     },
     "/dashboard/support": {
       "source": "app/dashboard/support/page.tsx",
       "audience": "customer",
-      "accessPredicate": "authenticated customer; per-route confirmation required",
+      "accessPredicate": "Current verified CUSTOMER session; server enforces owned enquiry/complaint reads and reviewed handoff writes independently of workforce grants.",
       "decision": "pending",
-      "purpose": null,
+      "purpose": "Find and continue your owned support requests; start or receive a reviewed queued handoff.",
       "contextualAnswer": null,
       "articleIds": ["own-conversation"],
       "guideIds": ["own-request"],
       "practiceIds": [],
-      "statusDefinitions": [],
-      "recovery": [],
+      "statusDefinitions": [
+        "Handoff QUEUED/SAVED confirms database persistence, not email delivery or human reading; support business status remains independent."
+      ],
+      "recovery": [
+        "Check an uncertain handoff by operation ID, then retry the identical review or cancel safely before editing. Browser stores no summary or transcript."
+      ],
       "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
       "fixture": "Identify the permitted role/scope and realistic state for this route.",
       "verification": "pending",
       "evidence": [
-        "W9: docs/help-learn/ALLIE_EVALUATION_W9.md; real provider baseline/targeted review, actual guest/customer composition and native scope checks. This is partial evidence, not complete per-route acceptance."
+        "W9: docs/help-learn/ALLIE_EVALUATION_W9.md; real provider baseline/targeted review, actual guest/customer composition and native scope checks. This is partial evidence, not complete per-route acceptance.",
+        "W15: docs/help-learn/REVIEWED_HANDOFF_W15.md; provider-off real browser/CSRF/API/restricted-CI-DB new enquiry and existing complaint handoff, owned history and scoped operator queue; partial route evidence."
       ],
       "gaps": [
-        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4.",
+        "Shared staffed transport, complete exact-route learning modes and hosted/actual-role/device acceptance remain open."
       ],
       "subviews": []
     },

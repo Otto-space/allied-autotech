@@ -28,7 +28,14 @@ import {
   type HandoffDraft,
   type HandoffSubmit,
 } from "./support-handoff.schemas.js";
-import { readHandoffReceipt, withHandoffReceipt } from "./support-handoff-receipt.js";
+import {
+  readHandoffReceipt,
+  withHandoffReceipt,
+  saveHandoffDraft,
+  forgetHandoffDraft,
+  recoverHandoffDraft,
+  cancelHandoffOperation,
+} from "./support-handoff-receipt.js";
 
 type Tx = Prisma.TransactionClient;
 const repository = new SupportRepository();
@@ -157,16 +164,20 @@ function token(
 export async function previewCustomerHandoff(
   actor: AuthenticatedActor,
   raw: HandoffDraft,
+  operationKey?: string,
 ) {
   const draft = handoffDraftSchema.parse(raw);
   return prisma.$transaction(async (tx) => {
     const account = await customer(tx, actor),
       prepared = await prepare(tx, actor, account.id, draft);
     const expiresAt = new Date(Date.now() + 10 * 60000).toISOString();
-    return handoffPreviewSchema.parse({
+    const result = handoffPreviewSchema.parse({
       ...prepared,
       review: { expiresAt, token: token(actor, draft, prepared, expiresAt) },
     });
+    return operationKey
+      ? saveHandoffDraft(tx, actor, operationKey, draft, result)
+      : result;
   });
 }
 export async function submitCustomerHandoff(
@@ -180,115 +191,124 @@ export async function submitCustomerHandoff(
     prisma,
     async (tx) => {
       const account = await customer(tx, actor);
-      return withHandoffReceipt(tx, actor.userId, key, input, async () => {
-        const prepared = await prepare(tx, actor, account.id, input.draft);
-        const [clock] = await tx.$queryRaw<
-          { at: Date }[]
-        >`SELECT clock_timestamp() AT TIME ZONE 'UTC' AS "at"`;
-        const expiry = Date.parse(input.review.expiresAt);
-        if (
-          expiry <= clock!.at.getTime() ||
-          expiry > clock!.at.getTime() + 10 * 60000 + 60000 ||
-          !timingSafeEqual(
-            Buffer.from(input.review.token, "hex"),
-            Buffer.from(
-              token(actor, input.draft, prepared, input.review.expiresAt),
-              "hex",
-            ),
+      const saved = await withHandoffReceipt(
+        tx,
+        actor.userId,
+        key,
+        input,
+        async () => {
+          const prepared = await prepare(tx, actor, account.id, input.draft);
+          const [clock] = await tx.$queryRaw<
+            { at: Date }[]
+          >`SELECT clock_timestamp() AT TIME ZONE 'UTC' AS "at"`;
+          const expiry = Date.parse(input.review.expiresAt);
+          if (
+            expiry <= clock!.at.getTime() ||
+            expiry > clock!.at.getTime() + 10 * 60000 + 60000 ||
+            !timingSafeEqual(
+              Buffer.from(input.review.token, "hex"),
+              Buffer.from(
+                token(actor, input.draft, prepared, input.review.expiresAt),
+                "hex",
+              ),
+            )
           )
-        )
-          throw stale();
-        const { target, body } = prepared;
-        let id: string,
-          messageId: string | null = null;
-        if (target.kind === "NEW_ENQUIRY") {
-          const record = await repository.createCustomerEnquiry(
-            account,
-            {
+            throw stale();
+          const { target, body } = prepared;
+          let id: string,
+            messageId: string | null = null;
+          if (target.kind === "NEW_ENQUIRY") {
+            const record = await repository.createCustomerEnquiry(
+              account,
+              {
+                type: "GENERAL",
+                branchId: target.branchId,
+                subject: target.subject,
+                message: body,
+              },
+              target.branchId,
+              tx,
+            );
+            if (!record) throw supportNotFound();
+            id = record.id;
+            await enqueueDepartmentEmail(tx, {
+              id,
               type: "GENERAL",
-              branchId: target.branchId,
               subject: target.subject,
               message: body,
+              email: account.user.email,
+            });
+          } else {
+            id = target.id!;
+            const changed =
+              target.kind === "ENQUIRY"
+                ? await tx.enquiry.updateMany({
+                    where: {
+                      id,
+                      version: target.version!,
+                      customerId: account.id,
+                      status: { not: "CLOSED" },
+                    },
+                    data: { version: { increment: 1 } },
+                  })
+                : await tx.complaint.updateMany({
+                    where: {
+                      id,
+                      version: target.version!,
+                      customerId: account.id,
+                      status: { not: "CLOSED" },
+                    },
+                    data: { version: { increment: 1 } },
+                  });
+            if (changed.count !== 1) throw stale();
+            const message = await repository.createMessage(
+              target.kind === "ENQUIRY" ? { enquiryId: id } : { complaintId: id },
+              actor.userId,
+              "CUSTOMER",
+              "CUSTOMER",
+              body,
+              tx,
+            );
+            messageId = message.id;
+          }
+          const kind =
+            target.kind === "COMPLAINT" ? ("COMPLAINT" as const) : ("ENQUIRY" as const);
+          await appendAuditEvent(tx, {
+            actorUserId: actor.userId,
+            action: "CREATE",
+            entityType: kind,
+            entityId: id,
+            newValues: {
+              source: "REVIEWED_ALLIE_HANDOFF",
+              excerptCount: prepared.excerptCount,
+              ...(messageId ? { messageId } : {}),
+              branchId: target.branchId,
             },
-            target.branchId,
-            tx,
-          );
-          if (!record) throw supportNotFound();
-          id = record.id;
-          await enqueueDepartmentEmail(tx, {
-            id,
-            type: "GENERAL",
-            subject: target.subject,
-            message: body,
-            email: account.user.email,
+            context,
           });
-        } else {
-          id = target.id!;
-          const changed =
-            target.kind === "ENQUIRY"
-              ? await tx.enquiry.updateMany({
-                  where: {
-                    id,
-                    version: target.version!,
-                    customerId: account.id,
-                    status: { not: "CLOSED" },
-                  },
-                  data: { version: { increment: 1 } },
-                })
-              : await tx.complaint.updateMany({
-                  where: {
-                    id,
-                    version: target.version!,
-                    customerId: account.id,
-                    status: { not: "CLOSED" },
-                  },
-                  data: { version: { increment: 1 } },
-                });
-          if (changed.count !== 1) throw stale();
-          const message = await repository.createMessage(
-            target.kind === "ENQUIRY" ? { enquiryId: id } : { complaintId: id },
-            actor.userId,
-            "CUSTOMER",
-            "CUSTOMER",
-            body,
-            tx,
-          );
-          messageId = message.id;
-        }
-        const kind =
-          target.kind === "COMPLAINT" ? ("COMPLAINT" as const) : ("ENQUIRY" as const);
-        await appendAuditEvent(tx, {
-          actorUserId: actor.userId,
-          action: "CREATE",
-          entityType: kind,
-          entityId: id,
-          newValues: {
-            source: "REVIEWED_ALLIE_HANDOFF",
-            excerptCount: prepared.excerptCount,
-            ...(messageId ? { messageId } : {}),
+          await notifySupportTeam(tx, {
+            kind,
+            id,
+            event: messageId ? `reply:${messageId}` : `new:${id}`,
+            title: messageId ? "New customer reply" : "New customer enquiry",
+            actorUserId: actor.userId,
+            ...(messageId ? { supportMessageId: messageId } : {}),
+          });
+          if (input.draft.excerpts)
+            await finishCustomerHandoffContext(tx, actor, input.draft.excerpts);
+          await customer(tx, actor); // Recheck natural expiry before committing.
+          return {
+            kind,
+            id,
             branchId: target.branchId,
-          },
-          context,
-        });
-        await notifySupportTeam(tx, {
-          kind,
-          id,
-          event: messageId ? `reply:${messageId}` : `new:${id}`,
-          title: messageId ? "New customer reply" : "New customer enquiry",
-          actorUserId: actor.userId,
-          ...(messageId ? { supportMessageId: messageId } : {}),
-        });
-        if (input.draft.excerpts)
-          await finishCustomerHandoffContext(tx, actor, input.draft.excerpts);
-        await customer(tx, actor); // Recheck natural expiry before committing.
-        return {
-          kind,
-          id,
-          branchId: target.branchId,
-          messageId,
-          createdNew: target.kind === "NEW_ENQUIRY",
-        };
-      });
+            messageId,
+            createdNew: target.kind === "NEW_ENQUIRY",
+          };
+        },
+        actor,
+      );
+      await forgetHandoffDraft(tx, actor, key);
+      return saved;
     },
     { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
   );
@@ -297,5 +317,50 @@ export async function customerHandoffReceipt(actor: AuthenticatedActor, key: str
   return prisma.$transaction(async (tx) => {
     await customer(tx, actor);
     return readHandoffReceipt(tx, actor.userId, key);
+  });
+}
+export async function recoverCustomerHandoff(actor: AuthenticatedActor, key: string) {
+  return prisma.$transaction(async (tx) => {
+    const account = await customer(tx, actor),
+      result = await recoverHandoffDraft(tx, actor, key);
+    if (result.saved) return result.saved;
+    if (result.cancelled)
+      return { state: "CANCELLED" as const, cancelled: true as const };
+    const { row, value } = result.stored;
+    try {
+      const current = await prepare(tx, actor, account.id, value.draft);
+      const { review, recoveryExpiresAt: _expires, ...original } = value.preview;
+      if (
+        JSON.stringify(current) !== JSON.stringify(original) ||
+        Date.parse(review.expiresAt) <= Date.now()
+      )
+        throw stale();
+      return {
+        state: "REVIEW" as const,
+        draft: value.draft,
+        preview: value.preview,
+        expiresAt: row.expiresAt.toISOString(),
+      };
+    } catch (error) {
+      if (!(error instanceof AppError) || ![404, 409].includes(error.statusCode))
+        throw error;
+      // Retain the customer's own editable input; never return stale help text or
+      // private target facts after revalidation fails. Cancel the old operation
+      // before creating a fresh review, preventing late writes on the old key.
+      const { excerpts: _excerpts, ...draft } = value.draft;
+      return {
+        state: "NEEDS_REVIEW" as const,
+        draft,
+        preview: null,
+        expiresAt: row.expiresAt.toISOString(),
+        excerptsCleared: !!value.draft.excerpts,
+      };
+    }
+  });
+}
+export async function cancelCustomerHandoff(actor: AuthenticatedActor, key: string) {
+  return prisma.$transaction(async (tx) => {
+    await customer(tx, actor);
+    return cancelHandoffOperation(tx, actor, key);
   });
 }

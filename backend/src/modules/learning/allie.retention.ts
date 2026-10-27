@@ -84,10 +84,24 @@ export async function purgeExpiredAllieState(limit = 100) {
       await tx.assistantGuestSession.deleteMany({
         where: { id: { in: guests.map((row) => row.id) } },
       });
+    // Only encrypted unsubmitted handoff drafts, never durable handoff receipts or
+    // canonical Customer Care records. Skip a busy draft instead of inverting the
+    // submitter's user/operation/assistant lock order while holding this mutex.
+    const handoffDrafts = await tx.$queryRaw<{ id: string }[]>`
+      SELECT "id" FROM "IdempotencyRecord"
+      WHERE "scope" LIKE 'support-handoff-draft:%' AND "expiresAt" <= ${at}
+      ORDER BY "expiresAt" ASC, "id" ASC LIMIT ${limit}
+      FOR UPDATE SKIP LOCKED
+    `;
+    if (handoffDrafts.length)
+      await tx.idempotencyRecord.deleteMany({
+        where: { id: { in: handoffDrafts.map((row) => row.id) } },
+      });
     return {
       payloadBatchesReviewed: ids.length,
       conversationsRetired: removed.count,
       guestSessionsRetired: guests.length,
+      handoffDraftsRetired: handoffDrafts.length,
     };
   });
 }

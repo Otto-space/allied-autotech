@@ -165,6 +165,13 @@ describe("provider-observed role guidance regressions", () => {
     )!;
     expect(article.steps.join(" ")).toContain("Internal staff notes are not shown");
     expect(article.steps.join(" ")).toContain("Go back to edit your draft");
+    expect(article.version).toBe(5);
+    expect(article.steps.join(" ")).toContain(
+      "no help transcript is attached automatically",
+    );
+    expect(article.steps.join(" ")).toContain("exact message, branch and destination");
+    expect(article.steps.join(" ")).toContain("does not promise live availability");
+    expect(article.steps.join(" ")).toContain("retry the same reviewed message");
   });
   it("projects assigned-only sales guidance without implying branch-wide access", () => {
     const assigned = catalogue({

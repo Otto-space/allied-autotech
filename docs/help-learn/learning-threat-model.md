@@ -351,3 +351,24 @@ ending prevents partial handoff. Delayed mocked-provider completion after handof
 cannot append an answer; tests include that race and audit rollback. No transcript
 or summary enters receipt/audit/notification previews. New ordinary support content
 never goes to the model. Frontend/reload privacy and shared transport gates remain.
+
+## W15A2/B recovery and rendered handoff
+
+Exact unsent reviews are encrypted in a session-bound transient scope of the
+existing idempotency table, with a15minute lifetime and three-active-review bound.
+Browser storage contains only the operation ID. The server rechecks current
+ownership/source/target on recovery and strips stale help selections while keeping
+the editable manual summary. Cancellation serializes with submission and records
+a tombstone before a late write can commit; saved canonical cases are preserved.
+Expired cancellation never extends a write window. Cleanup uses bounded locked
+expired transient rows and preserves durable receipts and support records.
+
+Customer, public and workforce UI paths remain separate. No provider summary tool,
+automatic transcript, internal-note attachment or hidden form capture. Invalid
+storage/preview/receipt and uncertain acknowledgement fail closed. In-flight results
+after unmount/access invalidation are discarded; independent typed AI questions stay
+separate. Native21handoff/116distinctregressions,84Allieunits,1161frontendunits and
+32renderedfixtures plus one actual browser/CSRF/API/restricted-CI-DB composition
+verify the recorded boundaries. Physical devices, complete screen readers, current
+hosted roles, new-source real-provider quality and shared staffed transport remain
+separate open gates. No actual customer delivery or provider call was used.

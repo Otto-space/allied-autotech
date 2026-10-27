@@ -7,6 +7,9 @@ import {
   handoffReceiptParamsSchema,
   handoffPreviewSchema,
   handoffSavedSchema,
+  handoffPreviewHeadersSchema,
+  handoffRecoverySchema,
+  handoffCancelledSchema,
 } from "./support-handoff.schemas.js";
 
 export function registerSupportHandoffOpenApi(registry: OpenAPIRegistry) {
@@ -38,7 +41,7 @@ export function registerSupportHandoffOpenApi(registry: OpenAPIRegistry) {
       "No operational case/message is created. Customer identity comes from the session. Optional help excerpts must belong to the current customer session, remain eligible/unexpired, and be explicitly selected. Work/guest context is excluded. The keyed ten-minute review binds exact content, target/version, branch and session. No provider call, live availability or automatic transcript attachment.",
     security: [{ sessionCookie: [] }],
     request: {
-      headers: csrf,
+      headers: csrf.extend(handoffPreviewHeadersSchema.shape),
       query: z.strictObject({}),
       body: { required: true, content: content(handoffDraftSchema) },
     },
@@ -84,6 +87,46 @@ export function registerSupportHandoffOpenApi(registry: OpenAPIRegistry) {
       200: {
         description: "Saved owned reference verified; private/no-store",
         content: content(envelope(handoffSavedSchema)),
+      },
+      ...failures,
+    },
+  });
+  registry.registerPath({
+    method: "get",
+    path: "/customers/support/handoff/drafts/{operationKey}",
+    tags: ["Support"],
+    summary: "Recover an encrypted short-lived handoff review after reload",
+    description:
+      "When preview included an operation key, its exact draft/review is encrypted for this customer session for at most fifteen minutes, with three active reviews allowed. Current identity and support/help access are rechecked. Stale help text is omitted; the editable summary remains with NEEDS_REVIEW. A saved canonical reference takes precedence. No transcript is stored in the browser or passed to the model.",
+    security: [{ sessionCookie: [] }],
+    request: { params: handoffReceiptParamsSchema, query: z.strictObject({}) },
+    responses: {
+      200: {
+        description:
+          "Current review, needs-review input, saved reference or cancelled operation; private/no-store",
+        content: content(envelope(handoffRecoverySchema)),
+      },
+      ...failures,
+    },
+  });
+  registry.registerPath({
+    method: "delete",
+    path: "/customers/support/handoff/drafts/{operationKey}",
+    tags: ["Support"],
+    summary: "Cancel an unsaved handoff operation without deleting a support record",
+    description:
+      "Serialises with submission, records a durable cancellation for the operation window and erases only this session's transient draft. A delayed original submission is then denied. If submission already committed, returns its owned saved reference instead; never deletes the canonical case/message. Explicitly cancel/check before creating a replacement review after uncertainty.",
+    security: [{ sessionCookie: [] }],
+    request: {
+      params: handoffReceiptParamsSchema,
+      headers: csrf,
+      query: z.strictObject({}),
+    },
+    responses: {
+      200: {
+        description:
+          "Durable cancellation or saved canonical reference; private/no-store",
+        content: content(envelope(z.union([handoffSavedSchema, handoffCancelledSchema]))),
       },
       ...failures,
     },
