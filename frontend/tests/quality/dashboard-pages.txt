@@ -1,0 +1,145 @@
+# Current-launch dashboard/workforce samples; run from frontend with --test-list tests/quality/dashboard-pages.txt.
+# Restricted customer transaction routes are checked separately without enabling them.
+admin-security-quality.spec.ts > work account security fits 320px
+admin-security-quality.spec.ts > work account security fits 1440px
+customer-care-detail-quality.spec.ts > conversation fits 320px with readable owned breadcrumb
+customer-care-detail-quality.spec.ts > conversation fits 1440px with readable owned breadcrumb
+customer-care-quality.spec.ts > customer care fits 320px
+customer-care-quality.spec.ts > customer care fits 1440px
+customer-garage-quality.spec.ts > garage list, edit and removal accessibility 390
+customer-garage-quality.spec.ts > garage list, edit and removal accessibility 1440
+customer-notifications-quality.spec.ts > notification layout 320px
+customer-notifications-quality.spec.ts > notification layout 1440px
+customer-overview-quality.spec.ts > customer overview fits 320px and exposes current care first
+customer-overview-quality.spec.ts > customer overview fits 1440px and exposes current care first
+customer-privacy-quality.spec.ts > privacy accessibility and modal at 320px
+customer-privacy-quality.spec.ts > privacy accessibility and modal at 1440px
+customer-profile-quality.spec.ts > profile layout 320
+customer-profile-quality.spec.ts > profile layout 1440
+customer-reviews-quality.spec.ts > page and confirmation accessible at 390px
+customer-reviews-quality.spec.ts > page and confirmation accessible at 1440px
+customer-security-quality.spec.ts > customer security fits 320px
+customer-security-quality.spec.ts > customer security fits 1440px
+dashboard-navigation.spec.ts > shared navigation is accessible at 320px
+dashboard-navigation.spec.ts > shared navigation is accessible at 1440px
+garage-photos-quality.spec.ts > photo accessibility 390
+garage-photos-quality.spec.ts > photo accessibility 1440
+saved-items-quality.spec.ts > parts is readable at 320px
+saved-items-quality.spec.ts > parts is readable at 1440px
+work-aftercare.spec.ts > named navigation, actual history facts and selected review survive responsive layouts
+work-audit.spec.ts > audit history and expanded inspection at 320
+work-booking-detail-quality.spec.ts > long service and line descriptions remain readable on mobile
+work-bookings-quality.spec.ts > workshop records and expanded filters fit 320px
+work-branches.spec.ts > branch workspace foundation at 320
+work-categories.spec.ts > readable accessible list and edit at 320px
+work-category-detail.spec.ts > 320px long category and editor have no page overflow or accessibility violations
+work-complaint-policy.spec.ts > complaint policy responsive and accessible at 320
+work-complaint-policy.spec.ts > complaint policy responsive and accessible at 1440
+work-customer-detail.spec.ts > seven responsive widths fit full long facts and pass accessibility
+work-customers.spec.ts > empty, error and access failure remain distinct accessible states
+work-dispute-handling.spec.ts > handling workspace accessible at 320
+work-dispute-handling.spec.ts > handling workspace accessible at 1440
+work-dispute-policy.spec.ts > dispute policy responsive and accessible at 320
+work-dispute-policy.spec.ts > dispute policy responsive and accessible at 1440
+work-finance-policy.spec.ts > financial policy responsive and accessible at 320
+work-finance-policy.spec.ts > financial policy responsive and accessible at 1440
+work-inspections.spec.ts > responsive cards, filters and review are accessible without overflow
+work-inventory-detail.spec.ts > complete mobile facts and forms remain accessible with long references
+work-inventory.spec.ts > complete long records, mobile filters and creation remain accessible
+work-invoice-detail.spec.ts > complete invoice detail fits 320px and passes serious Axe checks
+work-invoice-detail.spec.ts > complete invoice detail fits 1440px and passes serious Axe checks
+work-invoices.spec.ts > ADMIN has scoped invoice discovery and complete expandable records
+work-notifications.spec.ts > notification layout 320px
+work-notifications.spec.ts > notification layout 1440px
+work-order-detail.spec.ts > long content and reduced motion remain accessible across widths
+work-orders.spec.ts > loading, empty search and keyboard submission remain usable
+work-overview-quality.spec.ts > readable work overview and monitoring at 320px
+work-payment-disputes.spec.ts > 320px complete accessible dispute facts
+work-payment-disputes.spec.ts > 1440px complete accessible dispute facts
+work-payment-exceptions.spec.ts > 1440px responsive and accessible investigation workspace
+work-payments.spec.ts > ADMIN sees complete payment/source/attempt records with its own active identity
+work-privacy.spec.ts > seven responsive widths, full long explanation and review pass accessibility
+work-processing-jobs.spec.ts > processing jobs directory and inspection at 320
+work-product-categories.spec.ts > 320px catalogue and editor remain accessible without horizontal overflow
+work-product-category-detail.spec.ts > 320px long category and editor have no page overflow or accessibility violations
+work-product-detail.spec.ts > detail and editor are accessible without overflow at 320px
+work-product-detail.spec.ts > detail and editor are accessible without overflow at 1440px
+work-products.spec.ts > catalogue and complete editor are accessible without overflow at 320px
+work-promotions.spec.ts > long names, codes, exact large amounts and mobile filters stay accessible
+work-refunds.spec.ts > selected refund fits 320px with no serious Axe violations
+work-refunds.spec.ts > selected refund fits 1440px with no serious Axe violations
+work-reservation-policy.spec.ts > fail read is accessible and blocks actions
+work-retention-policy.spec.ts > retention policy responsive and accessible at 320
+work-retention-policy.spec.ts > retention policy responsive and accessible at 1440
+work-review-moderation.spec.ts > long feedback and full review pass seven widths and accessibility
+work-service-detail.spec.ts > complete accessible detail at 320px
+work-services.spec.ts > accessible complete records at 320px
+work-slots.spec.ts > slots are readable and accessible at 320px
+work-staff-detail.spec.ts > staff account foundation at 320
+work-staff-directory.spec.ts > staff directory responsive and accessible at 320
+work-staff-directory.spec.ts > staff directory responsive and accessible at 1440
+work-staff-invitations.spec.ts > invitation workspace foundation at 320
+work-staff-workforce.spec.ts > expanded workforce forms are accessible at 1440px
+work-support-detail.spec.ts > seven responsive widths, long original text and full review pass accessibility
+work-support.spec.ts > seven responsive widths and long complete records pass accessibility
+work-vehicle-create.spec.ts > responsive groups and long review preserve all fields with accessible keyboard focus
+work-vehicle-detail.spec.ts > responsive named record, navigation, disclosure and review pass accessibility checks
+work-vehicle-sale-detail.spec.ts > seven responsive widths and review retain accessible names, contrast and no overflow
+work-vehicle-sales.spec.ts > empty, unavailable and access-error states have valid accessible structure
+work-vehicle-stock.spec.ts > responsive layouts preserve every stock fact, readable controls and keyboard filter disclosure
+workforce-access.spec.ts > mobile technician navigation and job queue stay accessible without horizontal overflow
+workforce-bookings.spec.ts > workforce bookings layout and accessibility 390px
+workforce-bookings.spec.ts > workforce bookings layout and accessibility 1440px
+workforce-complaints.spec.ts > complaint layout and accessibility 320px
+workforce-complaints.spec.ts > complaint layout and accessibility 1440px
+workforce-enquiries.spec.ts > enquiry layout and accessibility 390px
+workforce-enquiries.spec.ts > enquiry layout and accessibility 1440px
+workforce-finance.spec.ts > finance layout and accessibility 320px
+workforce-finance.spec.ts > finance layout and accessibility 1440px
+workforce-job-detail.spec.ts > workforce job detail layout and accessibility 390px
+workforce-job-detail.spec.ts > workforce job detail layout and accessibility 1440px
+workforce-jobs.spec.ts > workforce jobs layout and accessibility 390px
+workforce-jobs.spec.ts > workforce jobs layout and accessibility 1440px
+workforce-notifications.spec.ts > mobile page search navigates to personal notifications
+workforce-orders.spec.ts > orders layout and accessibility 320px
+workforce-orders.spec.ts > orders layout and accessibility 1440px
+promotion-create.spec.ts > responsive form and review remain accessible at all required widths
+promotion-detail.spec.ts > long names, full codes and exact extreme amounts remain readable without overflow
+refund-timing.spec.ts > maximum holiday calendar remains readable and excess dates cannot be approved
+booking-capacity.spec.ts > capacity accessible and responsive at 320
+booking-capacity.spec.ts > capacity accessible and responsive at 1440
+delivery-policy.spec.ts > delivery responsive and accessible at 320
+delivery-policy.spec.ts > delivery responsive and accessible at 1440
+parts-fitment-workspace.spec.ts > staff author, independent reviewer and history remain usable at 1440px
+workforce-overview.spec.ts > workforce overview layout and access 360px
+workforce-overview.spec.ts > workforce overview layout and access 390px
+workforce-overview.spec.ts > workforce overview layout and access 430px
+workforce-overview.spec.ts > workforce overview layout and access 768px
+workforce-overview.spec.ts > workforce overview layout and access 1024px
+workforce-overview.spec.ts > workforce overview layout and access 1280px
+workforce-overview.spec.ts > workforce overview layout and access 1440px
+workforce-overview.spec.ts > OPERATIONS sees only permitted work destinations
+workforce-overview.spec.ts > CUSTOMER_SERVICE sees only permitted work destinations
+workforce-overview.spec.ts > SALES_SUPERVISOR sees only permitted work destinations
+workforce-overview.spec.ts > SALES_CASHIER sees only permitted work destinations
+workforce-overview.spec.ts > ACCOUNTANT sees only permitted work destinations
+workforce-overview.spec.ts > WORKSHOP_LEAD sees only permitted work destinations
+workforce-overview.spec.ts > ELECTRICAL_TECHNICIAN sees only permitted work destinations
+workforce-overview.spec.ts > MECHANICAL_TECHNICIAN sees only permitted work destinations
+workforce-overview.spec.ts > zero counts remain real work links and refresh updates the server timestamp and totals
+workforce-overview.spec.ts > foreground failure hides old totals and successful retry restores them
+workforce-overview.spec.ts > background failure cannot leave old totals presented as current
+workforce-overview.spec.ts > loading and denied reads expose no counters
+workforce-overview.spec.ts > no active responsibilities gives useful personal access without operational links
+workforce-overview.spec.ts > another account or a changed access version never renders operational details
+workforce-overview.spec.ts > unexpected counter keys cannot produce undefined or unauthorized links
+workforce-overview.spec.ts > long branch labels and reasons remain readable at 320px
+workforce-overview.spec.ts > overview alias keeps one breadcrumb and the same verified work
+workforce-overview.spec.ts > revoked responsibilities remove queues and branch details on revalidation
+workforce-overview.spec.ts > large valid counters remain readable on narrow screens
+workforce-overview.spec.ts > temporary assignment expiry rechecks access without user interaction
+parts-fitment-workspace.spec.ts > staff author, independent reviewer and history remain usable at 390px
+# Direct detail/recovery and shared modal regression coverage.
+dashboard-access-quality.spec.ts
+dashboard-page-recovery.spec.ts
+help-launch-quality.spec.ts

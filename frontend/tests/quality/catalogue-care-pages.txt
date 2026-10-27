@@ -1,0 +1,31 @@
+catalogue-care-design.spec.ts
+shop-quality.spec.ts
+vehicles-quality.spec.ts
+parts-fitment.spec.ts
+saved-vehicle-fitment.spec.ts
+customer-garage-quality.spec.ts
+garage-photos-quality.spec.ts
+customer-care-quality.spec.ts
+customer-care-detail-quality.spec.ts
+work-customers.spec.ts
+work-customer-detail.spec.ts
+work-support.spec.ts
+work-support-detail.spec.ts
+workforce-enquiries.spec.ts
+workforce-complaints.spec.ts
+dashboard-access-quality.spec.ts
+workforce-bookings.spec.ts > workforce bookings layout and accessibility 390px
+workforce-bookings.spec.ts > workforce bookings layout and accessibility 1440px
+workforce-finance.spec.ts > finance layout and accessibility 320px
+workforce-finance.spec.ts > finance layout and accessibility 1440px
+workforce-job-detail.spec.ts > workforce job detail layout and accessibility 390px
+workforce-job-detail.spec.ts > workforce job detail layout and accessibility 1440px
+workforce-jobs.spec.ts > workforce jobs layout and accessibility 390px
+workforce-jobs.spec.ts > workforce jobs layout and accessibility 1440px
+workforce-orders.spec.ts > orders layout and accessibility 320px
+workforce-orders.spec.ts > orders layout and accessibility 1440px
+workforce-overview.spec.ts > workforce overview layout and access 390px
+workforce-overview.spec.ts > workforce overview layout and access 1440px
+workforce-overview.spec.ts > another account or a changed access version never renders operational details
+workforce-overview.spec.ts > revoked responsibilities remove queues and branch details on revalidation
+workforce-overview.spec.ts > temporary assignment expiry rechecks access without user interaction

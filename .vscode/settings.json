@@ -18,5 +18,6 @@
     "**/build": true,
     "**/coverage": true,
     "**/src/generated/prisma": true
-  }
+  },
+  "python.terminal.useEnvFile": true
 }
