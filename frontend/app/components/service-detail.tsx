@@ -438,9 +438,7 @@ export function ServiceDetail({
             </div>
           )}
           {!current && service.loading && (
-            <output className="sd-recovery">
-              Loading service details…
-            </output>
+            <output className="sd-recovery">Loading service details…</output>
           )}
         </div>
         {current && (
@@ -458,9 +456,7 @@ export function ServiceDetail({
                   )}
                   <div className="sd-facts">
                     <div>
-                      <p className="sd-price">
-                        {priceText}
-                      </p>
+                      <p className="sd-price">{priceText}</p>
                       {fixed && current.priceKobo !== null && (
                         <p className="sd-price-label">Fixed price</p>
                       )}
