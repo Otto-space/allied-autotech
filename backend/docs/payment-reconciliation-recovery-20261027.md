@@ -13,7 +13,7 @@ The forward migration adds attempt/lease columns, a positive-attempt and lease-p
 ## Verification and limits
 
 - Fresh isolated PostgreSQL `_ci` replay of the final 73 migrations and Prisma schema comparison passed. The separate synthetic container was stopped and removed.
-- The final-source reconciliation and Monnify integration suites passed **23/23** cases, including failed-run retry, backlog after restart, late attempt, expired lease, and displaced-worker isolation. TypeScript, scoped lint, formatting and diff whitespace checks passed. Locked CI and production rollout remain open.
+- The final-source reconciliation and Monnify integration suites passed **23/23** cases, including failed-run retry, backlog after restart, late attempt, expired lease, and displaced-worker isolation. TypeScript, scoped lint, formatting and diff whitespace checks passed. Runtime commit `c98342b35901b7d7ded9ef354917523d4ce74b19` passed GitHub backend database-safety run `40428951879` and repository secret-guard run `40428951880`. Production rollout remains open.
 - No production database write, provider request, payment movement, refund, customer message or enabled payment mode occurred in this implementation checkpoint. The disposable test container was stopped and removed.
 
 Remaining P0 work includes re-observation policy for pending/mismatched receipts, explicit anomaly/hold resolution, provider sandbox verification, legacy `RUNNING` inspection, production-scale query measurement, and final source/release validation. Do not use this checkpoint as proof of a live reconciliation or a completed payment launch.
