@@ -1877,3 +1877,14 @@ and secret 40445007545 GitHub runs. Provider promotion did not run: local doctl
 returns access-token-required, no Vercel CLI is installed, and browser automation
 surfaces are unavailable. Recheck live source/access before release; no image or
 production app/database change was made for this candidate.
+
+27 October 2026 - P1 Contact visit-preference correction on the same candidate
+branch. Source c54ef088 makes missing date/time and overlong visit messages
+focus/mark the actual field, announce its error and clear stale feedback when
+edited; it does not change request-only visit policy. Eleven focused unit cases,
+frontend types/lint/format, local isolated Edge interaction at desktop and 320px,
+and exact-source locked frontend 40448703220 plus secret 40448703167 GitHub
+checks passed. The browser sent no POST; local API results were fixtures. No
+Docker resource or production deployment/database/provider action. The original
+vehicle-payment API-first release and live role checks remain open, along with
+wider public-form/physical-device acceptance. See the frontend quality register.
