@@ -30,9 +30,9 @@ export function CatalogueContact() {
                   className="button secondary"
                   href={business.whatsapp}
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noopener noreferrer"
                 >
-                  Chat on WhatsApp
+                  Whatsapp
                 </a>
               </div>
             </div>
@@ -50,14 +50,13 @@ export function CatalogueContact() {
               <Phone aria-hidden="true" />
               <span>
                 <small>Call</small>
-                <strong>{business.phone}</strong>
+                <strong>Call our team</strong>
               </span>
             </a>
-            <a href={business.whatsapp} target="_blank" rel="noreferrer">
+            <a href={business.whatsapp} target="_blank" rel="noopener noreferrer">
               <MessageCircle aria-hidden="true" />
               <span>
-                <small>WhatsApp</small>
-                <strong>Start a conversation</strong>
+                <strong>Whatsapp</strong>
               </span>
             </a>
             <a href={`mailto:${business.email}`}>
@@ -67,7 +66,7 @@ export function CatalogueContact() {
                 <strong>{business.email}</strong>
               </span>
             </a>
-            <a href={business.directions} target="_blank" rel="noreferrer">
+            <a href={business.directions} target="_blank" rel="noopener noreferrer">
               <MapPin aria-hidden="true" />
               <span>
                 <small>Visit</small>

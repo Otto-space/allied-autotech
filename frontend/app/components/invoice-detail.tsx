@@ -327,7 +327,9 @@ function InvoiceSheet({ document }: { document: InvoiceDocument }) {
       <address>
         {document.issuer.address}
         <br />
-        <a href="tel:+2348136075567">08136075567</a>
+        <a href="https://wa.me/2348136075567" target="_blank" rel="noopener noreferrer">
+          Whatsapp
+        </a>
       </address>
       <dl className="invoice-meta">
         <div>

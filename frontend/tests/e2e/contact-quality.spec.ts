@@ -115,6 +115,48 @@ async function draft(page: Page, kind = "enquiry") {
   await page.getByRole("option", { name: "Port Harcourt test branch" }).click();
 }
 
+test("Visit preference errors identify the field that needs correction", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/contact");
+  await draft(page);
+  await page.getByLabel("Enquiry type", { exact: true }).selectOption("SERVICE");
+  const picker = page.getByRole("combobox", { name: "Related record" });
+  await picker.click();
+  await picker.fill("Test service");
+  await page.getByRole("option", { name: "Test service", exact: true }).click();
+  await page.getByLabel("Include my preferred date and time").check();
+  await page.getByLabel("Preferred date (Nigeria time)").fill("2099-01-10");
+  await page.getByRole("button", { name: "Review enquiry", exact: true }).click();
+  await expect(page.locator("#support-visit-time")).toBeFocused();
+  await expect(page.locator("#support-visit-time")).toHaveAttribute(
+    "aria-invalid",
+    "true",
+  );
+  await expect(page.locator("#support-visit-date")).toHaveAttribute(
+    "aria-invalid",
+    "false",
+  );
+  await expect(page.locator("#support-visit-error")).toContainText(
+    "Choose your preferred date and time.",
+  );
+  await page.getByLabel("Preferred time (Nigeria time)").fill("09:30");
+  await expect(page.locator("#support-visit-error")).toBeEmpty();
+
+  await page.getByLabel("Your message", { exact: true }).fill("x".repeat(4000));
+  await page.getByRole("button", { name: "Review enquiry", exact: true }).click();
+  await expect(page.locator("#support-opening")).toBeFocused();
+  await expect(page.locator("#support-opening")).toHaveAttribute("aria-invalid", "true");
+  await expect(page.locator("#support-visit-error")).toContainText(
+    "Shorten your message",
+  );
+  await page.getByLabel("Your message", { exact: true }).fill("A short message.");
+  await expect(page.locator("#support-visit-error")).toBeEmpty();
+  expect(state.writes).toHaveLength(0);
+});
+
 for (const [type, record, width] of [
   ["SERVICE", "Test service", 390],
   ["VEHICLE", "Test vehicle", 1440],

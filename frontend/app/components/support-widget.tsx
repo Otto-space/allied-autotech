@@ -124,13 +124,13 @@ export function SupportWidget() {
           className="whatsapp-control"
           href={business.whatsapp}
           target="_blank"
-          rel="noreferrer"
+          rel="noopener noreferrer"
           aria-label="Message Allied AutoTech on WhatsApp (opens a new tab)"
-          title="WhatsApp"
+          title="Whatsapp"
         >
           <MessageCircle size={22} aria-hidden="true" />
           <span className="support-control-label" aria-hidden="true">
-            WhatsApp
+            Whatsapp
           </span>
         </a>
       </nav>
@@ -239,9 +239,9 @@ export function SupportWidget() {
             className="button secondary"
             href={business.whatsapp}
             target="_blank"
-            rel="noreferrer"
+            rel="noopener noreferrer"
           >
-            Talk to Allied AutoTech ↗
+            Whatsapp ↗
           </a>
           <Link
             className="text-link"

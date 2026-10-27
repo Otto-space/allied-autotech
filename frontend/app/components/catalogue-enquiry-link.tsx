@@ -38,7 +38,7 @@ export function CatalogueEnquiryLink({
         className={className}
         href={`${business.whatsapp}?text=${encodeURIComponent(Array.from(message).slice(0, 1200).join(""))}`}
         target="_blank"
-        rel="noreferrer"
+        rel="noopener noreferrer"
       >
         {children}
         <span className="sr-only"> (opens in a new tab)</span>

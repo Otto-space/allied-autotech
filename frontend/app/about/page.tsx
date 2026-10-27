@@ -178,12 +178,9 @@ export default function AboutPage() {
             </div>
             <div className="about-contact-options">
               <div className="about-contact-links">
-                <a href={`tel:${business.internationalPhone}`}>
+                <a href={business.whatsapp} target="_blank" rel="noopener noreferrer">
                   <Phone size={18} aria-hidden="true" />
-                  <span>
-                    <small>Phone</small>
-                    {business.phone}
-                  </span>
+                  <span>Whatsapp</span>
                 </a>
                 <a href={`mailto:${business.email}`}>
                   <Mail size={18} aria-hidden="true" />
@@ -212,7 +209,7 @@ export default function AboutPage() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                WhatsApp the team <ArrowUpRight size={16} aria-hidden="true" />
+                Whatsapp <ArrowUpRight size={16} aria-hidden="true" />
               </a>
             </div>
           </div>

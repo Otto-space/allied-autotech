@@ -558,11 +558,11 @@ export function ServiceDetail({
                   <p>Speak with our team about your vehicle before you send a request.</p>
                   <a href={`tel:${business.internationalPhone}`}>
                     <Phone size={18} aria-hidden="true" />
-                    {business.phone}
+                    Call our team
                   </a>
                   <a href={business.whatsapp} target="_blank" rel="noopener noreferrer">
                     <MessageCircle size={18} aria-hidden="true" />
-                    Chat on WhatsApp <span className="sr-only">(new tab)</span>
+                    Whatsapp <span className="sr-only">(new tab)</span>
                     <ArrowRight size={16} aria-hidden="true" />
                   </a>
                 </div>

@@ -360,7 +360,7 @@ export function HelpCentre({
           <div className="help-contact-details">
             <a href={`tel:${business.internationalPhone}`}>
               <Phone size={18} aria-hidden="true" />
-              <span>{business.phone}</span>
+              <span>Call our team</span>
             </a>
             <a href={`mailto:${business.email}`}>
               <Mail size={18} aria-hidden="true" />
@@ -370,9 +370,9 @@ export function HelpCentre({
               href={business.whatsapp}
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="WhatsApp the team (opens in a new tab)"
+              aria-label="Whatsapp (opens in a new tab)"
             >
-              WhatsApp the team <ArrowUpRight size={16} aria-hidden="true" />
+              Whatsapp <ArrowUpRight size={16} aria-hidden="true" />
             </a>
             <p>
               <MapPin size={18} aria-hidden="true" />

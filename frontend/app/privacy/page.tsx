@@ -33,8 +33,10 @@ export default function PrivacyPage() {
           Allied Autotech Limited is responsible for the customer information described
           here. You can reach us at{" "}
           <a href={`mailto:${business.email}`}>{business.email}</a>,{" "}
-          <a href={`tel:${business.internationalPhone}`}>{business.phone}</a>, or{" "}
-          {business.address}.
+          <a href={business.whatsapp} target="_blank" rel="noopener noreferrer">
+            Whatsapp
+          </a>
+          , or {business.address}.
         </p>
         <nav className="privacy-contents" aria-label="Privacy notice contents">
           <h2>In this notice</h2>
