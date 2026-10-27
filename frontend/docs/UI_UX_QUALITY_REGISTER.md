@@ -1908,3 +1908,15 @@ Four isolated actual-component Home Edge cases passed at 360/390/768/1440; earli
 Full Next journeys, exact-lock CI, remaining audit findings and actual-role/device
 acceptance remain open. Candidate is not yet published. See checkpoint for precise
 evidence, dependencies, local-preview restriction and preserved unrelated work.
+
+27 October 2026 - P1 public Parts detail enquiry copy. On the live 390px page,
+the only listed oil filter had no branch availability, yet the detail said to
+arrange collection from a listed branch and repeatedly described ordering.
+The bounded candidate, rebased onto exact live frontend source a1b8ce45,
+uses the existing launch-mode gate to ask visitors to confirm stock and
+collection arrangements before visiting. Full-commerce wording remains separate.
+The product's price, availability, fitment and enquiry destination are unchanged.
+An optimized Next 16.4.3 build and scoped lint passed; a rendered 390px detail
+showed the revised wording, exact product enquiry link, no overflow and no page
+exception. Desktop optimized/hosted acceptance and release verification remain
+pending. No customer form or financial action was submitted.
