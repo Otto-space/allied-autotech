@@ -127,7 +127,10 @@ export function SupportCreateForm({
   const [visitRequested, setVisitRequested] = useState(false);
   const [visitDate, setVisitDate] = useState("");
   const [visitTime, setVisitTime] = useState("");
-  const [visitError, setVisitError] = useState<string>();
+  const [visitError, setVisitError] = useState<{
+    message: string;
+    field: "date" | "time" | "message";
+  }>();
   const [branchLabel, setBranchLabel] = useState("");
   const [proposal, setProposal] = useState<MutationProposal | null>(null);
   const [error, setError] = useState<string>();
@@ -410,9 +413,19 @@ export function SupportCreateForm({
                 date: visitDate,
                 time: visitTime,
               });
-              setVisitError(visit.error);
+              setVisitError(
+                visit.error === undefined
+                  ? undefined
+                  : { message: visit.error, field: visit.field },
+              );
               if (visit.error !== undefined) {
-                document.getElementById("support-visit-date")?.focus();
+                document
+                  .getElementById(
+                    visit.field === "message"
+                      ? "support-opening"
+                      : `support-visit-${visit.field}`,
+                  )
+                  ?.focus();
                 return;
               }
               const message = visit.message;
@@ -805,11 +818,16 @@ export function SupportCreateForm({
               rows={5}
               maxLength={4000}
               {...form.register("message")}
-              aria-invalid={!!form.formState.errors.message}
+              onInput={() => {
+                if (visitError?.field === "message") setVisitError(undefined);
+              }}
+              aria-invalid={
+                !!form.formState.errors.message || visitError?.field === "message"
+              }
               aria-describedby={
                 isDashboard
-                  ? "support-opening-hint support-opening-error"
-                  : "support-opening-error"
+                  ? `support-opening-hint support-opening-error${visitError?.field === "message" ? " support-visit-error" : ""}`
+                  : `support-opening-error${visitError?.field === "message" ? " support-visit-error" : ""}`
               }
             />
             {isDashboard && (
@@ -866,9 +884,15 @@ export function SupportCreateForm({
                       type="date"
                       name="visitDate"
                       value={visitDate}
-                      onChange={(event) => setVisitDate(event.target.value)}
-                      aria-invalid={!!visitError}
-                      aria-describedby="support-visit-error"
+                      required
+                      onChange={(event) => {
+                        setVisitDate(event.target.value);
+                        setVisitError(undefined);
+                      }}
+                      aria-invalid={visitError?.field === "date"}
+                      aria-describedby={
+                        visitError?.field === "date" ? "support-visit-error" : undefined
+                      }
                     />
                   </div>
                   <div className="field">
@@ -880,9 +904,15 @@ export function SupportCreateForm({
                       type="time"
                       name="visitTime"
                       value={visitTime}
-                      onChange={(event) => setVisitTime(event.target.value)}
-                      aria-invalid={!!visitError}
-                      aria-describedby="support-visit-error"
+                      required
+                      onChange={(event) => {
+                        setVisitTime(event.target.value);
+                        setVisitError(undefined);
+                      }}
+                      aria-invalid={visitError?.field === "time"}
+                      aria-describedby={
+                        visitError?.field === "time" ? "support-visit-error" : undefined
+                      }
                     />
                   </div>
                   <p
@@ -890,7 +920,7 @@ export function SupportCreateForm({
                     className="field-error"
                     role={visitError ? "alert" : undefined}
                   >
-                    {visitError}
+                    {visitError?.message}
                   </p>
                 </>
               )}
