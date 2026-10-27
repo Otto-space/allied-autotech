@@ -27,3 +27,12 @@ export function idempotencyConflict(): AppError {
     statusCode: 409,
   });
 }
+
+export function invalidReservationExpiry(): AppError {
+  return new AppError({
+    code: errorCodes.validationFailed,
+    message: "Expiry must be in the future and within seven days",
+    statusCode: 422,
+    details: { expiresAt: ["Expiry must be in the future and within seven days"] },
+  });
+}

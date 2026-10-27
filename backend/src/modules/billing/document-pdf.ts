@@ -141,12 +141,19 @@ export function renderFinancialPdf(
       );
       text(document.issuer.address, 333, y, 220, 9, muted);
       text(
-        "08136075567",
+        "Whatsapp",
         333,
         y + height(document.issuer.address, 220, 9) + 8,
         220,
         9,
         muted,
+      );
+      pdf.link(
+        333,
+        y + height(document.issuer.address, 220, 9) + 8,
+        60,
+        14,
+        "https://wa.me/2348136075567",
       );
       y += issuerHeight + 18;
       rule(y, red);

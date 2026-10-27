@@ -1996,3 +1996,101 @@ all106 route gates remain active; W9 provider allowance stays exhausted.
 
 
 27 October 2026 - Revision 4 W15 reviewed Customer Care handoff checkpoint: customer review/edit, explicit selected help sharing, canonical new/existing support persistence and encrypted session-bound recovery are implemented locally. Browser storage retains only an operation ID; uncertain results block a new operation, and cancellation preserves a case already saved. AI-off/guest/workforce boundaries and separate drafts remain intact. Accepted evidence: 116 distinct native cases across seven suites (115 broad plus the revised 11-case learning run), 84 Allie backend units, full 1,161 frontend tests in 173 files, 32 distinct browser fixtures and one actual browser/CSRF/API/restricted-CI-DB composition. That composition saved one enquiry and one complaint reply, two audits, preserved an internal note and left inventory/bookings unchanged. OpenAPI 385 paths / 450 operations plus 4 infrastructure routes, generated contracts, types/lint/secret guard and optimized build pass. See docs/help-learn/REVIEWED_HANDOFF_W15.md. No schema, provider call, real delivery or publication. Temporary native sessions revoked/cookie removed; C: measured 23.34 GiB free; useful Docker/cache resources retained. Full Revision 4 remains active: shared staffed/gated transport, operational readiness and all 106 exact-route acceptance decisions remain open. The owner authorised a reviewed committed release before the session limit; reconcile newer live frontend/backend fixes and complete the migration-73/backup/restore/exact-lock/hosted gates before publication.
+
+26 October 2026 - payment-source expiry correction released from runtime
+`2033b159`. DigitalOcean deployment `3cb61958-e460-494b-ae29-1ce826ac22b9`
+is ACTIVE with no in-progress rollout; all four component digests match the
+reviewed registry manifest. The existing-app proposal changed only those four
+digests. Its read-only predeploy database checker and all 16 deployment steps
+succeeded. Direct API live/ready and apex readiness returned 200; anonymous
+session/payments returned 401. Public Home, Parts and Help returned 200, `/shop`
+redirects to `/parts`, and `www` redirects to the apex. No frontend rollout,
+schema migration, production business DML, provider transaction or grant change.
+Eight managed backups were present, latest 26 October 05:22:11 UTC; the prior
+separate 25 October 18:03:19 UTC restore rehearsal was reused. Exact-source
+local gates included 48 integration cases, nine image tests, OpenAPI/routes,
+types, lint, format, script/configuration checks and secret guard. GitHub PR
+creation returned 403, so PR-triggered locked CI is not claimed. Full details
+and limitations: `payment-source-concurrency-20261026.md`. Real-provider and
+authenticated-role acceptance, broader Item 6 and site completion remain open.
+
+26 October 2026 - post-release payment-source transition verification. The
+runtime deployment above remains unchanged. Six new isolated PostgreSQL races
+held a valid invoice-void or vehicle-cancellation source-row transition while
+intent creation, online initialization and manual evidence each waited, then
+rejected the changed source without a new intent or attempt. Three adjacent
+integration files passed 38 tests; 71-migration replay, schema comparison,
+`db:check`, backend typecheck and targeted lint/format passed. The first vehicle
+fixture was corrected to satisfy the existing cancellation timestamp/reason
+constraint; no application code, schema, provider or production business record
+was changed. These tests model the status transition directly; actual operator
+service races and real-provider acceptance remain open. See
+`payment-source-concurrency-20261026.md`.
+
+26 October 2026 - actual invoice and vehicle operator-service lock order was
+verified locally after incorporating the newer `c4e0005d` workforce runtime.
+`BillingService.void` and `VehicleSalesService.transition` each held the real
+source-row lock while intent creation, online initialization or manual evidence
+waited, then committed; all six actions rejected the cancelled source with no
+new payment or attempt. Fresh isolated
+`_test` PostgreSQL replayed all 72 migrations with no schema difference and
+passed `db:check`; the adjacent set passed 44 tests, with backend typecheck,
+targeted lint and format passing. This test-only work needs no runtime rollout.
+Provider sandbox and real-role acceptance remain open. The newer `c4e0005d` runtime is recorded in the main
+checkout tracker and includes the earlier payment fix. See the payment-source
+release record for exact scope.
+
+26 October 2026 - the historical refund replay authorization blocker was
+rechecked against current code and HTTP behavior. Existing refunds are returned
+only after matching the original requester and exact input, followed by branch
+access; STAFF and MFA-unverified administrators cannot request a refund. One
+focused route/integration case passed on a fresh native loopback `_test` cluster
+after 72-migration replay and `db:check`; three explicit denied-role POST checks
+were added. A Docker NAT direct-host guard correctly blocked the first attempt,
+so it was not counted as test acceptance. No runtime/provider/production financial
+write was made. Provider completion and real-role acceptance remain open. See
+`refund-replay-authorization-20261026.md`.
+The native test server was stopped; automatic command review blocked removal
+of its 76,629,829-byte task directory, which remains in Temp. C: postflight
+was 28 GiB free; original Docker volumes were retained.
+
+26 October 2026 - password-change session-rotation defect corrected locally.
+The new password, other-session/reset-token revocations, audit, notification
+and current-session rotation now share one locked transaction. A failed
+post-rotation step rolls all of them back; a second request with the old
+credential/snapshot is rejected. A fresh native loopback `_test` database
+replayed all 72 migrations with no schema difference and passed `db:check`.
+Two new deterministic races, the full identity HTTP flow, 20 MFA integration
+cases, five identity unit cases, types, targeted lint and format passed.
+No schema/frontend change or production deployment has yet occurred for this
+candidate. See `password-change-atomicity-20261026.md`; real-role/browser
+acceptance and the separate sign-in challenge rotation gap remain open.
+
+26 October 2026 - password-change atomicity correction deployed.
+Runtime 3ec9c822, backend deployment 96ffc790-f572-49f4-9047-3ae6cb30469e
+ACTIVE. The four image digests match the release manifest; the non-image app
+spec is unchanged. Exact-source backend check passed 577 default tests (1,117
+intentional database skips), with focused isolated transaction/HTTP cases
+separately passed; nine image checks and a packaged isolated migration/restore
+check passed. Production PRE_DEPLOY database checker and all component steps
+succeeded. Direct and domain liveness/readiness returned 200, anonymous session
+401, /shop 308 to /parts, /parts 200. Eight managed backups through 26 October
+and the retained separate populated 90-table restore evidence were reviewed.
+No schema migration, grant, production business write or frontend release.
+Authenticated role/device acceptance and sign-in challenge rotation remain open.
+Release detail: backend/docs/password-change-atomicity-20261026.md in the
+compatibility release worktree. Previous deployment 707a200f remains the
+immediate rollback candidate subject to compatibility review.
+
+26 October 2026 - sign-in MFA challenge rotation defect corrected locally.
+TOTP, recovery-code and WebAuthn proof consumption now commits with session
+assurance/token rotation after account/session/CSRF recheck. Three injected
+post-rotation failures roll back all proof and session state; concurrent use
+of one recovery code admits one request. A fresh isolated native loopback
+`_test` database replayed 72 migrations, schema/db:check passed, and four new
+transaction cases plus identity HTTP and 20 adjacent MFA cases passed. Full
+backend check passed 577 default unit/API tests with 1,121 database-gated skips;
+OpenAPI/routes, types, lint, format, scripts and secret checks passed. No
+schema, route or frontend runtime change. Deployment and genuine browser
+WebAuthn/real-role acceptance remain open. Detail:
+backend/docs/mfa-challenge-atomicity-20261026.md.

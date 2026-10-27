@@ -7,6 +7,7 @@ import { appendAuditEvent } from "../audit/audit.service.js";
 import {
   idempotencyConflict,
   insufficientStock,
+  invalidReservationExpiry,
   inventoryConflict,
   inventoryNotFound,
 } from "./inventory.errors.js";
@@ -340,6 +341,13 @@ export class InventoryService {
           replayed: true,
         };
       }
+      const expiresAt = new Date(input.expiresAt);
+      const now = Date.now();
+      if (
+        expiresAt.getTime() <= now ||
+        expiresAt.getTime() > now + 7 * 24 * 60 * 60 * 1_000
+      )
+        throw invalidReservationExpiry();
       await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`product:${preliminary.product.id}`}, 0))`;
       const inventory = await this.repository.lockInventory(id, transaction);
       if (inventory === null) throw inventoryNotFound();
@@ -375,7 +383,7 @@ export class InventoryService {
           inventoryId: id,
           customerId: input.customerId ?? null,
           quantity: input.quantity,
-          expiresAt: new Date(input.expiresAt),
+          expiresAt,
           idempotencyKey: keyHash,
           requestHash: fingerprint,
           referenceType: input.referenceType ?? null,

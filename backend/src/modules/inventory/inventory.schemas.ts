@@ -131,15 +131,8 @@ export const inventoryReservationBodySchema = z
   })
   .strict()
   .superRefine((value, context) => {
-    const expiresAt = new Date(value.expiresAt).getTime();
-    const now = Date.now();
-    if (expiresAt <= now || expiresAt > now + 7 * 24 * 60 * 60 * 1_000) {
-      context.addIssue({
-        code: "custom",
-        path: ["expiresAt"],
-        message: "Expiry must be in the future and within seven days",
-      });
-    }
+    // A matching idempotent retry must remain parseable after its original expiry.
+    // The service checks the time window only after the authorized replay lookup.
     if ((value.referenceType === undefined) !== (value.referenceId === undefined)) {
       context.addIssue({
         code: "custom",
