@@ -73,6 +73,13 @@ export function WorkforceOverview({
     mismatch;
   const data = !unavailable ? record.data : undefined;
   const active = data?.access;
+  const independentDestinations = active
+    ? workforceDestinations.filter(
+        (entry) =>
+          entry.predicate.scope === "independent" &&
+          workforceDestinationAllowed(active, entry.id),
+      )
+    : [];
   const branches = new Map(data?.branches.map((branch) => [branch.id, branch.name]));
   function refresh() {
     refreshAccess();
@@ -205,6 +212,7 @@ export function WorkforceOverview({
                 )}
               </ul>
               {!Object.keys(data.counts).length &&
+                !independentDestinations.length &&
                 !(active && workforceDestinationAllowed(active, "finance")) && (
                   <div className="wfo-empty">
                     <h3>No work queues available</h3>
@@ -221,6 +229,24 @@ export function WorkforceOverview({
                 Current work is unavailable until access and overview are verified.
               </p>
             )
+          )}
+          {independentDestinations.length > 0 && (
+            <nav className="wfo-independent" aria-label="Separately granted work">
+              <h2>Separately granted work</h2>
+              <p>
+                These duties use explicit owner grants and their existing record and
+                approval rules.
+              </p>
+              <ul>
+                {independentDestinations.map((entry) => (
+                  <li key={entry.id}>
+                    <Link className="text-link" href={entry.href} prefetch={false}>
+                      {entry.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
           )}
         </section>
         <aside className="wfo-side" aria-label="Your account access">

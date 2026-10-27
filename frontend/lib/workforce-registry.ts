@@ -3,7 +3,7 @@ import type { WorkforceAccess } from "./api/workforce-schemas";
 export type WorkforcePredicate = {
   all?: readonly string[];
   any?: readonly string[];
-  scope: "account" | "responsibility" | "delegation";
+  scope: "account" | "responsibility" | "delegation" | "independent";
 };
 export type WorkforceRecordScope = {
   branchId: string | null;
@@ -19,6 +19,16 @@ export function workforceAllows(
   record?: WorkforceRecordScope,
 ): boolean {
   if (!access.managed) return false;
+  if (predicate.scope === "independent") {
+    if (record) return false; // Domain records require their own stage/ownership check.
+    const independent = access.independentCapabilities ?? [];
+    return (
+      (!predicate.all?.length ||
+        predicate.all.every((c) => independent.some((v) => v === c))) &&
+      (!predicate.any?.length ||
+        predicate.any.some((c) => independent.some((v) => v === c)))
+    );
+  }
   if (predicate.scope === "delegation" && !access.canManageAssignments) return false;
   const can = (capability: string) => {
     if (!access.permissions.includes(capability)) return false;
@@ -99,6 +109,16 @@ export const workforceDestinations = [
     articleIds: ["care-triage"],
   },
   {
+    id: "privacy",
+    href: "/admin/privacy",
+    group: "support",
+    order: 41,
+    label: "Privacy review",
+    feature: "managed-workforce",
+    predicate: { any: ["PRIVACY_REVIEW"], scope: "independent" },
+    articleIds: ["privacy-work"],
+  },
+  {
     id: "fitment",
     href: "/admin/fitment",
     group: "catalogue",
@@ -127,6 +147,39 @@ export const workforceDestinations = [
     feature: "managed-workforce",
     predicate: { any: ["FINANCE_READ"], scope: "responsibility" },
     articleIds: ["finance-meaning"],
+  },
+  {
+    id: "refunds",
+    href: "/admin/refunds",
+    group: "finance",
+    order: 71,
+    label: "Refund requests",
+    feature: "managed-workforce",
+    predicate: {
+      any: ["REFUND_APPROVE", "REFUND_TRANSFER", "REFUND_CHECK"],
+      scope: "independent",
+    },
+    articleIds: ["refund-work"],
+  },
+  {
+    id: "disputes",
+    href: "/admin/payment-disputes/work",
+    group: "finance",
+    order: 72,
+    label: "Dispute work queue",
+    feature: "managed-workforce",
+    predicate: { any: ["DISPUTE_MANAGE"], scope: "independent" },
+    articleIds: ["dispute-work"],
+  },
+  {
+    id: "financialPolicy",
+    href: "/admin/finance-policy",
+    group: "finance",
+    order: 73,
+    label: "Financial policy",
+    feature: "managed-workforce",
+    predicate: { any: ["FINANCE_POLICY_APPROVE"], scope: "independent" },
+    articleIds: ["financial-policy-work"],
   },
   {
     id: "access",
@@ -223,6 +276,7 @@ export function workforceAccessKey(access: WorkforceAccess): string {
     access.canManageAssignments,
     access.canInviteAdmins,
     [...access.permissions].sort(),
+    [...(access.independentCapabilities ?? [])].sort(),
     access.assignments
       .map((a) => [
         a.id,

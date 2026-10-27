@@ -110,7 +110,7 @@ export function authenticate(options: AuthenticateOptions = {}) {
         expiresAt: session.expiresAt,
         idleExpiresAt: nextIdleExpiry,
       };
-      await enforceWorkforceBoundary(prisma, req.actor, req.originalUrl);
+      await enforceWorkforceBoundary(prisma, req.actor, req.originalUrl, req.method);
       next();
     } catch (error: unknown) {
       next(error);

@@ -18,6 +18,7 @@ export interface LearningAccess {
   managed: boolean;
   verified: boolean;
   permissions: readonly string[];
+  independentCapabilities?: readonly string[];
   position: string | null;
   canManage: boolean;
   salesScope?: "assigned" | "branch" | "mixed";
@@ -40,6 +41,8 @@ export const learningUnavailable = () =>
   });
 export function learningEligible(access: LearningAccess, gate: LearningGate) {
   const can = (permission: string) => access.permissions.includes(permission);
+  const independent = (permission: string) =>
+    access.independentCapabilities?.includes(permission) ?? false;
   const globalAdmin =
     access.role === "SUPER_ADMIN" || (access.role === "ADMIN" && !access.managed);
   const work = !["PUBLIC", "CUSTOMER"].includes(access.role) && access.verified;
@@ -56,6 +59,16 @@ export function learningEligible(access: LearningAccess, gate: LearningGate) {
       return work && can("SALES_ENQUIRIES");
     case "finance":
       return work && can("FINANCE_READ");
+    case "refunds":
+      return (
+        work && ["REFUND_APPROVE", "REFUND_TRANSFER", "REFUND_CHECK"].some(independent)
+      );
+    case "disputes":
+      return work && independent("DISPUTE_MANAGE");
+    case "privacy":
+      return work && independent("PRIVACY_REVIEW");
+    case "financial-policy":
+      return work && independent("FINANCE_POLICY_APPROVE");
     case "jobs":
       return work && can("JOBS_UPDATE") && can("JOBS_READ");
     case "assign":
@@ -131,6 +144,7 @@ export async function learningAccessInTransaction(
     verified: true,
     managed: snapshot.managed,
     permissions: snapshot.permissions,
+    independentCapabilities: snapshot.independentCapabilities,
     position: snapshot.position,
     canManage: snapshot.canManageAssignments,
     ...(salesScopes.size
@@ -150,6 +164,7 @@ export async function learningAccessInTransaction(
           actor.sessionId,
           actor.role,
           snapshot.version,
+          snapshot.accessRevision,
           snapshot.permissions,
           snapshot.assignments.map((a) => [a.id, a.branchId, a.scope]),
           snapshot.canManageAssignments,

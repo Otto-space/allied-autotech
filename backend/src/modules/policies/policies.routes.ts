@@ -5,6 +5,7 @@ import {
 } from "./policies.schemas.js";
 import { Router } from "express";
 import { z } from "zod";
+import { independentCapabilitySchema } from "./independent-capabilities.js";
 import { authenticate } from "../../common/middleware/authenticate.js";
 import {
   requireStaff,
@@ -302,15 +303,7 @@ export function createPoliciesRouter() {
       body: z
         .object({
           userId: z.uuid(),
-          capability: z.enum([
-            "REFUND_APPROVE",
-            "REFUND_TRANSFER",
-            "REFUND_CHECK",
-            "FINANCE_POLICY_APPROVE",
-            "BOOKING_CONFIRM",
-            "PRIVACY_REVIEW",
-            "DISPUTE_MANAGE",
-          ]),
+          capability: independentCapabilitySchema,
         })
         .strict(),
     }),

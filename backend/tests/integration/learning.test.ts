@@ -280,7 +280,10 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       );
       const workAccess = await read(f.care, "/learning/articles/work-access");
       expect(workAccess.status).toBe(200);
-      expect(workAccess.body.data.version).toBe(4);
+      expect(workAccess.body.data.version).toBe(5);
+      expect(workAccess.body.data.steps.join(" ")).toContain(
+        "They do not widen your branch responsibilities",
+      );
       expect(workAccess.body.data.steps.join(" ")).toContain(
         "Protected unsent work is discarded, never sent automatically",
       );

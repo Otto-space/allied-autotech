@@ -22,9 +22,11 @@ import { workforceDestination, workforceAllows } from "@/lib/workforce-registry"
 export function WorkforceWorkspace({
   access,
   refreshAccess,
+  children,
 }: {
   access: WorkforceAccess;
   refreshAccess: () => void;
+  children?: React.ReactNode;
 }) {
   const path = usePathname();
   const destination = workforceDestination(path);
@@ -71,6 +73,11 @@ export function WorkforceWorkspace({
     case "security":
     case "notifications":
       return null;
+    case "refunds":
+    case "disputes":
+    case "financialPolicy":
+    case "privacy":
+      return children ?? null;
   }
 }
 function WorkforceAccessRedirect() {

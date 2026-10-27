@@ -74,6 +74,15 @@
   gap: 24px;
   align-items: start;
 }
+.workforce-overview .wfo-independent {
+  border-top: 1px solid var(--wfo-line);
+  padding: 20px;
+}
+.workforce-overview .wfo-independent ul {
+  display: grid;
+  gap: 12px;
+  padding-left: 20px;
+}
 .workforce-overview .wfo-panel {
   border: 1px solid var(--wfo-line);
   border-radius: 6px;

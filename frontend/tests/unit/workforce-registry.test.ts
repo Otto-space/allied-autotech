@@ -55,6 +55,42 @@ function access(template: keyof typeof workforceTemplates): WorkforceAccess {
   });
 }
 describe("maintained workforce route and scope policy", () => {
+  it("keeps explicit grants separate from branch responsibilities and record authority", () => {
+    const a = access("ACCOUNTANT");
+    expect(
+      workforceNavigation(a)
+        .flatMap((g) => g.links)
+        .some((l) => l.href === "/admin/refunds"),
+    ).toBe(false);
+    a.independentCapabilities = [
+      "REFUND_CHECK",
+      "DISPUTE_MANAGE",
+      "PRIVACY_REVIEW",
+      "FINANCE_POLICY_APPROVE",
+    ];
+    expect(
+      permittedWorkforceDestinations(a)
+        .filter((d) => d.predicate.scope === "independent")
+        .map((d) => d.id),
+    ).toEqual(["privacy", "refunds", "disputes", "financialPolicy"]);
+    expect(a.permissions).toEqual(["FINANCE_READ"]);
+    const key = workforceAccessKey(a);
+    const refund = workforceDestination("/admin/refunds")!;
+    expect(workforceAllows(a, refund.predicate, { branchId: id(4) })).toBe(false);
+    a.independentCapabilities = [];
+    a.permissions.push("REFUND_CHECK");
+    expect(workforceAllows(a, refund.predicate)).toBe(false);
+    expect(workforceAccessKey(a)).not.toBe(key);
+    expect(() =>
+      parseWorkforceAccess({ ...a, independentCapabilities: ["UNKNOWN_GRANT"] }),
+    ).toThrow();
+    expect(() =>
+      parseWorkforceAccess({
+        ...a,
+        independentCapabilities: ["REFUND_CHECK", "REFUND_CHECK"],
+      }),
+    ).toThrow();
+  });
   it.each([
     ["OPERATIONS", ["bookings", "fitment", "orders"]],
     ["CUSTOMER_SERVICE", ["bookings", "enquiries", "complaints", "orders"]],

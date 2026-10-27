@@ -320,21 +320,26 @@
     "/admin/finance-policy": {
       "source": "app/admin/finance-policy/page.tsx",
       "audience": "work",
-      "accessPredicate": "server-enforced role and capability; per-route confirmation required",
+      "accessPredicate": "Current verified/MFA work account plus the route-specific explicit independent grant; existing record, stage and review rules remain server-enforced.",
       "decision": "pending",
-      "purpose": null,
-      "contextualAnswer": null,
-      "articleIds": [],
+      "purpose": "Read current/latest/scheduled financial policy and review a version-bound approval.",
+      "contextualAnswer": "Use the current permitted workspace. Inspect current facts and review before a change. Reconcile uncertain outcomes before resubmitting; removal of the independent grant closes this page.",
+      "articleIds": ["financial-policy-work"],
       "guideIds": [],
       "practiceIds": [],
       "statusDefinitions": [],
       "recovery": [],
       "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
-      "fixture": "Identify the permitted role/scope and realistic state for this route.",
-      "verification": "pending",
-      "evidence": [],
+      "fixture": "W11 isolated populated STAFF/ADMIN fixtures at 390/1440px (refunds also 768px), native current-grant/ownership/revocation checks; no real operations.",
+      "verification": "isolated",
+      "evidence": [
+        "docs/help-learn/WORKFORCE_INDEPENDENT_ACCESS_W11.md",
+        "frontend/tests/e2e/workforce-independent.spec.ts",
+        "backend/tests/integration/workforce-independent-access.test.ts"
+      ],
       "gaps": [
-        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4.",
+        "Exact full task-state walkthrough/practice decisions, hosted/real-role acceptance and new-source real-provider evaluation remain open. W11 is bounded permission/navigation evidence."
       ],
       "subviews": []
     },
@@ -489,12 +494,14 @@
         "backend/tests/integration/workforce-session-policy.test.ts",
         "frontend/tests/unit/workforce-registry.test.ts",
         "frontend/tests/unit/workforce-invalidation.test.tsx",
-        "frontend/tests/e2e/workforce-session-revocation.spec.ts"
+        "frontend/tests/e2e/workforce-session-revocation.spec.ts",
+        "docs/help-learn/WORKFORCE_INDEPENDENT_ACCESS_W11.md"
       ],
       "gaps": [
         "Complete legacy/owner route-specific learning and walkthrough/practice decisions remain open.",
         "Actual hosted role changes, physical devices and full screen-reader acceptance remain open.",
-        "W5 evidence covers managed-workforce boundaries; real conversational AI and staffed chat are not implemented."
+        "W5 evidence covers managed-workforce boundaries; real conversational AI and staffed chat are not implemented.",
+        "W11 adds separate current owner-grant projection, page/notification guards and invalidation; scoped booking confirmation, financial aftercare and granular Care authority remain open."
       ],
       "subviews": []
     },
@@ -625,21 +632,26 @@
     "/admin/payment-disputes/work": {
       "source": "app/admin/payment-disputes/work/page.tsx",
       "audience": "work",
-      "accessPredicate": "server-enforced role and capability; per-route confirmation required",
+      "accessPredicate": "Current verified/MFA work account plus the route-specific explicit independent grant; existing record, stage and review rules remain server-enforced.",
       "decision": "pending",
-      "purpose": null,
-      "contextualAnswer": null,
-      "articleIds": [],
+      "purpose": "Handle current permitted disputes and keep assignment authority distinct from Staff handling.",
+      "contextualAnswer": "Use the current permitted workspace. Inspect current facts and review before a change. Reconcile uncertain outcomes before resubmitting; removal of the independent grant closes this page.",
+      "articleIds": ["dispute-work"],
       "guideIds": [],
       "practiceIds": [],
       "statusDefinitions": [],
       "recovery": [],
       "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
-      "fixture": "Identify the permitted role/scope and realistic state for this route.",
-      "verification": "pending",
-      "evidence": [],
+      "fixture": "W11 isolated populated STAFF/ADMIN fixtures at 390/1440px (refunds also 768px), native current-grant/ownership/revocation checks; no real operations.",
+      "verification": "isolated",
+      "evidence": [
+        "docs/help-learn/WORKFORCE_INDEPENDENT_ACCESS_W11.md",
+        "frontend/tests/e2e/workforce-independent.spec.ts",
+        "backend/tests/integration/workforce-independent-access.test.ts"
+      ],
       "gaps": [
-        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4.",
+        "Exact full task-state walkthrough/practice decisions, hosted/real-role acceptance and new-source real-provider evaluation remain open. W11 is bounded permission/navigation evidence."
       ],
       "subviews": []
     },
@@ -688,21 +700,26 @@
     "/admin/privacy": {
       "source": "app/admin/privacy/page.tsx",
       "audience": "work",
-      "accessPredicate": "server-enforced role and capability; per-route confirmation required",
+      "accessPredicate": "Current verified/MFA work account plus the route-specific explicit independent grant; existing record, stage and review rules remain server-enforced.",
       "decision": "pending",
-      "purpose": null,
-      "contextualAnswer": null,
-      "articleIds": [],
+      "purpose": "Review privacy requests and holds using an explicit grant without promising destruction.",
+      "contextualAnswer": "Use the current permitted workspace. Inspect current facts and review before a change. Reconcile uncertain outcomes before resubmitting; removal of the independent grant closes this page.",
+      "articleIds": ["privacy-work"],
       "guideIds": [],
       "practiceIds": [],
       "statusDefinitions": [],
       "recovery": [],
       "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
-      "fixture": "Identify the permitted role/scope and realistic state for this route.",
-      "verification": "pending",
-      "evidence": [],
+      "fixture": "W11 isolated populated STAFF/ADMIN fixtures at 390/1440px (refunds also 768px), native current-grant/ownership/revocation checks; no real operations.",
+      "verification": "isolated",
+      "evidence": [
+        "docs/help-learn/WORKFORCE_INDEPENDENT_ACCESS_W11.md",
+        "frontend/tests/e2e/workforce-independent.spec.ts",
+        "backend/tests/integration/workforce-independent-access.test.ts"
+      ],
       "gaps": [
-        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4.",
+        "Exact full task-state walkthrough/practice decisions, hosted/real-role acceptance and new-source real-provider evaluation remain open. W11 is bounded permission/navigation evidence."
       ],
       "subviews": []
     },
@@ -856,21 +873,26 @@
     "/admin/refunds": {
       "source": "app/admin/refunds/page.tsx",
       "audience": "work",
-      "accessPredicate": "server-enforced role and capability; per-route confirmation required",
+      "accessPredicate": "Current verified/MFA work account plus the route-specific explicit independent grant; existing record, stage and review rules remain server-enforced.",
       "decision": "pending",
-      "purpose": null,
-      "contextualAnswer": null,
-      "articleIds": [],
+      "purpose": "Inspect and review only the refund stages supplied by explicit grants.",
+      "contextualAnswer": "Use the current permitted workspace. Inspect current facts and review before a change. Reconcile uncertain outcomes before resubmitting; removal of the independent grant closes this page.",
+      "articleIds": ["refund-work"],
       "guideIds": [],
       "practiceIds": [],
       "statusDefinitions": [],
       "recovery": [],
       "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
-      "fixture": "Identify the permitted role/scope and realistic state for this route.",
-      "verification": "pending",
-      "evidence": [],
+      "fixture": "W11 isolated populated STAFF/ADMIN fixtures at 390/1440px (refunds also 768px), native current-grant/ownership/revocation checks; no real operations.",
+      "verification": "isolated",
+      "evidence": [
+        "docs/help-learn/WORKFORCE_INDEPENDENT_ACCESS_W11.md",
+        "frontend/tests/e2e/workforce-independent.spec.ts",
+        "backend/tests/integration/workforce-independent-access.test.ts"
+      ],
       "gaps": [
-        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4.",
+        "Exact full task-state walkthrough/practice decisions, hosted/real-role acceptance and new-source real-provider evaluation remain open. W11 is bounded permission/navigation evidence."
       ],
       "subviews": []
     },
@@ -1072,13 +1094,15 @@
         "frontend/tests/unit/workforce-invalidation.test.tsx",
         "frontend/tests/e2e/workforce-session-revocation.spec.ts",
         "docs/help-learn/WORKFORCE_HISTORY_W10.md",
-        "frontend/tests/e2e/workforce-history.spec.ts"
+        "frontend/tests/e2e/workforce-history.spec.ts",
+        "docs/help-learn/WORKFORCE_INDEPENDENT_ACCESS_W11.md"
       ],
       "gaps": [
         "Full independent-grant/baseline composition and real chat subscription authorisation remain open; W5 verifies the managed-workforce registry and HTTP/session invalidation only.",
         "Allie conversation, complete page-context guidance, walkthrough/practice mode decisions and full Revision 4 task-state acceptance remain open.",
         "W10: unsupported historical values and revocation receipts accepted in native/320-1440px fixtures; independent-grant/baseline and full route learning remain open.",
-        "Hosted role mutations remain unverified; W10 synthetic history does not establish production prevalence."
+        "Hosted role mutations remain unverified; W10 synthetic history does not establish production prevalence.",
+        "W11 adds separate current owner-grant projection, page/notification guards and invalidation; scoped booking confirmation, financial aftercare and granular Care authority remain open."
       ],
       "subviews": [
         {
@@ -1322,14 +1346,16 @@
         "frontend/tests/e2e/allie-conversation.spec.ts",
         "W9: docs/help-learn/ALLIE_EVALUATION_W9.md; real provider baseline/targeted review, actual guest/customer composition and native scope checks. This is partial evidence, not complete per-route acceptance.",
         "docs/help-learn/WORKFORCE_HISTORY_W10.md",
-        "frontend/tests/e2e/workforce-history.spec.ts"
+        "frontend/tests/e2e/workforce-history.spec.ts",
+        "docs/help-learn/WORKFORCE_INDEPENDENT_ACCESS_W11.md"
       ],
       "gaps": [
         "Full independent-grant/baseline composition and real chat subscription authorisation remain open; W5 verifies the managed-workforce registry and HTTP/session invalidation only.",
         "Allie conversation, complete page-context guidance, walkthrough/practice mode decisions and full Revision 4 task-state acceptance remain open.",
         "W8 conversation/privacy UI and W7 owned API are isolated-tested in separate browser/API and native provider-mocked layers. Real combined backend/provider journeys, >=100 reviewed evaluation, persisted handoff and staffed chat remain unfinished.",
         "W10: unsupported historical values and revocation receipts accepted in native/320-1440px fixtures; independent-grant/baseline and full route learning remain open.",
-        "Hosted role mutations remain unverified; W10 synthetic history does not establish production prevalence."
+        "Hosted role mutations remain unverified; W10 synthetic history does not establish production prevalence.",
+        "W11 adds separate current owner-grant projection, page/notification guards and invalidation; scoped booking confirmation, financial aftercare and granular Care authority remain open."
       ],
       "subviews": [
         {

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { workforceEffectiveAccessSchema } from "./workforce-effective-access";
+import { capabilitySchema } from "./capability-schemas";
 export const parseWorkforceAssignees = (value: unknown) =>
   z
     .object({
@@ -55,6 +56,7 @@ export const workforceAccessSchema = z
     version: z.number().int(),
     assignments: z.array(assignmentSchema),
     permissions: z.array(z.string()),
+    independentCapabilities: z.array(capabilitySchema).max(7).optional(),
     canManageAssignments: z.boolean(),
     canInviteAdmins: z.boolean().default(false),
     accessRevision: z
@@ -74,6 +76,11 @@ export const workforceAccessSchema = z
     serverTime: z.iso.datetime(),
   })
   .superRefine((value, context) => {
+    if (
+      new Set(value.independentCapabilities).size !==
+      (value.independentCapabilities?.length ?? 0)
+    )
+      context.addIssue({ code: "custom", message: "Duplicate independent permission" });
     const metadata = [value.accessRevision, value.nextChangeAt, value.capabilityScopes];
     if (metadata.every((field) => field === undefined)) return;
     if (metadata.some((field) => field === undefined)) {

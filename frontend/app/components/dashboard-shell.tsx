@@ -616,7 +616,11 @@ export function DashboardShell({
           <SessionContext.Provider value={session}>
             <NotificationAccessContext.Provider value={notificationAccess}>
               <StaffPermissionContext.Provider
-                value={session.user.role === "STAFF" ? grants : null}
+                value={
+                  session.user.role === "STAFF" && !session.workforceManaged
+                    ? grants
+                    : null
+                }
               >
                 {session.workforceManaged ? (
                   <>
@@ -630,7 +634,9 @@ export function DashboardShell({
                             key={workforceAccessKey(retainedWorkforce)}
                             access={retainedWorkforce}
                             refreshAccess={workforce.refresh}
-                          />
+                          >
+                            {children}
+                          </WorkforceWorkspace>
                         )}
                       </div>
                     )}

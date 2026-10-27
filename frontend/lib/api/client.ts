@@ -315,6 +315,10 @@ export function clearCsrfToken(): void {
 
 export function invalidateWorkforceAccess(userId: string) {
   clearWorkforceDrafts(userId);
+  redactRefundChanges();
+  redactDisputeChanges();
+  redactPrivacyChanges();
+  redactFinancePolicyChanges();
   redactWorkforceJobPending();
   redactWorkforceEnquiryPending();
   redactWorkforceComplaintPending();

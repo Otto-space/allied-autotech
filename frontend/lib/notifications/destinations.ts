@@ -70,6 +70,13 @@ const staffResources: Record<string, { section: string; path: string }> = {
 function staffResource(type: string | null, access: StaffNotificationAccess) {
   const kind = type?.toUpperCase() ?? "";
   if (access.managed) {
+    if (kind === "REFUND" && access.links.includes("/admin/refunds"))
+      return { section: "/admin/refunds", path: "/admin/refunds?refundId=" };
+    if (kind === "DISPUTE" && access.links.includes("/admin/payment-disputes/work"))
+      return {
+        section: "/admin/payment-disputes/work",
+        path: "/admin/payment-disputes/work?selected=",
+      };
     if (kind === "WORKFORCE_JOB" && access.links.includes("/admin/workforce/jobs"))
       return { section: "/admin/workforce/jobs", path: "/admin/workforce/jobs/" };
     const queue = (

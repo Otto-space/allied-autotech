@@ -146,7 +146,9 @@ function RefundWorkspace({
 }) {
   const router = useRouter(),
     search = useSearchParams(),
-    administrator = ["ADMIN", "SUPER_ADMIN"].includes(role);
+    session = useAccountSession(),
+    administrator =
+      role === "SUPER_ADMIN" || (role === "ADMIN" && !session?.workforceManaged);
   const query = refundQuery(new URLSearchParams(search.toString()), administrator),
     params = query.params;
   const routeId = params.get("refundId"),

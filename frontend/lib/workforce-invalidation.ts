@@ -13,6 +13,10 @@ export function isWorkforceRead(path: string) {
     (pathname.startsWith("/staff/workforce/") ||
       pathname.startsWith("/admin/workforce/") ||
       pathname.startsWith("/staff/fitment/") ||
+      pathname === "/staff/profile" ||
+      /^\/staff\/(?:refunds|disputes|finance-policy|privacy-requests|retention-holds)(?:\/|$)/.test(
+        pathname,
+      ) ||
       pathname === "/staff/notifications" ||
       pathname.startsWith("/staff/notifications/") ||
       pathname.startsWith("/learning/"))

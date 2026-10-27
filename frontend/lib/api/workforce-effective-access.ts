@@ -1,5 +1,6 @@
 import { z } from "zod";
 import type { WorkforceAccount } from "./workforce-schemas";
+import { capabilitySchema } from "./capability-schemas";
 
 const grant = z
   .object({
@@ -44,6 +45,7 @@ export const workforceEffectiveAccessSchema = z.object({
   evaluatedAt: z.iso.datetime(),
   grants,
   responsibilityGrantsOnly: z.literal(true),
+  independentCapabilities: z.array(capabilitySchema).max(7).optional(),
 });
 export const workforceAccessPreviewSchema = z.object({
   userId: z.uuid(),

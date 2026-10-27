@@ -122267,6 +122267,9 @@ export interface operations {
                      *           "permissions": [
                      *             "synthetic-permissions-item"
                      *           ],
+                     *           "independentCapabilities": [
+                     *             "REFUND_APPROVE"
+                     *           ],
                      *           "canManageAssignments": true,
                      *           "canInviteAdmins": true,
                      *           "accessRevision": "synthetic-accessrevision",
@@ -122409,6 +122412,8 @@ export interface operations {
                                 }[];
                                 /** @description Permissions validated by this operation's strict request contract. */
                                 permissions: string[];
+                                /** @description Independent Capabilities validated by this operation's strict request contract. */
+                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
                                 /** @description Can Manage Assignments validated by this operation's strict request contract. */
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
@@ -122679,6 +122684,9 @@ export interface operations {
                      *           "permissions": [
                      *             "synthetic-permissions-item"
                      *           ],
+                     *           "independentCapabilities": [
+                     *             "REFUND_APPROVE"
+                     *           ],
                      *           "canManageAssignments": true,
                      *           "canInviteAdmins": true,
                      *           "accessRevision": "synthetic-accessrevision",
@@ -122821,6 +122829,8 @@ export interface operations {
                                 }[];
                                 /** @description Permissions validated by this operation's strict request contract. */
                                 permissions: string[];
+                                /** @description Independent Capabilities validated by this operation's strict request contract. */
+                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
                                 /** @description Can Manage Assignments validated by this operation's strict request contract. */
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
@@ -123098,6 +123108,9 @@ export interface operations {
                      *           "permissions": [
                      *             "synthetic-permissions-item"
                      *           ],
+                     *           "independentCapabilities": [
+                     *             "REFUND_APPROVE"
+                     *           ],
                      *           "canManageAssignments": true,
                      *           "canInviteAdmins": true,
                      *           "accessRevision": "synthetic-accessrevision",
@@ -123249,6 +123262,8 @@ export interface operations {
                                 }[];
                                 /** @description Permissions validated by this operation's strict request contract. */
                                 permissions: string[];
+                                /** @description Independent Capabilities validated by this operation's strict request contract. */
+                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
                                 /** @description Can Manage Assignments validated by this operation's strict request contract. */
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
@@ -123558,6 +123573,9 @@ export interface operations {
                      *           "permissions": [
                      *             "synthetic-permissions-item"
                      *           ],
+                     *           "independentCapabilities": [
+                     *             "REFUND_APPROVE"
+                     *           ],
                      *           "canManageAssignments": true,
                      *           "canInviteAdmins": true,
                      *           "accessRevision": "synthetic-accessrevision",
@@ -123703,6 +123721,8 @@ export interface operations {
                                 }[];
                                 /** @description Permissions validated by this operation's strict request contract. */
                                 permissions: string[];
+                                /** @description Independent Capabilities validated by this operation's strict request contract. */
+                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
                                 /** @description Can Manage Assignments validated by this operation's strict request contract. */
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
@@ -124229,6 +124249,9 @@ export interface operations {
                      *         "permissions": [
                      *           "synthetic-permissions-item"
                      *         ],
+                     *         "independentCapabilities": [
+                     *           "REFUND_APPROVE"
+                     *         ],
                      *         "canManageAssignments": true,
                      *         "canInviteAdmins": true,
                      *         "accessRevision": "synthetic-accessrevision",
@@ -124343,6 +124366,8 @@ export interface operations {
                             }[];
                             /** @description Permissions validated by this operation's strict request contract. */
                             permissions: string[];
+                            /** @description Independent Capabilities validated by this operation's strict request contract. */
+                            independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
                             /** @description Can Manage Assignments validated by this operation's strict request contract. */
                             canManageAssignments: boolean;
                             /** @description Can Invite Admins validated by this operation's strict request contract. */
@@ -124571,6 +124596,9 @@ export interface operations {
                      *           "permissions": [
                      *             "synthetic-permissions-item"
                      *           ],
+                     *           "independentCapabilities": [
+                     *             "REFUND_APPROVE"
+                     *           ],
                      *           "canManageAssignments": true,
                      *           "canInviteAdmins": true,
                      *           "accessRevision": "synthetic-accessrevision",
@@ -124703,6 +124731,8 @@ export interface operations {
                                 }[];
                                 /** @description Permissions validated by this operation's strict request contract. */
                                 permissions: string[];
+                                /** @description Independent Capabilities validated by this operation's strict request contract. */
+                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
                                 /** @description Can Manage Assignments validated by this operation's strict request contract. */
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
@@ -124996,6 +125026,9 @@ export interface operations {
                      *           "permissions": [
                      *             "synthetic-permissions-item"
                      *           ],
+                     *           "independentCapabilities": [
+                     *             "REFUND_APPROVE"
+                     *           ],
                      *           "canManageAssignments": true,
                      *           "canInviteAdmins": true,
                      *           "accessRevision": "synthetic-accessrevision",
@@ -125198,6 +125231,8 @@ export interface operations {
                                 }[];
                                 /** @description Permissions validated by this operation's strict request contract. */
                                 permissions: string[];
+                                /** @description Independent Capabilities validated by this operation's strict request contract. */
+                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
                                 /** @description Can Manage Assignments validated by this operation's strict request contract. */
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
@@ -125474,6 +125509,9 @@ export interface operations {
                      *           "permissions": [
                      *             "synthetic-permissions-item"
                      *           ],
+                     *           "independentCapabilities": [
+                     *             "REFUND_APPROVE"
+                     *           ],
                      *           "canManageAssignments": true,
                      *           "canInviteAdmins": true,
                      *           "accessRevision": "synthetic-accessrevision",
@@ -125654,6 +125692,8 @@ export interface operations {
                                 }[];
                                 /** @description Permissions validated by this operation's strict request contract. */
                                 permissions: string[];
+                                /** @description Independent Capabilities validated by this operation's strict request contract. */
+                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
                                 /** @description Can Manage Assignments validated by this operation's strict request contract. */
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
@@ -125922,6 +125962,9 @@ export interface operations {
                      *           "permissions": [
                      *             "synthetic-permissions-item"
                      *           ],
+                     *           "independentCapabilities": [
+                     *             "REFUND_APPROVE"
+                     *           ],
                      *           "canManageAssignments": true,
                      *           "canInviteAdmins": true,
                      *           "accessRevision": "synthetic-accessrevision",
@@ -126125,6 +126168,8 @@ export interface operations {
                                 }[];
                                 /** @description Permissions validated by this operation's strict request contract. */
                                 permissions: string[];
+                                /** @description Independent Capabilities validated by this operation's strict request contract. */
+                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
                                 /** @description Can Manage Assignments validated by this operation's strict request contract. */
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
@@ -126403,6 +126448,9 @@ export interface operations {
                      *           "permissions": [
                      *             "synthetic-permissions-item"
                      *           ],
+                     *           "independentCapabilities": [
+                     *             "REFUND_APPROVE"
+                     *           ],
                      *           "canManageAssignments": true,
                      *           "canInviteAdmins": true,
                      *           "accessRevision": "synthetic-accessrevision",
@@ -126575,6 +126623,8 @@ export interface operations {
                                 }[];
                                 /** @description Permissions validated by this operation's strict request contract. */
                                 permissions: string[];
+                                /** @description Independent Capabilities validated by this operation's strict request contract. */
+                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
                                 /** @description Can Manage Assignments validated by this operation's strict request contract. */
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
@@ -126849,6 +126899,9 @@ export interface operations {
                      *           "permissions": [
                      *             "synthetic-permissions-item"
                      *           ],
+                     *           "independentCapabilities": [
+                     *             "REFUND_APPROVE"
+                     *           ],
                      *           "canManageAssignments": true,
                      *           "canInviteAdmins": true,
                      *           "accessRevision": "synthetic-accessrevision",
@@ -127075,6 +127128,8 @@ export interface operations {
                                 }[];
                                 /** @description Permissions validated by this operation's strict request contract. */
                                 permissions: string[];
+                                /** @description Independent Capabilities validated by this operation's strict request contract. */
+                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
                                 /** @description Can Manage Assignments validated by this operation's strict request contract. */
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
@@ -127476,6 +127531,9 @@ export interface operations {
                      *           "permissions": [
                      *             "synthetic-permissions-item"
                      *           ],
+                     *           "independentCapabilities": [
+                     *             "REFUND_APPROVE"
+                     *           ],
                      *           "canManageAssignments": true,
                      *           "canInviteAdmins": true,
                      *           "accessRevision": "synthetic-accessrevision",
@@ -127679,6 +127737,8 @@ export interface operations {
                                 }[];
                                 /** @description Permissions validated by this operation's strict request contract. */
                                 permissions: string[];
+                                /** @description Independent Capabilities validated by this operation's strict request contract. */
+                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
                                 /** @description Can Manage Assignments validated by this operation's strict request contract. */
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
@@ -127985,6 +128045,9 @@ export interface operations {
                      *           "permissions": [
                      *             "synthetic-permissions-item"
                      *           ],
+                     *           "independentCapabilities": [
+                     *             "REFUND_APPROVE"
+                     *           ],
                      *           "canManageAssignments": true,
                      *           "canInviteAdmins": true,
                      *           "accessRevision": "synthetic-accessrevision",
@@ -128188,6 +128251,8 @@ export interface operations {
                                 }[];
                                 /** @description Permissions validated by this operation's strict request contract. */
                                 permissions: string[];
+                                /** @description Independent Capabilities validated by this operation's strict request contract. */
+                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
                                 /** @description Can Manage Assignments validated by this operation's strict request contract. */
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
@@ -128500,6 +128565,9 @@ export interface operations {
                      *           "permissions": [
                      *             "synthetic-permissions-item"
                      *           ],
+                     *           "independentCapabilities": [
+                     *             "REFUND_APPROVE"
+                     *           ],
                      *           "canManageAssignments": true,
                      *           "canInviteAdmins": true,
                      *           "accessRevision": "synthetic-accessrevision",
@@ -128703,6 +128771,8 @@ export interface operations {
                                 }[];
                                 /** @description Permissions validated by this operation's strict request contract. */
                                 permissions: string[];
+                                /** @description Independent Capabilities validated by this operation's strict request contract. */
+                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
                                 /** @description Can Manage Assignments validated by this operation's strict request contract. */
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
@@ -129003,6 +129073,9 @@ export interface operations {
                      *           "permissions": [
                      *             "synthetic-permissions-item"
                      *           ],
+                     *           "independentCapabilities": [
+                     *             "REFUND_APPROVE"
+                     *           ],
                      *           "canManageAssignments": true,
                      *           "canInviteAdmins": true,
                      *           "accessRevision": "synthetic-accessrevision",
@@ -129205,6 +129278,8 @@ export interface operations {
                                 }[];
                                 /** @description Permissions validated by this operation's strict request contract. */
                                 permissions: string[];
+                                /** @description Independent Capabilities validated by this operation's strict request contract. */
+                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
                                 /** @description Can Manage Assignments validated by this operation's strict request contract. */
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
@@ -129475,6 +129550,9 @@ export interface operations {
                      *           "permissions": [
                      *             "synthetic-permissions-item"
                      *           ],
+                     *           "independentCapabilities": [
+                     *             "REFUND_APPROVE"
+                     *           ],
                      *           "canManageAssignments": true,
                      *           "canInviteAdmins": true,
                      *           "accessRevision": "synthetic-accessrevision",
@@ -129626,6 +129704,8 @@ export interface operations {
                                 }[];
                                 /** @description Permissions validated by this operation's strict request contract. */
                                 permissions: string[];
+                                /** @description Independent Capabilities validated by this operation's strict request contract. */
+                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
                                 /** @description Can Manage Assignments validated by this operation's strict request contract. */
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
@@ -129941,6 +130021,9 @@ export interface operations {
                      *           "permissions": [
                      *             "synthetic-permissions-item"
                      *           ],
+                     *           "independentCapabilities": [
+                     *             "REFUND_APPROVE"
+                     *           ],
                      *           "canManageAssignments": true,
                      *           "canInviteAdmins": true,
                      *           "accessRevision": "synthetic-accessrevision",
@@ -130121,6 +130204,8 @@ export interface operations {
                                 }[];
                                 /** @description Permissions validated by this operation's strict request contract. */
                                 permissions: string[];
+                                /** @description Independent Capabilities validated by this operation's strict request contract. */
+                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
                                 /** @description Can Manage Assignments validated by this operation's strict request contract. */
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
@@ -130394,6 +130479,9 @@ export interface operations {
                      *           "permissions": [
                      *             "synthetic-permissions-item"
                      *           ],
+                     *           "independentCapabilities": [
+                     *             "REFUND_APPROVE"
+                     *           ],
                      *           "canManageAssignments": true,
                      *           "canInviteAdmins": true,
                      *           "accessRevision": "synthetic-accessrevision",
@@ -130625,6 +130713,8 @@ export interface operations {
                                 }[];
                                 /** @description Permissions validated by this operation's strict request contract. */
                                 permissions: string[];
+                                /** @description Independent Capabilities validated by this operation's strict request contract. */
+                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
                                 /** @description Can Manage Assignments validated by this operation's strict request contract. */
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
@@ -131013,6 +131103,9 @@ export interface operations {
                      *           "permissions": [
                      *             "synthetic-permissions-item"
                      *           ],
+                     *           "independentCapabilities": [
+                     *             "REFUND_APPROVE"
+                     *           ],
                      *           "canManageAssignments": true,
                      *           "canInviteAdmins": true,
                      *           "accessRevision": "synthetic-accessrevision",
@@ -131197,6 +131290,8 @@ export interface operations {
                                 }[];
                                 /** @description Permissions validated by this operation's strict request contract. */
                                 permissions: string[];
+                                /** @description Independent Capabilities validated by this operation's strict request contract. */
+                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
                                 /** @description Can Manage Assignments validated by this operation's strict request contract. */
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
@@ -131462,6 +131557,9 @@ export interface operations {
                      *           "permissions": [
                      *             "synthetic-permissions-item"
                      *           ],
+                     *           "independentCapabilities": [
+                     *             "REFUND_APPROVE"
+                     *           ],
                      *           "canManageAssignments": true,
                      *           "canInviteAdmins": true,
                      *           "accessRevision": "synthetic-accessrevision",
@@ -131663,6 +131761,8 @@ export interface operations {
                                 }[];
                                 /** @description Permissions validated by this operation's strict request contract. */
                                 permissions: string[];
+                                /** @description Independent Capabilities validated by this operation's strict request contract. */
+                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
                                 /** @description Can Manage Assignments validated by this operation's strict request contract. */
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
@@ -131955,6 +132055,9 @@ export interface operations {
                      *           "permissions": [
                      *             "synthetic-permissions-item"
                      *           ],
+                     *           "independentCapabilities": [
+                     *             "REFUND_APPROVE"
+                     *           ],
                      *           "canManageAssignments": true,
                      *           "canInviteAdmins": true,
                      *           "accessRevision": "synthetic-accessrevision",
@@ -132161,6 +132264,8 @@ export interface operations {
                                 }[];
                                 /** @description Permissions validated by this operation's strict request contract. */
                                 permissions: string[];
+                                /** @description Independent Capabilities validated by this operation's strict request contract. */
+                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
                                 /** @description Can Manage Assignments validated by this operation's strict request contract. */
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
@@ -132461,6 +132566,9 @@ export interface operations {
                      *           "permissions": [
                      *             "synthetic-permissions-item"
                      *           ],
+                     *           "independentCapabilities": [
+                     *             "REFUND_APPROVE"
+                     *           ],
                      *           "canManageAssignments": true,
                      *           "canInviteAdmins": true,
                      *           "accessRevision": "synthetic-accessrevision",
@@ -132638,6 +132746,8 @@ export interface operations {
                                 }[];
                                 /** @description Permissions validated by this operation's strict request contract. */
                                 permissions: string[];
+                                /** @description Independent Capabilities validated by this operation's strict request contract. */
+                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
                                 /** @description Can Manage Assignments validated by this operation's strict request contract. */
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
@@ -132898,6 +133008,9 @@ export interface operations {
                      *           "permissions": [
                      *             "synthetic-permissions-item"
                      *           ],
+                     *           "independentCapabilities": [
+                     *             "REFUND_APPROVE"
+                     *           ],
                      *           "canManageAssignments": true,
                      *           "canInviteAdmins": true,
                      *           "accessRevision": "synthetic-accessrevision",
@@ -133087,6 +133200,8 @@ export interface operations {
                                 }[];
                                 /** @description Permissions validated by this operation's strict request contract. */
                                 permissions: string[];
+                                /** @description Independent Capabilities validated by this operation's strict request contract. */
+                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
                                 /** @description Can Manage Assignments validated by this operation's strict request contract. */
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
@@ -133376,7 +133491,10 @@ export interface operations {
                      *               ]
                      *             }
                      *           ],
-                     *           "responsibilityGrantsOnly": true
+                     *           "responsibilityGrantsOnly": true,
+                     *           "independentCapabilities": [
+                     *             "REFUND_APPROVE"
+                     *           ]
                      *         },
                      *         "templatesVersion": 1,
                      *         "assignmentDefinitions": {},
@@ -133597,6 +133715,8 @@ export interface operations {
                                  * @enum {boolean}
                                  */
                                 responsibilityGrantsOnly: true;
+                                /** @description Independent Capabilities validated by this operation's strict request contract. */
+                                independentCapabilities?: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
                             };
                             /** @description Templates Version validated by this operation's strict request contract. */
                             templatesVersion: number;

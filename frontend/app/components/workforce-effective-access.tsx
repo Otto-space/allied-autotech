@@ -4,6 +4,7 @@ import type {
   WorkforceAccessPreview,
 } from "@/lib/api/workforce-effective-access";
 import { formatBusinessDate } from "@/lib/format/date";
+import { capabilityLabels } from "@/lib/api/capability-schemas";
 import "./workforce-effective-access.css";
 
 function Grants({ rows }: { rows: EffectiveWorkforceGrant[] }) {
@@ -68,6 +69,27 @@ export function WorkforceEffectiveAccess({
           )}
           <Boundaries delegated={value.visibility === "DELEGATED"} />
           <p>Checked {formatBusinessDate(value.evaluatedAt)}.</p>
+          {value.independentCapabilities && (
+            <details>
+              <summary>
+                Separately granted permissions ({value.independentCapabilities.length})
+              </summary>
+              <p>
+                Supplied by explicit owner grants, separately from responsibility
+                assignments. Record eligibility, MFA and independent review still apply.
+                Removing a responsibility does not revoke these grants.
+              </p>
+              {value.independentCapabilities.length ? (
+                <ul>
+                  {value.independentCapabilities.map((capability) => (
+                    <li key={capability}>{capabilityLabels[capability]}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p>No active separately granted permissions.</p>
+              )}
+            </details>
+          )}
           {value.grants.length ? (
             <details>
               <summary>Capabilities and grant sources ({value.grants.length})</summary>

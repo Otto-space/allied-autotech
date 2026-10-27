@@ -28,6 +28,7 @@ import {
   bookingActionBody,
 } from "../service-operations/booking-actions.routes.js";
 import { z } from "zod";
+import { independentCapabilitySchema } from "./independent-capabilities.js";
 import {
   capabilityListQuerySchema,
   publishPolicyBodySchema,
@@ -109,15 +110,7 @@ const retentionHoldRecord = z.object({
   releasedAt: z.iso.datetime().nullable(),
   releasedByUserId: z.uuid().nullable(),
 });
-const capabilities = z.enum([
-  "REFUND_APPROVE",
-  "REFUND_TRANSFER",
-  "REFUND_CHECK",
-  "FINANCE_POLICY_APPROVE",
-  "BOOKING_CONFIRM",
-  "PRIVACY_REVIEW",
-  "DISPUTE_MANAGE",
-]);
+const capabilities = independentCapabilitySchema;
 const envelope = z.object({
   success: z.boolean(),
   message: z.string(),

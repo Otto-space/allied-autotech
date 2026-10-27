@@ -205,7 +205,7 @@ export async function resolveNotificationTargets(
           });
           break;
         case "REFUND": {
-          if (customer || managed) break;
+          if (customer) break;
           let scope: Prisma.RefundWhereInput;
           try {
             scope = await new ManualRefundsService().scope(tx, actor, true);
@@ -222,7 +222,7 @@ export async function resolveNotificationTargets(
           break;
         }
         case "DISPUTE": {
-          if (customer || managed) break;
+          if (customer) break;
           const grant = await tx.userCapability.findFirst({
             where: {
               userId: actor.userId,
@@ -232,9 +232,10 @@ export async function resolveNotificationTargets(
             select: { id: true },
           });
           if (!grant) break;
-          section = administrator
-            ? "/admin/payment-disputes"
-            : "/admin/payment-disputes/work";
+          section =
+            administrator && !managed
+              ? "/admin/payment-disputes"
+              : "/admin/payment-disputes/work";
           path = "/admin/payment-disputes/work?selected=";
           rows = await tx.paymentDispute.findMany({
             where: {

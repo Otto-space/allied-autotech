@@ -165,3 +165,5 @@ allie-conversation.spec.ts
 allie-real-provider.spec.ts
 # Revision 4 W10: bounded legacy history never becomes current authority.
 workforce-history.spec.ts
+# Revision 4 W11: separate explicit grants, populated work and active revocation.
+workforce-independent.spec.ts

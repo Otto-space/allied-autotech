@@ -6,6 +6,10 @@ export type LearningGate =
   | "care"
   | "sales"
   | "finance"
+  | "refunds"
+  | "disputes"
+  | "privacy"
+  | "financial-policy"
   | "jobs"
   | "assign"
   | "operations"
@@ -74,6 +78,68 @@ const article = (
   reviewedAt: gate === "public" || gate === "customer" ? "2026-10-26" : "2026-10-27",
 });
 export const learningArticles: LearningArticle[] = [
+  article(
+    "refund-work",
+    "refunds",
+    "work",
+    "Use your separately granted refund duty",
+    "Refund approval, transfer and independent checking are separate owner-granted duties. Payment-record reading alone supplies none of them.",
+    [
+      "Open Refund requests and inspect the current refund. The queue is limited to the stages permitted by your explicit grants; it is not a list of every company refund.",
+      "Use only the action enabled for your current grant and the refund's actual status. Re-read the current amount, evidence and recipient before reviewing a change.",
+      "A checker must be independent of the requester, approver and transfer recorder. A responsibility template or Admin title does not bypass this rule.",
+      "Review and confirm explicitly. If a request's result is uncertain, inspect its saved recovery state before sending anything again. Allie cannot approve or transfer money.",
+    ],
+    "/admin/refunds",
+    "ManualRefundsService scope/current/check, PaymentsService refund decisions and StaffRefunds review/recovery",
+    "refund approve approval transfer independent checker payment evidence uncertain",
+  ),
+  article(
+    "dispute-work",
+    "disputes",
+    "work",
+    "Handle a permitted payment dispute",
+    "DISPUTE_MANAGE is an explicit grant. Staff may handle only disputes assigned to them as primary or backup; authorised Admin supervision retains its existing policy.",
+    [
+      "Open Dispute work queue and select a permitted current record. Inspect its status, response deadline and evidence before acting.",
+      "Acknowledgement and evidence actions do not themselves resolve money. Recording a provider submission reference is evidence of an external submission, not provider acceptance.",
+      "Only an authorised Admin with this grant may assign the required primary and backup operators. Possessing the handling grant alone does not permit Staff to assign cases.",
+      "Review the action and current record before confirming; refresh stale versions and reconcile an uncertain result rather than resending it.",
+    ],
+    "/admin/payment-disputes/work",
+    "DisputesRouter authorized/current/assignment and WorkDisputeHandling review/recovery",
+    "dispute chargeback primary backup acknowledge evidence submission assignment",
+  ),
+  article(
+    "privacy-work",
+    "privacy",
+    "work",
+    "Review privacy requests and retention holds",
+    "Privacy review requires a separate explicit grant, including for the protected owner. A review does not promise deletion or bypass legal or retention holds.",
+    [
+      "Open Privacy review and inspect the permitted request's kind, status and current holds.",
+      "Check the customer identity, protected records and unresolved disputes. Use only the current reviewed action and record its reason.",
+      "Review before confirming. Approval pending policy does not erase data or schedule destructive maintenance; releasing a hold does not delete a record.",
+    ],
+    "/admin/privacy",
+    "PrivacyRouter assertCapability, hold protection and WorkPrivacy review/recovery",
+    "privacy deletion export erasure retention hold review personal data",
+  ),
+  article(
+    "financial-policy-work",
+    "financial-policy",
+    "work",
+    "Review the financial policy workspace",
+    "FINANCE_POLICY_APPROVE is a separate owner-granted duty. Current, latest and scheduled versions may differ; merely holding Accountant responsibility is insufficient.",
+    [
+      "Open Financial policy and compare its current, latest and next scheduled versions. Use the recorded effective dates and evidence.",
+      "Use approved business details and evidence, review the exact change and expected version, then confirm only through the authorised form.",
+      "A version conflict requires refreshing and reviewing again. Policy publication does not itself collect money or enable unavailable checkout capabilities.",
+    ],
+    "/admin/finance-policy",
+    "readFinancePolicy and publishPolicy FINANCE branch, FinancePolicy current/version/review",
+    "financial policy finance VAT invoice terms effective scheduled approval version",
+  ),
   article(
     "parts-fitment",
     "public",
@@ -183,12 +249,13 @@ export const learningArticles: LearningArticle[] = [
         "In a responsibility-managed workspace, an access change can remove an open page and return you to the overview with an explanation. Protected unsent work is discarded, never sent automatically.",
         "If the current access check fails, retry before continuing. Do not repeat an uncertain save without checking its existing recovery guidance.",
         "If a responsibility is missing, ask an authorised access manager. A job title, availability status or practice completion never grants access.",
+        "Separately granted refund, dispute, privacy and financial-policy duties use explicit owner grants and their own record and approval rules. They do not widen your branch responsibilities; responsibility removal does not revoke an independent grant.",
       ],
       "/admin",
       "Current workforce scope, registered navigation and access-change recovery",
       "staff role responsibility operations permissions security access removed overview",
     ),
-    version: 4,
+    version: 5,
   },
   article(
     "care-triage",

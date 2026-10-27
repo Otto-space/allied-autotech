@@ -5,17 +5,18 @@ that every route or state has passed review. Work proceeds in finite batches.
 
 ## Standing responsibility and source
 
-Current bounded implementation: Revision 4 W10 unsupported workforce history,
-branch `feat/workforce-history-policy-20261027`, based on W9 `8b360b89` in the reused
-`allied-home-restoration-20261025` worktree. Read-only history/receipts preserve
-unknown values while strict inputs and active grants remain unchanged. Nine native
-cases, 1,112 frontend units, optimized build and four rendered 320–1440px fixtures
-passed. W9's 100 reviewed baseline model cases and 12 targeted real rechecks remain
-separate evidence; full journey acceptance stays open.
+Current bounded implementation: Revision 4 W11 independent-grant compatibility,
+branch `feat/workforce-independent-access-20261027`, based on W10 `11c4ac15` in the
+reused `allied-home-restoration-20261025` worktree. Separate current owner grants
+now reach the existing scoped refund/dispute/privacy/financial-policy workspaces.
+57 native cases, 112 backend units, full 1,114 frontend units plus 45 final focused
+checks, optimized build, 18 new browser fixtures and 11 history/session regressions
+passed. Known Next not-found CSS preload warning remains qualified. W9's 100 real
+baseline cases and 12 targeted rechecks remain separate evidence; no new model call.
 Not deployed; AI defaults remain disabled.
-Full baseline/independent-grant composition, persisted human handoff, real chat
+Scoped booking confirmation/financial aftercare, granular Care authority, human handoff, real chat
 subscriptions, hosted acceptance and all-route learning remain open.
-Evidence: `docs/help-learn/WORKFORCE_HISTORY_W10.md`, W9 evaluation and review, W8 UI,
+Evidence: `docs/help-learn/WORKFORCE_INDEPENDENT_ACCESS_W11.md`, W10 history, W9 evaluation, W8 UI,
 W7 state, W6 provider core, W5 and retained W4
 impact review evidence. Earlier customer-table/sidebar responsiveness remains in
 Cycle 13; unrelated worktrees and newer release branches are preserved.
@@ -1803,3 +1804,21 @@ Exact-lock Next16.4.3 CI, hosted/real-role/device acceptance remain open. Indepe
 grant/account-baseline composition and granular care authority are next foundation
 dependencies before persisted reviewed handoff and gated shared/staffed transport.
 All 106 route completion gates remain open; full Revision4/Item6 stays active.
+
+27 October 2026 - Revision 4 W11 local checkpoint: separate recognised active
+owner grants compose with the managed boundary without widening branch duties.
+Existing refund/dispute/privacy/financial-policy workspaces, current grant revision,
+source eligibility, scoped notification links and stale-read/review disposal align.
+Managed Admin uses the scoped refund queue and cannot recover broad legacy refund
+inspection; owner/unenrolled legacy inspection and independent approval remain.
+57 native HTTP/DB cases, 112 backend units, full 1114 frontend units and final45
+focused cases, 18 populated role/width browser fixtures and11 history/session
+regressions passed. Types/lint/contracts, final cached build and secret guard pass.
+Known Next not-found CSS preload warning is verified/reported separately; full
+route acceptance, hosted/device/screen-reader checks remain open. No schema/model
+call, real message, install, new worktree or publication. W9 approval stays exhausted.
+Evidence: docs/help-learn/WORKFORCE_INDEPENDENT_ACCESS_W11.md. C:25.79GiB free; Docker
+retention reviewed without deletion, denied dev folders unchanged. Next: compatible
+scoped BOOKING_CONFIRM and financial-aftercare adapters, then granular Care duties,
+persisted reviewed handoff and shared staffed/gated transport. All106 completion
+decisions and full Revision4/Item6 remain active.

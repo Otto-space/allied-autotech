@@ -2,6 +2,7 @@ import { supportEmailDeliveryPageSchema } from "../support/customer-email.js";
 export { supportDeliveryDismissSchema } from "../support/customer-email.js";
 import { z } from "zod";
 import { positionSchema, templateSchema } from "./workforce.policy.js";
+import { independentCapabilitySchema } from "../policies/independent-capabilities.js";
 
 const version = z.number().int().min(0);
 const reason = z.string().trim().min(10).max(1000);
@@ -102,6 +103,7 @@ export const workforceEffectiveAccessSchema = z.object({
   evaluatedAt: z.iso.datetime(),
   grants: z.array(effectiveGrant),
   responsibilityGrantsOnly: z.literal(true),
+  independentCapabilities: z.array(independentCapabilitySchema).optional(),
 });
 export const workforceAccessPreviewResponseSchema = z.object({
   userId: z.uuid(),
@@ -341,6 +343,7 @@ export const workforceOwnResponseSchema = z.object({
   version,
   assignments: z.array(workforceAssignmentResponseSchema),
   permissions: z.array(z.string()),
+  independentCapabilities: z.array(independentCapabilitySchema),
   canManageAssignments: z.boolean(),
   canInviteAdmins: z.boolean(),
   accessRevision: z.string().regex(/^[a-f0-9]{64}$/),

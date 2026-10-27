@@ -46,6 +46,7 @@ export function workforceAccessRevision(value: {
         branchIds: readonly string[];
       }
     | undefined;
+  independentCapabilities?: readonly string[];
 }) {
   return accessPreviewFingerprint({
     userId: value.userId,
@@ -53,6 +54,7 @@ export function workforceAccessRevision(value: {
     managed: value.managed,
     staffId: value.staffId,
     version: value.version,
+    independentCapabilities: [...(value.independentCapabilities ?? [])].sort(),
     assignments: value.assignments
       .map((a) => ({
         id: a.id,

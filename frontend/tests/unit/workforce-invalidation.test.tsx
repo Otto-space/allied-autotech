@@ -30,6 +30,21 @@ const response = () =>
     }),
     { status: 200, headers: { "Content-Type": "application/json" } },
   );
+it("discards independent-work reads along with responsibility reads", () => {
+  const paths = [
+    "/staff/profile",
+    "/staff/refunds?limit=25",
+    "/staff/disputes/example",
+    "/staff/privacy-requests",
+    "/staff/retention-holds",
+    "/staff/finance-policy/current",
+  ];
+  const reads = paths.map((path) => workforceReadGuard(path)!);
+  expect(reads.every(Boolean)).toBe(true);
+  discardWorkforceReads();
+  expect(reads.every((read) => read.signal.aborted)).toBe(true);
+  expect(workforceReadGuard("/public/products")).toBeUndefined();
+});
 it("aborts stale protected GETs and rejects a late body even when transport ignores abort", async () => {
   let release!: (value: Response) => void;
   const fetcher = vi

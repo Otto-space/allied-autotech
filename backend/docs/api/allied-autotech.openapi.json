@@ -159225,6 +159225,23 @@
                               },
                               "description": "Permissions validated by this operation's strict request contract."
                             },
+                            "independentCapabilities": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "enum": [
+                                  "REFUND_APPROVE",
+                                  "REFUND_TRANSFER",
+                                  "REFUND_CHECK",
+                                  "FINANCE_POLICY_APPROVE",
+                                  "BOOKING_CONFIRM",
+                                  "PRIVACY_REVIEW",
+                                  "DISPUTE_MANAGE"
+                                ],
+                                "description": "Independent Capabilities Item validated by this operation's strict request contract."
+                              },
+                              "description": "Independent Capabilities validated by this operation's strict request contract."
+                            },
                             "canManageAssignments": {
                               "type": "boolean",
                               "description": "Can Manage Assignments validated by this operation's strict request contract."
@@ -159293,6 +159310,7 @@
                             "version",
                             "assignments",
                             "permissions",
+                            "independentCapabilities",
                             "canManageAssignments",
                             "canInviteAdmins",
                             "accessRevision",
@@ -159391,6 +159409,9 @@
                       ],
                       "permissions": [
                         "synthetic-permissions-item"
+                      ],
+                      "independentCapabilities": [
+                        "REFUND_APPROVE"
                       ],
                       "canManageAssignments": true,
                       "canInviteAdmins": true,
@@ -159835,6 +159856,23 @@
                               },
                               "description": "Permissions validated by this operation's strict request contract."
                             },
+                            "independentCapabilities": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "enum": [
+                                  "REFUND_APPROVE",
+                                  "REFUND_TRANSFER",
+                                  "REFUND_CHECK",
+                                  "FINANCE_POLICY_APPROVE",
+                                  "BOOKING_CONFIRM",
+                                  "PRIVACY_REVIEW",
+                                  "DISPUTE_MANAGE"
+                                ],
+                                "description": "Independent Capabilities Item validated by this operation's strict request contract."
+                              },
+                              "description": "Independent Capabilities validated by this operation's strict request contract."
+                            },
                             "canManageAssignments": {
                               "type": "boolean",
                               "description": "Can Manage Assignments validated by this operation's strict request contract."
@@ -159903,6 +159941,7 @@
                             "version",
                             "assignments",
                             "permissions",
+                            "independentCapabilities",
                             "canManageAssignments",
                             "canInviteAdmins",
                             "accessRevision",
@@ -160001,6 +160040,9 @@
                       ],
                       "permissions": [
                         "synthetic-permissions-item"
+                      ],
+                      "independentCapabilities": [
+                        "REFUND_APPROVE"
                       ],
                       "canManageAssignments": true,
                       "canInviteAdmins": true,
@@ -160449,6 +160491,23 @@
                               },
                               "description": "Permissions validated by this operation's strict request contract."
                             },
+                            "independentCapabilities": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "enum": [
+                                  "REFUND_APPROVE",
+                                  "REFUND_TRANSFER",
+                                  "REFUND_CHECK",
+                                  "FINANCE_POLICY_APPROVE",
+                                  "BOOKING_CONFIRM",
+                                  "PRIVACY_REVIEW",
+                                  "DISPUTE_MANAGE"
+                                ],
+                                "description": "Independent Capabilities Item validated by this operation's strict request contract."
+                              },
+                              "description": "Independent Capabilities validated by this operation's strict request contract."
+                            },
                             "canManageAssignments": {
                               "type": "boolean",
                               "description": "Can Manage Assignments validated by this operation's strict request contract."
@@ -160517,6 +160576,7 @@
                             "version",
                             "assignments",
                             "permissions",
+                            "independentCapabilities",
                             "canManageAssignments",
                             "canInviteAdmins",
                             "accessRevision",
@@ -160686,6 +160746,9 @@
                       ],
                       "permissions": [
                         "synthetic-permissions-item"
+                      ],
+                      "independentCapabilities": [
+                        "REFUND_APPROVE"
                       ],
                       "canManageAssignments": true,
                       "canInviteAdmins": true,
@@ -161141,6 +161204,23 @@
                               },
                               "description": "Permissions validated by this operation's strict request contract."
                             },
+                            "independentCapabilities": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "enum": [
+                                  "REFUND_APPROVE",
+                                  "REFUND_TRANSFER",
+                                  "REFUND_CHECK",
+                                  "FINANCE_POLICY_APPROVE",
+                                  "BOOKING_CONFIRM",
+                                  "PRIVACY_REVIEW",
+                                  "DISPUTE_MANAGE"
+                                ],
+                                "description": "Independent Capabilities Item validated by this operation's strict request contract."
+                              },
+                              "description": "Independent Capabilities validated by this operation's strict request contract."
+                            },
                             "canManageAssignments": {
                               "type": "boolean",
                               "description": "Can Manage Assignments validated by this operation's strict request contract."
@@ -161209,6 +161289,7 @@
                             "version",
                             "assignments",
                             "permissions",
+                            "independentCapabilities",
                             "canManageAssignments",
                             "canInviteAdmins",
                             "accessRevision",
@@ -161330,6 +161411,9 @@
                       ],
                       "permissions": [
                         "synthetic-permissions-item"
+                      ],
+                      "independentCapabilities": [
+                        "REFUND_APPROVE"
                       ],
                       "canManageAssignments": true,
                       "canInviteAdmins": true,
@@ -162040,6 +162124,23 @@
                           },
                           "description": "Permissions validated by this operation's strict request contract."
                         },
+                        "independentCapabilities": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "enum": [
+                              "REFUND_APPROVE",
+                              "REFUND_TRANSFER",
+                              "REFUND_CHECK",
+                              "FINANCE_POLICY_APPROVE",
+                              "BOOKING_CONFIRM",
+                              "PRIVACY_REVIEW",
+                              "DISPUTE_MANAGE"
+                            ],
+                            "description": "Independent Capabilities Item validated by this operation's strict request contract."
+                          },
+                          "description": "Independent Capabilities validated by this operation's strict request contract."
+                        },
                         "canManageAssignments": {
                           "type": "boolean",
                           "description": "Can Manage Assignments validated by this operation's strict request contract."
@@ -162108,6 +162209,7 @@
                         "version",
                         "assignments",
                         "permissions",
+                        "independentCapabilities",
                         "canManageAssignments",
                         "canInviteAdmins",
                         "accessRevision",
@@ -162175,6 +162277,9 @@
                     ],
                     "permissions": [
                       "synthetic-permissions-item"
+                    ],
+                    "independentCapabilities": [
+                      "REFUND_APPROVE"
                     ],
                     "canManageAssignments": true,
                     "canInviteAdmins": true,
@@ -162539,6 +162644,23 @@
                               },
                               "description": "Permissions validated by this operation's strict request contract."
                             },
+                            "independentCapabilities": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "enum": [
+                                  "REFUND_APPROVE",
+                                  "REFUND_TRANSFER",
+                                  "REFUND_CHECK",
+                                  "FINANCE_POLICY_APPROVE",
+                                  "BOOKING_CONFIRM",
+                                  "PRIVACY_REVIEW",
+                                  "DISPUTE_MANAGE"
+                                ],
+                                "description": "Independent Capabilities Item validated by this operation's strict request contract."
+                              },
+                              "description": "Independent Capabilities validated by this operation's strict request contract."
+                            },
                             "canManageAssignments": {
                               "type": "boolean",
                               "description": "Can Manage Assignments validated by this operation's strict request contract."
@@ -162607,6 +162729,7 @@
                             "version",
                             "assignments",
                             "permissions",
+                            "independentCapabilities",
                             "canManageAssignments",
                             "canInviteAdmins",
                             "accessRevision",
@@ -162709,6 +162832,9 @@
                       ],
                       "permissions": [
                         "synthetic-permissions-item"
+                      ],
+                      "independentCapabilities": [
+                        "REFUND_APPROVE"
                       ],
                       "canManageAssignments": true,
                       "canInviteAdmins": true,
@@ -163326,6 +163452,23 @@
                               },
                               "description": "Permissions validated by this operation's strict request contract."
                             },
+                            "independentCapabilities": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "enum": [
+                                  "REFUND_APPROVE",
+                                  "REFUND_TRANSFER",
+                                  "REFUND_CHECK",
+                                  "FINANCE_POLICY_APPROVE",
+                                  "BOOKING_CONFIRM",
+                                  "PRIVACY_REVIEW",
+                                  "DISPUTE_MANAGE"
+                                ],
+                                "description": "Independent Capabilities Item validated by this operation's strict request contract."
+                              },
+                              "description": "Independent Capabilities validated by this operation's strict request contract."
+                            },
                             "canManageAssignments": {
                               "type": "boolean",
                               "description": "Can Manage Assignments validated by this operation's strict request contract."
@@ -163394,6 +163537,7 @@
                             "version",
                             "assignments",
                             "permissions",
+                            "independentCapabilities",
                             "canManageAssignments",
                             "canInviteAdmins",
                             "accessRevision",
@@ -163505,6 +163649,9 @@
                       ],
                       "permissions": [
                         "synthetic-permissions-item"
+                      ],
+                      "independentCapabilities": [
+                        "REFUND_APPROVE"
                       ],
                       "canManageAssignments": true,
                       "canInviteAdmins": true,
@@ -164066,6 +164213,23 @@
                               },
                               "description": "Permissions validated by this operation's strict request contract."
                             },
+                            "independentCapabilities": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "enum": [
+                                  "REFUND_APPROVE",
+                                  "REFUND_TRANSFER",
+                                  "REFUND_CHECK",
+                                  "FINANCE_POLICY_APPROVE",
+                                  "BOOKING_CONFIRM",
+                                  "PRIVACY_REVIEW",
+                                  "DISPUTE_MANAGE"
+                                ],
+                                "description": "Independent Capabilities Item validated by this operation's strict request contract."
+                              },
+                              "description": "Independent Capabilities validated by this operation's strict request contract."
+                            },
                             "canManageAssignments": {
                               "type": "boolean",
                               "description": "Can Manage Assignments validated by this operation's strict request contract."
@@ -164134,6 +164298,7 @@
                             "version",
                             "assignments",
                             "permissions",
+                            "independentCapabilities",
                             "canManageAssignments",
                             "canInviteAdmins",
                             "accessRevision",
@@ -164243,6 +164408,9 @@
                       ],
                       "permissions": [
                         "synthetic-permissions-item"
+                      ],
+                      "independentCapabilities": [
+                        "REFUND_APPROVE"
                       ],
                       "canManageAssignments": true,
                       "canInviteAdmins": true,
@@ -164781,6 +164949,23 @@
                               },
                               "description": "Permissions validated by this operation's strict request contract."
                             },
+                            "independentCapabilities": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "enum": [
+                                  "REFUND_APPROVE",
+                                  "REFUND_TRANSFER",
+                                  "REFUND_CHECK",
+                                  "FINANCE_POLICY_APPROVE",
+                                  "BOOKING_CONFIRM",
+                                  "PRIVACY_REVIEW",
+                                  "DISPUTE_MANAGE"
+                                ],
+                                "description": "Independent Capabilities Item validated by this operation's strict request contract."
+                              },
+                              "description": "Independent Capabilities validated by this operation's strict request contract."
+                            },
                             "canManageAssignments": {
                               "type": "boolean",
                               "description": "Can Manage Assignments validated by this operation's strict request contract."
@@ -164849,6 +165034,7 @@
                             "version",
                             "assignments",
                             "permissions",
+                            "independentCapabilities",
                             "canManageAssignments",
                             "canInviteAdmins",
                             "accessRevision",
@@ -165015,6 +165201,9 @@
                       ],
                       "permissions": [
                         "synthetic-permissions-item"
+                      ],
+                      "independentCapabilities": [
+                        "REFUND_APPROVE"
                       ],
                       "canManageAssignments": true,
                       "canInviteAdmins": true,
@@ -165512,6 +165701,23 @@
                               },
                               "description": "Permissions validated by this operation's strict request contract."
                             },
+                            "independentCapabilities": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "enum": [
+                                  "REFUND_APPROVE",
+                                  "REFUND_TRANSFER",
+                                  "REFUND_CHECK",
+                                  "FINANCE_POLICY_APPROVE",
+                                  "BOOKING_CONFIRM",
+                                  "PRIVACY_REVIEW",
+                                  "DISPUTE_MANAGE"
+                                ],
+                                "description": "Independent Capabilities Item validated by this operation's strict request contract."
+                              },
+                              "description": "Independent Capabilities validated by this operation's strict request contract."
+                            },
                             "canManageAssignments": {
                               "type": "boolean",
                               "description": "Can Manage Assignments validated by this operation's strict request contract."
@@ -165580,6 +165786,7 @@
                             "version",
                             "assignments",
                             "permissions",
+                            "independentCapabilities",
                             "canManageAssignments",
                             "canInviteAdmins",
                             "accessRevision",
@@ -165692,6 +165899,9 @@
                       ],
                       "permissions": [
                         "synthetic-permissions-item"
+                      ],
+                      "independentCapabilities": [
+                        "REFUND_APPROVE"
                       ],
                       "canManageAssignments": true,
                       "canInviteAdmins": true,
@@ -166251,6 +166461,23 @@
                               },
                               "description": "Permissions validated by this operation's strict request contract."
                             },
+                            "independentCapabilities": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "enum": [
+                                  "REFUND_APPROVE",
+                                  "REFUND_TRANSFER",
+                                  "REFUND_CHECK",
+                                  "FINANCE_POLICY_APPROVE",
+                                  "BOOKING_CONFIRM",
+                                  "PRIVACY_REVIEW",
+                                  "DISPUTE_MANAGE"
+                                ],
+                                "description": "Independent Capabilities Item validated by this operation's strict request contract."
+                              },
+                              "description": "Independent Capabilities validated by this operation's strict request contract."
+                            },
                             "canManageAssignments": {
                               "type": "boolean",
                               "description": "Can Manage Assignments validated by this operation's strict request contract."
@@ -166319,6 +166546,7 @@
                             "version",
                             "assignments",
                             "permissions",
+                            "independentCapabilities",
                             "canManageAssignments",
                             "canInviteAdmins",
                             "accessRevision",
@@ -166665,6 +166893,9 @@
                       ],
                       "permissions": [
                         "synthetic-permissions-item"
+                      ],
+                      "independentCapabilities": [
+                        "REFUND_APPROVE"
                       ],
                       "canManageAssignments": true,
                       "canInviteAdmins": true,
@@ -167296,6 +167527,23 @@
                               },
                               "description": "Permissions validated by this operation's strict request contract."
                             },
+                            "independentCapabilities": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "enum": [
+                                  "REFUND_APPROVE",
+                                  "REFUND_TRANSFER",
+                                  "REFUND_CHECK",
+                                  "FINANCE_POLICY_APPROVE",
+                                  "BOOKING_CONFIRM",
+                                  "PRIVACY_REVIEW",
+                                  "DISPUTE_MANAGE"
+                                ],
+                                "description": "Independent Capabilities Item validated by this operation's strict request contract."
+                              },
+                              "description": "Independent Capabilities validated by this operation's strict request contract."
+                            },
                             "canManageAssignments": {
                               "type": "boolean",
                               "description": "Can Manage Assignments validated by this operation's strict request contract."
@@ -167364,6 +167612,7 @@
                             "version",
                             "assignments",
                             "permissions",
+                            "independentCapabilities",
                             "canManageAssignments",
                             "canInviteAdmins",
                             "accessRevision",
@@ -167530,6 +167779,9 @@
                       ],
                       "permissions": [
                         "synthetic-permissions-item"
+                      ],
+                      "independentCapabilities": [
+                        "REFUND_APPROVE"
                       ],
                       "canManageAssignments": true,
                       "canInviteAdmins": true,
@@ -168121,6 +168373,23 @@
                               },
                               "description": "Permissions validated by this operation's strict request contract."
                             },
+                            "independentCapabilities": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "enum": [
+                                  "REFUND_APPROVE",
+                                  "REFUND_TRANSFER",
+                                  "REFUND_CHECK",
+                                  "FINANCE_POLICY_APPROVE",
+                                  "BOOKING_CONFIRM",
+                                  "PRIVACY_REVIEW",
+                                  "DISPUTE_MANAGE"
+                                ],
+                                "description": "Independent Capabilities Item validated by this operation's strict request contract."
+                              },
+                              "description": "Independent Capabilities validated by this operation's strict request contract."
+                            },
                             "canManageAssignments": {
                               "type": "boolean",
                               "description": "Can Manage Assignments validated by this operation's strict request contract."
@@ -168189,6 +168458,7 @@
                             "version",
                             "assignments",
                             "permissions",
+                            "independentCapabilities",
                             "canManageAssignments",
                             "canInviteAdmins",
                             "accessRevision",
@@ -168355,6 +168625,9 @@
                       ],
                       "permissions": [
                         "synthetic-permissions-item"
+                      ],
+                      "independentCapabilities": [
+                        "REFUND_APPROVE"
                       ],
                       "canManageAssignments": true,
                       "canInviteAdmins": true,
@@ -168953,6 +169226,23 @@
                               },
                               "description": "Permissions validated by this operation's strict request contract."
                             },
+                            "independentCapabilities": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "enum": [
+                                  "REFUND_APPROVE",
+                                  "REFUND_TRANSFER",
+                                  "REFUND_CHECK",
+                                  "FINANCE_POLICY_APPROVE",
+                                  "BOOKING_CONFIRM",
+                                  "PRIVACY_REVIEW",
+                                  "DISPUTE_MANAGE"
+                                ],
+                                "description": "Independent Capabilities Item validated by this operation's strict request contract."
+                              },
+                              "description": "Independent Capabilities validated by this operation's strict request contract."
+                            },
                             "canManageAssignments": {
                               "type": "boolean",
                               "description": "Can Manage Assignments validated by this operation's strict request contract."
@@ -169021,6 +169311,7 @@
                             "version",
                             "assignments",
                             "permissions",
+                            "independentCapabilities",
                             "canManageAssignments",
                             "canInviteAdmins",
                             "accessRevision",
@@ -169187,6 +169478,9 @@
                       ],
                       "permissions": [
                         "synthetic-permissions-item"
+                      ],
+                      "independentCapabilities": [
+                        "REFUND_APPROVE"
                       ],
                       "canManageAssignments": true,
                       "canInviteAdmins": true,
@@ -169808,6 +170102,23 @@
                               },
                               "description": "Permissions validated by this operation's strict request contract."
                             },
+                            "independentCapabilities": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "enum": [
+                                  "REFUND_APPROVE",
+                                  "REFUND_TRANSFER",
+                                  "REFUND_CHECK",
+                                  "FINANCE_POLICY_APPROVE",
+                                  "BOOKING_CONFIRM",
+                                  "PRIVACY_REVIEW",
+                                  "DISPUTE_MANAGE"
+                                ],
+                                "description": "Independent Capabilities Item validated by this operation's strict request contract."
+                              },
+                              "description": "Independent Capabilities validated by this operation's strict request contract."
+                            },
                             "canManageAssignments": {
                               "type": "boolean",
                               "description": "Can Manage Assignments validated by this operation's strict request contract."
@@ -169876,6 +170187,7 @@
                             "version",
                             "assignments",
                             "permissions",
+                            "independentCapabilities",
                             "canManageAssignments",
                             "canInviteAdmins",
                             "accessRevision",
@@ -169982,6 +170294,9 @@
                       ],
                       "permissions": [
                         "synthetic-permissions-item"
+                      ],
+                      "independentCapabilities": [
+                        "REFUND_APPROVE"
                       ],
                       "canManageAssignments": true,
                       "canInviteAdmins": true,
@@ -170428,6 +170743,23 @@
                               },
                               "description": "Permissions validated by this operation's strict request contract."
                             },
+                            "independentCapabilities": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "enum": [
+                                  "REFUND_APPROVE",
+                                  "REFUND_TRANSFER",
+                                  "REFUND_CHECK",
+                                  "FINANCE_POLICY_APPROVE",
+                                  "BOOKING_CONFIRM",
+                                  "PRIVACY_REVIEW",
+                                  "DISPUTE_MANAGE"
+                                ],
+                                "description": "Independent Capabilities Item validated by this operation's strict request contract."
+                              },
+                              "description": "Independent Capabilities validated by this operation's strict request contract."
+                            },
                             "canManageAssignments": {
                               "type": "boolean",
                               "description": "Can Manage Assignments validated by this operation's strict request contract."
@@ -170496,6 +170828,7 @@
                             "version",
                             "assignments",
                             "permissions",
+                            "independentCapabilities",
                             "canManageAssignments",
                             "canInviteAdmins",
                             "accessRevision",
@@ -170665,6 +170998,9 @@
                       ],
                       "permissions": [
                         "synthetic-permissions-item"
+                      ],
+                      "independentCapabilities": [
+                        "REFUND_APPROVE"
                       ],
                       "canManageAssignments": true,
                       "canInviteAdmins": true,
@@ -171238,6 +171574,23 @@
                               },
                               "description": "Permissions validated by this operation's strict request contract."
                             },
+                            "independentCapabilities": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "enum": [
+                                  "REFUND_APPROVE",
+                                  "REFUND_TRANSFER",
+                                  "REFUND_CHECK",
+                                  "FINANCE_POLICY_APPROVE",
+                                  "BOOKING_CONFIRM",
+                                  "PRIVACY_REVIEW",
+                                  "DISPUTE_MANAGE"
+                                ],
+                                "description": "Independent Capabilities Item validated by this operation's strict request contract."
+                              },
+                              "description": "Independent Capabilities validated by this operation's strict request contract."
+                            },
                             "canManageAssignments": {
                               "type": "boolean",
                               "description": "Can Manage Assignments validated by this operation's strict request contract."
@@ -171306,6 +171659,7 @@
                             "version",
                             "assignments",
                             "permissions",
+                            "independentCapabilities",
                             "canManageAssignments",
                             "canInviteAdmins",
                             "accessRevision",
@@ -171405,6 +171759,9 @@
                       ],
                       "permissions": [
                         "synthetic-permissions-item"
+                      ],
+                      "independentCapabilities": [
+                        "REFUND_APPROVE"
                       ],
                       "canManageAssignments": true,
                       "canInviteAdmins": true,
@@ -171964,6 +172321,23 @@
                               },
                               "description": "Permissions validated by this operation's strict request contract."
                             },
+                            "independentCapabilities": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "enum": [
+                                  "REFUND_APPROVE",
+                                  "REFUND_TRANSFER",
+                                  "REFUND_CHECK",
+                                  "FINANCE_POLICY_APPROVE",
+                                  "BOOKING_CONFIRM",
+                                  "PRIVACY_REVIEW",
+                                  "DISPUTE_MANAGE"
+                                ],
+                                "description": "Independent Capabilities Item validated by this operation's strict request contract."
+                              },
+                              "description": "Independent Capabilities validated by this operation's strict request contract."
+                            },
                             "canManageAssignments": {
                               "type": "boolean",
                               "description": "Can Manage Assignments validated by this operation's strict request contract."
@@ -172032,6 +172406,7 @@
                             "version",
                             "assignments",
                             "permissions",
+                            "independentCapabilities",
                             "canManageAssignments",
                             "canInviteAdmins",
                             "accessRevision",
@@ -172380,6 +172755,9 @@
                       ],
                       "permissions": [
                         "synthetic-permissions-item"
+                      ],
+                      "independentCapabilities": [
+                        "REFUND_APPROVE"
                       ],
                       "canManageAssignments": true,
                       "canInviteAdmins": true,
@@ -172986,6 +173364,23 @@
                               },
                               "description": "Permissions validated by this operation's strict request contract."
                             },
+                            "independentCapabilities": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "enum": [
+                                  "REFUND_APPROVE",
+                                  "REFUND_TRANSFER",
+                                  "REFUND_CHECK",
+                                  "FINANCE_POLICY_APPROVE",
+                                  "BOOKING_CONFIRM",
+                                  "PRIVACY_REVIEW",
+                                  "DISPUTE_MANAGE"
+                                ],
+                                "description": "Independent Capabilities Item validated by this operation's strict request contract."
+                              },
+                              "description": "Independent Capabilities validated by this operation's strict request contract."
+                            },
                             "canManageAssignments": {
                               "type": "boolean",
                               "description": "Can Manage Assignments validated by this operation's strict request contract."
@@ -173054,6 +173449,7 @@
                             "version",
                             "assignments",
                             "permissions",
+                            "independentCapabilities",
                             "canManageAssignments",
                             "canInviteAdmins",
                             "accessRevision",
@@ -173162,6 +173558,9 @@
                       ],
                       "permissions": [
                         "synthetic-permissions-item"
+                      ],
+                      "independentCapabilities": [
+                        "REFUND_APPROVE"
                       ],
                       "canManageAssignments": true,
                       "canInviteAdmins": true,
@@ -173686,6 +174085,23 @@
                               },
                               "description": "Permissions validated by this operation's strict request contract."
                             },
+                            "independentCapabilities": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "enum": [
+                                  "REFUND_APPROVE",
+                                  "REFUND_TRANSFER",
+                                  "REFUND_CHECK",
+                                  "FINANCE_POLICY_APPROVE",
+                                  "BOOKING_CONFIRM",
+                                  "PRIVACY_REVIEW",
+                                  "DISPUTE_MANAGE"
+                                ],
+                                "description": "Independent Capabilities Item validated by this operation's strict request contract."
+                              },
+                              "description": "Independent Capabilities validated by this operation's strict request contract."
+                            },
                             "canManageAssignments": {
                               "type": "boolean",
                               "description": "Can Manage Assignments validated by this operation's strict request contract."
@@ -173754,6 +174170,7 @@
                             "version",
                             "assignments",
                             "permissions",
+                            "independentCapabilities",
                             "canManageAssignments",
                             "canInviteAdmins",
                             "accessRevision",
@@ -173878,6 +174295,9 @@
                       ],
                       "permissions": [
                         "synthetic-permissions-item"
+                      ],
+                      "independentCapabilities": [
+                        "REFUND_APPROVE"
                       ],
                       "canManageAssignments": true,
                       "canInviteAdmins": true,
@@ -174455,6 +174875,23 @@
                               },
                               "description": "Permissions validated by this operation's strict request contract."
                             },
+                            "independentCapabilities": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "enum": [
+                                  "REFUND_APPROVE",
+                                  "REFUND_TRANSFER",
+                                  "REFUND_CHECK",
+                                  "FINANCE_POLICY_APPROVE",
+                                  "BOOKING_CONFIRM",
+                                  "PRIVACY_REVIEW",
+                                  "DISPUTE_MANAGE"
+                                ],
+                                "description": "Independent Capabilities Item validated by this operation's strict request contract."
+                              },
+                              "description": "Independent Capabilities validated by this operation's strict request contract."
+                            },
                             "canManageAssignments": {
                               "type": "boolean",
                               "description": "Can Manage Assignments validated by this operation's strict request contract."
@@ -174523,6 +174960,7 @@
                             "version",
                             "assignments",
                             "permissions",
+                            "independentCapabilities",
                             "canManageAssignments",
                             "canInviteAdmins",
                             "accessRevision",
@@ -174683,6 +175121,9 @@
                       ],
                       "permissions": [
                         "synthetic-permissions-item"
+                      ],
+                      "independentCapabilities": [
+                        "REFUND_APPROVE"
                       ],
                       "canManageAssignments": true,
                       "canInviteAdmins": true,
@@ -175252,6 +175693,23 @@
                               },
                               "description": "Permissions validated by this operation's strict request contract."
                             },
+                            "independentCapabilities": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "enum": [
+                                  "REFUND_APPROVE",
+                                  "REFUND_TRANSFER",
+                                  "REFUND_CHECK",
+                                  "FINANCE_POLICY_APPROVE",
+                                  "BOOKING_CONFIRM",
+                                  "PRIVACY_REVIEW",
+                                  "DISPUTE_MANAGE"
+                                ],
+                                "description": "Independent Capabilities Item validated by this operation's strict request contract."
+                              },
+                              "description": "Independent Capabilities validated by this operation's strict request contract."
+                            },
                             "canManageAssignments": {
                               "type": "boolean",
                               "description": "Can Manage Assignments validated by this operation's strict request contract."
@@ -175320,6 +175778,7 @@
                             "version",
                             "assignments",
                             "permissions",
+                            "independentCapabilities",
                             "canManageAssignments",
                             "canInviteAdmins",
                             "accessRevision",
@@ -175424,6 +175883,9 @@
                       ],
                       "permissions": [
                         "synthetic-permissions-item"
+                      ],
+                      "independentCapabilities": [
+                        "REFUND_APPROVE"
                       ],
                       "canManageAssignments": true,
                       "canInviteAdmins": true,
@@ -175926,6 +176388,23 @@
                               },
                               "description": "Permissions validated by this operation's strict request contract."
                             },
+                            "independentCapabilities": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "enum": [
+                                  "REFUND_APPROVE",
+                                  "REFUND_TRANSFER",
+                                  "REFUND_CHECK",
+                                  "FINANCE_POLICY_APPROVE",
+                                  "BOOKING_CONFIRM",
+                                  "PRIVACY_REVIEW",
+                                  "DISPUTE_MANAGE"
+                                ],
+                                "description": "Independent Capabilities Item validated by this operation's strict request contract."
+                              },
+                              "description": "Independent Capabilities validated by this operation's strict request contract."
+                            },
                             "canManageAssignments": {
                               "type": "boolean",
                               "description": "Can Manage Assignments validated by this operation's strict request contract."
@@ -175994,6 +176473,7 @@
                             "version",
                             "assignments",
                             "permissions",
+                            "independentCapabilities",
                             "canManageAssignments",
                             "canInviteAdmins",
                             "accessRevision",
@@ -176109,6 +176589,9 @@
                       ],
                       "permissions": [
                         "synthetic-permissions-item"
+                      ],
+                      "independentCapabilities": [
+                        "REFUND_APPROVE"
                       ],
                       "canManageAssignments": true,
                       "canInviteAdmins": true,
@@ -176754,6 +177237,23 @@
                                 true
                               ],
                               "description": "Responsibility Grants Only validated by this operation's strict request contract."
+                            },
+                            "independentCapabilities": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "enum": [
+                                  "REFUND_APPROVE",
+                                  "REFUND_TRANSFER",
+                                  "REFUND_CHECK",
+                                  "FINANCE_POLICY_APPROVE",
+                                  "BOOKING_CONFIRM",
+                                  "PRIVACY_REVIEW",
+                                  "DISPUTE_MANAGE"
+                                ],
+                                "description": "Independent Capabilities Item validated by this operation's strict request contract."
+                              },
+                              "description": "Independent Capabilities validated by this operation's strict request contract."
                             }
                           },
                           "required": [
@@ -176960,7 +177460,10 @@
                           ]
                         }
                       ],
-                      "responsibilityGrantsOnly": true
+                      "responsibilityGrantsOnly": true,
+                      "independentCapabilities": [
+                        "REFUND_APPROVE"
+                      ]
                     },
                     "templatesVersion": 1,
                     "assignmentDefinitions": {},

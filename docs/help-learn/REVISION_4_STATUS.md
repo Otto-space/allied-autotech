@@ -94,3 +94,11 @@ rendered 320-1440px keyboard/Axe fixtures. Current grants and request enums stay
 strict; no migration or further provider call. See WORKFORCE_HISTORY_W10.md.
 Independent-grant/baseline and granular Care authority remain foundation dependencies
 before canonical handoff/shared transport. Full Revision4 and all106 gates stay open.
+
+W11: `feat/workforce-independent-access-20261027`, based on W10 `11c4ac15`. Separate
+owner-grant projection, exact HTTP compatibility, existing four independent-duty
+workspaces and help/notification/access invalidation accepted locally in57 native,
+112 backend unit, full1114/final45 frontend and18+11 browser cases. No grant/role
+creation, schema change, model call or publication. See WORKFORCE_INDEPENDENT_ACCESS_W11.md.
+BOOKING_CONFIRM/scoped financial aftercare and granular Care duties remain foundation
+dependencies; canonical handoff/shared staffed transport and106 route gates stay open.

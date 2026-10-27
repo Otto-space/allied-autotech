@@ -1,6 +1,11 @@
 import { z } from "zod";
 import type { AuthenticatedActor } from "../../common/contracts/actor.js";
 import { AppError } from "../../common/errors/app-error.js";
+import {
+  independentEndpointCapabilities,
+  independentCapabilitySchema,
+  recognisedIndependentCapabilities,
+} from "../policies/independent-capabilities.js";
 import type { Prisma } from "../../generated/prisma/client.js";
 import {
   workforceAccessRevision,
@@ -53,6 +58,13 @@ export async function workforceSnapshot(
       role: true,
       emailVerifiedAt: true,
       staffProfile: { select: { id: true } },
+      owner_UserCapability_userId: {
+        where: {
+          revokedAt: null,
+          capability: { in: independentCapabilitySchema.options },
+        },
+        select: { capability: true },
+      },
       workforceAccess: {
         include: {
           assignments: {
@@ -117,6 +129,9 @@ export async function workforceSnapshot(
     version: access?.version ?? 0,
     assignments,
     permissions,
+    independentCapabilities: recognisedIndependentCapabilities(
+      user.owner_UserCapability_userId.map((row) => row.capability),
+    ),
     canManageAssignments,
     canInviteAdmins,
     capabilityScopes: workforceCapabilityScopes(assignments),
@@ -192,9 +207,11 @@ function isPersonalNotificationPath(path: string): boolean {
 // Enrolled accounts cannot reach broad legacy APIs, even if their identity is ADMIN.
 // New operational endpoints enforce actions, scopes and fields inside their transaction.
 export async function enforceWorkforceBoundary(
-  tx: Pick<Prisma.TransactionClient, "workforceAccess">,
+  tx: Pick<Prisma.TransactionClient, "workforceAccess"> &
+    Partial<Pick<Prisma.TransactionClient, "userCapability">>,
   actor: AuthenticatedActor,
   originalUrl: string,
+  method = "GET",
 ) {
   if (actor.role === "CUSTOMER" || actor.role === "SUPER_ADMIN") return;
   const access = await tx.workforceAccess.findUnique({
@@ -224,6 +241,21 @@ export async function enforceWorkforceBoundary(
     path.startsWith("/api/v1/staff/fitment/") ||
     path === "/api/v1/staff/workforce" ||
     path.startsWith("/api/v1/admin/workforce/")
+  )
+    return;
+  const independent = independentEndpointCapabilities(path, method);
+  if (
+    independent.length &&
+    actor.mfaVerifiedAt &&
+    tx.userCapability &&
+    (await tx.userCapability.findFirst({
+      where: {
+        userId: actor.userId,
+        capability: { in: [...independent] },
+        revokedAt: null,
+      },
+      select: { id: true },
+    }))
   )
     return;
   workforceDenied("Use the workspace permitted by your current responsibilities");

@@ -15991,6 +15991,9 @@ Success: HTTP 200.
       "permissions": [
         "synthetic-permissions-item"
       ],
+      "independentCapabilities": [
+        "REFUND_APPROVE"
+      ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
       "accessRevision": "synthetic-accessrevision",
@@ -16078,6 +16081,9 @@ Success: HTTP 200.
       ],
       "permissions": [
         "synthetic-permissions-item"
+      ],
+      "independentCapabilities": [
+        "REFUND_APPROVE"
       ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
@@ -16178,6 +16184,9 @@ Success: HTTP 200.
       ],
       "permissions": [
         "synthetic-permissions-item"
+      ],
+      "independentCapabilities": [
+        "REFUND_APPROVE"
       ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
@@ -16288,6 +16297,9 @@ Success: HTTP 200.
       "permissions": [
         "synthetic-permissions-item"
       ],
+      "independentCapabilities": [
+        "REFUND_APPROVE"
+      ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
       "accessRevision": "synthetic-accessrevision",
@@ -16360,6 +16372,9 @@ Success: HTTP 200.
     "permissions": [
       "synthetic-permissions-item"
     ],
+    "independentCapabilities": [
+      "REFUND_APPROVE"
+    ],
     "canManageAssignments": true,
     "canInviteAdmins": true,
     "accessRevision": "synthetic-accessrevision",
@@ -16427,6 +16442,9 @@ Success: HTTP 200.
       ],
       "permissions": [
         "synthetic-permissions-item"
+      ],
+      "independentCapabilities": [
+        "REFUND_APPROVE"
       ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
@@ -16545,6 +16563,9 @@ Success: HTTP 200.
       "permissions": [
         "synthetic-permissions-item"
       ],
+      "independentCapabilities": [
+        "REFUND_APPROVE"
+      ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
       "accessRevision": "synthetic-accessrevision",
@@ -16649,6 +16670,9 @@ Success: HTTP 200.
       "permissions": [
         "synthetic-permissions-item"
       ],
+      "independentCapabilities": [
+        "REFUND_APPROVE"
+      ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
       "accessRevision": "synthetic-accessrevision",
@@ -16752,6 +16776,9 @@ Success: HTTP 200.
       ],
       "permissions": [
         "synthetic-permissions-item"
+      ],
+      "independentCapabilities": [
+        "REFUND_APPROVE"
       ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
@@ -16858,6 +16885,9 @@ Success: HTTP 200.
       "permissions": [
         "synthetic-permissions-item"
       ],
+      "independentCapabilities": [
+        "REFUND_APPROVE"
+      ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
       "accessRevision": "synthetic-accessrevision",
@@ -16954,6 +16984,9 @@ Success: HTTP 200.
       ],
       "permissions": [
         "synthetic-permissions-item"
+      ],
+      "independentCapabilities": [
+        "REFUND_APPROVE"
       ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
@@ -17112,6 +17145,9 @@ Success: HTTP 200.
       "permissions": [
         "synthetic-permissions-item"
       ],
+      "independentCapabilities": [
+        "REFUND_APPROVE"
+      ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
       "accessRevision": "synthetic-accessrevision",
@@ -17240,6 +17276,9 @@ Success: HTTP 200.
       ],
       "permissions": [
         "synthetic-permissions-item"
+      ],
+      "independentCapabilities": [
+        "REFUND_APPROVE"
       ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
@@ -17372,6 +17411,9 @@ Success: HTTP 200.
       "permissions": [
         "synthetic-permissions-item"
       ],
+      "independentCapabilities": [
+        "REFUND_APPROVE"
+      ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
       "accessRevision": "synthetic-accessrevision",
@@ -17483,6 +17525,9 @@ Success: HTTP 200.
       "permissions": [
         "synthetic-permissions-item"
       ],
+      "independentCapabilities": [
+        "REFUND_APPROVE"
+      ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
       "accessRevision": "synthetic-accessrevision",
@@ -17580,6 +17625,9 @@ Success: HTTP 200.
       ],
       "permissions": [
         "synthetic-permissions-item"
+      ],
+      "independentCapabilities": [
+        "REFUND_APPROVE"
       ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
@@ -17688,6 +17736,9 @@ Success: HTTP 200.
       "permissions": [
         "synthetic-permissions-item"
       ],
+      "independentCapabilities": [
+        "REFUND_APPROVE"
+      ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
       "accessRevision": "synthetic-accessrevision",
@@ -17783,6 +17834,9 @@ Success: HTTP 200.
       ],
       "permissions": [
         "synthetic-permissions-item"
+      ],
+      "independentCapabilities": [
+        "REFUND_APPROVE"
       ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
@@ -17921,6 +17975,9 @@ Success: HTTP 200.
       "permissions": [
         "synthetic-permissions-item"
       ],
+      "independentCapabilities": [
+        "REFUND_APPROVE"
+      ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
       "accessRevision": "synthetic-accessrevision",
@@ -18021,6 +18078,9 @@ Success: HTTP 200.
       ],
       "permissions": [
         "synthetic-permissions-item"
+      ],
+      "independentCapabilities": [
+        "REFUND_APPROVE"
       ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
@@ -18142,6 +18202,9 @@ Success: HTTP 200.
       "permissions": [
         "synthetic-permissions-item"
       ],
+      "independentCapabilities": [
+        "REFUND_APPROVE"
+      ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
       "accessRevision": "synthetic-accessrevision",
@@ -18248,6 +18311,9 @@ Success: HTTP 200.
       "permissions": [
         "synthetic-permissions-item"
       ],
+      "independentCapabilities": [
+        "REFUND_APPROVE"
+      ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
       "accessRevision": "synthetic-accessrevision",
@@ -18343,6 +18409,9 @@ Success: HTTP 200.
       ],
       "permissions": [
         "synthetic-permissions-item"
+      ],
+      "independentCapabilities": [
+        "REFUND_APPROVE"
       ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
@@ -23659,7 +23728,10 @@ Success: HTTP 200.
           ]
         }
       ],
-      "responsibilityGrantsOnly": true
+      "responsibilityGrantsOnly": true,
+      "independentCapabilities": [
+        "REFUND_APPROVE"
+      ]
     },
     "templatesVersion": 1,
     "assignmentDefinitions": {},

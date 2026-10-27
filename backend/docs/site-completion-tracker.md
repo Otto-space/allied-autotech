@@ -1861,3 +1861,21 @@ Exact-lock Next16.4.3 CI, hosted/real-role/device acceptance remain open. Indepe
 grant/account-baseline composition and granular care authority are next foundation
 dependencies before persisted reviewed handoff and gated shared/staffed transport.
 All 106 route completion gates remain open; full Revision4/Item6 stays active.
+
+27 October 2026 - Revision 4 W11 local checkpoint: separate recognised active
+owner grants compose with the managed boundary without widening branch duties.
+Existing refund/dispute/privacy/financial-policy workspaces, current grant revision,
+source eligibility, scoped notification links and stale-read/review disposal align.
+Managed Admin uses the scoped refund queue and cannot recover broad legacy refund
+inspection; owner/unenrolled legacy inspection and independent approval remain.
+57 native HTTP/DB cases, 112 backend units, full 1114 frontend units and final45
+focused cases, 18 populated role/width browser fixtures and11 history/session
+regressions passed. Types/lint/contracts, final cached build and secret guard pass.
+Known Next not-found CSS preload warning is verified/reported separately; full
+route acceptance, hosted/device/screen-reader checks remain open. No schema/model
+call, real message, install, new worktree or publication. W9 approval stays exhausted.
+Evidence: docs/help-learn/WORKFORCE_INDEPENDENT_ACCESS_W11.md. C:25.79GiB free; Docker
+retention reviewed without deletion, denied dev folders unchanged. Next: compatible
+scoped BOOKING_CONFIRM and financial-aftercare adapters, then granular Care duties,
+persisted reviewed handoff and shared staffed/gated transport. All106 completion
+decisions and full Revision4/Item6 remain active.

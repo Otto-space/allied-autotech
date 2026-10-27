@@ -3,6 +3,7 @@ import type { AuthenticatedActor } from "../../common/contracts/actor.js";
 import type { RequestSecurityContext } from "../../common/contracts/request-security.js";
 import { verifyPassword } from "../../common/security/passwords.js";
 import { prisma } from "../../config/database.js";
+import { recognisedIndependentCapabilities } from "../policies/independent-capabilities.js";
 import type { Prisma } from "../../generated/prisma/client.js";
 import { appendAuditEvent } from "../audit/audit.service.js";
 import { lockAccessActor, revokeAccessInvitations } from "./team-access-security.js";
@@ -276,6 +277,18 @@ export class WorkforceAccessService {
             .filter((b) => b.isActive && envelope?.delegatedBranchIds.includes(b.id))
             .map((b) => b.id);
     const grantVisibility = visibilityFor(actor, target, envelope, branches, assignments);
+    const independentCapabilities =
+      actor.role === "SUPER_ADMIN"
+        ? recognisedIndependentCapabilities(
+            (eligible
+              ? await tx.userCapability.findMany({
+                  where: { userId, revokedAt: null },
+                  select: { capability: true },
+                })
+              : []
+            ).map((row) => row.capability),
+          )
+        : undefined;
     return {
       userId,
       accountLabel: target.staffProfile
@@ -327,6 +340,7 @@ export class WorkforceAccessService {
           now,
         ),
         responsibilityGrantsOnly: true as const,
+        ...(independentCapabilities ? { independentCapabilities } : {}),
       },
       assignmentDefinitions: Object.fromEntries(
         assignments.map((a) => [a.id, definitionForAssignment(a) ?? null]),
@@ -427,6 +441,7 @@ export class WorkforceAccessService {
       operation: input.operation,
       input,
       visibility: view.effectiveAccess.visibility,
+      independentCapabilities: view.effectiveAccess.independentCapabilities,
       ...changes,
       responsibilityGrantsOnly: true as const,
     };

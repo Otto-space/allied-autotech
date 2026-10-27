@@ -18,6 +18,38 @@ function catalogue(overrides: Partial<LearningAccess>) {
   }
 }
 describe("provider-observed role guidance regressions", () => {
+  it("retrieves independent-duty guidance only from explicit grants, never a title or responsibility string", () => {
+    const ordinary = {
+      role: "STAFF" as const,
+      managed: true,
+      position: "ACCOUNTANT",
+      permissions: ["FINANCE_READ", "REFUND_CHECK"],
+    };
+    expect(catalogue(ordinary).articles.some((a) => a.id === "refund-work")).toBe(false);
+    const entitled = catalogue({
+      ...ordinary,
+      independentCapabilities: ["REFUND_CHECK"],
+    });
+    const refund = entitled.articles.find((a) => a.id === "refund-work")!;
+    expect(refund.href).toBe("/admin/refunds");
+    expect(refund.steps.join(" ")).toContain("independent of the requester");
+    expect(
+      retrieveAllieContext(
+        entitled,
+        "How does an independent checker review refund evidence?",
+        "work",
+      ).sources.some((source) => source.articleId === "refund-work"),
+    ).toBe(true);
+    expect(
+      catalogue({
+        role: "CUSTOMER",
+        independentCapabilities: ["REFUND_CHECK"],
+      }).articles.some((a) => a.id === "refund-work"),
+    ).toBe(false);
+    expect(
+      catalogue({ role: "SUPER_ADMIN" }).articles.some((a) => a.id === "privacy-work"),
+    ).toBe(false);
+  });
   it("makes managed public-only replies distinct from legacy administrator notes", () => {
     const care = catalogue({
       role: "STAFF",

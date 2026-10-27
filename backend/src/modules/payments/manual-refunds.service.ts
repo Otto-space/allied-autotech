@@ -46,6 +46,7 @@ export class ManualRefundsService {
         role: true,
         status: true,
         emailVerifiedAt: true,
+        workforceAccess: { select: { userId: true } },
         owner_UserCapability_userId: {
           where: {
             revokedAt: null,
@@ -62,7 +63,10 @@ export class ManualRefundsService {
       !user.emailVerifiedAt
     )
       throw paymentForbidden();
-    if (administratorInspection && ["ADMIN", "SUPER_ADMIN"].includes(actor.role))
+    if (
+      administratorInspection &&
+      (actor.role === "SUPER_ADMIN" || (actor.role === "ADMIN" && !user.workforceAccess))
+    )
       return {};
     const grants = new Set(
       user.owner_UserCapability_userId.map((grant) => grant.capability),
