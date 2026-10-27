@@ -227,6 +227,7 @@ export const publicReviewListQuerySchema = z
 export const customerReviewListQuerySchema = z
   .object({
     ...page,
+    reviewId: uuid.optional(),
     status: z.enum(["PENDING", "APPROVED", "REJECTED"]).optional(),
   })
   .strict();

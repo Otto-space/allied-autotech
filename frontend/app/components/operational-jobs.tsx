@@ -620,7 +620,10 @@ function JobWorkspace({
                       {jobName(job) !== job.eventType && (
                         <p className="wj-event-type">{job.eventType}</p>
                       )}
-                      <p className={`wj-status ${job.status.toLowerCase()}`}>
+                      <p
+                        className={`wj-status ${job.status.toLowerCase()}`}
+                        data-status={job.status}
+                      >
                         {jobStatusLabel(job.status)}
                       </p>
                       <p className="wj-row-facts">
@@ -703,7 +706,10 @@ function JobWorkspace({
                 {row && (
                   <>
                     <p className="wj-event-type">{row.eventType}</p>
-                    <p className={`wj-status ${row.status.toLowerCase()}`}>
+                    <p
+                      className={`wj-status ${row.status.toLowerCase()}`}
+                      data-status={row.status}
+                    >
                       {jobStatusLabel(row.status)}
                     </p>
                     <JobFacts row={row} />

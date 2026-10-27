@@ -1,4 +1,5 @@
 "use client";
+import { WorkflowProgress } from "./status-progress";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowLeft, ChevronRight, RefreshCw } from "lucide-react";
@@ -308,7 +309,11 @@ function SaleWorkspace({
               {current.transactionNumber} · Customer: {current.customerName}
             </p>
           )}
-          {current && <span className="status">{purchaseLabels[current.status]}</span>}
+          {current && (
+            <span className="status" data-status={current.status}>
+              {purchaseLabels[current.status]}
+            </span>
+          )}
         </div>
         <div className="wsd-actions">
           <button
@@ -379,6 +384,7 @@ function SaleWorkspace({
       )}
       {current && (
         <div key={generation}>
+          <WorkflowProgress workflow="vehicle" status={current.status} />
           <nav className="wsd-sections" aria-label="Purchase sections">
             <a href="#purchase-facts">Purchase facts</a>
             <a href="#purchase-negotiation">Negotiation</a>

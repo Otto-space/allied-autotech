@@ -1,4 +1,6 @@
 ﻿"use client";
+import { browseEnquiriesOnly } from "@/lib/public-launch";
+import { PublicEnquiryActions } from "./public-enquiry-actions";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -27,7 +29,19 @@ type Result = {
   cart?: CartUpdate;
 };
 
-export function ProductActions({
+export function ProductActions(props: {
+  productId: string;
+  available: boolean;
+  productName?: string;
+}) {
+  return browseEnquiriesOnly() ? (
+    <PublicEnquiryActions subject={props.productName ?? "this product"} />
+  ) : (
+    <ProductPurchaseActions {...props} />
+  );
+}
+
+function ProductPurchaseActions({
   productId,
   available,
 }: {

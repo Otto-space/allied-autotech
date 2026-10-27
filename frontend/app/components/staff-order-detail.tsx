@@ -1,4 +1,5 @@
 "use client";
+import { WorkflowProgress } from "./status-progress";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -285,13 +286,16 @@ function OrderRecord({
       )}
       {current && (
         <>
+          <WorkflowProgress workflow="order" status={current.status} />
           <dl className="work-order-summary">
             <div>
               <dt>
                 <Package size={18} aria-hidden="true" />
                 Fulfilment
               </dt>
-              <dd className="status">{orderStatusLabels[current.status]}</dd>
+              <dd className="status" data-status={current.status}>
+                {orderStatusLabels[current.status]}
+              </dd>
             </div>
             <div>
               <dt>

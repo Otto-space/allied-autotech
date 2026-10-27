@@ -1,4 +1,5 @@
 "use client";
+import { WorkflowProgress } from "./status-progress";
 import { useState } from "react";
 import { disputeProposal, type DisputeWork } from "@/lib/api/dispute-workflow";
 import { lagosDateTime } from "@/lib/forms/vehicle-condition";
@@ -21,6 +22,7 @@ export function DisputeProgress({
   return (
     <section className="detail-section aftercare-record">
       <h3>Acknowledgement and provider submission</h3>
+      <WorkflowProgress workflow="dispute" status={record.status} />
       <Feedback message={error} />
       {!record.acknowledgedAt && (
         <form

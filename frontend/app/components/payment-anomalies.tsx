@@ -933,7 +933,7 @@ function ExceptionWorkspace({
 }
 function ExceptionBadge({ status }: { status: WorkException["status"] }) {
   return (
-    <span className={`we-badge we-badge-${status.toLowerCase()}`}>
+    <span data-status={status} className={`we-badge we-badge-${status.toLowerCase()}`}>
       {exceptionLabels[status]}
     </span>
   );

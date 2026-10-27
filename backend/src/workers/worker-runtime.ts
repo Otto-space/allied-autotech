@@ -1,3 +1,4 @@
+import { SupportCustomerEmailWorker } from "./support-customer-email.worker.js";
 import { OperationalAlertsWorker } from "./operational-alerts.worker.js";
 import { DepartmentEmailWorker } from "./department-email.worker.js";
 import { RefundWorker } from "./refund.worker.js";
@@ -65,6 +66,9 @@ export async function runGeneralWorker(): Promise<void> {
   const departmentEmail = new DepartmentEmailWorker(
     env.EMAIL_DELIVERY_ENABLED ? new ResendEmailProvider() : null,
   );
+  const supportCustomerEmail = new SupportCustomerEmailWorker(
+    env.EMAIL_DELIVERY_ENABLED ? new ResendEmailProvider() : null,
+  );
   const expiration = new ExpirationWorker();
   const mediaCleanup = new MediaCleanupWorker();
   const bookingReminders = new BookingReminderWorker();
@@ -95,6 +99,9 @@ export async function runGeneralWorker(): Promise<void> {
       );
       await safely("department-email", () =>
         departmentEmail.runOnce(env.WORKER_BATCH_SIZE),
+      );
+      await safely("support-customer-email", () =>
+        supportCustomerEmail.runOnce(env.WORKER_BATCH_SIZE),
       );
       await safely("payment-webhook-retry", () => webhook.runOnce(env.WORKER_BATCH_SIZE));
       await safely("booking-reminders", () =>

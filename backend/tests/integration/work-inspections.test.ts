@@ -301,14 +301,11 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
             .send({ expectedVersion: 1, status: "CANCELLED" })
         ).status,
       ).toBe(422);
-      const cancelled = await request(app)
-        .post(path)
-        .set(admin.headers)
-        .send({
-          expectedVersion: 1,
-          status: "CANCELLED",
-          reason: "Synthetic cancellation",
-        });
+      const cancelled = await request(app).post(path).set(admin.headers).send({
+        expectedVersion: 1,
+        status: "CANCELLED",
+        reason: "Synthetic cancellation",
+      });
       expect(cancelled.status).toBe(200);
       expect(cancelled.body.data).toMatchObject({
         version: 2,

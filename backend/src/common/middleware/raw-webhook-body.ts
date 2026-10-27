@@ -1,3 +1,6 @@
-import express from "express";
+import express, { type RequestHandler } from "express";
 
-export const rawWebhookBody = express.raw({ type: "application/json", limit: "256kb" });
+export const rawWebhookBody: RequestHandler = express.raw({
+  type: "application/json",
+  limit: "256kb",
+});

@@ -1,3 +1,4 @@
+import { browseEnquiriesOnly } from "@/lib/public-launch";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
@@ -159,7 +160,8 @@ export function ContactInvitation() {
         </div>
         <div className="actions">
           <Link href="/services" className="button">
-            Book a Service <ArrowUpRight size={17} aria-hidden="true" />
+            {browseEnquiriesOnly() ? "Explore services" : "Book a Service"}{" "}
+            <ArrowUpRight size={17} aria-hidden="true" />
           </Link>
           <a href={business.whatsapp} className="button secondary">
             Speak with us

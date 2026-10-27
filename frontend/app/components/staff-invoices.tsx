@@ -381,7 +381,10 @@ function InvoiceRecord({
         </div>
         <div className="iv-status-cell">
           <span className="iv-mobile-label">Status</span>
-          <span className={`iv-status iv-status-${v.status.toLowerCase()}`}>
+          <span
+            className={`iv-status iv-status-${v.status.toLowerCase()}`}
+            data-status={v.status}
+          >
             {invoiceStatusLabels[v.status]}
           </span>
         </div>

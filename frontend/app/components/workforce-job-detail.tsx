@@ -1,4 +1,5 @@
 "use client";
+import { WorkflowProgress } from "./status-progress";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -509,6 +510,8 @@ export function WorkforceJobDetail({
       {busy && <p role="status">Checking job access…</p>}
       {job && (
         <>
+          <WorkflowProgress workflow="booking" status={job.status} />
+          {work && <WorkflowProgress workflow="workOrder" status={work.status} />}
           <div className="wjd-states">
             <span>
               Work: <strong>{stateName(work?.status ?? "NOT_CREATED")}</strong>

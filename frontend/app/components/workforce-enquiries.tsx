@@ -238,7 +238,10 @@ export function WorkforceEnquiries({
                   <td data-label="Branch">{row.branch?.name ?? "Branch not recorded"}</td>
                   <td data-label="Assigned to">{enquiryStaffName(row.assignedStaff)}</td>
                   <td data-label="Status">
-                    <span className={`wfe-status is-${row.status.toLowerCase()}`}>
+                    <span
+                      className={`wfe-status is-${row.status.toLowerCase()}`}
+                      data-status={row.status}
+                    >
                       {enquiryStatusLabels[row.status]}
                     </span>
                   </td>

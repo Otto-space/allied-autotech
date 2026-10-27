@@ -1,4 +1,6 @@
 "use client";
+import { SupportEmailDeliverySummary } from "./support-email-delivery";
+import { WorkflowProgress } from "./status-progress";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { ChevronDown } from "lucide-react";
@@ -485,7 +487,10 @@ export function WorkforceEnquiryDetail({
               </h2>
               <p>
                 {enquiryTypeLabels[row.type]} ·{" "}
-                <span className={`wfe-status is-${row.status.toLowerCase()}`}>
+                <span
+                  className={`wfe-status is-${row.status.toLowerCase()}`}
+                  data-status={row.status}
+                >
                   {enquiryStatusLabels[row.status]}
                 </span>
               </p>
@@ -494,6 +499,13 @@ export function WorkforceEnquiryDetail({
               Close selection
             </button>
           </header>
+          <WorkflowProgress workflow="enquiry" status={row.status} />
+          <SupportEmailDeliverySummary
+            page={row.emailDeliveries}
+            loading={busy}
+            error={failure}
+            onRefresh={record.refresh}
+          />
           <dl className="wfe-facts">
             <div>
               <dt>Branch</dt>

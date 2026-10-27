@@ -1,4 +1,5 @@
 "use client";
+import { WorkflowProgress } from "./status-progress";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { apiRequest, ApiError, SESSION_CHANGED } from "@/lib/api/client";
@@ -377,7 +378,10 @@ export function WorkforceOrderDetail({
                 {row.orderNumber}
               </h2>
               <p>
-                <span className={`wfc-status is-${row.status.toLowerCase()}`}>
+                <span
+                  className={`wfc-status is-${row.status.toLowerCase()}`}
+                  data-status={row.status}
+                >
                   {orderStatusLabels[row.status]}
                 </span>
               </p>
@@ -386,6 +390,7 @@ export function WorkforceOrderDetail({
               Close selection
             </button>
           </header>
+          <WorkflowProgress workflow="order" status={row.status} />
           <dl className="wfc-facts">
             <div>
               <dt>Branch</dt>

@@ -231,7 +231,10 @@ export function WorkforceOrders({
                     {row.paidAt ? "Paid recorded" : "Not recorded"}
                   </td>
                   <td data-label="Status">
-                    <span className={`wfc-status is-${row.status.toLowerCase()}`}>
+                    <span
+                      className={`wfc-status is-${row.status.toLowerCase()}`}
+                      data-status={row.status}
+                    >
                       {orderStatusLabels[row.status]}
                     </span>
                   </td>

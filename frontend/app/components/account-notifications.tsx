@@ -1,6 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
+import { customerNotificationDestination } from "@/lib/notifications/destinations";
+import { announceNotificationChange } from "@/lib/notifications/use-notification-summary";
 import { Bell, Check, RefreshCw } from "lucide-react";
 import { ApiError, apiRequest } from "@/lib/api/client";
 import { useResource } from "@/lib/api/use-resource";
@@ -286,6 +289,7 @@ export function AccountNotificationInbox({
         return updated;
       });
       setMessage("Notification marked as read.");
+      announceNotificationChange(userId);
       records.refresh();
     } catch (cause) {
       setError(
@@ -323,6 +327,7 @@ export function AccountNotificationInbox({
         );
         pagination.reset();
         records.refresh();
+        announceNotificationChange(userId);
       },
     });
   }
@@ -336,6 +341,7 @@ export function AccountNotificationInbox({
           onClick={() => {
             if (guard.pending) clearFilters();
             guard.refresh();
+            announceNotificationChange(userId);
           }}
         >
           <RefreshCw size={15} aria-hidden="true" />
@@ -445,40 +451,54 @@ export function AccountNotificationInbox({
       )}
       {!records.loading && !records.error && (
         <div className="cn-list">
-          {records.data?.items.map((item) => (
-            <article
-              className={`cn-item${item.readAt ? " cn-item-read" : ""}`}
-              key={item.id}
-              aria-labelledby={`notification-${item.id}`}
-            >
-              <div className="cn-row-meta">
-                <span className="cn-read-status">
-                  {item.readAt ? <Check size={12} aria-hidden="true" /> : null}
-                  {item.readAt ? "Read" : "Unread"}
-                </span>
-                <span>
-                  {label(item.category)} · {label(item.type)}
-                </span>
-              </div>
-              <h3 id={`notification-${item.id}`}>{item.title}</h3>
-              <p className="cn-message">{item.message}</p>
-              <div className="cn-row-footer">
-                <time dateTime={item.createdAt}>
-                  {formatBusinessDate(item.createdAt)}
-                </time>
-                {!item.readAt && (
-                  <button
-                    className="button secondary"
-                    disabled={guard.disabled}
-                    aria-label={`Mark ${item.title} as read`}
-                    onClick={() => void readOne(item)}
-                  >
-                    Mark as read
-                  </button>
-                )}
-              </div>
-            </article>
-          ))}
+          {records.data?.items.map((item) => {
+            const destination =
+              role === "CUSTOMER" ? customerNotificationDestination(item) : null;
+            return (
+              <article
+                className={`cn-item${item.readAt ? " cn-item-read" : ""}`}
+                key={item.id}
+                aria-labelledby={`notification-${item.id}`}
+              >
+                <div className="cn-row-meta">
+                  <span className="cn-read-status">
+                    {item.readAt ? <Check size={12} aria-hidden="true" /> : null}
+                    {item.readAt ? "Read" : "Unread"}
+                  </span>
+                  <span>
+                    {label(item.category)} · {label(item.type)}
+                  </span>
+                </div>
+                <h3 id={`notification-${item.id}`}>{item.title}</h3>
+                <p className="cn-message">{item.message}</p>
+                <div className="cn-row-footer">
+                  <time dateTime={item.createdAt}>
+                    {formatBusinessDate(item.createdAt)}
+                  </time>
+                  {destination && (
+                    <Link
+                      className="button secondary"
+                      href={destination.href}
+                      prefetch={false}
+                      aria-label={`${destination.label}: ${item.title}`}
+                    >
+                      {destination.label}
+                    </Link>
+                  )}
+                  {!item.readAt && (
+                    <button
+                      className="button secondary"
+                      disabled={guard.disabled}
+                      aria-label={`Mark ${item.title} as read`}
+                      onClick={() => void readOne(item)}
+                    >
+                      Mark as read
+                    </button>
+                  )}
+                </div>
+              </article>
+            );
+          })}
         </div>
       )}
       <CursorPagination

@@ -1,4 +1,5 @@
 "use client";
+import { WorkflowProgress } from "./status-progress";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -302,6 +303,7 @@ export function PaymentDetail({ paymentId }: { paymentId: string }) {
       {current && (
         <div className="payment-layout" data-compact={!!unavailable || uncertain}>
           <div className="payment-overview">
+            <WorkflowProgress workflow="payment" status={current.status} />
             <section
               className="payment-summary"
               aria-labelledby="payment-reference-title"
@@ -334,7 +336,9 @@ export function PaymentDetail({ paymentId }: { paymentId: string }) {
                 ) : (
                   <Clock3 size={20} aria-hidden="true" />
                 )}
-                <span className="status">{statusLabels[current.status]}</span>
+                <span className="status" data-status={current.status}>
+                  {statusLabels[current.status]}
+                </span>
               </div>
               <p className="payment-status-message">{paymentMessages[current.status]}</p>
               {current.expiresAt !== null && (

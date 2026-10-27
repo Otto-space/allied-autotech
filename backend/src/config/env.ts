@@ -88,6 +88,9 @@ const optionalEmail = z.preprocess(
 const environmentSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   DEPLOYMENT_ENV: z.enum(["local", "staging", "production"]).default("local"),
+  PUBLIC_LAUNCH_MODE: z.enum(["full", "browse_enquiries"]).default("full"),
+  CLIENT_IP_SOURCE: z.enum(["socket", "digitalocean"]).default("socket"),
+  FRONTEND_PROXY_SECRET: base64Key,
   PRIVATE_TESTING_ENABLED: booleanValue(false),
   PRIVATE_TESTING_PASSWORD: optionalNonEmptyString,
 
@@ -392,6 +395,16 @@ export function assertApiEnvironment(
   runtime: typeof env = env,
   source: NodeJS.ProcessEnv = process.env,
 ): void {
+  assertPublicLaunchEnvironment(runtime);
+  if (runtime.CLIENT_IP_SOURCE === "digitalocean" && !runtime.FRONTEND_PROXY_SECRET)
+    throw new Error("Verified frontend forwarding requires FRONTEND_PROXY_SECRET.");
+  if (
+    runtime.CLIENT_IP_SOURCE === "digitalocean" &&
+    (runtime.TRUST_PROXY_HOPS !== 0 || runtime.TRUST_PROXY_CIDRS?.length)
+  )
+    throw new Error(
+      "Verified provider forwarding requires ordinary Express proxy trust disabled.",
+    );
   if (runtime.NODE_ENV !== "production") {
     requireConfiguredVariables("API", ["FRONTEND_URL"], source);
     return;
@@ -460,10 +473,25 @@ export function assertApiEnvironment(
   }
 }
 
+export function assertPublicLaunchEnvironment(runtime: typeof env = env): void {
+  if (
+    runtime.PUBLIC_LAUNCH_MODE === "browse_enquiries" &&
+    (runtime.PAYSTACK_MODE !== "disabled" ||
+      runtime.MONNIFY_MODE !== "disabled" ||
+      runtime.PAYSTACK_LIVE_ENABLED ||
+      runtime.MONNIFY_LIVE_ENABLED ||
+      runtime.PAYMENT_RECONCILIATION_ENABLED)
+  )
+    throw new Error(
+      "Browsing/enquiries launch requires disabled payment providers and reconciliation.",
+    );
+}
+
 export function assertIdentityWorkerEnvironment(
   runtime: typeof env = env,
   source: NodeJS.ProcessEnv = process.env,
 ): void {
+  assertPublicLaunchEnvironment(runtime);
   if (runtime.NODE_ENV !== "production") return;
   requireConfiguredVariables(
     "identity worker",
@@ -485,6 +513,7 @@ export function assertGeneralWorkerEnvironment(
   runtime: typeof env = env,
   source: NodeJS.ProcessEnv = process.env,
 ): void {
+  assertPublicLaunchEnvironment(runtime);
   if (runtime.NODE_ENV !== "production") return;
   requireConfiguredVariables(
     "general worker",

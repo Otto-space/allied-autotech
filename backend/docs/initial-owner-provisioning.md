@@ -1,5 +1,60 @@
 # Initial owner provisioning
 
+## Production provisioning completed — 22 October 2026
+
+Production is separate from staging. Its canonical frontend is now
+https://alliedautotech.com, with private access retained during verification.
+The selected production owner remains `alliedautotechltd@gmail.com`.
+
+The user registered using their own password and confirmed production email
+verification. Read-only inspection independently confirmed the selected account
+was active and email-verified and that no production Super Admin existed.
+The operator then used the existing guarded `provisionInitialOwner` function
+with the exact inspected account UUID. No account, password, verification
+timestamp or authenticator was created by the operator.
+
+The actual target was confirmed as managed PostgreSQL host
+`allied-autotech-staging-db-do-user-44970995-0.k.db.ondigitalocean.com`, port
+`25060`, database `allied_autotech_production`, environment `production`, using
+strict CA/hostname verification. The separate migration account passed
+`npm run db:check`. A fresh custom-format backup was created and its receipt,
+hash and archive index verified through `npm run db:backup` using the dedicated
+backup account. This fresh dump was not itself restore-rehearsed; the separate
+managed PITR and isolated recovery restore evidence remains as described in
+the production release record.
+
+Provisioning used the restricted production runtime role, the existing
+transaction/advisory lock, exact-account checks and installed ownership
+protections. Post-change verification confirmed one Super Admin, the selected
+active/verified account, zero unrevoked sessions for it and exactly one initial
+provisioning role-change audit entry. No schema, grants, migration history,
+staging account or other user was changed. Temporary operator-IP database
+access was removed, and the original two app-only firewall rules were verified.
+
+Do not rerun initial provisioning: it now correctly refuses replacement of the
+existing owner. The owner signed in again and confirmed completion of MFA and
+entry to the production admin dashboard on 22 October. A subsequent read-only
+check confirmed the same active, email-verified sole Super Admin, at least one
+active verified MFA factor and a current unrevoked MFA-verified session. It
+selected counts only; no factor secret, recovery code or session credential was
+read or copied. Temporary operator-IP access was removed and the original
+app-only firewall verified again.
+
+At the MFA check, production had zero branches, services, products and vehicle
+listings. The owner then confirmed branch creation through their own authenticated
+`/admin/branches` page. A subsequent public API read confirmed one active
+Port Harcourt branch, street address `133 Stadium Road`, state `Rivers`, country
+Nigeria, timezone `Africa/Lagos`, phone `08136075567` and email
+`support@alliedautotech.com`. The saved street field omits the landmark; the
+public site's approved address text still includes it. No appointment capacity
+or calendar was inferred. Media workflows still need their own checks;
+successful MFA and branch creation do not certify uploads.
+
+See [the production release record](digitalocean-production-release.md) for the
+database target, current deployments and remaining launch checks. The local
+production perimeter credential is separate from the user's account password;
+keep it in the protected operator file, never in this document or chat.
+
 ## Staging provisioning completed - 21 October 2026
 
 `alliedautotechltd@gmail.com` is now the sole staging `SUPER_ADMIN`. The selected account was already active and email-verified through the normal application workflow before the operator ran the existing guarded provisioning function with its inspected UUID. No account, password or verification timestamp was created by the operator.

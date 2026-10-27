@@ -1,4 +1,5 @@
 "use client";
+import { WorkflowProgress } from "./status-progress";
 import Link from "next/link";
 import { useCallback } from "react";
 import { CarFront, ChevronRight, MessageCircle, RefreshCw } from "lucide-react";
@@ -101,6 +102,7 @@ export function VehicleTransactionDetail({ transactionId }: { transactionId: str
       )}
       {current && (
         <>
+          <WorkflowProgress workflow="vehicle" status={current.status} />
           <section className="pd-summary" aria-labelledby="pd-vehicle-title">
             <div className="pd-identity-row">
               <div className="pd-photo">
@@ -116,7 +118,9 @@ export function VehicleTransactionDetail({ transactionId }: { transactionId: str
               <div className="pd-identity">
                 <div className="pd-reference">
                   <span>{current.transactionNumber}</span>
-                  <span className="pd-status">{purchaseLabels[current.status]}</span>
+                  <span className="pd-status" data-status={current.status}>
+                    {purchaseLabels[current.status]}
+                  </span>
                 </div>
                 <h2 id="pd-vehicle-title">{current.vehicleListing.title}</h2>
                 <p>
@@ -240,7 +244,7 @@ export function VehicleTransactionDetail({ transactionId }: { transactionId: str
               <section className="pd-handover" aria-labelledby="pd-handover-heading">
                 <div className="pd-section-heading">
                   <h2 id="pd-handover-heading">Vehicle handover</h2>
-                  <span className="pd-status">
+                  <span className="pd-status" data-status={current.handover.status}>
                     {handoverLabels[current.handover.status]}
                   </span>
                 </div>

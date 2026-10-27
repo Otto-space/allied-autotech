@@ -12,6 +12,7 @@ import { errorHandler } from "./common/middleware/error-handler.js";
 import { notFound } from "./common/middleware/not-found.js";
 import { privateNoStore } from "./common/middleware/private-no-store.js";
 import { privateTesting } from "./common/middleware/private-testing.js";
+import { clientAddress } from "./common/middleware/client-address.js";
 import { createGlobalRateLimit } from "./common/middleware/rate-limits.js";
 import { rawWebhookBody } from "./common/middleware/raw-webhook-body.js";
 import { requestContext } from "./common/middleware/request-context.js";
@@ -91,6 +92,7 @@ export function createApp(options: CreateAppOptions = {}): Express {
     ),
   );
   app.use(privateTesting(env.PRIVATE_TESTING_ENABLED, env.PRIVATE_TESTING_PASSWORD));
+  app.use(clientAddress(env.CLIENT_IP_SOURCE, env.FRONTEND_PROXY_SECRET));
   app.use(
     cors({
       origin(origin, callback) {

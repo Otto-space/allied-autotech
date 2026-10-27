@@ -1,4 +1,5 @@
 "use client";
+import { browseEnquiriesOnly } from "@/lib/public-launch";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -53,6 +54,7 @@ export function SiteHeader() {
 }
 
 function HeaderContent({ pathname }: { pathname: string }) {
+  const enquiryOnly = browseEnquiriesOnly();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -314,14 +316,16 @@ function HeaderContent({ pathname }: { pathname: string }) {
             </nav>
 
             <div className="site-header__divider" />
-            <Link
-              href="/dashboard/cart"
-              prefetch={false}
-              className="site-cart-link"
-              aria-label="Cart"
-            >
-              <ShoppingBag size={19} />
-            </Link>
+            {!enquiryOnly && (
+              <Link
+                href="/dashboard/cart"
+                prefetch={false}
+                className="site-cart-link"
+                aria-label="Cart"
+              >
+                <ShoppingBag size={19} />
+              </Link>
+            )}
 
             <Link href={accountLink.href} prefetch={false} className="site-account-link">
               <span className="site-account-link__icon">
@@ -334,7 +338,7 @@ function HeaderContent({ pathname }: { pathname: string }) {
             <Link href="/services" className="header-book-button">
               <Wrench size={16} strokeWidth={2} />
 
-              <span>Book a Service</span>
+              <span>{enquiryOnly ? "Explore services" : "Book a Service"}</span>
 
               <ArrowUpRight size={16} className="header-book-button__arrow" />
             </Link>
@@ -431,15 +435,17 @@ function HeaderContent({ pathname }: { pathname: string }) {
           </nav>
 
           <div className="mobile-menu__account">
-            <Link
-              href="/dashboard/cart"
-              className="mobile-account-link"
-              prefetch={false}
-              onClick={() => setOpen(false)}
-            >
-              <ShoppingBag size={18} />
-              Cart
-            </Link>
+            {!enquiryOnly && (
+              <Link
+                href="/dashboard/cart"
+                className="mobile-account-link"
+                prefetch={false}
+                onClick={() => setOpen(false)}
+              >
+                <ShoppingBag size={18} />
+                Cart
+              </Link>
+            )}
             <Link
               href={accountLink.href}
               prefetch={false}
@@ -459,7 +465,7 @@ function HeaderContent({ pathname }: { pathname: string }) {
               <ChevronRight size={18} aria-hidden="true" />
             </Link>
 
-            {!session && (
+            {!session && !enquiryOnly && (
               <Link
                 href="/register"
                 className="mobile-create-account"
@@ -477,7 +483,7 @@ function HeaderContent({ pathname }: { pathname: string }) {
           >
             <span className="mobile-book-button__copy">
               <small>Need vehicle care?</small>
-              <strong>Book a Service</strong>
+              <strong>{enquiryOnly ? "Explore services" : "Book a Service"}</strong>
             </span>
 
             <span className="mobile-book-button__icon">

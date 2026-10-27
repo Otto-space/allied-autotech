@@ -248,6 +248,7 @@ export function BookingsPanel() {
                     <td data-label="Status">
                       <span
                         className={`booking-state ${["CANCELLED", "EXPIRED", "NO_SHOW"].includes(booking.status) ? "closed" : ""}`}
+                        data-status={booking.status}
                       >
                         {bookingLabel(booking.status)}
                       </span>
