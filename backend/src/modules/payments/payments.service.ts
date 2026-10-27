@@ -879,7 +879,7 @@ export class PaymentsService {
     context: RequestSecurityContext,
   ) {
     await assertCapability(this.database, actor, "REFUND_APPROVE");
-    const approved = await withTransactionRetry(this.database, async (tx) => {
+    await withTransactionRetry(this.database, async (tx) => {
       await assertCapability(tx, actor, "REFUND_APPROVE");
       const rows = await tx.$queryRaw<
         Array<{ id: string }>
@@ -905,11 +905,22 @@ export class PaymentsService {
           );
       }
       const now = new Date();
-      const updated = await tx.refund.update({
+      const requiresOfflineProcessing =
+        input.decision === "APPROVED" &&
+        (refund.paymentAttempt.provider === "MANUAL" ||
+          !refund.paymentAttempt.gatewayTransactionId);
+      await tx.refund.update({
         where: { id },
         data:
           input.decision === "APPROVED"
-            ? { status: "APPROVED", approvedByUserId: actor.userId, approvedAt: now }
+            ? {
+                status: requiresOfflineProcessing ? "NEEDS_ATTENTION" : "APPROVED",
+                approvedByUserId: actor.userId,
+                approvedAt: now,
+                ...(requiresOfflineProcessing
+                  ? { providerStatus: "OFFLINE_PROCESSING_REQUIRED" }
+                  : {}),
+              }
             : {
                 status: "CANCELLED",
                 cancelledAt: now,
@@ -928,19 +939,7 @@ export class PaymentsService {
         context,
       });
       await snapshotRefundClock(tx, id);
-      return { refund: updated, attempt: refund.paymentAttempt };
     });
-    if (
-      input.decision === "APPROVED" &&
-      (approved.attempt.provider === "MANUAL" || !approved.attempt.gatewayTransactionId)
-    )
-      await this.database.refund.update({
-        where: { id },
-        data: {
-          status: "NEEDS_ATTENTION",
-          providerStatus: "OFFLINE_PROCESSING_REQUIRED",
-        },
-      });
     // Dispatch is durable and owned by RefundWorker, including crash recovery.
     return paymentJsonSafe(
       refundCurrentRecord(
