@@ -848,9 +848,9 @@ function VehicleCustomerActions({
               <Phone size={17} aria-hidden="true" />
               Call our team
             </a>
-            <a href={business.whatsapp} target="_blank" rel="noreferrer">
+            <a href={business.whatsapp} target="_blank" rel="noopener noreferrer">
               <MessageCircle size={17} aria-hidden="true" />
-              WhatsApp
+              Whatsapp
             </a>
           </div>
         </aside>

@@ -1,5 +1,27 @@
 # UI and UX quality register
 
+## 27 October 2026: Workshop address and Whatsapp labels
+
+Updated the public address to "133 Stadium Road, beside Kilimanjaro Pizza Jungle
+Restaurant, Port Harcourt, Rivers State, Nigeria" in the shared business details,
+Contact visit card, map destinations, Help guidance and search metadata. Public
+contact surfaces no longer render phone digits; the footer, About and Privacy
+offer a Whatsapp link. Existing call actions use descriptive labels. Messaging
+links retain HTTPS and explicit opener/referrer protections. Search structured
+data no longer publishes a telephone field. Link destinations necessarily retain
+the number; this is not number secrecy or a claim about the business's WhatsApp
+account encryption configuration.
+
+Browser plugin not available; reused Playwright/Edge. Local anonymous checks at
+390 and 1440 CSS pixels passed Contact, About, Help, Privacy and the workshop
+guide: correct page title, meaningful main content, full address, no visible phone
+digits, no horizontal overflow, no framework overlay or page errors. Map queries
+contain the full address. Keyboard activation of the footer Whatsapp link opened
+the expected HTTPS host with null opener and empty referrer (destination
+intercepted; no message sent). Screenshots: `%TEMP%/allied-location-390.png` and
+`allied-location-1440.png`; receipt: `allied-location-browser.json`. These are
+local, mocked API checks, not real-device or authenticated acceptance.
+
 Updated 26 October 2026. This is the ongoing quality register, not an assertion
 that every route or state has passed review. Work proceeds in finite batches.
 

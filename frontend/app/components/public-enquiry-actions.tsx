@@ -31,7 +31,12 @@ export function PublicEnquiryActions({
           Send an enquiry
         </Link>
       )}
-      <a className="button secondary" href={whatsapp} target="_blank" rel="noreferrer">
+      <a
+        className="button secondary"
+        href={whatsapp}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
         Ask on WhatsApp
       </a>
     </div>

@@ -63,8 +63,13 @@ export function SiteFooter() {
         <div>
           <p className="font-bold mb-6">Contact</p>
           <div className="flex flex-col gap-4 text-white/70">
-            <a href={`tel:${business.internationalPhone}`} className="hover:text-white">
-              {business.phone}
+            <a
+              href={business.whatsapp}
+              className="hover:text-white"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Whatsapp
             </a>
             <a href={`mailto:${business.email}`} className="hover:text-white">
               {business.email}

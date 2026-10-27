@@ -178,7 +178,7 @@ export default async function ServicesPage({
                 Ask about a service <ArrowUpRight size={16} aria-hidden="true" />
               </Link>
               <a href={business.whatsapp} className="button secondary">
-                Chat on WhatsApp
+                Whatsapp
               </a>
             </div>
           </div>

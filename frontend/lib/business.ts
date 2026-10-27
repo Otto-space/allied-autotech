@@ -2,7 +2,8 @@ import { browseEnquiriesOnly } from "./public-launch";
 export const business = {
   name: "Allied AutoTech",
   legalName: "Allied Autotech Limited",
-  address: "133 Stadium Road, beside Kilimanjaro, Port Harcourt, Rivers State, Nigeria",
+  address:
+    "133 Stadium Road, beside Kilimanjaro Pizza Jungle Restaurant, Port Harcourt, Rivers State, Nigeria",
   phone: "08136075567",
   internationalPhone: "+2348136075567",
   whatsapp: "https://wa.me/2348136075567",
@@ -14,7 +15,7 @@ export const business = {
   directions:
     "https://www.google.com/maps/dir/?api=1&destination=" +
     encodeURIComponent(
-      "133 Stadium Road, beside Kilimanjaro, Port Harcourt, Rivers State, Nigeria",
+      "133 Stadium Road, beside Kilimanjaro Pizza Jungle Restaurant, Port Harcourt, Rivers State, Nigeria",
     ),
 } as const;
 
@@ -44,9 +45,7 @@ export const faqs = [
     category: "Contact and location",
     question: "How can I speak to someone?",
     answer:
-      "Call " +
-      business.phone +
-      ", message us on WhatsApp, or email " +
+      "Call our team, message us on Whatsapp, or email " +
       business.email +
       ". Customer care is available " +
       business.customerCareHours +
@@ -54,7 +53,7 @@ export const faqs = [
       business.customerCareResponse,
     keywords: "contact human person agent support whatsapp phone email complaint",
     href: business.whatsapp,
-    action: "Message on WhatsApp",
+    action: "Whatsapp",
   },
   {
     id: "pending-payments",

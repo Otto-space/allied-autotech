@@ -53,7 +53,7 @@ export function CatalogueHelp() {
               <h2>Where is the workshop?</h2>
               <p>
                 {business.address}.{" "}
-                <a href={business.directions} target="_blank" rel="noreferrer">
+                <a href={business.directions} target="_blank" rel="noopener noreferrer">
                   Get directions <MapPin size={15} aria-hidden="true" />
                 </a>
                 .
@@ -79,15 +79,15 @@ export function CatalogueHelp() {
             <div className="catalogue-help-actions">
               <a className="button" href={`tel:${business.internationalPhone}`}>
                 <Phone size={16} aria-hidden="true" />
-                Call {business.phone}
+                Call our team
               </a>
               <a
                 className="button secondary"
                 href={business.whatsapp}
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
               >
-                Chat on WhatsApp
+                Whatsapp
               </a>
               <a className="button secondary" href={`mailto:${business.email}`}>
                 <Mail size={16} aria-hidden="true" />

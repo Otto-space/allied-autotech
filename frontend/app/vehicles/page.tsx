@@ -154,7 +154,7 @@ export default async function VehiclesPage({
               <Suspense
                 fallback={
                   <a href={business.whatsapp} className="button secondary">
-                    Chat on WhatsApp
+                    Whatsapp
                   </a>
                 }
               >
@@ -163,7 +163,7 @@ export default async function VehiclesPage({
                   channel="whatsapp"
                   className="button secondary"
                 >
-                  Chat on WhatsApp
+                  Whatsapp
                 </CatalogueEnquiryLink>
               </Suspense>
             </div>
