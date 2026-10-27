@@ -23,9 +23,61 @@ import { prisma } from "../../config/database.js";
 import { appendAuditEvent } from "../audit/audit.service.js";
 import { financeEmptyQuery, readFinancePolicy } from "./finance-policy-workspace.js";
 import { lockAccessActor } from "../organization/team-access-security.js";
+import { readRetentionPolicy } from "./retention-policy-workspace.js";
+import { readReservationPolicy } from "./reservation-policy-workspace.js";
+import { readRefundTimingPolicy } from "./refund-timing-workspace.js";
+import { readDeliveryPolicy } from "./delivery-policy-workspace.js";
+import { capacityBranchParams, readCapacityPolicy } from "./capacity-policy-workspace.js";
+import { readDisputePolicy } from "./dispute-policy-workspace.js";
+import { readComplaintPolicy } from "./complaint-policy-workspace.js";
 
 export function createPoliciesRouter() {
   const router = Router();
+  router.get(
+    "/admin/policies/refund-timing/current",
+    authenticate(),
+    requireSuperAdministrator,
+    validate({ query: financeEmptyQuery }),
+    async (req, res) => {
+      res.set("Cache-Control", "private, no-store");
+      const result = await readRefundTimingPolicy(req.actor!, {
+        requestId: String(req.id),
+        ipAddress: req.ip ?? null,
+        userAgent: req.get("user-agent") ?? null,
+      });
+      res.json(successResponse("Current bank refund timing", req.id, result));
+    },
+  );
+  router.get(
+    "/admin/policies/delivery/current",
+    authenticate(),
+    requireSuperAdministrator,
+    validate({ query: financeEmptyQuery }),
+    async (req, res) => {
+      res.set("Cache-Control", "private, no-store");
+      const result = await readDeliveryPolicy(req.actor!, {
+        requestId: String(req.id),
+        ipAddress: req.ip ?? null,
+        userAgent: req.get("user-agent") ?? null,
+      });
+      res.json(successResponse("Current delivery policy", req.id, result));
+    },
+  );
+  router.get(
+    "/admin/policies/reservation-terms/current",
+    authenticate(),
+    requireSuperAdministrator,
+    validate({ query: financeEmptyQuery }),
+    async (req, res) => {
+      res.set("Cache-Control", "private, no-store");
+      const result = await readReservationPolicy(req.actor!, {
+        requestId: String(req.id),
+        ipAddress: req.ip ?? null,
+        userAgent: req.get("user-agent") ?? null,
+      });
+      res.json(successResponse("Current reservation-terms policy", req.id, result));
+    },
+  );
   router.get("/public/fulfillment-options", async (req, res) => {
     res.setHeader("Cache-Control", "no-store");
     res.json(
@@ -68,6 +120,67 @@ export function createPoliciesRouter() {
         );
       },
     );
+  router.get(
+    "/admin/policies/complaints/current",
+    authenticate(),
+    requireSuperAdministrator,
+    validate({ query: financeEmptyQuery }),
+    async (req, res) => {
+      res.set("Cache-Control", "private, no-store");
+      const result = await readComplaintPolicy(req.actor!, {
+        requestId: String(req.id),
+        ipAddress: req.ip ?? null,
+        userAgent: req.get("user-agent") ?? null,
+      });
+      res.json(successResponse("Current complaint policy", req.id, result));
+    },
+  );
+  router.get(
+    "/admin/policies/disputes/current",
+    authenticate(),
+    requireSuperAdministrator,
+    validate({ query: financeEmptyQuery }),
+    async (req, res) => {
+      res.set("Cache-Control", "private, no-store");
+      const result = await readDisputePolicy(req.actor!, {
+        requestId: String(req.id),
+        ipAddress: req.ip ?? null,
+        userAgent: req.get("user-agent") ?? null,
+      });
+      res.json(successResponse("Current dispute policy", req.id, result));
+    },
+  );
+  router.get(
+    "/admin/policies/retention/current",
+    authenticate(),
+    requireSuperAdministrator,
+    validate({ query: financeEmptyQuery }),
+    async (req, res) => {
+      res.set("Cache-Control", "private, no-store");
+      const result = await readRetentionPolicy(req.actor!, {
+        requestId: String(req.id),
+        ipAddress: req.ip ?? null,
+        userAgent: req.get("user-agent") ?? null,
+      });
+      res.json(successResponse("Current retention policy", req.id, result));
+    },
+  );
+  router.get(
+    "/admin/policies/booking-capacity/:branchId/current",
+    authenticate(),
+    requireSuperAdministrator,
+    validate({ params: capacityBranchParams, query: financeEmptyQuery }),
+    async (req, res) => {
+      const { branchId } = capacityBranchParams.parse(req.params);
+      res.set("Cache-Control", "private, no-store");
+      const result = await readCapacityPolicy(req.actor!, branchId, {
+        requestId: String(req.id),
+        ipAddress: req.ip ?? null,
+        userAgent: req.get("user-agent") ?? null,
+      });
+      res.json(successResponse("Current branch booking capacity", req.id, result));
+    },
+  );
   router.get(
     "/admin/policies",
     authenticate(),

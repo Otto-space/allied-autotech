@@ -1,0 +1,369 @@
+.dashboard .dashboard-content .workforce-bookings {
+  --wfb-line: #ccd6df;
+  --wfb-muted: #465866;
+  color: #01121a;
+  font-family: var(--font-quicksand), sans-serif;
+  padding-bottom: 28px;
+}
+.workforce-bookings * {
+  min-width: 0;
+}
+.workforce-bookings :is(a, button, input, select):focus-visible {
+  outline: 2px solid #e60301;
+  outline-offset: 3px;
+}
+.workforce-bookings .wfb-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  font-size: 14px;
+  color: var(--wfb-muted);
+}
+.workforce-bookings .wfb-breadcrumb a {
+  color: #01121a;
+  text-underline-offset: 3px;
+}
+.workforce-bookings .wfb-heading {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+.dashboard .dashboard-content .workforce-bookings h1 {
+  margin: 0;
+  font-size: 28px;
+  line-height: 1.3;
+}
+.dashboard .dashboard-content .workforce-bookings h2 {
+  margin: 0;
+  font-size: 19px;
+  line-height: 1.4;
+}
+.dashboard .dashboard-content .workforce-bookings h3 {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.5;
+}
+.dashboard .dashboard-content .workforce-bookings p {
+  margin: 6px 0 0;
+  color: var(--wfb-muted);
+  font-size: 14px;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+.workforce-bookings .wfb-refresh {
+  display: grid;
+  justify-items: end;
+  max-width: 320px;
+  flex-shrink: 0;
+}
+.dashboard .dashboard-content .workforce-bookings .wfb-refresh p {
+  font-size: 12px;
+  text-align: right;
+}
+.workforce-bookings .button {
+  min-height: 44px;
+  font-size: 13px;
+  border-radius: 6px;
+  gap: 7px;
+}
+.workforce-bookings .button.secondary {
+  border: 1px solid #aebecb;
+}
+.workforce-bookings .wfb-filters {
+  display: grid;
+  grid-template-columns: minmax(220px, 1.4fr) minmax(170px, 1fr) auto;
+  align-items: end;
+  gap: 16px;
+  padding: 20px;
+  background: #fff;
+  border: 1px solid var(--wfb-line);
+  border-radius: 6px;
+  margin: 0 0 24px;
+}
+.dashboard .dashboard-content .workforce-bookings .wfb-filters .field {
+  margin: 0;
+  display: grid;
+  gap: 7px;
+}
+.workforce-bookings .wfb-filters label {
+  color: #01121a;
+  font-size: 14px;
+  font-weight: 650;
+}
+.workforce-bookings .wfb-filters :is(input, select) {
+  width: 100%;
+  min-height: 44px;
+  font-size: 14px;
+  border: 1px solid #9cadba;
+  border-radius: 5px;
+  background: #fff;
+  color: #01121a;
+  padding: 10px 12px;
+}
+.workforce-bookings .wfb-search > div {
+  position: relative;
+}
+.workforce-bookings .wfb-search svg {
+  position: absolute;
+  left: 12px;
+  top: 13px;
+  color: var(--wfb-muted);
+  pointer-events: none;
+}
+.workforce-bookings .wfb-search input {
+  padding-left: 38px;
+}
+.workforce-bookings .wfb-filter-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.dashboard .dashboard-content .workforce-bookings .wfb-filters p {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 13px;
+}
+.workforce-bookings .wfb-results {
+  background: #fff;
+  border: 1px solid var(--wfb-line);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.workforce-bookings .wfb-results > header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px;
+  border-bottom: 1px solid var(--wfb-line);
+}
+.workforce-bookings .wfb-results > header > span {
+  color: var(--wfb-muted);
+  font-size: 13px;
+}
+.workforce-bookings table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.workforce-bookings :is(th, td) {
+  padding: 14px 12px;
+  vertical-align: top;
+  text-align: left;
+  border: 0;
+  background: transparent;
+  overflow-wrap: anywhere;
+  line-height: 1.65;
+}
+.workforce-bookings thead {
+  background: #f3f5f7;
+}
+.workforce-bookings thead th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+.workforce-bookings thead th:nth-child(1) {
+  width: 18%;
+}
+.workforce-bookings thead th:nth-child(2) {
+  width: 18%;
+}
+.workforce-bookings thead th:nth-child(3) {
+  width: 18%;
+}
+.workforce-bookings thead th:nth-child(4) {
+  width: 13%;
+}
+.workforce-bookings thead th:nth-child(5) {
+  width: 20%;
+}
+.workforce-bookings thead th:nth-child(6) {
+  width: 13%;
+}
+.workforce-bookings tbody tr {
+  border-bottom: 1px solid var(--wfb-line);
+}
+.workforce-bookings small {
+  display: block;
+  color: var(--wfb-muted);
+  font-size: 13px;
+  font-weight: 400;
+  margin-top: 3px;
+}
+.workforce-bookings .wfb-status {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  color: #253e50;
+  background: #eaf0f5;
+  font-size: 13px;
+}
+.workforce-bookings .wfb-status.is-awaiting_deposit {
+  color: #614015;
+  background: #fff0d8;
+}
+.workforce-bookings .wfb-status.is-completed {
+  color: #205a37;
+  background: #e9f4ec;
+}
+.workforce-bookings .wfb-status.is-cancelled {
+  color: #912c29;
+  background: #fceeed;
+}
+.workforce-bookings .wfb-results footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 20px;
+}
+.dashboard .dashboard-content .workforce-bookings .wfb-results footer p {
+  font-size: 12px;
+  margin: 0;
+}
+.workforce-bookings .wfb-results footer nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.workforce-bookings .wfb-state {
+  padding: 28px 20px;
+  color: var(--wfb-muted);
+  font-size: 14px;
+}
+.workforce-bookings .wfb-skeleton {
+  height: 60px;
+  margin-top: 16px;
+  border-radius: 4px;
+  background: #f1f4f6;
+}
+.workforce-bookings .wfb-feedback {
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  background: #fff;
+  border: 1px solid var(--wfb-line);
+  border-left: 3px solid #e60301;
+  border-radius: 4px;
+}
+@media (max-width: 1100px) {
+  .workforce-bookings .wfb-filters {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .workforce-bookings .wfb-filter-actions {
+    grid-column: 1 / -1;
+  }
+}
+@media (max-width: 1000px) {
+  .workforce-bookings thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .workforce-bookings :is(table, tbody, tr, th, td) {
+    display: block;
+    width: 100%;
+  }
+  .workforce-bookings tbody tr {
+    position: relative;
+    padding: 18px 20px;
+  }
+  .workforce-bookings tbody th {
+    padding: 0 0 10px;
+  }
+  .workforce-bookings td {
+    padding: 5px 0;
+    display: grid;
+    grid-template-columns: 90px minmax(0, 1fr);
+    column-gap: 12px;
+  }
+  .workforce-bookings td::before {
+    content: attr(data-label);
+    color: var(--wfb-muted);
+    font-size: 12px;
+  }
+  .workforce-bookings td small {
+    grid-column: 2;
+  }
+  .workforce-bookings .wfb-status {
+    justify-self: start;
+  }
+  .workforce-bookings .wfb-results footer {
+    align-items: start;
+    flex-direction: column;
+  }
+}
+@media (max-width: 760px) {
+  .dashboard .dashboard-content .workforce-bookings h1 {
+    font-size: 24px;
+  }
+  .workforce-bookings .wfb-heading {
+    display: block;
+  }
+  .workforce-bookings .wfb-refresh {
+    margin-top: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    max-width: none;
+  }
+  .workforce-bookings .wfb-refresh button {
+    flex-shrink: 0;
+  }
+  .workforce-bookings .wfb-filters {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 16px;
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+  .workforce-bookings .wfb-results > header {
+    padding: 16px;
+  }
+  .workforce-bookings tbody tr {
+    padding: 18px 16px;
+  }
+  .workforce-bookings .wfb-results footer {
+    padding: 16px;
+  }
+  .workforce-bookings .wfb-results footer nav {
+    width: 100%;
+    flex-shrink: 1;
+  }
+}
+
+.workforce-bookings .wfb-breadcrumb ol,
+.workforce-bookings .wfb-breadcrumb li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.workforce-bookings .wfb-filters :is(input, select) {
+  margin: 0;
+}
+.workforce-bookings .wfb-filters input::placeholder {
+  color: #526573;
+  opacity: 1;
+}
+.workforce-bookings .wfb-filters > .wfb-filter-actions > .button:not(.secondary) {
+  background: #e60301;
+  color: #fff;
+}
+@media (max-width: 760px) {
+  .workforce-bookings .wfb-refresh {
+    display: grid;
+    justify-items: start;
+    gap: 4px;
+  }
+  .dashboard .dashboard-content .workforce-bookings .wfb-refresh p {
+    text-align: left;
+  }
+}

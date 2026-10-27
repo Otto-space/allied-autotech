@@ -1,3 +1,4 @@
+import { browseEnquiriesOnly } from "@/lib/public-launch";
 import { indexingEnabled } from "@/lib/seo";
 import type { Metadata } from "next";
 import { connection } from "next/server";
@@ -9,6 +10,8 @@ import "./public-site.css";
 import "./feedback.css";
 import "./dashboard-forms.css";
 import "./brand-system.css";
+import "./status-progress.css";
+import "./dashboard-spacing.css";
 
 import { SupportWidget } from "./components/support-widget";
 import { ToastRegion } from "./components/toast-region";
@@ -34,8 +37,9 @@ export function generateMetadata(): Metadata {
       template: "%s · Allied AutoTech",
     },
     robots: { index: indexingEnabled(), follow: indexingEnabled() },
-    description:
-      "Book trusted vehicle care, track service, and manage your Allied AutoTech account.",
+    description: browseEnquiriesOnly()
+      ? "Explore vehicle care, automotive parts and vehicles, and contact the Allied AutoTech team."
+      : "Book trusted vehicle care, track service, and manage your Allied AutoTech account.",
   };
 }
 

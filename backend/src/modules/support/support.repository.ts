@@ -675,7 +675,11 @@ export class SupportRepository {
 
   listCustomerReviews(customerId: string, query: CustomerReviewListQuery) {
     return this.database.review.findMany({
-      where: { customerId, ...(query.status ? { status: query.status } : {}) },
+      where: {
+        customerId,
+        ...(query.reviewId ? { id: query.reviewId } : {}),
+        ...(query.status ? { status: query.status } : {}),
+      },
       select: reviewBaseSelect,
       orderBy: [{ createdAt: "desc" }, { id: "desc" }],
       take: query.limit + 1,

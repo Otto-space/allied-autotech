@@ -176,7 +176,9 @@ function SupportCategory({
                         <ChevronRight size={18} aria-hidden="true" />
                       </Link>
                     </h3>
-                    <span className="cc-status">{label(record.status)}</span>
+                    <span className="cc-status" data-status={record.status}>
+                      {label(record.status)}
+                    </span>
                   </div>
                   <p>{record.branch?.name ?? "Unassigned branch"}</p>
                   {record.kind === "complaints" && (

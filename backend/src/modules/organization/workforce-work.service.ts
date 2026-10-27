@@ -1,3 +1,7 @@
+import {
+  enqueueSupportCustomerUpdate,
+  supportEmailDeliveries,
+} from "../support/customer-email.js";
 import type { z } from "zod";
 import type { AuthenticatedActor } from "../../common/contracts/actor.js";
 import type { RequestSecurityContext } from "../../common/contracts/request-security.js";
@@ -16,15 +20,49 @@ import {
   workforceNotFound,
   type WorkforceSnapshot,
 } from "./workforce.policy.js";
+import {
+  enquirySearchFilters,
+  latestEnquiryMessage,
+  readWorkforceEnquiry,
+  workforceEnquirySelect,
+} from "./workforce-enquiry-workspace.js";
+import {
+  complaintSearchFilters,
+  latestComplaintMessage,
+  readWorkforceComplaint,
+  workforceComplaintSelect,
+} from "./workforce-complaint-workspace.js";
 import type {
+  workforceOrdersQuerySchema,
+  workforceFinanceQuerySchema,
   workforceListSchema,
+  workforceJobsQuerySchema,
+  workforceBookingsQuerySchema,
+  workforceEnquiriesQuerySchema,
+  workforceEnquiryReplySchema,
+  workforceJobAssigneesQuerySchema,
   workforceWorkSchema,
   workforceQualitySchema,
   workforceJobAssignmentSchema,
   workforceOrderSchema,
-  workforceReplySchema,
+  workforceComplaintsQuerySchema,
+  workforceComplaintReplySchema,
   workforceEnquiryAssignmentSchema,
 } from "./workforce.schemas.js";
+import {
+  workforceOrderSelect as orderSelect,
+  orderSearchFilters,
+  orderNextStates,
+  readWorkforceOrder,
+} from "./workforce-order-workspace.js";
+
+import {
+  financeScope,
+  financeSearchFilters,
+  workforceFinanceSelect,
+  workforceFinanceDetailSelect,
+  projectWorkforcePayment,
+} from "./workforce-finance-workspace.js";
 
 export const jobSelect = {
   id: true,
@@ -50,16 +88,22 @@ export const jobSelect = {
     },
   },
 } satisfies Prisma.BookingSelect;
-const orderSelect = {
-  id: true,
-  orderNumber: true,
-  status: true,
-  fulfillmentMethod: true,
-  paidAt: true,
-  version: true,
-  createdAt: true,
-  items: { select: { productName: true, quantity: true } },
-} satisfies Prisma.OrderSelect;
+const jobDetailSelect = {
+  ...jobSelect,
+  branch: { select: { id: true, name: true } },
+  assignedStaff: { select: { id: true, firstName: true, lastName: true } },
+} satisfies Prisma.BookingSelect;
+async function changedJob(
+  tx: Prisma.TransactionClient,
+  access: WorkforceSnapshot,
+  id: string,
+) {
+  const row = await tx.booking.findUniqueOrThrow({
+    where: { id },
+    select: jobDetailSelect,
+  });
+  return { ...row, access, generatedAt: new Date().toISOString() };
+}
 function page<T extends { id: string }>(rows: T[], limit: number) {
   const items = rows.slice(0, limit);
   return { items, ...(rows.length > limit ? { nextCursor: items.at(-1)!.id } : {}) };
@@ -93,7 +137,7 @@ async function audit(
   tx: Prisma.TransactionClient,
   actor: AuthenticatedActor,
   context: RequestSecurityContext,
-  entityType: "BOOKING" | "WORK_ORDER" | "ORDER" | "ENQUIRY" | "COMPLAINT",
+  entityType: "BOOKING" | "WORK_ORDER" | "ORDER" | "ENQUIRY" | "COMPLAINT" | "PAYMENT",
   id: string | null,
   change: Readonly<Record<string, import("../audit/audit.types.js").AuditValue>>,
   read = false,
@@ -163,21 +207,51 @@ export class WorkforceWorkService {
         { workforceAction: "OVERVIEW", permittedCounters: Object.keys(counts).join(",") },
         true,
       );
-      return { counts, generatedAt: new Date().toISOString() };
+      const branches = await tx.branch.findMany({
+        where: { id: { in: [...new Set(access.assignments.map((a) => a.branchId))] } },
+        select: { id: true, name: true },
+        orderBy: [{ name: "asc" }, { id: "asc" }],
+      });
+      return { counts, generatedAt: new Date().toISOString(), access, branches };
     });
   }
   jobs(
     actor: AuthenticatedActor,
-    query: z.infer<typeof workforceListSchema>,
+    query: z.infer<typeof workforceJobsQuerySchema>,
     context: RequestSecurityContext,
     technical = true,
   ) {
     return this.run(actor, async (tx, access) => {
       const scope = bookingScope(access, technical ? "JOBS_READ" : "BOOKINGS_READ");
       const paging = pagination(query);
+      const filters: Prisma.BookingWhereInput[] = [];
+      if (technical && query.q) {
+        const contains = query.q.replace(/[\\%_]/g, "\\$&");
+        const text = { contains, mode: "insensitive" as const };
+        filters.push({
+          OR: [
+            { service: { name: text } },
+            { workOrder: { is: { workOrderNumber: text } } },
+            {
+              vehicle: {
+                is: {
+                  OR: [{ make: text }, { model: text }, { registrationNumber: text }],
+                },
+              },
+            },
+          ],
+        });
+      }
+      if (technical && query.workStatus)
+        filters.push({
+          workOrder:
+            query.workStatus === "NOT_CREATED"
+              ? { is: null }
+              : { is: { status: query.workStatus } },
+        });
       const rows = await tx.booking.findMany({
         ...paging,
-        where: { AND: [scope, paging.where ?? {}] },
+        where: { AND: [scope, paging.where ?? {}, ...filters] },
         select: technical
           ? jobSelect
           : {
@@ -201,14 +275,86 @@ export class WorkforceWorkService {
         },
         true,
       );
-      return page(rows, query.limit);
+      const result = page(rows, query.limit);
+      return technical
+        ? { ...result, generatedAt: new Date().toISOString(), access }
+        : result;
+    });
+  }
+  bookings(
+    actor: AuthenticatedActor,
+    query: z.infer<typeof workforceBookingsQuerySchema>,
+    context: RequestSecurityContext,
+  ) {
+    return this.run(actor, async (tx, access) => {
+      const scope = bookingScope(access, "BOOKINGS_READ"),
+        paging = pagination(query);
+      const filters: Prisma.BookingWhereInput[] = [];
+      for (const term of query.q?.split(/\s+/).filter(Boolean) ?? []) {
+        const text = {
+          contains: term.replace(/[\\%_]/g, "\\$&"),
+          mode: "insensitive" as const,
+        };
+        filters.push({
+          OR: [
+            { service: { name: text } },
+            {
+              customer: {
+                OR: [{ firstName: text }, { lastName: text }, { phone: text }],
+              },
+            },
+            {
+              vehicle: {
+                is: {
+                  OR: [{ make: text }, { model: text }, { registrationNumber: text }],
+                },
+              },
+            },
+          ],
+        });
+      }
+      if (query.status) filters.push({ status: query.status });
+      const rows = await tx.booking.findMany({
+        ...paging,
+        where: { AND: [scope, paging.where ?? {}, ...filters] },
+        select: {
+          id: true,
+          branchId: true,
+          scheduledAt: true,
+          status: true,
+          version: true,
+          service: { select: { name: true } },
+          customer: { select: { firstName: true, lastName: true, phone: true } },
+          branch: { select: { id: true, name: true } },
+          vehicle: {
+            select: { make: true, model: true, year: true, registrationNumber: true },
+          },
+        },
+      });
+      await audit(
+        tx,
+        actor,
+        context,
+        "BOOKING",
+        null,
+        {
+          workforceAction: "BOOKINGS_LIST",
+          resultCount: Math.min(rows.length, query.limit),
+        },
+        true,
+      );
+      return {
+        ...page(rows, query.limit),
+        access,
+        generatedAt: new Date().toISOString(),
+      };
     });
   }
   job(actor: AuthenticatedActor, id: string, context: RequestSecurityContext) {
     return this.run(actor, async (tx, access) => {
       const row = await tx.booking.findFirst({
         where: { AND: [{ id }, bookingScope(access, "JOBS_READ")] },
-        select: jobSelect,
+        select: jobDetailSelect,
       });
       if (!row) workforceNotFound();
       await audit(
@@ -220,7 +366,7 @@ export class WorkforceWorkService {
         { workforceAction: "JOB_DETAIL" },
         true,
       );
-      return row;
+      return { ...row, access, generatedAt: new Date().toISOString() };
     });
   }
   assignees(
@@ -228,6 +374,7 @@ export class WorkforceWorkService {
     id: string,
     context: RequestSecurityContext,
     kind: "jobs" | "enquiries",
+    query?: z.infer<typeof workforceJobAssigneesQuerySchema>,
   ) {
     return this.run(actor, async (tx, access) => {
       const branches = branchesFor(
@@ -239,7 +386,7 @@ export class WorkforceWorkService {
         kind === "jobs"
           ? await tx.booking.findFirst({
               where: { id, branchId: { in: branches } },
-              select: { branchId: true },
+              select: { branchId: true, version: true },
             })
           : await tx.enquiry.findFirst({
               where: {
@@ -247,9 +394,17 @@ export class WorkforceWorkService {
                 branchId: { in: branches },
                 type: { in: ["PRODUCT", "VEHICLE"] },
               },
-              select: { branchId: true },
+              select: { branchId: true, version: true },
             });
       if (!record?.branchId) workforceNotFound();
+      const paginated = query && Object.keys(query).length > 0;
+      const limit = query?.limit ?? 25;
+      const nameTerms = paginated
+        ? (query.q ?? "")
+            .split(/\s+/)
+            .filter(Boolean)
+            .map((term) => term.replace(/[\\%_]/g, "\\$&"))
+        : [];
       const now = new Date();
       const pairs =
         kind === "jobs"
@@ -264,6 +419,19 @@ export class WorkforceWorkService {
             ];
       const items = await tx.staffProfile.findMany({
         where: {
+          ...(paginated
+            ? {
+                AND: [
+                  ...(query.cursor ? [{ id: { gt: query.cursor } }] : []),
+                  ...nameTerms.map((term) => ({
+                    OR: [
+                      { firstName: { contains: term, mode: "insensitive" as const } },
+                      { lastName: { contains: term, mode: "insensitive" as const } },
+                    ],
+                  })),
+                ],
+              }
+            : {}),
           user: {
             role: { in: ["STAFF", "ADMIN"] },
             status: "ACTIVE",
@@ -285,8 +453,8 @@ export class WorkforceWorkService {
           },
         },
         select: { id: true, firstName: true, lastName: true },
-        orderBy: [{ firstName: "asc" }, { id: "asc" }],
-        take: 100,
+        orderBy: paginated ? [{ id: "asc" }] : [{ firstName: "asc" }, { id: "asc" }],
+        take: paginated ? limit + 1 : 100,
       });
       await audit(
         tx,
@@ -294,10 +462,23 @@ export class WorkforceWorkService {
         context,
         kind === "jobs" ? "BOOKING" : "ENQUIRY",
         id,
-        { workforceAction: "ASSIGNEE_OPTIONS", resultCount: items.length },
+        {
+          workforceAction: "ASSIGNEE_OPTIONS",
+          resultCount: paginated ? Math.min(items.length, limit) : items.length,
+        },
         true,
       );
-      return { items };
+      return paginated
+        ? {
+            ...page(items, limit),
+            access,
+            generatedAt: new Date().toISOString(),
+            ...(kind === "jobs"
+              ? { jobId: id, jobVersion: record.version }
+              : { enquiryId: id, enquiryVersion: record.version }),
+            branchId: record.branchId,
+          }
+        : { items };
     });
   }
   work(
@@ -356,7 +537,7 @@ export class WorkforceWorkService {
           .filter((k) => k !== "expectedVersion")
           .join(","),
       });
-      return tx.booking.findUniqueOrThrow({ where: { id }, select: jobSelect });
+      return changedJob(tx, access, id);
     });
   }
   quality(
@@ -409,7 +590,7 @@ export class WorkforceWorkService {
         workforceAction: "QUALITY_APPROVED",
         reason: input.reason,
       });
-      return tx.booking.findUniqueOrThrow({ where: { id }, select: jobSelect });
+      return changedJob(tx, access, id);
     });
   }
   assign(
@@ -464,29 +645,28 @@ export class WorkforceWorkService {
         previousStaffId: booking.assignedStaffId,
         reason: input.reason,
       });
-      return tx.booking.findUniqueOrThrow({ where: { id }, select: jobSelect });
+      return changedJob(tx, access, id);
     });
   }
   enquiries(
     actor: AuthenticatedActor,
-    query: z.infer<typeof workforceListSchema>,
+    query: z.infer<typeof workforceEnquiriesQuerySchema>,
     context: RequestSecurityContext,
   ) {
     return this.run(actor, async (tx, access) => {
       const paging = pagination(query);
       const rows = await tx.enquiry.findMany({
         ...paging,
-        where: { AND: [enquiryScope(access), paging.where ?? {}] },
-        select: {
-          id: true,
-          subject: true,
-          message: true,
-          type: true,
-          status: true,
-          version: true,
-          assignedStaffId: true,
-          createdAt: true,
+        where: {
+          AND: [
+            enquiryScope(access),
+            paging.where ?? {},
+            ...enquirySearchFilters(query.q),
+            ...(query.type ? [{ type: query.type }] : []),
+            ...(query.status ? [{ status: query.status }] : []),
+          ],
         },
+        select: workforceEnquirySelect,
       });
       await audit(
         tx,
@@ -500,12 +680,45 @@ export class WorkforceWorkService {
         },
         true,
       );
-      return page(rows, query.limit);
+      return {
+        ...page(rows, query.limit),
+        access,
+        generatedAt: new Date().toISOString(),
+      };
+    });
+  }
+  enquiry(
+    actor: AuthenticatedActor,
+    id: string,
+    query: z.infer<typeof workforceListSchema>,
+    context: RequestSecurityContext,
+  ) {
+    return this.run(actor, async (tx, access) => {
+      const result = await readWorkforceEnquiry(
+        tx,
+        access,
+        id,
+        enquiryScope(access),
+        query,
+      );
+      await audit(
+        tx,
+        actor,
+        context,
+        "ENQUIRY",
+        id,
+        {
+          workforceAction: "ENQUIRY_DETAIL",
+          resultCount: result.messages.items.length,
+        },
+        true,
+      );
+      return { ...result, emailDeliveries: await supportEmailDeliveries(tx, id) };
     });
   }
   complaints(
     actor: AuthenticatedActor,
-    query: z.infer<typeof workforceListSchema>,
+    query: z.infer<typeof workforceComplaintsQuerySchema>,
     context: RequestSecurityContext,
   ) {
     return this.run(actor, async (tx, access) => {
@@ -517,17 +730,12 @@ export class WorkforceWorkService {
           AND: [
             { branchId: { in: branchesFor(access, "COMPLAINTS") } },
             paging.where ?? {},
+            ...(query.priority ? [{ priority: query.priority }] : []),
+            ...(query.status ? [{ status: query.status }] : []),
+            ...complaintSearchFilters(query.q),
           ],
         },
-        select: {
-          id: true,
-          subject: true,
-          description: true,
-          status: true,
-          priority: true,
-          version: true,
-          createdAt: true,
-        },
+        select: workforceComplaintSelect,
       });
       await audit(
         tx,
@@ -541,32 +749,82 @@ export class WorkforceWorkService {
         },
         true,
       );
-      return page(rows, query.limit);
+      return {
+        ...page(rows, query.limit),
+        access,
+        generatedAt: new Date().toISOString(),
+      };
+    });
+  }
+  complaint(
+    actor: AuthenticatedActor,
+    id: string,
+    query: z.infer<typeof workforceListSchema>,
+    context: RequestSecurityContext,
+  ) {
+    return this.run(actor, async (tx, access) => {
+      if (!access.permissions.includes("COMPLAINTS")) workforceDenied();
+      const result = await readWorkforceComplaint(
+        tx,
+        access,
+        id,
+        branchesFor(access, "COMPLAINTS"),
+        query,
+      );
+      await audit(
+        tx,
+        actor,
+        context,
+        "COMPLAINT",
+        id,
+        {
+          workforceAction: "COMPLAINT_DETAIL",
+          resultCount: result.messages.items.length,
+        },
+        true,
+      );
+      return { ...result, emailDeliveries: await supportEmailDeliveries(tx, id) };
     });
   }
   reply(
     actor: AuthenticatedActor,
     id: string,
-    input: z.infer<typeof workforceReplySchema>,
+    input: z.infer<typeof workforceEnquiryReplySchema>,
     context: RequestSecurityContext,
   ) {
     return this.run(actor, async (tx, access) => {
+      await tx.$queryRaw`SELECT "id" FROM "Enquiry" WHERE "id" = ${id}::uuid FOR UPDATE`;
       const row = await tx.enquiry.findFirst({
         where: { AND: [{ id }, enquiryScope(access)] },
-        select: { id: true, version: true, status: true },
+        select: {
+          id: true,
+          branchId: true,
+          version: true,
+          status: true,
+          email: true,
+          customer: { select: { userId: true } },
+        },
       });
-      if (!row) workforceNotFound();
+      if (!row?.branchId) workforceNotFound();
       if (
         row.version !== input.expectedVersion ||
         ["RESOLVED", "CLOSED"].includes(row.status)
       )
         workforceConflict();
+      if (
+        input.expectedLatestMessageId !== undefined &&
+        (await latestEnquiryMessage(tx, id))?.id !==
+          (input.expectedLatestMessageId ?? undefined)
+      )
+        workforceConflict(
+          "The conversation changed. Refresh and review the latest messages.",
+        );
       const updated = await tx.enquiry.updateMany({
         where: { id, version: input.expectedVersion },
         data: { version: { increment: 1 } },
       });
       if (updated.count !== 1) workforceConflict();
-      await tx.supportMessage.create({
+      const created = await tx.supportMessage.create({
         data: {
           enquiryId: id,
           authorUserId: actor.userId,
@@ -575,34 +833,75 @@ export class WorkforceWorkService {
           body: input.body,
         },
       });
-      await audit(tx, actor, context, "ENQUIRY", id, { workforceAction: "REPLY" });
-      return { id, version: input.expectedVersion + 1 };
+      await enqueueSupportCustomerUpdate(tx, {
+        kind: "enquiry",
+        record: row,
+        messageId: created.id,
+        response: input.body,
+      });
+      await audit(tx, actor, context, "ENQUIRY", id, {
+        workforceAction: "REPLY",
+        messageId: created.id,
+      });
+      return {
+        id,
+        version: input.expectedVersion + 1,
+        branchId: row.branchId,
+        action: "reply" as const,
+        actorUserId: actor.userId,
+        access,
+        generatedAt: new Date().toISOString(),
+        messageReceipt: {
+          id: created.id,
+          enquiryId: id,
+          body: created.body,
+          authorType: created.authorType,
+          visibility: created.visibility,
+          createdAt: created.createdAt,
+        },
+      };
     });
   }
   complaintReply(
     actor: AuthenticatedActor,
     id: string,
-    input: z.infer<typeof workforceReplySchema>,
+    input: z.infer<typeof workforceComplaintReplySchema>,
     context: RequestSecurityContext,
   ) {
     return this.run(actor, async (tx, access) => {
       if (!access.permissions.includes("COMPLAINTS")) workforceDenied();
+      await tx.$queryRaw`SELECT "id" FROM "Complaint" WHERE "id" = ${id}::uuid FOR UPDATE`;
       const row = await tx.complaint.findFirst({
         where: { id, branchId: { in: branchesFor(access, "COMPLAINTS") } },
-        select: { id: true, version: true, status: true },
+        select: {
+          id: true,
+          branchId: true,
+          version: true,
+          status: true,
+          email: true,
+          customer: { select: { userId: true } },
+        },
       });
-      if (!row) workforceNotFound();
+      if (!row?.branchId) workforceNotFound();
       if (
         row.version !== input.expectedVersion ||
         ["RESOLVED", "CLOSED"].includes(row.status)
       )
         workforceConflict();
+      if (
+        input.expectedLatestMessageId !== undefined &&
+        (await latestComplaintMessage(tx, id))?.id !==
+          (input.expectedLatestMessageId ?? undefined)
+      )
+        workforceConflict(
+          "The conversation changed. Refresh and review the latest messages.",
+        );
       const changed = await tx.complaint.updateMany({
         where: { id, version: input.expectedVersion },
         data: { version: { increment: 1 } },
       });
       if (changed.count !== 1) workforceConflict();
-      await tx.supportMessage.create({
+      const created = await tx.supportMessage.create({
         data: {
           complaintId: id,
           authorUserId: actor.userId,
@@ -611,8 +910,33 @@ export class WorkforceWorkService {
           body: input.body,
         },
       });
-      await audit(tx, actor, context, "COMPLAINT", id, { workforceAction: "REPLY" });
-      return { id, version: input.expectedVersion + 1 };
+      await enqueueSupportCustomerUpdate(tx, {
+        kind: "complaint",
+        record: row,
+        messageId: created.id,
+        response: input.body,
+      });
+      await audit(tx, actor, context, "COMPLAINT", id, {
+        workforceAction: "REPLY",
+        messageId: created.id,
+      });
+      return {
+        id,
+        version: input.expectedVersion + 1,
+        branchId: row.branchId,
+        action: "reply" as const,
+        actorUserId: actor.userId,
+        access,
+        generatedAt: new Date().toISOString(),
+        messageReceipt: {
+          id: created.id,
+          complaintId: id,
+          body: created.body,
+          authorType: created.authorType,
+          visibility: created.visibility,
+          createdAt: created.createdAt,
+        },
+      };
     });
   }
   assignEnquiry(
@@ -622,6 +946,7 @@ export class WorkforceWorkService {
     context: RequestSecurityContext,
   ) {
     return this.run(actor, async (tx, access) => {
+      await tx.$queryRaw`SELECT "id" FROM "Enquiry" WHERE "id" = ${id}::uuid FOR UPDATE`;
       if (!access.permissions.includes("ENQUIRIES_ASSIGN")) workforceDenied();
       const row = await tx.enquiry.findFirst({
         where: {
@@ -672,12 +997,25 @@ export class WorkforceWorkService {
         previousStaffId: row.assignedStaffId,
         reason: input.reason,
       });
-      return { id, version: input.expectedVersion + 1 };
+      return {
+        id,
+        version: input.expectedVersion + 1,
+        branchId: row.branchId,
+        action: "assignment" as const,
+        actorUserId: actor.userId,
+        access,
+        generatedAt: new Date().toISOString(),
+        assignmentReceipt: {
+          staffId: input.staffId,
+          previousStaffId: row.assignedStaffId,
+          reason: input.reason,
+        },
+      };
     });
   }
   orders(
     actor: AuthenticatedActor,
-    query: z.infer<typeof workforceListSchema>,
+    query: z.infer<typeof workforceOrdersQuerySchema>,
     context: RequestSecurityContext,
   ) {
     return this.run(actor, async (tx, access) => {
@@ -689,6 +1027,11 @@ export class WorkforceWorkService {
           AND: [
             { branchId: { in: branchesFor(access, "ORDERS_READ") } },
             paging.where ?? {},
+            ...(query.status ? [{ status: query.status }] : []),
+            ...(query.fulfillmentMethod
+              ? [{ fulfillmentMethod: query.fulfillmentMethod }]
+              : []),
+            ...orderSearchFilters(query.q),
           ],
         },
         select: orderSelect,
@@ -705,7 +1048,33 @@ export class WorkforceWorkService {
         },
         true,
       );
-      return page(rows, query.limit);
+      return {
+        ...page(
+          rows.map((row) => ({
+            ...row,
+            availableNextStates: orderNextStates(row, access),
+          })),
+          query.limit,
+        ),
+        access,
+        generatedAt: new Date().toISOString(),
+      };
+    });
+  }
+  order(actor: AuthenticatedActor, id: string, context: RequestSecurityContext) {
+    return this.run(actor, async (tx, access) => {
+      if (!access.permissions.includes("ORDERS_READ")) workforceDenied();
+      const row = await readWorkforceOrder(tx, access, id);
+      await audit(
+        tx,
+        actor,
+        context,
+        "ORDER",
+        id,
+        { workforceAction: "ORDER_CURRENT", resultCount: 1 },
+        true,
+      );
+      return row;
     });
   }
   prepare(
@@ -716,6 +1085,8 @@ export class WorkforceWorkService {
   ) {
     return this.run(actor, async (tx, access) => {
       if (!access.permissions.includes("ORDERS_PREPARE")) workforceDenied();
+      // Serialize preparation with other order writers before checking branch/state/payment.
+      await tx.$queryRaw`SELECT "id" FROM "Order" WHERE "id" = ${id}::uuid FOR UPDATE`;
       const row = await tx.order.findFirst({
         where: { id, branchId: { in: branchesFor(access, "ORDERS_PREPARE") } },
         select: orderSelect,
@@ -752,12 +1123,19 @@ export class WorkforceWorkService {
         status: input.status,
         reason: input.reason,
       });
-      return tx.order.findUniqueOrThrow({ where: { id }, select: orderSelect });
+      return {
+        ...(await readWorkforceOrder(tx, access, id)),
+        action: "prepare" as const,
+        actorUserId: actor.userId,
+        previousVersion: row.version,
+        previousStatus: row.status,
+        reason: input.reason,
+      };
     });
   }
   finance(
     actor: AuthenticatedActor,
-    query: z.infer<typeof workforceListSchema>,
+    query: z.infer<typeof workforceFinanceQuerySchema>,
     context: RequestSecurityContext,
   ) {
     return this.run(actor, async (tx, access) => {
@@ -768,38 +1146,20 @@ export class WorkforceWorkService {
         ...paging,
         where: {
           AND: [
-            {
-              OR: [
-                { order: { branchId: { in: branchIds } } },
-                { booking: { branchId: { in: branchIds } } },
-                {
-                  invoice: {
-                    OR: [
-                      { order: { branchId: { in: branchIds } } },
-                      { booking: { branchId: { in: branchIds } } },
-                    ],
-                  },
-                },
-              ],
-            },
+            financeScope(branchIds),
             paging.where ?? {},
+            ...(query.status ? [{ status: query.status }] : []),
+            ...(query.purpose ? [{ purpose: query.purpose }] : []),
+            ...financeSearchFilters(branchIds, query.q),
           ],
         },
-        select: {
-          id: true,
-          paymentNumber: true,
-          amountKobo: true,
-          currency: true,
-          status: true,
-          createdAt: true,
-          succeededAt: true,
-        },
+        select: workforceFinanceSelect,
       });
       await audit(
         tx,
         actor,
         context,
-        "ORDER",
+        "PAYMENT",
         null,
         {
           workforceAction: "FINANCE_READ",
@@ -807,10 +1167,37 @@ export class WorkforceWorkService {
         },
         true,
       );
-      return page(
-        rows.map((r) => ({ ...r, amountKobo: r.amountKobo.toString() })),
-        query.limit,
+      return {
+        ...page(
+          rows.map((row) => projectWorkforcePayment(row, branchIds)),
+          query.limit,
+        ),
+        access,
+        generatedAt: new Date().toISOString(),
+      };
+    });
+  }
+  financePayment(actor: AuthenticatedActor, id: string, context: RequestSecurityContext) {
+    return this.run(actor, async (tx, access) => {
+      if (!access.permissions.includes("FINANCE_READ")) workforceDenied();
+      const branchIds = branchesFor(access, "FINANCE_READ");
+      await tx.$queryRaw`SELECT "id" FROM "Payment" WHERE "id" = ${id}::uuid FOR SHARE`;
+      const row = await tx.payment.findFirst({
+        where: { id, ...financeScope(branchIds) },
+        select: workforceFinanceDetailSelect,
+      });
+      if (!row) workforceNotFound();
+      const result = projectWorkforcePayment(row, branchIds);
+      await audit(
+        tx,
+        actor,
+        context,
+        "PAYMENT",
+        id,
+        { workforceAction: "FINANCE_CURRENT", resultCount: 1 },
+        true,
       );
+      return { ...result, access, generatedAt: new Date().toISOString() };
     });
   }
 }

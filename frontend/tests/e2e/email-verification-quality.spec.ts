@@ -347,9 +347,11 @@ test("no JavaScript keeps sensitive forms hidden and sign-in available", async (
   try {
     const p = await c.newPage();
     await p.goto((process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3000") + linked);
-    await expect(
-      p.getByText("Enable JavaScript to verify your email", { exact: false }),
-    ).toBeVisible();
+    // Text selectors intentionally skip noscript; inspect the native fallback itself.
+    await expect(p.locator("noscript p")).toBeVisible();
+    await expect(p.locator("noscript p")).toContainText(
+      "Enable JavaScript to verify your email",
+    );
     await expect(p.locator("form:visible")).toHaveCount(0);
     for (const form of await p.locator("form").all())
       await expect(form).toHaveAttribute("method", "post");
@@ -374,4 +376,31 @@ test("skip navigation preserves the token and breadcrumb identifies verification
   await expect(page.locator(".login-breadcrumb [aria-current]")).toHaveText(
     "Verify email",
   );
+});
+
+test("slow JavaScript loading does not claim JavaScript is disabled", async ({
+  page,
+}) => {
+  let releaseScripts!: () => void;
+  const scriptsReady = new Promise<void>((resolve) => {
+    releaseScripts = resolve;
+  });
+  await page.route("**/_next/static/**", async (route) => {
+    if (route.request().resourceType() === "script") await scriptsReady;
+    await route.continue();
+  });
+  try {
+    await page.goto(linked, { waitUntil: "commit" });
+    await expect(page.getByRole("heading", { name: "Verify your email." })).toBeVisible();
+    await expect(
+      page.getByText("Enable JavaScript to verify your email", { exact: false }),
+    ).not.toBeVisible();
+    await expect(page.locator("form:visible")).toHaveCount(0);
+    releaseScripts();
+    await expect(page.getByLabel("Verification token", { exact: true })).toBeVisible();
+    await expect(page.locator("#verify-token")).toHaveValue(verifyToken);
+    await expect(page).toHaveURL(/\/verify-email$/);
+  } finally {
+    releaseScripts();
+  }
 });

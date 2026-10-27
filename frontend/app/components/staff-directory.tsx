@@ -361,7 +361,10 @@ function DirectoryRecord({ row, owner }: { row: StaffMember; owner: string }) {
         <dl>
           <dt>Status</dt>
           <dd>
-            <span className={`wsd-status wsd-${row.status.toLowerCase()}`}>
+            <span
+              className={`wsd-status wsd-${row.status.toLowerCase()}`}
+              data-status={row.status}
+            >
               {staffLabels[row.status]}
             </span>
           </dd>

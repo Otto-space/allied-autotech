@@ -5,11 +5,13 @@ on:
     paths:
       - "frontend/**"
       - "package.json"
+      - "AGENTS.md"
       - ".github/workflows/frontend-release.yml"
   pull_request:
     paths:
       - "frontend/**"
       - "package.json"
+      - "AGENTS.md"
       - ".github/workflows/frontend-release.yml"
   workflow_dispatch:
 

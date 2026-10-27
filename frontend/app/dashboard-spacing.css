@@ -1,0 +1,185 @@
+/* Shared dashboard rhythm. Keep semantic tables, fieldsets and page-specific
+   grids intact; only action groups become wrapping flex rows. */
+.dashboard {
+  --dashboard-control-gap: 0.75rem;
+  --dashboard-section-gap: 1.5rem;
+}
+
+.dashboard
+  .dashboard-content
+  :is(
+    .actions,
+    .form-actions,
+    .pagination,
+    [class$="-actions"],
+    [class$="-action-buttons"],
+    [class$="-pagination"],
+    [class$="-heading-links"]
+  ):not([hidden]):has(> :is(button, a.button, a.text-link)) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--dashboard-control-gap);
+}
+
+/* Legacy inline button groups also need real layout, not whitespace in JSX.
+   Restrict this to containers consisting entirely of actions. */
+.dashboard
+  .dashboard-content
+  :where(div, p, nav):not([hidden]):has(> .button ~ .button):not(
+    :has(> :not(.button, .text-link, [hidden]))
+  ) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--dashboard-control-gap);
+}
+
+.dashboard .dashboard-content :is(.button, button.text-link) {
+  gap: 0.5rem;
+  overflow-wrap: anywhere;
+  flex-shrink: 0;
+}
+.dashboard .dashboard-content .button > svg {
+  flex-shrink: 0;
+}
+.dashboard
+  .dashboard-content
+  :is(p, dl, ul, ol, .field, .form-row, .record-form-grid)
+  + :is(.button, button.text-link) {
+  margin-block-start: 0.75rem;
+}
+.dashboard .dashboard-content :is(.button, button.text-link) + p {
+  margin-block-start: 0.75rem;
+}
+
+.dashboard
+  .dashboard-content
+  :is(
+    .wst-badges,
+    .wsu-badges,
+    .wm-badges,
+    .cn-row-meta,
+    .cr-record-meta,
+    .wr-record-meta,
+    .capacity-meta,
+    .delivery-meta,
+    .finance-meta,
+    .reservation-meta,
+    .retention-meta
+  ):not([hidden]) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+}
+.dashboard .dashboard-content :is(span, strong, p, dd)[data-status],
+.dashboard .dashboard-content .status {
+  gap: 0.5rem;
+  width: fit-content;
+  max-width: 100%;
+  vertical-align: middle;
+  flex-shrink: 0;
+  line-height: 1.6;
+}
+
+.dashboard
+  .dashboard-content
+  :is([class$="-heading"], [class$="-header"], [class$="-toolbar"]):has(
+    > :is(.button, .actions, [class$="-actions"])
+  ) {
+  gap: 1rem 1.5rem;
+}
+.dashboard
+  .dashboard-content
+  :is(
+    [class$="-heading"],
+    [class$="-header"],
+    [class$="-toolbar"],
+    [class$="-grid"],
+    .form-row
+  )
+  > :where(div, section, article, form, fieldset) {
+  min-width: 0;
+}
+
+.dashboard .dashboard-content :is(.form-row, .record-form-grid):not([hidden]) {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  gap: 1.25rem 1.5rem;
+  align-items: start;
+}
+.dashboard
+  .dashboard-content
+  :is(
+    [class$="-filters"],
+    [class$="-filter-grid"],
+    [class$="-filter-main"],
+    [class$="-filter-primary"],
+    [class$="-filter-extra"],
+    [class$="-editor-grid"]
+  ) {
+  gap: 1rem 1.25rem;
+}
+.dashboard .dashboard-content .record-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+  gap: var(--dashboard-section-gap);
+}
+.dashboard
+  .dashboard-content
+  :is(.form-row, .record-form-grid)
+  + :is(.form-row, .record-form-grid) {
+  margin-top: 1.25rem;
+}
+.dashboard
+  .dashboard-content
+  :is(.detail-section, .form-section)
+  + :is(.detail-section, .form-section) {
+  margin-top: var(--dashboard-section-gap);
+}
+
+.dashboard .dashboard-content :is(.workflow-progress, .support-delivery) {
+  padding: clamp(1rem, 2vw, 1.5rem);
+  margin-block: var(--dashboard-section-gap);
+}
+.dashboard .dashboard-content .workflow-stages {
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr));
+}
+.dashboard .dashboard-content .workflow-stages li {
+  min-width: 0;
+  gap: 0.5rem;
+  padding: 0.875rem;
+}
+.dashboard .dashboard-content .workflow-progress-heading {
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+.dashboard .dashboard-content .support-delivery-list {
+  gap: 1rem;
+  margin-block: 1.25rem 0;
+}
+.dashboard .dashboard-content .support-delivery-list li {
+  padding-top: 1rem;
+}
+
+@media (max-width: 700px) {
+  .dashboard .dashboard-content :is(.form-row, .record-form-grid) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 480px) {
+  .dashboard .dashboard-content .workflow-stages {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .dashboard .dashboard-content .workflow-stages li {
+    flex-wrap: wrap;
+    column-gap: 0.75rem;
+  }
+  .dashboard
+    .dashboard-content
+    :is(.actions, .form-actions, [class$="-actions"])
+    > .button {
+    flex: 1 1 10rem;
+  }
+}

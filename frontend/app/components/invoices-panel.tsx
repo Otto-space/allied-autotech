@@ -262,6 +262,7 @@ export function InvoicesPanel() {
                     <td data-label="Status">
                       <span
                         className={`invlist-state ${invoice.status === "VOID" ? "closed" : ""}`}
+                        data-status={invoice.status}
                       >
                         {invoiceLabels[invoice.status]}
                       </span>

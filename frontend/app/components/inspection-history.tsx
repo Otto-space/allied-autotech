@@ -78,6 +78,7 @@ function InspectionRow({ item }: { item: CustomerInspection }) {
         >
           <span
             className={`inspection-status ${["CANCELLED", "NO_SHOW"].includes(item.status) ? "closed" : ""}`}
+            data-status={item.status}
           >
             {inspectionLabels[item.status]}
           </span>

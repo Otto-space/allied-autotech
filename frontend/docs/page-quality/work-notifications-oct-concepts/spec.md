@@ -1,0 +1,11 @@
+# Staff notifications design specification
+
+Fresh complete desktop and mobile/recovery concepts were generated and inspected before runtime edits. Reuse the accepted customer notification regions with staff-specific layout adjustments. No imagery belongs inside this personal account tool. Existing Allied shell/logo and role navigation remain authoritative.
+
+Exact heading: My notifications. Subtitle: Read your account updates and manage optional delivery. Breadcrumb: Overview / My notifications, implemented with nav/ol, a real `/admin` link, Lucide ChevronRight, current-page semantics, 44px target and no narrow overflow. No eyebrow.
+
+Cool existing dashboard canvas, white inbox, dark ink preference heading, restrained brand red, visible neutral borders and 6px corners. Quicksand: 30px desktop/24px mobile page title, 20px sections, 14px body, 16px selects with 48px height, minimum 44px buttons. Desktop flexible inbox plus 340px preference rail, 24px gap; stack below 1100px. Compact type/category/unread toolbar, clear filters when needed, explicit full-account Mark all read review and existing Previous/Page/Next semantics.
+
+Message rows use thin rules, status rails and explicit Read/Unread text. Preserve full title/message/newlines, category/type and Lagos timestamp. No mark action on an already-read row. Preference rows retain four supported category/channel pairs, actual/default/consent state, explicit Enable/Disable reviews, current version and recovery behavior. Mandatory-message/delivery-limit notes and Refresh preferences remain. Skeleton, stale, empty, foreground error and recovery states reuse proven shared patterns.
+
+Corrections to generated incidental content: desktop preference heading follows the dark mobile concept; no green preference state badges or red outline secondary buttons. Preserve existing stacked message anatomy so complete bodies fit in the narrower inbox. Keep real notification data and existing safe date labels; no invented vehicle/customer details, unread counts or substitute navigation. Required labels remain Notification type and Notification category. Recovery uses the existing exact dialog wording, facts, safe error/focus and Confirm change controls, not generated abbreviated labels. Shared pagination retains Page 1. No new automatic replay, marketing execution or notification link is invented.

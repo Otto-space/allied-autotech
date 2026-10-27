@@ -17,6 +17,11 @@ function routes(): Router {
   const router = Router();
   const controller = new NotificationsController();
   router.get("/", validate({ query: notificationListQuerySchema }), controller.list);
+  router.get(
+    "/summary",
+    validate({ query: notificationsEmptyQuerySchema }),
+    controller.summary,
+  );
   router.post(
     "/read-all",
     requireCsrf,

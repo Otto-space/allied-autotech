@@ -1,5 +1,6 @@
 "use client";
 
+import { WorkflowProgress } from "./status-progress";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { ArrowRight, RefreshCw, ShieldCheck } from "lucide-react";
@@ -24,8 +25,11 @@ function RequestRecord({ record }: { record: PrivacyRequest }) {
     >
       <div className="cpv-record-heading">
         <h3 id={`request-${record.id}`}>{privacyKinds[record.kind]}</h3>
-        <strong className="cpv-status">{privacyStatuses[record.status]}</strong>
+        <strong className="cpv-status" data-status={record.status}>
+          {privacyStatuses[record.status]}
+        </strong>
       </div>
+      <WorkflowProgress workflow="privacy" status={record.status} />
       <p className="cpv-date">Requested {formatBusinessDate(record.createdAt)}</p>
       <p className="preserve-lines">{record.reason}</p>
       {record.status === "APPROVED_PENDING_POLICY" && (

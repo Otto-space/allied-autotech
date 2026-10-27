@@ -18,12 +18,17 @@ export function bankRefundDueAt(
   if (!days.length) throw new Error("Approved banking calendar required");
   let cursor = new Date(start);
   let remaining = 10;
-  for (let i = 0; i < 1000 && remaining; i++) {
+  const excludedDates = new Set(holidays);
+  // At least one banking weekday occurs in every seven-day interval. Each unique
+  // excluded date can postpone one counted day, so this also covers valid sparse
+  // calendars with up to 366 excluded dates without an arbitrary 1,000-day cutoff.
+  const searchDays = 7 * (remaining + excludedDates.size);
+  for (let i = 0; i < searchDays && remaining; i++) {
     cursor = new Date(cursor.getTime() + 86_400_000);
     const local = new Date(cursor.getTime() + 3_600_000);
     if (
       days.includes(local.getUTCDay()) &&
-      !holidays.includes(local.toISOString().slice(0, 10))
+      !excludedDates.has(local.toISOString().slice(0, 10))
     )
       remaining--;
   }

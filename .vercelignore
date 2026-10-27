@@ -1,0 +1,22 @@
+# Vercel builds only frontend; backend runs separately on DigitalOcean.
+backend/
+.github/
+.git/
+.env*
+**/.env*
+**/.private/
+**/.next/
+**/.next-*/
+**/node_modules/
+**/coverage/
+**/playwright-report/
+**/test-results/
+**/*.tsbuildinfo
+**/*.log
+output/
+frontend/docs/
+frontend/tests/
+frontend/e2e/
+frontend/AGENTS.md
+frontend/CLAUDE.md
+frontend/public/allied-workshop-hero.png

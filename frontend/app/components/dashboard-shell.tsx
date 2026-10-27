@@ -29,6 +29,9 @@ import { parseOwnStaffProfile } from "@/lib/api/capability-schemas";
 import { parseWorkforceAccess } from "@/lib/api/workforce-schemas";
 import { workforceNavigation } from "@/lib/workforce-navigation";
 import { WorkforceWorkspace, useWorkforceRefresh } from "./workforce-workspace";
+import { useNotificationSummary } from "@/lib/notifications/use-notification-summary";
+import { notificationNavigationCounts } from "@/lib/notifications/destinations";
+import { NotificationBadge } from "./notification-badge";
 const SessionContext = createContext<SessionState | null>(null);
 const StaffPermissionContext = createContext<ReturnType<
   typeof useResource<ReturnType<typeof parseOwnStaffProfile>>
@@ -51,6 +54,12 @@ export function DashboardShell({
   const router = useRouter();
   const pathname = usePathname();
   const [session, setSession] = useState<SessionState | null>(null);
+  const notifications = useNotificationSummary(session);
+  const unreadCount = notifications?.data?.unreadCount ?? 0;
+  const unreadLinks = notificationNavigationCounts(
+    notifications?.data,
+    audience === "customer",
+  );
   const [error, setError] = useState<string | null>(null);
   const [retry, setRetry] = useState(0);
   const [busy, setBusy] = useState(false);
@@ -308,6 +317,7 @@ export function DashboardShell({
         <div id="dashboard-navigation" className="dashboard-navigation-container">
           <DashboardNavigation
             collapsed={sidebarCollapsed}
+            unreadCounts={unreadLinks}
             onExpand={() => setSidebarCollapsed(false)}
             groups={navigation}
             pathname={pathname}
@@ -351,6 +361,7 @@ export function DashboardShell({
         <div id="dashboard-mobile-navigation" className="dashboard-drawer-content">
           <DashboardNavigation
             groups={navigation}
+            unreadCounts={unreadLinks}
             pathname={pathname}
             onNavigate={() => setMenuPath(null)}
             label={audience === "staff" ? "Administration" : "Customer dashboard"}
@@ -369,10 +380,16 @@ export function DashboardShell({
         <header className="dashboard-top">
           <DashboardPageSearch groups={navigation} />
           <div className="dashboard-account-controls">
-            {!session.workforceManaged && (
+            {(!session.workforceManaged || verifiedWorkforce) && (
               <Link
                 className="dashboard-icon-link"
-                aria-label="Open notifications"
+                aria-label={
+                  unreadCount > 0
+                    ? `Open notifications, ${unreadCount} unread`
+                    : notifications?.unavailable
+                      ? "Open notifications, unread status unavailable"
+                      : "Open notifications"
+                }
                 href={
                   audience === "staff"
                     ? "/admin/notifications"
@@ -380,7 +397,8 @@ export function DashboardShell({
                 }
                 prefetch={false}
               >
-                <Bell size={19} />
+                <Bell size={19} aria-hidden="true" />
+                <NotificationBadge count={unreadCount} />
               </Link>
             )}
             <Link
@@ -406,6 +424,10 @@ export function DashboardShell({
         </header>
         <main id="main" className="dashboard-content" key={session.user.id}>
           {currentDestination &&
+            !(
+              session.workforceManaged &&
+              (pathname === "/admin" || pathname === "/admin/workforce")
+            ) &&
             pathname !== "/dashboard/bookings" &&
             pathname !== "/dashboard/orders" &&
             pathname !== "/dashboard/payments" &&
@@ -423,6 +445,13 @@ export function DashboardShell({
             !/^\/dashboard\/support\/(enquiries|complaints)\/[^/]+$/.test(pathname) &&
             !/^\/dashboard\/orders\/[^/]+\/aftercare$/.test(pathname) &&
             pathname !== "/admin/bookings" &&
+            pathname !== "/admin/workforce/jobs" &&
+            pathname !== "/admin/workforce/bookings" &&
+            pathname !== "/admin/workforce/enquiries" &&
+            pathname !== "/admin/workforce/complaints" &&
+            pathname !== "/admin/workforce/orders" &&
+            pathname !== "/admin/workforce/finance" &&
+            !/^\/admin\/workforce\/jobs\/[^/]+$/.test(pathname) &&
             pathname !== "/admin/booking-slots" &&
             pathname !== "/admin/services" &&
             pathname !== "/admin/products" &&
@@ -447,6 +476,15 @@ export function DashboardShell({
             pathname !== "/admin/staff/invite" &&
             pathname !== "/admin/branches" &&
             pathname !== "/admin/audit" &&
+            pathname !== "/admin/processing-jobs" &&
+            pathname !== "/admin/complaint-policy" &&
+            pathname !== "/admin/dispute-policy" &&
+            pathname !== "/admin/retention-policy" &&
+            pathname !== "/admin/booking-capacity" &&
+            pathname !== "/admin/delivery-policy" &&
+            pathname !== "/admin/reservation-terms" &&
+            pathname !== "/admin/refund-timing" &&
+            pathname !== "/admin/notifications" &&
             !/^\/admin\/vehicle-sales\/[^/]+$/.test(pathname) &&
             pathname !== "/admin/vehicles/new" &&
             !/^\/admin\/vehicles\/[^/]+$/.test(pathname) &&
@@ -484,7 +522,8 @@ export function DashboardShell({
             >
               {session.workforceManaged ? (
                 verifiedWorkforce ? (
-                  pathname === "/admin/security" ? (
+                  pathname === "/admin/security" ||
+                  pathname === "/admin/notifications" ? (
                     children
                   ) : (
                     <WorkforceWorkspace
@@ -493,6 +532,7 @@ export function DashboardShell({
                         verifiedWorkforce.assignments.map((a) => a.id),
                       ])}
                       access={verifiedWorkforce}
+                      refreshAccess={workforce.refresh}
                     />
                   )
                 ) : (

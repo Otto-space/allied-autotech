@@ -1,4 +1,5 @@
 "use client";
+import { browseEnquiriesOnly } from "@/lib/public-launch";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight, ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
@@ -152,7 +153,7 @@ export function HomeHero() {
           <p>{current.description}</p>
           <div className="actions">
             <Link className="button" href={current.href}>
-              {current.action}
+              {browseEnquiriesOnly() && index === 0 ? "Explore services" : current.action}
               <ArrowUpRight size={17} aria-hidden="true" />
             </Link>
             <Link className="button secondary" href={current.secondaryHref}>

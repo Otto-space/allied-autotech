@@ -284,7 +284,9 @@ export function VehicleHandoverRecord({
       <p className="wsd-lifecycle">
         Reference {handover.id} · Version {handover.version}
       </p>
-      <p className="status">{handover.status}</p>
+      <p className="status" data-status={handover.status}>
+        {handover.status}
+      </p>
       <dl className="totals">
         <dt>Recipient</dt>
         <dd>{handover.recipientName ?? "Not recorded"}</dd>

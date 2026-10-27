@@ -1,4 +1,5 @@
 "use client";
+import { WorkflowProgress } from "./status-progress";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowLeft, ChevronRight, RefreshCw } from "lucide-react";
@@ -589,7 +590,10 @@ function DetailWorkspace({
               >
                 <div className="vd-listing-header">
                   <h3 id={`listing-heading-${listing.id}`}>{listing.title}</h3>
-                  <span className="status">{stockStatusLabels[listing.status]}</span>
+                  <WorkflowProgress workflow="stock" status={listing.status} />
+                  <span className="status" data-status={listing.status}>
+                    {stockStatusLabels[listing.status]}
+                  </span>
                 </div>
                 <p className="vd-price">{formatKobo(listing.priceKobo)}</p>
                 <dl className="vd-identity">

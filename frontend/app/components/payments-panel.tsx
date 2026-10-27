@@ -253,6 +253,7 @@ export function PaymentsPanel() {
                     <td data-label="Status">
                       <span
                         className={`paylist-state ${["CANCELLED", "EXPIRED"].includes(payment.status) ? "closed" : ""}`}
+                        data-status={payment.status}
                       >
                         {paymentLabels[payment.status]}
                       </span>

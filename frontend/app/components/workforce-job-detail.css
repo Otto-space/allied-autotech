@@ -1,0 +1,353 @@
+.dashboard .dashboard-content .workforce-job-detail {
+  --wjd-line: #ccd6df;
+  --wjd-muted: #465866;
+  color: #01121a;
+  font-family: var(--font-quicksand), sans-serif;
+  container-type: inline-size;
+  padding-bottom: 28px;
+}
+.workforce-job-detail * {
+  min-width: 0;
+}
+.workforce-job-detail :is(a, button, input, select, textarea):focus-visible {
+  outline: 2px solid #e60301;
+  outline-offset: 3px;
+}
+.workforce-job-detail .wjd-breadcrumb ol {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+}
+.workforce-job-detail .wjd-breadcrumb li {
+  display: flex;
+  align-items: center;
+}
+.workforce-job-detail .wjd-breadcrumb li:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
+}
+.workforce-job-detail a {
+  color: #01121a;
+  text-underline-offset: 3px;
+}
+.workforce-job-detail :is(.wjd-breadcrumb a, .wjd-back) {
+  text-decoration: underline;
+}
+.workforce-job-detail .wjd-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 18px;
+}
+.dashboard .dashboard-content .workforce-job-detail h1 {
+  margin: 0;
+  font-size: 28px;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+.dashboard .dashboard-content .workforce-job-detail h2 {
+  margin: 0 0 12px;
+  font-size: 19px;
+  line-height: 1.4;
+}
+.dashboard .dashboard-content .workforce-job-detail p {
+  margin: 6px 0 16px;
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--wjd-muted);
+  overflow-wrap: anywhere;
+}
+.workforce-job-detail .wjd-refresh {
+  display: grid;
+  justify-items: end;
+  max-width: 320px;
+  flex-shrink: 0;
+}
+.dashboard .dashboard-content .workforce-job-detail .wjd-refresh p {
+  margin: 6px 0 0;
+  font-size: 12px;
+  text-align: right;
+}
+.workforce-job-detail .button {
+  min-height: 44px;
+  font-size: 13px;
+  border-radius: 6px;
+  gap: 7px;
+}
+.workforce-job-detail .button.secondary {
+  border: 1px solid #aebecb;
+}
+.workforce-job-detail .wjd-states {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+  font-size: 13px;
+}
+.workforce-job-detail .wjd-states > span {
+  padding: 7px 10px;
+  border: 1px solid var(--wjd-line);
+  border-radius: 5px;
+  background: #eaf0f5;
+}
+.workforce-job-detail .wjd-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 0.84fr) minmax(0, 1.16fr);
+  gap: 24px;
+  align-items: start;
+}
+.workforce-job-detail .wjd-panel {
+  margin: 0;
+  padding: 24px;
+  background: #fff;
+  border: 1px solid var(--wjd-line);
+  border-radius: 6px;
+}
+.workforce-job-detail .wjd-facts {
+  margin: 20px 0 0;
+  display: grid;
+  gap: 20px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.workforce-job-detail .wjd-facts > div {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  column-gap: 12px;
+}
+.workforce-job-detail .wjd-facts svg {
+  grid-column: 1;
+  grid-row: 1 / 3;
+  margin-top: 2px;
+}
+.workforce-job-detail .wjd-facts dt {
+  grid-column: 2;
+  font-weight: 650;
+}
+.workforce-job-detail .wjd-facts dd {
+  grid-column: 2;
+  margin: 2px 0 0;
+  overflow-wrap: anywhere;
+}
+.workforce-job-detail small {
+  display: block;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--wjd-muted);
+}
+.workforce-job-detail .wjd-notes {
+  margin: 24px 0 0;
+  font-size: 14px;
+  line-height: 1.65;
+}
+.workforce-job-detail .wjd-notes > div {
+  border-top: 1px solid var(--wjd-line);
+  padding-top: 18px;
+  margin-top: 18px;
+}
+.workforce-job-detail .wjd-notes dt {
+  font-weight: 650;
+  margin-bottom: 5px;
+}
+.workforce-job-detail .wjd-notes dd {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.workforce-job-detail fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+.dashboard .dashboard-content .workforce-job-detail .field {
+  margin: 20px 0 0;
+  display: grid;
+  gap: 7px;
+}
+.workforce-job-detail .field label {
+  font-size: 14px;
+  color: #01121a;
+  font-weight: 650;
+}
+.workforce-job-detail .field :is(input, select, textarea) {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid #9cadba;
+  border-radius: 5px;
+  background: #fff;
+  color: #01121a;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.65;
+}
+.workforce-job-detail .field textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+.workforce-job-detail .field [aria-invalid="true"] {
+  border-color: #b42318;
+  box-shadow: 0 0 0 1px #b42318;
+}
+.workforce-job-detail fieldset:disabled :is(input, textarea, select) {
+  background: #f2f5f7;
+  color: #465866;
+}
+.workforce-job-detail fieldset > .button {
+  margin-top: 20px;
+}
+.dashboard .dashboard-content .workforce-job-detail #wjd-note-hint {
+  margin: 14px 0 0;
+  font-size: 13px;
+}
+.workforce-job-detail .wjd-assignment {
+  margin-top: 24px;
+}
+.workforce-job-detail .wjd-search {
+  display: flex;
+  align-items: end;
+  gap: 12px;
+  margin: 0 0 16px;
+}
+.workforce-job-detail .wjd-search .field {
+  flex: 1;
+}
+.workforce-job-detail .wjd-search .field > div {
+  position: relative;
+}
+.workforce-job-detail .wjd-search svg {
+  position: absolute;
+  top: 14px;
+  left: 12px;
+  color: var(--wjd-muted);
+  pointer-events: none;
+}
+.workforce-job-detail .wjd-search input {
+  padding-left: 38px;
+}
+.workforce-job-detail .wjd-options {
+  border: 1px solid var(--wjd-line);
+  border-radius: 5px;
+  overflow: hidden;
+}
+.workforce-job-detail .wjd-options > label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  min-height: 48px;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+.workforce-job-detail .wjd-options > label + label {
+  border-top: 1px solid var(--wjd-line);
+}
+.workforce-job-detail input:is([type="radio"], [type="checkbox"]) {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  accent-color: #e60301;
+}
+.dashboard .dashboard-content .workforce-job-detail .wjd-options > p {
+  padding: 14px;
+  margin: 0;
+}
+.workforce-job-detail .wjd-paging {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 14px 0;
+}
+.workforce-job-detail .wjd-recovery {
+  padding: 20px;
+  border: 1px solid #aebecb;
+  border-left: 3px solid #e60301;
+  border-radius: 6px;
+  background: #fff;
+  margin-bottom: 20px;
+}
+.workforce-job-detail .wjd-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 14px;
+  line-height: 1.65;
+  margin: 18px 0;
+}
+.workforce-job-detail .wjd-check input {
+  margin-top: 3px;
+}
+.workforce-job-detail .wjd-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  margin-top: 20px;
+  font-size: 14px;
+}
+.workforce-job-detail .mutation-review .totals dd {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+@container (max-width: 1050px) {
+  .workforce-job-detail .wjd-columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .workforce-job-detail .wjd-facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.workforce-job-detail .wjd-staff-reference {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: #52616b;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 640px) {
+  .dashboard .dashboard-content .workforce-job-detail h1 {
+    font-size: 24px;
+  }
+  .workforce-job-detail .wjd-heading {
+    flex-direction: column;
+    gap: 12px;
+  }
+  .workforce-job-detail .wjd-refresh {
+    justify-items: start;
+    max-width: none;
+  }
+  .dashboard .dashboard-content .workforce-job-detail .wjd-refresh p {
+    text-align: left;
+  }
+  .workforce-job-detail .wjd-panel {
+    padding: 18px 16px;
+  }
+  .workforce-job-detail .wjd-facts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .workforce-job-detail fieldset > .button {
+    width: 100%;
+  }
+  .workforce-job-detail .wjd-search {
+    flex-wrap: wrap;
+  }
+  .workforce-job-detail .wjd-search .field {
+    flex-basis: 100%;
+  }
+  .workforce-job-detail .wjd-states {
+    gap: 8px;
+  }
+}
+@media (max-width: 430px) {
+  .workforce-job-detail .wjd-breadcrumb .wjd-middle {
+    display: none;
+  }
+}

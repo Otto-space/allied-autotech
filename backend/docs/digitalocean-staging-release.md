@@ -76,13 +76,13 @@ keys, securely supply those existing four values under `TOKEN_HASH_KEY`,
 up in a secret manager. Never rotate them merely to redeploy. IDs stay at the
 reviewed `staging-...-v1` labels. Production must have different keys.
 
-Initial provider inputs required by the actual parser: a Paystack **test** secret
-and private Spaces credentials. Resend/Termii credentials stay blank, email/SMS
+Current private staging uses `paystackMode: disabled` and no Paystack secret.
+Private Spaces credentials are required. Test payments are a later, explicitly enabled configuration. Resend/Termii credentials stay blank, email/SMS
 disabled, and Monnify disabled. Empty messaging allowlists deny all recipients.
 Revoke/rotate the Resend key found in Git history before using Resend again; the
 scanner does not revoke keys or erase history. Verify `notify.alliedautotech.com`
 using only Resend's exact DNS records before enabling the future sender
-`no-reply@notify.alliedautotech.com` for consenting allowlisted testers.
+`Allied AutoTech <notifications@notify.alliedautotech.com>` for consenting allowlisted testers.
 
 ## Build, push and immutable images
 

@@ -129,11 +129,16 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         `/staff/bookings/${f.job2.id}`,
         `/staff/bookings/${f.job1.id}`,
         "/staff/workforce/jobs?branchId=untrusted",
-        "/staff/notifications",
+        "/staff/notifications/export",
         "/admin/customers",
         "/staff/workforce/jobs/export",
       ])
         expect([403, 404, 422]).toContain((await read(f.mechanical1, path)).status);
+      // Managed staff now retain their own notification inbox; export and other
+      // legacy operational paths remain forbidden by the workforce boundary.
+      const notifications = await read(f.mechanical1, "/staff/notifications");
+      expect(notifications.status).toBe(200);
+      expect(notifications.body.data.items).toEqual([]);
       expect(
         (
           await mutate(

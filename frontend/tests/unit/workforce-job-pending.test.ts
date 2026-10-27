@@ -1,0 +1,53 @@
+// @vitest-environment jsdom
+import { webcrypto } from "node:crypto";
+import { beforeEach, expect, it, vi } from "vitest";
+import { setDraftIdentity } from "@/lib/forms/drafts";
+import {
+  clearWorkforceJobPending,
+  markWorkforceJobPending,
+  readWorkforceJobPending,
+  redactWorkforceJobPending,
+} from "@/lib/admin/workforce-job-pending";
+const owner = "b8000000-0000-4000-8000-000000000001",
+  target = {
+    id: "b8000000-0000-4000-8000-000000000020",
+    action: "work" as const,
+    version: 3,
+  };
+beforeEach(() => {
+  vi.restoreAllMocks();
+  vi.stubGlobal("crypto", webcrypto);
+  sessionStorage.clear();
+  setDraftIdentity(`${owner}:STAFF`);
+});
+it("stores only minimal metadata and rejects replacement or a mismatched receipt token", async () => {
+  const marker = await markWorkforceJobPending(owner, target, {
+    diagnosis: "Sensitive diagnostic note",
+  });
+  expect(readWorkforceJobPending(owner)).toEqual(marker);
+  expect(JSON.stringify(sessionStorage)).not.toContain("Sensitive diagnostic note");
+  expect(Object.keys(marker).sort()).toEqual([
+    "action",
+    "fingerprint",
+    "id",
+    "token",
+    "version",
+  ]);
+  await expect(markWorkforceJobPending(owner, target, {})).rejects.toThrow();
+  expect(() => clearWorkforceJobPending(owner, owner)).toThrow();
+  clearWorkforceJobPending(owner, marker.token);
+  expect(readWorkforceJobPending(owner)).toBeUndefined();
+});
+it("retains a redacted lock and refuses sending when storage or identity is unavailable", async () => {
+  await markWorkforceJobPending(owner, target, {});
+  redactWorkforceJobPending();
+  expect(readWorkforceJobPending(owner)).toBe("unknown");
+  clearWorkforceJobPending(owner);
+  vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+    throw Error("blocked");
+  });
+  await expect(markWorkforceJobPending(owner, target, {})).rejects.toThrow();
+  setDraftIdentity("another:STAFF");
+  await expect(markWorkforceJobPending(owner, target, {})).rejects.toThrow();
+  expect(() => clearWorkforceJobPending(owner)).toThrow();
+});

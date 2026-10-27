@@ -1,0 +1,24 @@
+﻿# Complaint policy baseline audit
+
+Current route: /admin/complaint-policy, proposed milestone 94 after accepted processing jobs. The previous goal turn made progress: milestone 93 implementation, production checks and connected verification completed. Accepted count remains 93.
+
+Four baseline widths (430, 768, 1280, 1440) were captured from the live production snapshot and inspected natively. Each has no overflow or page error. The full desktop page is 2,613px tall with only one policy version: repeated explanatory text, very wide fields, excess contact-button gaps, a long approval form before history, raw contact references and no authoritative effective-policy summary. The generic breadcrumb uses slash text. Native viewport captures and full-page evidence are retained under C:/Users/PC/.codex/work-complaint-policy-baseline-*.
+
+The current route uses OperationalPolicy with COMPLAINTS, shared OperationalPolicyFields/PolicyContacts, MutationReview, useResource, policy schemas and account form drafts. Other policy routes are not being redesigned in this gate. Prefer a dedicated complaint workspace with reusable existing fields/contact/review behavior and scoped styles; shared changes require affected-route checks.
+
+## Existing contracts
+
+- GET /admin/policies?key=complaints&limit=100: Super Admin/MFA; newest version first, bounded history array. Current route computes latest by version, which does not prove which effective-time policy applies and cannot find an effective row outside the latest 100. This legacy read currently lacks a transaction-bound actor recheck/read audit.
+- POST /admin/policies: CSRF and privileged authentication; COMPLAINTS requires Super Admin. expectedVersion must match the latest version under a policy advisory lock. The server creates an immutable APPROVED version and CREATE audit atomically. An effective time more than 60 seconds in the past is rejected.
+- Complaint settings: verified active Admin/Super Admin escalationUserId; ACCUMULATED_WORKING_HOURS; at most 100 ISO holiday dates; explicit true holidayCalendarApproved; 1-30 trimmed urgent classifications, 2-100 characters each. Approval source is 10-500 characters and written evidence is 20-1,000 characters. The form uses future Lagos local datetime or computes immediate time at confirmation.
+- Current complaint SLA service selects greatest effectiveAt at/before now, then highest version. It snapshots policy for new deadlines; ordinary target is 600 accumulated working minutes and urgent target 60, Monday-Saturday 08:00-18:00 Africa/Lagos, excluding configured holidays. Urgent classifications are guidance; staff choose priority. Existing deadlines are not replaced by publication.
+- Contacts use GET /admin/staff?status=ACTIVE&limit=50 and cursor paging, plus GET /admin/staff/:id to verify the selected account. Shared dispute contacts additionally inspect capability grants; complaint contacts do not need that capability. Staff/Admin cannot publish complaint policy.
+- Current frontend validates receipt settings/source/evidence/version/effective time, but has only an in-memory uncertain flag and remounts the form by latest version. Current access and selected contact must be rechecked immediately before publication; a new version must not silently replace a draft.
+
+## Required implementation
+
+Add an authoritative private complaint-policy workspace read using a consistent snapshot: evaluatedAt, current, latest, nextScheduled and latest 100 versions. Reuse the existing policy response shape and effective-time selection. Read and minimal audit must be atomic under current actor/session authorization. For complaint publication, recheck the actor under the existing organization lock and lock the selected contact before eligibility validation, preserving policy version/audit rules. No schema change is anticipated. Other policy publication paths retain their current semantics.
+
+Reuse the finance workspace's established strict snapshot/receipt/pending patterns, with complaint-specific namespace and exact actor/version/body fingerprint. Store no source, approval text or settings in the recovery marker. Unavailable storage must block publication; unknown outcomes remain locked across reload. Inspect current recorded state and require explicit independent reconciliation; do not claim that a current/latest record proves the original request outcome. No automatic resubmission.
+
+The design must distinguish effective, scheduled and latest-recorded versions; preserve complete history facts and null/incomplete older settings; group contact, handling and written-approval fields; retain focus and draft on refresh/conflict; clear private details on access loss. Use actual Quicksand, Allied shell, compact semantic breadcrumb and existing visible field/focus styling. Complete fresh desktop/mobile concepts before runtime edits.

@@ -1,121 +1,35 @@
-import { test, expect, type Page, type Route } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
-import os from "node:os";
-import path from "node:path";
-const id = (n: number) => `e3000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
-const reply = (route: Route, data: unknown) =>
-  route.fulfill({
-    json: {
-      success: true,
-      message: "Synthetic response",
-      data,
-      meta: { requestId: "capacity-test" },
-    },
-  });
-async function fixture(
-  page: Page,
-  handler: (route: Route, endpoint: string) => Promise<boolean | void>,
-  role = "SUPER_ADMIN",
-) {
-  await page.route("**/api/v1/**", async (route) => {
-    const endpoint = new URL(route.request().url()).pathname.replace("/api/v1", "");
-    if (await handler(route, endpoint)) return;
-    if (endpoint === "/auth/session")
-      return reply(route, {
-        id: id(2),
-        user: { id: id(3), email: "owner@example.test", role },
-        expiresAt: "2027-01-01T00:00:00Z",
-        idleExpiresAt: "2027-01-01T00:00:00Z",
-        mfaRequired: true,
-        mfaVerifiedAt: "2026-09-24T09:00:00Z",
-      });
-    if (endpoint === "/auth/csrf")
-      return reply(route, { csrfToken: "capacity-csrf-token-".repeat(4) });
-    if (endpoint === "/admin/branches")
-      return reply(route, {
-        items: [{ id: id(1), name: "Synthetic workshop", isActive: true }],
-      });
-    return route.fulfill({
-      status: 404,
-      json: { success: false, error: { code: "NOT_FOUND" } },
-    });
-  });
-}
-async function enterPolicy(page: Page) {
-  await page.getByLabel("Maximum confirmed bookings per day").fill("4");
-  await page.getByLabel("Monday", { exact: true }).check();
-  await page.getByLabel("Tuesday", { exact: true }).check();
-  await page.getByLabel("Closed dates (optional)").fill("2027-01-01\n2027-04-02");
+import {
+  workCapacityFixture,
+  capacityRow,
+  capacityId,
+} from "../fixtures/work-booking-capacity";
+const root = `/admin/booking-capacity?branch=${capacityId(1)}`;
+const reviewButton = (page: Page) =>
+  page.getByRole("button", { name: "Review capacity approval", exact: true });
+async function fill(page: Page) {
   await page
     .getByLabel("Approval source", { exact: true })
-    .fill("Synthetic workshop owner approval");
+    .fill("Synthetic written workshop approval");
   await page
     .getByLabel("Written approval or reference")
-    .fill("Synthetic signed capacity approval TEST-001.");
-}
-function recorded(body: Record<string, unknown>) {
-  return {
-    id: id(4),
-    key: `booking-capacity:${id(1)}`,
-    version: 1,
-    approvalStatus: "APPROVED",
-    source: body.source,
-    sourceQuestion: "Q5",
-    sourceSignatory: null,
-    approvedByUserId: id(3),
-    effectiveAt: body.effectiveAt,
-    recordedAt: new Date().toISOString(),
-    settings: body.settings,
-    approvalEvidence: body.approvalEvidence,
-  };
-}
-test("owner publishes reviewed branch capacity and sees the actual recorded history", async ({
-  page,
-}) => {
-  const history: ReturnType<typeof recorded>[] = [];
-  const writes: Record<string, unknown>[] = [];
-  const errors: string[] = [];
-  page.on("pageerror", (error) => errors.push(error.message));
-  page.on("console", (message) => {
-    if (["error", "warning"].includes(message.type())) errors.push(message.text());
-  });
-  await fixture(page, async (route, endpoint) => {
-    if (endpoint !== "/admin/policies") return;
-    if (route.request().method() === "GET") {
-      expect(new URL(route.request().url()).searchParams.get("key")).toBe(
-        `booking-capacity:${id(1)}`,
-      );
-      await reply(route, history);
-    } else {
-      const body = route.request().postDataJSON();
-      writes.push(body);
-      history.push(recorded(body));
-      await reply(route, history[0]);
-    }
-    return true;
-  });
-  await page.goto("/admin/booking-capacity");
-  await expect(page).toHaveTitle(/Booking capacity/);
-  await page.getByLabel("Workshop branch").selectOption(id(1));
-  await expect(page.getByText(/No booking capacity policy is recorded/)).toBeVisible();
-  await expect(page.getByLabel("Maximum confirmed bookings per day")).toHaveValue("");
-  await expect(page.getByLabel("Monday", { exact: true })).not.toBeChecked();
-  await enterPolicy(page);
+    .fill("Synthetic signed capacity approval for isolated verification only.");
   await page
-    .getByLabel("Effective date and time (Lagos time, optional)")
-    .fill("2027-01-05T08:30");
-  for (const width of [320, 360, 375, 390, 414, 768, 1024, 1280, 1440, 1920]) {
-    await page.setViewportSize({ width, height: 900 });
-    expect(
-      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
-    ).toBe(true);
-  }
-  await page.setViewportSize({ width: 390, height: 844 });
-  await page.getByRole("button", { name: "Review capacity approval" }).click();
-  const dialog = page.getByRole("dialog");
-  await expect(dialog.getByText("Monday, Tuesday", { exact: true })).toBeVisible();
-  await expect(dialog.getByRole("button", { name: "Go back" })).toBeFocused();
-  expect(writes).toEqual([]);
+    .getByLabel("Effective date and time", { exact: false })
+    .fill("2048-01-05T08:30");
+}
+async function review(page: Page) {
+  await fill(page);
+  await reviewButton(page).click();
+}
+async function confirm(page: Page) {
+  await page
+    .getByRole("dialog")
+    .getByRole("button", { name: "Approve capacity", exact: true })
+    .click();
+}
+async function axe(page: Page) {
   expect(
     (
       await new AxeBuilder({ page })
@@ -123,121 +37,243 @@ test("owner publishes reviewed branch capacity and sees the actual recorded hist
         .analyze()
     ).violations,
   ).toEqual([]);
-  await page.screenshot({
-    path: path.join(os.tmpdir(), "allied-capacity-review-390.png"),
+}
+for (const width of [320, 375, 430, 768, 1280, 1440, 1920])
+  test(`capacity accessible and responsive at ${width}`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 1050 });
+    const f = await workCapacityFixture(page),
+      errors: string[] = [];
+    page.on("pageerror", (e) => errors.push(e.message));
+    await page.goto(root);
+    const nav = page.getByRole("navigation", { name: "Breadcrumb", exact: true });
+    await expect(nav.locator("ol > li")).toHaveCount(2);
+    await expect(nav.getByRole("link", { name: "Overview" })).toHaveAttribute(
+      "href",
+      "/admin",
+    );
+    await expect(nav.locator('[aria-current="page"]')).toHaveText("Booking capacity");
+    await expect(
+      page.getByRole("region", { name: "Current capacity", exact: true }),
+    ).toContainText("Version 2");
+    await expect(page.locator(".capacity-schedule")).toContainText("Version 3");
+    await expect(page.locator(".capacity-schedule")).toContainText(
+      "Latest recorded version: 4.",
+    );
+    await page.getByText("Capacity policy history", { exact: true }).click();
+    await page.locator(".capacity-version > summary").first().click();
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+    await axe(page);
+    await review(page);
+    await axe(page);
+    await expect(
+      page.getByRole("dialog").getByText("Synthetic workshop", { exact: true }),
+    ).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(reviewButton(page)).toBeFocused();
+    expect(errors).toEqual([]);
+    expect(f.writes).toEqual([]);
   });
-  await dialog.getByRole("button", { name: "Approve capacity", exact: true }).click();
-  await expect(page.getByText("Latest recorded version: 1.")).toBeVisible();
-  expect(writes).toEqual([
+test("empty branch has no invented defaults and publishes one reviewed exact policy", async ({
+  page,
+}) => {
+  const f = await workCapacityFixture(page);
+  f.history = [];
+  await page.goto("/admin/booking-capacity");
+  await page.getByLabel("Workshop branch").selectOption(capacityId(1));
+  await expect(page.getByLabel("Maximum confirmed bookings per day")).toHaveValue("");
+  await expect(page.getByLabel("Monday", { exact: true })).not.toBeChecked();
+  await page.getByLabel("Maximum confirmed bookings per day").fill("4");
+  await page.getByLabel("Monday", { exact: true }).check();
+  await page.getByLabel("Tuesday", { exact: true }).check();
+  await page
+    .getByLabel("Closed dates (optional)")
+    .fill("2048-04-02\n2048-01-01\n2048-01-01");
+  await review(page);
+  await page.getByRole("button", { name: "Go back", exact: true }).click();
+  expect(f.writes).toEqual([]);
+  await reviewButton(page).click();
+  await confirm(page);
+  await expect(
+    page.getByRole("heading", { name: "Booking capacity recorded" }),
+  ).toBeFocused();
+  await expect(
+    page.getByText("Latest recorded version: 1.", { exact: true }),
+  ).toBeVisible();
+  expect(f.writes).toEqual([
     {
       kind: "BRANCH_CAPACITY",
-      branchId: id(1),
+      branchId: capacityId(1),
       expectedVersion: 0,
-      effectiveAt: "2027-01-05T07:30:00.000Z",
-      source: "Synthetic workshop owner approval",
-      approvalEvidence: "Synthetic signed capacity approval TEST-001.",
+      effectiveAt: "2048-01-05T07:30:00.000Z",
+      source: "Synthetic written workshop approval",
+      approvalEvidence:
+        "Synthetic signed capacity approval for isolated verification only.",
       settings: {
         dailyLimit: 4,
         openingDays: [1, 2],
         opensAt: "08:00",
         closesAt: "18:00",
-        holidays: ["2027-01-01", "2027-04-02"],
+        holidays: ["2048-01-01", "2048-04-02"],
         timezone: "Africa/Lagos",
       },
     },
   ]);
-  await page.getByText("Policy history", { exact: true }).click();
-  await expect(page.getByRole("heading", { name: "Version 1 · APPROVED" })).toBeVisible();
   await expect(page.getByLabel("Written approval or reference")).toHaveValue("");
-  await page.setViewportSize({ width: 1440, height: 900 });
-  await page.evaluate(() => window.scrollTo(0, 0));
-  await page.screenshot({ path: path.join(os.tmpdir(), "allied-capacity-1440.png") });
-  expect(errors).toEqual([]);
 });
-for (const role of ["STAFF", "ADMIN"])
-  test(`${role} cannot load or approve branch capacity`, async ({ page }) => {
-    let reads = 0;
-    await fixture(
-      page,
-      async (route, endpoint) => {
-        if (endpoint.startsWith("/admin/")) {
-          reads++;
-          await reply(route, []);
-          return true;
-        }
-      },
-      role,
-    );
-    await page.goto("/admin/booking-capacity");
-    await expect(page.getByText(/Super Admin access is required/)).toBeVisible();
-    await expect(page.getByLabel("Workshop branch")).toHaveCount(0);
-    expect(reads).toBe(0);
-  });
-for (const outcome of ["stale", "interrupted", "mismatched"] as const)
-  test(`capacity approval handles a ${outcome} outcome without a second submission`, async ({
-    page,
-  }) => {
-    let writes = 0;
-    await fixture(page, async (route, endpoint) => {
-      if (endpoint !== "/admin/policies") return;
-      if (route.request().method() === "GET") await reply(route, []);
-      else {
-        writes++;
-        if (outcome === "interrupted") await route.abort("failed");
-        else if (outcome === "stale")
-          await route.fulfill({
-            status: 409,
-            json: { success: false, error: { code: "CONFLICT" } },
-          });
-        else
-          await reply(route, {
-            ...recorded(route.request().postDataJSON()),
-            key: `booking-capacity:${id(99)}`,
-          });
-      }
-      return true;
-    });
-    await page.goto("/admin/booking-capacity");
-    await page.getByLabel("Workshop branch").selectOption(id(1));
-    await enterPolicy(page);
-    await page.getByRole("button", { name: "Review capacity approval" }).click();
-    const confirm = page
-      .getByRole("dialog")
-      .getByRole("button", { name: "Approve capacity", exact: true });
-    await confirm.click();
-    await expect(confirm).toBeDisabled();
-    await expect(
-      page.getByText("Booking capacity approved.", { exact: true }),
-    ).toHaveCount(0);
-    if (outcome !== "stale") {
-      await page.getByRole("button", { name: "Close & review record" }).click();
-      await expect(
-        page.getByRole("button", { name: "Review capacity approval" }),
-      ).toBeDisabled();
-    }
-    expect(writes).toBe(1);
-  });
-test("capacity validation focuses missing opening days and rejects malformed closed dates", async ({
+test("unsent drafts stay isolated by branch across navigation and reload", async ({
   page,
 }) => {
-  let writes = 0;
-  await fixture(page, async (route, endpoint) => {
-    if (endpoint === "/admin/policies") {
-      if (route.request().method() === "POST") writes++;
-      await reply(route, []);
-      return true;
-    }
+  const f = await workCapacityFixture(page);
+  await page.goto(root);
+  await fill(page);
+  await page.getByLabel("Maximum confirmed bookings per day").fill("17");
+  await page.getByLabel("Workshop branch").selectOption(capacityId(9));
+  await expect(page.getByLabel("Maximum confirmed bookings per day")).toHaveValue("8");
+  await expect(page.getByLabel("Approval source", { exact: true })).toHaveValue("");
+  await page.getByLabel("Maximum confirmed bookings per day").fill("23");
+  await page.getByLabel("Workshop branch").selectOption(capacityId(1));
+  await expect(page.getByLabel("Maximum confirmed bookings per day")).toHaveValue("17");
+  await page.reload();
+  await expect(page.getByLabel("Maximum confirmed bookings per day")).toHaveValue("17");
+  expect(f.writes).toEqual([]);
+});
+test("refresh preserves draft and stale base until explicit reload", async ({ page }) => {
+  const f = await workCapacityFixture(page);
+  await page.goto(root);
+  await fill(page);
+  await page.getByLabel("Maximum confirmed bookings per day").fill("17");
+  f.history.unshift(capacityRow(5));
+  await page.getByRole("button", { name: "Refresh capacity policy" }).click();
+  await expect(page.locator(".capacity-schedule")).toContainText(
+    "Latest recorded version: 5.",
+  );
+  await expect(page.getByLabel("Maximum confirmed bookings per day")).toHaveValue("17");
+  await expect(reviewButton(page)).toBeDisabled();
+  await page.reload();
+  await expect(reviewButton(page)).toBeDisabled();
+  await expect(page.getByLabel("Maximum confirmed bookings per day")).toHaveValue("17");
+  await page.getByRole("button", { name: "Reload action fields" }).click();
+  await expect(reviewButton(page)).toBeEnabled();
+  expect(f.writes).toEqual([]);
+});
+for (const change of ["version", "identity", "inactive", "branch update"])
+  test(`fresh ${change} prevents publication`, async ({ page }) => {
+    const f = await workCapacityFixture(page);
+    await page.goto(root);
+    await review(page);
+    if (change === "version") f.history.unshift(capacityRow(5));
+    if (change === "identity") f.profileOwner = capacityId(99);
+    if (change === "inactive") f.branch.isActive = false;
+    if (change === "branch update") f.branch.updatedAt = "2026-10-19T09:00:00Z";
+    await confirm(page);
+    if (change === "identity")
+      await expect(
+        page.getByRole("button", { name: "Refresh permission" }),
+      ).toBeVisible();
+    else
+      await expect(
+        page
+          .getByRole("dialog")
+          .getByRole("button", { name: "Approve capacity", exact: true }),
+      ).toBeDisabled();
+    expect(f.writes).toEqual([]);
   });
-  await page.goto("/admin/booking-capacity");
-  await page.getByLabel("Workshop branch").selectOption(id(1));
-  await enterPolicy(page);
-  await page.getByLabel("Monday", { exact: true }).uncheck();
-  await page.getByLabel("Tuesday", { exact: true }).uncheck();
-  await page.getByRole("button", { name: "Review capacity approval" }).click();
+for (const outcome of ["lost", "wrong actor"])
+  test(`${outcome} locks only that branch after reload without replay`, async ({
+    page,
+  }) => {
+    const f = await workCapacityFixture(page);
+    f.drop = outcome === "lost";
+    f.wrongActor = outcome === "wrong actor";
+    await page.goto(root);
+    await review(page);
+    await confirm(page);
+    await page.getByRole("button", { name: "Close & review record" }).click();
+    await page.reload();
+    await expect(reviewButton(page)).toBeDisabled();
+    await page.getByLabel("Workshop branch").selectOption(capacityId(9));
+    await expect(reviewButton(page)).toBeEnabled();
+    await page.getByLabel("Workshop branch").selectOption(capacityId(1));
+    await expect(reviewButton(page)).toBeDisabled();
+    await page.getByRole("button", { name: "Check current policy", exact: true }).click();
+    await expect(
+      page.getByRole("button", { name: "Clear reconciled approval lock" }),
+    ).toBeDisabled();
+    await page.getByRole("checkbox", { name: /I independently reconciled/ }).check();
+    await page.getByRole("button", { name: "Clear reconciled approval lock" }).click();
+    await page.getByRole("button", { name: "Reload action fields" }).click();
+    await expect(reviewButton(page)).toBeEnabled();
+    expect(f.writes).toHaveLength(1);
+  });
+test("server rejection prevents automatic replay", async ({ page }) => {
+  const f = await workCapacityFixture(page);
+  await page.route("**/api/v1/admin/policies", (r) =>
+    r.fulfill({ status: 409, json: { success: false, error: { code: "CONFLICT" } } }),
+  );
+  await page.goto(root);
+  await review(page);
+  await confirm(page);
+  await expect(
+    page
+      .getByRole("dialog")
+      .getByRole("button", { name: "Approve capacity", exact: true }),
+  ).toBeDisabled();
+  expect(f.writes).toEqual([]);
+});
+test("calendar validation focuses missing weekdays and malformed dates", async ({
+  page,
+}) => {
+  const f = await workCapacityFixture(page);
+  await page.goto(root);
+  await fill(page);
+  for (const day of ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"])
+    await page.getByLabel(day, { exact: true }).uncheck();
+  await reviewButton(page).click();
   await expect(page.getByLabel("Sunday", { exact: true })).toBeFocused();
   await page.getByLabel("Monday", { exact: true }).check();
-  await page.getByLabel("Closed dates (optional)").fill("2027-02-30");
-  await page.getByRole("button", { name: "Review capacity approval" }).click();
+  await page.getByLabel("Closed dates (optional)").fill("2048-02-30");
+  await reviewButton(page).click();
   await expect(page.getByLabel("Closed dates (optional)")).toBeFocused();
-  expect(writes).toBe(0);
+  expect(f.writes).toEqual([]);
 });
+for (const state of ["error", "denied", "inactive", "empty"])
+  test(`${state} state stays accessible`, async ({ page }) => {
+    const f = await workCapacityFixture(page);
+    if (state === "error") f.fail = true;
+    if (state === "denied") f.denied = true;
+    if (state === "inactive") f.branch.isActive = false;
+    if (state === "empty") f.history = [];
+    await page.goto(root);
+    if (state === "denied")
+      await expect(
+        page.getByRole("button", { name: "Refresh permission" }),
+      ).toBeVisible();
+    else if (state === "error") {
+      await expect(
+        page.getByRole("button", { name: "Refresh capacity policy" }),
+      ).toBeVisible();
+      await expect(page.locator(".capacity-current")).toHaveCount(0);
+    } else if (state === "inactive") await expect(reviewButton(page)).toBeDisabled();
+    else
+      await expect(
+        page.getByText("No capacity policy is effective at this check."),
+      ).toBeVisible();
+    await axe(page);
+    expect(f.writes).toEqual([]);
+  });
+for (const role of ["STAFF", "ADMIN"])
+  test(`${role} cannot inspect or approve capacity`, async ({ page }) => {
+    const f = await workCapacityFixture(page);
+    f.role = role;
+    await page.goto(root);
+    await expect(
+      page.getByText(
+        "Capacity policy requires an active, verified Super Admin account with MFA.",
+        { exact: true },
+      ),
+    ).toBeVisible();
+    await expect(page.getByLabel("Workshop branch")).toHaveCount(0);
+    expect(f.writes).toEqual([]);
+  });

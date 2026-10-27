@@ -111,7 +111,7 @@ export async function inspectMigrationHistory(settings: Settings) {
     const tables = await client.query<{ count: number }>(
       "SELECT COUNT(*)::int AS count FROM information_schema.tables WHERE table_schema = 'public' AND table_type = 'BASE TABLE'",
     );
-    const empty = tables.rows[0]?.count === 0;
+    let empty = tables.rows[0]?.count === 0;
     const applied = empty
       ? []
       : (
@@ -119,6 +119,26 @@ export async function inspectMigrationHistory(settings: Settings) {
             'SELECT migration_name, checksum, finished_at, rolled_back_at FROM public."_prisma_migrations" ORDER BY started_at',
           )
         ).rows;
+    // A reviewed first-statement recovery retains its failed attempt as history.
+    // Only that exact rolled-back, unchanged initial attempt can still represent
+    // an empty initial deployment. Never treat a populated/partially run schema
+    // or an unresolved failure as an initial replay.
+    if (
+      tables.rows[0]?.count === 1 &&
+      applied.length === 1 &&
+      applied[0]?.migration_name === "20260831203155_init" &&
+      applied[0].rolled_back_at !== null &&
+      applied[0].finished_at === null &&
+      applied[0].checksum === local.get("20260831203155_init")?.checksum
+    ) {
+      const clean = await client.query<{ empty: boolean }>(`
+        SELECT NOT EXISTS (SELECT 1 FROM pg_type t JOIN pg_namespace n ON n.oid=t.typnamespace WHERE n.nspname='public' AND t.typtype='e')
+          AND NOT EXISTS (SELECT 1 FROM information_schema.routines WHERE routine_schema='public')
+          AND NOT EXISTS (SELECT 1 FROM pg_extension WHERE extname='citext')
+          AND (SELECT applied_steps_count = 0 FROM public._prisma_migrations LIMIT 1) AS empty
+      `);
+      empty = clean.rows[0]?.empty === true;
+    }
     return { local, pending: pendingMigrations(local, applied), empty };
   } finally {
     await client.end();

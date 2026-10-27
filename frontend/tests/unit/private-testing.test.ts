@@ -2,7 +2,13 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 import { unstable_doesMiddlewareMatch } from "next/experimental/testing/server";
 import { config, proxy } from "../../proxy";
-import { privateTestingAuthorization } from "../../lib/private-testing";
+import {
+  privateTestingAuthorization,
+  createPrivateTestingCookie,
+  privateTestingCookieAllowed,
+  privateTestingCookieName,
+  privateTestingCookieSeconds,
+} from "../../lib/private-testing";
 
 const password = "b".repeat(64);
 const authorization = `Basic ${Buffer.from(`allied-test:${password}`).toString("base64")}`;
@@ -12,6 +18,117 @@ function enable() {
   vi.stubEnv("PRIVATE_TESTING_PASSWORD", password);
 }
 describe("private test frontend perimeter", () => {
+  it("remembers access across page and asset requests without exposing credentials", () => {
+    enable();
+    const result = proxy(
+      new NextRequest("https://staging.example.com/login", {
+        headers: { authorization },
+      }),
+    );
+    const cookie = result.cookies.get(privateTestingCookieName)!;
+    expect(cookie).toMatchObject({
+      httpOnly: true,
+      secure: true,
+      sameSite: "lax",
+      path: "/",
+      maxAge: privateTestingCookieSeconds,
+    });
+    expect(cookie.domain).toBeUndefined();
+    expect(cookie.value).not.toContain(password);
+    expect(cookie.value).not.toContain(authorization);
+    for (const path of ["/login", "/admin", "/_next/static/a.js", "/robots.txt"]) {
+      const remembered = proxy(
+        new NextRequest(`https://staging.example.com${path}`, {
+          headers: { cookie: `${cookie.name}=${cookie.value}` },
+        }),
+      );
+      expect(remembered.status).toBe(200);
+      expect(remembered.cookies.get(privateTestingCookieName)).toBeUndefined();
+      expect(remembered.headers.get("www-authenticate")).toBeNull();
+      expect(remembered.headers.get("x-robots-tag")).toBe("noindex, nofollow");
+    }
+  });
+  it("forwards cookie-only API access internally without losing application security headers", () => {
+    enable();
+    const cookie = createPrivateTestingCookie("staging.example.com", authorization);
+    const result = proxy(
+      new NextRequest("https://staging.example.com/api/v1/auth/session", {
+        headers: {
+          cookie: `${privateTestingCookieName}=${cookie}; __Host-aat_session=synthetic-session`,
+          origin: "https://staging.example.com",
+          "sec-fetch-site": "same-origin",
+          "x-csrf-token": "synthetic-csrf",
+        },
+      }),
+    );
+    expect(result.status).toBe(200);
+    expect(result.headers.get("authorization")).toBeNull();
+    // Next consumes these internal request overrides; built/hosted checks verify
+    // they are stripped from the response that reaches the browser.
+    expect(result.headers.get("x-middleware-request-authorization")).toBe(authorization);
+    expect(result.headers.get("x-middleware-request-cookie")).toContain(
+      "__Host-aat_session=synthetic-session",
+    );
+    expect(result.headers.get("x-middleware-request-origin")).toBe(
+      "https://staging.example.com",
+    );
+    expect(result.headers.get("x-middleware-request-sec-fetch-site")).toBe("same-origin");
+    expect(result.headers.get("x-middleware-request-x-csrf-token")).toBe(
+      "synthetic-csrf",
+    );
+    expect(result.headers.get("cache-control")).toContain("no-store");
+  });
+  it("rejects expired, tampered, different-host and password-rotated proofs", () => {
+    enable();
+    const host = "staging.example.com";
+    const now = Date.now();
+    const cookie = createPrivateTestingCookie(host, authorization, now);
+    expect(privateTestingCookieAllowed(cookie, host, authorization, now)).toBe(true);
+    expect(
+      privateTestingCookieAllowed(
+        cookie,
+        host,
+        authorization,
+        now + privateTestingCookieSeconds * 1000,
+      ),
+    ).toBe(false);
+    expect(
+      privateTestingCookieAllowed(cookie, "other.example.com", authorization, now),
+    ).toBe(false);
+    expect(privateTestingCookieAllowed(cookie, host, "changed-password", now)).toBe(
+      false,
+    );
+    expect(privateTestingCookieAllowed(cookie, host, authorization, now - 1000)).toBe(
+      false,
+    );
+    const tampered = cookie.slice(0, -1) + (cookie.endsWith("0") ? "1" : "0");
+    for (const value of [
+      tampered,
+      "invalid",
+      cookie + "extra",
+      createPrivateTestingCookie(
+        host,
+        authorization,
+        now - privateTestingCookieSeconds * 1000,
+      ),
+    ]) {
+      expect(
+        proxy(
+          new NextRequest(`https://${host}/admin`, {
+            headers: { cookie: `${privateTestingCookieName}=${value}` },
+          }),
+        ).status,
+      ).toBe(401);
+    }
+  });
+  it("never issues private access for unauthenticated public brand assets", () => {
+    enable();
+    const result = proxy(
+      new NextRequest("https://staging.example.com/images/allied-autotech/logo.webp"),
+    );
+    expect(result.status).toBe(200);
+    expect(result.cookies.get(privateTestingCookieName)).toBeUndefined();
+  });
   it.each([
     "/",
     "/admin",

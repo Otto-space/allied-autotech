@@ -40,7 +40,8 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       counts: number[],
       notificationJob: string,
       mismatchedJob: string,
-      deliveryId: string;
+      deliveryId: string,
+      lifecycleWebhookId: string;
     const snapshot = () =>
       Promise.all([
         prisma.user.findMany({
@@ -116,7 +117,8 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       expect(
         await prisma.$queryRaw`SELECT (rolsuper OR rolcreatedb OR rolcreaterole OR rolreplication OR rolbypassrls) AS elevated FROM pg_roles WHERE rolname=current_user`,
       ).toEqual([{ elevated: false }]);
-      if (existsSync(process.env.WORK_JOBS_FIXTURES!))
+      const continueLifecycle = process.env.WORK_JOBS_CONTINUE_LIFECYCLE === "true";
+      if (existsSync(process.env.WORK_JOBS_FIXTURES!) && !continueLifecycle)
         throw Error("Retained job fixtures exist; use an explicit focused continuation");
       const resumeSetup = process.env.WORK_JOBS_RESUME_SETUP === "true";
       const retainedJobs = resumeSetup
@@ -167,6 +169,40 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         originals.users = originals.users.filter((id) => id !== retainedUsers[0]!.id);
         originals.outbox = originals.outbox.filter((id) => !ids.includes(id));
       }
+      if (continueLifecycle) {
+        const retained = JSON.parse(
+          readFileSync(process.env.WORK_JOBS_FIXTURES!, "utf8"),
+        );
+        ids.splice(0, ids.length, ...retained.ids);
+        originals.outbox = originals.outbox.filter((id) => id !== ids[2]);
+        if (retained.lifecycleWebhook)
+          throw Error("Lifecycle continuation already created its verified fixture");
+        const initial = await snapshot();
+        before = hash(initial);
+        counts = initial.map((v) => v.length);
+        admin = await auth(retained.admin);
+        owner = await auth(retained.owner);
+        const lifecycleId = randomUUID(),
+          now = new Date();
+        const verified = await prisma.paymentWebhookEvent.create({
+          data: {
+            id: lifecycleId,
+            provider: "PAYSTACK",
+            eventType: "synthetic.work.jobs.lifecycle",
+            deduplicationKey: hash(lifecycleId),
+            payloadSha256: hash(lifecycleId),
+            status: "RECEIVED",
+            signatureVerifiedAt: now,
+            providerVerifiedAt: now,
+          },
+        });
+        lifecycleWebhookId = verified.id;
+        writeFileSync(
+          process.env.WORK_JOBS_FIXTURES!,
+          JSON.stringify({ ...retained, lifecycleWebhook: verified.id }, null, 2),
+        );
+        return;
+      }
       const initial = await snapshot();
       before = hash(initial);
       counts = initial.map((v) => v.length);
@@ -212,12 +248,15 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
           eventType: "synthetic.work.jobs",
           status: "FAILED",
           processingAttempts: 0,
+          signatureVerifiedAt: at,
+          providerVerifiedAt: at,
           failedAt: at,
           updatedAt: at,
           lastErrorMessage: "PRIVATE-JOB-CANARY",
           lastErrorCode: "PRIVATE-JOB-CANARY",
         })),
       });
+      lifecycleWebhookId = ids[2]!;
       const note = await prisma.notification.create({
         data: {
           userId: user.id,
@@ -494,7 +533,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         "DEAD_LETTER",
       ] as const) {
         await prisma.paymentWebhookEvent.update({
-          where: { id: ids[2]! },
+          where: { id: lifecycleWebhookId },
           data: {
             status,
             lockedAt: status === "PROCESSING" ? new Date() : null,
@@ -502,7 +541,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
             failedAt: ["FAILED", "DEAD_LETTER"].includes(status) ? new Date() : null,
           },
         });
-        const response = await read("webhook", ids[2]!);
+        const response = await read("webhook", lifecycleWebhookId);
         expect(response.status).toBe(200);
         expect(currentOperationalJobResponseSchema.parse(response.body.data).status).toBe(
           status,

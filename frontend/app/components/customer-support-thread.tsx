@@ -1,5 +1,6 @@
 "use client";
 
+import { WorkflowProgress } from "./status-progress";
 import { SupportReplyRecovery } from "./support-reply-recovery";
 import { useCallback, useState } from "react";
 import Link from "next/link";
@@ -27,11 +28,17 @@ function RecordDetails({ record }: { record: SupportRecord }) {
   return (
     <section className="ct-details ct-panel" aria-labelledby="ct-details-title">
       <h2 id="ct-details-title">Record details</h2>
+      <WorkflowProgress
+        workflow={record.kind === "enquiries" ? "enquiry" : "complaint"}
+        status={record.status}
+      />
       <dl>
         <div>
           <dt>Status</dt>
           <dd>
-            <span className="ct-status">{label(record.status)}</span>
+            <span className="ct-status" data-status={record.status}>
+              {label(record.status)}
+            </span>
           </dd>
         </div>
         <div>

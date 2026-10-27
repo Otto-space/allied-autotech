@@ -1,3 +1,4 @@
+import { workReservationPolicyFixture } from "../fixtures/work-reservation-policy";
 import { test, expect, type Page, type Route } from "@playwright/test";
 import os from "node:os";
 import path from "node:path";
@@ -210,41 +211,10 @@ test("requesting a payment leaves the agreement unchecked and sends no reservati
   await expect(page.locator(".pd-identity .pd-status")).toHaveText("Negotiating");
 });
 async function owner(page: Page, role = "SUPER_ADMIN") {
-  const rows: Record<string, unknown>[] = [],
-    writes: Record<string, unknown>[] = [];
-  await page.route("**/api/v1/**", async (route) => {
-    const endpoint = new URL(route.request().url()).pathname.replace("/api/v1", "");
-    if (endpoint === "/auth/session")
-      return reply(route, {
-        id: purchaseId(301),
-        user: { id: purchaseId(302), role, email: "owner@example.test" },
-        mfaRequired: true,
-        mfaVerifiedAt: "2026-10-12T09:00:00Z",
-      });
-    if (endpoint === "/auth/csrf")
-      return reply(route, { csrfToken: "owner-qa-csrf".repeat(3) });
-    if (endpoint === "/admin/policies") {
-      if (route.request().method() === "GET") return reply(route, rows);
-      const body = route.request().postDataJSON();
-      writes.push(body);
-      expect(route.request().headers()["x-csrf-token"]).toBe("owner-qa-csrf".repeat(3));
-      const saved = {
-        id: purchaseId(950 + rows.length),
-        key: "vehicle_reservation_terms",
-        version: rows.length + 1,
-        approvalStatus: "APPROVED",
-        sourceQuestion: "Q3",
-        sourceSignatory: null,
-        approvedByUserId: purchaseId(302),
-        recordedAt: new Date().toISOString(),
-        ...body,
-      };
-      rows.unshift(saved);
-      return reply(route, saved);
-    }
-    return reply(route, { items: [] });
-  });
-  return { rows, writes };
+  const state = await workReservationPolicyFixture(page);
+  state.base.role = role;
+  state.history = [];
+  return { rows: state.history, writes: state.writes };
 }
 test("owner publishes reviewed exact text then withdraws without rewriting history", async ({
   page,
@@ -268,9 +238,9 @@ test("owner publishes reviewed exact text then withdraws without rewriting histo
   await page.getByRole("button", { name: "Review publication", exact: true }).click();
   await expect(page.getByRole("dialog")).toContainText(document.body);
   expect(state.writes).toHaveLength(0);
-  await page.getByRole("button", { name: "Confirm change", exact: true }).click();
+  await page.getByRole("button", { name: "Publish agreement", exact: true }).click();
   await expect(
-    page.getByText("Agreement publication recorded.", { exact: false }),
+    page.getByText("Agreement publication recorded", { exact: true }),
   ).toBeVisible();
   expect(state.writes[0].settings).toEqual({
     enabled: true,
@@ -281,12 +251,23 @@ test("owner publishes reviewed exact text then withdraws without rewriting histo
   await page
     .getByLabel("Withdrawal reason", { exact: false })
     .fill("Synthetic withdrawal for QA");
+  await page
+    .getByLabel("Approval source", { exact: true })
+    .fill("Synthetic owner approval QA only");
+  await page
+    .getByLabel("Written approval reference")
+    .fill("Synthetic written owner approval QA only");
   await page.getByRole("checkbox").check();
   await page.getByRole("button", { name: "Review publication", exact: true }).click();
-  await page.getByRole("button", { name: "Confirm change", exact: true }).click();
+  await page.getByRole("button", { name: "Withdraw availability", exact: true }).click();
   await expect(
-    page.getByText("Revision 2 · Availability withdrawn", { exact: false }),
+    page.getByRole("heading", { name: "Agreement publication recorded", exact: true }),
   ).toBeVisible();
+  await page.getByText("Agreement history", { exact: true }).click();
+  await expect(page.locator(".reservation-history")).toContainText("Revision 2");
+  await expect(page.locator(".reservation-history")).toContainText(
+    "Availability withdrawn",
+  );
   expect(state.writes[1].settings).toEqual({
     enabled: false,
     reason: "Synthetic withdrawal for QA",
@@ -301,7 +282,9 @@ test("Admin cannot publish owner agreements", async ({ page }) => {
   const state = await owner(page, "ADMIN");
   await page.goto("/admin/reservation-terms");
   await expect(
-    page.getByText("Super Admin access is required to publish reservation agreements."),
+    page.getByText(
+      "Reservation policy requires an active, verified Super Admin account with MFA.",
+    ),
   ).toBeVisible();
   await expect(page.getByRole("button", { name: "Review publication" })).toHaveCount(0);
   expect(state.writes).toHaveLength(0);

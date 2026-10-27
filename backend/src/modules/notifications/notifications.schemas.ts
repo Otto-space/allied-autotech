@@ -32,6 +32,17 @@ export const notificationListQuerySchema = z
   })
   .strict();
 export const notificationParamsSchema = z.object({ notificationId: z.uuid() }).strict();
+export const notificationSummarySchema = z.object({
+  unreadCount: z.number().int().nonnegative().safe(),
+  groups: z.array(
+    z.object({
+      resourceType: z.string().nullable(),
+      type: notificationListQuerySchema.shape.type.unwrap(),
+      category: notificationListQuerySchema.shape.category.unwrap(),
+      count: z.number().int().positive().safe(),
+    }),
+  ),
+});
 export const preferenceUpdateBodySchema = z
   .object({
     category: z.enum(["OPERATIONAL", "MARKETING"]),

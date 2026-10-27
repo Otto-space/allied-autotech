@@ -1,3 +1,4 @@
+import { supportEmailDeliveryPageSchema } from "./customer-email.js";
 import {
   extendZodWithOpenApi,
   type OpenAPIRegistry,
@@ -182,6 +183,26 @@ export function registerSupportOpenApi(registry: OpenAPIRegistry): void {
     },
   });
   const routes: Route[] = [
+    {
+      method: "get",
+      path: "/staff/support/complaints/{supportId}/email-deliveries",
+      summary: "Read the latest customer email delivery attempts for this conversation",
+      description:
+        "Staff/admin only, branch scoped, private/no-store. Latest 20 updates, newest first. SENT means the provider accepted the email, not confirmed inbox delivery. RETRYING will retry automatically; FAILED needs manual follow-up. NOT_SENT explains disabled delivery, opt-out or missing destination. No recipient, message content, provider payload or internal error is exposed. Historical updates before this feature are not backfilled.",
+      security: true,
+      params: supportIdParamsSchema,
+      data: supportEmailDeliveryPageSchema,
+    },
+    {
+      method: "get",
+      path: "/staff/support/enquiries/{supportId}/email-deliveries",
+      summary: "Read the latest customer email delivery attempts for this conversation",
+      description:
+        "Staff/admin only, branch scoped, private/no-store. Latest 20 updates, newest first. SENT means the provider accepted the email, not confirmed inbox delivery. RETRYING will retry automatically; FAILED needs manual follow-up. NOT_SENT explains disabled delivery, opt-out or missing destination. No recipient, message content, provider payload or internal error is exposed. Historical updates before this feature are not backfilled.",
+      security: true,
+      params: supportIdParamsSchema,
+      data: supportEmailDeliveryPageSchema,
+    },
     {
       method: "get",
       path: "/customers/support/review-sources",

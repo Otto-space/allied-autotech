@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import { OperationalPolicy } from "@/app/components/operational-policy";
+import { RetentionPolicy } from "@/app/components/retention-policy";
+import "./retention-policy.css";
 export const metadata: Metadata = { title: "Retention policy" };
 export default function Page() {
-  return <OperationalPolicy kind="RETENTION" />;
+  return <RetentionPolicy />;
 }

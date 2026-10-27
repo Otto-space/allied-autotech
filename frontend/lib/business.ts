@@ -1,10 +1,15 @@
+import { browseEnquiriesOnly } from "./public-launch";
 export const business = {
   name: "Allied AutoTech",
+  legalName: "Allied Autotech Limited",
   address: "133 Stadium Road, beside Kilimanjaro, Port Harcourt, Rivers State, Nigeria",
   phone: "08136075567",
   internationalPhone: "+2348136075567",
   whatsapp: "https://wa.me/2348136075567",
-  email: "alliedautotech26@gmail.com",
+  email: "support@alliedautotech.com",
+  customerCareHours: "Monday–Saturday, 8am–6pm (Nigeria time)",
+  customerCareResponse:
+    "We aim to acknowledge enquiries within 30 minutes during these hours. Messages received outside these hours are acknowledged within 30 minutes of our next opening. Resolution time depends on the enquiry.",
   socialHandle: "@AlliedAutoTech",
   directions:
     "https://www.google.com/maps/dir/?api=1&destination=" +
@@ -18,8 +23,9 @@ export const faqs = [
     id: "booking-a-service",
     category: "Bookings and services",
     question: "How do I book a service?",
-    answer:
-      "Open Services, choose a service and review its available appointments. Sign in to send a booking request. The workshop confirms availability before the appointment is confirmed. Current terms are shown before you submit.",
+    answer: browseEnquiriesOnly()
+      ? "Open Services, choose a service and send an enquiry, or contact us by phone or WhatsApp. Our team will discuss availability and confirm any appointment separately."
+      : "Open Services, choose a service and review its available appointments. Sign in to send a booking request. The workshop confirms availability before the appointment is confirmed. Current terms are shown before you submit.",
     keywords: "book appointment service slot time",
     href: "/services",
     action: "Explore services",
@@ -42,7 +48,10 @@ export const faqs = [
       business.phone +
       ", message us on WhatsApp, or email " +
       business.email +
-      ". Signed-in customers can also open a customer-care conversation. Response availability is not shown here.",
+      ". Customer care is available " +
+      business.customerCareHours +
+      ". " +
+      business.customerCareResponse,
     keywords: "contact human person agent support whatsapp phone email complaint",
     href: business.whatsapp,
     action: "Message on WhatsApp",
@@ -50,12 +59,15 @@ export const faqs = [
   {
     id: "pending-payments",
     category: "Payments",
-    question: "My payment is not confirmed. What should I do?",
-    answer:
-      "Check the payment status in your account. Returning from checkout does not confirm payment. If confirmation is pending, check again or contact customer care before paying again to avoid a duplicate payment.",
+    question: browseEnquiriesOnly()
+      ? "Can I pay online?"
+      : "My payment is not confirmed. What should I do?",
+    answer: browseEnquiriesOnly()
+      ? "Online checkout and payments are not available yet. Contact Allied AutoTech to discuss a product, service or vehicle."
+      : "Check the payment status in your account. Returning from checkout does not confirm payment. If confirmation is pending, check again or contact customer care before paying again to avoid a duplicate payment.",
     keywords: "payment paid pending charged failed money transfer",
-    href: "/dashboard/payments",
-    action: "Check your payments",
+    href: browseEnquiriesOnly() ? "/contact#enquiry" : "/dashboard/payments",
+    action: browseEnquiriesOnly() ? "Send an enquiry" : "Check your payments",
   },
   {
     id: "recover-your-account",

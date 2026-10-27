@@ -424,7 +424,9 @@ function SupportCard({ record: r }: { record: SupportRecord }) {
           </p>
         </div>
         <div className="wsu-badges">
-          <span className="status">{supportLabel(r.status)}</span>
+          <span className="status" data-status={r.status}>
+            {supportLabel(r.status)}
+          </span>
           <span>
             {r.kind === "enquiries"
               ? supportLabel(r.type)
