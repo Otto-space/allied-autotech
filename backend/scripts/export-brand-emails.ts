@@ -111,7 +111,7 @@ await writeFile(
 );
 await writeFile(
   resolve(directory, "google-groups-footer.txt"),
-  "Allied AutoTech\nBuilt on trust driven by quality\n133 Stadium Road, beside Kilimanjaro, Port Harcourt, Rivers State, Nigeria.\nWebsite: https://alliedautotech.com\nCustomer care: https://alliedautotech.com/help\n",
+  "Allied AutoTech\nBuilt on trust driven by quality\n133 Stadium Road, beside Kilimanjaro Pizza Jungle Restaurant, Port Harcourt, Rivers State, Nigeria.\nWebsite: https://alliedautotech.com\nCustomer care: https://alliedautotech.com/help\n",
 );
 await writeFile(
   resolve(directory, "index.html"),
