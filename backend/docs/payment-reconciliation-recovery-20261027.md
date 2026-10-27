@@ -31,3 +31,32 @@ The standard `npm run db:migrate` runner inspected the restored history, created
 Two preliminary disposable attempts stopped before migration: one row-count probe lost SQL identifier quoting through the Windows command line, and another restore encountered a transient closed local connection after container readiness. The final run waited for a successful direct host connection and piped the read-only SQL probe through standard input. No production database connection, write, provider call or payment action occurred.
 
 Read-only production state remained backend deployment `50b5f5d1-50f6-4bf2-a9d0-f0c4975e02b3` ACTIVE, with eight managed backups through 26 October 05:22 UTC and app-only database firewall rules. The current app spec uses separate runtime and migrator users, but the migrator password is a provider-encrypted secret in the app spec; the local operator connection is blocked by the app-only firewall. No firewall change, credential rotation, production backup/migration, image build or deployment was attempted. A fresh production backup through the protected migrator path, production migration/`db:check`, image/source verification and rollout checks remain required. The previous statement that a populated restore rehearsal was missing is now superseded for this local candidate, subject to rechecking against the exact final release source.
+
+## Due-scan scale probe - 27 October
+
+A fresh, loopback-only PostgreSQL 18 `_ci` target replayed all 74 migrations and
+passed the Prisma schema comparison. It held 50,000 synthetic Paystack attempts,
+one completed matching reconciliation run and 50,000 matching items. The due-scan
+SQL from `PaymentReconciliationWorker.runNextDueForProvider` was measured with
+`EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON)` after table analysis:
+
+| Case | Execution time | Shared-buffer hits | Result |
+| --- | ---: | ---: | --- |
+| All 50,000 terminal attempts matched, first run | 672 ms | 201,523 | No due attempt |
+| Same fully cached case, second run | 330 ms | 201,523 | No due attempt |
+| One pending attempt at the midpoint | 159 ms | 100,763 | One due attempt |
+
+The probe used synthetic attempt rows without payment parents solely to measure
+the due-query tables; FK checks were bypassed only during synthetic insertion and
+the one state adjustment inside this disposable `_ci` database. The production
+code, constraints and indexes were not altered. The task-owned container and its
+temporary storage were removed. These figures show linear work through already
+matched rows and are a local cached-data baseline, not production latency or a
+financial correctness test. Recheck with representative target statistics and a
+larger population before enabling reconciliation at scale; do not trade away
+missed-attempt coverage for a faster but incomplete scan.
+
+After the restore checkpoint, production backend advanced to the separate
+inventory replay hotfix deployment `71c5e9a7-bd3c-46c4-a503-cef24761837e`.
+That deployment contains no reconciliation migrations or worker recovery code.
+Reconcile this branch against its exact runtime before any release proposal.
