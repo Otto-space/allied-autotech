@@ -271,19 +271,85 @@ export class PaymentReconciliationWorker {
         after = { initiatedAt: last.initiatedAt, id: last.id };
       }
       await renewLease();
-      return await this.database.paymentReconciliationRun.update({
-        where: { id: run.id, status: "RUNNING", leaseToken },
-        data: {
-          status: differenceCount === 0 ? "MATCHED" : "DIFFERENCES_FOUND",
-          matchedCount,
-          differenceCount,
-          providerTotalKobo,
-          internalTotalKobo,
-          completedAt: new Date(),
-          leaseToken: null,
-          leaseUntil: null,
+      return await this.database.$transaction(
+        async (transaction) => {
+          const completed = await transaction.paymentReconciliationRun.update({
+            where: {
+              id: run.id,
+              status: "RUNNING",
+              leaseToken,
+              leaseUntil: { gt: new Date() },
+            },
+            data: {
+              status: differenceCount === 0 ? "MATCHED" : "DIFFERENCES_FOUND",
+              matchedCount,
+              differenceCount,
+              providerTotalKobo,
+              internalTotalKobo,
+              completedAt: new Date(),
+              leaseToken: null,
+              leaseUntil: null,
+            },
+          });
+          // Publish scheduling state only if the completed evidence commits. Lock
+          // attempts in a stable order so a concurrent status change cannot
+          // overwrite the decision with a stale local state.
+          await transaction.$executeRaw`
+            WITH locked_attempts AS MATERIALIZED (
+              SELECT a."id", a."provider", a."initiatedAt", a."status"
+              FROM "PaymentAttempt" AS a
+              WHERE EXISTS (
+                SELECT 1 FROM "PaymentReconciliationItem" AS i
+                WHERE i."runId" = ${run.id}::uuid
+                  AND i."paymentAttemptId" = a."id"
+              )
+              ORDER BY a."id"
+              FOR UPDATE OF a
+            ), newest AS (
+              SELECT DISTINCT ON (i."paymentAttemptId")
+                a."id" AS "paymentAttemptId", a."provider", a."initiatedAt",
+                a."status" AS "attemptStatus", i."status" AS "itemStatus",
+                i."createdAt" AS "itemCreatedAt", i."id" AS "itemId",
+                r."completedAt", r."startedAt", r."attemptNumber"
+              FROM locked_attempts AS a
+              JOIN "PaymentReconciliationItem" AS i ON i."paymentAttemptId" = a."id"
+              JOIN "PaymentReconciliationRun" AS r ON r."id" = i."runId"
+              WHERE i."runId" = ${run.id}::uuid
+              ORDER BY i."paymentAttemptId", i."createdAt" DESC, i."id" DESC
+            )
+            INSERT INTO "PaymentReconciliationDue" AS due (
+              "paymentAttemptId", "provider", "initiatedAt", "nextDueAt",
+              "latestItemStatus", "latestCompletedAt", "latestItemCreatedAt",
+              "latestRunStartedAt", "latestRunAttemptNumber", "latestItemId"
+            )
+            SELECT "paymentAttemptId", "provider", "initiatedAt",
+              CASE WHEN "itemStatus" = 'MATCHED'
+                AND "attemptStatus" NOT IN ('INITIALIZED', 'PENDING', 'PROCESSING')
+                THEN NULL ELSE "completedAt" END,
+              "itemStatus", "completedAt", "itemCreatedAt", "startedAt",
+              "attemptNumber", "itemId"
+            FROM newest
+            WHERE TRUE
+            ON CONFLICT ("paymentAttemptId") DO UPDATE SET
+              "provider" = EXCLUDED."provider",
+              "initiatedAt" = EXCLUDED."initiatedAt",
+              "nextDueAt" = EXCLUDED."nextDueAt",
+              "latestItemStatus" = EXCLUDED."latestItemStatus",
+              "latestCompletedAt" = EXCLUDED."latestCompletedAt",
+              "latestItemCreatedAt" = EXCLUDED."latestItemCreatedAt",
+              "latestRunStartedAt" = EXCLUDED."latestRunStartedAt",
+              "latestRunAttemptNumber" = EXCLUDED."latestRunAttemptNumber",
+              "latestItemId" = EXCLUDED."latestItemId"
+            WHERE due."latestItemId" IS NULL OR
+              (EXCLUDED."latestItemCreatedAt", EXCLUDED."latestRunStartedAt",
+                EXCLUDED."latestRunAttemptNumber", EXCLUDED."latestItemId") >
+              (due."latestItemCreatedAt", due."latestRunStartedAt",
+                due."latestRunAttemptNumber", due."latestItemId")
+          `;
+          return completed;
         },
-      });
+        { timeout: 5 * 60_000 },
+      );
     } catch (error) {
       await this.database.paymentReconciliationRun.updateMany({
         where: { id: run.id, status: "RUNNING", leaseToken },
@@ -313,29 +379,12 @@ export class PaymentReconciliationWorker {
       throw new Error("Invalid reconciliation schedule");
     const dueBefore = new Date(now.getTime() - intervalMs);
     const [uncovered] = await this.database.$queryRaw<Array<{ initiatedAt: Date }>>`
-      SELECT a."initiatedAt"
-      FROM "PaymentAttempt" AS a
-      LEFT JOIN LATERAL (
-        SELECT i."status", r."completedAt"
-        FROM "PaymentReconciliationItem" AS i
-        JOIN "PaymentReconciliationRun" AS r ON r."id" = i."runId"
-        WHERE i."paymentAttemptId" = a."id"
-          AND r."status" IN ('MATCHED', 'DIFFERENCES_FOUND')
-        ORDER BY i."createdAt" DESC, r."startedAt" DESC,
-          r."attemptNumber" DESC, i."id" DESC
-        LIMIT 1
-      ) AS observed ON TRUE
-      WHERE a."provider" = CAST(${provider} AS "PaymentProvider")
-        AND a."initiatedAt" <= ${dueBefore}
-        AND (
-          observed."status" IS NULL
-          OR (
-            (a."status" IN ('INITIALIZED', 'PENDING', 'PROCESSING')
-              OR observed."status" <> 'MATCHED')
-            AND observed."completedAt" <= ${dueBefore}
-          )
-        )
-      ORDER BY a."initiatedAt", a."id"
+      SELECT "initiatedAt"
+      FROM "PaymentReconciliationDue"
+      WHERE "provider" = CAST(${provider} AS "PaymentProvider")
+        AND "initiatedAt" <= ${dueBefore}
+        AND "nextDueAt" <= ${dueBefore}
+      ORDER BY "initiatedAt", "paymentAttemptId"
       LIMIT 1
     `;
     if (!uncovered) return null;

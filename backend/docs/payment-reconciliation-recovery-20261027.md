@@ -40,11 +40,11 @@ one completed matching reconciliation run and 50,000 matching items. The due-sca
 SQL from `PaymentReconciliationWorker.runNextDueForProvider` was measured with
 `EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON)` after table analysis:
 
-| Case | Execution time | Shared-buffer hits | Result |
-| --- | ---: | ---: | --- |
-| All 50,000 terminal attempts matched, first run | 672 ms | 201,523 | No due attempt |
-| Same fully cached case, second run | 330 ms | 201,523 | No due attempt |
-| One pending attempt at the midpoint | 159 ms | 100,763 | One due attempt |
+| Case                                            | Execution time | Shared-buffer hits | Result          |
+| ----------------------------------------------- | -------------: | -----------------: | --------------- |
+| All 50,000 terminal attempts matched, first run |         672 ms |            201,523 | No due attempt  |
+| Same fully cached case, second run              |         330 ms |            201,523 | No due attempt  |
+| One pending attempt at the midpoint             |         159 ms |            100,763 | One due attempt |
 
 The probe used synthetic attempt rows without payment parents solely to measure
 the due-query tables; FK checks were bypassed only during synthetic insertion and
@@ -110,3 +110,48 @@ Exact runtime `13fa09d8730d964a4745988f3a15900782bbb09e` passed
 [backend database-safety CI](https://github.com/Otto-space/allied-autotech/actions/runs/40453684995)
 and the [redacted secret guard](https://github.com/Otto-space/allied-autotech/actions/runs/40453684938).
 The source remains unreleased and provider-disabled.
+
+## Indexed due-state projection - 27 October
+
+The 50,000-row scan above showed that the lateral latest-observation query read
+through terminal matched attempts even when nothing was due. The new additive
+`20261027010000_reconciliation_due_projection` migration creates one derived row
+per payment attempt and indexes its next due time. It backfills that row from the
+same latest **completed** observation ordering as the previous query. Failed
+partial runs do not count as coverage. New attempts and actual status changes
+re-enter the queue through a database trigger. A completed run and the due-state
+update commit together; the worker locks affected attempts in a stable order and
+only a newer observation may replace a newer projection. Immutable runs/items
+and financial balances remain the source of truth. A terminal match is excluded
+only after its current state has been observed; a later status change schedules
+another observation instead of silently retaining an old match.
+
+Fresh loopback-only PostgreSQL 18 `_ci` targets replayed all 75 candidate
+migrations with no Prisma schema difference. The final reconciliation suite
+passed 27/27, including a transaction-local migration backfill against seeded
+pre-existing completed, failed, pending and terminal observations; the adjacent
+Monnify flow passed 1/1. Backend typecheck and scoped oxlint passed. An earlier
+new test incorrectly assumed the global oldest due attempt belonged to its own
+fixture; its assertion was corrected to inspect the owned projection and direct
+same-period re-observation. The full 27-case run passed afterward.
+
+An isolated query-plan probe seeded 50,000 synthetic terminal projection rows.
+`EXPLAIN (ANALYZE, BUFFERS)` used the new index and returned no due row in
+0.044 ms with six shared-buffer hits; after making one midpoint row due, it
+returned that row in 0.066 ms with four hits. This measures the indexed lookup
+against projection-only synthetic data; it is not a production latency promise
+or a substitute for populated financial migration/role/provider acceptance.
+Two preliminary scale fixtures were rejected by existing attempt constraints,
+then discarded with their task-owned containers. The final probe bypassed its
+parent FK only in the disposable `_ci` target to populate projection-only rows;
+the SQL migration and application constraints were not weakened. All task-owned
+containers and temporary database storage were removed.
+
+Before a shared rollout, inspect production migration history and legacy
+`RUNNING` rows; rehearse the exact 75-migration candidate against a current
+populated restore and verify projection counts/representative statuses; verify
+runtime DML grants and off-device recovery; then use the guarded migrator and
+deploy a source-compatible API/general worker. Provider sandbox, hold resolution,
+real-role acceptance and enabled-payment cutover remain separate. The current
+production backend still has no reconciliation recovery migrations, and payment
+providers remain disabled.

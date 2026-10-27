@@ -1640,6 +1640,7 @@ model PaymentAttempt {
   anomalies           PaymentAnomaly[]
   ledgerEntries       PaymentLedgerEntry[]
   reconciliationItems PaymentReconciliationItem[]
+  reconciliationDue   PaymentReconciliationDue?
 
   @@unique([paymentId, attemptNumber])
   @@unique([provider, providerReference])
@@ -1927,6 +1928,25 @@ model PaymentReconciliationItem {
   @@index([paymentAttemptId, createdAt(sort: Desc), id(sort: Desc)], map: "ReconciliationItem_latest_attempt_idx")
   @@index([refundId])
   @@index([disputeId])
+}
+
+// A derived scheduling projection. Reconciliation items and runs remain the
+// financial evidence; this row only makes the next due lookup indexable.
+model PaymentReconciliationDue {
+  paymentAttemptId       String                    @id @db.Uuid
+  provider               PaymentProvider
+  initiatedAt            DateTime
+  nextDueAt              DateTime?
+  latestItemStatus       ReconciliationItemStatus?
+  latestCompletedAt      DateTime?
+  latestItemCreatedAt    DateTime?
+  latestRunStartedAt     DateTime?
+  latestRunAttemptNumber Int?
+  latestItemId           String?                   @db.Uuid
+
+  paymentAttempt PaymentAttempt @relation(fields: [paymentAttemptId], references: [id], onDelete: Restrict)
+
+  @@index([provider, nextDueAt, initiatedAt, paymentAttemptId], map: "ReconciliationDue_next_idx")
 }
 
 model Vehicle {

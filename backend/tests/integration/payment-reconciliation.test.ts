@@ -1,4 +1,5 @@
 import { randomInt, randomUUID } from "node:crypto";
+import { readFile } from "node:fs/promises";
 import { Client as PgClient } from "pg";
 import { afterAll, afterEach, describe, expect, it, vi } from "vitest";
 import { prisma } from "../../src/config/database.js";
@@ -511,6 +512,13 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       });
       expect(first).toMatchObject({ status: "FAILED", attemptNumber: 1 });
       expect(await f.items(first.id)).toHaveLength(1);
+      const unobserved = await prisma.paymentReconciliationDue.findUniqueOrThrow({
+        where: { paymentAttemptId: firstAttempt.id },
+      });
+      expect(unobserved).toMatchObject({
+        nextDueAt: firstAttempt.initiatedAt,
+        latestItemId: null,
+      });
 
       const recovered = await f.run();
       expect(recovered).toMatchObject({
@@ -817,6 +825,173 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         new Date(settled!.completedAt!.getTime() + intervalMs + 1_000),
       );
       expect(await countSnapshots()).toBe(3);
+    });
+
+    it("queues a changed terminal attempt until its new state has been observed", async () => {
+      const f = await fixture();
+      const attempt = await f.attempt({ provider: "MONNIFY" });
+      const inserted = await prisma.paymentReconciliationDue.findUniqueOrThrow({
+        where: { paymentAttemptId: attempt.id },
+      });
+      expect(inserted.nextDueAt).toEqual(attempt.initiatedAt);
+      expect(inserted.latestItemId).toBeNull();
+
+      const first = await f.worker.run(f.periodStart, f.periodEnd, "MONNIFY");
+      const pending = await prisma.paymentReconciliationDue.findUniqueOrThrow({
+        where: { paymentAttemptId: attempt.id },
+      });
+      expect(pending).toMatchObject({
+        latestItemStatus: "MATCHED",
+        nextDueAt: first.completedAt,
+      });
+
+      await prisma.paymentAttempt.update({
+        where: { id: attempt.id },
+        data: { status: "FAILED", failedAt: new Date() },
+      });
+      const changed = await prisma.paymentReconciliationDue.findUniqueOrThrow({
+        where: { paymentAttemptId: attempt.id },
+      });
+      expect(changed.nextDueAt).toEqual(first.completedAt);
+      f.verify.mockResolvedValueOnce({
+        reference: attempt.internalReference,
+        gatewayTransactionId: `synthetic-${attempt.internalReference}`,
+        status: "failed",
+        amountKobo: 10000n,
+        currency: "NGN",
+        paidAt: null,
+        providerFeeKobo: null,
+        method: null,
+      });
+      const settled = await f.worker.run(f.periodStart, f.periodEnd, "MONNIFY", true);
+      expect(settled).toMatchObject({ status: "MATCHED", attemptNumber: 2 });
+      const terminal = await prisma.paymentReconciliationDue.findUniqueOrThrow({
+        where: { paymentAttemptId: attempt.id },
+      });
+      expect(terminal).toMatchObject({ latestItemStatus: "MATCHED", nextDueAt: null });
+
+      await prisma.paymentAttempt.update({
+        where: { id: attempt.id },
+        data: { status: "PENDING", failedAt: null },
+      });
+      const reopened = await prisma.paymentReconciliationDue.findUniqueOrThrow({
+        where: { paymentAttemptId: attempt.id },
+      });
+      expect(reopened.nextDueAt).toEqual(settled!.completedAt);
+    });
+
+    it("backfills unseen, recurring and terminal attempts from existing immutable observations", async () => {
+      const connection = new PgClient({
+        host: process.env.DB_HOST,
+        port: Number(process.env.DB_PORT),
+        database: process.env.TEST_DB_NAME,
+        user: process.env.DB_USER,
+        password: process.env.DB_PASSWORD,
+        ssl: false,
+      });
+      const schema = `aat_due_backfill_${randomUUID().replaceAll("-", "")}`;
+      const ids = Array.from({ length: 4 }, () => randomUUID());
+      const runId = randomUUID();
+      const failedRunId = randomUUID();
+      const completedAt = new Date("2026-01-02T00:00:00.000Z");
+      const initiatedAt = new Date("2026-01-01T00:00:00.000Z");
+      await connection.connect();
+      try {
+        await connection.query("BEGIN");
+        await connection.query(`CREATE SCHEMA "${schema}"`);
+        await connection.query(`SET LOCAL search_path TO "${schema}"`);
+        await connection.query(
+          `CREATE TYPE "PaymentProvider" AS ENUM ('PAYSTACK', 'MONNIFY', 'MANUAL');
+           CREATE TYPE "ReconciliationItemStatus" AS ENUM ('MATCHED', 'STATUS_MISMATCH');
+           CREATE TABLE "PaymentAttempt" (
+             "id" UUID PRIMARY KEY, "provider" "PaymentProvider" NOT NULL,
+             "initiatedAt" TIMESTAMP(3) NOT NULL, "status" TEXT NOT NULL
+           );
+           CREATE TABLE "PaymentReconciliationRun" (
+             "id" UUID PRIMARY KEY, "status" TEXT NOT NULL,
+             "completedAt" TIMESTAMP(3), "startedAt" TIMESTAMP(3) NOT NULL,
+             "attemptNumber" INTEGER NOT NULL
+           );
+           CREATE TABLE "PaymentReconciliationItem" (
+             "id" UUID PRIMARY KEY, "runId" UUID NOT NULL,
+             "paymentAttemptId" UUID NOT NULL,
+             "status" "ReconciliationItemStatus" NOT NULL,
+             "createdAt" TIMESTAMP(3) NOT NULL
+           );`,
+        );
+        for (const [index, id] of ids.entries()) {
+          await connection.query(
+            `INSERT INTO "PaymentAttempt" VALUES ($1, 'PAYSTACK', $2, $3)`,
+            [id, initiatedAt, index === 0 ? "SUCCESSFUL" : "PENDING"],
+          );
+        }
+        await connection.query(
+          `INSERT INTO "PaymentReconciliationRun" VALUES
+            ($1, 'DIFFERENCES_FOUND', $3, $4, 1),
+            ($2, 'FAILED', $3, $4, 1)`,
+          [runId, failedRunId, completedAt, initiatedAt],
+        );
+        await connection.query(
+          `INSERT INTO "PaymentReconciliationItem" VALUES
+            ($1, $2, $3, 'MATCHED', $4),
+            ($5, $2, $6, 'MATCHED', $4),
+            ($7, $2, $8, 'STATUS_MISMATCH', $4),
+            ($9, $10, $11, 'MATCHED', $4)`,
+          [
+            randomUUID(),
+            runId,
+            ids[0],
+            completedAt,
+            randomUUID(),
+            ids[1],
+            randomUUID(),
+            ids[3],
+            randomUUID(),
+            failedRunId,
+            ids[2],
+          ],
+        );
+        const migration = await readFile(
+          new URL(
+            "../../prisma/migrations/20261027010000_reconciliation_due_projection/migration.sql",
+            import.meta.url,
+          ),
+          "utf8",
+        );
+        await connection.query(migration);
+        const rows = await connection.query<{
+          paymentAttemptId: string;
+          nextDueAt: Date | null;
+          latestItemStatus: string | null;
+        }>(
+          `SELECT "paymentAttemptId", "nextDueAt", "latestItemStatus"
+           FROM "PaymentReconciliationDue"`,
+        );
+        const byId = new Map(rows.rows.map((row) => [row.paymentAttemptId, row]));
+        expect(byId.size).toBe(4);
+        expect(byId.get(ids[0]!)?.nextDueAt).toBeNull();
+        expect(byId.get(ids[0]!)?.latestItemStatus).toBe("MATCHED");
+        expect(byId.get(ids[1]!)?.nextDueAt).toEqual(completedAt);
+        expect(byId.get(ids[2]!)?.nextDueAt).toEqual(initiatedAt);
+        expect(byId.get(ids[2]!)?.latestItemStatus).toBeNull();
+        expect(byId.get(ids[3]!)?.nextDueAt).toEqual(completedAt);
+        expect(byId.get(ids[3]!)?.latestItemStatus).toBe("STATUS_MISMATCH");
+
+        // A status change after that completed snapshot must re-enter the queue.
+        await connection.query(
+          `UPDATE "PaymentAttempt" SET "status" = 'PENDING' WHERE "id" = $1`,
+          [ids[0]],
+        );
+        const reopened = await connection.query<{ nextDueAt: Date | null }>(
+          `SELECT "nextDueAt" FROM "PaymentReconciliationDue"
+           WHERE "paymentAttemptId" = $1`,
+          [ids[0]],
+        );
+        expect(reopened.rows[0]?.nextDueAt).toEqual(completedAt);
+      } finally {
+        await connection.query("ROLLBACK");
+        await connection.end();
+      }
     });
   },
 );
