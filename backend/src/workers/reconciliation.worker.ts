@@ -239,16 +239,28 @@ export class PaymentReconciliationWorker {
                 note: "Provider receipt belongs to another confirmed attempt or was already counted in this run; excluded from NGN totals",
               };
           }
-          await renewLease();
-          await this.database.paymentReconciliationItem.create({
-            data: {
-              runId: run.id,
-              paymentAttemptId: attempt.id,
-              ...result,
-              providerReference: attempt.providerReference,
-              providerGatewayTransactionId: remote.gatewayTransactionId,
-              internalAmountKobo,
-            },
+          await this.database.$transaction(async (transaction) => {
+            // Hold the run row through the insert. A replacement cannot claim an
+            // expired lease between our ownership check and the observation write.
+            await transaction.paymentReconciliationRun.update({
+              where: {
+                id: run.id,
+                status: "RUNNING",
+                leaseToken,
+                leaseUntil: { gt: new Date() },
+              },
+              data: { leaseUntil: new Date(Date.now() + reconciliationLeaseMs) },
+            });
+            await transaction.paymentReconciliationItem.create({
+              data: {
+                runId: run.id,
+                paymentAttemptId: attempt.id,
+                ...result,
+                providerReference: attempt.providerReference,
+                providerGatewayTransactionId: remote.gatewayTransactionId,
+                internalAmountKobo,
+              },
+            });
           });
           internalTotalKobo += internalAmountKobo ?? 0n;
           providerTotalKobo += result.providerAmountKobo ?? 0n;

@@ -1,4 +1,5 @@
 import { randomInt, randomUUID } from "node:crypto";
+import { Client as PgClient } from "pg";
 import { afterAll, afterEach, describe, expect, it, vi } from "vitest";
 import { prisma } from "../../src/config/database.js";
 import type { Prisma } from "../../src/generated/prisma/client.js";
@@ -445,7 +446,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
     it("fails the run on item persistence failure instead of manufacturing a provider exception", async () => {
       const f = await fixture();
       await f.attempt();
-      vi.spyOn(prisma.paymentReconciliationItem, "create").mockRejectedValueOnce(
+      vi.spyOn(prisma, "$transaction").mockRejectedValueOnce(
         new Error("synthetic database failure"),
       );
       await expect(f.run()).rejects.toThrow("synthetic database failure");
@@ -485,16 +486,21 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
 
     it("retains a partial failed observation and records a separate same-period retry", async () => {
       const f = await fixture();
-      await f.attempt();
+      const firstAttempt = await f.attempt();
       await f.attempt({ initiatedAt: new Date(f.periodStart.getTime() + 1) });
-      const originalCreate = prisma.paymentReconciliationItem.create.bind(
-        prisma.paymentReconciliationItem,
-      );
-      const create = vi.spyOn(prisma.paymentReconciliationItem, "create");
-      create.mockImplementationOnce((args) => originalCreate(args));
-      create.mockRejectedValueOnce(new Error("synthetic persistence interruption"));
-      await expect(f.run()).rejects.toThrow("synthetic persistence interruption");
-      create.mockRestore();
+      f.verify
+        .mockResolvedValueOnce({
+          reference: firstAttempt.internalReference,
+          gatewayTransactionId: `synthetic-${firstAttempt.internalReference}`,
+          status: "pending",
+          amountKobo: 10000n,
+          currency: "NGN",
+          paidAt: null,
+          providerFeeKobo: null,
+          method: null,
+        })
+        .mockRejectedValueOnce(new Error("synthetic provider interruption"));
+      await expect(f.run()).rejects.toThrow("Provider verification unavailable");
 
       const first = await prisma.paymentReconciliationRun.findFirstOrThrow({
         where: {
@@ -555,7 +561,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       const f = await fixture();
       await f.attempt({ provider: "MONNIFY" });
       const create = vi
-        .spyOn(prisma.paymentReconciliationItem, "create")
+        .spyOn(prisma, "$transaction")
         .mockRejectedValueOnce(new Error("synthetic storage interruption"));
       await expect(f.worker.run(f.periodStart, f.periodEnd, "MONNIFY")).rejects.toThrow(
         "synthetic storage interruption",
@@ -634,6 +640,66 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         }),
       ).toMatchObject({ status: "FAILED", leaseToken: null, leaseUntil: null });
     });
+
+    it("holds run ownership until the observation insert commits", async () => {
+      const f = await fixture();
+      await f.attempt();
+      const settings = {
+        host: process.env.DB_HOST,
+        port: Number(process.env.DB_PORT),
+        database: process.env.TEST_DB_NAME,
+        user: process.env.DB_USER,
+        password: process.env.DB_PASSWORD,
+        ssl: false,
+      };
+      const blocker = new PgClient(settings);
+      const observer = new PgClient(settings);
+      await Promise.all([blocker.connect(), observer.connect()]);
+      let runOutcome:
+        | Promise<{ value: Awaited<ReturnType<typeof f.run>> | null; error: unknown }>
+        | undefined;
+      try {
+        await blocker.query("BEGIN");
+        await blocker.query('LOCK TABLE "PaymentReconciliationItem" IN SHARE MODE');
+        runOutcome = f.run().then(
+          (value) => ({ value, error: null }),
+          (error: unknown) => ({ value: null, error }),
+        );
+        let waitingForInsert = false;
+        for (let tries = 0; tries < 200; tries++) {
+          const result = await observer.query<{ waiting: number }>(
+            `SELECT count(*)::int AS waiting FROM pg_locks
+             WHERE relation = '"PaymentReconciliationItem"'::regclass
+               AND NOT granted`,
+          );
+          if ((result.rows[0]?.waiting ?? 0) > 0) {
+            waitingForInsert = true;
+            break;
+          }
+          await new Promise((resolve) => setTimeout(resolve, 50));
+        }
+        expect(waitingForInsert).toBe(true);
+        const run = await prisma.paymentReconciliationRun.findFirstOrThrow({
+          where: {
+            provider: "PAYSTACK",
+            periodStart: f.periodStart,
+            periodEnd: f.periodEnd,
+          },
+        });
+        await expect(
+          observer.query(
+            'SELECT "id" FROM "PaymentReconciliationRun" WHERE "id" = $1 FOR UPDATE NOWAIT',
+            [run.id],
+          ),
+        ).rejects.toMatchObject({ code: "55P03" });
+      } finally {
+        await blocker.query("ROLLBACK");
+        await Promise.all([blocker.end(), observer.end()]);
+      }
+      const outcome = await runOutcome;
+      expect(outcome?.error).toBeNull();
+      expect(outcome?.value).toMatchObject({ status: "MATCHED", matchedCount: 1 });
+    }, 30_000);
 
     it("prevents a replaced worker from persisting after its lease is lost", async () => {
       const f = await fixture();

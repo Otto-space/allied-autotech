@@ -85,3 +85,23 @@ Exact runtime `9f4c963820ca7bdd1079818a503f414549fb284b` was pushed. Its
 and [redacted secret guard](https://github.com/Otto-space/allied-autotech/actions/runs/40452332536)
 both completed successfully. Neither check establishes provider or production
 acceptance.
+
+## Observation lease/write atomicity - 27 October
+
+The worker previously renewed a run lease and inserted its next observation in
+separate database transactions. A replacement worker could claim the run after
+the renewal committed but before the insert, leaving an item on the displaced
+run. The worker now checks and extends its live lease in the same transaction
+as the item insert. The run row remains locked until that observation commits;
+if ownership has changed, the insert is rolled back and the existing failed-run
+recovery path retains prior items without counting the displaced write.
+
+A new PostgreSQL integration case holds the item table's insert lock, waits for
+the worker's pending write, and verifies another connection cannot lock the run
+row during that window. It then releases the lock and verifies completion. The
+isolated 74-migration replay and schema comparison passed; the reconciliation
+suite passed 25/25 and the adjacent Monnify flow passed 1/1. Backend TypeScript,
+scoped oxlint, Prettier and diff checks passed. This used a fresh loopback-only
+`_ci` database and a controlled provider adapter; no real provider or payment
+action occurred. The due-scan scale issue and the other release gates above
+remain open.
