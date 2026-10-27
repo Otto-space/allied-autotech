@@ -1787,3 +1787,42 @@ The subsequent owner request is now in progress in the same frontend worktree:
 fixed mobile support dock, Allie scrollbar treatment, breadcrumb/anchor page
 entry and linked selection targets. This is a separate finite shared-UX cycle;
 no claim of exhaustive role/device acceptance.
+
+
+27 October 2026 - Shared support/viewport UX released. Concurrent frontend source
+a1b8ce45 went live while the earlier candidate was gated. The ancestry guard
+rejected promotion; the UI change was integrated onto that exact newer source
+and its homepage/customer-interface changes were preserved. Runtime fbb6565a
+on fix/mobile-navigation-current-20261027 is now READY as Vercel
+dpl_J5k6BjFUZVTFgeGJSrH4WHhiFxcq, independently verified on apex and www.
+Immediate compatible frontend rollback is dpl_GKfQv1k4cD5qTKZj3c6LaP8Y4iqz.
+The earlier f61ccc51/5063c844 candidates were never promoted.
+
+Exact-runtime frontend CI 40480113708, secret guard 40480113700 and backend
+safety 40480113595 passed. Integrated focused units passed 36/36. The integrated
+browser matrix passed 13/14 initially; the remaining check incorrectly required
+native browser focus restoration after a direct hash navigation. Test-only
+7eefc123 preserves explicit clicked-link focus checks and verifies actual target
+visibility for native hash navigation/reload; both 390/1440 rechecks passed. All
+14 distinct final scenarios are covered across those runs, not one clean
+integrated invocation. Runtime/app/config/public-asset trees are identical to
+the green fbb6565a build. No additional runtime build was needed for that
+test-only correction.
+
+Post-promotion live Edge at 390/1440 passed fixed-dock geometry through scrolling,
+real reviewed Allie search, hidden scrollbar with native scrolling, modal-to-Help
+navigation with visible breadcrumbs, and Contact vehicle radio/visit checkbox
+targets. Both had zero page errors and zero attempted API writes. Public address
+and Whatsapp labels remained correct; public capabilities returns the full new
+address. Backend 79d7a0ac-4e83-4b73-ae46-40af4731a604 remains ACTIVE; API live
+and ready returned 200. Receipts/screenshots: %TEMP%/allied-viewport-promotion.json,
+allied-viewport-live.json, allied-viewport-live-390.png and allied-allie-live-390.png
+(and matching 1440px captures). Physical devices, native mobile keyboard, full
+screen-reader and exhaustive real-role acceptance remain unverified. No real
+message, support request, payment or production migration was performed.
+
+Docker image/database tests removed their own disposable containers/network;
+the original 13 stopped containers and 14 volumes remain. The four new current
+release images and useful warm build cache are retained; no Docker cleanup or
+physical-byte reclamation is claimed. Final disk preflight and temporary server
+shutdown are part of this task closeout. Preserve Item 6 and the settled queue.
