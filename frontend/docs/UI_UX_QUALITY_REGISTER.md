@@ -1855,3 +1855,19 @@ mutations were blocked and none attempted. Backend readiness remained 200;
 no backend image, schema, payment, provider or business record changed.
 This is sampled lab/browser evidence, not a field Core Web Vitals claim or
 physical-device/complete screen-reader acceptance.
+
+27 October 2026 - read-only Contact enlarged-root-text sampling. Browser plugin
+was unavailable; installed Edge/Playwright inspected live `/contact` at
+320, 390 and 1440 CSS pixels with a 200% root-font-size override. The page
+identified correctly, had a meaningful heading, no document overflow or page
+exceptions, and the form controls stayed within each viewport. At 390px the
+public branch loaded as Allied AutoTech - Port Harcourt, a synthetic reserved-
+domain draft opened the local review dialog, and its subject/message/branch were
+readable without overflow. All API mutations were blocked; Send was not clicked.
+Screenshots are retained outside the repo under `%TEMP%/aat-contact-text-200-*`.
+Aborted About/Help prefetches occurred during navigation; there were no failed
+form-data requests. This is a CSS root-size simulation, not actual browser zoom,
+mobile keyboard, screen-reader or production submission acceptance. No Contact
+defect was confirmed or code changed. Existing product/service/vehicle account-
+change source and focused rendered-test coverage were inspected, not rerun; the old
+release-blockers bullet claiming that reset was still unimplemented is superseded.

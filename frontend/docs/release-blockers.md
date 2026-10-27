@@ -2,6 +2,14 @@
 
 The application is not ready for release against the full supplied brief. This is a historical work list, not a request to waive requirements. The [current completion audit](completion-audit.md) distinguishes current evidence from findings that require revalidation; do not assume every September 17 finding still describes the current source.
 
+27 October correction: the first bullet under "Frontend implementation still required"
+is superseded for ServiceDetail, ProductActions and VehicleActions. Their current
+source uses the shared account-mutation guard to abort stale operations and clear
+private drafts/results on session change. Existing rendered tests cover product
+pending-result/quantity discard, service booking-review/receipt discard and vehicle
+draft/stale-success discard. This source and test review does not establish a
+genuine cross-device session change or every authenticated production role.
+
 ## Backend and business decisions
 
 - Vehicle payment requests now expose all four supported purposes with server-authoritative amounts. Customer payment history has no vehicle-transaction filter: the frontend scans cursor pages, retains only matching records and fails closed if it cannot complete the scan (100-page limit). Add an ownership-scoped target filter for accounts with large histories. Target-wide backend advisory locks now serialize intent/attempt creation and settlement across independent keys and vehicle purposes. The 13-case disposable-database suite covers competing creation, legacy duplicate attempts, original-key replay, expiry, vehicle balance calculation and surplus capture accounting. Provider integrations, cross-attempt gateway-ID reuse, complete reconciliation totals and hold resolution still need the wider audit.
