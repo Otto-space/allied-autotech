@@ -1,9 +1,9 @@
 /* Shared by customer, staff, admin and owner dashboards. Public forms keep their
    own styling. These rules change presentation, never form state or visibility. */
 .dashboard {
-  --form-border: #aebdcd;
-  --form-focus: #254c72;
-  --form-halo: #dceaf7;
+  --form-border: var(--border-control);
+  --form-focus: var(--action-primary);
+  --form-halo: var(--selection-fill);
   --form-secondary: #52647a;
   font-size: 15px;
   line-height: 1.6;
@@ -222,9 +222,9 @@
 
 .dashboard .dashboard-content :is(input, select, textarea):focus {
   border-color: var(--form-focus);
-  outline: 2px solid var(--form-focus);
-  outline-offset: 1px;
-  box-shadow: 0 0 0 5px var(--form-halo);
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 
 .dashboard .dashboard-content :is(input, select, textarea)[aria-invalid="true"] {
@@ -252,7 +252,7 @@
   min-width: 19px;
   flex: 0 0 19px;
   margin: 2px 0 0;
-  accent-color: var(--form-focus);
+  accent-color: var(--checked);
 }
 
 .dashboard .dashboard-content .check-label {
@@ -284,7 +284,7 @@
   margin-right: 12px;
   min-height: 36px;
   padding: 6px 12px;
-  border: 1px solid #c3cfda;
+  border: 1px solid var(--border-control);
   border-radius: 6px;
   background: #fff;
   color: #273c50;
@@ -296,7 +296,7 @@
 .dashboard-content input[type="range"] {
   min-height: 44px;
   max-width: 100%;
-  accent-color: var(--form-focus);
+  accent-color: var(--checked);
 }
 
 .dashboard-content input[type="color"] {
@@ -347,9 +347,9 @@
 
 .dashboard .dashboard-content .button:focus-visible,
 .dashboard-content .text-link:focus-visible {
-  outline: 2px solid var(--form-focus);
+  outline: 3px solid var(--focus-ring);
   outline-offset: 3px;
-  box-shadow: 0 0 0 5px var(--form-halo);
+  box-shadow: var(--focus-shadow);
 }
 
 .dashboard .dashboard-content .button:disabled {

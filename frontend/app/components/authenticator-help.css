@@ -15,9 +15,10 @@
   list-style-position: inside;
 }
 .authenticator-help summary:focus-visible {
-  outline: 2px solid #e60301;
-  outline-offset: 3px;
   border-radius: 4px;
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .authenticator-help p {
   overflow-wrap: anywhere;

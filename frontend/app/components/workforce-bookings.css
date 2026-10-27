@@ -1,7 +1,7 @@
 .dashboard .dashboard-content .workforce-bookings {
   --wfb-line: #ccd6df;
   --wfb-muted: #465866;
-  color: #01121a;
+  color: var(--ink);
   font-family: var(--font-quicksand), sans-serif;
   padding-bottom: 28px;
 }
@@ -32,8 +32,9 @@
   }
 }
 .workforce-bookings :is(a, button, input, select):focus-visible {
-  outline: 2px solid #e60301;
+  outline: 3px solid var(--focus-ring);
   outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .workforce-bookings .wfb-breadcrumb {
   display: flex;
@@ -44,7 +45,7 @@
   color: var(--wfb-muted);
 }
 .workforce-bookings .wfb-breadcrumb a {
-  color: #01121a;
+  color: var(--ink);
   text-underline-offset: 3px;
 }
 .workforce-bookings .wfb-heading {
@@ -112,7 +113,7 @@
   gap: 7px;
 }
 .workforce-bookings .wfb-filters label {
-  color: #01121a;
+  color: var(--ink);
   font-size: 14px;
   font-weight: 650;
 }
@@ -120,10 +121,10 @@
   width: 100%;
   min-height: 44px;
   font-size: 14px;
-  border: 1px solid #9cadba;
+  border: 1px solid var(--border-control);
   border-radius: 5px;
   background: #fff;
-  color: #01121a;
+  color: var(--ink);
   padding: 10px 12px;
 }
 .workforce-bookings .wfb-search > div {
@@ -377,7 +378,7 @@
   opacity: 1;
 }
 .workforce-bookings .wfb-filters > .wfb-filter-actions > .button:not(.secondary) {
-  background: #e60301;
+  background: var(--button-fill, var(--action-primary));
   color: #fff;
 }
 @media (max-width: 760px) {

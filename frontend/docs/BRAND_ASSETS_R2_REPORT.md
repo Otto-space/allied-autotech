@@ -1,0 +1,244 @@
+# Revision 2 brand assets and interaction verification
+
+Current status: the final source was deployed to both production domains on
+27 October 2026. The initial local checkpoint and later protected-candidate
+evidence below remain historical; see the production release section at the end.
+
+Implementation: `feat/brand-assets-r2-20261026`, in the existing
+`allied-shop-vehicles-r2-20261025` worktree, based on `ce3121b8` / released runtime
+`d6d8534d`. At that initial checkpoint, both production domains identified
+`dpl_9YTq9gSNUnb3XuHKry5MgCVvigdD` and the revision was not yet deployed.
+Other worktrees, including newer workforce work and Desktop tracker edits, are
+preserved. No database or operational-policy change is part of this revision.
+
+## Asset placement and provenance
+
+All nine owner-supplied PNGs were read, hashed and visually inspected. Exact source
+hashes, sizes, transparency, dimensions, derivative paths, descriptions, placement
+and restrictions are maintained in [brand-assets-manifest.json](brand-assets-manifest.json).
+Original Downloads files and the previously committed campaign PNG are unchanged.
+
+| Surface                                   | Before                                         | Revision 2                                  | Reason                                                                                |
+| ----------------------------------------- | ---------------------------------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------- |
+| Home service introduction                 | Generic editorial workshop image               | Ad 2, complete portrait                     | Supplied Allied campaign replaces weaker generic brand imagery beside actual services |
+| Home trust feature                        | Ad 2 repeated from About                       | Ad 1, complete trust composition            | Distinct artwork and HTML trust message; existing principles and next action retained |
+| About introduction                        | Full-size Ad 2 PNG                             | Responsive Ad 2 WebP derivatives            | Same approved composition, much smaller mobile transfer, no invented identity         |
+| Services workmanship                      | Generic parts still life                       | Ad 3, complete mechanical-work composition  | Relevant workmanship message after the service catalogue; no interruption to search   |
+| Header/mobile/authentication              | Previous red symbol                            | Supplied transparent red variant, trimmed   | Shared sizing and original wordmark retained                                          |
+| Footer/dashboard desktop and mobile shell | Red symbol on inverse surfaces                 | Supplied transparent white variant          | Clear inverse identity, no opaque square                                              |
+| About principles                          | Red symbol                                     | Supplied transparent black variant          | Restrained identity on white                                                          |
+| Opaque white/black and dark/red variants  | Not integrated                                 | Optimised, catalogued, available but unused | Avoid background seams; transparent counterparts suit current shells                  |
+| Shop / Ad 4                               | Existing truthful products/collection guidance | Graphic withheld; no public derivative      | Nationwide-delivery claim contradicts supported fulfilment                            |
+
+No real product/listing photograph, private media record, fitment evidence, equipment
+photograph, favicon, email identity or social-preview pipeline was replaced. No tall
+posters were added to dashboard tables/forms/conversations. No new marketing section
+was needed: replacing four existing placements preserves the established page flow.
+
+## Delivery decision
+
+The approved launch guidance still specifies workshop collection, with delivery
+deferred. `backend/docs/public-launch-policy-decisions.md` lists delivery zones,
+fees/timing and collection of courier charges as unapproved. The executable
+`backend/src/modules/orders/orders.service.ts` rejects delivery, and
+`orders.schemas.ts` accepts collection only. The public policy contract explicitly
+states delivery remains disabled even if historical delivery policies exist.
+
+Ad 4 therefore has **no customer-facing derivative or placement**. No editable
+layered source was supplied. Its truck composition is not proof of an owned fleet.
+We did not obscure the unsupported wording, use a contradictory disclaimer, invent
+delivery operations or redraw the logo. Remaining asset dependency: a clean approved
+parts/enquiry/workshop-collection artwork replacing the nationwide-delivery wording.
+This dependency prevents claiming all four advertisements are integrated; the other
+brand integrations are implemented independently.
+
+## Production derivatives
+
+`node scripts/prepare-brand-assets.mjs <supplied-directory>` uses the installed
+Sharp pipeline, reads originals without modifying them, and produces the manifest.
+No generative editing, masking, recolouring, filters or invented layers are used.
+
+- Five logo crops: x334/y356, 397×349. Full 361×313 symbol plus 18px clearspace on
+  every side. Decoded pixels compare exactly with the same source region for all
+  five variants. Each PNG is approximately 3.4–3.7 KB.
+- Three posters: full 4:5 composition at 480, 800 and 1080px widths; WebP quality 88.
+  Small derivatives are 28,350 / 54,604 / 58,838 bytes versus 2.95 / 3.33 / 3.53 MB
+  originals. All 14 derivatives together total 2,119,539 bytes.
+- Native responsive `srcset` selects the derivative without double compression.
+  Explicit dimensions and aspect ratios reserve layout; all below-fold artwork is
+  lazy. Only the About first-view portrait is eager/high priority.
+- HTML headings, explanations and real links remain usable when an image is missing.
+  The fallback also checks errors that occur before React hydration.
+- Source colours #DE1F26, #06181F and #040707 are explicit brand primitives. Existing
+  accessible action, focus, status and surface pairs remain unchanged; logo pixels
+  are never recoloured to match a functional button token.
+
+## Interaction coverage and observed corrections
+
+The original [colour report](COLOUR_AND_STATE_REPORT.md) and its 106-route inventory
+remain the baseline. That record contains historical 324-case browser acceptance,
+not a claim that every case was rerun in this revision. The refreshed source census
+has 106 routes / 142 stylesheets and 30 passing contrast pairs.
+
+New browser acceptance covers complete artwork at 360, 390, 768, 1024 and 1440px;
+real pointer hover; native keyboard Tab and Enter; mobile touch navigation to Shop;
+missing images; held/slow image requests; reserved frames; accessible equivalents;
+and no horizontal overflow. Shared state-gallery tests exercise pressed, disabled,
+selected, checked, indeterminate, invalid+focus, hover+focus, modal keyboard,
+forced-colours and reduced motion. Customer/Admin/Super Admin fixture dashboards and
+authorised customer-care/workforce fixtures retain their permission boundaries.
+
+The previously unexecuted three cart cases now have an isolated local full-mode
+fixture. Initial failures identified an unavailable first fixture product and a
+real Strict Mode lifecycle bug: a queued cleanup close event dismissed the reopened
+dialog. The fixture now selects an available synthetic product, and the close
+handler ignores cleanup events while the dialog is open. Focus restoration and
+drawer accessibility are verified without real cart writes. Production commerce
+configuration is unchanged.
+
+Browser plugin is unavailable; repository Playwright with installed Microsoft Edge
+is used. The fixture API is loopback-only, read-only and nonpersistent. Browser
+mutations in account/cart tests are intercepted and never reach a real backend.
+
+## Evidence and checks
+
+Evidence folder: `%TEMP%/allied-brand-r2-20261026/`.
+
+- `supplied-assets.png`, `source-inspection.json`: all nine originals and metadata.
+- `derivatives.png`: trimmed variants on appropriate backgrounds and complete posters.
+- `home-home-services-{390,1440}.png`, `home-trust-story-{390,1440}.png`,
+  `about-about-hero-{390,1440}.png`, `services-services-principles-{390,1440}.png`.
+- `about-focus-hover.png`, `about-artwork-failure.png`: real interaction/failure states.
+- Prior-release before evidence remains in `%TEMP%/allied-colour-20261026/`, including
+  `production-home-1440.png`, `production-about-390.png`, `production-trust-1440.png`.
+  A fresh pre-edit dev capture timed out during first compilation and is not claimed.
+- `current-production.json`: independent domain identity reads; no promotion.
+
+## Current check results and precise limits
+
+| Check                                          | Result                                                                                           |
+| ---------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| Frontend unit suite                            | 1,057 passed, 162 files                                                                          |
+| Full lint, then targeted changed-source lint   | Passed                                                                                           |
+| Type check and optimized build                 | Passed                                                                                           |
+| Changed-file formatting and Git whitespace     | Passed                                                                                           |
+| Contrast calculation                           | 30 / 30 passed                                                                                   |
+| Nine original hashes / five decoded logo crops | Unchanged / pixel-identical                                                                      |
+| Broad fixture browser run                      | 103 passed / 109 executed; six require optimized replay                                          |
+| Focused image-failure/cart verification        | Five passed, including the three previously unexecuted drawer cases and Escape/focus restoration |
+
+The six pending cases are listed in [brand-assets-r2-coverage.json](brand-assets-r2-coverage.json):
+About 1024px encountered a dev chunk-loading error; mobile Shop navigation and Review
+cart navigation did not finish within the assertion window; the three Allie/practice
+checks ran with Help & Learn disabled. These failures are not counted as acceptance.
+The final optimized build enables Help & Learn for isolated testing only. Its replay
+also covers the newly added Home/Services image-fallback and 200% CSS-zoom tests.
+
+Starting the optimized loopback preview was rejected by automatic approval review
+with `blocked by policy`, without a further reason. Approval was requested to run
+`npm start` at 127.0.0.1:3168 against only the read-only fictional fixture API at
+127.0.0.1:5021. The start was not retried through another command or port. This is
+an outstanding verification dependency, not a production deployment request.
+
+Local dependencies were reused: Next 16.3.8, while the unchanged lockfile requests
+16.4.3. A future deployment must run locked CI and reconcile any newer live release;
+this local build is fixture-only and must not be promoted as a production artifact.
+No new dependency audit, hosted test, database check or restore was run in this batch.
+
+Firefox and WebKit executables are unavailable. Physical-device, complete screen
+reader, native picker/autofill and privacy-restricted visited-link appearance remain
+unverified. Emulated touch, reflow, forced-colours and reduced-motion checks do not
+constitute complete WCAG conformance. Full route/role/state permutations are not
+claimed; the source inventory and historical browser report retain their distinct
+scopes. The new section screenshot capture was corrected to avoid fixed navigation
+over tall element captures; final clean recaptures await the preview replay.
+
+The supplied artwork and rendered desktop/mobile sections were inspected for logo
+proportion/background, full poster message/face/mechanical composition, adjacent
+HTML hierarchy, visible real actions, retained white space and preserved catalogue
+priority. The original marketing layout is retained, with no invented staff identity
+or logistics capability. Ad 4 remains the clean-source/policy-dependent exception.
+
+No Docker image/container/volume was created or removed. Existing resources are
+retained for active worktrees and rollback. Latest read-only inventory: 87 images,
+13 containers, 14 volumes, 195 build-cache records; none was inferred disposable.
+C: post-build preflight measured 27.19 GiB free (point-in-time, not a machine quota).
+
+## Protected candidate follow-up — 27 October 2026
+
+The subsequent source `e67a576d` places the mobile support actions in document
+flow. The real 320x640 Tyre Change page first reproduced 31px of selector
+obstruction from the fixed dock. A protected Vercel preview from that source,
+`dpl_3ipmjkYQNpcTMXqDnv9wgyEDm1QJ`, used a preview-only read-only public
+API connection and enabled Help & Learn. Browser API mutations were denied. At
+320, 390, 768 and 900x400 coarse-pointer viewports, the handling-branch field
+was unobscured and pointer hit-testing reached it; 1024px retained the desktop
+floating control without blocking the field. No page overflow was found in
+those sampled states. Ask Allie opened and closed at 320px. These are hosted
+browser checks, not physical-device or production-role acceptance.
+
+The six earlier pending cases were replayed against the optimized preview:
+About 1024px, mobile Shop navigation and three Allie/practice cases passed.
+The Review Cart case is restricted in browse-and-enquiries mode and remains
+supported by its earlier isolated full-mode fixture pass, not a hosted commerce
+claim. The brand artwork suite passed 21/22 hosted cases before correcting its
+last test's method: CSS `zoom` doubled painting without shrinking the CSS
+viewport or changing media breakpoints. A 720px layout viewport now approximates
+a 1440px display at 200% browser zoom; the corrected reflow case passed across
+Home, About and Services. Actual browser zoom and complete screen-reader checks
+remain open. Vercel's `?dpl=` asset query and separately created test contexts
+required test harness corrections; the logo path and mobile navigation were
+verified after them. No application behavior was weakened for those checks.
+
+All three pushed commit `e67a576d` GitHub workflows passed: frontend locked
+release checks, backend isolated database safety, and redacted secret guard.
+This follow-up is candidate evidence. Production promotion, exact final-source
+checks and post-promotion domain verification remain separate.
+
+## Production release — 27 October 2026
+
+Final source `8433ff57ff80f27bec7c3eebda36aecb1d156a8f` was deployed with
+the existing production Vercel configuration as
+`dpl_A8CLYwBc6h4tYAwNqconFJTXfQFZ` (READY). Both `alliedautotech.com`
+and `www.alliedautotech.com` independently resolve to this exact deployment;
+www redirects to the apex. The previous frontend deployment
+`dpl_9YTq9gSNUnb3XuHKry5MgCVvigdD` remains the rollback candidate, subject
+to normal compatibility review. Vercel's production deployment attached both
+custom domains upon readiness, so no separate promotion command was run.
+
+The exact final commit passed [locked frontend release checks](https://github.com/Otto-space/allied-autotech/actions/runs/40418559308)
+and the [redacted secret guard](https://github.com/Otto-space/allied-autotech/actions/runs/40418559298).
+The preceding `e67a576d` commit also passed backend isolated database safety;
+the final commit changed only frontend tests and documentation. Local app-source
+checks passed 1,057 units, lint, types, optimized build/postbuild and format.
+The protected candidate exercised the supplied artwork at 360, 390, 768,
+1024 and 1440px, failure/recovery and keyboard states, mobile navigation,
+Allie/practice, and the corrected 720px reflow approximation. The restricted
+Review Cart case retains its earlier isolated full-mode fixture evidence.
+
+Read-only post-release Edge checks returned 200 with meaningful titles/H1s and
+no page exceptions, API mutations or horizontal overflow on Home, About,
+Services, Parts and Help at 390px, Tyre Change detail at 320px and Home at
+1440px. The red header mark, white footer mark, About artwork and Home trust
+artwork loaded from `/brand/r2/`. At 320px the branch field was visible and
+received pointer hit-testing; the support strip followed the footer, and
+Ask Allie opened/closed. `/shop` still redirects to `/parts`. Backend readiness
+returned 200; backend deployment `50b5f5d1-50f6-4bf2-a9d0-f0c4975e02b3`
+was ACTIVE without a pending rollout. No backend image, migration, grant,
+application record, payment or provider setting was changed by this frontend
+release.
+
+Eight managed backups were listed, newest 26 October 05:22:11 UTC. The
+retained separate populated 90-table migration-72 restore receipt passed with
+unchanged original row hashes; no new restore was performed for this release.
+The backup and restore evidence is a release preflight, not proof of a new
+physical point-in-time recovery exercise. Current/rollback/other-task Docker
+resources were retained: 87 images, 13 stopped containers, 14 volumes and
+195 build-cache records; no cleanup deletion occurred. C: postflight had
+27.08 GiB free, a point-in-time reading above the 25 GiB preflight threshold.
+
+Ad 4 remains withheld because its nationwide-delivery claim conflicts with
+workshop collection. Real product/vehicle publication, production-role
+mutations, actual browser zoom, physical devices, native pickers, Firefox,
+WebKit and complete screen-reader acceptance remain open. This release does
+not close the broader site-completion goal.

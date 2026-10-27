@@ -104,11 +104,10 @@ export function businessStructuredData() {
     "@context": "https://schema.org",
     "@type": "AutoRepair",
     name: business.name,
-    telephone: business.internationalPhone,
     email: business.email,
     address: {
       "@type": "PostalAddress",
-      streetAddress: "133 Stadium Road, beside Kilimanjaro",
+      streetAddress: "133 Stadium Road, beside Kilimanjaro Pizza Jungle Restaurant",
       addressLocality: "Port Harcourt",
       addressRegion: "Rivers State",
       addressCountry: "NG",

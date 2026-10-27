@@ -179,15 +179,15 @@ export default async function HelpArticle({ params, searchParams }: Props) {
             <div className="ha-contact-links">
               <a href={`tel:${business.internationalPhone}`}>
                 <Phone size={20} aria-hidden="true" />
-                {business.phone}
+                Call our team
               </a>
               <a
                 href={business.whatsapp}
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="Chat on WhatsApp (opens in a new tab)"
+                aria-label="Whatsapp (opens in a new tab)"
               >
-                Chat on WhatsApp
+                Whatsapp
                 <ArrowUpRight size={16} aria-hidden="true" />
               </a>
             </div>

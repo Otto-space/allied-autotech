@@ -1,6 +1,6 @@
 .invoice-detail {
   --invoice-border: #cfd8df;
-  color: #01121a;
+  color: var(--ink);
   max-width: 1320px;
   margin-inline: auto;
 }
@@ -29,8 +29,9 @@
   border-color: #82939f;
 }
 .invoice-detail .button:focus-visible {
-  outline: 3px solid #e60301;
+  outline: 3px solid var(--focus-ring);
   outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .invoice-layout {
   display: grid;
@@ -50,7 +51,7 @@
   padding-top: 60px;
 }
 .invoice-summary {
-  background: #01121a;
+  background: var(--ink);
   color: white;
   border-radius: 12px;
   padding: 24px;
@@ -97,10 +98,10 @@
   width: 100%;
 }
 .invoice-payment-create > .feedback {
-  color: #01121a;
+  color: var(--ink);
 }
 .invoice-summary .mutation-review {
-  color: #01121a;
+  color: var(--ink);
 }
 .invoice-summary .mutation-review p {
   color: #435563;
@@ -115,7 +116,7 @@
   gap: 12px;
 }
 .invoice-summary .mutation-review dd {
-  color: #01121a;
+  color: var(--ink);
 }
 .invoice-related {
   background: #fff;
@@ -204,7 +205,7 @@
   color: #435563;
 }
 .invoice-sheet address a {
-  color: #01121a;
+  color: var(--ink);
   display: inline-flex;
   min-height: 44px;
   align-items: center;
@@ -300,7 +301,7 @@
 .invoice-total-row dt,
 .invoice-total-row dd {
   font-weight: 700;
-  color: #01121a;
+  color: var(--ink);
 }
 .invoice-note {
   font-size: 12px;

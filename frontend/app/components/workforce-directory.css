@@ -49,8 +49,9 @@
   background: white;
 }
 .wf-directory-table-region:focus-visible {
-  outline: 3px solid var(--brand-red, #e60301);
+  outline: 3px solid var(--focus-ring);
   outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .wf-directory-table-region table {
   width: 100%;

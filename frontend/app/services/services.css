@@ -1,5 +1,5 @@
 .services-page {
-  --services-ink: #01121a;
+  --services-ink: var(--ink);
   --services-border: #8290a1;
   --services-muted: #4f6073;
   --services-surface: #f3f5f8;
@@ -8,8 +8,9 @@
 }
 .services-page :is(a, button, summary):focus-visible,
 .services-pricing input:focus-visible + span {
-  outline: 2px solid #e60301;
-  outline-offset: 4px;
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .services-breadcrumb ol {
   display: flex;
@@ -685,14 +686,14 @@
 }
 .services-principles-media {
   position: relative;
-  min-height: 330px;
-  height: 100%;
+  max-width: 400px;
+  width: 100%;
+  justify-self: center;
   border-radius: 6px;
   overflow: hidden;
 }
 .services-principles-media img {
-  object-fit: cover;
-  object-position: 65% center;
+  object-fit: contain;
 }
 .services-principles h2,
 .services-faq h2 {
@@ -704,7 +705,7 @@
 .services-principles ul {
   list-style: none;
   padding: 0;
-  margin: 0 0 12px;
+  margin: 20px 0 12px;
 }
 .services-principles li {
   border-bottom: 1px solid #d4dce4;
@@ -862,8 +863,9 @@
 .services-discovery-controls input:focus-visible,
 .services-discovery-controls select:focus-visible,
 .services-category-finder summary:focus-visible {
-  outline: 2px solid #e60301;
+  outline: 3px solid var(--focus-ring);
   outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .services-search-row {
   display: grid;

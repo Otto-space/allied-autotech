@@ -1,7 +1,7 @@
 .customer-notifications {
   --cn-muted: #52616b;
   --cn-line: #dce3e8;
-  color: #01121a;
+  color: var(--ink);
   overflow-wrap: anywhere;
   padding-bottom: 32px;
 }
@@ -100,7 +100,7 @@
   align-items: center;
 }
 .cn-filters input[type="checkbox"] {
-  accent-color: #e60301;
+  accent-color: var(--checked);
   width: 18px;
   height: 18px;
 }
@@ -137,7 +137,7 @@
   top: 20px;
   bottom: 20px;
   width: 3px;
-  background: #e60301;
+  background: var(--brand-red);
   border-radius: 3px;
 }
 .cn-item-read::before {
@@ -197,7 +197,7 @@
   font-size: 12px;
 }
 .cn-preferences-heading {
-  background: #01121a;
+  background: var(--ink);
   color: #fff;
   padding: 20px;
 }
@@ -408,9 +408,9 @@
   min-width: 68px;
 }
 .cn-preference [role="switch"][aria-checked="true"] {
-  background: #075985;
+  background: var(--action-primary);
   color: #fff;
-  border-color: #075985;
+  border-color: var(--action-primary);
 }
 .cn-row-footer {
   flex-wrap: wrap;
@@ -423,8 +423,9 @@
   font-size: 17px;
 }
 .customer-notifications :focus-visible {
-  outline: 3px solid #075985;
+  outline: 3px solid var(--focus-ring);
   outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 @media (max-width: 700px) {
   .cn-page-heading {
@@ -444,8 +445,8 @@
   padding: 0 20px 16px;
 }
 .cn-views > button[aria-pressed="true"] {
-  background: #075985;
-  border-color: #075985;
+  background: var(--action-primary);
+  border-color: var(--action-primary);
   color: #fff;
 }
 .cn-filter-details {
@@ -472,7 +473,7 @@
   align-items: center;
   min-height: 44px;
   margin-left: 8px;
-  color: #075985;
+  color: var(--link);
   text-decoration: underline;
 }
 @media (max-width: 600px) {

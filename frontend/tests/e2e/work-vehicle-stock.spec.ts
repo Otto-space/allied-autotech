@@ -299,8 +299,8 @@ test("responsive layouts preserve every stock fact, readable controls and keyboa
       await expect(page.getByLabel("Search stock records")).toBeVisible();
       await page.getByLabel("Search stock records").focus();
       await expect(page.getByLabel("Search stock records")).toHaveCSS(
-        "outline-color",
-        "rgb(208, 3, 1)",
+        "outline-width",
+        "3px",
       );
       await toggle.click();
     } else await expect(toggle).toBeHidden();

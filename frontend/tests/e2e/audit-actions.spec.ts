@@ -287,7 +287,7 @@ for (const width of [360, 390, 768, 1024, 1440]) {
     await page.setViewportSize({ width, height: 960 });
     await page.goto("/parts?vehicleMake=Toyota");
     await page
-      .getByRole("button", { name: "Find parts for my car", exact: true })
+      .getByRole("radio", { name: "Find products for my vehicle", exact: true })
       .click();
     const refresh = page.getByRole("button", {
       name: "Refresh saved vehicles",

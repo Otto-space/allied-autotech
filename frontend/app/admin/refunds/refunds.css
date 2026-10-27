@@ -1,5 +1,5 @@
 .work-refunds {
-  color: #01121a;
+  color: var(--ink);
   font-size: 13px;
   line-height: 1.65;
   min-width: 0;
@@ -32,12 +32,14 @@
   gap: 8px;
 }
 .work-refunds :is(button, a, input, select, textarea, summary):focus-visible {
-  outline: 3px solid #e60301;
+  outline: 3px solid var(--focus-ring);
   outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .work-refunds :is(h1, h2)[tabindex="-1"]:focus {
-  outline: 2px solid #e60301;
-  outline-offset: 5px;
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .work-refunds button:disabled {
   opacity: 0.55;
@@ -117,7 +119,7 @@
   border: 1px solid #8297a8;
   border-radius: 6px;
   background: #fff;
-  color: #01121a;
+  color: var(--ink);
   padding: 10px 12px;
   font: inherit;
 }
@@ -128,7 +130,7 @@
 .work-refunds input[type="checkbox"] {
   width: 18px;
   height: 18px;
-  accent-color: #e60301;
+  accent-color: var(--checked);
   flex: 0 0 auto;
   margin-top: 3px;
 }
@@ -173,7 +175,7 @@
   min-width: 0;
 }
 .wr-record.wr-selected {
-  border-left-color: #e60301;
+  border-left-color: var(--brand-red);
   background: #fff7f6;
 }
 .wr-record-top {
@@ -304,7 +306,7 @@
 .wr-facts dd {
   margin: 0;
   text-align: right;
-  color: #01121a;
+  color: var(--ink);
   overflow-wrap: anywhere;
 }
 .wr-cancellation {
@@ -443,8 +445,8 @@
   font-weight: 600;
 }
 .wr-action-workspace fieldset > .button {
-  background: #e60301;
-  border-color: #e60301;
+  background: var(--button-fill, var(--action-primary));
+  border-color: var(--button-fill, var(--action-primary));
   color: #fff;
   width: 100%;
 }

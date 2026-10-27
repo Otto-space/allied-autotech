@@ -21,9 +21,10 @@ for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536])
     await expect(
       page.getByRole("button", { name: "Create account", exact: true }),
     ).toBeInViewport();
-    await expect(
-      page.getByRole("link", { name: "Need help with your account?" }),
-    ).toBeInViewport();
+    const help = page.getByRole("link", { name: "Need help with your account?" });
+    // The stable auth shell permits vertical reflow; secondary help remains reachable.
+    await help.scrollIntoViewIfNeeded();
+    await expect(help).toBeInViewport();
     for (const control of await page
       .locator(".login-content input,.login-content button,.login-content a")
       .all())

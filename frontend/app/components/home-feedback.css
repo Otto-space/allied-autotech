@@ -81,7 +81,7 @@
 .testimonial-stars {
   display: flex;
   gap: 4px;
-  color: #b80201;
+  color: var(--brand-red-dark);
   margin-bottom: 18px;
 }
 .testimonial-stars .filled {
@@ -110,7 +110,7 @@
   align-items: center;
   min-height: 44px;
   margin-top: 8px;
-  color: #b80201;
+  color: var(--brand-red-dark);
   text-decoration: underline;
   text-underline-offset: 4px;
   font-size: 13px;
@@ -176,14 +176,15 @@
 }
 .home-reviews-carousel button:hover:not(:disabled),
 .home-page .home-feedback .home-feedback__refresh:hover:not(:disabled) {
-  color: #b80201;
+  color: var(--brand-red-dark);
   border-color: #82939f;
   background: #f8fafb;
 }
 .home-reviews-carousel button:focus-visible,
 .home-feedback__refresh:focus-visible {
-  outline: 2px solid #b80201;
+  outline: 3px solid var(--focus-ring);
   outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .home-feedback__refresh:disabled {
   opacity: 0.6;

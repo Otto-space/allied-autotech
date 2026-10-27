@@ -156,7 +156,7 @@ test("every equipment item and the current campaign image have readable labels",
   await expect(page.locator(".about-archive")).toHaveCount(0);
   await expect(page.locator(".about-hero-photo img")).toHaveAttribute(
     "src",
-    /precision-autocare-campaign/,
+    /brand\/r2\/precision-autocare-\d+\.webp/,
   );
 });
 
@@ -221,7 +221,11 @@ test("About content and disclosures work with JavaScript disabled", async ({
   browser,
 }) => {
   const context = await browser.newContext({
-    baseURL: process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3000",
+    baseURL:
+      test.info().project.use.baseURL ??
+      process.env.PLAYWRIGHT_BASE_URL ??
+      "http://localhost:3000",
+    storageState: test.info().project.use.storageState,
     javaScriptEnabled: false,
     viewport: { width: 390, height: 844 },
   });

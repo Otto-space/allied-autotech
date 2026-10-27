@@ -296,8 +296,8 @@ test("responsive groups and long review preserve all fields with accessible keyb
     await expect(page.locator(".vc-group")).toHaveCount(4);
     await page.getByLabel("Stock number", { exact: true }).focus();
     await expect(page.getByLabel("Stock number", { exact: true })).toHaveCSS(
-      "outline-color",
-      "rgb(208, 3, 1)",
+      "outline-width",
+      "3px",
     );
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
     await page.screenshot({

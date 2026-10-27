@@ -2,7 +2,7 @@
   --sd-rule: #c5ced7;
   --sd-control: #8290a1;
   --sd-muted: #4b5d70;
-  color: #01121a;
+  color: var(--ink);
   background: #fff;
 }
 .sd-container {
@@ -208,7 +208,7 @@
   font-weight: 700;
 }
 .sd-help {
-  background: #01121a;
+  background: var(--ink);
   color: #fff;
   border-radius: 6px;
   padding: 22px;
@@ -371,7 +371,7 @@
   gap: 7px;
 }
 .sd-panel :is(.field > label, legend) {
-  color: #01121a;
+  color: var(--ink);
   font-size: 13px;
   font-weight: 750;
 }
@@ -383,7 +383,7 @@
   border-radius: 5px;
   background: #fff;
   padding: 10px 12px;
-  color: #01121a;
+  color: var(--ink);
   font:
     500 14px/1.5 var(--font-quicksand),
     sans-serif;
@@ -397,11 +397,12 @@
   display: none !important;
 }
 .sd-panel :is(input, textarea):hover {
-  border-color: #435968;
+  border-color: var(--border-control);
 }
 .sd-panel :is(input, textarea):focus-visible {
-  outline: 2px solid #b80201;
-  outline-offset: 2px;
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .sd-panel [aria-invalid="true"] {
   border-color: #a40000 !important;
@@ -532,7 +533,7 @@
   width: 18px;
   height: 18px;
   flex-shrink: 0;
-  accent-color: #b80201;
+  accent-color: var(--checked);
 }
 .sd-error {
   border: 1px solid #b80201;
@@ -779,7 +780,7 @@
   }
 }
 .sd-overview {
-  background: #01121a;
+  background: var(--ink);
 }
 .sd-overview h1 {
   color: white;
@@ -832,8 +833,8 @@
   border-bottom: 2px solid transparent;
 }
 .sd-section-nav a:hover {
-  border-bottom-color: #e60301;
-  color: #01121a;
+  border-bottom-color: var(--brand-red);
+  color: var(--ink);
 }
 .service-detail
   :is(
@@ -878,7 +879,7 @@
   height: 340px;
   overflow: hidden;
   border-radius: 6px;
-  background: #01121a;
+  background: var(--ink);
 }
 .sd-care-image img {
   object-fit: cover;
@@ -986,8 +987,9 @@
   margin-bottom: 18px;
 }
 .sd-questions summary:focus-visible {
-  outline: 2px solid #e60301;
+  outline: 3px solid var(--focus-ring);
   outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .sd-more {
   background: white;
@@ -1016,7 +1018,7 @@
   grid-template-columns: 100px minmax(0, 1fr) 18px;
   align-items: center;
   gap: 18px;
-  color: #01121a;
+  color: var(--ink);
   border-block: 1px solid var(--sd-rule);
   padding: 16px 0;
 }
@@ -1062,7 +1064,7 @@
     transition: border-color 160ms ease;
   }
   .sd-more-item:hover {
-    border-color: #e60301;
+    border-color: var(--brand-red);
   }
   .sd-editorial-link svg {
     transition: transform 160ms ease;

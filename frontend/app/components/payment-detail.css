@@ -4,7 +4,7 @@
 }
 .dashboard .dashboard-content .customer-payment {
   min-width: 0;
-  color: #01121a;
+  color: var(--ink);
   --payment-muted: #52616c;
 }
 .dashboard .dashboard-content .customer-payment :where(h1, h2, h3, p, dl, dd) {
@@ -14,8 +14,9 @@
   .dashboard-content
   .customer-payment
   :where(a, button, input, select):focus-visible {
-  outline: 3px solid #e60301;
+  outline: 3px solid var(--focus-ring);
   outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .dashboard .dashboard-content .customer-payment svg {
   flex-shrink: 0;
@@ -65,7 +66,7 @@
 }
 .dashboard .dashboard-content .customer-payment .payment-breadcrumbs [aria-current] {
   font-weight: 700;
-  color: #01121a;
+  color: var(--ink);
 }
 .dashboard .dashboard-content .customer-payment .payment-heading {
   display: flex;
@@ -155,7 +156,7 @@
   top: 0;
   height: 4px;
   width: 64px;
-  background: #e60301;
+  background: var(--brand-red);
 }
 .dashboard .dashboard-content .customer-payment .payment-summary .payment-eyebrow {
   color: #c4d2e2;
@@ -356,10 +357,10 @@
   width: 100%;
   min-width: 0;
   min-height: 44px;
-  border: 1px solid #82939f;
+  border: 1px solid var(--border-control);
   border-radius: 6px;
   background: white;
-  color: #01121a;
+  color: var(--ink);
   font-size: 13px;
   padding: 9px 10px;
 }

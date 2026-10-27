@@ -30,7 +30,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   return publicPageMetadata(
     "Contact & customer care",
-    "Send an enquiry, contact customer care or visit Allied AutoTech at 133 Stadium Road, beside Kilimanjaro, Port Harcourt.",
+    `Send an enquiry, contact customer care or visit Allied AutoTech at ${business.address}.`,
     "/contact",
     searchParams,
   );
@@ -97,15 +97,14 @@ export default function ContactPage() {
               <Phone size={20} aria-hidden="true" />
               <span>
                 <small>Call</small>
-                <strong>{business.phone}</strong>
+                <strong>Call our team</strong>
               </span>
             </a>
             <a href={business.whatsapp} target="_blank" rel="noopener noreferrer">
               <MessageCircle size={20} aria-hidden="true" />
               <span>
-                <small>WhatsApp</small>
                 <strong>
-                  Start a conversation <ArrowUpRight size={14} aria-hidden="true" />
+                  Whatsapp <ArrowUpRight size={14} aria-hidden="true" />
                 </strong>
               </span>
             </a>
@@ -120,7 +119,7 @@ export default function ContactPage() {
               <MapPin size={20} aria-hidden="true" />
               <span>
                 <small>Visit</small>
-                <strong>133 Stadium Road, beside Kilimanjaro</strong>
+                <strong>{business.address}</strong>
               </span>
             </ContactAnchor>
           </section>
@@ -223,14 +222,14 @@ export default function ContactPage() {
                   href={`tel:${business.internationalPhone}`}
                 >
                   <Phone size={18} aria-hidden="true" />
-                  {business.phone}
+                  Call our team
                 </a>
               </div>
               <div className="contact-map">
                 {mapsEmbed ? (
                   <iframe
                     src={mapsEmbed}
-                    title="Allied AutoTech workshop location at 133 Stadium Road, Port Harcourt"
+                    title={`Allied AutoTech workshop location at ${business.address}`}
                     loading="lazy"
                     allowFullScreen
                     referrerPolicy="strict-origin-when-cross-origin"

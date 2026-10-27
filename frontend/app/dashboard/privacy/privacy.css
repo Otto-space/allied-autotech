@@ -1,6 +1,6 @@
 .customer-privacy {
   font-weight: 500;
-  color: #01121a;
+  color: var(--ink);
   padding-right: 42px;
   padding-bottom: 24px;
 }
@@ -40,7 +40,7 @@
   box-shadow: 0 6px 24px #01121a06;
 }
 .cpv-guidance {
-  background: #01121a;
+  background: var(--ink);
   color: white;
   padding: 28px;
   display: flex;
@@ -128,7 +128,7 @@
 }
 .dashboard-content .customer-privacy :is(select, textarea) {
   background-color: #fff;
-  border-color: #aab9c9;
+  border-color: var(--border-control);
   width: 100%;
   min-width: 0;
   font-size: 14px;
@@ -389,7 +389,7 @@
 }
 .customer-privacy .notice.warning {
   background: #fff2f2;
-  border-color: #e60301;
+  border-color: var(--brand-red);
   color: #7e1a1a;
 }
 .cpv-recovery > .button {

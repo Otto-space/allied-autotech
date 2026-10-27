@@ -29,7 +29,7 @@ const createSchema = z.object({
     .trim()
     .regex(
       /^\+?[1-9][0-9]{7,14}$/,
-      "Enter an international phone number, for example +2348136075567.",
+      "Enter an international phone number, including the country code.",
     ),
   odometerKm: wholeNumber(10_000_000),
   keysDelivered: wholeNumber(20),

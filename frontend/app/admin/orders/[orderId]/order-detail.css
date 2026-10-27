@@ -20,7 +20,7 @@
 .work-order-summary {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  background: #01121a;
+  background: var(--ink);
   color: #fff;
   border-radius: 8px;
   margin: 0 0 24px;
@@ -198,7 +198,7 @@
   overflow: hidden;
 }
 .work-order-value-panel > header {
-  background: #01121a;
+  background: var(--ink);
   padding: 18px 20px;
   color: #fff;
 }

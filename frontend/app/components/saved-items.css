@@ -1,6 +1,6 @@
 .saved-page {
   --saved-muted: #435563;
-  color: #01121a;
+  color: var(--ink);
   min-width: 0;
 }
 .saved-heading {
@@ -21,7 +21,7 @@
   gap: 16px;
   padding: 18px 22px;
   border-radius: 10px;
-  background: #01121a;
+  background: var(--ink);
   color: #fff;
 }
 .saved-reservation svg {
@@ -54,15 +54,16 @@
   cursor: pointer;
 }
 .saved-tabs button[aria-selected="true"] {
-  border-bottom-color: #e60301;
+  border-bottom-color: var(--brand-red);
   color: #b60200;
 }
 .saved-tabs button:disabled {
   cursor: default;
 }
 .saved-page :is(button, a, [tabindex]):focus-visible {
-  outline: 2px solid #e60301;
-  outline-offset: 4px;
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .saved-panel {
   min-width: 0;

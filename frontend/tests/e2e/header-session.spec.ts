@@ -146,7 +146,9 @@ for (const role of [null, "CUSTOMER", "STAFF", "ADMIN", "SUPER_ADMIN"])
       );
       await page.setViewportSize({ width, height: 900 });
       await page.goto("/help");
-      await expect.poll(() => probes).toBe(1);
+      // Header identity and Help audience each perform their own bounded read.
+      await expect.poll(() => probes).toBeGreaterThanOrEqual(1);
+      expect(probes).toBeLessThanOrEqual(2);
       if (width === 390)
         await page.getByRole("button", { name: "Open navigation", exact: true }).click();
       const nav =

@@ -11,7 +11,7 @@ export const helpArticleGuidance: Record<string, readonly string[]> = {
       : "Your preferred date and an available appointment time",
   ],
   "visit-the-workshop": [
-    "The confirmed landmark: beside Kilimanjaro on Stadium Road",
+    "The confirmed landmark: beside Kilimanjaro Pizza Jungle Restaurant on Stadium Road",
     "The reason for your visit",
     "Any booking or request reference you already have",
   ],

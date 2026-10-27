@@ -205,8 +205,9 @@
   font-weight: 600;
 }
 .fitment-workspace :is(button, summary, a, input, select, textarea):focus-visible {
-  outline: 3px solid #006b96;
+  outline: 3px solid var(--focus-ring);
   outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .fitment-workspace .fitment-fields > .check-label {
   align-self: start;

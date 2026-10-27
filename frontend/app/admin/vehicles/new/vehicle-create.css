@@ -1,8 +1,8 @@
 .dashboard .dashboard-content .work-vehicle-create {
-  --form-focus: #d00301;
-  --form-halo: #fce7e7;
+  --form-focus: var(--action-primary);
+  --form-halo: var(--selection-fill);
   font-family: var(--font-quicksand), sans-serif;
-  color: #01121a;
+  color: var(--ink);
   font-size: 13px;
   line-height: 1.6;
   min-width: 0;
@@ -133,7 +133,7 @@
   font-family: inherit;
   font-size: 13px;
   font-weight: 600;
-  color: #01121a;
+  color: var(--ink);
   line-height: 1.5;
   margin: 0 0 7px;
 }
@@ -148,7 +148,7 @@
   border: 1px solid #8998a3;
   border-radius: 8px;
   background: #fff;
-  color: #01121a;
+  color: var(--ink);
   font:
     500 13px/1.5 var(--font-quicksand),
     sans-serif;
@@ -157,9 +157,9 @@
   padding-right: 36px;
 }
 .dashboard .dashboard-content .work-vehicle-create :is(input, select):focus-visible {
-  outline: 2px solid #d00301;
-  outline-offset: 2px;
-  box-shadow: 0 0 0 3px #fce7e7;
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .dashboard .dashboard-content .work-vehicle-create [aria-invalid="true"] {
   border-color: #b50200;
@@ -263,7 +263,7 @@
   height: 20px;
   min-width: 20px;
   margin: 2px 0;
-  accent-color: #e60301;
+  accent-color: var(--checked);
 }
 .vc-state > .button {
   margin-top: 4px;

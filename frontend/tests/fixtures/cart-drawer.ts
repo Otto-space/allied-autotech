@@ -6,9 +6,15 @@ export async function drawerProduct(): Promise<Product> {
   const base = process.env.DRAWER_API_ORIGIN ?? "http://localhost:5012";
   if (!/^http:\/\/(?:localhost|127\.0\.0\.1):\d+$/.test(base))
     throw new Error("Drawer QA requires an isolated local API");
-  const response = await fetch(`${base}/api/v1/public/catalog/products?limit=1`);
+  const response = await fetch(`${base}/api/v1/public/catalog/products?limit=20`);
   expect(response.status).toBe(200);
-  return productSchema.parse((await response.json()).data.items[0]);
+  const products = productSchema.array().parse((await response.json()).data.items);
+  const available = products.find((product) =>
+    product.availability.some((branch) => branch.inStock),
+  );
+  if (!available)
+    throw new Error("Drawer fixture requires an available synthetic product");
+  return available;
 }
 export async function drawerFixture(page: Page, product: Product) {
   const state = {

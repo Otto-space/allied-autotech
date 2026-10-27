@@ -1,6 +1,12 @@
 import Image from "next/image";
 
-export function Brand({ inverse = false }: { inverse?: boolean }) {
+export function Brand({
+  inverse = false,
+  monochrome = false,
+}: {
+  inverse?: boolean;
+  monochrome?: boolean;
+}) {
   return (
     <span
       className={`brand brand-logo${inverse ? " brand-logo--inverse" : ""}`}
@@ -9,10 +15,10 @@ export function Brand({ inverse = false }: { inverse?: boolean }) {
     >
       <Image
         className="brand-logo__mark"
-        src="/brand/allied-mark-red.png"
+        src={`/brand/r2/mark-${inverse ? "white" : monochrome ? "black" : "red"}.png`}
         alt=""
-        width={367}
-        height={317}
+        width={397}
+        height={349}
         unoptimized
         loading="eager"
       />

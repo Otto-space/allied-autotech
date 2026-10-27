@@ -3,7 +3,7 @@
   --about-rule: #c6d0d7;
   --about-muted: #445662;
   background: #fff;
-  color: #01121a;
+  color: var(--ink);
 }
 .about-wrap {
   width: min(1200px, calc(100% - 64px));
@@ -40,8 +40,9 @@
   line-height: 1.75;
 }
 .about-page :is(a, summary, [tabindex="-1"]):focus-visible {
-  outline: 2px solid #b80201;
-  outline-offset: 4px;
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .about-page :is(.about-hero, .about-visit) a:focus-visible {
   outline-color: #fff;
@@ -70,7 +71,7 @@
   display: inline-flex;
   align-items: center;
   gap: 9px;
-  color: #01121a;
+  color: var(--ink);
   text-decoration: underline;
   text-underline-offset: 4px;
   font-size: 14px;
@@ -82,9 +83,9 @@
   align-items: center;
 }
 .about-hero {
-  background: #01121a;
   color: #fff;
   padding-bottom: 30px;
+  background: var(--gradient-brand);
 }
 .about-breadcrumb {
   padding-block: 14px 8px;
@@ -164,7 +165,7 @@
   gap: 12px;
   padding: 10px 22px;
   min-height: 44px;
-  color: #01121a;
+  color: var(--ink);
   font-size: 14px;
   font-weight: 600;
   border-right: 1px solid var(--about-rule);
@@ -176,7 +177,7 @@
   border-right: 0;
 }
 .about-sections svg {
-  color: #b80201;
+  color: var(--brand-red-dark);
   flex-shrink: 0;
 }
 .about-sections a:hover {
@@ -228,7 +229,7 @@
   border-bottom: 1px solid var(--about-rule);
 }
 .about-page .principles-list li > span {
-  color: #b80201;
+  color: var(--brand-red-dark);
   font-size: 17px;
   line-height: 1.5;
 }
@@ -344,7 +345,7 @@
   margin-top: 6px;
 }
 .about-visit {
-  background: #01121a;
+  background: var(--ink);
   color: #fff;
   padding-block: 44px;
   border-bottom: 1px solid #30434f;
@@ -359,7 +360,7 @@
   display: block;
   height: 3px;
   width: 44px;
-  background: #e60301;
+  background: var(--brand-red);
   margin-block: 20px;
 }
 .about-page .about-address {
@@ -461,6 +462,7 @@
   }
   .about-hero {
     padding-bottom: 22px;
+    background: var(--gradient-brand);
   }
   .about-sections {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -543,6 +545,16 @@
     border-left: 0;
     border-top: 1px solid #536571;
     padding: 24px 0 0;
+  }
+}
+@media (max-width: 480px) {
+  .about-hero-copy .about-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .about-hero-copy .about-actions .button {
+    justify-content: center;
   }
 }
 @media (prefers-reduced-motion: reduce) {

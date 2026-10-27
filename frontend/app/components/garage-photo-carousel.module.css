@@ -87,13 +87,14 @@
 }
 
 .navigation button:hover {
-  border-color: #e60301;
+  border-color: var(--brand-red);
   color: #b90000;
 }
 
 .carousel button:focus-visible {
-  outline: 3px solid #e60301;
-  outline-offset: 2px;
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 
 .thumbnails {
@@ -117,7 +118,7 @@
 }
 
 .thumbnails .activeThumbnail {
-  border-color: #e60301;
+  border-color: var(--brand-red);
 }
 
 .thumbnailImage {

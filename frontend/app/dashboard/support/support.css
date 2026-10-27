@@ -22,7 +22,7 @@
   align-items: center;
   gap: 8px;
   min-height: 44px;
-  color: #075579;
+  color: var(--link);
   font-weight: 600;
   flex-shrink: 0;
 }
@@ -43,13 +43,13 @@
   border: 1px solid #bdccd7;
   border-radius: 6px;
   background: white;
-  color: #075579;
+  color: var(--link);
   text-decoration: underline;
   text-underline-offset: 3px;
 }
 .cc-jump-links a:hover {
   background: #edf4f8;
-  border-color: #075579;
+  border-color: var(--action-primary);
 }
 .dashboard .dashboard-content .cc-kind-help {
   margin: 0 0 24px;
@@ -171,7 +171,7 @@
 .cc-history-heading {
   padding: 20px 22px;
   border-radius: 9px 9px 0 0;
-  background: #01121a;
+  background: var(--ink);
   color: #fff;
 }
 .dashboard .dashboard-content .cc-history-heading h2 {

@@ -9,8 +9,9 @@
   overflow-wrap: anywhere;
 }
 .notification-record-context:focus-visible {
-  outline: 3px solid #176373;
+  outline: 3px solid var(--focus-ring);
   outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .notification-record-context p {
   margin: 0.45rem 0;
@@ -33,14 +34,16 @@
   min-height: 44px;
 }
 .cn-attention h2:focus-visible {
-  outline: 3px solid #176373;
+  outline: 3px solid var(--focus-ring);
   outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 
 .wp-payment[data-selected="true"] {
   border-color: #176373;
 }
 .wp-payment[tabindex="-1"]:focus-visible {
-  outline: 3px solid #176373;
+  outline: 3px solid var(--focus-ring);
   outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }

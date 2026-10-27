@@ -126,7 +126,7 @@
   border: 0;
 }
 .cr-history-heading {
-  background: #01121a;
+  background: var(--ink);
   color: #fff;
   border-radius: 9px 9px 0 0;
   padding: 20px 22px;

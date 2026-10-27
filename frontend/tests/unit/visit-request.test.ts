@@ -27,14 +27,16 @@ describe("request-only service and inspection preferences", () => {
     },
   );
   it.each([
-    { date: "", time: "09:30" },
-    { date: "2026-10-23", time: "" },
-    { date: "2026-02-30", time: "09:30" },
-    { date: "2026-10-23", time: "24:00" },
-    { date: "2026-10-22", time: "12:59" },
-    { date: "2026-10-22", time: "13:00" },
+    { date: "", time: "09:30", field: "date" },
+    { date: "2026-10-23", time: "", field: "time" },
+    { date: "2026-02-30", time: "09:30", field: "date" },
+    { date: "2026-10-23", time: "24:00", field: "time" },
+    { date: "2026-10-22", time: "12:59", field: "date" },
+    { date: "2026-10-22", time: "13:00", field: "date" },
   ])("rejects invalid/past Nigeria-time preference %j", (preference) => {
-    expect(visitRequestMessage({ ...base, ...preference }, now).error).toBeTruthy();
+    const result = visitRequestMessage({ ...base, ...preference }, now);
+    expect(result.error).toBeTruthy();
+    expect(result.field).toBe(preference.field);
   });
   it("accepts a future preference using Nigeria time, independently of browser timezone", () => {
     expect(
@@ -42,9 +44,9 @@ describe("request-only service and inspection preferences", () => {
     ).toBeUndefined();
   });
   it("rejects overflow after adding the preference instead of truncating the customer's message", () => {
-    expect(
-      visitRequestMessage({ ...base, message: "x".repeat(4000) }, now).error,
-    ).toContain("4,000");
+    const result = visitRequestMessage({ ...base, message: "x".repeat(4000) }, now);
+    expect(result.error).toContain("4,000");
+    expect(result.field).toBe("message");
   });
   it("does not attach stale preferences to purchases or a deselected visit", () => {
     expect(visitRequestMessage({ ...base, type: "PRODUCT" }, now)).toEqual({

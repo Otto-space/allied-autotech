@@ -10,6 +10,7 @@ import { parsePublicReviews } from "@/lib/api/review-schemas";
 import { SiteHeader } from "./site-header";
 import { SiteFooter } from "./site-footer";
 import { HomeHero } from "./home-hero";
+import { CampaignArtwork } from "./campaign-artwork";
 import { ServiceMarquee } from "./service-marquee";
 import { ServiceList } from "./service-list";
 import { HomePartsPreview, HomeVehiclesPreview } from "./home-catalogue-preview";
@@ -79,11 +80,10 @@ export async function PublicHome() {
         <section className="public-section public-surface home-services">
           <div className="public-wrap home-services__layout">
             <div className="home-services__image">
-              <Image
-                src="/images/allied-autotech/workshop-editorial.webp"
-                alt="Editorial workshop scene showing a technician inspecting an SUV"
-                fill
-                sizes="(max-width: 700px) 90vw, 35vw"
+              <CampaignArtwork
+                artwork="precision-autocare"
+                alt="Allied AutoTech Precision Autocare You Can Trust campaign, with a person in a red branded uniform"
+                sizes="(max-width: 420px) calc(100vw - 40px), (max-width: 700px) 380px, (max-width: 1280px) 36vw, 490px"
               />
             </div>
             <div>
@@ -141,24 +141,23 @@ export async function PublicHome() {
           <div className="public-wrap trust-layout">
             <figure className="technician-story">
               <div className="technician-story__image">
-                <Image
-                  src="/images/allied-autotech/precision-autocare-campaign.png"
-                  alt="Allied AutoTech technician in the company’s original Precision Autocare You Can Trust campaign"
-                  fill
-                  sizes="(max-width: 700px) 90vw, 40vw"
+                <CampaignArtwork
+                  artwork="built-on-trust"
+                  alt="Sculptural red Allied emblem from the Built on Trust campaign"
+                  sizes="(max-width: 390px) calc(100vw - 40px), 350px"
                 />
               </div>
-              <figcaption>Precision Autocare You Can Trust.</figcaption>
+              <figcaption>Built on trust. Driven by quality.</figcaption>
             </figure>
             <div>
               <h2>
-                Precision Autocare
+                Built on trust.
                 <br />
-                You Can Trust.
+                Driven by quality.
               </h2>
               <p>
-                Built on trust driven by quality. Our principles shape the way we care for
-                your vehicle and the way we work with you.
+                Our principles shape the way we care for your vehicle and the way we work
+                with you.
               </p>
               <TrustPrinciples />
               <Link className="text-link" href="/about#principles">

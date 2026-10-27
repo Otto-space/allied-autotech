@@ -64,6 +64,8 @@ async function fixture(page: Page, role = "ADMIN") {
     const request = route.request();
     const url = new URL(request.url());
     const endpoint = url.pathname.replace("/api/v1", "");
+    if (endpoint === "/staff/notifications/summary")
+      return reply(route, { unreadCount: 0, groups: [] });
     if (endpoint === "/auth/session")
       return reply(route, {
         id: id(10),

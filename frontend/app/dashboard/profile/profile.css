@@ -1,6 +1,6 @@
 .customer-profile {
   --cp-muted: #526071;
-  color: #01121a;
+  color: var(--ink);
   padding-bottom: 20px;
 }
 .cp-heading {
@@ -39,7 +39,7 @@
   box-shadow: 0 3px 16px #01121a05;
 }
 .cp-identity {
-  background: #01121a;
+  background: var(--ink);
   color: #fff;
   padding: 28px 20px 22px;
   display: flex;
@@ -195,7 +195,7 @@
 }
 .cp-photo progress {
   width: 100%;
-  accent-color: #e60301;
+  accent-color: var(--checked);
 }
 .cp-links {
   border-top: 1px solid #e0e6eb;
@@ -206,7 +206,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  color: #01121a;
+  color: var(--ink);
   min-height: 44px;
   font-size: 13px;
   text-decoration: none;
@@ -215,7 +215,7 @@
   margin-left: auto;
 }
 .cp-links a:hover {
-  color: #b80201;
+  color: var(--brand-red-dark);
 }
 .cp-editor {
   min-width: 0;
@@ -267,20 +267,21 @@
 .cp-email dt {
   font-size: 13px;
   font-weight: 600;
-  color: #01121a;
+  color: var(--ink);
 }
 .cp-form input {
   min-height: 44px;
   font-size: 14px;
-  border-color: #9caebb;
+  border-color: var(--border-control);
   background: #fff;
   border-radius: 7px;
   padding: 10px 12px;
 }
 .cp-form input:focus {
-  border-color: #b80201;
-  outline: 2px solid #e6030133;
-  outline-offset: 2px;
+  border-color: var(--brand-red-dark);
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .cp-form input:disabled {
   opacity: 1;

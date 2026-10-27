@@ -1,8 +1,8 @@
 .dashboard .dashboard-content .work-vehicle-stock {
-  --form-focus: #d00301;
-  --form-halo: #fce7e7;
+  --form-focus: var(--action-primary);
+  --form-halo: var(--selection-fill);
   font-family: var(--font-quicksand), sans-serif;
-  color: #01121a;
+  color: var(--ink);
   font-size: 13px;
   line-height: 1.6;
 }
@@ -42,7 +42,7 @@
   font-family: inherit;
   font-size: 13px;
   font-weight: 600;
-  color: #01121a;
+  color: var(--ink);
   margin: 0 0 7px;
 }
 .dashboard
@@ -56,7 +56,7 @@
   border: 1px solid #8998a3;
   border-radius: 8px;
   background-color: #fff;
-  color: #01121a;
+  color: var(--ink);
   font-family: inherit;
   font-size: 13px;
   font-weight: 500;
@@ -66,12 +66,12 @@
   padding-right: 36px;
 }
 .dashboard .dashboard-content .work-vehicle-stock :is(input, select):hover:enabled {
-  border-color: #455b6a;
+  border-color: var(--border-control);
 }
 .dashboard .dashboard-content .work-vehicle-stock :is(input, select):focus-visible {
-  outline: 2px solid #d00301;
-  outline-offset: 2px;
-  box-shadow: 0 0 0 3px #fce7e7;
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .dashboard .dashboard-content .work-vehicle-stock [aria-invalid="true"] {
   border-color: #b50200;
@@ -146,7 +146,7 @@
   white-space: normal;
   overflow-wrap: anywhere;
   padding: 20px;
-  color: #01121a;
+  color: var(--ink);
   font-family: inherit;
   font-size: 13px;
   font-weight: 500;
@@ -311,8 +311,9 @@
   border-radius: 8px;
 }
 .work-vehicle-stock :is(a, button):focus-visible {
-  outline: 2px solid #c00301;
-  outline-offset: 4px;
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 @media (max-width: 1180px) {
   .ws-filters {
@@ -330,7 +331,7 @@
     border: 0;
     border-radius: 12px;
     background: transparent;
-    color: #01121a;
+    color: var(--ink);
     text-align: left;
   }
   .ws-filter-toggle span {

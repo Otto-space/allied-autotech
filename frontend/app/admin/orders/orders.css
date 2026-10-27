@@ -195,12 +195,12 @@
   }
   .work-orders .work-service-band {
     background: transparent;
-    color: #01121a;
+    color: var(--ink);
     padding: 0 0 14px;
     flex-wrap: wrap;
   }
   .dashboard .dashboard-content .work-orders .work-service-band h2 {
-    color: #01121a;
+    color: var(--ink);
   }
   .work-orders-table tr {
     margin: 0 0 14px;

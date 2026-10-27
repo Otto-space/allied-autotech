@@ -334,6 +334,11 @@ test("all fifteen supplied equipment images load in their grouped gallery", asyn
 }) => {
   await intercept(page);
   await page.goto("/about");
+  // Lazy images inside closed equipment groups load after their real disclosure opens.
+  for (const summary of await page.locator(".equipment-disclosure > summary").all()) {
+    if (await summary.evaluate((node) => !node.parentElement?.hasAttribute("open")))
+      await summary.click();
+  }
   const images = page.locator("#equipment img");
   await expect(images).toHaveCount(15);
   for (const image of await images.all()) {

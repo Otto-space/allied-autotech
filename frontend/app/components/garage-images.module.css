@@ -1,5 +1,5 @@
 .page {
-  color: #01121a;
+  color: var(--ink);
   min-width: 0;
   font-family: var(--font-quicksand), sans-serif;
 }
@@ -24,8 +24,9 @@
 .page a:focus-visible,
 .page input:focus-visible,
 .upload h2:focus-visible {
-  outline: 2px solid #e60301;
+  outline: 3px solid var(--focus-ring);
   outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .breadcrumb ol {
   display: flex;
@@ -90,7 +91,7 @@
   align-items: center;
   gap: 16px;
   padding: 20px 24px;
-  background: #01121a;
+  background: var(--ink);
   color: white;
   border-radius: 8px;
   margin-bottom: 24px;
@@ -200,15 +201,15 @@
   min-height: 48px;
   font-family: inherit;
   font-size: 16px;
-  color: #01121a;
+  color: var(--ink);
   background: #fff;
-  border: 1px solid #82939f;
+  border: 1px solid var(--border-control);
   border-radius: 6px;
   padding: 10px 12px;
   box-shadow: none;
 }
 .page .fields input:focus {
-  border-color: #e60301;
+  border-color: var(--brand-red);
 }
 .orderRow {
   display: grid;
@@ -340,7 +341,7 @@
 }
 .upload progress {
   width: 100%;
-  accent-color: #e60301;
+  accent-color: var(--checked);
 }
 .page .upload :global(.notice) {
   font-size: 12px;
@@ -354,7 +355,7 @@
   min-height: 44px;
   gap: 8px;
   margin-top: 24px;
-  color: #01121a;
+  color: var(--ink);
   font-size: 13px;
   text-decoration: underline;
 }

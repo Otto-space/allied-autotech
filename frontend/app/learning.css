@@ -55,8 +55,8 @@
 .learning-practice-session .button:not(.secondary),
 .allie-content .button:not(.secondary),
 .learning-guide-panel .button:not(.secondary) {
-  background: #b80201;
-  border-color: #b80201;
+  background: var(--button-fill);
+  border-color: var(--button-fill);
   color: #fff;
 }
 .learning-content .button.secondary,
@@ -136,8 +136,18 @@
 }
 .learning-modes > button[aria-selected="true"] {
   background: #fff2f2;
-  border-color: #b80201;
+  border-color: var(--brand-red-dark);
   box-shadow: inset 0 0 0 1px #b80201;
+}
+.learning-modes > button:hover:not(:disabled),
+.allie-prompts button:hover:not(:disabled),
+.allie-topic:hover:not(:disabled) {
+  border-color: var(--action-primary);
+  background: var(--selection-fill);
+}
+.learning-close:hover:not(:disabled) {
+  background: var(--selection-fill);
+  color: var(--selection-ink);
 }
 .learning-modes strong {
   display: block;
@@ -164,7 +174,7 @@
 .learning-modes [aria-selected="true"] .learning-mode-icon,
 .learning-task-icon {
   background: #fbe4e5;
-  color: #b80201;
+  color: var(--brand-red-dark);
 }
 .learning-results-head {
   display: flex;
@@ -388,10 +398,11 @@
   gap: 12px;
   padding: 18px 20px;
   border-bottom: 1px solid #dce1e5;
-  background: #fff;
   position: sticky;
   top: 0;
   z-index: 2;
+  background: var(--gradient-brand);
+  color: var(--text-inverse);
 }
 .learning-dialog-head h2 {
   font-size: 1.25rem;
@@ -401,7 +412,7 @@
 .learning-dialog-head p {
   margin: 3px 0 0;
   font-size: 0.86rem;
-  color: #52606c;
+  color: var(--text-inverse-muted);
 }
 .learning-close {
   margin-left: auto;
@@ -726,7 +737,7 @@
 .allie-question input {
   min-width: 0;
   flex: 1;
-  border: 1px solid #8794a1;
+  border: 1px solid var(--border-control);
   min-height: 46px;
   padding: 10px 12px;
   border-radius: 8px;
@@ -823,8 +834,9 @@
   padding: 24px;
   margin-block: 24px;
   border: 1px solid #d8bfc1;
-  background: #fff7f7;
   border-radius: 14px;
+  background: var(--gradient-subtle);
+  border-color: var(--action-primary);
 }
 .help-index .help-learning-card > div:first-of-type {
   flex: 1 1 280px;
@@ -888,9 +900,14 @@
   font-size: 0.85rem;
 }
 .learning-highlight {
-  outline: 3px solid #a51a21 !important;
+  outline: 3px solid var(--action-primary);
   outline-offset: 5px;
   scroll-margin: 100px;
+}
+.learning-highlight:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 body:has(.learning-guide-panel) .support-controls {
   visibility: hidden;
@@ -945,7 +962,7 @@ body:has(.learning-guide-panel) .support-controls {
 .learning-fields textarea {
   display: block;
   width: 100%;
-  border: 1px solid #8794a1;
+  border: 1px solid var(--border-control);
   border-radius: 8px;
   min-height: 46px;
   padding: 10px;
@@ -987,8 +1004,9 @@ body:has(.learning-guide-panel) .support-controls {
 .learning-guide-panel :focus-visible,
 .allie-dialog :focus-visible,
 .learning-entry:focus-visible {
-  outline: 3px solid #1256a0;
+  outline: 3px solid var(--focus-ring);
   outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 @media (max-width: 1023px) {
   .learning-topics {
@@ -1005,6 +1023,8 @@ body:has(.learning-guide-panel) .support-controls {
   }
   .help-index .help-learning-card {
     flex-wrap: wrap;
+    background: var(--gradient-subtle);
+    border-color: var(--action-primary);
   }
 }
 @media (max-width: 767px) {
@@ -1053,6 +1073,8 @@ body:has(.learning-guide-panel) .support-controls {
   .help-index .help-learning-card {
     padding: 20px;
     gap: 14px;
+    background: var(--gradient-subtle);
+    border-color: var(--action-primary);
   }
   .help-index .help-learning-card > div:first-of-type {
     flex-basis: calc(100% - 80px);

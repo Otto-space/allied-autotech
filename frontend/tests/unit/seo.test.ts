@@ -78,7 +78,7 @@ describe("configured public identity", () => {
   it("publishes only supplied business facts and escapes script terminators", () => {
     vi.stubEnv("SITE_ORIGIN", "");
     const data = businessStructuredData();
-    expect(data.telephone).toBe("+2348136075567");
+    expect(data).not.toHaveProperty("telephone");
     expect(data.address.addressLocality).toBe("Port Harcourt");
     for (const field of [
       "url",

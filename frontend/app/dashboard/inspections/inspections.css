@@ -1,14 +1,15 @@
 .customer-inspections {
   max-width: 1440px;
-  color: #01121a;
+  color: var(--ink);
   font-family: var(--font-quicksand), sans-serif;
 }
 .customer-inspections :is(button, a, select) {
   font-family: inherit;
 }
 .customer-inspections :is(a, button, select, [tabindex]):focus-visible {
-  outline: 2px solid #e60301;
+  outline: 3px solid var(--focus-ring);
   outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .inspection-breadcrumb ol {
   display: flex;
@@ -102,10 +103,10 @@
 .dashboard .dashboard-content .customer-inspections select {
   min-height: 48px;
   background-color: white;
-  border: 1px solid #82939f;
+  border: 1px solid var(--border-control);
   border-radius: 6px;
   padding: 8px 38px 8px 12px;
-  color: #01121a;
+  color: var(--ink);
   font-size: 16px;
   width: 100%;
 }
@@ -201,7 +202,7 @@
 }
 .inspection-appointment strong {
   display: block;
-  color: #01121a;
+  color: var(--ink);
   font-size: 13px;
   font-weight: 600;
 }
@@ -251,7 +252,7 @@
   font-weight: 600;
   border: 0;
   background: transparent;
-  color: #01121a;
+  color: var(--ink);
   padding: 8px 0;
   cursor: pointer;
   white-space: nowrap;
@@ -317,7 +318,7 @@
 .inspection-footer a {
   text-decoration: underline;
   text-underline-offset: 3px;
-  color: #01121a;
+  color: var(--ink);
   display: inline-flex;
   align-items: center;
   min-height: 44px;

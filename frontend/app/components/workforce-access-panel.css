@@ -86,7 +86,7 @@
   height: 18px;
   flex: none;
   margin-top: 3px;
-  accent-color: #e60301;
+  accent-color: var(--checked);
 }
 .wf-checks {
   border: 0;

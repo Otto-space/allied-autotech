@@ -67,8 +67,9 @@
   aspect-ratio: 4 / 3;
 }
 .product-media-editor :is(a, button, summary, input):focus-visible {
-  outline: 3px solid #006b96;
+  outline: 3px solid var(--focus-ring);
   outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .product-media-editor summary {
   cursor: pointer;

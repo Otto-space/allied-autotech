@@ -41,7 +41,10 @@ export function CartUpdateDrawer({
       aria-labelledby={`${id}-title`}
       aria-describedby={`${id}-description`}
       onCancel={onClose}
-      onClose={onClose}
+      onClose={() => {
+        // Ignore a queued Strict Mode cleanup event after the next setup reopens.
+        if (!modal.current?.open) onClose();
+      }}
       onKeyDown={(event) => {
         if (event.key !== "Tab") return;
         const controls = Array.from(
@@ -134,7 +137,9 @@ export function CartUpdateDrawer({
           <span>Subtotal</span>
           <strong>{formatKobo(cart.subtotalKobo)}</strong>
         </div>
-        <p>Delivery and any applicable adjustments are confirmed at checkout.</p>
+        <p>
+          Workshop collection only. Any applicable adjustments are confirmed at checkout.
+        </p>
         <Link className="button" href="/dashboard/cart" onClick={onClose}>
           Review cart
           <ArrowRight size={18} aria-hidden="true" />

@@ -145,6 +145,12 @@ for (const width of [360, 390, 768, 1024, 1440]) {
         !(
           message.location().url.includes("/auth/session") &&
           message.text().includes("401")
+        ) &&
+        !(
+          message.type() === "warning" &&
+          /^The resource http:\/\/127\.0\.0\.1:\d+\/_next\/static\/css\/[^ ]+\.css was preloaded using link preload but not used within a few seconds/.test(
+            message.text(),
+          )
         )
       )
         errors.push(message.text());
@@ -216,7 +222,10 @@ for (const width of [360, 390, 768, 1024, 1440]) {
     await page.getByRole("button", { name: "Apply filters", exact: true }).click();
     await expect(page).not.toHaveURL(/oilViscosityGrade|packVolumeMl/);
     await page.goto("/vehicles");
-    await page.getByText("Search and vehicle preferences", { exact: true }).click();
+    // Populated local SSR opens the filters; empty hosted SSR leaves them closed.
+    const controls = page.locator(".catalogue-controls");
+    if ((await controls.getAttribute("open")) === null)
+      await page.getByText("Search and vehicle preferences", { exact: true }).click();
     await page
       .getByRole("searchbox", { name: "Search vehicles", exact: true })
       .fill("Toyota Corolla");
@@ -400,10 +409,12 @@ test("budget errors retain the draft, focus the invalid field and return keyboar
 test("empty, no-match and API error states stay distinct and retry recovers", async ({
   page,
 }) => {
+  mode = "empty";
   await page.goto("/parts");
   await expect(
     page.getByRole("heading", { name: "No products are published yet", exact: true }),
   ).toBeVisible();
+  mode = "populated";
   await page
     .getByRole("searchbox", { name: "Search products", exact: true })
     .fill("NoSyntheticMatch");

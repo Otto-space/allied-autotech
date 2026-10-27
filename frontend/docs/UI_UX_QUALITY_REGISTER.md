@@ -1,11 +1,35 @@
 # UI and UX quality register
 
+## 27 October 2026: Workshop address and Whatsapp labels
+
+Updated the public address to "133 Stadium Road, beside Kilimanjaro Pizza Jungle
+Restaurant, Port Harcourt, Rivers State, Nigeria" in the shared business details,
+Contact visit card, map destinations, Help guidance and search metadata. Public
+contact surfaces no longer render phone digits; the footer, About and Privacy
+offer a Whatsapp link. Existing call actions use descriptive labels. Messaging
+links retain HTTPS and explicit opener/referrer protections. Search structured
+data no longer publishes a telephone field. Link destinations necessarily retain
+the number; this is not number secrecy or a claim about the business's WhatsApp
+account encryption configuration.
+
+Browser plugin not available; reused Playwright/Edge. Local anonymous checks at
+390 and 1440 CSS pixels passed Contact, About, Help, Privacy and the workshop
+guide: correct page title, meaningful main content, full address, no visible phone
+digits, no horizontal overflow, no framework overlay or page errors. Map queries
+contain the full address. Keyboard activation of the footer Whatsapp link opened
+the expected HTTPS host with null opener and empty referrer (destination
+intercepted; no message sent). Screenshots: `%TEMP%/allied-location-390.png` and
+`allied-location-1440.png`; receipt: `allied-location-browser.json`. These are
+local, mocked API checks, not real-device or authenticated acceptance.
+
 Updated 27 October 2026. This is the ongoing quality register, not an assertion
 that every route or state has passed review. Work proceeds in finite batches.
 
 ## Standing responsibility and source
 
-Current bounded implementation: W14B reviewed Care policy foundation. Immutable v1
+Current bounded implementation: reviewed Customer Care handoff W15; see the final checkpoint and docs/help-learn/REVIEWED_HANDOFF_W15.md. Complete Revision 4 remains active.
+
+Prior W14B checkpoint: W14B reviewed Care policy foundation. Immutable v1
 is preserved; v2 adds separate view/reply/assign/live duties. Job positions remain
 fixed, existing delegated v1 management stays usable and unknown old names do not
 become authority. 45 native regression/final5 focused cases,51 backend units,
@@ -35,6 +59,16 @@ reviewed handoff, gated shared staffed transport and all106 route learning accep
 remain open. Evidence: `docs/help-learn/WORKFORCE_AFTERCARE_W13.md` and retained W12
 booking/W11 independent-grant/W10 history/W9 evaluation checkpoints. Customer-table/
 sidebar responsiveness remains Cycle13; unrelated newer release work is preserved.
+
+Deployed colour/state baseline: the owner's complete colour/state brief, branch
+`feat/colour-states-20261026` in the reused `allied-shop-vehicles-r2-20261025`
+worktree, based on `3cea520f` / released runtime `8c11c3a0`. Shared black/red/white
+tokens and contextual states are deployed as runtime `d6d8534d`, preserving the
+newer workforce release. See [production evidence](../../backend/docs/colour-production-20261026.md).
+See [colour/state report](COLOUR_AND_STATE_REPORT.md) for the exact evidence and
+remaining native/platform and three cart-drawer verification gaps. The prior
+customer-table cycle is retained below. Separate workforce work, permissions,
+data and unrelated worktree edits are preserved.
 
 Notification Cycle 8 was deployed on 25 October 2026 from runtime source `345847d5` after locked
 Next 16.4.3 CI and optimized hosted acceptance. Genuine native delivery/click
@@ -1891,3 +1925,119 @@ hosted/actual-role/device/screen-reader gates stay open. Useful Docker/caches re
 ## Revision 4 W15: reviewed Customer Care handoff
 
 Verified customer Allie now opens an editable queued-message flow without requiring AI attempts. Exact destination/audience review, selected excerpts, cancel/edit, loss/reload recovery, independent drafts and canonical history/operator visibility are implemented. Full 1,161 frontend tests, 32 distinct Allie/handoff browser fixtures at 320-1440px and one real browser/API/restricted-CI-DB composition pass; scoped Axe and keyboard/focus checks are recorded. Backend ownership/privacy and transactional acceptance remain distinct from real delivery. Evidence and screenshots: `../../docs/help-learn/REVIEWED_HANDOFF_W15.md`. No provider call, production seed, publication or live-chat staffing claim. Two exact customer-support matrix entries contain partial evidence; all 106 complete route decisions remain open. Physical devices, complete screen readers, current hosted roles, new-source real-provider quality and shared staffed transport remain unverified.
+
+26 October 2026 - complete colour/state brief, local implementation checkpoint.
+Branch feat/colour-states-20261026 in allied-shop-vehicles-r2-20261025, based on
+3cea520f / released runtime 8c11c3a0. Shared black/red/white tokens, branded
+marketing/navigation/Allie gradients, contextual focus/selection and semantic
+statuses are implemented; approved imagery and white operational surfaces remain.
+No backend, schema, permission or business mutation changed. 1,053 units, lint,
+typecheck, optimized build and 30 contrast pairs passed. Browser evidence accepts
+324 distinct cases across 118 files; three optional cart-drawer cases unexecuted.
+Firefox/WebKit, native autofill/pickers, physical devices and full screen-reader
+acceptance remain unverified. Exact coverage, initial harness corrections, safe
+screenshots and remaining limits: frontend/docs/COLOUR_AND_STATE_REPORT.md and
+colour-browser-coverage.json. No push/deploy under this brief. Other worktrees,
+Desktop edits and the separate workforce/Allie scope are preserved. Broader site
+completion Item 6 remains open. Task servers stopped after checks; no Docker
+resources created/deleted; final disk preflight 28.15 GiB free.
+
+26 October 2026 - owner-authorised colour/state release deployed.
+Runtime d6d8534d preserves deployed workforce/payment source c4e0005d and adds the
+black/red/white presentation. Vercel dpl_9YTq9gSNUnb3XuHKry5MgCVvigdD READY;
+both apex/www aliases verified. Backend 707a200f-17c3-4947-a0bd-21b39496cf6a
+remains ACTIVE and unchanged. All three exact-source CI gates passed, including
+1,057 units, zero production audit vulnerabilities and isolated 72-migration
+replay/db:check. 39 hosted fixture cases and 12 post-promotion public checks passed;
+independent www and backend health reads passed. Formatting/hydration harness
+corrections and explicit device/native/three cart-drawer limits are documented in
+backend/docs/colour-production-20261026.md. Managed backups and retained populated
+restore proof verified; no new restore, production DB command or business write.
+Prior frontend dpl_GRVrwacMhYkrqktFvGRChY5LB2Ln retained for compatible rollback.
+Other worktrees and Desktop edits preserved; no Docker cleanup; C: 27.86 GiB free.
+Broader site completion Item 6 and the separate workforce/Allie roadmap remain open.
+
+26 October 2026 - colour and brand assets Revision 2 local checkpoint.
+Branch feat/brand-assets-r2-20261026 in allied-shop-vehicles-r2-20261025, based on
+ce3121b8 / released d6d8534d. All nine supplied files inspected and original hashes
+preserved; five pixel-identical logo crops and nine responsive WebP posters prepared.
+Shared red/white/black marks, Home trust/service artwork, About portrait and Services
+workmanship implemented. Ad 4 withheld: nationwide delivery contradicts collection
+policy; clean corrected artwork is a business/source dependency. No policy changed.
+1,057 units, lint/types/build/format and 30 contrast pairs passed. 103/109 broad
+fixture browser cases passed; six await optimized replay (three development loading/
+navigation failures and three Help/Learn tests with the local flag disabled). The
+three prior cart gaps passed in focused checks; real Strict Mode dialog cleanup and
+pre-hydration image-error handling repaired. Final local preview start was rejected
+by automatic approval review, reason only "blocked by policy"; specific local-only
+approval requested and pending. No bypass, push, deployment or database command.
+See frontend/docs/BRAND_ASSETS_R2_REPORT.md and brand-assets-r2-coverage.json for
+exact evidence, missing clean recaptures, platform limits and reused dependency
+version discrepancy. Both live domains still dpl_9YTq9gSNUnb3XuHKry5MgCVvigdD.
+Other worktrees and unrelated edits preserved; broader Item 6 remains open.
+
+26 October 2026 - mobile public support placement, P1 local correction. Live
+Tyre Change detail at 320x640 reproduced the fixed support dock overlapping
+31px of the handling-branch field during ordinary scrolling. This was a real
+unfocused field obstruction, not a screenshot artifact. The shared narrow/short
+viewport rule now presents Help and WhatsApp as an in-flow support strip after
+the page content, retaining 48px-or-larger targets, safe-area padding and the
+existing header Help route. Desktop floating controls remain as before. A
+read-only browser style preview showed the field fully visible and the support
+strip after the footer; no application record or message was submitted. The
+exact local source passed frontend lint, typecheck, 1,057 units, optimized
+build/postbuild and formatting. Exact hosted-candidate interaction, 390px,
+short-landscape and adjacent-page checks remain before publication. Browser
+plugin unavailable; installed Edge/Playwright provided the live baseline and
+style preview. Prior rejected local preview startup was not retried.
+
+27 October 2026 - hosted P1 acceptance for the same support correction.
+Protected exact-source candidate dpl_3ipmjkYQNpcTMXqDnv9wgyEDm1QJ rendered
+the real public Tyre Change detail using read-only public API data. Field hit
+testing and zero obstruction passed at 320, 390, 768 and 900x400 coarse-pointer;
+1024 retained its desktop control without intercepting the field. The mobile
+support actions remain reachable below the footer and Ask Allie opens/closes.
+Home/About/Services brand artwork, keyboard and failure states passed 21 of 22
+hosted cases; the final 720px reflow check passed after replacing an inaccurate
+CSS-zoom emulation. Five of six earlier pending cases passed; Review Cart is
+launch-restricted and keeps its earlier isolated full-mode fixture evidence.
+No form submission, real customer data mutation or production frontend release.
+Actual device/browser zoom, screen reader and live authenticated-role checks
+remain open. The next P1 review is public enquiry draft/account switching and
+uncertain-submit recovery, already identified in release-blockers.md.
+
+27 October 2026 - the brand/support batch is deployed. Final frontend source
+8433ff57, Vercel dpl_A8CLYwBc6h4tYAwNqconFJTXfQFZ READY on both apex/www;
+the previous dpl_9YTq9gSNUnb3XuHKry5MgCVvigdD is retained for rollback.
+Locked frontend/secret CI passed. Seven read-only production routes at sampled
+320/390/1440 widths passed title/H1, page-error, overflow, logo and action
+checks. Tyre Change selector hit-testing passed at 320px and Allie opened and
+closed. Backend stayed ACTIVE and unchanged; no form, customer or payment
+submission occurred. Exact proof and remaining physical-device, actual zoom,
+screen-reader and role acceptance limits are in BRAND_ASSETS_R2_REPORT.md.
+The next P1 item was revalidated against the exact released source on 27 October:
+public enquiry and complaint forms already clear private fields, review and receipt
+on account invalidation while retaining the duplicate-prevention lock for an
+uncertain anonymous send. Ten existing browser cases cover both request kinds at
+draft, review, pending, unknown and completed stages; another covers validation
+racing invalidation. The production deployment `dpl_A8CLYwBc6h4tYAwNqconFJTXfQFZ`
+was re-inspected on both domains. No application change or repeat test run was
+needed for this resolved item. Next independent P1 review: wider public forms,
+actual mobile keyboard/text enlargement and measured performance, reproducing a
+specific defect before editing. Real API and cross-device acceptance remain open.
+
+27 October 2026 - About mobile hero layout shift, P2. Fresh read-only Edge
+contexts at 390x844 reproduced the same CLS contribution, 0.0832804 in three
+loads. Layout-shift attribution showed the second hero CTA moving to a new row
+when the approved Quicksand font loaded, pushing the campaign artwork down
+57.09px. Five other sampled public routes had no comparable shift; those
+single-run lab samples are not field Core Web Vitals. The scoped CSS change
+stacks the two CTAs through 480px, so fallback and final font geometries agree.
+An optimized local build passed TypeScript and packaging. Three fresh 390px
+candidate loads measured CLS about 0.0000056 each. At 320, 414, 480, 481,
+768, 1024 and 1440px, the About page had no horizontal overflow or page
+exceptions; sampled 320/390/481/1440 Axe scans had no violations and the
+campaign image loaded. The local reused Next installation is 16.3.8 while the
+project requests 16.4.3, so locked CI and an exact-version hosted candidate
+remain required before release. The local preview's unrelated authentication
+proxy aimed at absent localhost:5000; no account or API mutation was tested.

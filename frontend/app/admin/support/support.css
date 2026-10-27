@@ -160,13 +160,13 @@
 .wsu-applied-filters .button.secondary {
   border-color: #93adbd;
   background: #edf4f8;
-  color: #075579;
+  color: var(--link);
 }
 .wsu-applied-filters svg {
   flex-shrink: 0;
 }
 .work-support .text-link {
-  color: #075579;
+  color: var(--link);
   text-decoration: underline;
   text-underline-offset: 4px;
 }

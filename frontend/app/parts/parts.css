@@ -1,5 +1,5 @@
 ﻿.shop-page {
-  --product-navy: #01121a;
+  --product-navy: var(--ink);
   --product-border: #8290a1;
   --product-muted: #4f6073;
   --product-surface: #f3f5f8;
@@ -29,8 +29,8 @@
   color: var(--product-muted);
 }
 .product-hero {
-  background: var(--product-navy);
   color: #fff;
+  background: var(--gradient-brand);
 }
 .product-hero-inner {
   display: grid;
@@ -223,14 +223,16 @@
   border-color: var(--product-navy);
 }
 .shop-page :is(input, select, button, a):focus-visible {
-  outline: 2px solid #e60301;
+  outline: 3px solid var(--focus-ring);
   outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .shop-page :is(input, select):focus-visible,
 .product-category-popup input:focus-visible {
-  border-color: #e60301;
-  box-shadow: 0 0 0 1px #e60301;
-  outline: none;
+  border-color: var(--brand-red);
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .shop-page input[aria-invalid="true"] {
   border-color: #c00000;
@@ -896,7 +898,7 @@
   z-index: 95;
   padding: 12px;
   background: #fff;
-  color: #01121a;
+  color: var(--ink);
   border: 1px solid #8290a1;
   border-radius: 7px;
   box-shadow: 0 8px 24px #01121a24;
@@ -910,11 +912,11 @@
   width: 100%;
   min-width: 0;
   height: 44px;
-  border: 1px solid #8290a1;
+  border: 1px solid var(--border-control);
   border-radius: 5px;
   background: #fff;
   padding: 0 12px;
-  color: #01121a;
+  color: var(--ink);
   font: inherit;
 }
 .product-category-popup input::placeholder {
@@ -975,7 +977,7 @@
   border-radius: 5px;
   padding: 8px 12px;
   background: #f3f5f8;
-  color: #01121a;
+  color: var(--ink);
   font:
     650 13px var(--font-quicksand),
     sans-serif;
@@ -983,18 +985,21 @@
 }
 .product-category-popup button:hover,
 .product-category-popup input:hover {
-  border-color: #01121a;
+  border-color: var(--ink);
 }
 .product-category-popup button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 .product-category-popup :is(input, button):focus-visible {
-  outline: 2px solid #e60301;
+  outline: 3px solid var(--focus-ring);
   outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .product-category-popup input:focus-visible {
-  outline: none;
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .product-fitment-note {
   grid-column: 1 / -1;
@@ -1269,7 +1274,7 @@
   gap: 8px;
 }
 .parts-selected-car input {
-  accent-color: #a71520;
+  accent-color: var(--checked);
 }
 .fitment-picker {
   position: relative;
