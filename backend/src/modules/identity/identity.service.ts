@@ -1,4 +1,5 @@
 import { enqueueNotification } from "../notifications/notifications.service.js";
+import { sessionClientLabel } from "./session-client-label.js";
 import { randomUUID } from "node:crypto";
 
 import type { PrismaClient } from "../../generated/prisma/client.js";
@@ -380,7 +381,7 @@ export class IdentityService {
       expiresAt: item.expiresAt,
       mfaVerified: item.mfaVerifiedAt !== null,
       network: this.maskIp(item.ipAddress),
-      client: this.clientLabel(item.userAgent),
+      client: sessionClientLabel(item.userAgent),
     }));
   }
 
@@ -1337,12 +1338,6 @@ export class IdentityService {
       return `${ipAddress.split(":").slice(0, 3).join(":")}::/48`;
     const parts = ipAddress.split(".");
     return parts.length === 4 ? `${parts[0]}.${parts[1]}.${parts[2]}.0/24` : null;
-  }
-
-  private clientLabel(userAgent: string | null): string | null {
-    if (userAgent === null) return null;
-    const label = userAgent.match(/^[A-Za-z0-9._/-]{1,80}/)?.[0];
-    return label ?? "Unknown client";
   }
 }
 

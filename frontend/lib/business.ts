@@ -11,6 +11,7 @@ export const business = {
   customerCareResponse:
     "We aim to acknowledge enquiries within 30 minutes during these hours. Messages received outside these hours are acknowledged within 30 minutes of our next opening. Resolution time depends on the enquiry.",
   socialHandle: "@AlliedAutoTech",
+  instagram: "https://www.instagram.com/alliedautotech/",
   directions:
     "https://www.google.com/maps/dir/?api=1&destination=" +
     encodeURIComponent(

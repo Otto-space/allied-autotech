@@ -22,6 +22,7 @@ import {
   markAllReadSchema,
   notificationCategories,
   notificationSchema,
+  notificationSummarySchema,
   notificationTypes,
   parseNotificationPreferences,
   parseNotifications,
@@ -283,8 +284,14 @@ export function AccountNotificationInbox({
   if (filters.unreadOnly) query.set("unreadOnly", "true");
   if (pagination.cursor) query.set("cursor", pagination.cursor);
   const records = useResource(`${base}?${query}`, parseNotifications);
+  const summary = useResource(`${base}/summary`, notificationSummarySchema.parse);
   const revalidate = records.revalidate;
+  const revalidateSummary = summary.revalidate;
   useEffect(() => subscribeNotificationChanges(userId, revalidate), [userId, revalidate]);
+  useEffect(
+    () => subscribeNotificationChanges(userId, revalidateSummary, true),
+    [userId, revalidateSummary],
+  );
   const pendingFocus = useRef<{ id: string; read: boolean } | null>(null);
   useEffect(() => {
     const desired = pendingFocus.current;
@@ -312,6 +319,14 @@ export function AccountNotificationInbox({
     records.refreshError,
   ]);
   const guard = useNotificationWrite(userId, "inbox", records, role);
+  // The summary covers the whole inbox, including unread items outside this page/filter.
+  const bulkDisabled =
+    guard.disabled ||
+    summary.loading ||
+    summary.refreshing ||
+    !!summary.error ||
+    !!summary.refreshError ||
+    !summary.data?.unreadCount;
   const [proposal, setProposal] = useState<MutationProposal | null>(null);
   const [message, setMessage] = useState<string>();
   const [error, setError] = useState<string>();
@@ -354,7 +369,7 @@ export function AccountNotificationInbox({
     }
   }
   function reviewAll() {
-    if (guard.disabled || proposal) return;
+    if (bulkDisabled || proposal) return;
     setError(undefined);
     setMessage(undefined);
     setProposal({
@@ -401,6 +416,7 @@ export function AccountNotificationInbox({
           onClick={() => {
             if (guard.pending) clearFilters();
             guard.refresh();
+            summary.refresh();
             announceNotificationChange(userId, false);
           }}
         >
@@ -477,7 +493,7 @@ export function AccountNotificationInbox({
           )}
           <button
             className="button secondary"
-            disabled={guard.disabled}
+            disabled={bulkDisabled}
             onClick={reviewAll}
           >
             Mark all read
@@ -485,6 +501,18 @@ export function AccountNotificationInbox({
         </div>
       </div>
       <div className="cn-feedback">
+        {(summary.error || summary.refreshError) && (
+          <p role="status" className="cn-notice">
+            The unread total could not be checked. Bulk changes are paused.
+            <button
+              className="button secondary"
+              onClick={summary.refresh}
+              disabled={summary.loading}
+            >
+              Retry unread total
+            </button>
+          </p>
+        )}
         <Feedback message={records.error || (guard.pending ? undefined : error)} />
         <Feedback message={message} tone="success" />
         {records.refreshError && (

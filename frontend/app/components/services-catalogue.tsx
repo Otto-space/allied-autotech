@@ -96,7 +96,7 @@ export function ServicesCatalogue({
               ? "Loading services…"
               : resource.error
                 ? "Services unavailable"
-                : `${resource.data?.totalMatches ?? 0} matching services · ${resource.data?.items.length ?? 0} on this page`}
+                : `${resource.data?.totalMatches ?? 0} matching ${resource.data?.totalMatches === 1 ? "service" : "services"} · ${resource.data?.items.length ?? 0} on this page`}
           </p>
         </div>
         {invalid && (

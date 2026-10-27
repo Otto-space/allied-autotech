@@ -20,6 +20,7 @@ import { formatKobo } from "@/lib/format/money";
 import { packVolumeLabel } from "@/lib/product-family";
 import { PartFitmentSummary } from "./part-fitment-summary";
 import { PublicMedia } from "./public-media";
+import { productAvailability } from "@/lib/product-availability";
 type VehicleListing = ReturnType<typeof parseListings>["items"][number];
 export function PartCard({
   product,
@@ -31,7 +32,8 @@ export function PartCard({
   href?: string;
 }) {
   const photo = product.images.find((image) => image.isPrimary) ?? product.images[0];
-  const available = product.availability.some((item) => item.inStock);
+  const availability = productAvailability(product.availability);
+  const available = availability.state === "available";
   const comparison =
     product.compareAtPriceKobo &&
     BigInt(product.compareAtPriceKobo) > BigInt(product.priceKobo)
@@ -82,9 +84,7 @@ export function PartCard({
             ) : (
               <CircleMinus size={14} aria-hidden="true" />
             )}
-            <span>
-              {available ? "Available at a listed branch" : "Currently unavailable"}
-            </span>
+            <span>{availability.label}</span>
           </p>
           <div className="shop-card-fitment">
             <CarFront size={16} aria-hidden="true" />

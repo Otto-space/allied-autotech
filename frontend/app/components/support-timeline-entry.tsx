@@ -23,11 +23,13 @@ export function SupportTimelineEntry({
   staff = false,
   highlighted = false,
   anchored = true,
+  compact = false,
 }: {
   entry: Entry;
   staff?: boolean;
   highlighted?: boolean;
   anchored?: boolean;
+  compact?: boolean;
 }) {
   const element = useRef<HTMLElement>(null);
   useEffect(() => {
@@ -64,13 +66,13 @@ export function SupportTimelineEntry({
       ref={element}
       id={anchored ? `support-entry-${entry.id}` : undefined}
       tabIndex={-1}
-      className={`support-timeline-entry${status ? " support-timeline-status" : ""}${internal ? " support-timeline-internal" : ""}${highlighted ? " support-timeline-selected" : ""}`}
+      className={`support-timeline-entry${compact ? " support-timeline-compact" : ""}${status ? " support-timeline-status" : ""}${internal ? " support-timeline-internal" : ""}${highlighted ? " support-timeline-selected" : ""}`}
       aria-label={`${type} from ${author}`}
     >
       <header className="support-timeline-header">
         <span className="support-timeline-type">
           <Icon size={16} aria-hidden="true" />
-          {type}
+          {compact && !status && !internal ? author : type}
         </span>
         <time dateTime={entry.createdAt}>{formatBusinessDate(entry.createdAt)}</time>
       </header>
@@ -82,10 +84,12 @@ export function SupportTimelineEntry({
           <strong>{statusLabel(entry.toStatus)}</strong>
         </p>
       )}
-      <p className="support-timeline-author">
-        {author}
-        {internal ? " · Staff only" : staff ? " · Customer-visible" : ""}
-      </p>
+      {(!compact || status || internal) && (
+        <p className="support-timeline-author">
+          {author}
+          {internal ? " · Staff only" : staff ? " · Customer-visible" : ""}
+        </p>
+      )}
       {entry.body && <p className="support-timeline-body">{entry.body}</p>}
     </article>
   );

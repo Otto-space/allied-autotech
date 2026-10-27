@@ -14,7 +14,7 @@ export type LearningGate =
   | "access"
   | "owner";
 export type LearningPage =
-  "parts" | "vehicles" | "customer-care" | "staff-care" | "work" | "other";
+  "home" | "parts" | "vehicles" | "customer-care" | "staff-care" | "work" | "other";
 export const learningTargets = [
   "parts-search",
   "parts-results",
@@ -72,6 +72,26 @@ const article = (
   reviewedAt: "2026-10-26",
 });
 export const learningArticles: LearningArticle[] = [
+  {
+    ...article(
+      "home-next-step",
+      "public",
+      "home",
+      "Choose your next step with Allied AutoTech",
+      "Start with Services for vehicle care, Shop for products and compatibility, or Vehicles for listings and requirements enquiries. The team confirms availability and arrangements separately.",
+      [
+        "Choose Services to describe the work or symptoms you need help with.",
+        "Choose Shop to review products, listed branch availability and compatibility. Missing availability or fitment information needs confirmation from the team.",
+        "Choose Vehicles to inspect published listings or explain your requirements when no listing suits you. An enquiry is not a reservation.",
+        "Use Help & Learn for instructions or Contact to speak to the team. The website guide does not inspect or change your records.",
+      ],
+      "/services",
+      "Home customer routes, catalogue availability contract and approved enquiries launch",
+      "home homepage start services shop products vehicles enquiry",
+    ),
+    version: 1,
+    reviewedAt: "2026-10-27",
+  },
   article(
     "parts-fitment",
     "public",

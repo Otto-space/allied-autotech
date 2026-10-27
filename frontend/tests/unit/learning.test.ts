@@ -79,7 +79,9 @@ describe("practice isolation and transitions", () => {
   });
   it("requires validation and deliberate review; example remains editable", () => {
     const a = createPracticeAdapter(definition, "one");
-    expect(a.execute({ type: "review", choice: "" }).errors).toHaveProperty("make");
+    const errors = a.execute({ type: "review", choice: "" }).errors;
+    expect(errors.make).toBe("Choose make from the available examples.");
+    expect(errors.year).toBe("Choose year from the available examples.");
     expect(a.execute({ type: "example", replace: false }).completed).toBe(false);
     expect(a.execute({ type: "review", choice: "unsafe" }).completed).toBe(false);
     expect(a.execute({ type: "review", choice: "review" }).completed).toBe(true);

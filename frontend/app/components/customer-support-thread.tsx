@@ -262,10 +262,33 @@ export function CustomerSupportThread({
         <>
           <div className="care-context">
             <StatusBadge status={record.status} />
-            <CopyableValue value={record.id} label="Copy case reference" />
-            <a className="care-next" href="#customer-care-reply">
-              Reply to this request
-            </a>
+            <CopyableValue
+              value={record.id}
+              display={`Reference ${record.id.slice(0, 8)}…`}
+              label="Copy full case reference"
+            />
+            {record.status !== "CLOSED" && !detailUnavailable && !guard.disabled && (
+              <a
+                className="care-next"
+                href="#customer-care-reply"
+                onClick={(event) => {
+                  const composer = document.querySelector<HTMLTextAreaElement>(
+                    "#customer-care-reply textarea:not(:disabled)",
+                  );
+                  if (!composer) return;
+                  event.preventDefault();
+                  window.history.pushState(
+                    window.history.state,
+                    "",
+                    "#customer-care-reply",
+                  );
+                  composer.scrollIntoView({ block: "center" });
+                  composer.focus({ preventScroll: true });
+                }}
+              >
+                Reply to this request
+              </a>
+            )}
           </div>
           <div className="ct-grid">
             <div className="ct-conversation-column">
@@ -327,6 +350,7 @@ export function CustomerSupportThread({
                   {!messages.error &&
                     messages.data?.items.map((item) => (
                       <SupportTimelineEntry
+                        compact
                         key={item.id}
                         entry={item}
                         highlighted={item.id === messageId}

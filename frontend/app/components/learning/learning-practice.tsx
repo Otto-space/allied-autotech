@@ -281,7 +281,11 @@ export function PracticeSession({
               )}
               <p id={`practice-${field.id}-help`}>
                 {state.errors[field.id] ??
-                  `Use ${field.min}–${field.max} characters.${field.dependsOn ? " Choose the preceding field first; changing it clears dependent choices." : ""}`}
+                  (field.options
+                    ? `Choose ${field.label.toLowerCase()}.${field.dependsOn ? " Choose the preceding field first; changing it clears dependent choices." : ""}`
+                    : field.min === field.max
+                      ? `Use ${field.min} characters.`
+                      : `Use ${field.min}–${field.max} characters.`)}
               </p>
             </div>
           ))}

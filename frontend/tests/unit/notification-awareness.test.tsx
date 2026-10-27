@@ -193,6 +193,19 @@ describe("notification destinations", () => {
   });
 });
 describe("account-scoped notification status", () => {
+  it("refreshes an opted-in whole-inbox count on summary-only changes without refreshing the list", () => {
+    const list = vi.fn(),
+      count = vi.fn();
+    const stopList = subscribeNotificationChanges("one", list);
+    const stopCount = subscribeNotificationChanges("one", count, true);
+    announceNotificationChange("other", false);
+    expect(count).not.toHaveBeenCalled();
+    announceNotificationChange("one", false);
+    expect(count).toHaveBeenCalledOnce();
+    expect(list).not.toHaveBeenCalled();
+    stopList();
+    stopCount();
+  });
   it("summary-only refresh does not replace an intentional foreground inbox refresh", () => {
     const listener = vi.fn();
     const unsubscribe = subscribeNotificationChanges("one", listener);

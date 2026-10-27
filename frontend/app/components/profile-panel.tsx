@@ -351,7 +351,8 @@ function ProfileForm({
           },
           {
             title: "Address",
-            description: "Optional. Useful for delivery and service requests.",
+            description:
+              "Optional. Add an address the team can use when discussing your service request.",
             entries: fields.slice(3),
           },
         ].map((group, index) => (

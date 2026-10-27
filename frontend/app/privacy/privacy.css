@@ -7,9 +7,16 @@
 }
 .privacy-notice h1 {
   margin-block: 1.5rem 1rem;
+  font-family: var(--font-quicksand), sans-serif;
+  font-size: clamp(1.75rem, 3vw, 2.25rem);
+  line-height: 1.25;
 }
 .privacy-notice h2 {
   margin-block: 2.5rem 0.75rem;
+  font-family: var(--font-quicksand), sans-serif;
+  font-size: 1.375rem;
+  line-height: 1.4;
+  scroll-margin-top: 7rem;
 }
 .privacy-notice p {
   margin-block: 0 1rem;
@@ -20,4 +27,21 @@
 }
 .privacy-version {
   color: var(--muted, #526477);
+}
+.privacy-contents {
+  padding: 1rem 1.25rem;
+  margin-block: 1.5rem;
+  border: 1px solid var(--border, #cbd5df);
+  border-radius: 8px;
+}
+.privacy-contents h2 {
+  margin-top: 0;
+}
+.privacy-contents ul {
+  display: grid;
+  gap: 0.5rem;
+  padding-left: 1.25rem;
+}
+.privacy-notice p {
+  max-width: 70ch;
 }

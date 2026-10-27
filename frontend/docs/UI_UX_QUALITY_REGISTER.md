@@ -1871,3 +1871,18 @@ mobile keyboard, screen-reader or production submission acceptance. No Contact
 defect was confirmed or code changed. Existing product/service/vehicle account-
 change source and focused rendered-test coverage were inspected, not rerun; the old
 release-blockers bullet claiming that reset was still unimplemented is superseded.
+
+27 October 2026 - visual identity audit candidate on feat/visual-identity-audit-20261027.
+All V01-V55 findings from the owner audit are retained in VISUAL_IDENTITY_AUDIT_CHECKPOINT.md.
+Initial fixes cover the overview/Care CSS collision, availability truth, reply focus,
+reference/message density, authoritative unread counts, reviewed homepage help,
+practice instructions, Privacy/numeric type, footer destinations and customer wording.
+Backend session labels have isolated pure-unit evidence; no backend release yet.
+Homepage follow-up bounds the intact campaign, compacts sparse product/review states,
+removes duplicate vehicle promotion and uses the existing black/red gradient.
+Latest full unit run 1070 passed; two additional Home behavior tests passed separately.
+Four isolated actual-component Home Edge cases passed at 360/390/768/1440; earlier
+8 booking-card cases passed, with a later browser-close timeout followed by a successful sequential 8/8 rerun.
+Full Next journeys, exact-lock CI, remaining audit findings and actual-role/device
+acceptance remain open. Candidate is not yet published. See checkpoint for precise
+evidence, dependencies, local-preview restriction and preserved unrelated work.

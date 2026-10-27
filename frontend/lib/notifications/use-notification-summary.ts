@@ -8,15 +8,27 @@ import {
 import type { SessionState } from "@/lib/api/types";
 
 const changed = "aat-notifications-changed";
-export function subscribeNotificationChanges(userId: string, listener: () => void) {
+export function subscribeNotificationChanges(
+  userId: string,
+  listener: () => void,
+  includeSummaryOnly = false,
+) {
   const updated = (event: Event) => {
-    if (event instanceof CustomEvent && event.detail === userId) listener();
+    if (
+      event instanceof CustomEvent &&
+      (event.detail === userId || (includeSummaryOnly && event.detail?.userId === userId))
+    )
+      listener();
   };
   const channel =
     typeof BroadcastChannel !== "undefined" ? new BroadcastChannel(changed) : null;
   if (channel)
     channel.onmessage = (event) => {
-      if (event.data?.userId === userId && event.data?.summaryOnly !== true) listener();
+      if (
+        event.data?.userId === userId &&
+        (includeSummaryOnly || event.data?.summaryOnly !== true)
+      )
+        listener();
     };
   window.addEventListener(changed, updated);
   return () => {

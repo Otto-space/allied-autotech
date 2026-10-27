@@ -16,7 +16,16 @@ export function SiteFooter() {
             driven by quality
           </p>
           <p className="text-white/80 max-w-xs">{business.address}</p>
-          <p className="text-white/80 mt-6">{business.socialHandle}</p>
+          <p className="text-white/80 mt-6">
+            <a
+              href={business.instagram}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Allied AutoTech on Instagram (opens in a new tab)"
+            >
+              {business.socialHandle}
+            </a>
+          </p>
         </div>
         <div>
           <p className="font-semibold mb-6">Explore</p>
@@ -77,11 +86,9 @@ export function SiteFooter() {
           © {new Date().getFullYear()} {business.name}. All rights reserved.
         </p>
         <div className="flex gap-6 mt-4 md:mt-0">
-          {catalogueOnly() && (
-            <Link href="/privacy" className="hover:text-white">
-              Privacy
-            </Link>
-          )}
+          <Link href="/privacy" className="hover:text-white">
+            Privacy
+          </Link>
           <Link href="/help" className="hover:text-white">
             Help centre
           </Link>

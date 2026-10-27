@@ -92,7 +92,7 @@ export function CustomerCareSummary({ care }: { care: CustomerCare }) {
               </p>
             )}
           </section>
-          <section className="care-next">
+          <section className="customer-care-next">
             <CalendarDays size={22} aria-hidden="true" />
             <div>
               <h2>Next booking</h2>
@@ -164,7 +164,7 @@ export function CustomerCareSummary({ care }: { care: CustomerCare }) {
           </div>
         </section>
       </div>
-      <div className="care-secondary">
+      <div className="customer-care-secondary">
         <section>
           <Package size={22} aria-hidden="true" />
           <div>

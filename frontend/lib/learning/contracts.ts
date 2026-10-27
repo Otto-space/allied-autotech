@@ -110,6 +110,7 @@ export type LearningGuide = z.infer<typeof guideSchema>;
 export type LearningArticle = z.infer<typeof articleSchema>;
 export type PracticeDefinition = z.infer<typeof practiceSchema>;
 export function learningPage(path: string) {
+  if (path === "/") return "home";
   if (path === "/parts") return "parts";
   if (path === "/vehicles") return "vehicles";
   if (/^\/dashboard\/support(?:\/|$)/.test(path)) return "customer-care";

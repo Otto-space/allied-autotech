@@ -138,3 +138,7 @@ practice are enabled; generative AI remains deferred. No schema migration was ad
 or applied. Public API reads passed; hosted authenticated-role, physical-device and
 full screen-reader acceptance remain open. See the release record for identifiers,
 backup/restore evidence, cleanup, rollback and exact verification boundaries.
+
+## Visual audit candidate, 27 October 2026
+
+Branch feat/visual-identity-audit-20261027 adds the versioned public homepage context and maps / to home. The assistant offers Explain this page only when contextual content exists (or on the maintained Learn orientation); an older backend catalogue retains search without an unsupported context promise. Homepage guidance retains links to Services, Shop and Vehicles. Practice select hints and validation now ask for a choice, with no character ranges for dropdowns. In-memory practice, access filtering, drafts and existing walkthrough targets remain unchanged. Focused tests and full audit acceptance are tracked in frontend/docs/VISUAL_IDENTITY_AUDIT_CHECKPOINT.md. This candidate has not been published.

@@ -73,8 +73,8 @@
 }
 .care-service,
 .care-review,
-.care-next,
-.care-secondary {
+.customer-care-next,
+.customer-care-secondary {
   border: 1px solid #cbd5df;
   border-radius: 8px;
   background: white;
@@ -85,6 +85,12 @@
   background: var(--ink);
   color: white;
   border-color: var(--ink);
+}
+.customer-care-next {
+  color: var(--ink);
+}
+.customer-overview .customer-care-next :is(h2, h3) {
+  color: var(--ink);
 }
 .dashboard .dashboard-content .customer-overview .care-service :is(p, time) {
   color: #d1dbe2;
@@ -192,21 +198,21 @@
   width: 1px;
   background: #82939f;
 }
-.care-next,
+.customer-care-next,
 .care-review-row {
   display: flex;
   gap: 14px;
   align-items: start;
 }
-.care-next > svg,
+.customer-care-next > svg,
 .care-review-row > svg,
-.care-secondary section > svg {
+.customer-care-secondary section > svg {
   flex-shrink: 0;
   margin-top: 3px;
 }
-.care-next > div,
+.customer-care-next > div,
 .care-review-row > div,
-.care-secondary section > div {
+.customer-care-secondary section > div {
   min-width: 0;
 }
 .care-review-row {
@@ -224,17 +230,17 @@
 .care-review-row p {
   overflow-wrap: anywhere;
 }
-.care-secondary {
+.customer-care-secondary {
   margin-top: 20px;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 24px;
 }
-.care-secondary section {
+.customer-care-secondary section {
   display: flex;
   gap: 12px;
 }
-.care-secondary section:not(:first-child) {
+.customer-care-secondary section:not(:first-child) {
   border-left: 1px solid #dce3e9;
   padding-left: 24px;
 }
@@ -300,26 +306,26 @@
   background: #435563;
 }
 @media (min-width: 1100px) {
-  .care-next > div {
+  .customer-care-next > div {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     gap: 4px 16px;
     flex: 1;
   }
-  .care-next h2 {
+  .customer-care-next h2 {
     grid-column: 1/-1;
   }
-  .care-next :is(h3, p) {
+  .customer-care-next :is(h3, p) {
     grid-column: 1;
     margin: 0;
   }
-  .care-next .care-status {
+  .customer-care-next .care-status {
     grid-column: 2;
     grid-row: 2;
     justify-self: end;
     align-self: start;
   }
-  .care-next .care-link {
+  .customer-care-next .care-link {
     grid-column: 2;
     grid-row: 3/5;
     align-self: center;
@@ -329,11 +335,11 @@
   .care-primary-grid {
     grid-template-columns: minmax(0, 1fr);
   }
-  .care-secondary {
+  .customer-care-secondary {
     grid-template-columns: minmax(0, 1fr);
     gap: 18px;
   }
-  .care-secondary section:not(:first-child) {
+  .customer-care-secondary section:not(:first-child) {
     border-left: 0;
     border-top: 1px solid #dce3e9;
     padding: 18px 0 0;
@@ -348,8 +354,8 @@
   }
   .care-service,
   .care-review,
-  .care-next,
-  .care-secondary {
+  .customer-care-next,
+  .customer-care-secondary {
     padding: 18px;
   }
   .care-vehicle {

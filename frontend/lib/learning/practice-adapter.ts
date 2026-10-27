@@ -136,8 +136,11 @@ export function createPracticeAdapter(
             (field.options && !field.options.includes(value)) ||
             (field.dependsOn && !state.values[field.dependsOn])
           )
-            errors[field.id] =
-              `Enter ${field.label.toLowerCase()} (${field.min}–${field.max} characters).`;
+            errors[field.id] = field.options
+              ? `Choose ${field.label.toLowerCase()} from the available examples.`
+              : field.min === field.max
+                ? `Enter ${field.label.toLowerCase()} (${field.min} characters).`
+                : `Enter ${field.label.toLowerCase()} (${field.min}–${field.max} characters).`;
         }
         const choice = definition.choices.find((c) => c.id === command.choice);
         if (definition.kind === "fitment" && !state.results?.length)

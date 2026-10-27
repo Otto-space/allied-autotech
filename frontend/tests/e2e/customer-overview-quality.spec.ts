@@ -167,10 +167,10 @@ test("current-care detail links use owned records and distinguish requested time
       "href",
       href,
     );
-  await expect(page.locator(".care-next")).toContainText(
+  await expect(page.locator(".customer-care-next")).toContainText(
     "Requested time; awaiting confirmation.",
   );
-  await expect(page.locator(".care-secondary")).toContainText("Preferred date:");
+  await expect(page.locator(".customer-care-secondary")).toContainText("Preferred date:");
   await expect(page.locator(".customer-care")).not.toContainText(
     /Delivered|Quality check|Paid in full/,
   );

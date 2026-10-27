@@ -71,3 +71,7 @@ Delivery/refund/warranty/escalation guarantees absent from approved records rema
 absent here. Future paid-customer transaction tutorials depend on launch policy;
 AI, mandatory training, manager reports, transcripts and training-domain operations
 are deferred. Missing policies are business decisions, not simulated code features.
+
+## Visual audit candidate, 27 October 2026
+
+Added public `home-next-step`, version 1, reviewed 2026-10-27 against existing Home routes, published branch availability and the approved enquiries-only launch. Its homepage context describes Services, Shop and Vehicles without claiming to read records, confirm appointments or reserve vehicles. Destination: /services; contextual links preserve /parts and /vehicles. Eligibility remains the existing public gate; private content remains server-filtered. No flags or permission rules changed. Existing article versions above are historical; source remains authoritative.
