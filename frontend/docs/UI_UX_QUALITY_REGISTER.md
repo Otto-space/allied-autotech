@@ -1880,7 +1880,6 @@ API writes. API readiness returned 200. No backend, schema, provider, payment,
 customer record or business policy changed. Other authenticated journeys,
 physical devices and complete screen-reader acceptance remain open.
 
-
 27 October 2026 - Shared viewport and support UX, P1/P2. The owner explicitly
 requested a fixed mobile Ask Allie/Whatsapp dock, no visible Allie scrollbar,
 breadcrumb-first page entry and scrolling to linked controls/selection targets.
