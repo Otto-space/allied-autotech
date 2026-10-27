@@ -37,7 +37,7 @@ function compare(
 } {
   if (remote.reference !== attempt.internalReference)
     return {
-      status: "MISSING_IN_PROVIDER",
+      status: "STATUS_MISMATCH",
       providerAmountKobo: null,
       note: "Provider returned a different reference; excluded from NGN totals",
     };

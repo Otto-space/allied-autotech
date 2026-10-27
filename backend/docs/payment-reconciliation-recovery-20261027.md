@@ -60,3 +60,22 @@ After the restore checkpoint, production backend advanced to the separate
 inventory replay hotfix deployment `71c5e9a7-bd3c-46c4-a503-cef24761837e`.
 That deployment contains no reconciliation migrations or worker recovery code.
 Reconcile this branch against its exact runtime before any release proposal.
+
+## Provider-reference classification follow-up - 27 October
+
+When verification returned a different reference from the attempt requested, the
+worker labelled the observation `MISSING_IN_PROVIDER`. That response is evidence
+of a mismatched reference, not proof that the requested receipt is absent. The
+worker now records `STATUS_MISMATCH` with the existing explanatory note and
+continues to exclude the unallocatable provider amount from NGN totals. A new
+isolated case also confirms that already-verified local funds remain in internal
+totals and are not relabelled as missing.
+
+A fresh, loopback-only PostgreSQL 18 `_ci` target replayed all 74 candidate
+migrations with no Prisma schema difference. The reconciliation integration file
+passed 24/24 cases, including the new confirmed-local-funds mismatch case.
+Backend TypeScript, scoped oxlint, Prettier and `git diff --check` passed. The
+provider was a controlled test adapter; no provider request, payment movement,
+application database or production deployment occurred. The separate linear
+due-scan scale finding, provider sandbox, operational hold resolution, legacy
+`RUNNING` inspection, compatible merge and guarded rollout remain open.

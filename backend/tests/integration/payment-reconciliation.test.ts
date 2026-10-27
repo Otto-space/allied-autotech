@@ -224,7 +224,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
 
     it.each([
       [{ currency: "USD", amountKobo: 500n }, "CURRENCY_MISMATCH"],
-      [{ reference: "wrong-reference" }, "MISSING_IN_PROVIDER"],
+      [{ reference: "wrong-reference" }, "STATUS_MISMATCH"],
       [{ amountKobo: 0n }, "AMOUNT_MISMATCH"],
       [{ amountKobo: -100n }, "AMOUNT_MISMATCH"],
     ] as const)(
@@ -248,6 +248,30 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         ]);
       },
     );
+
+    it("retains confirmed local funds when the provider returns another reference", async () => {
+      const f = await fixture();
+      await f.attempt(f.confirmed(), {
+        status: "success",
+        reference: "another-payment-reference",
+      });
+      const run = await f.run();
+      expect(run).toMatchObject({
+        status: "DIFFERENCES_FOUND",
+        matchedCount: 0,
+        differenceCount: 1,
+        internalTotalKobo: 10000n,
+        providerTotalKobo: 0n,
+      });
+      expect(await f.items(run.id)).toEqual([
+        expect.objectContaining({
+          status: "STATUS_MISMATCH",
+          internalAmountKobo: 10000n,
+          providerAmountKobo: null,
+          note: "Provider returned a different reference; excluded from NGN totals",
+        }),
+      ]);
+    });
 
     it("retains confirmed local funds and retries an unavailable provider without treating it as a missing receipt", async () => {
       const f = await fixture();
