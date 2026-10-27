@@ -300,3 +300,14 @@ decision provide bounded local evidence. No actual provider call, customer messa
 public feature enablement occurred. The new guidance has no fresh real-provider review
 under W9's exhausted allowance. Hosted proxy/role/device acceptance and all-route
 learning remain open; persisted handoff and live transport still need their own review.
+
+
+## W14A branch contact and read-time expiry
+
+A Care permission in one branch cannot expose structured customer contact in
+another branch accessed through assigned Sales work. Projection strips raw fields;
+frontend rejects invalid contact-bearing responses. Detail scope is checked before
+and after its parent record lock, then before final projection; list scope is
+refreshed after query/audit work. Six restricted-CI HTTP/DB tests include both
+real lock-wait expiry outcomes, plus13 parser and8 rendered fixture cases.
+Production prevalence was not inspected. No new authority or public feature.

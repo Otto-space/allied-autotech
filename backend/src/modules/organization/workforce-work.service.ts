@@ -1,6 +1,7 @@
 import {
   workforceCareContactSelect,
   projectWorkforceCareContact,
+  projectWorkforceEnquiryContact,
 } from "./workforce-care-contact.js";
 import { enquiryScope } from "./workforce-enquiry-scope.js";
 import {
@@ -716,9 +717,22 @@ export class WorkforceWorkService {
         },
         true,
       );
+      const current = await workforceSnapshot(tx, actor);
+      const visible = await tx.enquiry.findMany({
+        where: {
+          AND: [{ id: { in: rows.map((row) => row.id) } }, enquiryScope(current)],
+        },
+        select: { id: true },
+      });
+      // Do not return a partially authorised page or a misleading next cursor
+      // when a responsibility expires during the query/audit work.
+      if (visible.length !== rows.length) workforceConflict();
       return {
-        ...page(rows.map(projectWorkforceCareContact), query.limit),
-        access,
+        ...page(
+          rows.map((row) => projectWorkforceEnquiryContact(row, current)),
+          query.limit,
+        ),
+        access: current,
         generatedAt: new Date().toISOString(),
       };
     });
@@ -730,13 +744,7 @@ export class WorkforceWorkService {
     context: RequestSecurityContext,
   ) {
     return this.run(actor, async (tx, access) => {
-      const result = await readWorkforceEnquiry(
-        tx,
-        access,
-        id,
-        enquiryScope(access),
-        query,
-      );
+      const result = await readWorkforceEnquiry(tx, actor, access, id, query);
       await audit(
         tx,
         actor,
@@ -843,7 +851,7 @@ export class WorkforceWorkService {
       )
         workforceDenied();
       if (kind === "enquiries")
-        await readWorkforceEnquiry(tx, access, id, enquiryScope(access), { limit: 20 });
+        await readWorkforceEnquiry(tx, actor, access, id, { limit: 20 });
       else {
         if (!access.permissions.includes("COMPLAINTS")) workforceDenied();
         await readWorkforceComplaint(tx, access, id, branchesFor(access, "COMPLAINTS"), {

@@ -5,6 +5,13 @@ that every route or state has passed review. Work proceeds in finite batches.
 
 ## Standing responsibility and source
 
+Current prerequisite: W14A branch-specific Care contact boundary. Mixed-branch
+Staff/Admin and natural-expiry lock-wait defects were reproduced and corrected.
+Six native cases,13 parser units and8 responsive fixtures at390/1440 passed;
+foreign contact responses fail closed, legitimate Sales reply access remains.
+See `docs/help-learn/WORKFORCE_CARE_CONTACT_W14A.md`. No publication/schema/provider
+call; granular Care duties, reviewed handoff and staffed shared transport remain open.
+
 Current bounded implementation: Revision4 W13 scoped financial aftercare, branch
 `feat/workforce-scoped-aftercare-20261027`, based on W12 `e31af199` in the reused
 `allied-home-restoration-20261025` worktree. Finance branch scope and the separate

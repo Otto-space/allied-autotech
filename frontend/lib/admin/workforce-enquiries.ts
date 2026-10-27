@@ -173,6 +173,25 @@ function activeAssignment(
       Date.parse(assignment.expiresAt) > Date.parse(access.serverTime))
   );
 }
+export function enquiryContactInScope(
+  row: Pick<WorkforceEnquiryRow, "branchId">,
+  access: WorkforceAccess,
+) {
+  return (
+    workforceAllows(
+      access,
+      { all: ["CUSTOMER_ENQUIRIES"], scope: "responsibility" },
+      row,
+    ) &&
+    access.assignments.some(
+      (a) =>
+        activeAssignment(a, access) &&
+        a.template === "CUSTOMER_SERVICE" &&
+        a.scope === "BRANCH" &&
+        a.branchId === row.branchId,
+    )
+  );
+}
 export function enquiryInScope(row: WorkforceEnquiryRow, access: WorkforceAccess) {
   if (
     !access.managed ||
@@ -180,6 +199,7 @@ export function enquiryInScope(row: WorkforceEnquiryRow, access: WorkforceAccess
   )
     return false;
   if (
+    (row.contact !== undefined && !enquiryContactInScope(row, access)) ||
     row.branch?.id !== row.branchId ||
     (row.assignedStaff?.id ?? null) !== row.assignedStaffId
   )

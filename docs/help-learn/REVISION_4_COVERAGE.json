@@ -1408,7 +1408,7 @@
         {
           "pattern": "/admin/workforce/enquiries",
           "task": "Scoped sales/care enquiry queue",
-          "verification": "W5 source predicate/native policy tests; full route-specific rendered states and learning modes remain open."
+          "verification": "W14A: branch contact/native expiry lock-wait acceptance,13 parser units and8 responsive fixtures at390/1440. Granular duties, full learning modes/hosted/device acceptance remain open."
         },
         {
           "pattern": "/admin/workforce/complaints",

@@ -125,3 +125,15 @@ OpenAPI379/routes443+4, generated types, types/lint/secret guard and cached buil
 No schema change, model call or publication. See WORKFORCE_AFTERCARE_W13.md. Granular
 Care duties, persisted reviewed handoff, shared staffed/gated transport, exact-lock/
 hosted/device checks and all106 route completion decisions remain open.
+
+
+27 October 2026 - Revision4 W14A contact boundary: Staff/Admin mixed-branch
+Care authority no longer supplies contacts for a Sales-only case in another branch.
+Natural expiry after a blocked record read is rechecked; inaccessible cases fail
+closed and legitimate Sales reads remain redacted. Six focused native +57 existing
+workforce/session/learning regressions,13 parser units and8 browser fixtures at
+390/1440 passed; screenshots inspected with Axe/overflow/no-write assertions.
+Source types, changed lint and cached build pass. No schema/model call/publication.
+See docs/help-learn/WORKFORCE_CARE_CONTACT_W14A.md. C:25.32GiB free at last check.
+Granular Care duties, persisted handoff/shared staffed transport and all106 route
+completion gates remain open; fullRevision4/Item6 stays active.

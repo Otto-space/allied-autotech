@@ -1,4 +1,5 @@
 import type { Prisma } from "../../generated/prisma/client.js";
+import { branchesFor, type WorkforceSnapshot } from "./workforce.policy.js";
 
 // Only Customer Care responsibility readers request this projection. Sales-only
 // enquiry readers retain their existing field boundary, even on a shared branch.
@@ -17,6 +18,19 @@ export const workforceCareContactSelect = {
   },
 } satisfies Prisma.EnquirySelect & Prisma.ComplaintSelect;
 export function projectWorkforceCareContact<T extends object>(row: T) {
+  return projectContact(row, true);
+}
+export function projectWorkforceEnquiryContact<T extends { branchId: string | null }>(
+  row: T,
+  access: WorkforceSnapshot,
+) {
+  return projectContact(
+    row,
+    row.branchId !== null &&
+      branchesFor(access, "CUSTOMER_ENQUIRIES").includes(row.branchId),
+  );
+}
+function projectContact<T extends object>(row: T, includeContact: boolean) {
   const { name, email, phone, customerId, customer, ...record } = row as T & {
     name?: string | null;
     email?: string | null;
@@ -34,7 +48,7 @@ export function projectWorkforceCareContact<T extends object>(row: T) {
   const account = customer?.user.role === "CUSTOMER" ? customer : null;
   return {
     ...record,
-    ...(name !== undefined || customer !== undefined
+    ...(includeContact && (name !== undefined || customer !== undefined)
       ? {
           contact: {
             name: account

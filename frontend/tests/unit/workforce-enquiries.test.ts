@@ -70,6 +70,49 @@ const queue = (row: WorkforceEnquiry) => ({
 });
 
 describe("managed enquiry scope and reviewed changes", () => {
+  it("binds structured customer contacts to Care scope on this branch instead of an account-wide Care permission", () => {
+    const value = data();
+    value.access.permissions.push("CUSTOMER_ENQUIRIES");
+    value.access.assignments.push({
+      ...value.access.assignments[0],
+      id: id(77),
+      branchId: id(78),
+      template: "CUSTOMER_SERVICE",
+    });
+    value.contact = {
+      name: "Synthetic customer",
+      email: "synthetic-private@example.test",
+      phone: "+2348000000000",
+      customerId: id(79),
+    };
+    expect(() => parseWorkforceEnquiry(value)).toThrow();
+    expect(() => parseScopedWorkforceEnquiries(queue(value))).toThrow();
+    const { contact, ...safe } = value;
+    expect(parseWorkforceEnquiry(safe).id).toBe(value.id);
+    value.access.assignments.push({
+      ...value.access.assignments[0],
+      id: id(80),
+      template: "CUSTOMER_SERVICE",
+    });
+    expect(parseWorkforceEnquiry(value).contact).toEqual(contact);
+  });
+  it("rejects structured contacts after the relevant Care assignment expires even while sales reading remains", () => {
+    const value = data();
+    value.access.permissions.push("CUSTOMER_ENQUIRIES");
+    value.access.assignments.push({
+      ...value.access.assignments[0],
+      id: id(77),
+      template: "CUSTOMER_SERVICE",
+      expiresAt: stamp,
+    });
+    value.contact = {
+      name: null,
+      email: "synthetic-private@example.test",
+      phone: null,
+      customerId: null,
+    };
+    expect(() => parseWorkforceEnquiry(value)).toThrow();
+  });
   it("keeps selection and message history in the URL but outside collection requests", () => {
     const query = workforceEnquiriesQuery(
       new URLSearchParams({
