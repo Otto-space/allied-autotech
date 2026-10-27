@@ -14,6 +14,7 @@ import {
 import type { workforceDirectoryQuerySchema } from "./workforce.schemas.js";
 import {
   definitionForAssignment,
+  isSupportedDelegationTemplate,
   supportedAssignmentPolicies,
 } from "./workforce-catalogue.js";
 
@@ -35,7 +36,11 @@ export class WorkforceDirectoryService {
         actor.role === "ADMIN"
           ? await tx.workforceAccess.findUnique({
               where: { userId: actor.userId },
-              select: { delegatedBranchIds: true, delegatedTemplates: true },
+              select: {
+                delegatedBranchIds: true,
+                delegatedTemplates: true,
+                delegationPolicyVersion: true,
+              },
             })
           : null;
       const scope: Prisma.UserWhereInput =
@@ -112,8 +117,13 @@ export class WorkforceDirectoryService {
                   ],
                   template: {
                     in: envelope
-                      ? templateSchema.options.filter((t) =>
-                          envelope.delegatedTemplates.includes(t),
+                      ? templateSchema.options.filter(
+                          (t) =>
+                            envelope.delegatedTemplates.includes(t) &&
+                            isSupportedDelegationTemplate(
+                              t,
+                              envelope.delegationPolicyVersion,
+                            ),
                         )
                       : [...templateSchema.options],
                   },

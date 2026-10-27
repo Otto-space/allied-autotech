@@ -8,7 +8,6 @@ import type { Prisma } from "../../generated/prisma/client.js";
 import { appendAuditEvent } from "../audit/audit.service.js";
 import { lockAccessActor, revokeAccessInvitations } from "./team-access-security.js";
 import {
-  workforceTemplates,
   workforceSnapshot,
   workforceDenied,
   workforceConflict,
@@ -26,7 +25,7 @@ import {
   definitionForAssignment,
   isKnownWorkforcePolicyVersion,
   isSupportedDelegationTemplate,
-  workforceTemplateVersions,
+  workforceCatalogueForVersion,
   type WorkforceAction,
 } from "./workforce-catalogue.js";
 import {
@@ -93,6 +92,16 @@ async function authorizeChange(
 function checkVersion(current: { version: number } | null, expected: number | null) {
   if ((current?.version ?? null) !== expected) workforceConflict();
 }
+function reviewedDefinition(template: string, version: number) {
+  const catalogue = workforceCatalogueForVersion(version);
+  const definition =
+    catalogue && Object.hasOwn(catalogue, template) ? catalogue[template] : undefined;
+  if (!definition)
+    workforceConflict(
+      "This responsibility is not supported by the reviewed catalogue version. Refresh and review it again.",
+    );
+  return definition;
+}
 async function audit(
   tx: Prisma.TransactionClient,
   actor: AuthenticatedActor,
@@ -147,13 +156,10 @@ function visibilityFor(
     envelope &&
     isKnownWorkforcePolicyVersion(envelope.delegationPolicyVersion)
   ) {
-    const definitions =
-      workforceTemplateVersions[
-        envelope.delegationPolicyVersion as keyof typeof workforceTemplateVersions
-      ];
+    const definitions = workforceCatalogueForVersion(envelope.delegationPolicyVersion)!;
     for (const template of envelope.delegatedTemplates) {
       const definition = Object.hasOwn(definitions, template)
-        ? definitions[template as keyof typeof definitions]
+        ? definitions[template]
         : undefined;
       if (!definition) continue;
       for (const action of definition.actions) {
@@ -228,7 +234,8 @@ export class WorkforceAccessService {
     const assignments = (target.workforceAccess?.assignments ?? []).filter(
       (a) =>
         !envelope ||
-        (envelope.delegatedTemplates.includes(a.template) &&
+        (isSupportedDelegationTemplate(a.template, envelope.delegationPolicyVersion) &&
+          envelope.delegatedTemplates.includes(a.template) &&
           envelope.delegatedBranchIds.includes(a.branchId)),
     );
     const branches = await tx.branch.findMany({
@@ -264,11 +271,13 @@ export class WorkforceAccessService {
       target.role !== "SUPER_ADMIN" &&
       !!target.staffProfile;
     const eligible = target.status === "ACTIVE" && target.emailVerifiedAt !== null;
-    const templates = Object.keys(workforceTemplates).filter(
-      (t) =>
-        !envelope ||
-        (envelope.delegationPolicyVersion === currentWorkforceTemplateVersion &&
-          envelope.delegatedTemplates.includes(t)),
+    // A reviewed version-one envelope continues to manage version-one duties.
+    // It must neither become powerless nor silently gain new version-two duties.
+    const templatesVersion =
+      envelope?.delegationPolicyVersion ?? currentWorkforceTemplateVersion;
+    const catalogue = workforceCatalogueForVersion(templatesVersion) ?? {};
+    const templates = Object.keys(catalogue).filter(
+      (t) => !envelope || envelope.delegatedTemplates.includes(t),
     );
     const branchIds =
       actor.role === "SUPER_ADMIN"
@@ -345,8 +354,8 @@ export class WorkforceAccessService {
       assignmentDefinitions: Object.fromEntries(
         assignments.map((a) => [a.id, definitionForAssignment(a) ?? null]),
       ),
-      templatesVersion: currentWorkforceTemplateVersion,
-      templates: workforceTemplates,
+      templatesVersion,
+      templates: catalogue,
     };
   }
   private async previewWithin(
@@ -390,10 +399,10 @@ export class WorkforceAccessService {
     const proposedId = "proposed-responsibility";
     if (input.operation === "assign") {
       if (!view.management.canAssign) workforceDenied();
-      if (input.expectedTemplateVersion !== currentWorkforceTemplateVersion)
-        workforceConflict(
-          "The responsibility definition changed. Refresh and review it again.",
-        );
+      const definition = reviewedDefinition(
+        input.template,
+        input.expectedTemplateVersion,
+      );
       await delegable(
         tx,
         actor,
@@ -414,8 +423,8 @@ export class WorkforceAccessService {
         {
           id: proposedId,
           template: input.template,
-          templateVersion: currentWorkforceTemplateVersion,
-          scope: workforceTemplates[input.template].scope,
+          templateVersion: input.expectedTemplateVersion,
+          scope: definition.scope,
           branchId: input.branchId,
           startsAt: new Date(input.startsAt),
           expiresAt: input.expiresAt ? new Date(input.expiresAt) : null,
@@ -535,16 +544,16 @@ export class WorkforceAccessService {
       )
         workforceDenied();
       checkVersion(target.workforceAccess, input.expectedVersion);
-      if (input.expectedTemplateVersion !== currentWorkforceTemplateVersion)
-        workforceConflict(
-          "The responsibility definition changed. Refresh and review its current capabilities before assigning it.",
-        );
+      const definition = reviewedDefinition(
+        input.template,
+        input.expectedTemplateVersion,
+      );
       await delegable(
         tx,
         actor,
         input.template,
         input.branchId,
-        currentWorkforceTemplateVersion,
+        input.expectedTemplateVersion,
       );
       if (
         !(await tx.branch.findFirst({
@@ -576,9 +585,9 @@ export class WorkforceAccessService {
         data: {
           userId,
           template: input.template,
-          templateVersion: currentWorkforceTemplateVersion,
+          templateVersion: input.expectedTemplateVersion,
           branchId: input.branchId,
-          scope: workforceTemplates[input.template].scope,
+          scope: definition.scope,
           temporary: input.temporary,
           startsAt: new Date(input.startsAt),
           expiresAt: input.expiresAt ? new Date(input.expiresAt) : null,
@@ -679,7 +688,13 @@ export class WorkforceAccessService {
       )
         workforceDenied();
       checkVersion(target.workforceAccess, input.expectedVersion);
-      if (input.expectedPolicyVersion !== currentWorkforceTemplateVersion)
+      if (
+        !isKnownWorkforcePolicyVersion(input.expectedPolicyVersion) ||
+        input.templates.some(
+          (template) =>
+            !isSupportedDelegationTemplate(template, input.expectedPolicyVersion),
+        )
+      )
         workforceConflict(
           "The responsibility catalogue changed. Refresh and review the delegation's current capabilities.",
         );
@@ -699,7 +714,7 @@ export class WorkforceAccessService {
             ]),
           ],
           delegatedBranchIds: [...new Set(input.branchIds)],
-          delegationPolicyVersion: currentWorkforceTemplateVersion,
+          delegationPolicyVersion: input.expectedPolicyVersion,
           version: { increment: 1 },
           updatedByUserId: actor.userId,
         },
@@ -710,7 +725,7 @@ export class WorkforceAccessService {
         userId,
         {
           workforceAction: "DELEGATION",
-          delegationPolicyVersion: currentWorkforceTemplateVersion,
+          delegationPolicyVersion: input.expectedPolicyVersion,
           allowAdminInvitations: input.allowAdminInvitations,
           templates: input.templates.join(","),
           branchIds: input.branchIds.join(","),

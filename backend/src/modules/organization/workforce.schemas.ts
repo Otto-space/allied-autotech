@@ -75,7 +75,7 @@ export const workforceDelegationSchema = workforceRevocationSchema
   .extend({
     expectedPolicyVersion: z.number().int().positive().default(1),
     allowAdminInvitations: z.boolean().default(false),
-    templates: z.array(templateSchema).max(8),
+    templates: z.array(templateSchema).max(templateSchema.options.length),
     branchIds: z.array(z.uuid()).max(20),
   });
 export const workforceAccessPreviewSchema = z.discriminatedUnion("operation", [

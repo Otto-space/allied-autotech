@@ -29,6 +29,7 @@ import {
   type WorkforceAccess,
 } from "@/lib/api/workforce-schemas";
 import { sameWorkforceScope } from "@/lib/admin/workforce-overview";
+import { workforcePositionLabels } from "@/lib/api/workforce-positions";
 import { formatBusinessDate } from "@/lib/format/date";
 import "./workforce-overview.css";
 
@@ -89,8 +90,8 @@ export function WorkforceOverview({
     active?.position === "CEO_MD"
       ? "Chief Executive / Managing Director"
       : active?.position
-        ? (workforceTemplateLabels[
-            active.position as keyof typeof workforceTemplateLabels
+        ? (workforcePositionLabels[
+            active.position as keyof typeof workforcePositionLabels
           ] ?? "Team member")
         : "Team member";
   const working = record.loading || record.refreshing;

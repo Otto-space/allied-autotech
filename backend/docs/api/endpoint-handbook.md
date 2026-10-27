@@ -24294,7 +24294,7 @@ JSON request fields:
 | --- | --- | --- | --- |
 | `receiptVersion` | 2 | No | Receipt Version validated by this operation's strict request contract. |
 | `expectedAccessPreview` | string | No | Expected Access Preview validated by this operation's strict request contract. |
-| `template` | OPERATIONS / CUSTOMER_SERVICE / SALES_SUPERVISOR / SALES_CASHIER / ACCOUNTANT / WORKSHOP_LEAD / ELECTRICAL_TECHNICIAN / MECHANICAL_TECHNICIAN | Yes | Template validated by this operation's strict request contract. |
+| `template` | OPERATIONS / CUSTOMER_SERVICE / SALES_SUPERVISOR / SALES_CASHIER / ACCOUNTANT / WORKSHOP_LEAD / ELECTRICAL_TECHNICIAN / MECHANICAL_TECHNICIAN / CARE_VIEWER / CARE_RESPONDER / CARE_ASSIGNER / CARE_LIVE_AGENT | Yes | Template validated by this operation's strict request contract. |
 | `expectedTemplateVersion` | integer | No | Expected Template Version validated by this operation's strict request contract. |
 | `branchId` | string (uuid) | Yes | Identifier of the branch resource; ownership is resolved server-side. |
 | `temporary` | boolean | Yes | Temporary validated by this operation's strict request contract. |
@@ -24444,7 +24444,7 @@ JSON request fields:
 | `currentPassword` | string | Yes | Sensitive password value sent only over HTTPS and never logged or persisted by the client. |
 | `expectedPolicyVersion` | integer | No | Expected Policy Version validated by this operation's strict request contract. |
 | `allowAdminInvitations` | boolean | No | Boolean control for allow admin invitations; authorization is still enforced server-side. |
-| `templates` | array<OPERATIONS / CUSTOMER_SERVICE / SALES_SUPERVISOR / SALES_CASHIER / ACCOUNTANT / WORKSHOP_LEAD / ELECTRICAL_TECHNICIAN / MECHANICAL_TECHNICIAN> | Yes | Templates validated by this operation's strict request contract. |
+| `templates` | array<OPERATIONS / CUSTOMER_SERVICE / SALES_SUPERVISOR / SALES_CASHIER / ACCOUNTANT / WORKSHOP_LEAD / ELECTRICAL_TECHNICIAN / MECHANICAL_TECHNICIAN / CARE_VIEWER / CARE_RESPONDER / CARE_ASSIGNER / CARE_LIVE_AGENT> | Yes | Templates validated by this operation's strict request contract. |
 | `branchIds` | array<string (uuid)> | Yes | Branch Ids validated by this operation's strict request contract. |
 
 Synthetic request example:

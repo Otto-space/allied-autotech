@@ -157883,7 +157883,11 @@
                                       "ACCOUNTANT",
                                       "WORKSHOP_LEAD",
                                       "ELECTRICAL_TECHNICIAN",
-                                      "MECHANICAL_TECHNICIAN"
+                                      "MECHANICAL_TECHNICIAN",
+                                      "CARE_VIEWER",
+                                      "CARE_RESPONDER",
+                                      "CARE_ASSIGNER",
+                                      "CARE_LIVE_AGENT"
                                     ],
                                     "description": "Template validated by this operation's strict request contract."
                                   },
@@ -158707,7 +158711,11 @@
                                       "ACCOUNTANT",
                                       "WORKSHOP_LEAD",
                                       "ELECTRICAL_TECHNICIAN",
-                                      "MECHANICAL_TECHNICIAN"
+                                      "MECHANICAL_TECHNICIAN",
+                                      "CARE_VIEWER",
+                                      "CARE_RESPONDER",
+                                      "CARE_ASSIGNER",
+                                      "CARE_LIVE_AGENT"
                                     ],
                                     "description": "Template validated by this operation's strict request contract."
                                   },
@@ -159792,7 +159800,11 @@
                                         "ACCOUNTANT",
                                         "WORKSHOP_LEAD",
                                         "ELECTRICAL_TECHNICIAN",
-                                        "MECHANICAL_TECHNICIAN"
+                                        "MECHANICAL_TECHNICIAN",
+                                        "CARE_VIEWER",
+                                        "CARE_RESPONDER",
+                                        "CARE_ASSIGNER",
+                                        "CARE_LIVE_AGENT"
                                       ],
                                       "description": "Template validated by this operation's strict request contract."
                                     },
@@ -161107,7 +161119,11 @@
                                       "ACCOUNTANT",
                                       "WORKSHOP_LEAD",
                                       "ELECTRICAL_TECHNICIAN",
-                                      "MECHANICAL_TECHNICIAN"
+                                      "MECHANICAL_TECHNICIAN",
+                                      "CARE_VIEWER",
+                                      "CARE_RESPONDER",
+                                      "CARE_ASSIGNER",
+                                      "CARE_LIVE_AGENT"
                                     ],
                                     "description": "Template validated by this operation's strict request contract."
                                   },
@@ -161738,7 +161754,11 @@
                                       "ACCOUNTANT",
                                       "WORKSHOP_LEAD",
                                       "ELECTRICAL_TECHNICIAN",
-                                      "MECHANICAL_TECHNICIAN"
+                                      "MECHANICAL_TECHNICIAN",
+                                      "CARE_VIEWER",
+                                      "CARE_RESPONDER",
+                                      "CARE_ASSIGNER",
+                                      "CARE_LIVE_AGENT"
                                     ],
                                     "description": "Template validated by this operation's strict request contract."
                                   },
@@ -162373,7 +162393,11 @@
                                       "ACCOUNTANT",
                                       "WORKSHOP_LEAD",
                                       "ELECTRICAL_TECHNICIAN",
-                                      "MECHANICAL_TECHNICIAN"
+                                      "MECHANICAL_TECHNICIAN",
+                                      "CARE_VIEWER",
+                                      "CARE_RESPONDER",
+                                      "CARE_ASSIGNER",
+                                      "CARE_LIVE_AGENT"
                                     ],
                                     "description": "Template validated by this operation's strict request contract."
                                   },
@@ -163086,7 +163110,11 @@
                                       "ACCOUNTANT",
                                       "WORKSHOP_LEAD",
                                       "ELECTRICAL_TECHNICIAN",
-                                      "MECHANICAL_TECHNICIAN"
+                                      "MECHANICAL_TECHNICIAN",
+                                      "CARE_VIEWER",
+                                      "CARE_RESPONDER",
+                                      "CARE_ASSIGNER",
+                                      "CARE_LIVE_AGENT"
                                     ],
                                     "description": "Template validated by this operation's strict request contract."
                                   },
@@ -164006,7 +164034,11 @@
                                   "ACCOUNTANT",
                                   "WORKSHOP_LEAD",
                                   "ELECTRICAL_TECHNICIAN",
-                                  "MECHANICAL_TECHNICIAN"
+                                  "MECHANICAL_TECHNICIAN",
+                                  "CARE_VIEWER",
+                                  "CARE_RESPONDER",
+                                  "CARE_ASSIGNER",
+                                  "CARE_LIVE_AGENT"
                                 ],
                                 "description": "Template validated by this operation's strict request contract."
                               },
@@ -164526,7 +164558,11 @@
                                       "ACCOUNTANT",
                                       "WORKSHOP_LEAD",
                                       "ELECTRICAL_TECHNICIAN",
-                                      "MECHANICAL_TECHNICIAN"
+                                      "MECHANICAL_TECHNICIAN",
+                                      "CARE_VIEWER",
+                                      "CARE_RESPONDER",
+                                      "CARE_ASSIGNER",
+                                      "CARE_LIVE_AGENT"
                                     ],
                                     "description": "Template validated by this operation's strict request contract."
                                   },
@@ -165334,7 +165370,11 @@
                                       "ACCOUNTANT",
                                       "WORKSHOP_LEAD",
                                       "ELECTRICAL_TECHNICIAN",
-                                      "MECHANICAL_TECHNICIAN"
+                                      "MECHANICAL_TECHNICIAN",
+                                      "CARE_VIEWER",
+                                      "CARE_RESPONDER",
+                                      "CARE_ASSIGNER",
+                                      "CARE_LIVE_AGENT"
                                     ],
                                     "description": "Template validated by this operation's strict request contract."
                                   },
@@ -166095,7 +166135,11 @@
                                       "ACCOUNTANT",
                                       "WORKSHOP_LEAD",
                                       "ELECTRICAL_TECHNICIAN",
-                                      "MECHANICAL_TECHNICIAN"
+                                      "MECHANICAL_TECHNICIAN",
+                                      "CARE_VIEWER",
+                                      "CARE_RESPONDER",
+                                      "CARE_ASSIGNER",
+                                      "CARE_LIVE_AGENT"
                                     ],
                                     "description": "Template validated by this operation's strict request contract."
                                   },
@@ -166831,7 +166875,11 @@
                                       "ACCOUNTANT",
                                       "WORKSHOP_LEAD",
                                       "ELECTRICAL_TECHNICIAN",
-                                      "MECHANICAL_TECHNICIAN"
+                                      "MECHANICAL_TECHNICIAN",
+                                      "CARE_VIEWER",
+                                      "CARE_RESPONDER",
+                                      "CARE_ASSIGNER",
+                                      "CARE_LIVE_AGENT"
                                     ],
                                     "description": "Template validated by this operation's strict request contract."
                                   },
@@ -167960,7 +168008,11 @@
                                       "ACCOUNTANT",
                                       "WORKSHOP_LEAD",
                                       "ELECTRICAL_TECHNICIAN",
-                                      "MECHANICAL_TECHNICIAN"
+                                      "MECHANICAL_TECHNICIAN",
+                                      "CARE_VIEWER",
+                                      "CARE_RESPONDER",
+                                      "CARE_ASSIGNER",
+                                      "CARE_LIVE_AGENT"
                                     ],
                                     "description": "Template validated by this operation's strict request contract."
                                   },
@@ -168729,7 +168781,11 @@
                                       "ACCOUNTANT",
                                       "WORKSHOP_LEAD",
                                       "ELECTRICAL_TECHNICIAN",
-                                      "MECHANICAL_TECHNICIAN"
+                                      "MECHANICAL_TECHNICIAN",
+                                      "CARE_VIEWER",
+                                      "CARE_RESPONDER",
+                                      "CARE_ASSIGNER",
+                                      "CARE_LIVE_AGENT"
                                     ],
                                     "description": "Template validated by this operation's strict request contract."
                                   },
@@ -169795,7 +169851,11 @@
                                       "ACCOUNTANT",
                                       "WORKSHOP_LEAD",
                                       "ELECTRICAL_TECHNICIAN",
-                                      "MECHANICAL_TECHNICIAN"
+                                      "MECHANICAL_TECHNICIAN",
+                                      "CARE_VIEWER",
+                                      "CARE_RESPONDER",
+                                      "CARE_ASSIGNER",
+                                      "CARE_LIVE_AGENT"
                                     ],
                                     "description": "Template validated by this operation's strict request contract."
                                   },
@@ -170641,7 +170701,11 @@
                                       "ACCOUNTANT",
                                       "WORKSHOP_LEAD",
                                       "ELECTRICAL_TECHNICIAN",
-                                      "MECHANICAL_TECHNICIAN"
+                                      "MECHANICAL_TECHNICIAN",
+                                      "CARE_VIEWER",
+                                      "CARE_RESPONDER",
+                                      "CARE_ASSIGNER",
+                                      "CARE_LIVE_AGENT"
                                     ],
                                     "description": "Template validated by this operation's strict request contract."
                                   },
@@ -171494,7 +171558,11 @@
                                       "ACCOUNTANT",
                                       "WORKSHOP_LEAD",
                                       "ELECTRICAL_TECHNICIAN",
-                                      "MECHANICAL_TECHNICIAN"
+                                      "MECHANICAL_TECHNICIAN",
+                                      "CARE_VIEWER",
+                                      "CARE_RESPONDER",
+                                      "CARE_ASSIGNER",
+                                      "CARE_LIVE_AGENT"
                                     ],
                                     "description": "Template validated by this operation's strict request contract."
                                   },
@@ -172370,7 +172438,11 @@
                                       "ACCOUNTANT",
                                       "WORKSHOP_LEAD",
                                       "ELECTRICAL_TECHNICIAN",
-                                      "MECHANICAL_TECHNICIAN"
+                                      "MECHANICAL_TECHNICIAN",
+                                      "CARE_VIEWER",
+                                      "CARE_RESPONDER",
+                                      "CARE_ASSIGNER",
+                                      "CARE_LIVE_AGENT"
                                     ],
                                     "description": "Template validated by this operation's strict request contract."
                                   },
@@ -173011,7 +173083,11 @@
                                       "ACCOUNTANT",
                                       "WORKSHOP_LEAD",
                                       "ELECTRICAL_TECHNICIAN",
-                                      "MECHANICAL_TECHNICIAN"
+                                      "MECHANICAL_TECHNICIAN",
+                                      "CARE_VIEWER",
+                                      "CARE_RESPONDER",
+                                      "CARE_ASSIGNER",
+                                      "CARE_LIVE_AGENT"
                                     ],
                                     "description": "Template validated by this operation's strict request contract."
                                   },
@@ -173842,7 +173918,11 @@
                                       "ACCOUNTANT",
                                       "WORKSHOP_LEAD",
                                       "ELECTRICAL_TECHNICIAN",
-                                      "MECHANICAL_TECHNICIAN"
+                                      "MECHANICAL_TECHNICIAN",
+                                      "CARE_VIEWER",
+                                      "CARE_RESPONDER",
+                                      "CARE_ASSIGNER",
+                                      "CARE_LIVE_AGENT"
                                     ],
                                     "description": "Template validated by this operation's strict request contract."
                                   },
@@ -174589,7 +174669,11 @@
                                       "ACCOUNTANT",
                                       "WORKSHOP_LEAD",
                                       "ELECTRICAL_TECHNICIAN",
-                                      "MECHANICAL_TECHNICIAN"
+                                      "MECHANICAL_TECHNICIAN",
+                                      "CARE_VIEWER",
+                                      "CARE_RESPONDER",
+                                      "CARE_ASSIGNER",
+                                      "CARE_LIVE_AGENT"
                                     ],
                                     "description": "Template validated by this operation's strict request contract."
                                   },
@@ -175632,7 +175716,11 @@
                                       "ACCOUNTANT",
                                       "WORKSHOP_LEAD",
                                       "ELECTRICAL_TECHNICIAN",
-                                      "MECHANICAL_TECHNICIAN"
+                                      "MECHANICAL_TECHNICIAN",
+                                      "CARE_VIEWER",
+                                      "CARE_RESPONDER",
+                                      "CARE_ASSIGNER",
+                                      "CARE_LIVE_AGENT"
                                     ],
                                     "description": "Template validated by this operation's strict request contract."
                                   },
@@ -176353,7 +176441,11 @@
                                       "ACCOUNTANT",
                                       "WORKSHOP_LEAD",
                                       "ELECTRICAL_TECHNICIAN",
-                                      "MECHANICAL_TECHNICIAN"
+                                      "MECHANICAL_TECHNICIAN",
+                                      "CARE_VIEWER",
+                                      "CARE_RESPONDER",
+                                      "CARE_ASSIGNER",
+                                      "CARE_LIVE_AGENT"
                                     ],
                                     "description": "Template validated by this operation's strict request contract."
                                   },
@@ -177143,7 +177235,11 @@
                                       "ACCOUNTANT",
                                       "WORKSHOP_LEAD",
                                       "ELECTRICAL_TECHNICIAN",
-                                      "MECHANICAL_TECHNICIAN"
+                                      "MECHANICAL_TECHNICIAN",
+                                      "CARE_VIEWER",
+                                      "CARE_RESPONDER",
+                                      "CARE_ASSIGNER",
+                                      "CARE_LIVE_AGENT"
                                     ],
                                     "description": "Template validated by this operation's strict request contract."
                                   },
@@ -177961,7 +178057,11 @@
                                       "ACCOUNTANT",
                                       "WORKSHOP_LEAD",
                                       "ELECTRICAL_TECHNICIAN",
-                                      "MECHANICAL_TECHNICIAN"
+                                      "MECHANICAL_TECHNICIAN",
+                                      "CARE_VIEWER",
+                                      "CARE_RESPONDER",
+                                      "CARE_ASSIGNER",
+                                      "CARE_LIVE_AGENT"
                                     ],
                                     "description": "Template validated by this operation's strict request contract."
                                   },
@@ -178656,7 +178756,11 @@
                                       "ACCOUNTANT",
                                       "WORKSHOP_LEAD",
                                       "ELECTRICAL_TECHNICIAN",
-                                      "MECHANICAL_TECHNICIAN"
+                                      "MECHANICAL_TECHNICIAN",
+                                      "CARE_VIEWER",
+                                      "CARE_RESPONDER",
+                                      "CARE_ASSIGNER",
+                                      "CARE_LIVE_AGENT"
                                     ],
                                     "description": "Template validated by this operation's strict request contract."
                                   },
@@ -179234,7 +179338,11 @@
                                   "ACCOUNTANT",
                                   "WORKSHOP_LEAD",
                                   "ELECTRICAL_TECHNICIAN",
-                                  "MECHANICAL_TECHNICIAN"
+                                  "MECHANICAL_TECHNICIAN",
+                                  "CARE_VIEWER",
+                                  "CARE_RESPONDER",
+                                  "CARE_ASSIGNER",
+                                  "CARE_LIVE_AGENT"
                                 ],
                                 "description": "Templates Item validated by this operation's strict request contract."
                               },
@@ -180408,7 +180516,11 @@
                           "ACCOUNTANT",
                           "WORKSHOP_LEAD",
                           "ELECTRICAL_TECHNICIAN",
-                          "MECHANICAL_TECHNICIAN"
+                          "MECHANICAL_TECHNICIAN",
+                          "CARE_VIEWER",
+                          "CARE_RESPONDER",
+                          "CARE_ASSIGNER",
+                          "CARE_LIVE_AGENT"
                         ],
                         "description": "Template validated by this operation's strict request contract."
                       },
@@ -181157,7 +181269,11 @@
                       "ACCOUNTANT",
                       "WORKSHOP_LEAD",
                       "ELECTRICAL_TECHNICIAN",
-                      "MECHANICAL_TECHNICIAN"
+                      "MECHANICAL_TECHNICIAN",
+                      "CARE_VIEWER",
+                      "CARE_RESPONDER",
+                      "CARE_ASSIGNER",
+                      "CARE_LIVE_AGENT"
                     ],
                     "description": "Template validated by this operation's strict request contract."
                   },
@@ -181275,7 +181391,11 @@
                             "ACCOUNTANT",
                             "WORKSHOP_LEAD",
                             "ELECTRICAL_TECHNICIAN",
-                            "MECHANICAL_TECHNICIAN"
+                            "MECHANICAL_TECHNICIAN",
+                            "CARE_VIEWER",
+                            "CARE_RESPONDER",
+                            "CARE_ASSIGNER",
+                            "CARE_LIVE_AGENT"
                           ],
                           "description": "Template validated by this operation's strict request contract."
                         },
@@ -182046,11 +182166,15 @@
                         "ACCOUNTANT",
                         "WORKSHOP_LEAD",
                         "ELECTRICAL_TECHNICIAN",
-                        "MECHANICAL_TECHNICIAN"
+                        "MECHANICAL_TECHNICIAN",
+                        "CARE_VIEWER",
+                        "CARE_RESPONDER",
+                        "CARE_ASSIGNER",
+                        "CARE_LIVE_AGENT"
                       ],
                       "description": "Templates Item validated by this operation's strict request contract."
                     },
-                    "maxItems": 8,
+                    "maxItems": 12,
                     "description": "Templates validated by this operation's strict request contract."
                   },
                   "branchIds": {

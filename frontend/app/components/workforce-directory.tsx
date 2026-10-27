@@ -10,13 +10,13 @@ import {
   workforcePositionSchema,
 } from "@/lib/api/workforce-directory-schemas";
 import { workforceTemplateLabels } from "@/lib/api/workforce-schemas";
+import { workforcePositionLabels as positionLabels } from "@/lib/api/workforce-positions";
 import { useAccountSession } from "./dashboard-shell";
 import { Feedback } from "./feedback";
 import { WorkforceAccessPanel } from "./workforce-access-panel";
 import "./workforce-directory.css";
 
 const base = "/admin/workforce/access";
-const positionLabels = { CEO_MD: "CEO / Managing Director", ...workforceTemplateLabels };
 export function WorkforceDirectory() {
   return (
     <Suspense fallback={<p role="status">Loading workforce directory…</p>}>

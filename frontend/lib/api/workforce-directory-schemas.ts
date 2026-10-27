@@ -1,10 +1,7 @@
 import { z } from "zod";
 import { workforceTemplateSchema } from "./workforce-schemas";
-
-export const workforcePositionSchema = z.enum([
-  "CEO_MD",
-  ...workforceTemplateSchema.options,
-]);
+import { workforcePositionSchema } from "./workforce-positions";
+export { workforcePositionSchema } from "./workforce-positions";
 export const workforceDirectoryQuerySchema = z.object({
   q: z
     .string()

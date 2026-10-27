@@ -20,6 +20,10 @@ import {
   type WorkforceAction,
 } from "@/lib/admin/work-staff-workforce";
 import { formatBusinessDate } from "@/lib/format/date";
+import {
+  assignableWorkforcePositionSchema,
+  workforcePositionLabels,
+} from "@/lib/api/workforce-positions";
 import { useAccountSession, useOwnStaffPermissions } from "./dashboard-shell";
 import { Feedback } from "./feedback";
 import { AdminBranchPicker } from "./admin-branch-picker";
@@ -34,8 +38,13 @@ import {
   type WorkforceAccessPreview,
 } from "@/lib/api/workforce-effective-access";
 
-function PasswordReason({ prefix }: { prefix: string }) {
-  const [shown, setShown] = useState(false);
+function PasswordReason({
+  prefix,
+  passwordEpoch,
+}: {
+  prefix: string;
+  passwordEpoch: number;
+}) {
   return (
     <>
       <div className="field wf-wide">
@@ -48,34 +57,40 @@ function PasswordReason({ prefix }: { prefix: string }) {
           maxLength={1000}
         />
       </div>
-      <div className="field wf-wide">
-        <label htmlFor={`${prefix}-password`}>Your current password</label>
-        <div className="wf-password">
-          <input
-            id={`${prefix}-password`}
-            name="currentPassword"
-            type={shown ? "text" : "password"}
-            required
-            autoComplete="current-password"
-            maxLength={256}
-          />
-          <button
-            type="button"
-            aria-label={shown ? "Hide password" : "Show password"}
-            title={shown ? "Hide password" : "Show password"}
-            aria-pressed={shown}
-            aria-controls={`${prefix}-password`}
-            onClick={() => setShown((v) => !v)}
-          >
-            {shown ? (
-              <EyeOff size={18} aria-hidden="true" />
-            ) : (
-              <Eye size={18} aria-hidden="true" />
-            )}
-          </button>
-        </div>
-      </div>
+      <PasswordProof key={passwordEpoch} prefix={prefix} />
     </>
+  );
+}
+function PasswordProof({ prefix }: { prefix: string }) {
+  const [shown, setShown] = useState(false);
+  return (
+    <div className="field wf-wide">
+      <label htmlFor={`${prefix}-password`}>Your current password</label>
+      <div className="wf-password">
+        <input
+          id={`${prefix}-password`}
+          name="currentPassword"
+          type={shown ? "text" : "password"}
+          required
+          autoComplete="current-password"
+          maxLength={256}
+        />
+        <button
+          type="button"
+          aria-label={shown ? "Hide password" : "Show password"}
+          title={shown ? "Hide password" : "Show password"}
+          aria-pressed={shown}
+          aria-controls={`${prefix}-password`}
+          onClick={() => setShown((v) => !v)}
+        >
+          {shown ? (
+            <EyeOff size={18} aria-hidden="true" />
+          ) : (
+            <Eye size={18} aria-hidden="true" />
+          )}
+        </button>
+      </div>
+    </div>
   );
 }
 export function WorkforceAccessPanel({ userId }: { userId: string }) {
@@ -392,7 +407,7 @@ function WorkforcePanel({ userId }: { userId: string }) {
         <>
           <p>
             {data.access
-              ? `Enrolled ${formatBusinessDate(data.access.enabledAt)}. Position: ${workforceTemplateLabels[data.access.position as keyof typeof workforceTemplateLabels] ?? data.access.position}.`
+              ? `Enrolled ${formatBusinessDate(data.access.enabledAt)}. Position: ${workforcePositionLabels[data.access.position as keyof typeof workforcePositionLabels] ?? data.access.position}.`
               : "Legacy access is still active. No responsibilities have been silently assigned."}
           </p>
           {!Object.values(data.management).some((v) => v === true) && (
@@ -509,8 +524,8 @@ function WorkforceEditors({
                 {
                   label: "Job position",
                   value:
-                    workforceTemplateLabels[
-                      position as keyof typeof workforceTemplateLabels
+                    workforcePositionLabels[
+                      position as keyof typeof workforcePositionLabels
                     ] ?? position,
                 },
               ]);
@@ -526,14 +541,14 @@ function WorkforceEditors({
                   defaultValue={data.access?.position ?? ""}
                 >
                   <option value="">Choose a position</option>
-                  {workforceTemplateSchema.options.map((v) => (
+                  {assignableWorkforcePositionSchema.options.map((v) => (
                     <option key={v} value={v}>
-                      {workforceTemplateLabels[v]}
+                      {workforcePositionLabels[v]}
                     </option>
                   ))}
                 </select>
               </div>
-              <PasswordReason key={`enroll-${passwordEpoch}`} prefix="workforce-enroll" />
+              <PasswordReason passwordEpoch={passwordEpoch} prefix="workforce-enroll" />
               <button className="button secondary">
                 Review {data.access ? "position" : "enrollment"}
               </button>
@@ -658,7 +673,7 @@ function WorkforceEditors({
                     >
                       <fieldset className="wf-fields" disabled={disabled}>
                         <PasswordReason
-                          key={`revoke-${a.id}-${passwordEpoch}`}
+                          passwordEpoch={passwordEpoch}
                           prefix={`revoke-${a.id}`}
                         />
                         <button className="button secondary">Review revocation</button>
@@ -791,7 +806,7 @@ function WorkforceEditors({
                 <input type="checkbox" name="temporary" />
                 Temporary cover
               </label>
-              <PasswordReason key={`assign-${passwordEpoch}`} prefix="workforce-assign" />
+              <PasswordReason passwordEpoch={passwordEpoch} prefix="workforce-assign" />
               <button className="button">Review responsibility assignment</button>
             </fieldset>
           </form>
@@ -852,17 +867,19 @@ function WorkforceEditors({
             <fieldset className="wf-fields" disabled={disabled}>
               <fieldset className="wf-wide wf-checks">
                 <legend>Responsibilities this admin may assign</legend>
-                {workforceTemplateSchema.options.map((v) => (
-                  <label className="wf-check" key={v}>
-                    <input
-                      type="checkbox"
-                      name="templates"
-                      value={v}
-                      defaultChecked={data.access?.delegatedTemplates.includes(v)}
-                    />
-                    {workforceTemplateLabels[v]}
-                  </label>
-                ))}
+                {workforceTemplateSchema.options
+                  .filter((v) => Object.hasOwn(data.templates, v))
+                  .map((v) => (
+                    <label className="wf-check" key={v}>
+                      <input
+                        type="checkbox"
+                        name="templates"
+                        value={v}
+                        defaultChecked={data.access?.delegatedTemplates.includes(v)}
+                      />
+                      {workforceTemplateLabels[v]}
+                    </label>
+                  ))}
               </fieldset>
               <div className="field wf-wide">
                 <label htmlFor="workforce-delegated-branch">Add a permitted branch</label>
@@ -911,7 +928,7 @@ function WorkforceEditors({
                 Permit secure admin invitations within these branches
               </label>
               <PasswordReason
-                key={`delegate-${passwordEpoch}`}
+                passwordEpoch={passwordEpoch}
                 prefix="workforce-delegation"
               />
               <button className="button secondary">Review delegation envelope</button>

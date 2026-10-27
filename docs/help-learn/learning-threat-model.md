@@ -311,3 +311,17 @@ and after its parent record lock, then before final projection; list scope is
 refreshed after query/audit work. Six restricted-CI HTTP/DB tests include both
 real lock-wait expiry outcomes, plus13 parser and8 rendered fixture cases.
 Production prevalence was not inspected. No new authority or public feature.
+
+
+## W14B separate Care duty definitions
+
+Version1 mappings/checksum remain unchanged. Explicit version2 definitions carry
+view, public reply, case assignment and live acceptance separately. An old envelope
+cannot activate a new name; assignment/preview/delegation retain exactly the reviewed
+version. Positions are separate business labels and supply no authority. Password
+proof resets independently of the editable reason; invalidation/disposal guards stay.
+Native old/new-version and unknown-name cases,51 workforce units and8 final
+responsive fixtures provide local management evidence. Operational Care composition
+is still required: view and action must intersect on the same case branch, and
+live acceptance must additionally satisfy staffing/availability/transport checks.
+No real assignment or public feature was enabled; this is not live-chat acceptance.

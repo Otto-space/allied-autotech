@@ -18,6 +18,10 @@ export const workforceTemplateLabels = {
   WORKSHOP_LEAD: "Workshop / Quality Service Lead",
   ELECTRICAL_TECHNICIAN: "Electrical / Diagnostics Technician",
   MECHANICAL_TECHNICIAN: "Mechanical Technician",
+  CARE_VIEWER: "Customer Care: view cases",
+  CARE_RESPONDER: "Customer Care: reply to customers",
+  CARE_ASSIGNER: "Customer Care: assign cases",
+  CARE_LIVE_AGENT: "Customer Care: accept live conversations",
 } as const;
 export const workforceTemplateSchema = z.enum(
   Object.keys(workforceTemplateLabels) as [

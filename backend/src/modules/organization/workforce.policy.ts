@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { workforcePositions } from "./workforce-positions.js";
 import type { AuthenticatedActor } from "../../common/contracts/actor.js";
 import { AppError } from "../../common/errors/app-error.js";
 import {
@@ -29,7 +30,12 @@ export const templateSchema = z.enum(
     ...Array<keyof typeof workforceTemplates>,
   ],
 );
-export const positionSchema = z.enum(["CEO_MD", ...templateSchema.options]);
+export const positionSchema = z.enum(
+  Object.keys(workforcePositions) as [
+    keyof typeof workforcePositions,
+    ...Array<keyof typeof workforcePositions>,
+  ],
+);
 export type Template = z.infer<typeof templateSchema>;
 export function workforceDenied(
   message = "This action is unavailable for your current responsibilities",
@@ -121,11 +127,10 @@ export async function workforceSnapshot(
     staffId: user.staffProfile?.id ?? null,
     position: access?.position ?? null,
     department:
-      access?.position === "CEO_MD"
-        ? "Strategy"
-        : access && templateSchema.safeParse(access.position).success
-          ? workforceTemplates[access.position as Template].department
-          : null,
+      access && positionSchema.safeParse(access.position).success
+        ? workforcePositions[access.position as keyof typeof workforcePositions]
+            .department
+        : null,
     version: access?.version ?? 0,
     assignments,
     permissions,

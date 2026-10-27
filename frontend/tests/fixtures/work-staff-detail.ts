@@ -5,7 +5,8 @@ import {
   type WorkforceAccount,
 } from "@/lib/api/workforce-schemas";
 // Controlled catalogue metadata is loaded by the Node test runner only; never by product code.
-import { workforceTemplates } from "../../../backend/src/modules/organization/workforce-catalogue";
+import { workforceTemplateVersions } from "../../../backend/src/modules/organization/workforce-catalogue";
+const workforceTemplates = workforceTemplateVersions[1];
 export { id };
 export function staffWorkforceRecord(): WorkforceAccount {
   return {
@@ -24,7 +25,7 @@ export function staffWorkforceRecord(): WorkforceAccount {
       canRevoke: false,
       canDelegate: false,
       templates: Object.keys(
-        workforceTemplateLabels,
+        workforceTemplates,
       ) as (keyof typeof workforceTemplateLabels)[],
       branchIds: null,
     },

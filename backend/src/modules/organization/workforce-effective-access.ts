@@ -9,6 +9,11 @@ export const workforceActionLabels: Record<WorkforceAction, string> = {
   FITMENT_REVIEW: "Independently review fitment evidence",
   CUSTOMER_ENQUIRIES: "Handle Customer Care enquiries",
   COMPLAINTS: "Handle complaints",
+  CARE_CASE_VIEW: "View Customer Care cases",
+  CARE_PUBLIC_REPLY: "Reply publicly to Customer Care cases (requires case view)",
+  CARE_CASE_ASSIGN: "Assign Customer Care cases (requires case view)",
+  CARE_LIVE_ACCEPT:
+    "Accept live Customer Care conversations (requires view, reply and availability)",
   SALES_ENQUIRIES: "Handle sales enquiries",
   ENQUIRIES_ASSIGN: "Assign sales enquiries",
   FINANCE_READ: "View scoped payment records",

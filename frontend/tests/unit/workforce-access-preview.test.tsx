@@ -266,6 +266,13 @@ it("fetches a credential-free server preview before opening a change review", as
   );
   const form = submit();
   expect(state.review).not.toHaveBeenCalled();
+  expect(
+    (within(form).getByLabelText("Reason", { exact: true }) as HTMLTextAreaElement).value,
+  ).toBe("Reviewed isolated workshop coverage");
+  expect(
+    (within(form).getByLabelText("Responsibility", { exact: true }) as HTMLSelectElement)
+      .value,
+  ).toBe("WORKSHOP_LEAD");
   expect(screen.getByRole("status").textContent).toContain(
     "Checking what access will change",
   );

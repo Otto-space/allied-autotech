@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { assignableWorkforcePositionSchema } from "@/lib/api/workforce-positions";
 import {
   assignmentSchema,
   historicalAssignmentSchema,
@@ -27,7 +28,10 @@ export type WorkforceAction = "enroll" | "assign" | "revoke" | "delegate";
 export function workforceBody(action: WorkforceAction, input: unknown) {
   const base = z.object(proof);
   if (action === "enroll")
-    return base.extend({ position: workforceTemplateSchema }).strict().parse(input);
+    return base
+      .extend({ position: assignableWorkforcePositionSchema })
+      .strict()
+      .parse(input);
   if (action === "assign")
     return base
       .extend({
@@ -53,7 +57,9 @@ export function workforceBody(action: WorkforceAction, input: unknown) {
     return base
       .extend({
         expectedVersion: z.number().int().nonnegative(),
-        templates: z.array(workforceTemplateSchema).max(8),
+        templates: z
+          .array(workforceTemplateSchema)
+          .max(workforceTemplateSchema.options.length),
         branchIds: z.array(z.uuid()).max(20),
         allowAdminInvitations: z.boolean(),
         expectedPolicyVersion: z.number().int().positive().default(1),

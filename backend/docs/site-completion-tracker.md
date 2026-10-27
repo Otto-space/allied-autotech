@@ -1940,3 +1940,20 @@ Source types, changed lint and cached build pass. No schema/model call/publicati
 See docs/help-learn/WORKFORCE_CARE_CONTACT_W14A.md. C:25.32GiB free at last check.
 Granular Care duties, persisted handoff/shared staffed transport and all106 route
 completion gates remain open; fullRevision4/Item6 stays active.
+
+
+27 October 2026 - Revision4 W14B local foundation checkpoint: immutable version1
+retained; reviewed version2 adds independent Care view/reply/assign/live duties.
+Business positions now have a separate fixed catalogue; CEO enrolment restriction
+remains. Version1 delegated management remains usable and cannot acquire new duties
+from unknown historical names. Explicit pinned requests/receipts, current previews,
+MFA/password/reason/target/revision safeguards retained. Fixed reason loss on review
+while preserving immediate password clearing. 45 native regression +final5 focused
+policy cases,51 backend units, full1134 frontend plus29 focused/final12 component,
+and8 final responsive fixtures at320/390/768/1440 passed with types/contracts/lint/
+secret guard/final cached build. Screens inspected. No schema/provider call or
+publication. See docs/help-learn/WORKFORCE_CARE_POLICY_W14B.md. C:25.20GiB measured;
+Docker retained after read-only review. Next required: operational Care view/reply/
+assign adapters and notification/help predicates before these new journeys are
+declared usable, then canonical persisted handoff/shared staffed transport. All106
+route completion gates and fullRevision4/Item6 remain active; W9 allowance exhausted.

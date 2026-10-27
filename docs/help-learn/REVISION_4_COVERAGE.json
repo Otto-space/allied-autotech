@@ -1378,12 +1378,12 @@
         {
           "pattern": "/admin/workforce/access",
           "task": "Scoped workforce account directory",
-          "verification": "W1: isolated HTTP, component and rendered browser checks passed; see W1 evidence; W3 hosted fixture release evidence and W4 local impact/role regression accepted; full route learning remains open"
+          "verification": "W1: isolated HTTP, component and rendered browser checks passed; see W1 evidence; W3 hosted fixture release evidence and W4 local impact/role regression accepted; full route learning remains open; W14B reviewed v1/v2 management, separate positions,45 native regressions/final5 focused,8 final responsive fixtures and review-draft retention accepted locally. Operational new Care adapters and full route learning/hosted/device gates remain open."
         },
         {
           "pattern": "/admin/workforce/access/[userId]",
           "task": "Existing reviewed position/responsibility editor",
-          "verification": "W1: existing editor enrollment/assignment/revocation/delegation/recovery regression passed; full effective-access foundation still pending; W3 hosted fixture release evidence and W4 local impact/role regression accepted; full route learning remains open"
+          "verification": "W1: existing editor enrollment/assignment/revocation/delegation/recovery regression passed; full effective-access foundation still pending; W3 hosted fixture release evidence and W4 local impact/role regression accepted; full route learning remains open; W14B reviewed v1/v2 management, separate positions,45 native regressions/final5 focused,8 final responsive fixtures and review-draft retention accepted locally. Operational new Care adapters and full route learning/hosted/device gates remain open."
         },
         {
           "pattern": "/admin/workforce/jobs",
