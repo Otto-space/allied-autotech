@@ -163,3 +163,35 @@ The local backend build, scoped lint/format, 75-migration replay, 27 focused
 reconciliation cases, adjacent Monnify case and synthetic 50,000-row plan
 probe all used this runtime source. This does not certify the unreleased worker
 against live payment data or an actual provider.
+
+## Exact-candidate populated restore rehearsal - 27 October, 06:00 UTC
+
+The retained 26 October 19:57 UTC production archive was rechecked against its
+SHA-256 receipt and recorded production-database target. It restored into a new
+loopback-only PostgreSQL 18 `_ci` database with task-owned temporary storage.
+The actual local host, port and new database identity were verified before any
+write. The first disposable restore completed, but its count query lost quoted
+identifiers through PowerShell argument parsing; it was stopped before migration.
+The second attempt sent SQL through standard input and completed the rehearsal.
+
+The protected `npm run db:migrate` runner inspected the populated restored
+history, created and verified a new exact-target backup in the existing private
+rehearsal directory, then applied the four pending forward migrations: workforce
+template versions, reconciliation run attempts, observation scan and due
+projection. Its own verification and a separate `npm run db:check` passed at 75
+applied migrations. Sampled counts for users, customer profiles, branches,
+products, services, notifications, payment attempts, reconciliation runs and
+items were unchanged. A combined deterministic row fingerprint of the six
+populated business tables was unchanged. The new due-row count equalled the
+payment-attempt count. The backup and receipt inherited the directory's
+owner/Administrators/SYSTEM-only ACL. Both task-owned containers were removed;
+no volume, application/shared/production database, provider or payment action
+was touched.
+
+This proves the **26 October archive** restores and takes the exact candidate
+forward without altering its sampled rows. That archive had no payment,
+payment-attempt, refund, ledger, order or inventory-reservation rows, so it does
+not prove a populated financial backfill or a fresh pre-rollout recovery point.
+Recheck current production backups/PITR and rehearse the latest representative
+snapshot before a guarded live migration. Runtime-role DML on the new projection,
+legacy running/held work, provider sandbox and exact-source rollout remain open.
