@@ -129,11 +129,15 @@ describe.skipIf(!enabled)("MFA enrollment authorization and atomicity", () => {
       }),
     ).toBe(1);
     await expect(
-      new IdentityService().verifyMfaChallenge(context.user.id, context.session.id, {
-        method: "totp",
-        factorId: previous.id,
-        code: await generate({ secret: previous.secret }),
-      }),
+      new IdentityService().verifyMfaChallenge(
+        context.user.id,
+        { sessionId: context.session.id, csrfTokenHash: context.csrf.hash },
+        {
+          method: "totp",
+          factorId: previous.id,
+          code: await generate({ secret: previous.secret }),
+        },
+      ),
     ).rejects.toMatchObject({ code: "TOKEN_INVALID" });
   });
   it("does not let a pending session replace a registered authenticator", async () => {
