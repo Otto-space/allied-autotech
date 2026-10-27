@@ -178,6 +178,13 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         expect(approved.status).toBe(200);
         expect(approved.body.data.status).toBe("NEEDS_ATTENTION");
         expect(
+          await prisma.refund.findUniqueOrThrow({ where: { id: f.refund.id } }),
+        ).toMatchObject({
+          status: "NEEDS_ATTENTION",
+          providerStatus: "OFFLINE_PROCESSING_REQUIRED",
+          approvedByUserId: approver.user.id,
+        });
+        expect(
           refundCurrentRecordSchema.strict().safeParse(approved.body.data).success,
         ).toBe(true);
         const transfers = await get(transfer);
