@@ -1872,3 +1872,8 @@ CI, API-first deployment, both frontend aliases and authorized live-role
 acceptance remain open. See backend/docs/customer-vehicle-payment-filter-20261027.md.
 P0 reconciliation recovery remains on its separate unreleased branch, and full
 Item 6/Revision 4 remain active.
+The exact candidate 54e83b3f passed frontend 40445007425, backend 40445007397
+and secret 40445007545 GitHub runs. Provider promotion did not run: local doctl
+returns access-token-required, no Vercel CLI is installed, and browser automation
+surfaces are unavailable. Recheck live source/access before release; no image or
+production app/database change was made for this candidate.

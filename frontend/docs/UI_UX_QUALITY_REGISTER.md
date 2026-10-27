@@ -1840,3 +1840,18 @@ campaign image loaded. The local reused Next installation is 16.3.8 while the
 project requests 16.4.3, so locked CI and an exact-version hosted candidate
 remain required before release. The local preview's unrelated authentication
 proxy aimed at absent localhost:5000; no account or API mutation was tested.
+
+27 October 2026 - P1 vehicle-payment history on purchase detail. The verified
+customer list API candidate filters by the owned vehicle transaction before
+pagination, and the purchase panel requests that target and rejects a mismatched
+row or incomplete history. This prevents unrelated account history from exhausting
+the client scan; source payment locks and eligibility remain authoritative.
+Six focused Edge/Playwright fixture cases passed on the locally compiled page:
+later-page unresolved requests, wrong-target data, failed fetch and repeated cursor.
+The first run used a blocked Next development origin and was not counted; the
+successful run used localhost. Frontend typecheck, scoped ESLint/formatting and
+exact-lock GitHub frontend release checks passed. A fresh isolated PostgreSQL
+service test covered owner/target/cursor boundaries. This is not a full-page
+accessibility or real production-role acceptance. The backend and frontend must
+release in that order; no production deployment or financial transaction was made.
+Evidence and provider-access limit: backend/docs/customer-vehicle-payment-filter-20261027.md.
