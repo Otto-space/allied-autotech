@@ -66,10 +66,12 @@ const article = (
   outcome:
     "You understand the next permitted step. Reading help does not change a live record.",
   recovery:
-    "If the required control is unavailable, refresh your access or use Contact support. Do not bypass a restriction or repeat an uncertain submission.",
-  version: 2,
+    gate === "public" || gate === "customer"
+      ? "If the required control is unavailable, refresh your access or use Contact support. Do not bypass a restriction or repeat an uncertain submission."
+      : "If the required work control is unavailable, refresh your access or ask an authorised access manager. No internal escalation link is supplied here. Do not forward staff guidance to public Contact or Customer Care, bypass restrictions or repeat an uncertain submission.",
+  version: gate === "public" || gate === "customer" ? 2 : 3,
   status: "published",
-  reviewedAt: "2026-10-26",
+  reviewedAt: gate === "public" || gate === "customer" ? "2026-10-26" : "2026-10-27",
 });
 export const learningArticles: LearningArticle[] = [
   article(
@@ -148,22 +150,27 @@ export const learningArticles: LearningArticle[] = [
     "Launch restrictions and existing status contracts",
     "money pending paid order confirmed",
   ),
-  article(
-    "own-conversation",
-    "customer",
-    "customer-care",
-    "Follow your own Customer Care request",
-    "Keep updates in the same owned conversation and review a reply before sending it.",
-    [
-      "Open Customer Care and select your enquiry or complaint.",
-      "Read the original request, public conversation and current status.",
-      "Draft relevant new details, review them and confirm only when you intend to send. The guide ends before submission.",
-    ],
-    "/dashboard/support",
-    "Customer support ownership, drafts and review-before-send",
-    "support complaint enquiry reply message",
-    "Sign in to your verified customer account; only your own requests are available.",
-  ),
+  {
+    ...article(
+      "own-conversation",
+      "customer",
+      "customer-care",
+      "Follow your own Customer Care request",
+      "Keep updates in the same owned conversation and review a reply before sending it.",
+      [
+        "Open Customer Care and select your enquiry or complaint.",
+        "Read the original request, public conversation and current status.",
+        "Internal staff notes are not shown in your customer conversation. Only customer-visible messages are available.",
+        "Draft relevant new details and review them. Choose Go back to edit your draft or cancel before Send reply; nothing is sent until you explicitly confirm. The guide ends before submission.",
+      ],
+      "/dashboard/support",
+      "Customer support ownership, drafts and review-before-send",
+      "support complaint enquiry reply message",
+      "Sign in to your verified customer account; only your own requests are available.",
+    ),
+    version: 4,
+    reviewedAt: "2026-10-27",
+  },
   {
     ...article(
       "work-access",
@@ -181,7 +188,7 @@ export const learningArticles: LearningArticle[] = [
       "Current workforce scope, registered navigation and access-change recovery",
       "staff role responsibility operations permissions security access removed overview",
     ),
-    version: 3,
+    version: 4,
   },
   article(
     "care-triage",
@@ -335,13 +342,14 @@ export const learningArticles: LearningArticle[] = [
         "Expand Effective responsibility access to check capabilities, branches and grant sources within your permitted view. Account baseline and separately granted permissions keep their existing rules.",
         "Before assigning or revoking a responsibility, review access added, removed and retained. Revoking one grant can leave the same access supplied by another active grant. Scheduled assignments supply no access before their start.",
         "Check the reason and current delegation. If access changes before confirmation, refresh and review again; if a save is uncertain, inspect and reconcile it before retrying.",
+        "Do not delegate a capability or scope outside your current permitted delegation. Having permission to act does not by itself give permission to delegate, and a job title does not expand your authority.",
         "Do not share invitations or enter a password into help. Reading help or completing practice never grants privileges.",
       ],
       "/admin/workforce/access",
       "Team access security, pinned delegation and reviewed responsibility impact",
-      "invite staff admin operations permissions access added removed retained grant sources",
+      "invite staff admin operations permissions access added removed retained grant sources delegate delegation authority privileges",
     ),
-    version: 3,
+    version: 4,
   },
   article(
     "privileged-recovery",

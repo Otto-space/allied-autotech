@@ -1316,7 +1316,8 @@
         "docs/help-learn/ALLIE_CONVERSATIONS_W7.md",
         "backend/tests/integration/allie-conversations.test.ts",
         "docs/help-learn/ALLIE_CONVERSATION_UI_W8.md",
-        "frontend/tests/e2e/allie-conversation.spec.ts"
+        "frontend/tests/e2e/allie-conversation.spec.ts",
+        "W9: docs/help-learn/ALLIE_EVALUATION_W9.md; real provider baseline/targeted review, actual guest/customer composition and native scope checks. This is partial evidence, not complete per-route acceptance."
       ],
       "gaps": [
         "Full independent-grant/baseline composition and real chat subscription authorisation remain open; W5 verifies the managed-workforce registry and HTTP/session invalidation only.",
@@ -1833,7 +1834,9 @@
       "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
       "fixture": "Identify the permitted role/scope and realistic state for this route.",
       "verification": "pending",
-      "evidence": [],
+      "evidence": [
+        "W9: docs/help-learn/ALLIE_EVALUATION_W9.md; real provider baseline/targeted review, actual guest/customer composition and native scope checks. This is partial evidence, not complete per-route acceptance."
+      ],
       "gaps": [
         "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
       ],
@@ -1980,7 +1983,9 @@
       "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
       "fixture": "Identify the permitted role/scope and realistic state for this route.",
       "verification": "pending",
-      "evidence": [],
+      "evidence": [
+        "W9: docs/help-learn/ALLIE_EVALUATION_W9.md; real provider baseline/targeted review, actual guest/customer composition and native scope checks. This is partial evidence, not complete per-route acceptance."
+      ],
       "gaps": [
         "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
       ],
@@ -2141,7 +2146,9 @@
       "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
       "fixture": "Identify the permitted role/scope and realistic state for this route.",
       "verification": "pending",
-      "evidence": [],
+      "evidence": [
+        "W9: docs/help-learn/ALLIE_EVALUATION_W9.md; real provider baseline/targeted review, actual guest/customer composition and native scope checks. This is partial evidence, not complete per-route acceptance."
+      ],
       "gaps": [
         "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
       ],

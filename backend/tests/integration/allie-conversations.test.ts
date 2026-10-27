@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import request from "supertest";
+import express from "express";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { createApp } from "../../src/app.js";
 import { prisma } from "../../src/config/database.js";
@@ -80,7 +81,18 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         .mockImplementation((settings) => realFactory(settings, outbound));
       vi.stubGlobal("fetch", outbound);
       f = await workforceFixture();
-      app = createApp({ checkReadiness: async () => undefined, rateLimit: 10000 });
+      // Unique synthetic socket identity per campaign. Re-running this suite must
+      // not consume a previous run's shared guest bootstrap allowance. This is a
+      // server-side harness, not a trusted client header or relaxed runtime limit.
+      const testAddress =
+        "2001:db8:" +
+        randomUUID().replaceAll("-", "").match(/.{4}/g)!.slice(0, 6).join(":");
+      app = express();
+      app.use((req, _res, next) => {
+        Object.defineProperty(req, "ip", { value: testAddress });
+        next();
+      });
+      app.use(createApp({ checkReadiness: async () => undefined, rateLimit: 10000 }));
     }, 30000);
     beforeEach(() => {
       outbound.mockClear();
@@ -575,6 +587,56 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
           })
         ).encryptedState === null,
       ).toBe(false);
+    });
+    it("does not make retention wait behind a claimed guest row and retires it after release", async () => {
+      const guestId = randomUUID();
+      await prisma.assistantGuestSession.create({
+        data: {
+          id: guestId,
+          tokenHash: hashToken("assistant-session", randomUUID()),
+          csrfHash: hashToken("csrf", randomUUID()),
+          expiresAt: new Date(0),
+        },
+      });
+      let release: (() => void) | undefined, ready: (() => void) | undefined;
+      const locked = new Promise<void>((resolve) => {
+        ready = resolve;
+      });
+      const resume = new Promise<void>((resolve) => {
+        release = resolve;
+      });
+      const holding = prisma.$transaction(
+        async (tx) => {
+          await tx.$queryRaw`SELECT "id" FROM "AssistantGuestSession" WHERE "id" = ${guestId}::uuid FOR UPDATE`;
+          ready!();
+          await resume;
+        },
+        { timeout: 10000 },
+      );
+      await locked;
+      const cleanup = purgeExpiredAllieState(1);
+      let deadline: ReturnType<typeof setTimeout> | undefined;
+      try {
+        const completed = await Promise.race([
+          cleanup.then(() => true),
+          new Promise<boolean>((resolve) => {
+            deadline = setTimeout(() => resolve(false), 2000);
+          }),
+        ]);
+        expect(completed).toBe(true);
+        expect(await prisma.assistantGuestSession.count({ where: { id: guestId } })).toBe(
+          1,
+        );
+      } finally {
+        if (deadline) clearTimeout(deadline);
+        release!();
+        await holding;
+        await cleanup;
+      }
+      await purgeExpiredAllieState(1);
+      expect(await prisma.assistantGuestSession.count({ where: { id: guestId } })).toBe(
+        0,
+      );
     });
     it("enforces the added expiry/version/reservation constraints with the DML-only runtime", async () => {
       const created = await create(f.electrical.headers),

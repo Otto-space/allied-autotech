@@ -208,3 +208,45 @@ targeted reproduction is required before exposure. See `ALLIE_CONVERSATION_UI_W8
   worker/backup/sink monitoring and actual evaluation remain open release questions.
 - Extend this review when the conversation UI, canonical handoff and live transport
   are implemented. This report does not authorize exposure or publication.
+
+## W9 configured-provider and lock-order review (27 October 2026)
+
+W9 closes the identified guest-retention wait with parameterized, bounded
+`FOR UPDATE SKIP LOCKED`; a held guest row is skipped and retired after release.
+The original failure and final native 39-case regression are retained. No table,
+permission or schema change was required. Logical expiry continues to deny reads.
+
+Actual provider evaluation included 100 baseline questions and twelve targeted
+rechecks, plus ten local pre-provider negatives. Engineering review found a managed
+internal-note recommendation, generic public Contact recovery for internal work,
+imprecise assigned-only sales guidance, two retrieval misses and missing-guide/draft
+wording gaps. The source/projection/prompt fixes and case-level results are recorded
+in ALLIE_EVALUATION_W9.md and ALLIE_EVALUATION_REVIEW_W9.json. No actual internal note
+or customer record was retrieved, and no model mutation capability was introduced.
+The baseline's 25 quality issues are not hidden by 100 structurally valid responses;
+the final implementation received representative rechecks, not a second full run.
+
+The model now receives only coarse server-derived audience/release mode alongside
+the bounded eligible source/actions and recent help history. Scope descriptions are
+normalised from current capabilities; no user, branch or record IDs are added to
+model input. This metadata assists explanation and never substitutes for server
+authorization. Current source-set changes still invalidate saved context.
+
+The owner configured the dedicated evaluation key through current-user DPAPI. Key
+material passes to a local child through stdin, never arguments/logs. The cumulative
+exclusive-lock ledger reserved usage before egress and retained failed/unused
+reservations. Its 120-request limit is exhausted (117 completed calls). Do not reset
+it to obtain more calls. Receipt output text is synthetic test evidence outside Git;
+production request diagnostics still exclude complete prompts/transcripts.
+
+Actual guest/customer browser-to-API-to-isolated-DB-to-provider flows, saved readback,
+native-dialog Axe and 390/1440 screenshots advance TM-001/003/005/006 evidence. They
+do not establish real workforce browser acceptance, hosted proxy/cookie controls,
+two-replica operation, provider special retention, production worker/backup/log
+monitoring or human takeover. Test harness errors (envelope, native-dialog selector
+and protected CSRF refresh allowance) were corrected without changing runtime
+security. Existing synthetic API processes/locks were retired; the frontend preview
+and database receipts remain. No publication or default AI enablement occurred.
+
+Canonical reviewed handoff and shared staffed transport introduce new persistence,
+audience and subscription boundaries; extend this review before accepting them.

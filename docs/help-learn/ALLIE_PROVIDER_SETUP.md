@@ -87,4 +87,10 @@ cannot guarantee every sensitive input is detected. The adapter requests
 `store:false`; that does not establish zero data retention or special account
 controls. Verify the account's applicable terms before exposure, using the
 [official data-controls guide](https://developers.openai.com/api/docs/guides/your-data).
-The final UI still needs its accurate privacy notice and explicit reviewed handoff.
+W8 includes the accurate conversation/privacy notice; explicit persisted reviewed
+handoff remains unfinished. W9 verified this dedicated configuration with real
+synthetic evaluations and actual local guest/customer browser flows. See
+[W9 evidence](ALLIE_EVALUATION_W9.md). The cumulative approval ledger is exhausted
+(120 reservations, including three unused): do not reset it or make further provider
+calls under that approval. Public AI remains disabled and no app environment file
+or production configuration was changed.

@@ -55,9 +55,16 @@ const aliases: Record<string, string> = {
   roles: "role",
   duties: "responsibility",
   responsibilities: "responsibility",
+  delegate: "permission",
+  delegation: "permission",
+  delegating: "permission",
+  authority: "permission",
+  privilege: "permission",
+  privileges: "permission",
   practise: "practice",
   cash: "payment",
   payments: "payment",
+  checkout: "payment",
   quotation: "quote",
   password: "recovery",
 };
@@ -251,6 +258,8 @@ export function retrieveAllieContext(
   if (new Set(actions.map((action) => action.id)).size !== actions.length)
     throw new AllieFailure("invalid_output");
   return {
+    audience: catalogue.audience,
+    releaseMode: catalogue.mode,
     sourceSet,
     sources,
     actions,

@@ -65,12 +65,16 @@ export async function purgeExpiredAllieState(limit = 100) {
       take: limit,
       select: { id: true },
     });
-    const guests = await tx.assistantGuestSession.findMany({
-      where: { expiresAt: { lte: at } },
-      orderBy: { expiresAt: "asc" },
-      take: limit,
-      select: { id: true },
-    });
+    // Owned guest requests lock their row before the shared assistant mutex.
+    // Do not invert that ordering by waiting for a busy guest while holding it.
+    // Logical expiry still denies access; a later pass retires skipped rows.
+    const guests = await tx.$queryRaw<{ id: string }[]>`
+      SELECT "id" FROM "AssistantGuestSession"
+      WHERE "expiresAt" <= ${at}
+      ORDER BY "expiresAt" ASC, "id" ASC
+      LIMIT ${limit}
+      FOR UPDATE SKIP LOCKED
+    `;
     const removed = retired.length
       ? await tx.assistantConversation.deleteMany({
           where: { id: { in: retired.map((row) => row.id) } },

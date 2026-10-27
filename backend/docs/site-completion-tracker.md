@@ -1812,3 +1812,25 @@ clipboard entry after an explicit pause; synthetic checks never read real clipbo
 C: about 26.40 GiB free. No Docker/install/worktree/profile duplication or deletion;
 read-only Docker inventory retained. Denied four dev-folder targets remain preserved.
 Full Revision 4/Item 6 active; unrelated newer releases require reconciliation.
+
+27 October 2026 - Revision 4 W9 local checkpoint: owner DPAPI settings verified;
+100 actual gpt-6-luna baseline cases reviewed, ten local negative cases stopped
+before provider, twelve targeted rechecks accepted after guidance/retrieval fixes.
+Baseline 75/100 accepted without recorded quality issue, 25 needed improvement;
+not a second full final run. Managed replies, note privacy, assigned sales scope,
+internal escalation, delegation/checkout evidence, editable drafts and missing-guide
+wording corrected. Guest-retention row/advisory lock wait reproduced and fixed.
+Final 80 focused units and 39 native HTTP/DB cases passed; backend/source/scripts
+and frontend typechecks/lint passed. Existing optimized preview reused; real guest
+two-turn flow and final customer/CSRF/source flow accepted, with native-dialog Axe
+and 390/1440 readback/screenshots. Test envelope/selector/CSRF harness assumptions
+were corrected; product permissions were not loosened. No W9 schema/build/install.
+117 real calls; 120 conservative reservations / USD0.189681 retained, including
+three unused browser reservations. Approval exhausted: do not reset the ledger or
+make further calls without a new bounded approval. Provider usage estimate USD0.0257841
+is not an invoice. No real records/messages, public AI enablement or W4-W9 deployment.
+Evidence: docs/help-learn/ALLIE_EVALUATION_W9.md and case-level review JSON. Isolated
+API stopped gracefully; existing frontend preview remains. C: about 26.33 GiB free;
+no Docker/new worktree/profile/archive, and denied dev-folder deletion untouched.
+Full Revision 4/Item 6 remains active. Next: canonical reviewed handoff contracts and
+backend; full workforce policy/history, all 106 routes and gated shared transport open.

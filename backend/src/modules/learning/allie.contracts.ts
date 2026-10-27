@@ -55,6 +55,8 @@ export type AllieAction = {
   sourceId: string | null;
 };
 export type AllieContext = {
+  audience: AllieCatalogue["audience"];
+  releaseMode: AllieCatalogue["mode"];
   sourceSet: string;
   sources: AllieSource[];
   actions: AllieAction[];

@@ -161,3 +161,5 @@ workforce-session-revocation.spec.ts
 
 # Revision 4 W8: Allie conversation controls and role/privacy boundaries with isolated fixtures.
 allie-conversation.spec.ts
+# Revision 4 W9: paid provider composition is opt-in; normal runs skip safely.
+allie-real-provider.spec.ts

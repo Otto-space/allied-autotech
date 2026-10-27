@@ -20,6 +20,7 @@ export interface LearningAccess {
   permissions: readonly string[];
   position: string | null;
   canManage: boolean;
+  salesScope?: "assigned" | "branch" | "mixed";
   key: string;
 }
 export const publicLearningAccess: LearningAccess = {
@@ -120,6 +121,11 @@ export async function learningAccessInTransaction(
   }
   await lockAccessActor(tx, actor);
   const snapshot = await workforceSnapshot(tx, actor);
+  const salesScopes = new Set(
+    snapshot.capabilityScopes
+      .filter((row) => row.capability === "SALES_ENQUIRIES")
+      .map((row) => row.scope),
+  );
   return {
     role: actor.role,
     verified: true,
@@ -127,6 +133,16 @@ export async function learningAccessInTransaction(
     permissions: snapshot.permissions,
     position: snapshot.position,
     canManage: snapshot.canManageAssignments,
+    ...(salesScopes.size
+      ? {
+          salesScope:
+            salesScopes.size > 1
+              ? ("mixed" as const)
+              : salesScopes.has("BRANCH")
+                ? ("branch" as const)
+                : ("assigned" as const),
+        }
+      : {}),
     key: createHash("sha256")
       .update(
         JSON.stringify([
@@ -187,18 +203,40 @@ export function learningCatalogue(access: LearningAccess, query = "") {
   const articles = published
     .filter((a) => matches("article answer", a.title, a.summary, a.keywords, ...a.steps))
     .map(({ gate: _gate, ...a }) => {
+      let projected = a;
+      if (a.id === "care-triage" && access.managed) {
+        projected = {
+          ...a,
+          steps: a.steps.map((step, index) =>
+            index === 2
+              ? "Your managed Customer Care workspace provides customer-visible replies only and does not provide internal notes. Never put internal information in a customer reply. Review the audience before sending."
+              : step,
+          ),
+        };
+      }
+      if (a.id === "sales-enquiries" && access.salesScope) {
+        projected = {
+          ...projected,
+          summary:
+            access.salesScope === "assigned"
+              ? "Only enquiries assigned to you within your authorised scope are available. This does not grant branch-wide enquiry access."
+              : access.salesScope === "branch"
+                ? "Only enquiries within your authorised branch scope are available; this is not global enquiry access."
+                : "Sales scope differs by grant and branch. Use only records returned by your authorised queue; an assigned-only grant does not become branch-wide because of a grant elsewhere.",
+        };
+      }
       // Complaint-only officers must not be directed to an unavailable enquiry queue.
       if (
         a.id === "care-triage" &&
         !access.managed &&
         ["ADMIN", "SUPER_ADMIN"].includes(access.role)
       )
-        return { ...a, href: "/admin/support" };
+        return { ...projected, href: "/admin/support" };
       if (a.id === "care-triage" && !access.permissions.includes("CUSTOMER_ENQUIRIES"))
-        return { ...a, href: "/admin/workforce/complaints" };
+        return { ...projected, href: "/admin/workforce/complaints" };
       if (a.id === "access-review" && !access.managed && access.role === "ADMIN")
-        return { ...a, href: "/admin/staff" };
-      return a;
+        return { ...projected, href: "/admin/staff" };
+      return projected;
     });
   return {
     accessKey: createHash("sha256")

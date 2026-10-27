@@ -271,7 +271,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       );
       const accessReview = await read(f.scopedAdmin, "/learning/articles/access-review");
       expect(accessReview.status).toBe(200);
-      expect(accessReview.body.data).toMatchObject({ version: 3 });
+      expect(accessReview.body.data).toMatchObject({ version: 4 });
       expect(accessReview.body.data.steps.join(" ")).toContain(
         "review access added, removed and retained",
       );
@@ -280,10 +280,32 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       );
       const workAccess = await read(f.care, "/learning/articles/work-access");
       expect(workAccess.status).toBe(200);
-      expect(workAccess.body.data.version).toBe(3);
+      expect(workAccess.body.data.version).toBe(4);
       expect(workAccess.body.data.steps.join(" ")).toContain(
         "Protected unsent work is discarded, never sent automatically",
       );
+    });
+    it("projects actual managed reply audience, sales scope and customer note privacy", async () => {
+      const managed = await read(f.care, "/learning/articles/care-triage");
+      expect(managed.status).toBe(200);
+      expect(managed.body.data.steps.join(" ")).toContain(
+        "does not provide internal notes",
+      );
+      expect(managed.body.data.recovery).not.toContain("use Contact support");
+      const admin = await f.account(null, "ADMIN");
+      const legacy = await read(admin, "/learning/articles/care-triage");
+      expect(legacy.body.data.steps.join(" ")).toContain("internal-note");
+      expect(legacy.body.data.href).toBe("/admin/support");
+      const cashier = await read(f.cashier, "/learning/articles/sales-enquiries");
+      expect(cashier.body.data.summary).toContain("Only enquiries assigned to you");
+      const supervisor = await read(f.sales, "/learning/articles/sales-enquiries");
+      expect(supervisor.body.data.summary).toContain("authorised branch scope");
+      const customer = await read(f.customer, "/learning/articles/own-conversation");
+      expect(customer.body.data.steps.join(" ")).toContain(
+        "Internal staff notes are not shown",
+      );
+      expect(customer.body.data.version).toBe(4);
+      expect(customer.body.data.steps.join(" ")).toContain("Go back to edit your draft");
     });
     it("removes revoked/expired assignments and session assurance on the next read", async () => {
       const person = await f.account("ACCOUNTANT");
