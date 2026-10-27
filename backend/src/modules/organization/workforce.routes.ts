@@ -14,6 +14,7 @@ import { projectWorkforceMutationReceipt } from "./workforce-receipts.js";
 import * as schemas from "./workforce.schemas.js";
 
 import { TeamAccessService } from "./team-access.service.js";
+import { ServiceOperationsService } from "../service-operations/service-operations.service.js";
 import { privilegedInvitationBodySchema } from "./organization.schemas.js";
 
 const context = (req: Request) => ({
@@ -91,6 +92,13 @@ export const workforceRouteDefinitions = [
     empty,
   ],
   ["get", "/staff/workforce/jobs/:id", "job", empty, schemas.workforceRecordParams],
+  [
+    "post",
+    "/staff/workforce/bookings/:id/confirmation",
+    "bookingConfirmation",
+    schemas.workforceBookingConfirmationSchema,
+    schemas.workforceRecordParams,
+  ],
   [
     "get",
     "/staff/workforce/bookings/:id",
@@ -336,6 +344,14 @@ export function createWorkforceRouter(): Router {
           break;
         case "booking":
           data = await work.booking(actor, id, ctx);
+          break;
+        case "bookingConfirmation":
+          data = await new ServiceOperationsService().confirmWorkforceBooking(
+            actor,
+            id,
+            schemas.workforceBookingConfirmationSchema.parse(body),
+            ctx,
+          );
           break;
         case "job":
           data = await work.job(actor, id, ctx);

@@ -22,6 +22,7 @@ const destinations = new Set([
   "/admin/workforce/complaints",
   "/admin/workforce/jobs",
   "/admin/workforce/finance",
+  "/admin/workforce/bookings",
   "/admin/workforce/access",
   "/admin/staff",
   "/admin/customers",

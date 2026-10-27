@@ -1879,3 +1879,20 @@ retention reviewed without deletion, denied dev folders unchanged. Next: compati
 scoped BOOKING_CONFIRM and financial-aftercare adapters, then granular Care duties,
 persisted reviewed handoff and shared staffed/gated transport. All106 completion
 decisions and full Revision4/Item6 remain active.
+
+27 October 2026 - Revision4 W12 local checkpoint: scoped booking confirmation
+requires current BOOKINGS_READ branch scope AND separate BOOKING_CONFIRM. Shared
+legacy capacity/calendar/assignment/schedule/version/audit/reminder guards retained.
+Eleven scoped native,57 workforce/session/learning,11 legacy booking,59 backend units,
+full1121 frontend and final34+35 focused cases passed. Twenty final responsive
+fixtures at320/390/768/1440 and one actual browser/CSRF/API/restricted-CI-DB
+confirmation passed. Fixed stripped recovery hints via explicit reviewed error codes
+and narrow-detail label squeezing via detail-only stacked mobile facts.
+OpenAPI376/routes440+4, generated types, types/lint/secret guard and final cached
+build pass; exact-lock16.4.3/hosted/device acceptance remains open. No schema change,
+model call, real message, install, new worktree or publication; W9 allowance exhausted.
+Evidence: docs/help-learn/WORKFORCE_BOOKING_W12.md. C:25.56GiB measured free. Native
+API stopped and synthetic browser session/cookie retired; existing frontend preview
+retained. Docker resources preserved, denied dev-folder cleanup not retried.
+Next: scoped financial-aftercare then granular Care permissions, persisted reviewed
+handoff/shared staffed transport. All106 route gates and fullRevision4/Item6 active.

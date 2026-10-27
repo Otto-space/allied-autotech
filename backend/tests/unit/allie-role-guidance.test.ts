@@ -18,6 +18,35 @@ function catalogue(overrides: Partial<LearningAccess>) {
   }
 }
 describe("provider-observed role guidance regressions", () => {
+  it("requires the paired booking scope and independent confirmation duty for its written help", () => {
+    const worker = { role: "STAFF" as const, managed: true };
+    expect(
+      catalogue({ ...worker, permissions: ["BOOKINGS_READ"] }).articles.some(
+        (a) => a.id === "booking-confirmation",
+      ),
+    ).toBe(false);
+    expect(
+      catalogue({
+        ...worker,
+        independentCapabilities: ["BOOKING_CONFIRM"],
+      }).articles.some((a) => a.id === "booking-confirmation"),
+    ).toBe(false);
+    const permitted = catalogue({
+      ...worker,
+      permissions: ["BOOKINGS_READ"],
+      independentCapabilities: ["BOOKING_CONFIRM"],
+    });
+    expect(
+      permitted.articles.find((a) => a.id === "booking-confirmation")?.steps.join(" "),
+    ).toContain("do not retry automatically");
+    expect(
+      retrieveAllieContext(
+        permitted,
+        "How do I confirm a booking after checking equipment capacity?",
+        "work",
+      ).sources.some((s) => s.articleId === "booking-confirmation"),
+    ).toBe(true);
+  });
   it("retrieves independent-duty guidance only from explicit grants, never a title or responsibility string", () => {
     const ordinary = {
       role: "STAFF" as const,

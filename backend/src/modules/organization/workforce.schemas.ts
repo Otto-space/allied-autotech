@@ -3,9 +3,17 @@ export { supportDeliveryDismissSchema } from "../support/customer-email.js";
 import { z } from "zod";
 import { positionSchema, templateSchema } from "./workforce.policy.js";
 import { independentCapabilitySchema } from "../policies/independent-capabilities.js";
+import { bookingTransitionBodySchema } from "../service-operations/service-operations.schemas.js";
 
 const version = z.number().int().min(0);
 const reason = z.string().trim().min(10).max(1000);
+export const workforceBookingConfirmationSchema = bookingTransitionBodySchema
+  .pick({ expectedVersion: true, resourceReviewNote: true })
+  .required()
+  .refine((input) => input.resourceReviewNote.length >= 10, {
+    message: "Record the people and equipment review in at least 10 characters",
+    path: ["resourceReviewNote"],
+  });
 export const workforceAccountParams = z.strictObject({ userId: z.uuid() });
 export const workforceAssignmentParams = workforceAccountParams.extend({
   assignmentId: z.uuid(),
@@ -591,8 +599,29 @@ export function workforceResponseSchema(action: string): z.ZodType {
         generatedAt: timestamp,
         access: workforceOwnResponseSchema,
       });
+    case "bookingConfirmation":
+      return z.object({
+        id: z.uuid(),
+        branchId: z.uuid(),
+        assignedStaffId: z.uuid(),
+        status: z.literal("CONFIRMED"),
+        version,
+        scheduledAt: timestamp,
+        confirmedAt: timestamp,
+        resourceReviewNote: z.string(),
+        capacityPolicyVersionId: z.uuid(),
+        performedByUserId: z.uuid(),
+      });
     case "booking":
       return bookingRow.extend({
+        assignedStaff: z
+          .object({ id: z.uuid(), firstName: z.string(), lastName: z.string() })
+          .nullable(),
+        confirmedAt: timestamp.nullable(),
+        service: z.object({
+          name: z.string(),
+          durationMinutes: z.number().int().positive().nullable(),
+        }),
         access: workforceOwnResponseSchema,
         generatedAt: timestamp,
       });

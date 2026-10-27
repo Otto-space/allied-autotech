@@ -5,21 +5,21 @@ that every route or state has passed review. Work proceeds in finite batches.
 
 ## Standing responsibility and source
 
-Current bounded implementation: Revision 4 W11 independent-grant compatibility,
-branch `feat/workforce-independent-access-20261027`, based on W10 `11c4ac15` in the
-reused `allied-home-restoration-20261025` worktree. Separate current owner grants
-now reach the existing scoped refund/dispute/privacy/financial-policy workspaces.
-57 native cases, 112 backend units, full 1,114 frontend units plus 45 final focused
-checks, optimized build, 18 new browser fixtures and 11 history/session regressions
-passed. Known Next not-found CSS preload warning remains qualified. W9's 100 real
-baseline cases and 12 targeted rechecks remain separate evidence; no new model call.
-Not deployed; AI defaults remain disabled.
-Scoped booking confirmation/financial aftercare, granular Care authority, human handoff, real chat
-subscriptions, hosted acceptance and all-route learning remain open.
-Evidence: `docs/help-learn/WORKFORCE_INDEPENDENT_ACCESS_W11.md`, W10 history, W9 evaluation, W8 UI,
-W7 state, W6 provider core, W5 and retained W4
-impact review evidence. Earlier customer-table/sidebar responsiveness remains in
-Cycle 13; unrelated worktrees and newer release branches are preserved.
+Current bounded implementation: Revision 4 W12 scoped booking confirmation,
+branch `feat/workforce-scoped-booking-20261027`, based on W11 `8503f4f7` in the
+reused `allied-home-restoration-20261025` worktree. Current branch access and the
+separate confirmation grant are both required. Existing calendar/capacity, staff
+schedule, version, audit and reminder checks remain. Eleven scoped native cases,
+57 workforce/session/learning regressions, eleven legacy booking cases, 59 backend
+units and full 1,121 frontend tests passed; final focused API/review checks and
+responsive/native browser evidence are recorded in the W12 checkpoint.
+No publication, schema change, real customer message or new provider call.
+AI defaults stay off; W9's bounded provider allowance remains exhausted.
+Financial aftercare, granular Care authority, canonical persisted handoff, shared
+staffed/gated transport, all-route learning and hosted/device acceptance remain open.
+Evidence: `docs/help-learn/WORKFORCE_BOOKING_W12.md`, W11 independent grants, W10
+history, W9 provider evaluation and retained earlier checkpoints. Customer-table/
+sidebar responsiveness remains in Cycle13; unrelated release worktrees are preserved.
 
 Notification Cycle 8 was deployed on 25 October 2026 from runtime source `345847d5` after locked
 Next 16.4.3 CI and optimized hosted acceptance. Genuine native delivery/click
@@ -1822,3 +1822,20 @@ retention reviewed without deletion, denied dev folders unchanged. Next: compati
 scoped BOOKING_CONFIRM and financial-aftercare adapters, then granular Care duties,
 persisted reviewed handoff and shared staffed/gated transport. All106 completion
 decisions and full Revision4/Item6 remain active.
+
+27 October 2026 - Revision4 W12 local checkpoint: scoped booking confirmation
+requires current BOOKINGS_READ branch scope AND separate BOOKING_CONFIRM. Shared
+legacy capacity/calendar/assignment/schedule/version/audit/reminder guards retained.
+Eleven scoped native,57 workforce/session/learning,11 legacy booking,59 backend units,
+full1121 frontend and final34+35 focused cases passed. Twenty final responsive
+fixtures at320/390/768/1440 and one actual browser/CSRF/API/restricted-CI-DB
+confirmation passed. Fixed stripped recovery hints via explicit reviewed error codes
+and narrow-detail label squeezing via detail-only stacked mobile facts.
+OpenAPI376/routes440+4, generated types, types/lint/secret guard and final cached
+build pass; exact-lock16.4.3/hosted/device acceptance remains open. No schema change,
+model call, real message, install, new worktree or publication; W9 allowance exhausted.
+Evidence: docs/help-learn/WORKFORCE_BOOKING_W12.md. C:25.56GiB measured free. Native
+API stopped and synthetic browser session/cookie retired; existing frontend preview
+retained. Docker resources preserved, denied dev-folder cleanup not retried.
+Next: scoped financial-aftercare then granular Care permissions, persisted reviewed
+handoff/shared staffed transport. All106 route gates and fullRevision4/Item6 active.

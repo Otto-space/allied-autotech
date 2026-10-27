@@ -324,6 +324,10 @@
                   "FORBIDDEN",
                   "NOT_FOUND",
                   "CONFLICT",
+                  "BOOKING_CAPACITY_POLICY_REQUIRED",
+                  "BOOKING_CAPACITY_FULL",
+                  "BOOKING_CALENDAR_CLOSED",
+                  "BOOKING_ASSIGNMENT_REQUIRED",
                   "IDEMPOTENCY_CONFLICT",
                   "IDEMPOTENCY_EXPIRED",
                   "PAYMENT_ATTEMPT_PENDING",
@@ -165359,6 +165363,339 @@
         "x-idempotency-required": false
       }
     },
+    "/staff/workforce/bookings/{id}/confirmation": {
+      "post": {
+        "tags": [
+          "Workforce"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "summary": "Responsibility-based workspace: bookingConfirmation",
+        "description": "Explicit enrollment required for operational queues. Current assignments, branch, field projections and state are enforced in a transaction. Access changes require MFA, current password, target/version review and an owner-configured delegation envelope. No financial execution, exports or collection release authority is conferred by a title. Responsibility-based workspace: bookingConfirmation. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Identifier of the id resource; ownership is resolved server-side."
+            },
+            "required": true,
+            "name": "id",
+            "in": "path",
+            "description": "Identifier selecting the id resource.",
+            "example": "00000000-0000-4000-8000-000000000001"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+            },
+            "required": true,
+            "name": "x-csrf-token",
+            "in": "header",
+            "description": "Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.",
+            "example": "synthetic-token-value-not-a-real-secret"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "expectedVersion": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 2147483647,
+                    "description": "Last server version observed by the client; stale writes are rejected."
+                  },
+                  "resourceReviewNote": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2000,
+                    "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                  }
+                },
+                "required": [
+                  "expectedVersion",
+                  "resourceReviewNote"
+                ],
+                "additionalProperties": false,
+                "description": "Request Body validated by this operation's strict request contract."
+              },
+              "example": {
+                "expectedVersion": 0,
+                "resourceReviewNote": "synthetic-resourcereviewnote"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success: Responsibility-based workspace: bookingConfirmation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ],
+                      "description": "Success validated by this operation's strict request contract."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "description": "Identifier of the id resource; ownership is resolved server-side."
+                        },
+                        "branchId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "description": "Identifier of the branch resource; ownership is resolved server-side."
+                        },
+                        "assignedStaffId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "description": "Identifier of the assigned staff resource; ownership is resolved server-side."
+                        },
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "CONFIRMED"
+                          ],
+                          "description": "Requested or filtered lifecycle state from the documented enum."
+                        },
+                        "version": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "description": "Version validated by this operation's strict request contract."
+                        },
+                        "scheduledAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        },
+                        "confirmedAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        },
+                        "resourceReviewNote": {
+                          "type": "string",
+                          "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                        },
+                        "capacityPolicyVersionId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "description": "Identifier of the capacity policy version resource; ownership is resolved server-side."
+                        },
+                        "performedByUserId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "description": "Identifier of the performed by user resource; ownership is resolved server-side."
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "branchId",
+                        "assignedStaffId",
+                        "status",
+                        "version",
+                        "scheduledAt",
+                        "confirmedAt",
+                        "resourceReviewNote",
+                        "capacityPolicyVersionId",
+                        "performedByUserId"
+                      ],
+                      "description": "Data validated by this operation's strict request contract."
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string",
+                          "description": "Identifier of the request resource; ownership is resolved server-side."
+                        },
+                        "serverTime": {
+                          "type": "string",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        }
+                      },
+                      "required": [
+                        "requestId",
+                        "serverTime"
+                      ],
+                      "description": "Meta validated by this operation's strict request contract."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "data",
+                    "meta"
+                  ],
+                  "description": "Response validated by this operation's strict request contract."
+                },
+                "example": {
+                  "success": true,
+                  "message": "Responsibility-based workspace: bookingConfirmation",
+                  "data": {
+                    "id": "00000000-0000-4000-8000-000000000001",
+                    "branchId": "00000000-0000-4000-8000-000000000001",
+                    "assignedStaffId": "00000000-0000-4000-8000-000000000001",
+                    "status": "CONFIRMED",
+                    "version": 0,
+                    "scheduledAt": "2030-01-15T10:00:00.000Z",
+                    "confirmedAt": "2030-01-15T10:00:00.000Z",
+                    "resourceReviewNote": "synthetic-resourcereviewnote",
+                    "capacityPolicyVersionId": "00000000-0000-4000-8000-000000000001",
+                    "performedByUserId": "00000000-0000-4000-8000-000000000001"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is malformed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request is malformed.",
+                  "error": {
+                    "code": "BAD_REQUEST"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "A valid session and required assurance are missing.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A valid session and required assurance are missing.",
+                  "error": {
+                    "code": "UNAUTHORIZED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Current access does not permit this request"
+          },
+          "404": {
+            "description": "Record unavailable in permitted scope"
+          },
+          "409": {
+            "description": "Stale version or invalid state"
+          },
+          "422": {
+            "description": "Invalid fields"
+          },
+          "429": {
+            "description": "The route-specific request limit was exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The route-specific request limit was exceeded.",
+                  "error": {
+                    "code": "RATE_LIMITED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                  "error": {
+                    "code": "INTERNAL_ERROR"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                  "error": {
+                    "code": "DATABASE_UNAVAILABLE"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "postStaffWorkforceBookingsByIdConfirmation",
+        "x-access-boundary": "mfa-verified-staff",
+        "x-required-roles": [
+          "STAFF",
+          "ADMIN",
+          "SUPER_ADMIN"
+        ],
+        "x-csrf-required": true,
+        "x-idempotency-required": false
+      }
+    },
     "/staff/workforce/bookings/{id}": {
       "get": {
         "tags": [
@@ -165499,10 +165836,19 @@
                             "name": {
                               "type": "string",
                               "description": "Name validated by this operation's strict request contract."
+                            },
+                            "durationMinutes": {
+                              "type": [
+                                "integer",
+                                "null"
+                              ],
+                              "exclusiveMinimum": 0,
+                              "description": "Duration Minutes validated by this operation's strict request contract."
                             }
                           },
                           "required": [
-                            "name"
+                            "name",
+                            "durationMinutes"
                           ],
                           "description": "Service validated by this operation's strict request contract."
                         },
@@ -165528,6 +165874,41 @@
                             "phone"
                           ],
                           "description": "Customer validated by this operation's strict request contract."
+                        },
+                        "assignedStaff": {
+                          "type": [
+                            "object",
+                            "null"
+                          ],
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid",
+                              "description": "Identifier of the id resource; ownership is resolved server-side."
+                            },
+                            "firstName": {
+                              "type": "string",
+                              "description": "First Name validated by this operation's strict request contract."
+                            },
+                            "lastName": {
+                              "type": "string",
+                              "description": "Last Name validated by this operation's strict request contract."
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "firstName",
+                            "lastName"
+                          ],
+                          "description": "Assigned Staff validated by this operation's strict request contract."
+                        },
+                        "confirmedAt": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "format": "date-time",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
                         },
                         "access": {
                           "type": "object",
@@ -165812,6 +166193,8 @@
                         "version",
                         "service",
                         "customer",
+                        "assignedStaff",
+                        "confirmedAt",
                         "access",
                         "generatedAt"
                       ],
@@ -165864,13 +166247,20 @@
                     "status": "synthetic-status",
                     "version": 0,
                     "service": {
-                      "name": "synthetic-name"
+                      "name": "synthetic-name",
+                      "durationMinutes": "synthetic-durationminutes"
                     },
                     "customer": {
                       "firstName": "synthetic-firstname",
                       "lastName": "synthetic-lastname",
                       "phone": "+2348000000000"
                     },
+                    "assignedStaff": {
+                      "id": "00000000-0000-4000-8000-000000000001",
+                      "firstName": "synthetic-firstname",
+                      "lastName": "synthetic-lastname"
+                    },
+                    "confirmedAt": "2030-01-15T10:00:00.000Z",
                     "access": {
                       "managed": true,
                       "userId": "00000000-0000-4000-8000-000000000001",

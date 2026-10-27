@@ -1,16 +1,17 @@
 "use client";
 import Link from "next/link";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useResource } from "@/lib/api/use-resource";
 import type { WorkforceAccess } from "@/lib/api/workforce-schemas";
 import {
-  parseScopedWorkforceBookings,
+  parseWorkforceBookingDetail,
   bookingStatusLabels,
 } from "@/lib/admin/workforce-bookings";
 import { sameWorkforceScope } from "@/lib/admin/workforce-overview";
 import { formatBusinessDate } from "@/lib/format/date";
 import { NotificationRecordContext } from "./notification-record-context";
 import { Feedback } from "./feedback";
+import { WorkforceBookingConfirmation } from "./workforce-booking-confirmation";
 import "./workforce-bookings.css";
 
 export function WorkforceBookingDetail({
@@ -23,20 +24,13 @@ export function WorkforceBookingDetail({
   refreshAccess: () => void;
 }) {
   const parse = useCallback(
-    (value: unknown) => {
-      if (!value || typeof value !== "object") throw Error("Invalid booking");
-      const envelope = value as Record<string, unknown>;
-      const page = parseScopedWorkforceBookings({
-        items: [value],
-        access: envelope.access,
-        generatedAt: envelope.generatedAt,
-      });
-      if (page.items[0].id !== id) throw Error("Mismatched booking");
-      return { row: page.items[0], access: page.access };
-    },
+    (value: unknown) => parseWorkforceBookingDetail(value, id),
     [id],
   );
   const record = useResource(`/staff/workforce/bookings/${id}`, parse);
+  const [minimumVersion, setMinimumVersion] = useState(0);
+  const [message, setMessage] = useState<string>();
+  const [resourceNote, setResourceNote] = useState("");
   const error =
     record.error ||
     record.refreshError ||
@@ -44,9 +38,14 @@ export function WorkforceBookingDetail({
       ? "Your responsibilities changed. Refresh to check current access."
       : undefined);
   const row =
-    !record.loading && !record.refreshing && !error ? record.data?.row : undefined;
+    !record.loading &&
+    !record.refreshing &&
+    !error &&
+    (record.data?.row.version ?? -1) >= minimumVersion
+      ? record.data?.row
+      : undefined;
   return (
-    <div className="workforce-bookings">
+    <div className="workforce-bookings workforce-booking-detail">
       <Link className="button secondary" href="/admin/workforce/bookings">
         All permitted bookings
       </Link>
@@ -62,6 +61,7 @@ export function WorkforceBookingDetail({
         Refresh booking
       </button>
       <Feedback message={error} />
+      <Feedback message={message} tone="success" />
       {(record.loading || record.refreshing) && (
         <p role="status">Checking permitted booking…</p>
       )}
@@ -87,6 +87,26 @@ export function WorkforceBookingDetail({
               <dd>{row.customer.phone}</dd>
               <dt>Branch</dt>
               <dd>{row.branch?.name ?? "Unassigned"}</dd>
+              {row.assignedStaff !== undefined && (
+                <>
+                  <dt>Assigned staff</dt>
+                  <dd>
+                    {row.assignedStaff
+                      ? `${row.assignedStaff.firstName} ${row.assignedStaff.lastName}`
+                      : "Not assigned"}
+                  </dd>
+                </>
+              )}
+              {row.service.durationMinutes !== undefined && (
+                <>
+                  <dt>Service duration</dt>
+                  <dd>
+                    {row.service.durationMinutes === null
+                      ? "Not recorded"
+                      : `${row.service.durationMinutes} minutes`}
+                  </dd>
+                </>
+              )}
               <dt>Vehicle</dt>
               <dd>
                 {row.vehicle
@@ -97,6 +117,27 @@ export function WorkforceBookingDetail({
               </dd>
             </dl>
           </section>
+          {row.assignedStaff !== undefined &&
+            row.service.durationMinutes !== undefined && (
+              <WorkforceBookingConfirmation
+                row={row}
+                access={access}
+                note={resourceNote}
+                onNoteChange={setResourceNote}
+                onRefresh={() => {
+                  record.refresh();
+                  refreshAccess();
+                }}
+                onSaved={(receipt) => {
+                  setResourceNote("");
+                  setMinimumVersion(receipt.version);
+                  setMessage(
+                    "Appointment confirmed. The booking status and one-hour reminder schedule were recorded.",
+                  );
+                  record.refresh();
+                }}
+              />
+            )}
         </>
       )}
     </div>

@@ -3,6 +3,7 @@ import type { WorkforceAccess } from "./api/workforce-schemas";
 export type WorkforcePredicate = {
   all?: readonly string[];
   any?: readonly string[];
+  independentAll?: readonly string[];
   scope: "account" | "responsibility" | "delegation" | "independent";
 };
 export type WorkforceRecordScope = {
@@ -19,6 +20,18 @@ export function workforceAllows(
   record?: WorkforceRecordScope,
 ): boolean {
   if (!access.managed) return false;
+  if (
+    predicate.independentAll?.length &&
+    (!access.accessRevision || !access.capabilityScopes)
+  )
+    return false;
+  if (
+    predicate.independentAll?.some(
+      (capability) =>
+        !access.independentCapabilities?.some((grant) => grant === capability),
+    )
+  )
+    return false;
   if (predicate.scope === "independent") {
     if (record) return false; // Domain records require their own stage/ownership check.
     const independent = access.independentCapabilities ?? [];
@@ -83,7 +96,7 @@ export const workforceDestinations = [
     label: "Bookings",
     feature: "managed-workforce",
     predicate: { any: ["BOOKINGS_READ"], scope: "responsibility" },
-    articleIds: ["work-access"],
+    articleIds: ["work-access", "booking-confirmation"],
   },
   {
     id: "enquiries",
@@ -254,6 +267,11 @@ export function permittedWorkforceDestinations(access: WorkforceAccess) {
 }
 
 export const workforceActionPredicates = {
+  bookingConfirm: {
+    all: ["BOOKINGS_READ"],
+    independentAll: ["BOOKING_CONFIRM"],
+    scope: "responsibility",
+  },
   jobWork: { all: ["JOBS_READ", "JOBS_UPDATE"], scope: "responsibility" },
   jobAssign: { all: ["JOBS_READ", "JOBS_ASSIGN"], scope: "responsibility" },
   jobQuality: { all: ["JOBS_READ", "QUALITY_APPROVE"], scope: "responsibility" },

@@ -250,3 +250,27 @@ and database receipts remain. No publication or default AI enablement occurred.
 
 Canonical reviewed handoff and shared staffed transport introduce new persistence,
 audience and subscription boundaries; extend this review before accepting them.
+
+## W12 scoped appointment confirmation boundary
+
+The new managed-workforce confirmation route intersects current BOOKINGS_READ
+record scope with a separately active BOOKING_CONFIRM grant. Position, account
+tier and a grant alone cannot expose another branch. Transactional workforce and
+actor locks serialize authority changes; current scope is rechecked after business
+locks before commit, so time-based expiry rolls back transactional side effects.
+The existing legacy transition core continues to enforce approved capacity/calendar,
+assigned staff/duration, schedule conflict, expected version, audit and reminders.
+No payment execution, broad legacy endpoint access or new delegation is introduced.
+
+The browser reviews current facts and an editable resource-check note before sending.
+Its session marker contains only an actor-keyed booking reference/version/token,
+never the note. Access/session invalidation redacts that reference and discards
+protected reads/reviews. An unverified/lost response cannot be automatically retried;
+fresh record inspection does not pretend to identify which request committed.
+Recovery codes select static reviewed copy; arbitrary server validation text remains
+filtered. Native branch/revocation/concurrency tests and isolated browser fixtures,
+plus an actual browser/API/restricted-CI-DB confirmation, provide local evidence.
+The appointment reminder is scheduled, not verified delivered. No actual provider
+call or operational customer record is involved. The gated help topic has no fresh
+real-provider evaluation under the exhausted W9 allowance. Hosted, device and complete
+route learning acceptance remain separate gates; this does not authorize release.

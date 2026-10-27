@@ -51,6 +51,14 @@ export const messages: Readonly<Record<string, string>> = {
   PAYLOAD_TOO_LARGE: "The submitted content is too large.",
   CONFLICT:
     "This record has changed or is no longer available. Refresh its status before continuing.",
+  BOOKING_CAPACITY_POLICY_REQUIRED:
+    "An authorised policy owner must configure the approved branch capacity and opening calendar before confirmation.",
+  BOOKING_CAPACITY_FULL:
+    "The approved daily branch capacity is full. Ask an authorised operator to review another appointment time.",
+  BOOKING_CALENDAR_CLOSED:
+    "The appointment is outside the approved workshop calendar. Ask an authorised operator to review the date.",
+  BOOKING_ASSIGNMENT_REQUIRED:
+    "Assigned staff and the service duration must be recorded before confirmation.",
   STALE_VERSION: "This record has changed. Refresh it and review the latest details.",
   PRECONDITION_UNAVAILABLE:
     "The current record could not be checked. No change was submitted. Refresh it before trying again.",

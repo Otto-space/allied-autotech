@@ -102,3 +102,15 @@ workspaces and help/notification/access invalidation accepted locally in57 nativ
 creation, schema change, model call or publication. See WORKFORCE_INDEPENDENT_ACCESS_W11.md.
 BOOKING_CONFIRM/scoped financial aftercare and granular Care duties remain foundation
 dependencies; canonical handoff/shared staffed transport and106 route gates stay open.
+
+W12: `feat/workforce-scoped-booking-20261027`, based on W11 `8503f4f7`. Current
+BOOKINGS_READ scope plus separate BOOKING_CONFIRM reach a reviewed scoped adapter
+using existing business guards. Eleven scoped native, 57 workforce/session/learning,
+eleven legacy booking and59 backend unit cases passed; full1121 frontend plus final
+34 booking/registry and35 API/review cases passed. Twenty final responsive fixtures
+and one actual browser/CSRF/API/restricted-CI-DB confirmation passed with one audit
+and one scheduled reminder; no delivery claimed. Source error-code and mobile-label
+defects found during rendered acceptance were fixed and rechecked. No migration,
+provider call or publication. See WORKFORCE_BOOKING_W12.md. Financial-aftercare
+adapter, granular Care duties, canonical persisted handoff, shared staffed/gated
+transport and all106 exact route completion decisions remain open.

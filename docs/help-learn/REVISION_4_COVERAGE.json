@@ -1308,7 +1308,12 @@
       "decision": "pending",
       "purpose": "Use current permitted work queues and discover authorised workforce accounts without conflating position, tier and responsibility.",
       "contextualAnswer": "Work tools follow current responsibilities. When access is removed, stale operational content and work drafts are discarded and an unavailable page returns to the permitted overview. Review fresh versions before consequential changes.",
-      "articleIds": ["access-review", "work-access", "assigned-findings"],
+      "articleIds": [
+        "access-review",
+        "work-access",
+        "assigned-findings",
+        "booking-confirmation"
+      ],
       "guideIds": [],
       "practiceIds": [],
       "statusDefinitions": [
@@ -1318,7 +1323,8 @@
       ],
       "recovery": [
         "Refresh the current account and workforce revisions before confirming a conflict.",
-        "Ask the owner to review an unsupported delegation or definition; authorised revocation preserves history."
+        "Ask the owner to review an unsupported delegation or definition; authorised revocation preserves history.",
+        "A missing approved capacity/calendar is a business configuration dependency. An uncertain confirmation stays blocked until current state and earlier history are explicitly reviewed; no automatic retry."
       ],
       "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
       "fixture": "W4 synthetic native 72-migration CI target plus intercepted owner/delegated browser fixtures; staff, invitations and responsibility regressions at 320-1920px, impact review at 390/1440px; no real submissions.",
@@ -1347,7 +1353,11 @@
         "W9: docs/help-learn/ALLIE_EVALUATION_W9.md; real provider baseline/targeted review, actual guest/customer composition and native scope checks. This is partial evidence, not complete per-route acceptance.",
         "docs/help-learn/WORKFORCE_HISTORY_W10.md",
         "frontend/tests/e2e/workforce-history.spec.ts",
-        "docs/help-learn/WORKFORCE_INDEPENDENT_ACCESS_W11.md"
+        "docs/help-learn/WORKFORCE_INDEPENDENT_ACCESS_W11.md",
+        "docs/help-learn/WORKFORCE_BOOKING_W12.md",
+        "backend/tests/integration/workforce-booking-confirmation.test.ts",
+        "frontend/tests/e2e/workforce-booking-confirmation.spec.ts",
+        "frontend/tests/e2e/workforce-booking-native.spec.ts"
       ],
       "gaps": [
         "Full independent-grant/baseline composition and real chat subscription authorisation remain open; W5 verifies the managed-workforce registry and HTTP/session invalidation only.",
@@ -1355,7 +1365,8 @@
         "W8 conversation/privacy UI and W7 owned API are isolated-tested in separate browser/API and native provider-mocked layers. Real combined backend/provider journeys, >=100 reviewed evaluation, persisted handoff and staffed chat remain unfinished.",
         "W10: unsupported historical values and revocation receipts accepted in native/320-1440px fixtures; independent-grant/baseline and full route learning remain open.",
         "Hosted role mutations remain unverified; W10 synthetic history does not establish production prevalence.",
-        "W11 adds separate current owner-grant projection, page/notification guards and invalidation; scoped booking confirmation, financial aftercare and granular Care authority remain open."
+        "W11 adds separate current owner-grant projection, page/notification guards and invalidation; scoped booking confirmation, financial aftercare and granular Care authority remain open.",
+        "W12 closes scoped BOOKING_CONFIRM with bounded local acceptance; scoped financial aftercare, granular Care authority, booking guide/practice decisions and complete route acceptance remain open."
       ],
       "subviews": [
         {
@@ -1385,8 +1396,8 @@
         },
         {
           "pattern": "/admin/workforce/bookings/[bookingId]",
-          "task": "Scoped booking detail",
-          "verification": "W5 source predicate/native policy tests; full route-specific rendered states and learning modes remain open."
+          "task": "Scoped booking detail and separately granted appointment confirmation",
+          "verification": "W12 native branch/grant/current-version/business-rule/concurrency acceptance; responsive fixtures and actual browser/API/CI-DB composition. Full route learning modes, hosted/device acceptance remain open."
         },
         {
           "pattern": "/admin/workforce/enquiries",

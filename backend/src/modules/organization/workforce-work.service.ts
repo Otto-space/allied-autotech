@@ -353,7 +353,9 @@ export class WorkforceWorkService {
           scheduledAt: true,
           status: true,
           version: true,
-          service: { select: { name: true } },
+          service: { select: { name: true, durationMinutes: true } },
+          assignedStaff: { select: { id: true, firstName: true, lastName: true } },
+          confirmedAt: true,
           customer: { select: { firstName: true, lastName: true, phone: true } },
           branch: { select: { id: true, name: true } },
           vehicle: {

@@ -10,6 +10,7 @@ export type LearningGate =
   | "disputes"
   | "privacy"
   | "financial-policy"
+  | "booking-confirmation"
   | "jobs"
   | "assign"
   | "operations"
@@ -78,6 +79,22 @@ const article = (
   reviewedAt: gate === "public" || gate === "customer" ? "2026-10-26" : "2026-10-27",
 });
 export const learningArticles: LearningArticle[] = [
+  article(
+    "booking-confirmation",
+    "booking-confirmation",
+    "work",
+    "Review a scoped appointment confirmation",
+    "Confirmation requires both current booking scope and a separate owner-granted confirmation permission. A job title or booking-reading responsibility alone is insufficient.",
+    [
+      "Open Bookings, then a permitted requested appointment. Check the branch, date, assigned staff and service duration.",
+      "Record your people and equipment review. An authorised policy owner must configure approved branch capacity and the opening calendar; missing configuration is not permission to invent capacity or confirm availability.",
+      "Review the exact appointment and note, then explicitly confirm. The server rechecks scope, the confirmation grant, calendar, daily capacity, staff schedule and version. Confirmation does not collect money.",
+      "If the result is uncertain, do not retry automatically. Check the current booking and its history, then acknowledge what you inspected. A current confirmed status alone does not attribute an earlier uncertain request.",
+    ],
+    "/admin/workforce/bookings",
+    "Scoped confirmation adapter, shared ServiceOperations transition/capacity/schedule/reminders and reviewed booking form",
+    "booking appointment confirm calendar capacity equipment people staff schedule resource review requested",
+  ),
   article(
     "refund-work",
     "refunds",
