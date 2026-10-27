@@ -1,6 +1,7 @@
 import { z } from "zod";
 import {
   assignmentSchema,
+  historicalAssignmentSchema,
   workforceTemplateSchema,
   type WorkforceAccount,
 } from "@/lib/api/workforce-schemas";
@@ -136,7 +137,9 @@ export function verifyWorkforceReceipt(
       throw Error("Unexpected responsibility receipt");
     return result;
   }
-  const result = assignmentSchema.strict().parse(value);
+  const result = (action === "revoke" ? historicalAssignmentSchema : assignmentSchema)
+    .strict()
+    .parse(value);
   if (result.userId !== target) throw Error("Unexpected assignment account");
   if (action === "assign") {
     if (

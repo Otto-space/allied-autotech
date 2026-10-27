@@ -86,3 +86,11 @@ approval. See ALLIE_EVALUATION_W9.md and ALLIE_EVALUATION_REVIEW_W9.json. No W4-
 publication. Full workforce policy/history, all 106 route gates, persisted reviewed
 handoff and staffed/shared transport remain open. Next bounded implementation is
 canonical Customer Care handoff contracts and backend, preserving existing workspaces.
+
+W10: `feat/workforce-history-policy-20261027`, based on W9 `8b360b89`. Unsupported
+read-only workforce history, accurate labels and reviewed old-row revocation receipts
+accepted with nine native cases, 1112 frontend units, one optimized build and four
+rendered 320-1440px keyboard/Axe fixtures. Current grants and request enums stay
+strict; no migration or further provider call. See WORKFORCE_HISTORY_W10.md.
+Independent-grant/baseline and granular Care authority remain foundation dependencies
+before canonical handoff/shared transport. Full Revision4 and all106 gates stay open.

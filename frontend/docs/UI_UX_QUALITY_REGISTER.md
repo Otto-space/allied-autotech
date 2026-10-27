@@ -5,16 +5,17 @@ that every route or state has passed review. Work proceeds in finite batches.
 
 ## Standing responsibility and source
 
-Current bounded implementation: Revision 4 W9 provider evaluation, branch
-`feat/allie-provider-evaluation-20261027`, based on W8 `4bcf3113` in the reused
-`allied-home-restoration-20261025` worktree. 100 reviewed baseline model cases plus
-12 targeted real rechecks, actual guest/customer browser composition and native
-permission checks passed within documented limits. Baseline quality findings and
-representative rechecks remain distinct; full journey acceptance stays open.
+Current bounded implementation: Revision 4 W10 unsupported workforce history,
+branch `feat/workforce-history-policy-20261027`, based on W9 `8b360b89` in the reused
+`allied-home-restoration-20261025` worktree. Read-only history/receipts preserve
+unknown values while strict inputs and active grants remain unchanged. Nine native
+cases, 1,112 frontend units, optimized build and four rendered 320–1440px fixtures
+passed. W9's 100 reviewed baseline model cases and 12 targeted real rechecks remain
+separate evidence; full journey acceptance stays open.
 Not deployed; AI defaults remain disabled.
 Full baseline/independent-grant composition, persisted human handoff, real chat
 subscriptions, hosted acceptance and all-route learning remain open.
-Evidence: `docs/help-learn/ALLIE_EVALUATION_W9.md`, its case-level review, W8 UI,
+Evidence: `docs/help-learn/WORKFORCE_HISTORY_W10.md`, W9 evaluation and review, W8 UI,
 W7 state, W6 provider core, W5 and retained W4
 impact review evidence. Earlier customer-table/sidebar responsiveness remains in
 Cycle 13; unrelated worktrees and newer release branches are preserved.
@@ -1788,3 +1789,17 @@ recorded in docs/help-learn/ALLIE_EVALUATION_W9.md. 80 units/39 native cases, ba
 frontend types/lint, actual guest/customer flows, native-dialog Axe and inspected
 390/1440 screenshots. No new UI redesign, publication, permission expansion or build.
 All 106 route gates and full handoff/live/workforce foundation remain open.
+
+27 October 2026 - Revision 4 W10 local checkpoint: unsupported workforce history
+preserved by bounded read-only contracts and revocation receipts; current grants
+and mutation inputs remain strict. Nine native effective-access cases, 17 focused
+frontend cases, full 1112 tests/167 files, source/scripts/frontend types and lint,
+OpenAPI375/routes439+4 and one optimized cached build passed. Four final rendered
+fixtures at 320/390/768/1440 passed with keyboard, Axe, overflow and no writes/errors/
+external calls. Inspected mobile/desktop viewport screenshots; fixed test disclosure
+and tall-element screenshot assumptions. No provider call, schema change, install,
+new worktree or publication. Evidence: docs/help-learn/WORKFORCE_HISTORY_W10.md.
+Exact-lock Next16.4.3 CI, hosted/real-role/device acceptance remain open. Independent
+grant/account-baseline composition and granular care authority are next foundation
+dependencies before persisted reviewed handoff and gated shared/staffed transport.
+All 106 route completion gates remain open; full Revision4/Item6 stays active.

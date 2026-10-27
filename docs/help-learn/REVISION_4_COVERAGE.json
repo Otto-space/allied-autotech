@@ -1070,12 +1070,15 @@
         "backend/tests/integration/workforce-session-policy.test.ts",
         "frontend/tests/unit/workforce-registry.test.ts",
         "frontend/tests/unit/workforce-invalidation.test.tsx",
-        "frontend/tests/e2e/workforce-session-revocation.spec.ts"
+        "frontend/tests/e2e/workforce-session-revocation.spec.ts",
+        "docs/help-learn/WORKFORCE_HISTORY_W10.md",
+        "frontend/tests/e2e/workforce-history.spec.ts"
       ],
       "gaps": [
         "Full independent-grant/baseline composition and real chat subscription authorisation remain open; W5 verifies the managed-workforce registry and HTTP/session invalidation only.",
-        "Completely unknown historical template/scope display and actual hosted role mutations remain unverified.",
-        "Allie conversation, complete page-context guidance, walkthrough/practice mode decisions and full Revision 4 task-state acceptance remain open."
+        "Allie conversation, complete page-context guidance, walkthrough/practice mode decisions and full Revision 4 task-state acceptance remain open.",
+        "W10: unsupported historical values and revocation receipts accepted in native/320-1440px fixtures; independent-grant/baseline and full route learning remain open.",
+        "Hosted role mutations remain unverified; W10 synthetic history does not establish production prevalence."
       ],
       "subviews": [
         {
@@ -1317,13 +1320,16 @@
         "backend/tests/integration/allie-conversations.test.ts",
         "docs/help-learn/ALLIE_CONVERSATION_UI_W8.md",
         "frontend/tests/e2e/allie-conversation.spec.ts",
-        "W9: docs/help-learn/ALLIE_EVALUATION_W9.md; real provider baseline/targeted review, actual guest/customer composition and native scope checks. This is partial evidence, not complete per-route acceptance."
+        "W9: docs/help-learn/ALLIE_EVALUATION_W9.md; real provider baseline/targeted review, actual guest/customer composition and native scope checks. This is partial evidence, not complete per-route acceptance.",
+        "docs/help-learn/WORKFORCE_HISTORY_W10.md",
+        "frontend/tests/e2e/workforce-history.spec.ts"
       ],
       "gaps": [
         "Full independent-grant/baseline composition and real chat subscription authorisation remain open; W5 verifies the managed-workforce registry and HTTP/session invalidation only.",
-        "Completely unknown historical template/scope display and actual hosted role mutations remain unverified.",
         "Allie conversation, complete page-context guidance, walkthrough/practice mode decisions and full Revision 4 task-state acceptance remain open.",
-        "W8 conversation/privacy UI and W7 owned API are isolated-tested in separate browser/API and native provider-mocked layers. Real combined backend/provider journeys, >=100 reviewed evaluation, persisted handoff and staffed chat remain unfinished."
+        "W8 conversation/privacy UI and W7 owned API are isolated-tested in separate browser/API and native provider-mocked layers. Real combined backend/provider journeys, >=100 reviewed evaluation, persisted handoff and staffed chat remain unfinished.",
+        "W10: unsupported historical values and revocation receipts accepted in native/320-1440px fixtures; independent-grant/baseline and full route learning remain open.",
+        "Hosted role mutations remain unverified; W10 synthetic history does not establish production prevalence."
       ],
       "subviews": [
         {

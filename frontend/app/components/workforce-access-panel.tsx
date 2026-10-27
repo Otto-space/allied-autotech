@@ -8,6 +8,8 @@ import {
   parseWorkforceAccount,
   workforceTemplateLabels,
   workforceTemplateSchema,
+  workforceAssignmentLabel,
+  workforceHistoryDefinition,
   type WorkforceAccount,
 } from "@/lib/api/workforce-schemas";
 import {
@@ -547,7 +549,7 @@ function WorkforceEditors({
             {data.assignments.map((a) => (
               <li key={a.id}>
                 <div className="wf-assignment-heading">
-                  <h4>{workforceTemplateLabels[a.template]}</h4>
+                  <h4>{workforceAssignmentLabel(a.template)}</h4>
                   <span>
                     {a.revokedAt
                       ? "Revoked"
@@ -559,18 +561,27 @@ function WorkforceEditors({
                 </div>
                 <p>
                   {branchName(a.branchId)} ·{" "}
-                  {a.scope === "ASSIGNED" ? "Assigned work only" : "Branch scope"}
+                  {a.scope === "ASSIGNED"
+                    ? "Assigned work only"
+                    : a.scope === "BRANCH"
+                      ? "Branch scope"
+                      : `Unrecognised scope: ${a.scope}`}
                 </p>
-                {data.assignmentDefinitions?.[a.id] === null && (
+                {!workforceHistoryDefinition(data, a) && (
                   <p className="notice">
-                    Definition version {a.templateVersion ?? 1} is unavailable. This
-                    assignment grants no access. Ask the owner to review it, or revoke the
-                    assignment if authorised.
+                    The recorded responsibility, definition version{" "}
+                    {a.templateVersion ?? 1} or scope is unsupported. This assignment
+                    grants no access. Ask the owner to review it, or revoke the assignment
+                    if authorised.
                   </p>
                 )}
                 <details>
                   <summary>Assignment details</summary>
                   <dl>
+                    <div>
+                      <dt>Recorded responsibility</dt>
+                      <dd>{a.template}</dd>
+                    </div>
                     <div>
                       <dt>Starts</dt>
                       <dd>{formatBusinessDate(a.startsAt)}</dd>
@@ -602,11 +613,8 @@ function WorkforceEditors({
                     <div>
                       <dt>Supported actions</dt>
                       <dd>
-                        {(data.assignmentDefinitions
-                          ? data.assignmentDefinitions[a.id]
-                          : data.templates[a.template]
-                        )?.actions
-                          .map((v) => v.toLowerCase().replaceAll("_", " "))
+                        {workforceHistoryDefinition(data, a)
+                          ?.actions.map((v) => v.toLowerCase().replaceAll("_", " "))
                           .join(", ") || "No action details available"}
                       </dd>
                     </div>
@@ -640,7 +648,7 @@ function WorkforceEditors({
                           [
                             {
                               label: "Responsibility",
-                              value: workforceTemplateLabels[a.template],
+                              value: workforceAssignmentLabel(a.template),
                             },
                             { label: "Branch", value: branchName(a.branchId) },
                           ],

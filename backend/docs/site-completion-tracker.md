@@ -1834,3 +1834,30 @@ API stopped gracefully; existing frontend preview remains. C: about 26.33 GiB fr
 no Docker/new worktree/profile/archive, and denied dev-folder deletion untouched.
 Full Revision 4/Item 6 remains active. Next: canonical reviewed handoff contracts and
 backend; full workforce policy/history, all 106 routes and gated shared transport open.
+
+27 October 2026 - Active Revision 4 W10 dependency: unsupported workforce history.
+Branch feat/workforce-history-policy-20261027 based on committed W9 8b360b89, reusing
+the same checkout. Actual synthetic HTTP response preserved unknown template/scope/
+position while response/frontend schemas rejected it. Read-only history contracts,
+labels and revocation receipt validation corrected; active grants/input enums stay
+strict. Full frontend 1112 tests/167 files, 17 focused cases and nine native effective
+access cases passed, plus types/lint/OpenAPI375/routes439+4. No migration/model call.
+Rendered 320/390/768/1440 acceptance pending; one optimized reused-cache build now
+running, old owned 3167 preview stopped after identity check. Preflight 25.93 GiB
+free, 21 GiB required. See docs/help-learn/WORKFORCE_HISTORY_W10.md. No publication.
+Next dependencies remain independent-grant/baseline composition and granular care
+authority, followed by canonical reviewed handoff and shared staffed transport.
+
+27 October 2026 - Revision 4 W10 local checkpoint: unsupported workforce history
+preserved by bounded read-only contracts and revocation receipts; current grants
+and mutation inputs remain strict. Nine native effective-access cases, 17 focused
+frontend cases, full 1112 tests/167 files, source/scripts/frontend types and lint,
+OpenAPI375/routes439+4 and one optimized cached build passed. Four final rendered
+fixtures at 320/390/768/1440 passed with keyboard, Axe, overflow and no writes/errors/
+external calls. Inspected mobile/desktop viewport screenshots; fixed test disclosure
+and tall-element screenshot assumptions. No provider call, schema change, install,
+new worktree or publication. Evidence: docs/help-learn/WORKFORCE_HISTORY_W10.md.
+Exact-lock Next16.4.3 CI, hosted/real-role/device acceptance remain open. Independent
+grant/account-baseline composition and granular care authority are next foundation
+dependencies before persisted reviewed handoff and gated shared/staffed transport.
+All 106 route completion gates remain open; full Revision4/Item6 stays active.

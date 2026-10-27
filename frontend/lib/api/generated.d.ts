@@ -122242,7 +122242,7 @@ export interface operations {
                      *           "managed": true,
                      *           "userId": "00000000-0000-4000-8000-000000000001",
                      *           "staffId": "00000000-0000-4000-8000-000000000001",
-                     *           "position": "CEO_MD",
+                     *           "position": "synthetic-position",
                      *           "department": "synthetic-department",
                      *           "version": 0,
                      *           "assignments": [
@@ -122335,11 +122335,8 @@ export interface operations {
                                  * @description Identifier of the staff resource; ownership is resolved server-side.
                                  */
                                 staffId: string | null;
-                                /**
-                                 * @description Position validated by this operation's strict request contract.
-                                 * @enum {string|null}
-                                 */
-                                position: "CEO_MD" | "OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN" | null;
+                                /** @description Position validated by this operation's strict request contract. */
+                                position: string | null;
                                 /** @description Department validated by this operation's strict request contract. */
                                 department: string | null;
                                 /** @description Version validated by this operation's strict request contract. */
@@ -122657,7 +122654,7 @@ export interface operations {
                      *           "managed": true,
                      *           "userId": "00000000-0000-4000-8000-000000000001",
                      *           "staffId": "00000000-0000-4000-8000-000000000001",
-                     *           "position": "CEO_MD",
+                     *           "position": "synthetic-position",
                      *           "department": "synthetic-department",
                      *           "version": 0,
                      *           "assignments": [
@@ -122750,11 +122747,8 @@ export interface operations {
                                  * @description Identifier of the staff resource; ownership is resolved server-side.
                                  */
                                 staffId: string | null;
-                                /**
-                                 * @description Position validated by this operation's strict request contract.
-                                 * @enum {string|null}
-                                 */
-                                position: "CEO_MD" | "OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN" | null;
+                                /** @description Position validated by this operation's strict request contract. */
+                                position: string | null;
                                 /** @description Department validated by this operation's strict request contract. */
                                 department: string | null;
                                 /** @description Version validated by this operation's strict request contract. */
@@ -123079,7 +123073,7 @@ export interface operations {
                      *           "managed": true,
                      *           "userId": "00000000-0000-4000-8000-000000000001",
                      *           "staffId": "00000000-0000-4000-8000-000000000001",
-                     *           "position": "CEO_MD",
+                     *           "position": "synthetic-position",
                      *           "department": "synthetic-department",
                      *           "version": 0,
                      *           "assignments": [
@@ -123181,11 +123175,8 @@ export interface operations {
                                  * @description Identifier of the staff resource; ownership is resolved server-side.
                                  */
                                 staffId: string | null;
-                                /**
-                                 * @description Position validated by this operation's strict request contract.
-                                 * @enum {string|null}
-                                 */
-                                position: "CEO_MD" | "OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN" | null;
+                                /** @description Position validated by this operation's strict request contract. */
+                                position: string | null;
                                 /** @description Department validated by this operation's strict request contract. */
                                 department: string | null;
                                 /** @description Version validated by this operation's strict request contract. */
@@ -123542,7 +123533,7 @@ export interface operations {
                      *           "managed": true,
                      *           "userId": "00000000-0000-4000-8000-000000000001",
                      *           "staffId": "00000000-0000-4000-8000-000000000001",
-                     *           "position": "CEO_MD",
+                     *           "position": "synthetic-position",
                      *           "department": "synthetic-department",
                      *           "version": 0,
                      *           "assignments": [
@@ -123638,11 +123629,8 @@ export interface operations {
                                  * @description Identifier of the staff resource; ownership is resolved server-side.
                                  */
                                 staffId: string | null;
-                                /**
-                                 * @description Position validated by this operation's strict request contract.
-                                 * @enum {string|null}
-                                 */
-                                position: "CEO_MD" | "OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN" | null;
+                                /** @description Position validated by this operation's strict request contract. */
+                                position: string | null;
                                 /** @description Department validated by this operation's strict request contract. */
                                 department: string | null;
                                 /** @description Version validated by this operation's strict request contract. */
@@ -124216,7 +124204,7 @@ export interface operations {
                      *         "managed": true,
                      *         "userId": "00000000-0000-4000-8000-000000000001",
                      *         "staffId": "00000000-0000-4000-8000-000000000001",
-                     *         "position": "CEO_MD",
+                     *         "position": "synthetic-position",
                      *         "department": "synthetic-department",
                      *         "version": 0,
                      *         "assignments": [
@@ -124281,11 +124269,8 @@ export interface operations {
                              * @description Identifier of the staff resource; ownership is resolved server-side.
                              */
                             staffId: string | null;
-                            /**
-                             * @description Position validated by this operation's strict request contract.
-                             * @enum {string|null}
-                             */
-                            position: "CEO_MD" | "OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN" | null;
+                            /** @description Position validated by this operation's strict request contract. */
+                            position: string | null;
                             /** @description Department validated by this operation's strict request contract. */
                             department: string | null;
                             /** @description Version validated by this operation's strict request contract. */
@@ -124561,7 +124546,7 @@ export interface operations {
                      *           "managed": true,
                      *           "userId": "00000000-0000-4000-8000-000000000001",
                      *           "staffId": "00000000-0000-4000-8000-000000000001",
-                     *           "position": "CEO_MD",
+                     *           "position": "synthetic-position",
                      *           "department": "synthetic-department",
                      *           "version": 0,
                      *           "assignments": [
@@ -124644,11 +124629,8 @@ export interface operations {
                                  * @description Identifier of the staff resource; ownership is resolved server-side.
                                  */
                                 staffId: string | null;
-                                /**
-                                 * @description Position validated by this operation's strict request contract.
-                                 * @enum {string|null}
-                                 */
-                                position: "CEO_MD" | "OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN" | null;
+                                /** @description Position validated by this operation's strict request contract. */
+                                position: string | null;
                                 /** @description Department validated by this operation's strict request contract. */
                                 department: string | null;
                                 /** @description Version validated by this operation's strict request contract. */
@@ -124989,7 +124971,7 @@ export interface operations {
                      *           "managed": true,
                      *           "userId": "00000000-0000-4000-8000-000000000001",
                      *           "staffId": "00000000-0000-4000-8000-000000000001",
-                     *           "position": "CEO_MD",
+                     *           "position": "synthetic-position",
                      *           "department": "synthetic-department",
                      *           "version": 0,
                      *           "assignments": [
@@ -125142,11 +125124,8 @@ export interface operations {
                                  * @description Identifier of the staff resource; ownership is resolved server-side.
                                  */
                                 staffId: string | null;
-                                /**
-                                 * @description Position validated by this operation's strict request contract.
-                                 * @enum {string|null}
-                                 */
-                                position: "CEO_MD" | "OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN" | null;
+                                /** @description Position validated by this operation's strict request contract. */
+                                position: string | null;
                                 /** @description Department validated by this operation's strict request contract. */
                                 department: string | null;
                                 /** @description Version validated by this operation's strict request contract. */
@@ -125470,7 +125449,7 @@ export interface operations {
                      *           "managed": true,
                      *           "userId": "00000000-0000-4000-8000-000000000001",
                      *           "staffId": "00000000-0000-4000-8000-000000000001",
-                     *           "position": "CEO_MD",
+                     *           "position": "synthetic-position",
                      *           "department": "synthetic-department",
                      *           "version": 0,
                      *           "assignments": [
@@ -125601,11 +125580,8 @@ export interface operations {
                                  * @description Identifier of the staff resource; ownership is resolved server-side.
                                  */
                                 staffId: string | null;
-                                /**
-                                 * @description Position validated by this operation's strict request contract.
-                                 * @enum {string|null}
-                                 */
-                                position: "CEO_MD" | "OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN" | null;
+                                /** @description Position validated by this operation's strict request contract. */
+                                position: string | null;
                                 /** @description Department validated by this operation's strict request contract. */
                                 department: string | null;
                                 /** @description Version validated by this operation's strict request contract. */
@@ -125921,7 +125897,7 @@ export interface operations {
                      *           "managed": true,
                      *           "userId": "00000000-0000-4000-8000-000000000001",
                      *           "staffId": "00000000-0000-4000-8000-000000000001",
-                     *           "position": "CEO_MD",
+                     *           "position": "synthetic-position",
                      *           "department": "synthetic-department",
                      *           "version": 0,
                      *           "assignments": [
@@ -126075,11 +126051,8 @@ export interface operations {
                                  * @description Identifier of the staff resource; ownership is resolved server-side.
                                  */
                                 staffId: string | null;
-                                /**
-                                 * @description Position validated by this operation's strict request contract.
-                                 * @enum {string|null}
-                                 */
-                                position: "CEO_MD" | "OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN" | null;
+                                /** @description Position validated by this operation's strict request contract. */
+                                position: string | null;
                                 /** @description Department validated by this operation's strict request contract. */
                                 department: string | null;
                                 /** @description Version validated by this operation's strict request contract. */
@@ -126405,7 +126378,7 @@ export interface operations {
                      *           "managed": true,
                      *           "userId": "00000000-0000-4000-8000-000000000001",
                      *           "staffId": "00000000-0000-4000-8000-000000000001",
-                     *           "position": "CEO_MD",
+                     *           "position": "synthetic-position",
                      *           "department": "synthetic-department",
                      *           "version": 0,
                      *           "assignments": [
@@ -126528,11 +126501,8 @@ export interface operations {
                                  * @description Identifier of the staff resource; ownership is resolved server-side.
                                  */
                                 staffId: string | null;
-                                /**
-                                 * @description Position validated by this operation's strict request contract.
-                                 * @enum {string|null}
-                                 */
-                                position: "CEO_MD" | "OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN" | null;
+                                /** @description Position validated by this operation's strict request contract. */
+                                position: string | null;
                                 /** @description Department validated by this operation's strict request contract. */
                                 department: string | null;
                                 /** @description Version validated by this operation's strict request contract. */
@@ -126854,7 +126824,7 @@ export interface operations {
                      *           "managed": true,
                      *           "userId": "00000000-0000-4000-8000-000000000001",
                      *           "staffId": "00000000-0000-4000-8000-000000000001",
-                     *           "position": "CEO_MD",
+                     *           "position": "synthetic-position",
                      *           "department": "synthetic-department",
                      *           "version": 0,
                      *           "assignments": [
@@ -127031,11 +127001,8 @@ export interface operations {
                                  * @description Identifier of the staff resource; ownership is resolved server-side.
                                  */
                                 staffId: string | null;
-                                /**
-                                 * @description Position validated by this operation's strict request contract.
-                                 * @enum {string|null}
-                                 */
-                                position: "CEO_MD" | "OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN" | null;
+                                /** @description Position validated by this operation's strict request contract. */
+                                position: string | null;
                                 /** @description Department validated by this operation's strict request contract. */
                                 department: string | null;
                                 /** @description Version validated by this operation's strict request contract. */
@@ -127484,7 +127451,7 @@ export interface operations {
                      *           "managed": true,
                      *           "userId": "00000000-0000-4000-8000-000000000001",
                      *           "staffId": "00000000-0000-4000-8000-000000000001",
-                     *           "position": "CEO_MD",
+                     *           "position": "synthetic-position",
                      *           "department": "synthetic-department",
                      *           "version": 0,
                      *           "assignments": [
@@ -127638,11 +127605,8 @@ export interface operations {
                                  * @description Identifier of the staff resource; ownership is resolved server-side.
                                  */
                                 staffId: string | null;
-                                /**
-                                 * @description Position validated by this operation's strict request contract.
-                                 * @enum {string|null}
-                                 */
-                                position: "CEO_MD" | "OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN" | null;
+                                /** @description Position validated by this operation's strict request contract. */
+                                position: string | null;
                                 /** @description Department validated by this operation's strict request contract. */
                                 department: string | null;
                                 /** @description Version validated by this operation's strict request contract. */
@@ -127996,7 +127960,7 @@ export interface operations {
                      *           "managed": true,
                      *           "userId": "00000000-0000-4000-8000-000000000001",
                      *           "staffId": "00000000-0000-4000-8000-000000000001",
-                     *           "position": "CEO_MD",
+                     *           "position": "synthetic-position",
                      *           "department": "synthetic-department",
                      *           "version": 0,
                      *           "assignments": [
@@ -128150,11 +128114,8 @@ export interface operations {
                                  * @description Identifier of the staff resource; ownership is resolved server-side.
                                  */
                                 staffId: string | null;
-                                /**
-                                 * @description Position validated by this operation's strict request contract.
-                                 * @enum {string|null}
-                                 */
-                                position: "CEO_MD" | "OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN" | null;
+                                /** @description Position validated by this operation's strict request contract. */
+                                position: string | null;
                                 /** @description Department validated by this operation's strict request contract. */
                                 department: string | null;
                                 /** @description Version validated by this operation's strict request contract. */
@@ -128514,7 +128475,7 @@ export interface operations {
                      *           "managed": true,
                      *           "userId": "00000000-0000-4000-8000-000000000001",
                      *           "staffId": "00000000-0000-4000-8000-000000000001",
-                     *           "position": "CEO_MD",
+                     *           "position": "synthetic-position",
                      *           "department": "synthetic-department",
                      *           "version": 0,
                      *           "assignments": [
@@ -128668,11 +128629,8 @@ export interface operations {
                                  * @description Identifier of the staff resource; ownership is resolved server-side.
                                  */
                                 staffId: string | null;
-                                /**
-                                 * @description Position validated by this operation's strict request contract.
-                                 * @enum {string|null}
-                                 */
-                                position: "CEO_MD" | "OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN" | null;
+                                /** @description Position validated by this operation's strict request contract. */
+                                position: string | null;
                                 /** @description Department validated by this operation's strict request contract. */
                                 department: string | null;
                                 /** @description Version validated by this operation's strict request contract. */
@@ -129020,7 +128978,7 @@ export interface operations {
                      *           "managed": true,
                      *           "userId": "00000000-0000-4000-8000-000000000001",
                      *           "staffId": "00000000-0000-4000-8000-000000000001",
-                     *           "position": "CEO_MD",
+                     *           "position": "synthetic-position",
                      *           "department": "synthetic-department",
                      *           "version": 0,
                      *           "assignments": [
@@ -129173,11 +129131,8 @@ export interface operations {
                                  * @description Identifier of the staff resource; ownership is resolved server-side.
                                  */
                                 staffId: string | null;
-                                /**
-                                 * @description Position validated by this operation's strict request contract.
-                                 * @enum {string|null}
-                                 */
-                                position: "CEO_MD" | "OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN" | null;
+                                /** @description Position validated by this operation's strict request contract. */
+                                position: string | null;
                                 /** @description Department validated by this operation's strict request contract. */
                                 department: string | null;
                                 /** @description Version validated by this operation's strict request contract. */
@@ -129495,7 +129450,7 @@ export interface operations {
                      *           "managed": true,
                      *           "userId": "00000000-0000-4000-8000-000000000001",
                      *           "staffId": "00000000-0000-4000-8000-000000000001",
-                     *           "position": "CEO_MD",
+                     *           "position": "synthetic-position",
                      *           "department": "synthetic-department",
                      *           "version": 0,
                      *           "assignments": [
@@ -129597,11 +129552,8 @@ export interface operations {
                                  * @description Identifier of the staff resource; ownership is resolved server-side.
                                  */
                                 staffId: string | null;
-                                /**
-                                 * @description Position validated by this operation's strict request contract.
-                                 * @enum {string|null}
-                                 */
-                                position: "CEO_MD" | "OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN" | null;
+                                /** @description Position validated by this operation's strict request contract. */
+                                position: string | null;
                                 /** @description Department validated by this operation's strict request contract. */
                                 department: string | null;
                                 /** @description Version validated by this operation's strict request contract. */
@@ -129964,7 +129916,7 @@ export interface operations {
                      *           "managed": true,
                      *           "userId": "00000000-0000-4000-8000-000000000001",
                      *           "staffId": "00000000-0000-4000-8000-000000000001",
-                     *           "position": "CEO_MD",
+                     *           "position": "synthetic-position",
                      *           "department": "synthetic-department",
                      *           "version": 0,
                      *           "assignments": [
@@ -130095,11 +130047,8 @@ export interface operations {
                                  * @description Identifier of the staff resource; ownership is resolved server-side.
                                  */
                                 staffId: string | null;
-                                /**
-                                 * @description Position validated by this operation's strict request contract.
-                                 * @enum {string|null}
-                                 */
-                                position: "CEO_MD" | "OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN" | null;
+                                /** @description Position validated by this operation's strict request contract. */
+                                position: string | null;
                                 /** @description Department validated by this operation's strict request contract. */
                                 department: string | null;
                                 /** @description Version validated by this operation's strict request contract. */
@@ -130420,7 +130369,7 @@ export interface operations {
                      *           "managed": true,
                      *           "userId": "00000000-0000-4000-8000-000000000001",
                      *           "staffId": "00000000-0000-4000-8000-000000000001",
-                     *           "position": "CEO_MD",
+                     *           "position": "synthetic-position",
                      *           "department": "synthetic-department",
                      *           "version": 0,
                      *           "assignments": [
@@ -130602,11 +130551,8 @@ export interface operations {
                                  * @description Identifier of the staff resource; ownership is resolved server-side.
                                  */
                                 staffId: string | null;
-                                /**
-                                 * @description Position validated by this operation's strict request contract.
-                                 * @enum {string|null}
-                                 */
-                                position: "CEO_MD" | "OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN" | null;
+                                /** @description Position validated by this operation's strict request contract. */
+                                position: string | null;
                                 /** @description Department validated by this operation's strict request contract. */
                                 department: string | null;
                                 /** @description Version validated by this operation's strict request contract. */
@@ -131042,7 +130988,7 @@ export interface operations {
                      *           "managed": true,
                      *           "userId": "00000000-0000-4000-8000-000000000001",
                      *           "staffId": "00000000-0000-4000-8000-000000000001",
-                     *           "position": "CEO_MD",
+                     *           "position": "synthetic-position",
                      *           "department": "synthetic-department",
                      *           "version": 0,
                      *           "assignments": [
@@ -131177,11 +131123,8 @@ export interface operations {
                                  * @description Identifier of the staff resource; ownership is resolved server-side.
                                  */
                                 staffId: string | null;
-                                /**
-                                 * @description Position validated by this operation's strict request contract.
-                                 * @enum {string|null}
-                                 */
-                                position: "CEO_MD" | "OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN" | null;
+                                /** @description Position validated by this operation's strict request contract. */
+                                position: string | null;
                                 /** @description Department validated by this operation's strict request contract. */
                                 department: string | null;
                                 /** @description Version validated by this operation's strict request contract. */
@@ -131494,7 +131437,7 @@ export interface operations {
                      *           "managed": true,
                      *           "userId": "00000000-0000-4000-8000-000000000001",
                      *           "staffId": "00000000-0000-4000-8000-000000000001",
-                     *           "position": "CEO_MD",
+                     *           "position": "synthetic-position",
                      *           "department": "synthetic-department",
                      *           "version": 0,
                      *           "assignments": [
@@ -131646,11 +131589,8 @@ export interface operations {
                                  * @description Identifier of the staff resource; ownership is resolved server-side.
                                  */
                                 staffId: string | null;
-                                /**
-                                 * @description Position validated by this operation's strict request contract.
-                                 * @enum {string|null}
-                                 */
-                                position: "CEO_MD" | "OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN" | null;
+                                /** @description Position validated by this operation's strict request contract. */
+                                position: string | null;
                                 /** @description Department validated by this operation's strict request contract. */
                                 department: string | null;
                                 /** @description Version validated by this operation's strict request contract. */
@@ -131990,7 +131930,7 @@ export interface operations {
                      *           "managed": true,
                      *           "userId": "00000000-0000-4000-8000-000000000001",
                      *           "staffId": "00000000-0000-4000-8000-000000000001",
-                     *           "position": "CEO_MD",
+                     *           "position": "synthetic-position",
                      *           "department": "synthetic-department",
                      *           "version": 0,
                      *           "assignments": [
@@ -132147,11 +132087,8 @@ export interface operations {
                                  * @description Identifier of the staff resource; ownership is resolved server-side.
                                  */
                                 staffId: string | null;
-                                /**
-                                 * @description Position validated by this operation's strict request contract.
-                                 * @enum {string|null}
-                                 */
-                                position: "CEO_MD" | "OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN" | null;
+                                /** @description Position validated by this operation's strict request contract. */
+                                position: string | null;
                                 /** @description Department validated by this operation's strict request contract. */
                                 department: string | null;
                                 /** @description Version validated by this operation's strict request contract. */
@@ -132499,7 +132436,7 @@ export interface operations {
                      *           "managed": true,
                      *           "userId": "00000000-0000-4000-8000-000000000001",
                      *           "staffId": "00000000-0000-4000-8000-000000000001",
-                     *           "position": "CEO_MD",
+                     *           "position": "synthetic-position",
                      *           "department": "synthetic-department",
                      *           "version": 0,
                      *           "assignments": [
@@ -132627,11 +132564,8 @@ export interface operations {
                                  * @description Identifier of the staff resource; ownership is resolved server-side.
                                  */
                                 staffId: string | null;
-                                /**
-                                 * @description Position validated by this operation's strict request contract.
-                                 * @enum {string|null}
-                                 */
-                                position: "CEO_MD" | "OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN" | null;
+                                /** @description Position validated by this operation's strict request contract. */
+                                position: string | null;
                                 /** @description Department validated by this operation's strict request contract. */
                                 department: string | null;
                                 /** @description Version validated by this operation's strict request contract. */
@@ -132939,7 +132873,7 @@ export interface operations {
                      *           "managed": true,
                      *           "userId": "00000000-0000-4000-8000-000000000001",
                      *           "staffId": "00000000-0000-4000-8000-000000000001",
-                     *           "position": "CEO_MD",
+                     *           "position": "synthetic-position",
                      *           "department": "synthetic-department",
                      *           "version": 0,
                      *           "assignments": [
@@ -133079,11 +133013,8 @@ export interface operations {
                                  * @description Identifier of the staff resource; ownership is resolved server-side.
                                  */
                                 staffId: string | null;
-                                /**
-                                 * @description Position validated by this operation's strict request contract.
-                                 * @enum {string|null}
-                                 */
-                                position: "CEO_MD" | "OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN" | null;
+                                /** @description Position validated by this operation's strict request contract. */
+                                position: string | null;
                                 /** @description Department validated by this operation's strict request contract. */
                                 department: string | null;
                                 /** @description Version validated by this operation's strict request contract. */
@@ -133388,7 +133319,7 @@ export interface operations {
                      *         },
                      *         "access": {
                      *           "userId": "00000000-0000-4000-8000-000000000001",
-                     *           "position": "CEO_MD",
+                     *           "position": "synthetic-position",
                      *           "enabledAt": "2030-01-15T10:00:00.000Z",
                      *           "updatedByUserId": "00000000-0000-4000-8000-000000000001",
                      *           "version": 0,
@@ -133404,10 +133335,10 @@ export interface operations {
                      *           {
                      *             "id": "00000000-0000-4000-8000-000000000001",
                      *             "userId": "00000000-0000-4000-8000-000000000001",
-                     *             "template": "OPERATIONS",
+                     *             "template": "synthetic-template",
                      *             "templateVersion": 1,
                      *             "branchId": "00000000-0000-4000-8000-000000000001",
-                     *             "scope": "BRANCH",
+                     *             "scope": "synthetic-scope",
                      *             "temporary": true,
                      *             "startsAt": "2030-01-15T10:00:00.000Z",
                      *             "expiresAt": "2030-01-15T10:00:00.000Z",
@@ -133519,11 +133450,8 @@ export interface operations {
                                  * @description Identifier of the user resource; ownership is resolved server-side.
                                  */
                                 userId: string;
-                                /**
-                                 * @description Position validated by this operation's strict request contract.
-                                 * @enum {string}
-                                 */
-                                position: "CEO_MD" | "OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN";
+                                /** @description Position validated by this operation's strict request contract. */
+                                position: string;
                                 /**
                                  * Format: date-time
                                  * @description ISO 8601 timestamp interpreted and validated by the server.
@@ -133555,11 +133483,8 @@ export interface operations {
                                  * @description Identifier of the user resource; ownership is resolved server-side.
                                  */
                                 userId: string;
-                                /**
-                                 * @description Template validated by this operation's strict request contract.
-                                 * @enum {string}
-                                 */
-                                template: "OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN";
+                                /** @description Template validated by this operation's strict request contract. */
+                                template: string;
                                 /** @description Template Version validated by this operation's strict request contract. */
                                 templateVersion: number;
                                 /**
@@ -133567,11 +133492,8 @@ export interface operations {
                                  * @description Identifier of the branch resource; ownership is resolved server-side.
                                  */
                                 branchId: string;
-                                /**
-                                 * @description Scope validated by this operation's strict request contract.
-                                 * @enum {string}
-                                 */
-                                scope: "BRANCH" | "ASSIGNED";
+                                /** @description Scope validated by this operation's strict request contract. */
+                                scope: string;
                                 /** @description Temporary validated by this operation's strict request contract. */
                                 temporary: boolean;
                                 /**
@@ -133905,7 +133827,7 @@ export interface operations {
                      *       "message": "Responsibility-based workspace: enroll",
                      *       "data": {
                      *         "userId": "00000000-0000-4000-8000-000000000001",
-                     *         "position": "CEO_MD",
+                     *         "position": "synthetic-position",
                      *         "enabledAt": "2030-01-15T10:00:00.000Z",
                      *         "updatedByUserId": "00000000-0000-4000-8000-000000000001",
                      *         "version": 0,
@@ -133937,11 +133859,8 @@ export interface operations {
                              * @description Identifier of the user resource; ownership is resolved server-side.
                              */
                             userId: string;
-                            /**
-                             * @description Position validated by this operation's strict request contract.
-                             * @enum {string}
-                             */
-                            position: "CEO_MD" | "OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN";
+                            /** @description Position validated by this operation's strict request contract. */
+                            position: string;
                             /**
                              * Format: date-time
                              * @description ISO 8601 timestamp interpreted and validated by the server.
@@ -134974,9 +134893,9 @@ export interface operations {
                      *       "data": {
                      *         "id": "00000000-0000-4000-8000-000000000001",
                      *         "userId": "00000000-0000-4000-8000-000000000001",
-                     *         "template": "OPERATIONS",
+                     *         "template": "synthetic-template",
                      *         "branchId": "00000000-0000-4000-8000-000000000001",
-                     *         "scope": "BRANCH",
+                     *         "scope": "synthetic-scope",
                      *         "temporary": true,
                      *         "startsAt": "2030-01-15T10:00:00.000Z",
                      *         "expiresAt": "2030-01-15T10:00:00.000Z",
@@ -135012,11 +134931,8 @@ export interface operations {
                              * @description Identifier of the user resource; ownership is resolved server-side.
                              */
                             userId: string;
-                            /**
-                             * @description Template validated by this operation's strict request contract.
-                             * @enum {string}
-                             */
-                            template: "OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN";
+                            /** @description Template validated by this operation's strict request contract. */
+                            template: string;
                             /** @description Present when the request opts in with receiptVersion 2. */
                             templateVersion?: number;
                             /**
@@ -135024,11 +134940,8 @@ export interface operations {
                              * @description Identifier of the branch resource; ownership is resolved server-side.
                              */
                             branchId: string;
-                            /**
-                             * @description Scope validated by this operation's strict request contract.
-                             * @enum {string}
-                             */
-                            scope: "BRANCH" | "ASSIGNED";
+                            /** @description Scope validated by this operation's strict request contract. */
+                            scope: string;
                             /** @description Temporary validated by this operation's strict request contract. */
                             temporary: boolean;
                             /**
@@ -135290,7 +135203,7 @@ export interface operations {
                      *       "message": "Responsibility-based workspace: delegate",
                      *       "data": {
                      *         "userId": "00000000-0000-4000-8000-000000000001",
-                     *         "position": "CEO_MD",
+                     *         "position": "synthetic-position",
                      *         "enabledAt": "2030-01-15T10:00:00.000Z",
                      *         "updatedByUserId": "00000000-0000-4000-8000-000000000001",
                      *         "version": 0,
@@ -135322,11 +135235,8 @@ export interface operations {
                              * @description Identifier of the user resource; ownership is resolved server-side.
                              */
                             userId: string;
-                            /**
-                             * @description Position validated by this operation's strict request contract.
-                             * @enum {string}
-                             */
-                            position: "CEO_MD" | "OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN";
+                            /** @description Position validated by this operation's strict request contract. */
+                            position: string;
                             /**
                              * Format: date-time
                              * @description ISO 8601 timestamp interpreted and validated by the server.

@@ -20,6 +20,7 @@ import {
   parseWorkforceAccessPreview,
 } from "@/lib/api/workforce-effective-access";
 import { parseWorkforceAccount } from "@/lib/api/workforce-schemas";
+import { verifyWorkforceReceipt } from "@/lib/admin/work-staff-workforce";
 import { staffWorkforceRecord, id } from "../fixtures/work-staff-detail";
 const state = vi.hoisted(() => ({
   request: vi.fn(),
@@ -162,6 +163,99 @@ function submit() {
   fireEvent.submit(form);
   return form;
 }
+function unrecognisedHistory() {
+  const r = record();
+  const assignment = {
+    id: id(951),
+    userId: r.userId,
+    template: "RETIRED_DIAGNOSTICS",
+    templateVersion: 7,
+    branchId: id(101),
+    scope: "LEGACY_ZONE",
+    temporary: false,
+    startsAt: stamp,
+    expiresAt: null,
+    reason: "Preserved synthetic historical responsibility",
+    assignedByUserId: id(302),
+    createdAt: stamp,
+    revokedAt: null,
+    revokedByUserId: null,
+    revocationReason: null,
+  };
+  return {
+    ...r,
+    assignments: [assignment],
+    assignmentDefinitions: { [assignment.id]: null },
+  };
+}
+it("preserves unsupported historical template and scope text without accepting it as current access", () => {
+  const value = unrecognisedHistory();
+  const parsed = parseWorkforceAccount(value);
+  expect(parsed.assignments[0]).toMatchObject({
+    template: "RETIRED_DIAGNOSTICS",
+    scope: "LEGACY_ZONE",
+    templateVersion: 7,
+  });
+  expect(parsed.activeAssignmentIds).toEqual([]);
+  expect(parsed.effectiveAccess?.grants).toEqual([]);
+  expect(() =>
+    parseWorkforceAccount({
+      ...value,
+      assignmentDefinitions: undefined,
+      activeAssignmentIds: [value.assignments[0]!.id],
+    }),
+  ).toThrow();
+  expect(() =>
+    parseWorkforceAccount({ ...value, activeAssignmentIds: [value.assignments[0]!.id] }),
+  ).toThrow();
+});
+it("shows unknown historical labels and scopes without silently calling them branch access", () => {
+  state.resource = { data: unrecognisedHistory(), loading: false, refreshing: false };
+  render(<WorkforceAccessPanel userId={record().userId} />);
+  expect(
+    screen.getByRole("heading", { name: /Unrecognised responsibility/ }),
+  ).toBeTruthy();
+  expect(screen.getByText(/Unrecognised scope: LEGACY_ZONE/)).toBeTruthy();
+  expect(screen.getByText("RETIRED_DIAGNOSTICS", { exact: true })).toBeTruthy();
+  expect(screen.getByText(/assignment grants no access/)).toBeTruthy();
+  expect(state.request).not.toHaveBeenCalled();
+});
+it("verifies an unknown history revocation without accepting the template for assignment", () => {
+  const current = parseWorkforceAccount(unrecognisedHistory());
+  const row = current.assignments[0]!;
+  const input = { reason: "Reviewed historical unsupported grant", expectedVersion: 0 };
+  const receipt = {
+    ...row,
+    revokedAt: "2026-10-26T11:00:00.000Z",
+    revokedByUserId: id(302),
+    revocationReason: input.reason,
+  };
+  expect(
+    verifyWorkforceReceipt(
+      receipt,
+      "revoke",
+      current.userId,
+      id(302),
+      input,
+      current,
+      row.id,
+    ),
+  ).toMatchObject({ template: row.template, scope: row.scope });
+  expect(() =>
+    verifyWorkforceReceipt(
+      { ...receipt, scope: "BRANCH" },
+      "revoke",
+      current.userId,
+      id(302),
+      input,
+      current,
+      row.id,
+    ),
+  ).toThrow();
+  expect(() =>
+    verifyWorkforceReceipt(receipt, "assign", current.userId, id(302), input, current),
+  ).toThrow();
+});
 it("fetches a credential-free server preview before opening a change review", async () => {
   let finish!: (v: unknown) => void;
   state.request.mockImplementation(

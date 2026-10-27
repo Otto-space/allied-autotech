@@ -315,9 +315,16 @@ export const workforceAssignmentResponseSchema = z.object({
   revokedByUserId: z.uuid().nullable(),
   revocationReason: z.string().nullable(),
 });
+// Inspection and revocation preserve old rows without interpreting them as grants.
+// Assignment inputs and the active-access projection retain their strict catalogues.
+export const workforceAssignmentHistoryResponseSchema =
+  workforceAssignmentResponseSchema.extend({
+    template: z.string().min(1).max(80),
+    scope: z.string().min(1).max(20),
+  });
 const accessRecord = z.object({
   userId: z.uuid(),
-  position: positionSchema,
+  position: z.string().min(1).max(80),
   enabledAt: timestamp,
   updatedByUserId: z.uuid(),
   version,
@@ -329,7 +336,7 @@ export const workforceOwnResponseSchema = z.object({
   managed: z.boolean(),
   userId: z.uuid(),
   staffId: z.uuid().nullable(),
-  position: positionSchema.nullable(),
+  position: z.string().min(1).max(80).nullable(),
   department: z.string().nullable(),
   version,
   assignments: z.array(workforceAssignmentResponseSchema),
@@ -668,8 +675,16 @@ export function workforceResponseSchema(action: string): z.ZodType {
           .describe("Present when the request opts in with receiptVersion 2."),
       });
     case "assign":
-    case "revoke":
       return workforceAssignmentResponseSchema.extend({
+        templateVersion: z
+          .number()
+          .int()
+          .positive()
+          .optional()
+          .describe("Present when the request opts in with receiptVersion 2."),
+      });
+    case "revoke":
+      return workforceAssignmentHistoryResponseSchema.extend({
         templateVersion: z
           .number()
           .int()
@@ -703,7 +718,7 @@ export function workforceResponseSchema(action: string): z.ZodType {
             .nullable(),
         }),
         access: accessRecord.nullable(),
-        assignments: z.array(workforceAssignmentResponseSchema),
+        assignments: z.array(workforceAssignmentHistoryResponseSchema),
         activeAssignmentIds: z.array(z.uuid()),
         effectiveAccess: workforceEffectiveAccessSchema,
         templatesVersion: z.number().int().positive(),

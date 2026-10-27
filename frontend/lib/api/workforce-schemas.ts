@@ -41,6 +41,10 @@ export const assignmentSchema = z.object({
   revokedByUserId: z.uuid().nullable(),
   revocationReason: z.string().nullable(),
 });
+export const historicalAssignmentSchema = assignmentSchema.extend({
+  template: z.string().min(1).max(80),
+  scope: z.string().min(1).max(20),
+});
 export const workforceAccessSchema = z
   .object({
     managed: z.boolean(),
@@ -259,7 +263,7 @@ export const workforceAccountSchema = z.object({
       delegationPolicyVersion: z.number().int().positive().optional(),
     })
     .nullable(),
-  assignments: z.array(assignmentSchema),
+  assignments: z.array(historicalAssignmentSchema),
   activeAssignmentIds: z.array(z.uuid()),
   templatesVersion: z.number().int().positive().optional(),
   effectiveAccess: workforceEffectiveAccessSchema.optional(),
@@ -287,6 +291,22 @@ export const workforceAccountSchema = z.object({
   ),
 });
 export type WorkforceAccount = z.infer<typeof workforceAccountSchema>;
+export function workforceAssignmentLabel(template: string) {
+  const known = workforceTemplateSchema.safeParse(template);
+  return known.success
+    ? workforceTemplateLabels[known.data]
+    : `Unrecognised responsibility (${template})`;
+}
+export function workforceHistoryDefinition(
+  data: WorkforceAccount,
+  row: z.infer<typeof historicalAssignmentSchema>,
+) {
+  if (data.assignmentDefinitions) return data.assignmentDefinitions[row.id] ?? undefined;
+  if ((row.templateVersion ?? 1) !== (data.templatesVersion ?? 1)) return undefined;
+  const known = workforceTemplateSchema.safeParse(row.template);
+  const definition = known.success ? data.templates[known.data] : undefined;
+  return definition?.scope === row.scope ? definition : undefined;
+}
 export const parseWorkforceAccount = (value: unknown) => {
   const r = workforceAccountSchema.parse(value);
   if (
@@ -295,7 +315,10 @@ export const parseWorkforceAccount = (value: unknown) => {
     new Set(r.assignments.map((a) => a.id)).size !== r.assignments.length ||
     new Set(r.activeAssignmentIds).size !== r.activeAssignmentIds.length ||
     r.activeAssignmentIds.some(
-      (id) => !r.assignments.some((a) => a.id === id && !a.revokedAt),
+      (id) =>
+        !r.assignments.some(
+          (a) => a.id === id && !a.revokedAt && workforceHistoryDefinition(r, a),
+        ),
     ) ||
     new Set(r.branches.map((b) => b.id)).size !== r.branches.length ||
     r.management.branchIds?.some(

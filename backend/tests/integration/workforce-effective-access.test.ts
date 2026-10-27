@@ -4,6 +4,10 @@ import { createApp } from "../../src/app.js";
 import { prisma } from "../../src/config/database.js";
 import { fixturePassword, workforceFixture } from "../fixtures/workforce.js";
 import { assertIsolatedLoopbackDatabase } from "../helpers/isolated-database.js";
+import {
+  workforceResponseSchema,
+  workforceOwnResponseSchema,
+} from "../../src/modules/organization/workforce.schemas.js";
 
 describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
   "reviewed effective responsibility access",
@@ -368,6 +372,93 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         (await request(app).get("/api/v1/staff/workforce/jobs").set(target.headers))
           .status,
       ).toBe(403);
+    });
+    it("keeps unknown historical template, scope and position in the inspection contract without granting them access", async () => {
+      const target = await f.account("MECHANICAL_TECHNICIAN");
+      await prisma.workforceAccess.update({
+        where: { userId: target.user.id },
+        data: { position: "RETIRED_WORKSHOP_ROLE" },
+      });
+      const rows = await Promise.all([
+        prisma.workforceAssignment.create({
+          data: {
+            userId: target.user.id,
+            template: "RETIRED_DIAGNOSTICS",
+            templateVersion: 7,
+            branchId: f.home.id,
+            scope: "ASSIGNED",
+            startsAt: new Date(0),
+            reason: "Synthetic historical unknown definition",
+            assignedByUserId: f.owner.id,
+          },
+        }),
+        prisma.workforceAssignment.create({
+          data: {
+            userId: target.user.id,
+            template: "MECHANICAL_TECHNICIAN",
+            templateVersion: 1,
+            branchId: f.home.id,
+            scope: "LEGACY_ZONE",
+            startsAt: new Date(0),
+            reason: "Synthetic historical unsupported scope",
+            assignedByUserId: f.owner.id,
+          },
+        }),
+      ]);
+      const response = await read(owner, target.user.id);
+      expect(response.status).toBe(200);
+      expect(() =>
+        workforceResponseSchema("inspect").parse(response.body.data),
+      ).not.toThrow();
+      for (const row of rows) {
+        expect(
+          response.body.data.assignments.find((a: { id: string }) => a.id === row.id),
+        ).toMatchObject({
+          template: row.template,
+          scope: row.scope,
+          templateVersion: row.templateVersion,
+        });
+        expect(response.body.data.assignmentDefinitions[row.id]).toBeNull();
+        expect(response.body.data.activeAssignmentIds).not.toContain(row.id);
+        expect(JSON.stringify(response.body.data.effectiveAccess.grants)).not.toContain(
+          row.id,
+        );
+      }
+      const current = await request(app)
+        .get("/api/v1/staff/workforce/access")
+        .set(target.headers);
+      expect(current.status).toBe(200);
+      expect(() => workforceOwnResponseSchema.parse(current.body.data)).not.toThrow();
+      expect(current.body.data.assignments).toHaveLength(1);
+      expect(current.body.data.permissions).toEqual(["JOBS_READ", "JOBS_UPDATE"]);
+      expect(response.body.data.access.position).toBe("RETIRED_WORKSHOP_ROLE");
+      const impact = await preview(owner, target.user.id, {
+        operation: "revoke",
+        expectedVersion: 0,
+        assignmentId: rows[0]!.id,
+      });
+      expect(impact.status).toBe(200);
+      expect(impact.body.data.added).toEqual([]);
+      expect(impact.body.data.removed).toEqual([]);
+      const removed = await revoke(
+        target.user.id,
+        rows[0]!.id,
+        impact.body.data.fingerprint,
+      );
+      expect(removed.status).toBe(200);
+      expect(() =>
+        workforceResponseSchema("revoke").parse(removed.body.data),
+      ).not.toThrow();
+      const preserved = await prisma.workforceAssignment.findUniqueOrThrow({
+        where: { id: rows[0]!.id },
+      });
+      expect(preserved).toMatchObject({
+        template: rows[0]!.template,
+        scope: rows[0]!.scope,
+        templateVersion: rows[0]!.templateVersion,
+        revokedByUserId: f.owner.id,
+      });
+      expect(preserved.revokedAt).not.toBeNull();
     });
     it("shows inactive and unknown-version assignments as history, and rejects forged preview digests", async () => {
       const target = await f.account("CUSTOMER_SERVICE");

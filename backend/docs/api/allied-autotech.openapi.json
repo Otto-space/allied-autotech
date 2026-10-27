@@ -159078,18 +159078,8 @@
                                 "string",
                                 "null"
                               ],
-                              "enum": [
-                                "CEO_MD",
-                                "OPERATIONS",
-                                "CUSTOMER_SERVICE",
-                                "SALES_SUPERVISOR",
-                                "SALES_CASHIER",
-                                "ACCOUNTANT",
-                                "WORKSHOP_LEAD",
-                                "ELECTRICAL_TECHNICIAN",
-                                "MECHANICAL_TECHNICIAN",
-                                null
-                              ],
+                              "minLength": 1,
+                              "maxLength": 80,
                               "description": "Position validated by this operation's strict request contract."
                             },
                             "department": {
@@ -159377,7 +159367,7 @@
                       "managed": true,
                       "userId": "00000000-0000-4000-8000-000000000001",
                       "staffId": "00000000-0000-4000-8000-000000000001",
-                      "position": "CEO_MD",
+                      "position": "synthetic-position",
                       "department": "synthetic-department",
                       "version": 0,
                       "assignments": [
@@ -159698,18 +159688,8 @@
                                 "string",
                                 "null"
                               ],
-                              "enum": [
-                                "CEO_MD",
-                                "OPERATIONS",
-                                "CUSTOMER_SERVICE",
-                                "SALES_SUPERVISOR",
-                                "SALES_CASHIER",
-                                "ACCOUNTANT",
-                                "WORKSHOP_LEAD",
-                                "ELECTRICAL_TECHNICIAN",
-                                "MECHANICAL_TECHNICIAN",
-                                null
-                              ],
+                              "minLength": 1,
+                              "maxLength": 80,
                               "description": "Position validated by this operation's strict request contract."
                             },
                             "department": {
@@ -159997,7 +159977,7 @@
                       "managed": true,
                       "userId": "00000000-0000-4000-8000-000000000001",
                       "staffId": "00000000-0000-4000-8000-000000000001",
-                      "position": "CEO_MD",
+                      "position": "synthetic-position",
                       "department": "synthetic-department",
                       "version": 0,
                       "assignments": [
@@ -160322,18 +160302,8 @@
                                 "string",
                                 "null"
                               ],
-                              "enum": [
-                                "CEO_MD",
-                                "OPERATIONS",
-                                "CUSTOMER_SERVICE",
-                                "SALES_SUPERVISOR",
-                                "SALES_CASHIER",
-                                "ACCOUNTANT",
-                                "WORKSHOP_LEAD",
-                                "ELECTRICAL_TECHNICIAN",
-                                "MECHANICAL_TECHNICIAN",
-                                null
-                              ],
+                              "minLength": 1,
+                              "maxLength": 80,
                               "description": "Position validated by this operation's strict request contract."
                             },
                             "department": {
@@ -160692,7 +160662,7 @@
                       "managed": true,
                       "userId": "00000000-0000-4000-8000-000000000001",
                       "staffId": "00000000-0000-4000-8000-000000000001",
-                      "position": "CEO_MD",
+                      "position": "synthetic-position",
                       "department": "synthetic-department",
                       "version": 0,
                       "assignments": [
@@ -161024,18 +160994,8 @@
                                 "string",
                                 "null"
                               ],
-                              "enum": [
-                                "CEO_MD",
-                                "OPERATIONS",
-                                "CUSTOMER_SERVICE",
-                                "SALES_SUPERVISOR",
-                                "SALES_CASHIER",
-                                "ACCOUNTANT",
-                                "WORKSHOP_LEAD",
-                                "ELECTRICAL_TECHNICIAN",
-                                "MECHANICAL_TECHNICIAN",
-                                null
-                              ],
+                              "minLength": 1,
+                              "maxLength": 80,
                               "description": "Position validated by this operation's strict request contract."
                             },
                             "department": {
@@ -161346,7 +161306,7 @@
                       "managed": true,
                       "userId": "00000000-0000-4000-8000-000000000001",
                       "staffId": "00000000-0000-4000-8000-000000000001",
-                      "position": "CEO_MD",
+                      "position": "synthetic-position",
                       "department": "synthetic-department",
                       "version": 0,
                       "assignments": [
@@ -161933,18 +161893,8 @@
                             "string",
                             "null"
                           ],
-                          "enum": [
-                            "CEO_MD",
-                            "OPERATIONS",
-                            "CUSTOMER_SERVICE",
-                            "SALES_SUPERVISOR",
-                            "SALES_CASHIER",
-                            "ACCOUNTANT",
-                            "WORKSHOP_LEAD",
-                            "ELECTRICAL_TECHNICIAN",
-                            "MECHANICAL_TECHNICIAN",
-                            null
-                          ],
+                          "minLength": 1,
+                          "maxLength": 80,
                           "description": "Position validated by this operation's strict request contract."
                         },
                         "department": {
@@ -162201,7 +162151,7 @@
                     "managed": true,
                     "userId": "00000000-0000-4000-8000-000000000001",
                     "staffId": "00000000-0000-4000-8000-000000000001",
-                    "position": "CEO_MD",
+                    "position": "synthetic-position",
                     "department": "synthetic-department",
                     "version": 0,
                     "assignments": [
@@ -162442,18 +162392,8 @@
                                 "string",
                                 "null"
                               ],
-                              "enum": [
-                                "CEO_MD",
-                                "OPERATIONS",
-                                "CUSTOMER_SERVICE",
-                                "SALES_SUPERVISOR",
-                                "SALES_CASHIER",
-                                "ACCOUNTANT",
-                                "WORKSHOP_LEAD",
-                                "ELECTRICAL_TECHNICIAN",
-                                "MECHANICAL_TECHNICIAN",
-                                null
-                              ],
+                              "minLength": 1,
+                              "maxLength": 80,
                               "description": "Position validated by this operation's strict request contract."
                             },
                             "department": {
@@ -162745,7 +162685,7 @@
                       "managed": true,
                       "userId": "00000000-0000-4000-8000-000000000001",
                       "staffId": "00000000-0000-4000-8000-000000000001",
-                      "position": "CEO_MD",
+                      "position": "synthetic-position",
                       "department": "synthetic-department",
                       "version": 0,
                       "assignments": [
@@ -163239,18 +163179,8 @@
                                 "string",
                                 "null"
                               ],
-                              "enum": [
-                                "CEO_MD",
-                                "OPERATIONS",
-                                "CUSTOMER_SERVICE",
-                                "SALES_SUPERVISOR",
-                                "SALES_CASHIER",
-                                "ACCOUNTANT",
-                                "WORKSHOP_LEAD",
-                                "ELECTRICAL_TECHNICIAN",
-                                "MECHANICAL_TECHNICIAN",
-                                null
-                              ],
+                              "minLength": 1,
+                              "maxLength": 80,
                               "description": "Position validated by this operation's strict request contract."
                             },
                             "department": {
@@ -163551,7 +163481,7 @@
                       "managed": true,
                       "userId": "00000000-0000-4000-8000-000000000001",
                       "staffId": "00000000-0000-4000-8000-000000000001",
-                      "position": "CEO_MD",
+                      "position": "synthetic-position",
                       "department": "synthetic-department",
                       "version": 0,
                       "assignments": [
@@ -163989,18 +163919,8 @@
                                 "string",
                                 "null"
                               ],
-                              "enum": [
-                                "CEO_MD",
-                                "OPERATIONS",
-                                "CUSTOMER_SERVICE",
-                                "SALES_SUPERVISOR",
-                                "SALES_CASHIER",
-                                "ACCOUNTANT",
-                                "WORKSHOP_LEAD",
-                                "ELECTRICAL_TECHNICIAN",
-                                "MECHANICAL_TECHNICIAN",
-                                null
-                              ],
+                              "minLength": 1,
+                              "maxLength": 80,
                               "description": "Position validated by this operation's strict request contract."
                             },
                             "department": {
@@ -164299,7 +164219,7 @@
                       "managed": true,
                       "userId": "00000000-0000-4000-8000-000000000001",
                       "staffId": "00000000-0000-4000-8000-000000000001",
-                      "position": "CEO_MD",
+                      "position": "synthetic-position",
                       "department": "synthetic-department",
                       "version": 0,
                       "assignments": [
@@ -164714,18 +164634,8 @@
                                 "string",
                                 "null"
                               ],
-                              "enum": [
-                                "CEO_MD",
-                                "OPERATIONS",
-                                "CUSTOMER_SERVICE",
-                                "SALES_SUPERVISOR",
-                                "SALES_CASHIER",
-                                "ACCOUNTANT",
-                                "WORKSHOP_LEAD",
-                                "ELECTRICAL_TECHNICIAN",
-                                "MECHANICAL_TECHNICIAN",
-                                null
-                              ],
+                              "minLength": 1,
+                              "maxLength": 80,
                               "description": "Position validated by this operation's strict request contract."
                             },
                             "department": {
@@ -165081,7 +164991,7 @@
                       "managed": true,
                       "userId": "00000000-0000-4000-8000-000000000001",
                       "staffId": "00000000-0000-4000-8000-000000000001",
-                      "position": "CEO_MD",
+                      "position": "synthetic-position",
                       "department": "synthetic-department",
                       "version": 0,
                       "assignments": [
@@ -165455,18 +165365,8 @@
                                 "string",
                                 "null"
                               ],
-                              "enum": [
-                                "CEO_MD",
-                                "OPERATIONS",
-                                "CUSTOMER_SERVICE",
-                                "SALES_SUPERVISOR",
-                                "SALES_CASHIER",
-                                "ACCOUNTANT",
-                                "WORKSHOP_LEAD",
-                                "ELECTRICAL_TECHNICIAN",
-                                "MECHANICAL_TECHNICIAN",
-                                null
-                              ],
+                              "minLength": 1,
+                              "maxLength": 80,
                               "description": "Position validated by this operation's strict request contract."
                             },
                             "department": {
@@ -165768,7 +165668,7 @@
                       "managed": true,
                       "userId": "00000000-0000-4000-8000-000000000001",
                       "staffId": "00000000-0000-4000-8000-000000000001",
-                      "position": "CEO_MD",
+                      "position": "synthetic-position",
                       "department": "synthetic-department",
                       "version": 0,
                       "assignments": [
@@ -166204,18 +166104,8 @@
                                 "string",
                                 "null"
                               ],
-                              "enum": [
-                                "CEO_MD",
-                                "OPERATIONS",
-                                "CUSTOMER_SERVICE",
-                                "SALES_SUPERVISOR",
-                                "SALES_CASHIER",
-                                "ACCOUNTANT",
-                                "WORKSHOP_LEAD",
-                                "ELECTRICAL_TECHNICIAN",
-                                "MECHANICAL_TECHNICIAN",
-                                null
-                              ],
+                              "minLength": 1,
+                              "maxLength": 80,
                               "description": "Position validated by this operation's strict request contract."
                             },
                             "department": {
@@ -166751,7 +166641,7 @@
                       "managed": true,
                       "userId": "00000000-0000-4000-8000-000000000001",
                       "staffId": "00000000-0000-4000-8000-000000000001",
-                      "position": "CEO_MD",
+                      "position": "synthetic-position",
                       "department": "synthetic-department",
                       "version": 0,
                       "assignments": [
@@ -167259,18 +167149,8 @@
                                 "string",
                                 "null"
                               ],
-                              "enum": [
-                                "CEO_MD",
-                                "OPERATIONS",
-                                "CUSTOMER_SERVICE",
-                                "SALES_SUPERVISOR",
-                                "SALES_CASHIER",
-                                "ACCOUNTANT",
-                                "WORKSHOP_LEAD",
-                                "ELECTRICAL_TECHNICIAN",
-                                "MECHANICAL_TECHNICIAN",
-                                null
-                              ],
+                              "minLength": 1,
+                              "maxLength": 80,
                               "description": "Position validated by this operation's strict request contract."
                             },
                             "department": {
@@ -167626,7 +167506,7 @@
                       "managed": true,
                       "userId": "00000000-0000-4000-8000-000000000001",
                       "staffId": "00000000-0000-4000-8000-000000000001",
-                      "position": "CEO_MD",
+                      "position": "synthetic-position",
                       "department": "synthetic-department",
                       "version": 0,
                       "assignments": [
@@ -168094,18 +167974,8 @@
                                 "string",
                                 "null"
                               ],
-                              "enum": [
-                                "CEO_MD",
-                                "OPERATIONS",
-                                "CUSTOMER_SERVICE",
-                                "SALES_SUPERVISOR",
-                                "SALES_CASHIER",
-                                "ACCOUNTANT",
-                                "WORKSHOP_LEAD",
-                                "ELECTRICAL_TECHNICIAN",
-                                "MECHANICAL_TECHNICIAN",
-                                null
-                              ],
+                              "minLength": 1,
+                              "maxLength": 80,
                               "description": "Position validated by this operation's strict request contract."
                             },
                             "department": {
@@ -168461,7 +168331,7 @@
                       "managed": true,
                       "userId": "00000000-0000-4000-8000-000000000001",
                       "staffId": "00000000-0000-4000-8000-000000000001",
-                      "position": "CEO_MD",
+                      "position": "synthetic-position",
                       "department": "synthetic-department",
                       "version": 0,
                       "assignments": [
@@ -168936,18 +168806,8 @@
                                 "string",
                                 "null"
                               ],
-                              "enum": [
-                                "CEO_MD",
-                                "OPERATIONS",
-                                "CUSTOMER_SERVICE",
-                                "SALES_SUPERVISOR",
-                                "SALES_CASHIER",
-                                "ACCOUNTANT",
-                                "WORKSHOP_LEAD",
-                                "ELECTRICAL_TECHNICIAN",
-                                "MECHANICAL_TECHNICIAN",
-                                null
-                              ],
+                              "minLength": 1,
+                              "maxLength": 80,
                               "description": "Position validated by this operation's strict request contract."
                             },
                             "department": {
@@ -169303,7 +169163,7 @@
                       "managed": true,
                       "userId": "00000000-0000-4000-8000-000000000001",
                       "staffId": "00000000-0000-4000-8000-000000000001",
-                      "position": "CEO_MD",
+                      "position": "synthetic-position",
                       "department": "synthetic-department",
                       "version": 0,
                       "assignments": [
@@ -169801,18 +169661,8 @@
                                 "string",
                                 "null"
                               ],
-                              "enum": [
-                                "CEO_MD",
-                                "OPERATIONS",
-                                "CUSTOMER_SERVICE",
-                                "SALES_SUPERVISOR",
-                                "SALES_CASHIER",
-                                "ACCOUNTANT",
-                                "WORKSHOP_LEAD",
-                                "ELECTRICAL_TECHNICIAN",
-                                "MECHANICAL_TECHNICIAN",
-                                null
-                              ],
+                              "minLength": 1,
+                              "maxLength": 80,
                               "description": "Position validated by this operation's strict request contract."
                             },
                             "department": {
@@ -170108,7 +169958,7 @@
                       "managed": true,
                       "userId": "00000000-0000-4000-8000-000000000001",
                       "staffId": "00000000-0000-4000-8000-000000000001",
-                      "position": "CEO_MD",
+                      "position": "synthetic-position",
                       "department": "synthetic-department",
                       "version": 0,
                       "assignments": [
@@ -170431,18 +170281,8 @@
                                 "string",
                                 "null"
                               ],
-                              "enum": [
-                                "CEO_MD",
-                                "OPERATIONS",
-                                "CUSTOMER_SERVICE",
-                                "SALES_SUPERVISOR",
-                                "SALES_CASHIER",
-                                "ACCOUNTANT",
-                                "WORKSHOP_LEAD",
-                                "ELECTRICAL_TECHNICIAN",
-                                "MECHANICAL_TECHNICIAN",
-                                null
-                              ],
+                              "minLength": 1,
+                              "maxLength": 80,
                               "description": "Position validated by this operation's strict request contract."
                             },
                             "department": {
@@ -170801,7 +170641,7 @@
                       "managed": true,
                       "userId": "00000000-0000-4000-8000-000000000001",
                       "staffId": "00000000-0000-4000-8000-000000000001",
-                      "position": "CEO_MD",
+                      "position": "synthetic-position",
                       "department": "synthetic-department",
                       "version": 0,
                       "assignments": [
@@ -171251,18 +171091,8 @@
                                 "string",
                                 "null"
                               ],
-                              "enum": [
-                                "CEO_MD",
-                                "OPERATIONS",
-                                "CUSTOMER_SERVICE",
-                                "SALES_SUPERVISOR",
-                                "SALES_CASHIER",
-                                "ACCOUNTANT",
-                                "WORKSHOP_LEAD",
-                                "ELECTRICAL_TECHNICIAN",
-                                "MECHANICAL_TECHNICIAN",
-                                null
-                              ],
+                              "minLength": 1,
+                              "maxLength": 80,
                               "description": "Position validated by this operation's strict request contract."
                             },
                             "department": {
@@ -171551,7 +171381,7 @@
                       "managed": true,
                       "userId": "00000000-0000-4000-8000-000000000001",
                       "staffId": "00000000-0000-4000-8000-000000000001",
-                      "position": "CEO_MD",
+                      "position": "synthetic-position",
                       "department": "synthetic-department",
                       "version": 0,
                       "assignments": [
@@ -171987,18 +171817,8 @@
                                 "string",
                                 "null"
                               ],
-                              "enum": [
-                                "CEO_MD",
-                                "OPERATIONS",
-                                "CUSTOMER_SERVICE",
-                                "SALES_SUPERVISOR",
-                                "SALES_CASHIER",
-                                "ACCOUNTANT",
-                                "WORKSHOP_LEAD",
-                                "ELECTRICAL_TECHNICIAN",
-                                "MECHANICAL_TECHNICIAN",
-                                null
-                              ],
+                              "minLength": 1,
+                              "maxLength": 80,
                               "description": "Position validated by this operation's strict request contract."
                             },
                             "department": {
@@ -172536,7 +172356,7 @@
                       "managed": true,
                       "userId": "00000000-0000-4000-8000-000000000001",
                       "staffId": "00000000-0000-4000-8000-000000000001",
-                      "position": "CEO_MD",
+                      "position": "synthetic-position",
                       "department": "synthetic-department",
                       "version": 0,
                       "assignments": [
@@ -173019,18 +172839,8 @@
                                 "string",
                                 "null"
                               ],
-                              "enum": [
-                                "CEO_MD",
-                                "OPERATIONS",
-                                "CUSTOMER_SERVICE",
-                                "SALES_SUPERVISOR",
-                                "SALES_CASHIER",
-                                "ACCOUNTANT",
-                                "WORKSHOP_LEAD",
-                                "ELECTRICAL_TECHNICIAN",
-                                "MECHANICAL_TECHNICIAN",
-                                null
-                              ],
+                              "minLength": 1,
+                              "maxLength": 80,
                               "description": "Position validated by this operation's strict request contract."
                             },
                             "department": {
@@ -173328,7 +173138,7 @@
                       "managed": true,
                       "userId": "00000000-0000-4000-8000-000000000001",
                       "staffId": "00000000-0000-4000-8000-000000000001",
-                      "position": "CEO_MD",
+                      "position": "synthetic-position",
                       "department": "synthetic-department",
                       "version": 0,
                       "assignments": [
@@ -173729,18 +173539,8 @@
                                 "string",
                                 "null"
                               ],
-                              "enum": [
-                                "CEO_MD",
-                                "OPERATIONS",
-                                "CUSTOMER_SERVICE",
-                                "SALES_SUPERVISOR",
-                                "SALES_CASHIER",
-                                "ACCOUNTANT",
-                                "WORKSHOP_LEAD",
-                                "ELECTRICAL_TECHNICIAN",
-                                "MECHANICAL_TECHNICIAN",
-                                null
-                              ],
+                              "minLength": 1,
+                              "maxLength": 80,
                               "description": "Position validated by this operation's strict request contract."
                             },
                             "department": {
@@ -174054,7 +173854,7 @@
                       "managed": true,
                       "userId": "00000000-0000-4000-8000-000000000001",
                       "staffId": "00000000-0000-4000-8000-000000000001",
-                      "position": "CEO_MD",
+                      "position": "synthetic-position",
                       "department": "synthetic-department",
                       "version": 0,
                       "assignments": [
@@ -174508,18 +174308,8 @@
                                 "string",
                                 "null"
                               ],
-                              "enum": [
-                                "CEO_MD",
-                                "OPERATIONS",
-                                "CUSTOMER_SERVICE",
-                                "SALES_SUPERVISOR",
-                                "SALES_CASHIER",
-                                "ACCOUNTANT",
-                                "WORKSHOP_LEAD",
-                                "ELECTRICAL_TECHNICIAN",
-                                "MECHANICAL_TECHNICIAN",
-                                null
-                              ],
+                              "minLength": 1,
+                              "maxLength": 80,
                               "description": "Position validated by this operation's strict request contract."
                             },
                             "department": {
@@ -174869,7 +174659,7 @@
                       "managed": true,
                       "userId": "00000000-0000-4000-8000-000000000001",
                       "staffId": "00000000-0000-4000-8000-000000000001",
-                      "position": "CEO_MD",
+                      "position": "synthetic-position",
                       "department": "synthetic-department",
                       "version": 0,
                       "assignments": [
@@ -175315,18 +175105,8 @@
                                 "string",
                                 "null"
                               ],
-                              "enum": [
-                                "CEO_MD",
-                                "OPERATIONS",
-                                "CUSTOMER_SERVICE",
-                                "SALES_SUPERVISOR",
-                                "SALES_CASHIER",
-                                "ACCOUNTANT",
-                                "WORKSHOP_LEAD",
-                                "ELECTRICAL_TECHNICIAN",
-                                "MECHANICAL_TECHNICIAN",
-                                null
-                              ],
+                              "minLength": 1,
+                              "maxLength": 80,
                               "description": "Position validated by this operation's strict request contract."
                             },
                             "department": {
@@ -175620,7 +175400,7 @@
                       "managed": true,
                       "userId": "00000000-0000-4000-8000-000000000001",
                       "staffId": "00000000-0000-4000-8000-000000000001",
-                      "position": "CEO_MD",
+                      "position": "synthetic-position",
                       "department": "synthetic-department",
                       "version": 0,
                       "assignments": [
@@ -175999,18 +175779,8 @@
                                 "string",
                                 "null"
                               ],
-                              "enum": [
-                                "CEO_MD",
-                                "OPERATIONS",
-                                "CUSTOMER_SERVICE",
-                                "SALES_SUPERVISOR",
-                                "SALES_CASHIER",
-                                "ACCOUNTANT",
-                                "WORKSHOP_LEAD",
-                                "ELECTRICAL_TECHNICIAN",
-                                "MECHANICAL_TECHNICIAN",
-                                null
-                              ],
+                              "minLength": 1,
+                              "maxLength": 80,
                               "description": "Position validated by this operation's strict request contract."
                             },
                             "department": {
@@ -176315,7 +176085,7 @@
                       "managed": true,
                       "userId": "00000000-0000-4000-8000-000000000001",
                       "staffId": "00000000-0000-4000-8000-000000000001",
-                      "position": "CEO_MD",
+                      "position": "synthetic-position",
                       "department": "synthetic-department",
                       "version": 0,
                       "assignments": [
@@ -176679,17 +176449,8 @@
                             },
                             "position": {
                               "type": "string",
-                              "enum": [
-                                "CEO_MD",
-                                "OPERATIONS",
-                                "CUSTOMER_SERVICE",
-                                "SALES_SUPERVISOR",
-                                "SALES_CASHIER",
-                                "ACCOUNTANT",
-                                "WORKSHOP_LEAD",
-                                "ELECTRICAL_TECHNICIAN",
-                                "MECHANICAL_TECHNICIAN"
-                              ],
+                              "minLength": 1,
+                              "maxLength": 80,
                               "description": "Position validated by this operation's strict request contract."
                             },
                             "enabledAt": {
@@ -176759,16 +176520,8 @@
                               },
                               "template": {
                                 "type": "string",
-                                "enum": [
-                                  "OPERATIONS",
-                                  "CUSTOMER_SERVICE",
-                                  "SALES_SUPERVISOR",
-                                  "SALES_CASHIER",
-                                  "ACCOUNTANT",
-                                  "WORKSHOP_LEAD",
-                                  "ELECTRICAL_TECHNICIAN",
-                                  "MECHANICAL_TECHNICIAN"
-                                ],
+                                "minLength": 1,
+                                "maxLength": 80,
                                 "description": "Template validated by this operation's strict request contract."
                               },
                               "templateVersion": {
@@ -176783,10 +176536,8 @@
                               },
                               "scope": {
                                 "type": "string",
-                                "enum": [
-                                  "BRANCH",
-                                  "ASSIGNED"
-                                ],
+                                "minLength": 1,
+                                "maxLength": 20,
                                 "description": "Scope validated by this operation's strict request contract."
                               },
                               "temporary": {
@@ -177152,7 +176903,7 @@
                     },
                     "access": {
                       "userId": "00000000-0000-4000-8000-000000000001",
-                      "position": "CEO_MD",
+                      "position": "synthetic-position",
                       "enabledAt": "2030-01-15T10:00:00.000Z",
                       "updatedByUserId": "00000000-0000-4000-8000-000000000001",
                       "version": 0,
@@ -177168,10 +176919,10 @@
                       {
                         "id": "00000000-0000-4000-8000-000000000001",
                         "userId": "00000000-0000-4000-8000-000000000001",
-                        "template": "OPERATIONS",
+                        "template": "synthetic-template",
                         "templateVersion": 1,
                         "branchId": "00000000-0000-4000-8000-000000000001",
-                        "scope": "BRANCH",
+                        "scope": "synthetic-scope",
                         "temporary": true,
                         "startsAt": "2030-01-15T10:00:00.000Z",
                         "expiresAt": "2030-01-15T10:00:00.000Z",
@@ -177479,17 +177230,8 @@
                         },
                         "position": {
                           "type": "string",
-                          "enum": [
-                            "CEO_MD",
-                            "OPERATIONS",
-                            "CUSTOMER_SERVICE",
-                            "SALES_SUPERVISOR",
-                            "SALES_CASHIER",
-                            "ACCOUNTANT",
-                            "WORKSHOP_LEAD",
-                            "ELECTRICAL_TECHNICIAN",
-                            "MECHANICAL_TECHNICIAN"
-                          ],
+                          "minLength": 1,
+                          "maxLength": 80,
                           "description": "Position validated by this operation's strict request contract."
                         },
                         "enabledAt": {
@@ -177573,7 +177315,7 @@
                   "message": "Responsibility-based workspace: enroll",
                   "data": {
                     "userId": "00000000-0000-4000-8000-000000000001",
-                    "position": "CEO_MD",
+                    "position": "synthetic-position",
                     "enabledAt": "2030-01-15T10:00:00.000Z",
                     "updatedByUserId": "00000000-0000-4000-8000-000000000001",
                     "version": 0,
@@ -179066,16 +178808,8 @@
                         },
                         "template": {
                           "type": "string",
-                          "enum": [
-                            "OPERATIONS",
-                            "CUSTOMER_SERVICE",
-                            "SALES_SUPERVISOR",
-                            "SALES_CASHIER",
-                            "ACCOUNTANT",
-                            "WORKSHOP_LEAD",
-                            "ELECTRICAL_TECHNICIAN",
-                            "MECHANICAL_TECHNICIAN"
-                          ],
+                          "minLength": 1,
+                          "maxLength": 80,
                           "description": "Template validated by this operation's strict request contract."
                         },
                         "templateVersion": {
@@ -179090,10 +178824,8 @@
                         },
                         "scope": {
                           "type": "string",
-                          "enum": [
-                            "BRANCH",
-                            "ASSIGNED"
-                          ],
+                          "minLength": 1,
+                          "maxLength": 20,
                           "description": "Scope validated by this operation's strict request contract."
                         },
                         "temporary": {
@@ -179202,9 +178934,9 @@
                   "data": {
                     "id": "00000000-0000-4000-8000-000000000001",
                     "userId": "00000000-0000-4000-8000-000000000001",
-                    "template": "OPERATIONS",
+                    "template": "synthetic-template",
                     "branchId": "00000000-0000-4000-8000-000000000001",
-                    "scope": "BRANCH",
+                    "scope": "synthetic-scope",
                     "temporary": true,
                     "startsAt": "2030-01-15T10:00:00.000Z",
                     "expiresAt": "2030-01-15T10:00:00.000Z",
@@ -179511,17 +179243,8 @@
                         },
                         "position": {
                           "type": "string",
-                          "enum": [
-                            "CEO_MD",
-                            "OPERATIONS",
-                            "CUSTOMER_SERVICE",
-                            "SALES_SUPERVISOR",
-                            "SALES_CASHIER",
-                            "ACCOUNTANT",
-                            "WORKSHOP_LEAD",
-                            "ELECTRICAL_TECHNICIAN",
-                            "MECHANICAL_TECHNICIAN"
-                          ],
+                          "minLength": 1,
+                          "maxLength": 80,
                           "description": "Position validated by this operation's strict request contract."
                         },
                         "enabledAt": {
@@ -179605,7 +179328,7 @@
                   "message": "Responsibility-based workspace: delegate",
                   "data": {
                     "userId": "00000000-0000-4000-8000-000000000001",
-                    "position": "CEO_MD",
+                    "position": "synthetic-position",
                     "enabledAt": "2030-01-15T10:00:00.000Z",
                     "updatedByUserId": "00000000-0000-4000-8000-000000000001",
                     "version": 0,

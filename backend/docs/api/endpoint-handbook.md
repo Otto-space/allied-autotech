@@ -15966,7 +15966,7 @@ Success: HTTP 200.
       "managed": true,
       "userId": "00000000-0000-4000-8000-000000000001",
       "staffId": "00000000-0000-4000-8000-000000000001",
-      "position": "CEO_MD",
+      "position": "synthetic-position",
       "department": "synthetic-department",
       "version": 0,
       "assignments": [
@@ -16054,7 +16054,7 @@ Success: HTTP 200.
       "managed": true,
       "userId": "00000000-0000-4000-8000-000000000001",
       "staffId": "00000000-0000-4000-8000-000000000001",
-      "position": "CEO_MD",
+      "position": "synthetic-position",
       "department": "synthetic-department",
       "version": 0,
       "assignments": [
@@ -16154,7 +16154,7 @@ Success: HTTP 200.
       "managed": true,
       "userId": "00000000-0000-4000-8000-000000000001",
       "staffId": "00000000-0000-4000-8000-000000000001",
-      "position": "CEO_MD",
+      "position": "synthetic-position",
       "department": "synthetic-department",
       "version": 0,
       "assignments": [
@@ -16263,7 +16263,7 @@ Success: HTTP 200.
       "managed": true,
       "userId": "00000000-0000-4000-8000-000000000001",
       "staffId": "00000000-0000-4000-8000-000000000001",
-      "position": "CEO_MD",
+      "position": "synthetic-position",
       "department": "synthetic-department",
       "version": 0,
       "assignments": [
@@ -16335,7 +16335,7 @@ Success: HTTP 200.
     "managed": true,
     "userId": "00000000-0000-4000-8000-000000000001",
     "staffId": "00000000-0000-4000-8000-000000000001",
-    "position": "CEO_MD",
+    "position": "synthetic-position",
     "department": "synthetic-department",
     "version": 0,
     "assignments": [
@@ -16403,7 +16403,7 @@ Success: HTTP 200.
       "managed": true,
       "userId": "00000000-0000-4000-8000-000000000001",
       "staffId": "00000000-0000-4000-8000-000000000001",
-      "position": "CEO_MD",
+      "position": "synthetic-position",
       "department": "synthetic-department",
       "version": 0,
       "assignments": [
@@ -16520,7 +16520,7 @@ Success: HTTP 200.
       "managed": true,
       "userId": "00000000-0000-4000-8000-000000000001",
       "staffId": "00000000-0000-4000-8000-000000000001",
-      "position": "CEO_MD",
+      "position": "synthetic-position",
       "department": "synthetic-department",
       "version": 0,
       "assignments": [
@@ -16624,7 +16624,7 @@ Success: HTTP 200.
       "managed": true,
       "userId": "00000000-0000-4000-8000-000000000001",
       "staffId": "00000000-0000-4000-8000-000000000001",
-      "position": "CEO_MD",
+      "position": "synthetic-position",
       "department": "synthetic-department",
       "version": 0,
       "assignments": [
@@ -16728,7 +16728,7 @@ Success: HTTP 200.
       "managed": true,
       "userId": "00000000-0000-4000-8000-000000000001",
       "staffId": "00000000-0000-4000-8000-000000000001",
-      "position": "CEO_MD",
+      "position": "synthetic-position",
       "department": "synthetic-department",
       "version": 0,
       "assignments": [
@@ -16833,7 +16833,7 @@ Success: HTTP 200.
       "managed": true,
       "userId": "00000000-0000-4000-8000-000000000001",
       "staffId": "00000000-0000-4000-8000-000000000001",
-      "position": "CEO_MD",
+      "position": "synthetic-position",
       "department": "synthetic-department",
       "version": 0,
       "assignments": [
@@ -16930,7 +16930,7 @@ Success: HTTP 200.
       "managed": true,
       "userId": "00000000-0000-4000-8000-000000000001",
       "staffId": "00000000-0000-4000-8000-000000000001",
-      "position": "CEO_MD",
+      "position": "synthetic-position",
       "department": "synthetic-department",
       "version": 0,
       "assignments": [
@@ -17087,7 +17087,7 @@ Success: HTTP 200.
       "managed": true,
       "userId": "00000000-0000-4000-8000-000000000001",
       "staffId": "00000000-0000-4000-8000-000000000001",
-      "position": "CEO_MD",
+      "position": "synthetic-position",
       "department": "synthetic-department",
       "version": 0,
       "assignments": [
@@ -17216,7 +17216,7 @@ Success: HTTP 200.
       "managed": true,
       "userId": "00000000-0000-4000-8000-000000000001",
       "staffId": "00000000-0000-4000-8000-000000000001",
-      "position": "CEO_MD",
+      "position": "synthetic-position",
       "department": "synthetic-department",
       "version": 0,
       "assignments": [
@@ -17347,7 +17347,7 @@ Success: HTTP 200.
       "managed": true,
       "userId": "00000000-0000-4000-8000-000000000001",
       "staffId": "00000000-0000-4000-8000-000000000001",
-      "position": "CEO_MD",
+      "position": "synthetic-position",
       "department": "synthetic-department",
       "version": 0,
       "assignments": [
@@ -17458,7 +17458,7 @@ Success: HTTP 200.
       "managed": true,
       "userId": "00000000-0000-4000-8000-000000000001",
       "staffId": "00000000-0000-4000-8000-000000000001",
-      "position": "CEO_MD",
+      "position": "synthetic-position",
       "department": "synthetic-department",
       "version": 0,
       "assignments": [
@@ -17556,7 +17556,7 @@ Success: HTTP 200.
       "managed": true,
       "userId": "00000000-0000-4000-8000-000000000001",
       "staffId": "00000000-0000-4000-8000-000000000001",
-      "position": "CEO_MD",
+      "position": "synthetic-position",
       "department": "synthetic-department",
       "version": 0,
       "assignments": [
@@ -17663,7 +17663,7 @@ Success: HTTP 200.
       "managed": true,
       "userId": "00000000-0000-4000-8000-000000000001",
       "staffId": "00000000-0000-4000-8000-000000000001",
-      "position": "CEO_MD",
+      "position": "synthetic-position",
       "department": "synthetic-department",
       "version": 0,
       "assignments": [
@@ -17759,7 +17759,7 @@ Success: HTTP 200.
       "managed": true,
       "userId": "00000000-0000-4000-8000-000000000001",
       "staffId": "00000000-0000-4000-8000-000000000001",
-      "position": "CEO_MD",
+      "position": "synthetic-position",
       "department": "synthetic-department",
       "version": 0,
       "assignments": [
@@ -17896,7 +17896,7 @@ Success: HTTP 200.
       "managed": true,
       "userId": "00000000-0000-4000-8000-000000000001",
       "staffId": "00000000-0000-4000-8000-000000000001",
-      "position": "CEO_MD",
+      "position": "synthetic-position",
       "department": "synthetic-department",
       "version": 0,
       "assignments": [
@@ -17997,7 +17997,7 @@ Success: HTTP 200.
       "managed": true,
       "userId": "00000000-0000-4000-8000-000000000001",
       "staffId": "00000000-0000-4000-8000-000000000001",
-      "position": "CEO_MD",
+      "position": "synthetic-position",
       "department": "synthetic-department",
       "version": 0,
       "assignments": [
@@ -18117,7 +18117,7 @@ Success: HTTP 200.
       "managed": true,
       "userId": "00000000-0000-4000-8000-000000000001",
       "staffId": "00000000-0000-4000-8000-000000000001",
-      "position": "CEO_MD",
+      "position": "synthetic-position",
       "department": "synthetic-department",
       "version": 0,
       "assignments": [
@@ -18223,7 +18223,7 @@ Success: HTTP 200.
       "managed": true,
       "userId": "00000000-0000-4000-8000-000000000001",
       "staffId": "00000000-0000-4000-8000-000000000001",
-      "position": "CEO_MD",
+      "position": "synthetic-position",
       "department": "synthetic-department",
       "version": 0,
       "assignments": [
@@ -18319,7 +18319,7 @@ Success: HTTP 200.
       "managed": true,
       "userId": "00000000-0000-4000-8000-000000000001",
       "staffId": "00000000-0000-4000-8000-000000000001",
-      "position": "CEO_MD",
+      "position": "synthetic-position",
       "department": "synthetic-department",
       "version": 0,
       "assignments": [
@@ -23602,7 +23602,7 @@ Success: HTTP 200.
     },
     "access": {
       "userId": "00000000-0000-4000-8000-000000000001",
-      "position": "CEO_MD",
+      "position": "synthetic-position",
       "enabledAt": "2030-01-15T10:00:00.000Z",
       "updatedByUserId": "00000000-0000-4000-8000-000000000001",
       "version": 0,
@@ -23618,10 +23618,10 @@ Success: HTTP 200.
       {
         "id": "00000000-0000-4000-8000-000000000001",
         "userId": "00000000-0000-4000-8000-000000000001",
-        "template": "OPERATIONS",
+        "template": "synthetic-template",
         "templateVersion": 1,
         "branchId": "00000000-0000-4000-8000-000000000001",
-        "scope": "BRANCH",
+        "scope": "synthetic-scope",
         "temporary": true,
         "startsAt": "2030-01-15T10:00:00.000Z",
         "expiresAt": "2030-01-15T10:00:00.000Z",
@@ -23719,7 +23719,7 @@ Success: HTTP 200.
   "message": "Responsibility-based workspace: enroll",
   "data": {
     "userId": "00000000-0000-4000-8000-000000000001",
-    "position": "CEO_MD",
+    "position": "synthetic-position",
     "enabledAt": "2030-01-15T10:00:00.000Z",
     "updatedByUserId": "00000000-0000-4000-8000-000000000001",
     "version": 0,
@@ -23975,9 +23975,9 @@ Success: HTTP 200.
   "data": {
     "id": "00000000-0000-4000-8000-000000000001",
     "userId": "00000000-0000-4000-8000-000000000001",
-    "template": "OPERATIONS",
+    "template": "synthetic-template",
     "branchId": "00000000-0000-4000-8000-000000000001",
-    "scope": "BRANCH",
+    "scope": "synthetic-scope",
     "temporary": true,
     "startsAt": "2030-01-15T10:00:00.000Z",
     "expiresAt": "2030-01-15T10:00:00.000Z",
@@ -24052,7 +24052,7 @@ Success: HTTP 200.
   "message": "Responsibility-based workspace: delegate",
   "data": {
     "userId": "00000000-0000-4000-8000-000000000001",
-    "position": "CEO_MD",
+    "position": "synthetic-position",
     "enabledAt": "2030-01-15T10:00:00.000Z",
     "updatedByUserId": "00000000-0000-4000-8000-000000000001",
     "version": 0,

@@ -163,3 +163,5 @@ workforce-session-revocation.spec.ts
 allie-conversation.spec.ts
 # Revision 4 W9: paid provider composition is opt-in; normal runs skip safely.
 allie-real-provider.spec.ts
+# Revision 4 W10: bounded legacy history never becomes current authority.
+workforce-history.spec.ts
