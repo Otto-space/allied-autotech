@@ -32,3 +32,14 @@ The change is on the unreleased reconciliation candidate. A compatible backend
 rollout and target-environment refund acceptance remain open; payment providers
 stay disabled. No application database, provider, refund, notification or
 production deployment was changed by this checkpoint.
+
+Exact runtime `9e04031fe0668d977e802168be3b9ff323c2a482` passed the
+[backend database-safety workflow](https://github.com/Otto-space/allied-autotech/actions/runs/40462330861)
+and [repository secret guard](https://github.com/Otto-space/allied-autotech/actions/runs/40462330852).
+The database-safety workflow replayed all candidate migrations, checked drift,
+types and lint, and ran its selected isolated database suites; it did not run
+`refund-processing.test.ts`. A separate local disposable PostgreSQL 18 run for
+that suite was attempted, but automatic command review rejected starting its
+task-owned container with the reason `blocked by policy`. No container or
+database was created by that attempt. The direct real-database refund transition
+therefore remains unverified at this checkpoint.
