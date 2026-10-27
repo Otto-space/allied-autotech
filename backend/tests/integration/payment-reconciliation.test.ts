@@ -179,6 +179,10 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
           (item) => item.internalAmountKobo === 0n && item.providerAmountKobo === 0n,
         ),
       ).toBe(true);
+      expect(await f.worker.run(f.periodStart, f.periodEnd, "MONNIFY")).toMatchObject({
+        status: "MATCHED",
+        matchedCount: 1,
+      });
     }, 60000);
 
     it("totals confirmed receipts instead of requested amounts and retains underpayment as a difference", async () => {
@@ -245,24 +249,40 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       },
     );
 
-    it("keeps confirmed local funds when the provider is unavailable, without leaking its exception", async () => {
+    it("retains confirmed local funds and retries an unavailable provider without treating it as a missing receipt", async () => {
       const f = await fixture();
-      await f.attempt(f.confirmed(), new Error("synthetic-private-provider-error"));
-      const run = await f.run();
-      expect(run).toMatchObject({
-        differenceCount: 1,
-        internalTotalKobo: 10000n,
-        providerTotalKobo: 0n,
+      const attempt = await f.attempt(
+        f.confirmed(),
+        new Error("synthetic-private-provider-error"),
+      );
+      await expect(f.run()).rejects.toThrow("Provider verification unavailable");
+      const failed = await prisma.paymentReconciliationRun.findFirstOrThrow({
+        where: {
+          provider: "PAYSTACK",
+          periodStart: f.periodStart,
+          periodEnd: f.periodEnd,
+        },
       });
-      const items = await f.items(run.id);
-      expect(items).toEqual([
-        expect.objectContaining({
-          status: "MISSING_IN_PROVIDER",
-          providerAmountKobo: null,
-          internalAmountKobo: 10000n,
-        }),
-      ]);
-      expect(items[0]?.note).not.toContain("synthetic-private-provider-error");
+      expect(failed).toMatchObject({ status: "FAILED", attemptNumber: 1 });
+      expect(failed.failureMessage).not.toContain("synthetic-private-provider-error");
+      expect(await f.items(failed.id)).toEqual([]);
+      f.verify.mockResolvedValueOnce({
+        reference: attempt.internalReference,
+        gatewayTransactionId: attempt.gatewayTransactionId!,
+        status: "success",
+        amountKobo: 10000n,
+        currency: "NGN",
+        paidAt: new Date(),
+        providerFeeKobo: null,
+        method: null,
+      });
+      const recovered = await f.run();
+      expect(recovered).toMatchObject({
+        status: "MATCHED",
+        attemptNumber: 2,
+        internalTotalKobo: 10000n,
+        providerTotalKobo: 10000n,
+      });
     });
 
     it("distinguishes pending from failed even when neither side reports a capture", async () => {
@@ -405,14 +425,13 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         new Error("synthetic database failure"),
       );
       await expect(f.run()).rejects.toThrow("synthetic database failure");
-      const run = await prisma.paymentReconciliationRun.findUniqueOrThrow({
+      const run = await prisma.paymentReconciliationRun.findFirstOrThrow({
         where: {
-          provider_periodStart_periodEnd: {
-            provider: "PAYSTACK",
-            periodStart: f.periodStart,
-            periodEnd: f.periodEnd,
-          },
+          provider: "PAYSTACK",
+          periodStart: f.periodStart,
+          periodEnd: f.periodEnd,
         },
+        orderBy: { attemptNumber: "desc" },
       });
       expect(run).toMatchObject({
         status: "FAILED",
@@ -429,16 +448,213 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       );
       await expect(f.run()).rejects.toThrow("synthetic summary failure");
       expect(
-        await prisma.paymentReconciliationRun.findUniqueOrThrow({
+        await prisma.paymentReconciliationRun.findFirstOrThrow({
           where: {
-            provider_periodStart_periodEnd: {
-              provider: "PAYSTACK",
-              periodStart: f.periodStart,
-              periodEnd: f.periodEnd,
+            provider: "PAYSTACK",
+            periodStart: f.periodStart,
+            periodEnd: f.periodEnd,
+          },
+          orderBy: { attemptNumber: "desc" },
+        }),
+      ).toMatchObject({ status: "FAILED" });
+    });
+
+    it("retains a partial failed observation and records a separate same-period retry", async () => {
+      const f = await fixture();
+      await f.attempt();
+      await f.attempt({ initiatedAt: new Date(f.periodStart.getTime() + 1) });
+      const originalCreate = prisma.paymentReconciliationItem.create.bind(
+        prisma.paymentReconciliationItem,
+      );
+      const create = vi.spyOn(prisma.paymentReconciliationItem, "create");
+      create.mockImplementationOnce((args) => originalCreate(args));
+      create.mockRejectedValueOnce(new Error("synthetic persistence interruption"));
+      await expect(f.run()).rejects.toThrow("synthetic persistence interruption");
+      create.mockRestore();
+
+      const first = await prisma.paymentReconciliationRun.findFirstOrThrow({
+        where: {
+          provider: "PAYSTACK",
+          periodStart: f.periodStart,
+          periodEnd: f.periodEnd,
+        },
+      });
+      expect(first).toMatchObject({ status: "FAILED", attemptNumber: 1 });
+      expect(await f.items(first.id)).toHaveLength(1);
+
+      const recovered = await f.run();
+      expect(recovered).toMatchObject({
+        status: "MATCHED",
+        attemptNumber: 2,
+        matchedCount: 2,
+      });
+      expect(await f.items(first.id)).toHaveLength(1);
+      expect(await f.items(recovered.id)).toHaveLength(2);
+      expect((await f.run()).id).toBe(recovered.id);
+      expect(f.verify).toHaveBeenCalledTimes(4);
+    });
+
+    it("finds older uncovered attempts after a restart without advancing past a failed period", async () => {
+      const f = await fixture();
+      const intervalMs = 60_000;
+      await f.attempt({ provider: "MONNIFY" });
+      await f.attempt({
+        provider: "MONNIFY",
+        initiatedAt: new Date(f.periodStart.getTime() + intervalMs + 1),
+      });
+      const now = new Date(f.periodStart.getTime() + intervalMs * 4);
+      const first = await f.worker.runNextDueForProvider("MONNIFY", intervalMs, now);
+      expect(first).toMatchObject({ status: "MATCHED", matchedCount: 1 });
+      const second = await new PaymentReconciliationWorker(
+        prisma,
+        new PaymentProviderRegistry({
+          MONNIFY: {
+            verify: f.verify,
+            async initialize(): Promise<never> {
+              throw new Error("No checkout allowed");
+            },
+            async refund(): Promise<never> {
+              throw new Error("No refund allowed");
             },
           },
         }),
-      ).toMatchObject({ status: "FAILED" });
+      ).runNextDueForProvider("MONNIFY", intervalMs, now);
+      expect(second).toMatchObject({ status: "MATCHED", matchedCount: 1 });
+      expect(second?.periodStart).toEqual(
+        new Date(f.periodStart.getTime() + intervalMs + 1),
+      );
+      expect(await f.worker.runNextDueForProvider("MONNIFY", intervalMs, now)).toBeNull();
+      expect(f.verify).toHaveBeenCalledTimes(2);
+    });
+
+    it("retries the exact failed period before scheduling a replacement window", async () => {
+      const f = await fixture();
+      await f.attempt({ provider: "MONNIFY" });
+      const create = vi
+        .spyOn(prisma.paymentReconciliationItem, "create")
+        .mockRejectedValueOnce(new Error("synthetic storage interruption"));
+      await expect(f.worker.run(f.periodStart, f.periodEnd, "MONNIFY")).rejects.toThrow(
+        "synthetic storage interruption",
+      );
+      create.mockRestore();
+      const recovered = await f.worker.runNextDueForProvider(
+        "MONNIFY",
+        60_000,
+        new Date(f.periodStart.getTime() + 120_000),
+      );
+      expect(recovered).toMatchObject({
+        status: "MATCHED",
+        attemptNumber: 2,
+        periodStart: f.periodStart,
+        periodEnd: f.periodEnd,
+      });
+    });
+
+    it("records a new snapshot when a late-created attempt falls inside an already completed period", async () => {
+      const f = await fixture();
+      await f.attempt({ provider: "MONNIFY" });
+      const first = await f.worker.run(f.periodStart, f.periodEnd, "MONNIFY");
+      expect(first).toMatchObject({ status: "MATCHED", attemptNumber: 1 });
+      await f.attempt({
+        provider: "MONNIFY",
+        initiatedAt: new Date(f.periodStart.getTime() + 1),
+      });
+      const second = await f.worker.runNextDueForProvider(
+        "MONNIFY",
+        60_000,
+        new Date(f.periodStart.getTime() + 120_000),
+      );
+      expect(second).toMatchObject({
+        status: "MATCHED",
+        attemptNumber: 2,
+        matchedCount: 2,
+        periodStart: f.periodStart,
+        periodEnd: f.periodEnd,
+      });
+      expect(await f.items(first.id)).toHaveLength(1);
+      expect(await f.items(second!.id)).toHaveLength(2);
+    });
+
+    it("recovers an expired running lease while preserving its earlier observation", async () => {
+      const f = await fixture();
+      const attempt = await f.attempt({ provider: "MONNIFY" });
+      const abandoned = await prisma.paymentReconciliationRun.create({
+        data: {
+          provider: "MONNIFY",
+          periodStart: f.periodStart,
+          periodEnd: f.periodEnd,
+          leaseToken: randomUUID(),
+          leaseUntil: new Date(Date.now() - 1_000),
+        },
+      });
+      await prisma.paymentReconciliationItem.create({
+        data: {
+          runId: abandoned.id,
+          paymentAttemptId: attempt.id,
+          status: "MATCHED",
+          providerReference: attempt.providerReference,
+          internalAmountKobo: 0n,
+          providerAmountKobo: 0n,
+        },
+      });
+      const recovered = await f.worker.runNextDueForProvider(
+        "MONNIFY",
+        60_000,
+        new Date(f.periodStart.getTime() + 120_000),
+      );
+      expect(recovered).toMatchObject({ status: "MATCHED", attemptNumber: 2 });
+      expect(await f.items(abandoned.id)).toHaveLength(1);
+      expect(
+        await prisma.paymentReconciliationRun.findUniqueOrThrow({
+          where: { id: abandoned.id },
+        }),
+      ).toMatchObject({ status: "FAILED", leaseToken: null, leaseUntil: null });
+    });
+
+    it("prevents a replaced worker from persisting after its lease is lost", async () => {
+      const f = await fixture();
+      const attempt = await f.attempt();
+      let signalStarted!: () => void;
+      let releaseFirst!: () => void;
+      const started = new Promise<void>((resolve) => {
+        signalStarted = resolve;
+      });
+      const gate = new Promise<void>((resolve) => {
+        releaseFirst = resolve;
+      });
+      f.verify.mockImplementationOnce(async () => {
+        signalStarted();
+        await gate;
+        return {
+          reference: attempt.internalReference,
+          gatewayTransactionId: `synthetic-${attempt.internalReference}`,
+          status: "pending",
+          amountKobo: 10000n,
+          currency: "NGN",
+          paidAt: null,
+          providerFeeKobo: null,
+          method: null,
+        };
+      });
+      const firstResult = f.run().catch((error: unknown) => error);
+      await started;
+      const abandoned = await prisma.paymentReconciliationRun.findFirstOrThrow({
+        where: {
+          provider: "PAYSTACK",
+          periodStart: f.periodStart,
+          periodEnd: f.periodEnd,
+        },
+      });
+      await prisma.paymentReconciliationRun.update({
+        where: { id: abandoned.id },
+        data: { leaseUntil: new Date(Date.now() - 1_000) },
+      });
+      const replacement = await f.run();
+      releaseFirst();
+      expect(await firstResult).toBeInstanceOf(Error);
+      expect(replacement).toMatchObject({ status: "MATCHED", attemptNumber: 2 });
+      expect(await f.items(abandoned.id)).toEqual([]);
+      expect(await f.items(replacement.id)).toHaveLength(1);
     });
   },
 );

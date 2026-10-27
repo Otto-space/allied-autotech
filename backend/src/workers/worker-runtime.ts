@@ -82,7 +82,7 @@ export async function runGeneralWorker(): Promise<void> {
   process.once("SIGINT", stopOnce);
   process.once("SIGTERM", stopOnce);
   let nextExpirationAt = 0;
-  let nextReconciliationAt = Date.now() + env.RECONCILIATION_INTERVAL_MS;
+  let nextReconciliationAt = 0;
 
   await prisma.$connect();
   await assertDatabaseSchemaCompatible(prisma);
@@ -119,14 +119,12 @@ export async function runGeneralWorker(): Promise<void> {
         nextExpirationAt = now + env.EXPIRATION_INTERVAL_MS;
       }
       if (env.PAYMENT_RECONCILIATION_ENABLED && now >= nextReconciliationAt) {
-        const periodEnd = new Date();
-        const periodStart = new Date(
-          periodEnd.getTime() - env.RECONCILIATION_INTERVAL_MS,
-        );
         await safely("payment-reconciliation", () =>
-          reconciliation.runConfigured(periodStart, periodEnd),
+          reconciliation.runNextDue(env.RECONCILIATION_INTERVAL_MS),
         );
-        nextReconciliationAt = now + env.RECONCILIATION_INTERVAL_MS;
+        // Revisit a bounded backlog promptly; a restart cannot move the cursor
+        // past an unobserved attempt or an incomplete run.
+        nextReconciliationAt = Date.now() + 60_000;
       }
       await wait(env.WORKER_POLL_INTERVAL_MS, stop.signal);
     }
