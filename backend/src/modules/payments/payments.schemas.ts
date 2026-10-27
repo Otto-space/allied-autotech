@@ -61,6 +61,7 @@ export const paymentCreateBodySchema = z.discriminatedUnion("targetType", [
 export const paymentListQuerySchema = z
   .object({
     ...page,
+    vehicleTransactionId: uuid.optional(),
     status: z
       .enum([
         "REQUIRES_PAYMENT",
@@ -74,6 +75,7 @@ export const paymentListQuerySchema = z
   })
   .strict();
 export const staffPaymentListQuerySchema = paymentListQuerySchema
+  .omit({ vehicleTransactionId: true })
   .extend({
     customerId: uuid.optional(),
     provider: z.enum(["PAYSTACK", "MONNIFY", "MANUAL"]).optional(),

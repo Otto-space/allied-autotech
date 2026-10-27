@@ -176,11 +176,33 @@ export class PaymentsRepository {
   }
   listCustomer(customerId: string, query: PaymentListQuery) {
     return this.database.payment.findMany({
-      where: { customerId, ...(query.status ? { status: query.status } : {}) },
+      where: {
+        customerId,
+        ...(query.status ? { status: query.status } : {}),
+        ...(query.vehicleTransactionId
+          ? { vehicleTransactionId: query.vehicleTransactionId }
+          : {}),
+      },
       select: paymentSelect,
       orderBy: [{ createdAt: "desc" }, { id: "desc" }],
       take: query.limit + 1,
       ...(query.cursor ? { cursor: { id: query.cursor }, skip: 1 } : {}),
+    });
+  }
+  customerCursor(
+    customerId: string,
+    cursor: string,
+    vehicleTransactionId: string,
+    status?: PaymentListQuery["status"],
+  ) {
+    return this.database.payment.findFirst({
+      where: {
+        id: cursor,
+        customerId,
+        vehicleTransactionId,
+        ...(status ? { status } : {}),
+      },
+      select: { id: true },
     });
   }
   listStaff(query: StaffPaymentListQuery, branchId: string | null) {

@@ -148,6 +148,17 @@ export class PaymentsService {
     assertPaymentCustomer(actor);
     const profile = await this.repository.customerProfile(actor.userId);
     if (!profile) throw paymentNotFound();
+    if (
+      query.vehicleTransactionId &&
+      query.cursor &&
+      !(await this.repository.customerCursor(
+        profile.id,
+        query.cursor,
+        query.vehicleTransactionId,
+        query.status,
+      ))
+    )
+      throw paymentNotFound();
     return paymentJsonSafe(
       paymentPage(await this.repository.listCustomer(profile.id, query), query.limit),
     );

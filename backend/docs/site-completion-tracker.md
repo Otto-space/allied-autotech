@@ -1857,3 +1857,18 @@ OpenAPI/routes, types, lint, format, scripts and secret checks passed. No
 schema, route or frontend runtime change. Deployment and genuine browser
 WebAuthn/real-role acceptance remain open. Detail:
 backend/docs/mfa-challenge-atomicity-20261026.md.
+
+27 October 2026 - P1 vehicle-payment history filter local checkpoint on a
+merged current-release source (frontend 8fa386cb plus backend 3bb51d21).
+Customer payment list applies optional vehicleTransactionId within the owned
+profile before cursor pagination; foreign/other-target filtered cursors fail.
+The purchase panel uses that filter and rejects mismatched rows or incomplete
+history before offering a new payment request. A fresh isolated PostgreSQL 18
+_ci target replayed 72 migrations, passed schema diff/db:check and the focused
+real-service ownership/pagination integration. Six focused Edge fixture cases,
+backend/frontend types, scoped lint and OpenAPI validation passed. The task
+database was stopped/removed; no production financial/provider write. Exact-lock
+CI, API-first deployment, both frontend aliases and authorized live-role
+acceptance remain open. See backend/docs/customer-vehicle-payment-filter-20261027.md.
+P0 reconciliation recovery remains on its separate unreleased branch, and full
+Item 6/Revision 4 remain active.

@@ -193,22 +193,40 @@ for (const status of ["REQUIRES_PAYMENT", "PROCESSING", "REQUIRES_REVIEW"] as co
     page,
   }) => {
     const state = await fixture(page);
-    const other = { ...paymentFixture(21), vehicleTransactionId: id(99) };
-    state.pages = [[other], [{ ...paymentFixture(), status }]];
+    state.pages = [[paymentFixture(21)], [{ ...paymentFixture(), status }]];
     await page.goto(purchasePath);
     await expect(
       page.getByRole("link", { name: "TEST-PAYMENT-20", exact: true }),
     ).toBeVisible();
     await expect(
       page.getByRole("link", { name: "TEST-PAYMENT-21", exact: true }),
-    ).toHaveCount(0);
+    ).toBeVisible();
     await expect(
       page.getByRole("button", { name: "Review payment request", exact: true }),
     ).toBeDisabled();
-    expect(state.reads).toContain(`/customers/payments?limit=100&cursor=${id(80)}`);
+    expect(state.reads).toContain(
+      `/customers/payments?limit=100&vehicleTransactionId=${id(1)}&cursor=${id(80)}`,
+    );
     expect(state.writes).toHaveLength(0);
   });
 }
+test("a mismatched target in a filtered response blocks another payment request", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  state.pages = [[{ ...paymentFixture(), vehicleTransactionId: id(99) }]];
+  await page.goto(purchasePath);
+  await expect(
+    page.getByText(/could not check the complete payment history/),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Review payment request", exact: true }),
+  ).toBeDisabled();
+  expect(state.reads).toContain(
+    `/customers/payments?limit=100&vehicleTransactionId=${id(1)}`,
+  );
+  expect(state.writes).toHaveLength(0);
+});
 for (const broken of ["failed", "cursor"]) {
   test(`${broken} payment history never claims empty history or permits creation`, async ({
     page,

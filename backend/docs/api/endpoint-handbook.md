@@ -5661,7 +5661,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### GET `/customers/payments`
 
 - Operation ID: `getCustomersPayments`
-- Purpose: Requires the customer account that owns the payment; server verification remains authoritative. List own payments. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Requires the customer account that owns the payment; server verification remains authoritative. Optional vehicleTransactionId filters within the authenticated customer's payments before pagination. A cursor for another customer, target or selected status is rejected. An empty result does not reveal whether a different customer owns the target. List own payments, optionally for one vehicle purchase. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: CUSTOMER
 - Authentication: Opaque session cookie
 - CSRF: Not required
@@ -5673,6 +5673,7 @@ Parameters:
 | --- | --- | --- | --- | --- |
 | `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
 | `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+| `vehicleTransactionId` | query | string (uuid) | No | Vehicle Transaction Id used to constrain this request. |
 | `status` | query | REQUIRES_PAYMENT / PROCESSING / REQUIRES_REVIEW / SUCCEEDED / CANCELLED / EXPIRED | No | Status used to constrain this request. |
 
 Success: HTTP 200.
@@ -5680,7 +5681,7 @@ Success: HTTP 200.
 ```json
 {
   "success": true,
-  "message": "List own payments",
+  "message": "List own payments, optionally for one vehicle purchase",
   "data": {
     "items": [
       {
