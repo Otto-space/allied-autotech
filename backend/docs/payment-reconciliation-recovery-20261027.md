@@ -105,3 +105,8 @@ scoped oxlint, Prettier and diff checks passed. This used a fresh loopback-only
 `_ci` database and a controlled provider adapter; no real provider or payment
 action occurred. The due-scan scale issue and the other release gates above
 remain open.
+
+Exact runtime `13fa09d8730d964a4745988f3a15900782bbb09e` passed
+[backend database-safety CI](https://github.com/Otto-space/allied-autotech/actions/runs/40453684995)
+and the [redacted secret guard](https://github.com/Otto-space/allied-autotech/actions/runs/40453684938).
+The source remains unreleased and provider-disabled.
