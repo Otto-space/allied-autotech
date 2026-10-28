@@ -15,6 +15,11 @@ async function fixture(page: Page) {
   await page.route("**/api/v1/**", async (route) => {
     const request = route.request();
     const endpoint = new URL(request.url()).pathname;
+    if (
+      request.method() === "GET" &&
+      /^\/api\/v1\/public\/media\/images\/[0-9a-f-]{36}$/i.test(endpoint)
+    )
+      return route.continue();
     const ok = (data: unknown, status = 200) =>
       route.fulfill({
         status,
@@ -34,7 +39,16 @@ async function fixture(page: Page) {
             error: { code: "SERVICE_UNAVAILABLE" },
           },
         });
-      return ok({ items: [{ id: branchId, name: "Synthetic workshop", code: "TEST" }] });
+      return ok({
+        items: [
+          { id: branchId, name: "Synthetic workshop", code: "TEST" },
+          {
+            id: "f6000000-0000-4000-8000-000000000099",
+            name: "Second workshop",
+            code: "TEST2",
+          },
+        ],
+      });
     }
     if (endpoint.endsWith("/public/support/enquiries") && request.method() === "POST") {
       state.writes.push(request.postDataJSON());
@@ -107,7 +121,7 @@ for (const width of [390, 1440]) {
       )
       .toBe(true);
     await page.screenshot({ path: info.outputPath(`service-full-photo-${width}.png`) });
-    const action = page.getByRole("button", { name: "Send an enquiry", exact: true });
+    const action = page.getByRole("link", { name: "Send an enquiry", exact: true });
     await action.focus();
     await page.keyboard.press("Enter");
     await expect(heading).toBeFocused();
@@ -200,7 +214,9 @@ test("service enquiry retains the draft through branch retry and rejected submis
     .getByRole("dialog")
     .getByRole("button", { name: "Send enquiry", exact: true })
     .click();
-  await expect(page.getByText("Enter a clearer subject.", { exact: true })).toBeVisible();
+  await expect(
+    page.getByText("Check this field and enter a valid value.", { exact: true }),
+  ).toBeVisible();
   await expect(
     page.getByRole("heading", { name: "Enquiry received", exact: true }),
   ).toHaveCount(0);
