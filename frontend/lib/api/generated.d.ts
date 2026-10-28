@@ -3807,7 +3807,7 @@ export interface paths {
         put?: never;
         /**
          * Authorize a bounded object upload
-         * @description STAFF requires an active assigned branch matching the vehicle; ADMIN/SUPER_ADMIN retain existing cross-branch authority. All require verified MFA. Writes require CSRF. IMAGE preparation and confirmation retain their original paths and response fields; image confirmations may omit expectedVersion for old clients, but new clients send Vehicle.version. Every image mutation serializes on the vehicle row and increments that same version. PATCH/DELETE require expectedVersion. IMAGE uploads use shared actor/owner/vehicle/purpose/branch-bound tickets, 10 MiB, 20-image limit, JPEG/PNG/WebP, full checksum/signature/decoding, 32-8192px sides and 40MP, sanitized WebP output within 2048px. Still-valid old encrypted IMAGE tickets undergo the same verification; non-image asset contracts are unchanged. Exact confirmation token/body replay lasts 24h; changed replay conflicts. Failed attachments preserve old images. Optional replaceImageId on IMAGE preparation/confirmation supports replacement at the gallery limit; confirmation also requires expectedVersion. It attaches verified new bytes before detaching the old image in the same transaction, preserves its primary selection and queues owned cleanup. The old image remains intact on any failure. sortOrder is an integer 0-10000; ties use image ID, deletion leaves remaining positions unchanged. isPrimary:true replaces the previous primary; false may clear it. Deleting the primary selects the first remaining image. Deleting the last image while any AVAILABLE or RESERVED listing exists fails MEDIA_LAST_PUBLISHED_IMAGE (409), including inactive branches. Existing publication transitions and prices are unchanged. Deletion queues managed or recognized legacy owned keys in the same transaction; external files are never deleted. Preview is authenticated and branch scoped; public bytes require an AVAILABLE listing at an active branch. All byte responses are no-store; subsequent reads revoke immediately on detach. Read projections contain safe URLs, source and nullable dimensions, no keys/tickets. See managed-media.md. Authorize a bounded object upload. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         * @description STAFF requires an active assigned branch matching the vehicle; ADMIN/SUPER_ADMIN retain existing cross-branch authority. All require verified MFA. Writes require CSRF. IMAGE preparation and confirmation retain their original paths and response fields; image confirmations may omit expectedVersion for old clients, but new clients send Vehicle.version. Every image mutation serializes on the vehicle row and increments that same version. PATCH/DELETE require expectedVersion. IMAGE uploads use shared actor/owner/vehicle/purpose/branch-bound tickets, 10 MiB, 20-image limit, JPEG/PNG/WebP, full checksum/signature/decoding, 32-8192px sides and 40MP, sanitized WebP output within 2048px. Still-valid old encrypted IMAGE tickets undergo the same verification; non-image asset contracts are unchanged. Exact confirmation token/body replay lasts 24h; changed replay conflicts. Failed attachments preserve old images. Optional replaceImageId on IMAGE preparation/confirmation supports replacement at the gallery limit; confirmation also requires expectedVersion. It attaches verified new bytes before detaching the old image in the same transaction, preserves its primary selection and queues owned cleanup. The old image remains intact on any failure. sortOrder is an integer 0-10000; ties use image ID, deletion leaves remaining positions unchanged. isPrimary:true replaces the previous primary; false may clear it. Deleting the primary selects the first remaining image. Deleting the last image while any AVAILABLE or RESERVED listing exists fails MEDIA_LAST_PUBLISHED_IMAGE (409), including inactive branches. Publishing AVAILABLE now requires an active branch, a positive asking price and at least one photo. Publication and photo removal serialize in vehicle-then-listing order. Owner-reported condition/issues are public attributed statements, separate from inspection evidence; corrections use Vehicle.version and retain before/after audit notes. Deletion queues managed or recognized legacy owned keys in the same transaction; external files are never deleted. Preview is authenticated and branch scoped; public bytes require an AVAILABLE listing at an active branch. All byte responses are no-store; subsequent reads revoke immediately on detach. Read projections contain safe URLs, source and nullable dimensions, no keys/tickets. See managed-media.md. Authorize a bounded object upload. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
          */
         post: operations["postStaffVehiclesByVehicleIdAssetsUpload"];
         delete?: never;
@@ -3827,7 +3827,7 @@ export interface paths {
         put?: never;
         /**
          * Verify and attach a stock vehicle image
-         * @description STAFF requires an active assigned branch matching the vehicle; ADMIN/SUPER_ADMIN retain existing cross-branch authority. All require verified MFA. Writes require CSRF. IMAGE preparation and confirmation retain their original paths and response fields; image confirmations may omit expectedVersion for old clients, but new clients send Vehicle.version. Every image mutation serializes on the vehicle row and increments that same version. PATCH/DELETE require expectedVersion. IMAGE uploads use shared actor/owner/vehicle/purpose/branch-bound tickets, 10 MiB, 20-image limit, JPEG/PNG/WebP, full checksum/signature/decoding, 32-8192px sides and 40MP, sanitized WebP output within 2048px. Still-valid old encrypted IMAGE tickets undergo the same verification; non-image asset contracts are unchanged. Exact confirmation token/body replay lasts 24h; changed replay conflicts. Failed attachments preserve old images. Optional replaceImageId on IMAGE preparation/confirmation supports replacement at the gallery limit; confirmation also requires expectedVersion. It attaches verified new bytes before detaching the old image in the same transaction, preserves its primary selection and queues owned cleanup. The old image remains intact on any failure. sortOrder is an integer 0-10000; ties use image ID, deletion leaves remaining positions unchanged. isPrimary:true replaces the previous primary; false may clear it. Deleting the primary selects the first remaining image. Deleting the last image while any AVAILABLE or RESERVED listing exists fails MEDIA_LAST_PUBLISHED_IMAGE (409), including inactive branches. Existing publication transitions and prices are unchanged. Deletion queues managed or recognized legacy owned keys in the same transaction; external files are never deleted. Preview is authenticated and branch scoped; public bytes require an AVAILABLE listing at an active branch. All byte responses are no-store; subsequent reads revoke immediately on detach. Read projections contain safe URLs, source and nullable dimensions, no keys/tickets. See managed-media.md. Verify and attach a stock vehicle image. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         * @description STAFF requires an active assigned branch matching the vehicle; ADMIN/SUPER_ADMIN retain existing cross-branch authority. All require verified MFA. Writes require CSRF. IMAGE preparation and confirmation retain their original paths and response fields; image confirmations may omit expectedVersion for old clients, but new clients send Vehicle.version. Every image mutation serializes on the vehicle row and increments that same version. PATCH/DELETE require expectedVersion. IMAGE uploads use shared actor/owner/vehicle/purpose/branch-bound tickets, 10 MiB, 20-image limit, JPEG/PNG/WebP, full checksum/signature/decoding, 32-8192px sides and 40MP, sanitized WebP output within 2048px. Still-valid old encrypted IMAGE tickets undergo the same verification; non-image asset contracts are unchanged. Exact confirmation token/body replay lasts 24h; changed replay conflicts. Failed attachments preserve old images. Optional replaceImageId on IMAGE preparation/confirmation supports replacement at the gallery limit; confirmation also requires expectedVersion. It attaches verified new bytes before detaching the old image in the same transaction, preserves its primary selection and queues owned cleanup. The old image remains intact on any failure. sortOrder is an integer 0-10000; ties use image ID, deletion leaves remaining positions unchanged. isPrimary:true replaces the previous primary; false may clear it. Deleting the primary selects the first remaining image. Deleting the last image while any AVAILABLE or RESERVED listing exists fails MEDIA_LAST_PUBLISHED_IMAGE (409), including inactive branches. Publishing AVAILABLE now requires an active branch, a positive asking price and at least one photo. Publication and photo removal serialize in vehicle-then-listing order. Owner-reported condition/issues are public attributed statements, separate from inspection evidence; corrections use Vehicle.version and retain before/after audit notes. Deletion queues managed or recognized legacy owned keys in the same transaction; external files are never deleted. Preview is authenticated and branch scoped; public bytes require an AVAILABLE listing at an active branch. All byte responses are no-store; subsequent reads revoke immediately on detach. Read projections contain safe URLs, source and nullable dimensions, no keys/tickets. See managed-media.md. Verify and attach a stock vehicle image. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
          */
         post: operations["postStaffVehiclesByVehicleIdImages"];
         delete?: never;
@@ -3848,14 +3848,14 @@ export interface paths {
         post?: never;
         /**
          * Remove a stock image and queue owned object cleanup
-         * @description STAFF requires an active assigned branch matching the vehicle; ADMIN/SUPER_ADMIN retain existing cross-branch authority. All require verified MFA. Writes require CSRF. IMAGE preparation and confirmation retain their original paths and response fields; image confirmations may omit expectedVersion for old clients, but new clients send Vehicle.version. Every image mutation serializes on the vehicle row and increments that same version. PATCH/DELETE require expectedVersion. IMAGE uploads use shared actor/owner/vehicle/purpose/branch-bound tickets, 10 MiB, 20-image limit, JPEG/PNG/WebP, full checksum/signature/decoding, 32-8192px sides and 40MP, sanitized WebP output within 2048px. Still-valid old encrypted IMAGE tickets undergo the same verification; non-image asset contracts are unchanged. Exact confirmation token/body replay lasts 24h; changed replay conflicts. Failed attachments preserve old images. Optional replaceImageId on IMAGE preparation/confirmation supports replacement at the gallery limit; confirmation also requires expectedVersion. It attaches verified new bytes before detaching the old image in the same transaction, preserves its primary selection and queues owned cleanup. The old image remains intact on any failure. sortOrder is an integer 0-10000; ties use image ID, deletion leaves remaining positions unchanged. isPrimary:true replaces the previous primary; false may clear it. Deleting the primary selects the first remaining image. Deleting the last image while any AVAILABLE or RESERVED listing exists fails MEDIA_LAST_PUBLISHED_IMAGE (409), including inactive branches. Existing publication transitions and prices are unchanged. Deletion queues managed or recognized legacy owned keys in the same transaction; external files are never deleted. Preview is authenticated and branch scoped; public bytes require an AVAILABLE listing at an active branch. All byte responses are no-store; subsequent reads revoke immediately on detach. Read projections contain safe URLs, source and nullable dimensions, no keys/tickets. See managed-media.md. Remove a stock image and queue owned object cleanup. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         * @description STAFF requires an active assigned branch matching the vehicle; ADMIN/SUPER_ADMIN retain existing cross-branch authority. All require verified MFA. Writes require CSRF. IMAGE preparation and confirmation retain their original paths and response fields; image confirmations may omit expectedVersion for old clients, but new clients send Vehicle.version. Every image mutation serializes on the vehicle row and increments that same version. PATCH/DELETE require expectedVersion. IMAGE uploads use shared actor/owner/vehicle/purpose/branch-bound tickets, 10 MiB, 20-image limit, JPEG/PNG/WebP, full checksum/signature/decoding, 32-8192px sides and 40MP, sanitized WebP output within 2048px. Still-valid old encrypted IMAGE tickets undergo the same verification; non-image asset contracts are unchanged. Exact confirmation token/body replay lasts 24h; changed replay conflicts. Failed attachments preserve old images. Optional replaceImageId on IMAGE preparation/confirmation supports replacement at the gallery limit; confirmation also requires expectedVersion. It attaches verified new bytes before detaching the old image in the same transaction, preserves its primary selection and queues owned cleanup. The old image remains intact on any failure. sortOrder is an integer 0-10000; ties use image ID, deletion leaves remaining positions unchanged. isPrimary:true replaces the previous primary; false may clear it. Deleting the primary selects the first remaining image. Deleting the last image while any AVAILABLE or RESERVED listing exists fails MEDIA_LAST_PUBLISHED_IMAGE (409), including inactive branches. Publishing AVAILABLE now requires an active branch, a positive asking price and at least one photo. Publication and photo removal serialize in vehicle-then-listing order. Owner-reported condition/issues are public attributed statements, separate from inspection evidence; corrections use Vehicle.version and retain before/after audit notes. Deletion queues managed or recognized legacy owned keys in the same transaction; external files are never deleted. Preview is authenticated and branch scoped; public bytes require an AVAILABLE listing at an active branch. All byte responses are no-store; subsequent reads revoke immediately on detach. Read projections contain safe URLs, source and nullable dimensions, no keys/tickets. See managed-media.md. Remove a stock image and queue owned object cleanup. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
          */
         delete: operations["deleteStaffVehiclesByVehicleIdImagesByImageId"];
         options?: never;
         head?: never;
         /**
          * Edit stock image metadata, ordering and primary selection
-         * @description STAFF requires an active assigned branch matching the vehicle; ADMIN/SUPER_ADMIN retain existing cross-branch authority. All require verified MFA. Writes require CSRF. IMAGE preparation and confirmation retain their original paths and response fields; image confirmations may omit expectedVersion for old clients, but new clients send Vehicle.version. Every image mutation serializes on the vehicle row and increments that same version. PATCH/DELETE require expectedVersion. IMAGE uploads use shared actor/owner/vehicle/purpose/branch-bound tickets, 10 MiB, 20-image limit, JPEG/PNG/WebP, full checksum/signature/decoding, 32-8192px sides and 40MP, sanitized WebP output within 2048px. Still-valid old encrypted IMAGE tickets undergo the same verification; non-image asset contracts are unchanged. Exact confirmation token/body replay lasts 24h; changed replay conflicts. Failed attachments preserve old images. Optional replaceImageId on IMAGE preparation/confirmation supports replacement at the gallery limit; confirmation also requires expectedVersion. It attaches verified new bytes before detaching the old image in the same transaction, preserves its primary selection and queues owned cleanup. The old image remains intact on any failure. sortOrder is an integer 0-10000; ties use image ID, deletion leaves remaining positions unchanged. isPrimary:true replaces the previous primary; false may clear it. Deleting the primary selects the first remaining image. Deleting the last image while any AVAILABLE or RESERVED listing exists fails MEDIA_LAST_PUBLISHED_IMAGE (409), including inactive branches. Existing publication transitions and prices are unchanged. Deletion queues managed or recognized legacy owned keys in the same transaction; external files are never deleted. Preview is authenticated and branch scoped; public bytes require an AVAILABLE listing at an active branch. All byte responses are no-store; subsequent reads revoke immediately on detach. Read projections contain safe URLs, source and nullable dimensions, no keys/tickets. See managed-media.md. Edit stock image metadata, ordering and primary selection. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         * @description STAFF requires an active assigned branch matching the vehicle; ADMIN/SUPER_ADMIN retain existing cross-branch authority. All require verified MFA. Writes require CSRF. IMAGE preparation and confirmation retain their original paths and response fields; image confirmations may omit expectedVersion for old clients, but new clients send Vehicle.version. Every image mutation serializes on the vehicle row and increments that same version. PATCH/DELETE require expectedVersion. IMAGE uploads use shared actor/owner/vehicle/purpose/branch-bound tickets, 10 MiB, 20-image limit, JPEG/PNG/WebP, full checksum/signature/decoding, 32-8192px sides and 40MP, sanitized WebP output within 2048px. Still-valid old encrypted IMAGE tickets undergo the same verification; non-image asset contracts are unchanged. Exact confirmation token/body replay lasts 24h; changed replay conflicts. Failed attachments preserve old images. Optional replaceImageId on IMAGE preparation/confirmation supports replacement at the gallery limit; confirmation also requires expectedVersion. It attaches verified new bytes before detaching the old image in the same transaction, preserves its primary selection and queues owned cleanup. The old image remains intact on any failure. sortOrder is an integer 0-10000; ties use image ID, deletion leaves remaining positions unchanged. isPrimary:true replaces the previous primary; false may clear it. Deleting the primary selects the first remaining image. Deleting the last image while any AVAILABLE or RESERVED listing exists fails MEDIA_LAST_PUBLISHED_IMAGE (409), including inactive branches. Publishing AVAILABLE now requires an active branch, a positive asking price and at least one photo. Publication and photo removal serialize in vehicle-then-listing order. Owner-reported condition/issues are public attributed statements, separate from inspection evidence; corrections use Vehicle.version and retain before/after audit notes. Deletion queues managed or recognized legacy owned keys in the same transaction; external files are never deleted. Preview is authenticated and branch scoped; public bytes require an AVAILABLE listing at an active branch. All byte responses are no-store; subsequent reads revoke immediately on detach. Read projections contain safe URLs, source and nullable dimensions, no keys/tickets. See managed-media.md. Edit stock image metadata, ordering and primary selection. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
          */
         patch: operations["patchStaffVehiclesByVehicleIdImagesByImageId"];
         trace?: never;
@@ -3869,7 +3869,7 @@ export interface paths {
         };
         /**
          * Read branch-scoped stock image preview
-         * @description STAFF requires an active assigned branch matching the vehicle; ADMIN/SUPER_ADMIN retain existing cross-branch authority. All require verified MFA. Writes require CSRF. IMAGE preparation and confirmation retain their original paths and response fields; image confirmations may omit expectedVersion for old clients, but new clients send Vehicle.version. Every image mutation serializes on the vehicle row and increments that same version. PATCH/DELETE require expectedVersion. IMAGE uploads use shared actor/owner/vehicle/purpose/branch-bound tickets, 10 MiB, 20-image limit, JPEG/PNG/WebP, full checksum/signature/decoding, 32-8192px sides and 40MP, sanitized WebP output within 2048px. Still-valid old encrypted IMAGE tickets undergo the same verification; non-image asset contracts are unchanged. Exact confirmation token/body replay lasts 24h; changed replay conflicts. Failed attachments preserve old images. Optional replaceImageId on IMAGE preparation/confirmation supports replacement at the gallery limit; confirmation also requires expectedVersion. It attaches verified new bytes before detaching the old image in the same transaction, preserves its primary selection and queues owned cleanup. The old image remains intact on any failure. sortOrder is an integer 0-10000; ties use image ID, deletion leaves remaining positions unchanged. isPrimary:true replaces the previous primary; false may clear it. Deleting the primary selects the first remaining image. Deleting the last image while any AVAILABLE or RESERVED listing exists fails MEDIA_LAST_PUBLISHED_IMAGE (409), including inactive branches. Existing publication transitions and prices are unchanged. Deletion queues managed or recognized legacy owned keys in the same transaction; external files are never deleted. Preview is authenticated and branch scoped; public bytes require an AVAILABLE listing at an active branch. All byte responses are no-store; subsequent reads revoke immediately on detach. Read projections contain safe URLs, source and nullable dimensions, no keys/tickets. See managed-media.md. Read branch-scoped stock image preview. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+         * @description STAFF requires an active assigned branch matching the vehicle; ADMIN/SUPER_ADMIN retain existing cross-branch authority. All require verified MFA. Writes require CSRF. IMAGE preparation and confirmation retain their original paths and response fields; image confirmations may omit expectedVersion for old clients, but new clients send Vehicle.version. Every image mutation serializes on the vehicle row and increments that same version. PATCH/DELETE require expectedVersion. IMAGE uploads use shared actor/owner/vehicle/purpose/branch-bound tickets, 10 MiB, 20-image limit, JPEG/PNG/WebP, full checksum/signature/decoding, 32-8192px sides and 40MP, sanitized WebP output within 2048px. Still-valid old encrypted IMAGE tickets undergo the same verification; non-image asset contracts are unchanged. Exact confirmation token/body replay lasts 24h; changed replay conflicts. Failed attachments preserve old images. Optional replaceImageId on IMAGE preparation/confirmation supports replacement at the gallery limit; confirmation also requires expectedVersion. It attaches verified new bytes before detaching the old image in the same transaction, preserves its primary selection and queues owned cleanup. The old image remains intact on any failure. sortOrder is an integer 0-10000; ties use image ID, deletion leaves remaining positions unchanged. isPrimary:true replaces the previous primary; false may clear it. Deleting the primary selects the first remaining image. Deleting the last image while any AVAILABLE or RESERVED listing exists fails MEDIA_LAST_PUBLISHED_IMAGE (409), including inactive branches. Publishing AVAILABLE now requires an active branch, a positive asking price and at least one photo. Publication and photo removal serialize in vehicle-then-listing order. Owner-reported condition/issues are public attributed statements, separate from inspection evidence; corrections use Vehicle.version and retain before/after audit notes. Deletion queues managed or recognized legacy owned keys in the same transaction; external files are never deleted. Preview is authenticated and branch scoped; public bytes require an AVAILABLE listing at an active branch. All byte responses are no-store; subsequent reads revoke immediately on detach. Read projections contain safe URLs, source and nullable dimensions, no keys/tickets. See managed-media.md. Read branch-scoped stock image preview. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
          */
         get: operations["getStaffVehiclesByVehicleIdImagesByImageIdContent"];
         put?: never;
@@ -62540,6 +62540,11 @@ export interface operations {
                  */
                 search?: string;
                 /**
+                 * @description Literal branch city or state; not a vehicle import origin
+                 * @example synthetic-location
+                 */
+                location?: string;
+                /**
                  * @description Make used to constrain this request.
                  * @example synthetic-make
                  */
@@ -62646,9 +62651,9 @@ export interface operations {
                 inspected?: "true" | "false";
                 /**
                  * @description Body Type used to constrain this request.
-                 * @example SEDAN
+                 * @example CROSSOVER
                  */
-                bodyType?: "SEDAN" | "SUV" | "COUPE" | "HATCHBACK" | "WAGON" | "PICKUP" | "VAN" | "TRUCK" | "BUS" | "OTHER";
+                bodyType?: "CROSSOVER" | "MINIVAN" | "SEDAN" | "SUV" | "COUPE" | "HATCHBACK" | "WAGON" | "PICKUP" | "VAN" | "TRUCK" | "BUS" | "OTHER";
                 /**
                  * @description Transmission used to constrain this request.
                  * @example AUTOMATIC
@@ -62854,6 +62859,14 @@ export interface operations {
                                     powertrain?: "BEV" | "HEV" | "PHEV" | "ICE" | null;
                                     /** @description Engine Capacity Cc validated by this operation's strict request contract. */
                                     engineCapacityCc?: number | null;
+                                    /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                                    engineCode?: string | null;
+                                    /** @description Cylinders validated by this operation's strict request contract. */
+                                    cylinders?: number | null;
+                                    /** @description Owner Reported Condition validated by this operation's strict request contract. */
+                                    ownerReportedCondition?: string | null;
+                                    /** @description Owner Reported Issues validated by this operation's strict request contract. */
+                                    ownerReportedIssues?: string | null;
                                     /** @description Features validated by this operation's strict request contract. */
                                     features?: string[];
                                     /** @description Body Type validated by this operation's strict request contract. */
@@ -63248,6 +63261,11 @@ export interface operations {
                  */
                 search?: string;
                 /**
+                 * @description Literal branch city or state; not a vehicle import origin
+                 * @example synthetic-location
+                 */
+                location?: string;
+                /**
                  * @description Make used to constrain this request.
                  * @example synthetic-make
                  */
@@ -63354,9 +63372,9 @@ export interface operations {
                 inspected?: "true" | "false";
                 /**
                  * @description Body Type used to constrain this request.
-                 * @example SEDAN
+                 * @example CROSSOVER
                  */
-                bodyType?: "SEDAN" | "SUV" | "COUPE" | "HATCHBACK" | "WAGON" | "PICKUP" | "VAN" | "TRUCK" | "BUS" | "OTHER";
+                bodyType?: "CROSSOVER" | "MINIVAN" | "SEDAN" | "SUV" | "COUPE" | "HATCHBACK" | "WAGON" | "PICKUP" | "VAN" | "TRUCK" | "BUS" | "OTHER";
                 /**
                  * @description Transmission used to constrain this request.
                  * @example AUTOMATIC
@@ -64301,6 +64319,14 @@ export interface operations {
                                         powertrain?: "BEV" | "HEV" | "PHEV" | "ICE" | null;
                                         /** @description Engine Capacity Cc validated by this operation's strict request contract. */
                                         engineCapacityCc?: number | null;
+                                        /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                                        engineCode?: string | null;
+                                        /** @description Cylinders validated by this operation's strict request contract. */
+                                        cylinders?: number | null;
+                                        /** @description Owner Reported Condition validated by this operation's strict request contract. */
+                                        ownerReportedCondition?: string | null;
+                                        /** @description Owner Reported Issues validated by this operation's strict request contract. */
+                                        ownerReportedIssues?: string | null;
                                         /** @description Features validated by this operation's strict request contract. */
                                         features?: string[];
                                         /** @description Body Type validated by this operation's strict request contract. */
@@ -65043,6 +65069,11 @@ export interface operations {
                  */
                 search?: string;
                 /**
+                 * @description Literal branch city or state; not a vehicle import origin
+                 * @example synthetic-location
+                 */
+                location?: string;
+                /**
                  * @description Make used to constrain this request.
                  * @example synthetic-make
                  */
@@ -65149,9 +65180,9 @@ export interface operations {
                 inspected?: "true" | "false";
                 /**
                  * @description Body Type used to constrain this request.
-                 * @example SEDAN
+                 * @example CROSSOVER
                  */
-                bodyType?: "SEDAN" | "SUV" | "COUPE" | "HATCHBACK" | "WAGON" | "PICKUP" | "VAN" | "TRUCK" | "BUS" | "OTHER";
+                bodyType?: "CROSSOVER" | "MINIVAN" | "SEDAN" | "SUV" | "COUPE" | "HATCHBACK" | "WAGON" | "PICKUP" | "VAN" | "TRUCK" | "BUS" | "OTHER";
                 /**
                  * @description Transmission used to constrain this request.
                  * @example AUTOMATIC
@@ -65472,7 +65503,7 @@ export interface operations {
                      * @description Body Type validated by this operation's strict request contract.
                      * @enum {string|null}
                      */
-                    bodyType?: "SEDAN" | "SUV" | "COUPE" | "HATCHBACK" | "WAGON" | "PICKUP" | "VAN" | "TRUCK" | "BUS" | "OTHER" | null;
+                    bodyType?: "CROSSOVER" | "MINIVAN" | "SEDAN" | "SUV" | "COUPE" | "HATCHBACK" | "WAGON" | "PICKUP" | "VAN" | "TRUCK" | "BUS" | "OTHER" | null;
                     /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
                     manufactureCountryCode?: string | null;
                     /**
@@ -65484,6 +65515,14 @@ export interface operations {
                     engineCapacityCc?: number | null;
                     /** @description Features validated by this operation's strict request contract. */
                     features?: string[];
+                    /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                    engineCode?: string | null;
+                    /** @description Cylinders validated by this operation's strict request contract. */
+                    cylinders?: number | null;
+                    /** @description Owner Reported Condition validated by this operation's strict request contract. */
+                    ownerReportedCondition?: string | null;
+                    /** @description Owner Reported Issues validated by this operation's strict request contract. */
+                    ownerReportedIssues?: string | null;
                     /** @description Engine Size validated by this operation's strict request contract. */
                     engineSize?: string | null;
                     /**
@@ -66014,7 +66053,7 @@ export interface operations {
                      * @description Body Type validated by this operation's strict request contract.
                      * @enum {string|null}
                      */
-                    bodyType?: "SEDAN" | "SUV" | "COUPE" | "HATCHBACK" | "WAGON" | "PICKUP" | "VAN" | "TRUCK" | "BUS" | "OTHER" | null;
+                    bodyType?: "CROSSOVER" | "MINIVAN" | "SEDAN" | "SUV" | "COUPE" | "HATCHBACK" | "WAGON" | "PICKUP" | "VAN" | "TRUCK" | "BUS" | "OTHER" | null;
                     /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
                     manufactureCountryCode?: string | null;
                     /**
@@ -66026,6 +66065,14 @@ export interface operations {
                     engineCapacityCc?: number | null;
                     /** @description Features validated by this operation's strict request contract. */
                     features?: string[];
+                    /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                    engineCode?: string | null;
+                    /** @description Cylinders validated by this operation's strict request contract. */
+                    cylinders?: number | null;
+                    /** @description Owner Reported Condition validated by this operation's strict request contract. */
+                    ownerReportedCondition?: string | null;
+                    /** @description Owner Reported Issues validated by this operation's strict request contract. */
+                    ownerReportedIssues?: string | null;
                     /** @description Engine Size validated by this operation's strict request contract. */
                     engineSize?: string | null;
                     /**

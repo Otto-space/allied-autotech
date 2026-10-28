@@ -79,7 +79,7 @@ jobs:
         env:
           TEST_DB_NAME: allied_autotech_schema_ci
           RUN_DATABASE_TESTS: "true"
-        run: npx --no-install vitest run tests/integration/vehicle-requirements-enquiry.test.ts tests/integration/product-families.test.ts tests/integration/product-options.test.ts tests/integration/catalogue-search-r2.test.ts tests/integration/product-discovery.test.ts tests/integration/vehicle-discovery.test.ts tests/unit/vehicle-enquiry-intent.test.ts tests/unit/product-family-contract.test.ts --maxWorkers=2
+        run: npx --no-install vitest run tests/integration/vehicle-requirements-enquiry.test.ts tests/integration/vehicle-owner-disclosures.test.ts tests/unit/vehicle-disclosure-learning.test.ts tests/integration/product-families.test.ts tests/integration/product-options.test.ts tests/integration/catalogue-search-r2.test.ts tests/integration/product-discovery.test.ts tests/integration/vehicle-discovery.test.ts tests/unit/vehicle-enquiry-intent.test.ts tests/unit/product-family-contract.test.ts --maxWorkers=2
       - name: Verify current-session manual payment review and concurrent decisions
         run: |
           docker run --rm --network "container:${{ job.services.postgres.id }}" \

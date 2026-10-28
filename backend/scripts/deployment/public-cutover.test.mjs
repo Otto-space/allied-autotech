@@ -12,8 +12,16 @@ function fixture() {
     ),
   );
   for (const c of [...spec.services, ...spec.workers, ...spec.jobs]) {
-    c.image = { registry: "existing", repository: c.name, digest: "sha256:" + "a".repeat(64) };
-    c.envs.push({ key: "OPAQUE_PROVIDER_SECRET", type: "SECRET", value: "EV[synthetic]" });
+    c.image = {
+      registry: "existing",
+      repository: c.name,
+      digest: "sha256:" + "a".repeat(64),
+    };
+    c.envs.push({
+      key: "OPAQUE_PROVIDER_SECRET",
+      type: "SECRET",
+      value: "EV[synthetic]",
+    });
   }
   const frontend = {
     BACKEND_ORIGIN: "https://api.alliedautotech.com",
@@ -39,22 +47,83 @@ test("public plan changes only the outer API gate and two frontend settings", ()
     PRIVATE_TESTING_ENABLED: "true",
     SITE_INDEXING: "disabled",
   });
-  plan.appSpec.services[0].envs.find((e) => e.key === "PRIVATE_TESTING_ENABLED").value = "true";
-  assert.deepEqual(plan.appSpec, original, "Images, capacity, secrets or other settings changed.");
+  plan.appSpec.services[0].envs.find((e) => e.key === "PRIVATE_TESTING_ENABLED").value =
+    "true";
+  assert.deepEqual(
+    plan.appSpec,
+    original,
+    "Images, capacity, secrets or other settings changed.",
+  );
 });
 
 for (const [name, mutate] of [
-  ["wrong app", (s) => { s.name = "allied-autotech-staging"; }],
-  ["wrong database", (s) => { s.databases[0].db_name = "allied_autotech_staging"; }],
-  ["new database server", (s) => { s.databases[0].cluster_name = "new-paid-cluster"; }],
-  ["more capacity", (s) => { s.services[0].instance_count = 2; }],
-  ["autoscaling", (s) => { s.services[0].autoscaling = { min_instance_count: 1 }; }],
-  ["mutable image", (s) => { delete s.services[0].image.digest; s.services[0].image.tag = "latest"; }],
-  ["duplicate component", (s) => { s.workers[1].name = s.workers[0].name; }],
-  ["migration on deploy", (s) => { s.jobs[0].run_command = "npm run db:migrate"; }],
-  ["frontend full launch", (_s, f) => { f.NEXT_PUBLIC_PUBLIC_LAUNCH_MODE = "full"; }],
-  ["wrong frontend origin", (_s, f) => { f.SITE_ORIGIN = "https://staging.alliedautotech.com"; }],
-  ["wrong backend origin", (_s, f) => { f.BACKEND_ORIGIN = "https://another.example"; }],
+  [
+    "wrong app",
+    (s) => {
+      s.name = "allied-autotech-staging";
+    },
+  ],
+  [
+    "wrong database",
+    (s) => {
+      s.databases[0].db_name = "allied_autotech_staging";
+    },
+  ],
+  [
+    "new database server",
+    (s) => {
+      s.databases[0].cluster_name = "new-paid-cluster";
+    },
+  ],
+  [
+    "more capacity",
+    (s) => {
+      s.services[0].instance_count = 2;
+    },
+  ],
+  [
+    "autoscaling",
+    (s) => {
+      s.services[0].autoscaling = { min_instance_count: 1 };
+    },
+  ],
+  [
+    "mutable image",
+    (s) => {
+      delete s.services[0].image.digest;
+      s.services[0].image.tag = "latest";
+    },
+  ],
+  [
+    "duplicate component",
+    (s) => {
+      s.workers[1].name = s.workers[0].name;
+    },
+  ],
+  [
+    "migration on deploy",
+    (s) => {
+      s.jobs[0].run_command = "npm run db:migrate";
+    },
+  ],
+  [
+    "frontend full launch",
+    (_s, f) => {
+      f.NEXT_PUBLIC_PUBLIC_LAUNCH_MODE = "full";
+    },
+  ],
+  [
+    "wrong frontend origin",
+    (_s, f) => {
+      f.SITE_ORIGIN = "https://staging.alliedautotech.com";
+    },
+  ],
+  [
+    "wrong backend origin",
+    (_s, f) => {
+      f.BACKEND_ORIGIN = "https://another.example";
+    },
+  ],
 ]) {
   test(`rejects ${name}`, () => {
     const f = fixture();

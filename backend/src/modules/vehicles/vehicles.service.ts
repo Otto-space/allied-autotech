@@ -141,7 +141,12 @@ export class VehiclesService {
         action: "CREATE",
         entityType: "VEHICLE",
         entityId: vehicle.id,
-        newValues: { branchId: input.branchId, stockNumber: input.stockNumber },
+        newValues: {
+          branchId: input.branchId,
+          stockNumber: input.stockNumber,
+          ownerReportedCondition: input.ownerReportedCondition ?? null,
+          ownerReportedIssues: input.ownerReportedIssues ?? null,
+        },
         context,
       });
       return vehicleJsonSafe(vehicle);
@@ -160,6 +165,7 @@ export class VehiclesService {
       const existing = await this.repository.vehicle(id, transaction);
       if (existing === null) throw vehicleNotFound();
       await this.assertBranch(actor, existing.branchId, transaction);
+      if (existing.version !== input.expectedVersion) throw vehicleStale();
       const updated = await this.repository.updateVehicle(
         id,
         input,
@@ -172,9 +178,15 @@ export class VehiclesService {
         action: "UPDATE",
         entityType: "VEHICLE",
         entityId: id,
-        oldValues: { version: existing.version },
+        oldValues: {
+          version: existing.version,
+          ownerReportedCondition: existing.ownerReportedCondition,
+          ownerReportedIssues: existing.ownerReportedIssues,
+        },
         newValues: {
           version: updated.version,
+          ownerReportedCondition: updated.ownerReportedCondition,
+          ownerReportedIssues: updated.ownerReportedIssues,
           fields: Object.keys(input)
             .filter((key) => key !== "expectedVersion")
             .sort()
@@ -232,9 +244,27 @@ export class VehiclesService {
   ) {
     assertVehicleOperator(actor);
     return this.database.$transaction(async (transaction) => {
+      // Match the media mutation lock order (vehicle, then listing) so a last-photo
+      // deletion cannot race publication or introduce an opposite lock order.
+      const current = await this.repository.listing(id, transaction);
+      if (current === null) throw vehicleNotFound();
+      await this.assertBranch(actor, current.branchId, transaction);
+      await transaction.$queryRaw`SELECT "id" FROM "Vehicle" WHERE "id" = ${current.vehicleId}::uuid FOR UPDATE`;
       const listing = await this.repository.lockListing(id, transaction);
       if (listing === null) throw vehicleNotFound();
-      await this.assertBranch(actor, listing.branchId, transaction);
+      if (listing.version !== input.expectedVersion) throw vehicleStale();
+      if (input.status === "AVAILABLE") {
+        if (!(await this.repository.activeBranch(listing.branchId, transaction)))
+          throw vehicleConflict("An active branch is required before publication");
+        if (listing.priceKobo <= 0n)
+          throw vehicleConflict("A positive asking price is required before publication");
+        if (
+          !(await transaction.vehicleImage.count({
+            where: { vehicleId: listing.vehicleId },
+          }))
+        )
+          throw vehicleConflict("Add a vehicle photo before publishing this listing");
+      }
       if (
         !(listingTransitions[listing.status] as readonly string[]).includes(input.status)
       )

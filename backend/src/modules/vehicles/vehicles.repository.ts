@@ -30,6 +30,10 @@ const publicVehicleSelect = {
   engineCapacityCc: true,
   features: true,
   bodyType: true,
+  engineCode: true,
+  cylinders: true,
+  ownerReportedCondition: true,
+  ownerReportedIssues: true,
   engineSize: true,
   driveType: true,
   color: true,
@@ -213,7 +217,27 @@ export function publicWhere(
   const vehicle = vehicleAttributeWhere(query);
   return {
     status: "AVAILABLE",
-    branch: { isActive: true },
+    branch: {
+      isActive: true,
+      ...(query.location
+        ? {
+            OR: [
+              {
+                city: {
+                  contains: literalPattern(query.location),
+                  mode: "insensitive" as const,
+                },
+              },
+              {
+                state: {
+                  contains: literalPattern(query.location),
+                  mode: "insensitive" as const,
+                },
+              },
+            ],
+          }
+        : {}),
+    },
     ...(Object.keys(vehicle).length === 0 ? {} : { vehicle }),
     ...(query.featured === undefined ? {} : { featured: query.featured }),
     ...(query.minPriceKobo === undefined && query.maxPriceKobo === undefined

@@ -2901,3 +2901,21 @@ Garage entry now keeps basic make/model/year entry separate from a native option
 Privacy guidance now explains request, authorised review and the separate execution boundary, with a real Customer Care follow-up destination. Approved-pending-policy records state that no data change is scheduled. Source authority: PrivacyRouter review/holds checks, retention-and-privacy.md, retention-policy-workspace.md and the disabled retention worker. An execution procedure is not currently implemented or authorised by this batch; no automatic deletion, deadline, new permission or operational policy is invented. Existing learning content already states the same boundary; no guide target or workflow contract changes.
 
 Two isolated live 390px baselines failed at the expected previous interface and retained screenshots. Local TypeScript noEmit, scoped lint and formatting passed. Six new rendered acceptance cases and existing garage/fitment/privacy regressions are prepared; hosted checks, exact master CI and promotion are pending. Current published fitment source 8d2dfd69 has been incorporated. The active public-copy worktree and all unrelated edits remain preserved. Full V01-V55 scope remains active.
+
+## 28 October 2026 vehicle condition and owner-draft cycle
+
+- Preserve current live 55714afd and master garage/privacy guidance; use existing
+  stock, listing, managed media, Customer Care, permissions and workforce boundary.
+- Add attributed owner condition/issues with correction audit, engine code/cylinders,
+  crossover/minivan, actual branch-location discovery, saved-content preview and
+  photo-before-publication validation. Unknown owner facts stay unknown.
+- Private BMW preparation uses seven actual reviewed views; plate masks are limited
+  to identifier pixels. No stock/listing published or production enquiry submitted.
+- Isolated persistence, denied access, CAS, publication/media race, search and enquiry
+  regression checks pass. Ten distinct mocked rendered cases cover public card/detail,
+  home, filters, missing photos, authoring import, preview/correction and Axe.
+  Exact-master CI, production rollout and hosted acceptance remain pending.
+- Backend handoff and requirement matrix:
+  `backend/docs/vehicle-marketplace-implementation-20261028.md`.
+- Real-role, physical-device and independent vehicle-condition acceptance remain
+  unverified. Public VIN search remains a privacy/business decision.

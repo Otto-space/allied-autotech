@@ -100,11 +100,9 @@ wrapper.use((request, response, next) => {
       [actionPath, "/api/v1/auth/csrf"].includes(request.path)
     )
   ) {
-    response
-      .status(403)
-      .json({
-        error: { code: "TEST_BOUNDARY", message: "Synthetic booking confirmation only" },
-      });
+    response.status(403).json({
+      error: { code: "TEST_BOUNDARY", message: "Synthetic booking confirmation only" },
+    });
     return;
   }
   next();

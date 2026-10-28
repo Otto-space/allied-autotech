@@ -1,3 +1,4 @@
+import { VehicleOwnerDisclosure } from "../../components/vehicle-owner-disclosure";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { headers } from "next/headers";
@@ -169,6 +170,8 @@ export default async function ListingPage({
       ? { "Recorded features": vehicle.features.join(", ") }
       : {}),
     Colour: vehicle.color || "Not listed",
+    ...(vehicle.engineCode ? { "Engine code": vehicle.engineCode } : {}),
+    ...(vehicle.cylinders != null ? { Cylinders: vehicle.cylinders } : {}),
     ...(vehicle.engineSize ? { "Engine size": vehicle.engineSize } : {}),
     ...(vehicle.driveType
       ? { "Drive type": vehicle.driveType === "FOUR_WD" ? "4WD" : vehicle.driveType }
@@ -251,6 +254,7 @@ export default async function ListingPage({
               {listing.branch.city}
             </p>
             <h1>{listing.title}</h1>
+            <p>Published listing &middot; Confirm current availability with our team.</p>
             <p className="vd-mobile-price">{formatKobo(listing.priceKobo)}</p>
           </header>
           <nav className="vd-section-nav" aria-label="Vehicle sections">
@@ -302,6 +306,7 @@ export default async function ListingPage({
                     </div>
                   ))}
                 </dl>
+                <VehicleOwnerDisclosure vehicle={vehicle} />
                 <p className="vd-branch">
                   <MapPin size={19} aria-hidden="true" />
                   <span>

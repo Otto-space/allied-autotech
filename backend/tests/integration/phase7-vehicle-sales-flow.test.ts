@@ -196,6 +196,28 @@ describe.skipIf(!runDatabaseTests)("Phase 7 vehicles and vehicle sales", () => {
     expect(listingResponse.status).toBe(201);
     const listingId = listingResponse.body.data.id as string;
 
+    const imageBytes = await sharp({
+      create: { width: 96, height: 64, channels: 3, background: "blue" },
+    })
+      .webp()
+      .toBuffer();
+    const imageUpload = await request(app)
+      .post(`/api/v1/staff/vehicles/${vehicleId}/assets/upload`)
+      .set(mutation(staffSession))
+      .send({
+        kind: "IMAGE",
+        mimeType: "image/webp",
+        sizeBytes: imageBytes.length,
+        checksumSha256: createHash("sha256").update(imageBytes).digest("hex"),
+      });
+    expect(imageUpload.status).toBe(201);
+    imageStorage.objects.set(imageStorage.prepared.at(-1)!.key, imageBytes);
+    const imageResponse = await request(app)
+      .post(`/api/v1/staff/vehicles/${vehicleId}/images`)
+      .set(mutation(staffSession))
+      .send({ assetToken: imageUpload.body.data.assetToken, isPrimary: true });
+    expect(imageResponse.status).toBe(201);
+
     const published = await request(app)
       .post(`/api/v1/staff/vehicles/listings/${listingId}/status`)
       .set(mutation(staffSession))
@@ -254,27 +276,6 @@ describe.skipIf(!runDatabaseTests)("Phase 7 vehicles and vehicle sales", () => {
 
     const documentBytes = Buffer.from("%PDF-1.7\nSynthetic ownership document");
     const checksum = createHash("sha256").update(documentBytes).digest("hex");
-    const imageBytes = await sharp({
-      create: { width: 96, height: 64, channels: 3, background: "blue" },
-    })
-      .webp()
-      .toBuffer();
-    const imageUpload = await request(app)
-      .post(`/api/v1/staff/vehicles/${vehicleId}/assets/upload`)
-      .set(mutation(staffSession))
-      .send({
-        kind: "IMAGE",
-        mimeType: "image/webp",
-        sizeBytes: imageBytes.length,
-        checksumSha256: createHash("sha256").update(imageBytes).digest("hex"),
-      });
-    expect(imageUpload.status).toBe(201);
-    imageStorage.objects.set(imageStorage.prepared.at(-1)!.key, imageBytes);
-    const imageResponse = await request(app)
-      .post(`/api/v1/staff/vehicles/${vehicleId}/images`)
-      .set(mutation(staffSession))
-      .send({ assetToken: imageUpload.body.data.assetToken, isPrimary: true });
-    expect(imageResponse.status).toBe(201);
     expect(imageResponse.body.data.url).toMatch(/^\/api\/v1\/public\/vehicles\/images\//);
     const imageAccess = await request(app).get(imageResponse.body.data.url);
     expect(imageAccess.status).toBe(200);

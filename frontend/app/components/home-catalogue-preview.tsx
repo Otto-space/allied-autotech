@@ -1,4 +1,5 @@
 "use client";
+import { VehicleOwnerDisclosure } from "./vehicle-owner-disclosure";
 import type { PublicSeed } from "@/lib/api/public-seed";
 import Link from "next/link";
 import { ArrowUpRight, CarFront, Fuel, Gauge, MapPin, Settings2 } from "lucide-react";
@@ -234,6 +235,7 @@ export function HomeVehiclesPreview({
                           </li>
                         )}
                       </ul>
+                      <VehicleOwnerDisclosure vehicle={listing.vehicle} compact />
                       <p className="home-card__location">
                         <MapPin size={15} aria-hidden="true" />
                         <span>
