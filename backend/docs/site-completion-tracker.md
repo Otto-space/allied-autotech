@@ -1811,3 +1811,15 @@ legacy RUNNING/held rows, provider sandbox and real-role acceptance remain relea
 gates. Read-only SQL probes are recorded in
 backend/docs/payment-reconciliation-recovery-20261027.md; they have not been run
 on production. Recheck actual deployment and backup state before any rollout.
+
+28 October 2026 - P0 finance operator session boundary. Candidate commit 9798ed9a
+rechecks the current staff session inside bank refund transfer/check and dispute
+write transactions before changing records. The independent refund test now proves
+revoked sessions cannot record either stage, and the isolated CI suite includes
+the dispute journey. Commit d0c98151 updates the older payment-flow fixture to
+use actual isolated operator sessions. Exact backend database-safety run
+40677044143 passed, including migration replay, refund/dispute integration,
+reconciliation, payment-flow, type and lint steps; secret guard 40677044459
+passed. Local typecheck, lint, formatting and seven focused unit cases passed.
+No production database, provider or deployment was changed. The production
+recovery, migration-role, populated backfill and real-role gates above remain.
