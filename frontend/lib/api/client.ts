@@ -43,6 +43,7 @@ import { redactSupportCreationRecoveries } from "../support/creation-recovery";
 import { redactReviewRecoveries } from "../reviews/review-recovery";
 import { redactHandoffPending } from "../learning/handoff-pending";
 import { redactSupportCreateRecoveries } from "../support/support-recovery";
+import { redactChannelPending } from "../support/channel-pending";
 import {
   captureDraftSubmission,
   clearAccountDrafts,
@@ -257,6 +258,7 @@ export function invalidateSession(reason?: "password-changed"): void {
   redactReservationRetries();
   redactReviewRecoveries();
   redactHandoffPending();
+  redactChannelPending();
   redactSupportCreateRecoveries();
   redactSupportCreationRecoveries();
   redactSupportReplyRecoveries();

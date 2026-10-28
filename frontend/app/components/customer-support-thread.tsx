@@ -23,6 +23,7 @@ import { formatBusinessDate } from "@/lib/format/date";
 import { Feedback } from "./feedback";
 import { CursorPagination, useCursorPage } from "./cursor-pagination";
 import { SupportReplyForm } from "./support-reply-form";
+import { SupportChannelPanel } from "./support-channel-panel";
 
 const label = (value: string) =>
   value
@@ -132,6 +133,8 @@ export function CustomerSupportThread({
   const detail = useResource(base, parseRecord);
   const record = detail.error ? undefined : detail.data;
   const pagination = useCursorPage();
+  const [selectedMessage, setSelectedMessage] = useState(messageId);
+  const [latestUpdate, setLatestUpdate] = useState<string>();
   const parseMessages = useCallback(
     (value: unknown) => {
       const page = parseSupportMessages(false, value);
@@ -143,7 +146,7 @@ export function CustomerSupportThread({
   );
   const messages = useResource(
     record
-      ? `${base}/messages?limit=50${pagination.cursor ? `&cursor=${pagination.cursor}` : messageId ? `&messageId=${messageId}` : ""}`
+      ? `${base}/messages?limit=50${pagination.cursor ? `&cursor=${pagination.cursor}` : selectedMessage ? `&messageId=${selectedMessage}` : ""}`
       : null,
     parseMessages,
   );
@@ -292,6 +295,19 @@ export function CustomerSupportThread({
           </div>
           <div className="ct-grid">
             <div className="ct-conversation-column">
+              <SupportChannelPanel
+                userId={userId}
+                kind={kind}
+                id={id}
+                disabled={frozen || detailUnavailable || !!guard.pending}
+                closed={record.status === "CLOSED"}
+                hasBranch={!!record.branchId}
+                onCaseChanged={() => {
+                  detail.revalidate();
+                  messages.revalidate();
+                }}
+                onPublicUpdate={setLatestUpdate}
+              />
               <section
                 className="ct-original ct-panel"
                 aria-labelledby="ct-original-title"
@@ -312,7 +328,9 @@ export function CustomerSupportThread({
                 aria-labelledby="support-messages-title"
               >
                 <header>
-                  <h2 id="support-messages-title">Messages</h2>
+                  <h2 id="support-messages-title" tabIndex={-1}>
+                    Messages
+                  </h2>
                   <button
                     className="button secondary"
                     disabled={reading || frozen}
@@ -324,14 +342,41 @@ export function CustomerSupportThread({
                 </header>
                 <p className="ct-message-intro">
                   Replies and status updates appear in chronological order. Use Next for
-                  later pages. This is not a live-agent chat.
+                  later pages. Conversation availability is shown above. Updates do not
+                  mark notifications as read or move your place in the history.
                 </p>
-                {messageId && (
+                {latestUpdate && (
+                  <div className="notice" role="status">
+                    A new conversation update is available.{" "}
+                    <button
+                      className="button secondary"
+                      disabled={reading || frozen}
+                      onClick={() => {
+                        pagination.reset();
+                        setSelectedMessage(latestUpdate);
+                        setLatestUpdate(undefined);
+                      }}
+                    >
+                      View latest update
+                    </button>
+                  </div>
+                )}
+                {selectedMessage && (
                   <p className="notice">
                     Viewing the selected update and later entries.{" "}
-                    <Link href={`/dashboard/support/${kind}/${id}`}>
+                    <button
+                      className="text-link"
+                      disabled={reading || frozen}
+                      onClick={() => {
+                        pagination.reset();
+                        setSelectedMessage(undefined);
+                        document
+                          .getElementById("support-messages-title")
+                          ?.focus({ preventScroll: true });
+                      }}
+                    >
                       View full conversation
-                    </Link>
+                    </button>
                   </p>
                 )}
                 <div className="ct-message-content">
@@ -353,7 +398,7 @@ export function CustomerSupportThread({
                         compact
                         key={item.id}
                         entry={item}
-                        highlighted={item.id === messageId}
+                        highlighted={item.id === selectedMessage}
                       />
                     ))}
                 </div>
@@ -378,6 +423,17 @@ export function CustomerSupportThread({
                 userId={userId}
                 guard={guard}
                 disabled={detailUnavailable}
+                keepDraftEditable={
+                  (detail.refreshing || messages.refreshing) &&
+                  !detail.loading &&
+                  !messages.loading &&
+                  !detail.error &&
+                  !detail.refreshError &&
+                  !messages.error &&
+                  !messages.refreshError &&
+                  !frozen &&
+                  !guard.pending
+                }
                 onReviewChange={setReviewing}
                 onUncertain={() => {}}
                 onSaved={() => {

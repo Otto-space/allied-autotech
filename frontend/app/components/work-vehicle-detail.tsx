@@ -33,6 +33,8 @@ import {
   VehicleListingPrice,
   VehicleListingStatus,
 } from "./vehicle-listing-forms";
+import { VehicleListingPreview } from "./vehicle-listing-preview";
+import { VehicleOwnerDisclosure } from "./vehicle-owner-disclosure";
 import { VehicleEvidence } from "./vehicle-evidence";
 const roles = ["STAFF", "ADMIN", "SUPER_ADMIN"];
 export function WorkVehicleDetail({ vehicleId }: { vehicleId: string }) {
@@ -375,6 +377,8 @@ function DetailWorkspace({
         { label: "Fuel type", value: current.fuelType },
         { label: "Body type", value: current.bodyType },
         { label: "Drive type", value: current.driveType },
+        { label: "Engine code", value: current.engineCode },
+        { label: "Cylinders", value: current.cylinders },
         { label: "Engine size", value: current.engineSize },
         { label: "Colour", value: current.color },
         { label: "Doors", value: current.doors },
@@ -564,6 +568,7 @@ function DetailWorkspace({
               </dl>
             </section>
           </div>
+          <VehicleOwnerDisclosure vehicle={current} />
           <details className="detail-section vd-record-editor">
             <summary>Edit vehicle specifications</summary>
             <VehicleRecordForm
@@ -647,9 +652,12 @@ function DetailWorkspace({
                     onReview={review}
                   />
                 </details>
+                <VehicleListingPreview vehicle={current} listing={listing} />
                 <VehicleListingStatus
                   key={listing.version}
                   listing={listing}
+                  photoCount={current.images.length}
+                  branchActive={current.branch.isActive}
                   disabled={disabled}
                   onReview={review}
                 />

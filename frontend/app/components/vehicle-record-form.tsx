@@ -1,4 +1,5 @@
 "use client";
+import { VehicleOwnerFields } from "./vehicle-owner-fields";
 import { CountryField } from "./country-field";
 import { vehicleLabel } from "@/lib/vehicle-discovery";
 import { useRef, useState } from "react";
@@ -37,6 +38,8 @@ const fields = [
   ["mileageKm", "Mileage (optional, km)", 8],
   ["engineCapacityCc", "Engine capacity (optional, cc)", 5],
   ["features", "Recorded features (optional, comma separated)", 3239],
+  ["engineCode", "Engine code (optional)", 40],
+  ["cylinders", "Cylinders (optional)", 2],
   ["engineSize", "Engine size (optional)", 40],
   ["color", "Colour (optional)", 40],
   ["doors", "Doors (optional)", 2],
@@ -116,6 +119,10 @@ export function VehicleRecordForm({
                 fuelType: "Fuel type",
                 bodyType: "Body type",
                 driveType: "Drive type",
+                engineCode: "Engine code",
+                cylinders: "Cylinders",
+                ownerReportedCondition: "Owner-reported condition",
+                ownerReportedIssues: "Owner-reported known issues",
                 engineSize: "Engine size",
                 manufactureCountryCode: "Final assembly country",
                 powertrain: "Powertrain",
@@ -277,6 +284,7 @@ export function VehicleRecordForm({
                   )}
                 </div>
               ))}
+            <VehicleOwnerFields form={form} />
             <div className="field">
               <label htmlFor="vehicle-record-country">
                 Final assembly country (optional)

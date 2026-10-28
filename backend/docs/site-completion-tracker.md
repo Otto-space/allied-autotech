@@ -1,5 +1,21 @@
 # Allied AutoTech completion tracker
 
+## 28 October 2026 current vehicle requirements cycle
+
+Owner supplied the vehicle-filter Word document, 14 BMW photographs and an explicit
+implementation request. Active reused tree is allied-contact-validation-20261027,
+branch feat/vehicle-disclosures-20261028; incorporated current origin/master
+cfd3fadd without touching dirty master/live-support work. Additive owner-reported
+condition/issues, engine code/cylinders, crossover/minivan, literal location discovery,
+saved-content preview and photo publication validation passed isolated and mocked
+rendered verification: 78 backend checks, 66 focused frontend unit cases and ten
+distinct browser cases. Current live 55714afd is included; incorporating newer
+master c0790beb preserves the service-enquiry and fitment corrections.
+BMW remains a private validated import; genuine branch/price and owner review are
+missing. No production stock, enquiry, availability or transaction write. See
+vehicle-marketplace-implementation-20261028.md for matrix, photo review and gates.
+Release must integrate to exact checked master and deploy compatible backend first.
+
 ## 28 October 2026 current catalogue fitment-guidance cycle
 
 Initial production baseline: frontend `dpl_DfQ8TmtFujaCL215HnWRuaTRuRZr` on both
@@ -57,6 +73,52 @@ No full-site, real-role, physical-device or screen-reader acceptance is claimed.
 Local preview stopped; existing dependencies, generated evidence and Docker
 resources retained. C: postflight 29.31 GiB free at measurement, above the 20 GiB
 reserve; this is a point-in-time check, not an OS quota.
+
+
+## Current implementation item — W16 shared human chat
+
+W16A local availability foundation: explicit support coverage, shared session-bound
+presence, current branch live duties and capacity checks. Fresh 77-migration replay,
+schema check, 17 unit contracts, 20 restricted-runtime HTTP/database cases, 60 Care/
+session/handoff regressions and a populated synthetic additive-forward fixture pass.
+W16B now adds local canonical channel request/claim/transfer/end, permission-bound
+receipt replay, case-based recovery, AI-context closure and read-triggered requeue.
+All 23 HTTP/database lifecycle cases and the current 20 availability cases pass;
+60 existing Care/session/handoff regressions pass. New migration/contracts and
+lifecycle remain unpublished; production still has 76 migrations.
+W16C now adds scoped cursor queue/candidates, body-free operation recovery, durable
+unsaved-action cancellation, public-only update anchors and a bounded shared quiet-
+channel worker. The final 23 lifecycle plus 13 discovery/recovery/worker native cases,
+schema, OpenAPI and route checks pass. Customer and legacy Care UI/polling,
+availability opt-in and jump-to-update have 13 new plus three existing browser
+scenarios accepted after documented fixture/load corrections; 37 frontend unit
+cases pass, with 27 backend availability/help units. Five representative widths
+passed overflow/Axe checks. Types, lint, scoped formatting and secret checks pass.
+Exact-source CI/publication, managed Care views, coverage editing and hosted
+acceptance remain open. Passive polling now preserves typing focus; explicit update
+selection focuses its timeline entry without marking notifications as read.
+Live mode stays off; the local task preview on 3171 is stopped.
+See ../../docs/help-learn/SUPPORT_CHANNEL_DISCOVERY_W16C.md. Full Revision 4 and the
+106 exact-route acceptance decisions remain active, with provider allowance unchanged.
+
+Current source/deployment reconciliation: master advanced concurrently to `6e9d5978`
+with notification availability work; local chat source hashes remained unchanged.
+Existing Vercel CLI credential refresh restored management reads. Both domain aliases
+were freshly verified on READY `dpl_DfQ8TmtFujaCL215HnWRuaTRuRZr`, runtime `8d2dfd69`
+(newer external fitment release). Reviewed that source, verified all three exact-
+source GitHub checks and fast-forwarded/pushed master to `8d2dfd69`; all 20 local chat
+source hashes stayed unchanged. Both tracker blocks were preserved, with one named
+tracker-only recovery stash retained. Recheck source before the next release. Earlier
+publication notes below are historical. Backend remains the separately verified
+`3ee6748f-ed72-4c89-b9a1-f1963e891190`; local migration 77 is not published.
+
+Latest source-only checkpoint: master is `55714afd1d52e834aa4d83a1123a85f6748b962f`
+after other sessions' reviewed integration. Recheck providers before publishing;
+this source advance does not prove a new live release. The owner's exact 42-ref
+retirement is complete. A read-only GitHub postflight at 22:47 UTC confirmed none
+of those refs recreated, 14 current heads and original all-branch Protect 23964845
+active with deletion/non-fast-forward guards and no bypass. New/active heads are
+not covered by the prior temporary exception. All local W16 edits are preserved.
 
 ## 28 October 2026 current product-fitment availability cycle
 

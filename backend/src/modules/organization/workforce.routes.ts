@@ -1,4 +1,5 @@
 import { Router, type Request, type Response } from "express";
+import { workforceSupportLiveRouter } from "../support/support-live.routes.js";
 import { z } from "zod";
 import { prisma } from "../../config/database.js";
 import { authenticate } from "../../common/middleware/authenticate.js";
@@ -269,6 +270,7 @@ export function createWorkforceRouter(): Router {
   const router = Router(),
     access = new WorkforceAccessService(),
     work = new WorkforceWorkService();
+  router.use(workforceSupportLiveRouter());
   for (const [method, path, action, schema, params] of workforceRouteDefinitions) {
     const handler = async (req: Request, res: Response) => {
       if (

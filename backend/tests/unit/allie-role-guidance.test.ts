@@ -165,7 +165,11 @@ describe("provider-observed role guidance regressions", () => {
     )!;
     expect(article.steps.join(" ")).toContain("Internal staff notes are not shown");
     expect(article.steps.join(" ")).toContain("Go back to edit your draft");
-    expect(article.version).toBe(5);
+    expect(article.version).toBe(6);
+    expect(article.steps.join(" ")).toContain("do not mark notifications as read");
+    expect(article.steps.join(" ")).toContain(
+      "A missing receipt does not establish failure",
+    );
     expect(article.steps.join(" ")).toContain(
       "no help transcript is attached automatically",
     );

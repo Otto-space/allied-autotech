@@ -26,6 +26,37 @@ physical-device and full screen-reader acceptance remain open. A concurrent
 public-copy release and garage/privacy master update are integrated before
 this catalogue change is published.
 
+## 28–29 October 2026: shared Care channel controls, local checkpoint
+
+Customer `/dashboard/support/{enquiries|complaints}/:id` and legacy
+`/admin/support` / `/admin/support/{enquiries|complaints}/:id` retain their canonical
+case/message forms. New controls provide reviewed channel request/join/transfer/end,
+reference-only unknown-outcome recovery and durable cancellation. New public updates
+offer an explicit jump without moving the reader or acknowledging notifications;
+reply drafts stay editable. A compact queue/availability disclosure links back to
+existing cases and requires explicit opt-in. Refresh and paging use shared secondary
+buttons, 44px targets and visible focus; no online or wait-time promise is invented.
+
+Evidence: 13 new intercepted browser scenarios accepted across corrected runs,
+plus three existing browser regressions (stale record, uncertain reply recovery,
+single-flight internal note). Actual passive polling preserves editor focus and
+the new-update notice stays until explicitly opened, including when already loaded.
+Choosing it focuses the timeline entry. Background draft editing does not unlock
+review/send or bypass pending/storage/rate-limit guards. Customer layouts at 390/1024px and legacy Staff,
+Admin/Super Admin at 360/768/1440px passed overflow and Axe checks. Browser runtime
+error/overlay checks pass in accepted runs. Screenshots and JSON receipts are outside
+Git at `%TEMP%/allied-w16-care-ui-20261028/`; the Browser plugin was unavailable,
+so existing Playwright/Edge was used. Scoped frontend units: 37 pass. Early cold-
+compile, fixture-envelope/CSRF and worker-start failures remain documented rather
+than counted as acceptance. The task preview was stopped; other previews retained.
+
+This is local fixture/native evidence, not production or real-role acceptance.
+Responsibility-managed enquiry/complaint views, owner coverage editing, actual
+browser/API composition, hosted multi-instance/reconnect/load checks and final
+publication remain unfinished. No real support message, inventory, provider call
+or staffing/AI/live flag was changed. See
+[`SUPPORT_CHANNEL_DISCOVERY_W16C.md`](../../docs/help-learn/SUPPORT_CHANNEL_DISCOVERY_W16C.md).
+
 ## 28 October 2026: bounded public content and imagery improvement
 
 Current cycle: owner's content brief, instruction 7. Home now has a stable offer,
@@ -2936,5 +2967,23 @@ Garage entry now keeps basic make/model/year entry separate from a native option
 Privacy guidance now explains request, authorised review and the separate execution boundary, with a real Customer Care follow-up destination. Approved-pending-policy records state that no data change is scheduled. Source authority: PrivacyRouter review/holds checks, retention-and-privacy.md, retention-policy-workspace.md and the disabled retention worker. An execution procedure is not currently implemented or authorised by this batch; no automatic deletion, deadline, new permission or operational policy is invented. Existing learning content already states the same boundary; no guide target or workflow contract changes.
 
 Two isolated live 390px baselines failed at the expected previous interface and retained screenshots. Local TypeScript noEmit, scoped lint and formatting passed. Six new rendered acceptance cases and existing garage/fitment/privacy regressions are prepared; hosted checks, exact master CI and promotion are pending. Current published fitment source 8d2dfd69 has been incorporated. The active public-copy worktree and all unrelated edits remain preserved. Full V01-V55 scope remains active.
+
+## 28 October 2026 vehicle condition and owner-draft cycle
+
+- Preserve current live 55714afd and master garage/privacy guidance; use existing
+  stock, listing, managed media, Customer Care, permissions and workforce boundary.
+- Add attributed owner condition/issues with correction audit, engine code/cylinders,
+  crossover/minivan, actual branch-location discovery, saved-content preview and
+  photo-before-publication validation. Unknown owner facts stay unknown.
+- Private BMW preparation uses seven actual reviewed views; plate masks are limited
+  to identifier pixels. No stock/listing published or production enquiry submitted.
+- Isolated persistence, denied access, CAS, publication/media race, search and enquiry
+  regression checks pass. Ten distinct mocked rendered cases cover public card/detail,
+  home, filters, missing photos, authoring import, preview/correction and Axe.
+  Exact-master CI, production rollout and hosted acceptance remain pending.
+- Backend handoff and requirement matrix:
+  `backend/docs/vehicle-marketplace-implementation-20261028.md`.
+- Real-role, physical-device and independent vehicle-condition acceptance remain
+  unverified. Public VIN search remains a privacy/business decision.
 
 28 October 2026 - V53/V55 guidance released on master runtime 55714afd, Vercel dpl_6b35E89UpjSP9heFX88nWWB6BFdA verified on apex/www. Garage optional search setup preserves basic entry and drafts; privacy review/execution guidance remains visible on mobile and links to Customer Care. Final combined CI passed 1225 tests (12 optional skipped), lint/types/format/build and zero production audit findings; frontend 40780036790, secret guard 40780036778 and isolated backend safety 40780036897/40780112964 passed. All 41 final hosted cases plus 18 candidate and 18 production public checks passed. Screenshot inspection caught and fixed the old mobile rule hiding privacy steps. Published public-copy source bee7ed8f is preserved; initial promotion correctly stopped for that concurrent release. Backend 3ee6748f remains ACTIVE/readiness200, unchanged by this batch. Other source/contract hashes and both tracker sections were preserved. No shared DB/customer writes. Evidence, initial harness corrections, limits and rollback: backend/docs/garage-privacy-guidance-production-20261028.md. Full V01-V55 remains active; next reconcile published public-page work and continue the service-enquiry/remaining clarity ledger.

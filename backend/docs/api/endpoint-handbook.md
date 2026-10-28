@@ -1784,6 +1784,7 @@ Parameters:
 | `cursor` | query | object | No | Opaque cursor returned by the preceding page. |
 | `limit` | query | string | No | Maximum number of records to return, bounded by the API. |
 | `search` | query | string | No | Search used to constrain this request. |
+| `location` | query | string | No | Literal branch city or state; not a vehicle import origin |
 | `make` | query | string | No | Make used to constrain this request. |
 | `model` | query | string | No | Model used to constrain this request. |
 | `year` | query | string | No | Year used to constrain this request. |
@@ -1805,7 +1806,7 @@ Parameters:
 | `color` | query | string | No | Color used to constrain this request. |
 | `feature` | query | string | No | Feature used to constrain this request. |
 | `inspected` | query | true / false | No | Inspected used to constrain this request. |
-| `bodyType` | query | SEDAN / SUV / COUPE / HATCHBACK / WAGON / PICKUP / VAN / TRUCK / BUS / OTHER | No | Body Type used to constrain this request. |
+| `bodyType` | query | CROSSOVER / MINIVAN / SEDAN / SUV / COUPE / HATCHBACK / WAGON / PICKUP / VAN / TRUCK / BUS / OTHER | No | Body Type used to constrain this request. |
 | `transmission` | query | AUTOMATIC / MANUAL / CVT / OTHER | No | Transmission used to constrain this request. |
 | `fuelType` | query | PETROL / DIESEL / HYBRID / ELECTRIC / OTHER | No | Fuel Type used to constrain this request. |
 | `featured` | query | true / false | No | Featured used to constrain this request. |
@@ -1949,6 +1950,7 @@ Parameters:
 | `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
 | `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
 | `search` | query | string | No | Search used to constrain this request. |
+| `location` | query | string | No | Literal branch city or state; not a vehicle import origin |
 | `make` | query | string | No | Make used to constrain this request. |
 | `model` | query | string | No | Model used to constrain this request. |
 | `year` | query | integer | No | Year used to constrain this request. |
@@ -1970,7 +1972,7 @@ Parameters:
 | `color` | query | string | No | Color used to constrain this request. |
 | `feature` | query | string | No | Feature used to constrain this request. |
 | `inspected` | query | true / false | No | Inspected used to constrain this request. |
-| `bodyType` | query | SEDAN / SUV / COUPE / HATCHBACK / WAGON / PICKUP / VAN / TRUCK / BUS / OTHER | No | Body Type used to constrain this request. |
+| `bodyType` | query | CROSSOVER / MINIVAN / SEDAN / SUV / COUPE / HATCHBACK / WAGON / PICKUP / VAN / TRUCK / BUS / OTHER | No | Body Type used to constrain this request. |
 | `transmission` | query | AUTOMATIC / MANUAL / CVT / OTHER | No | Transmission used to constrain this request. |
 | `fuelType` | query | PETROL / DIESEL / HYBRID / ELECTRIC / OTHER | No | Fuel Type used to constrain this request. |
 | `featured` | query | true / false | No | Featured used to constrain this request. |
@@ -6728,6 +6730,410 @@ Success: HTTP 200.
 
 Relevant errors: 400 The request is malformed.; 401 Current verified customer session required; 403 Customer identity, trusted origin or CSRF verification failed; 404 Owned current support/help resource unavailable; existence hidden; 409 Changed/expired review, closed case or mismatched/expired operation; 422 Strict bounded payload, consent or excerpt selection invalid; 429 Bounded handoff request limit reached; ordinary Customer Care retained; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
+### GET `/customers/support/live/availability/{branchId}`
+
+- Operation ID: `getCustomersSupportLiveAvailabilityByBranchId`
+- Purpose: Gated additive availability foundation. No chat claim, message delivery or queue-position promise. Current branch duties and session are checked server-side. Customer responses contain no staff identities; the channel remains queued Customer Care until lifecycle and transport acceptance. Default feature flag is off. Check current staffed eligibility without promising live transport. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: CUSTOMER
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `branchId` | path | string (uuid) | Yes | Identifier selecting the branch resource. |
+| `kind` | query | ENQUIRY / COMPLAINT | No | Kind used to constrain this request. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Check current staffed eligibility without promising live transport",
+  "data": {
+    "branchId": "00000000-0000-4000-8000-000000000001",
+    "kind": "ENQUIRY",
+    "state": "disabled",
+    "checkedAt": "2030-01-15T10:00:00.000Z",
+    "channel": "queued_customer_care"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current session required; 403 Current identity, MFA, responsibilities or CSRF denied; 404 Active branch unavailable; 409 Stale revision, expired lease or changed coverage; 422 Strict bounded input invalid; 429 Rate limit reached; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 Live feature or explicit coverage unavailable; ordinary queued Care remains
+
+### POST `/customers/support/live/channels`
+
+- Operation ID: `postCustomersSupportLiveChannels`
+- Purpose: Does not create another case or forward an AI transcript. An optional explicitly selected current-session AI context is cancelled/closed without exporting its text, including while AI is disabled. Ordinary queued requests work independently of live staffing. Original-key/body replay returns the current owned reference, never another request. Uses support-reply-v1 timestamp/UUID keys with a 24-hour reference-only recovery window. Request a queued human channel for one explicitly selected owned case. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
+- Roles: CUSTOMER
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Required in `Idempotency-Key`
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `idempotency-key` | header | string | Yes | Unique retry key for this logical mutation. Reuse it only with the identical request. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `target` | object | Yes | Target validated by this operation's strict request contract. |
+| `expectedCaseVersion` | integer | Yes | Expected Case Version validated by this operation's strict request contract. |
+| `expectedChannelVersion` | integer | Yes | Expected Channel Version validated by this operation's strict request contract. |
+| `assistantContext` | object | No | Assistant Context validated by this operation's strict request contract. |
+
+Synthetic request example:
+
+```json
+{
+  "target": {
+    "kind": "ENQUIRY",
+    "id": "00000000-0000-4000-8000-000000000001"
+  },
+  "expectedCaseVersion": 0,
+  "expectedChannelVersion": 0,
+  "assistantContext": {
+    "conversationId": "00000000-0000-4000-8000-000000000001",
+    "expectedVersion": 0
+  }
+}
+```
+
+Success: HTTP 201.
+
+```json
+{
+  "success": true,
+  "message": "Request a queued human channel for one explicitly selected owned case",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "target": {
+      "kind": "ENQUIRY",
+      "id": "00000000-0000-4000-8000-000000000001"
+    },
+    "branchId": "00000000-0000-4000-8000-000000000001",
+    "state": "QUEUED",
+    "version": 0,
+    "updatedAt": "2030-01-15T10:00:00.000Z",
+    "queuedSince": "2030-01-15T10:00:00.000Z",
+    "claimedAt": "2030-01-15T10:00:00.000Z",
+    "endedAt": "2030-01-15T10:00:00.000Z",
+    "latestPublicMessageId": "00000000-0000-4000-8000-000000000001",
+    "assignedToYou": true,
+    "canClaim": true,
+    "canTransfer": true,
+    "canEnd": true,
+    "pollAfterMs": 5000,
+    "replayed": true
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current session required; 403 Current identity/MFA/action/CSRF denied; 404 Owned or currently scoped case/channel unavailable; 409 Changed state, routing, operation payload or expired recovery key; 422 Strict bounded input invalid; 429 Rate limit reached; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 Fresh eligible availability/capacity unavailable; saved case retained
+
+### GET `/customers/support/live/channels/operations/{action}/{operationKey}`
+
+- Operation ID: `getCustomersSupportLiveChannelsOperationsByActionByOperationKey`
+- Purpose: The random timestamp/UUID key is a non-bearer identifier. Current actor/action scope and canonical ownership/permissions are required, including after reload or session changes. Returns SAVED plus current channel metadata, or a verified durable CANCELLED marker; never the transfer reason, assistant context or transcript. A 404 does not prove that an in-flight submission failed; do not create a replacement command automatically. Twenty-four-hour timestamp rules remain, including after receipt cleanup. Recover an actor-owned saved channel action without its private request body. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: CUSTOMER
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `action` | path | request / claim / transfer / end | Yes | Identifier selecting the action resource. |
+| `operationKey` | path | string | Yes | Identifier selecting the operation key resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Recover an actor-owned saved channel action without its private request body",
+  "data": {
+    "action": "request",
+    "state": "SAVED",
+    "channel": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "target": {
+        "kind": "ENQUIRY",
+        "id": "00000000-0000-4000-8000-000000000001"
+      },
+      "branchId": "00000000-0000-4000-8000-000000000001",
+      "state": "QUEUED",
+      "version": 0,
+      "updatedAt": "2030-01-15T10:00:00.000Z",
+      "queuedSince": "2030-01-15T10:00:00.000Z",
+      "claimedAt": "2030-01-15T10:00:00.000Z",
+      "endedAt": "2030-01-15T10:00:00.000Z",
+      "latestPublicMessageId": "00000000-0000-4000-8000-000000000001",
+      "assignedToYou": true,
+      "canClaim": true,
+      "canTransfer": true,
+      "canEnd": true,
+      "pollAfterMs": 5000
+    }
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current session required; 403 Current identity/MFA/action/CSRF denied; 404 Owned or currently scoped case/channel unavailable; 409 Changed state, routing, operation payload or expired recovery key; 422 Strict bounded input invalid; 429 Rate limit reached; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 Fresh eligible availability/capacity unavailable; saved case retained
+
+### DELETE `/customers/support/live/channels/operations/{action}/{operationKey}`
+
+- Operation ID: `deleteCustomersSupportLiveChannelsOperationsByActionByOperationKey`
+- Purpose: Requires current ownership/branch/action authority and CSRF. Serializes with the original command. If already saved, returns SAVED and current authorised state without undoing it. Otherwise stores a target-bound CANCELLED marker for the original recovery window; a delayed original command is then rejected. No case/message/channel is deleted. Used only after explicit cancellation review, never as an automatic retry. Durably stop an unsaved channel action or recover its already-saved outcome. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: CUSTOMER
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `action` | path | request / claim / transfer / end | Yes | Identifier selecting the action resource. |
+| `operationKey` | path | string | Yes | Identifier selecting the operation key resource. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `target` | object | Yes | Target validated by this operation's strict request contract. |
+
+Synthetic request example:
+
+```json
+{
+  "target": {
+    "kind": "ENQUIRY",
+    "id": "00000000-0000-4000-8000-000000000001"
+  }
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Durably stop an unsaved channel action or recover its already-saved outcome",
+  "data": {
+    "action": "request",
+    "state": "SAVED",
+    "channel": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "target": {
+        "kind": "ENQUIRY",
+        "id": "00000000-0000-4000-8000-000000000001"
+      },
+      "branchId": "00000000-0000-4000-8000-000000000001",
+      "state": "QUEUED",
+      "version": 0,
+      "updatedAt": "2030-01-15T10:00:00.000Z",
+      "queuedSince": "2030-01-15T10:00:00.000Z",
+      "claimedAt": "2030-01-15T10:00:00.000Z",
+      "endedAt": "2030-01-15T10:00:00.000Z",
+      "latestPublicMessageId": "00000000-0000-4000-8000-000000000001",
+      "assignedToYou": true,
+      "canClaim": true,
+      "canTransfer": true,
+      "canEnd": true,
+      "pollAfterMs": 5000
+    }
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current session required; 403 Current identity/MFA/action/CSRF denied; 404 Owned or currently scoped case/channel unavailable; 409 Changed state, routing, operation payload or expired recovery key; 422 Strict bounded input invalid; 429 Rate limit reached; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 Fresh eligible availability/capacity unavailable; saved case retained
+
+### GET `/customers/support/live/channels/by-case/{kind}/{id}`
+
+- Operation ID: `getCustomersSupportLiveChannelsByCaseByKindById`
+- Purpose: Rechecks canonical ownership/scope and session. Returns null when this authorised case has no channel, rather than inferring access from a browser-held UUID. Reconciles current eligibility and returns the case's resulting revision for a deliberate request. No transcript or contact details. Recover a channel through its currently owned or scoped canonical case. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: CUSTOMER
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `kind` | path | ENQUIRY / COMPLAINT | Yes | Identifier selecting the kind resource. |
+| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Recover a channel through its currently owned or scoped canonical case",
+  "data": {
+    "channel": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "target": {
+        "kind": "ENQUIRY",
+        "id": "00000000-0000-4000-8000-000000000001"
+      },
+      "branchId": "00000000-0000-4000-8000-000000000001",
+      "state": "QUEUED",
+      "version": 0,
+      "updatedAt": "2030-01-15T10:00:00.000Z",
+      "queuedSince": "2030-01-15T10:00:00.000Z",
+      "claimedAt": "2030-01-15T10:00:00.000Z",
+      "endedAt": "2030-01-15T10:00:00.000Z",
+      "latestPublicMessageId": "00000000-0000-4000-8000-000000000001",
+      "assignedToYou": true,
+      "canClaim": true,
+      "canTransfer": true,
+      "canEnd": true,
+      "pollAfterMs": 5000
+    },
+    "caseVersion": 0,
+    "latestPublicMessageId": "00000000-0000-4000-8000-000000000001"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current session required; 403 Current identity/MFA/action/CSRF denied; 404 Owned or currently scoped case/channel unavailable; 409 Changed state, routing, operation payload or expired recovery key; 422 Strict bounded input invalid; 429 Rate limit reached; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 Fresh eligible availability/capacity unavailable; saved case retained
+
+### GET `/customers/support/live/channels/{channelId}`
+
+- Operation ID: `getCustomersSupportLiveChannelsByChannelId`
+- Purpose: Bounded five-second polling, no bearer URL. Rechecks current session and case scope on every read; an expired/revoked/unavailable agent requeues the same canonical case with one generic system entry and an audited state change. Closed cases end the channel. No transcript, internal note or staff identity is returned. Existing canonical message APIs remain the authorised text/replay path. Revalidate one owned/scoped channel and reconcile lost agent eligibility. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: CUSTOMER
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `channelId` | path | string (uuid) | Yes | Identifier selecting the channel resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Revalidate one owned/scoped channel and reconcile lost agent eligibility",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "target": {
+      "kind": "ENQUIRY",
+      "id": "00000000-0000-4000-8000-000000000001"
+    },
+    "branchId": "00000000-0000-4000-8000-000000000001",
+    "state": "QUEUED",
+    "version": 0,
+    "updatedAt": "2030-01-15T10:00:00.000Z",
+    "queuedSince": "2030-01-15T10:00:00.000Z",
+    "claimedAt": "2030-01-15T10:00:00.000Z",
+    "endedAt": "2030-01-15T10:00:00.000Z",
+    "latestPublicMessageId": "00000000-0000-4000-8000-000000000001",
+    "assignedToYou": true,
+    "canClaim": true,
+    "canTransfer": true,
+    "canEnd": true,
+    "pollAfterMs": 5000
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current session required; 403 Current identity/MFA/action/CSRF denied; 404 Owned or currently scoped case/channel unavailable; 409 Changed state, routing, operation payload or expired recovery key; 422 Strict bounded input invalid; 429 Rate limit reached; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 Fresh eligible availability/capacity unavailable; saved case retained
+
+### POST `/customers/support/live/channels/{channelId}/actions`
+
+- Operation ID: `postCustomersSupportLiveChannelsByChannelIdActions`
+- Purpose: Customer ownership permits ending their channel. Claim requires current same-branch live duties, explicit session-bound presence, hours and shared capacity. Transfer requires the separate current case-assignment duty and another eligible opted-in representative; it does not change the business-case assignee. Every new action checks channel revision. Actor/action/payload-bound reference receipts make original-key replay safe after lost acknowledgement; changed/expired keys conflict. System history/audit and state changes commit together. End preserves the case and ordinary follow-up. Live access cannot be inferred from account role. Transactionally claim, transfer or end the canonical human channel. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
+- Roles: CUSTOMER
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Required in `Idempotency-Key`
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `channelId` | path | string (uuid) | Yes | Identifier selecting the channel resource. |
+| `idempotency-key` | header | string | Yes | Unique retry key for this logical mutation. Reuse it only with the identical request. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+Synthetic request example:
+
+```json
+{
+  "action": "claim",
+  "expectedVersion": 0
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Transactionally claim, transfer or end the canonical human channel",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "target": {
+      "kind": "ENQUIRY",
+      "id": "00000000-0000-4000-8000-000000000001"
+    },
+    "branchId": "00000000-0000-4000-8000-000000000001",
+    "state": "QUEUED",
+    "version": 0,
+    "updatedAt": "2030-01-15T10:00:00.000Z",
+    "queuedSince": "2030-01-15T10:00:00.000Z",
+    "claimedAt": "2030-01-15T10:00:00.000Z",
+    "endedAt": "2030-01-15T10:00:00.000Z",
+    "latestPublicMessageId": "00000000-0000-4000-8000-000000000001",
+    "assignedToYou": true,
+    "canClaim": true,
+    "canTransfer": true,
+    "canEnd": true,
+    "pollAfterMs": 5000,
+    "replayed": true
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current session required; 403 Current identity/MFA/action/CSRF denied; 404 Owned or currently scoped case/channel unavailable; 409 Changed state, routing, operation payload or expired recovery key; 422 Strict bounded input invalid; 429 Rate limit reached; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 Fresh eligible availability/capacity unavailable; saved case retained
+
 ### GET `/customers/support/review-sources`
 
 - Operation ID: `getCustomersSupportReviewSources`
@@ -10207,6 +10613,7 @@ Parameters:
 | `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
 | `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
 | `search` | query | string | No | Search used to constrain this request. |
+| `location` | query | string | No | Literal branch city or state; not a vehicle import origin |
 | `make` | query | string | No | Make used to constrain this request. |
 | `model` | query | string | No | Model used to constrain this request. |
 | `year` | query | integer | No | Year used to constrain this request. |
@@ -10228,7 +10635,7 @@ Parameters:
 | `color` | query | string | No | Color used to constrain this request. |
 | `feature` | query | string | No | Feature used to constrain this request. |
 | `inspected` | query | true / false | No | Inspected used to constrain this request. |
-| `bodyType` | query | SEDAN / SUV / COUPE / HATCHBACK / WAGON / PICKUP / VAN / TRUCK / BUS / OTHER | No | Body Type used to constrain this request. |
+| `bodyType` | query | CROSSOVER / MINIVAN / SEDAN / SUV / COUPE / HATCHBACK / WAGON / PICKUP / VAN / TRUCK / BUS / OTHER | No | Body Type used to constrain this request. |
 | `transmission` | query | AUTOMATIC / MANUAL / CVT / OTHER | No | Transmission used to constrain this request. |
 | `fuelType` | query | PETROL / DIESEL / HYBRID / ELECTRIC / OTHER | No | Fuel Type used to constrain this request. |
 | `featured` | query | true / false | No | Featured used to constrain this request. |
@@ -10291,11 +10698,15 @@ JSON request fields:
 | `transmission` | AUTOMATIC / MANUAL / CVT / OTHER / null | No | Transmission validated by this operation's strict request contract. |
 | `fuelType` | PETROL / DIESEL / HYBRID / ELECTRIC / OTHER / null | No | Fuel Type validated by this operation's strict request contract. |
 | `condition` | NEW / USED / FOREIGN_USED / LOCALLY_USED | No | Condition validated by this operation's strict request contract. |
-| `bodyType` | SEDAN / SUV / COUPE / HATCHBACK / WAGON / PICKUP / VAN / TRUCK / BUS / OTHER / null | No | Body Type validated by this operation's strict request contract. |
+| `bodyType` | CROSSOVER / MINIVAN / SEDAN / SUV / COUPE / HATCHBACK / WAGON / PICKUP / VAN / TRUCK / BUS / OTHER / null | No | Body Type validated by this operation's strict request contract. |
 | `manufactureCountryCode` | string / null | No | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
 | `powertrain` | BEV / HEV / PHEV / ICE / null | No | Powertrain validated by this operation's strict request contract. |
 | `engineCapacityCc` | integer / null | No | Engine Capacity Cc validated by this operation's strict request contract. |
 | `features` | array<string> | No | Features validated by this operation's strict request contract. |
+| `engineCode` | string / null | No | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
+| `cylinders` | integer / null | No | Cylinders validated by this operation's strict request contract. |
+| `ownerReportedCondition` | string / null | No | Owner Reported Condition validated by this operation's strict request contract. |
+| `ownerReportedIssues` | string / null | No | Owner Reported Issues validated by this operation's strict request contract. |
 | `engineSize` | string / null | No | Engine Size validated by this operation's strict request contract. |
 | `driveType` | FWD / RWD / AWD / FOUR_WD / OTHER / null | No | Drive Type validated by this operation's strict request contract. |
 | `color` | string / null | No | Color validated by this operation's strict request contract. |
@@ -10398,11 +10809,15 @@ JSON request fields:
 | `transmission` | AUTOMATIC / MANUAL / CVT / OTHER / null | No | Transmission validated by this operation's strict request contract. |
 | `fuelType` | PETROL / DIESEL / HYBRID / ELECTRIC / OTHER / null | No | Fuel Type validated by this operation's strict request contract. |
 | `condition` | NEW / USED / FOREIGN_USED / LOCALLY_USED | No | Condition validated by this operation's strict request contract. |
-| `bodyType` | SEDAN / SUV / COUPE / HATCHBACK / WAGON / PICKUP / VAN / TRUCK / BUS / OTHER / null | No | Body Type validated by this operation's strict request contract. |
+| `bodyType` | CROSSOVER / MINIVAN / SEDAN / SUV / COUPE / HATCHBACK / WAGON / PICKUP / VAN / TRUCK / BUS / OTHER / null | No | Body Type validated by this operation's strict request contract. |
 | `manufactureCountryCode` | string / null | No | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
 | `powertrain` | BEV / HEV / PHEV / ICE / null | No | Powertrain validated by this operation's strict request contract. |
 | `engineCapacityCc` | integer / null | No | Engine Capacity Cc validated by this operation's strict request contract. |
 | `features` | array<string> | No | Features validated by this operation's strict request contract. |
+| `engineCode` | string / null | No | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
+| `cylinders` | integer / null | No | Cylinders validated by this operation's strict request contract. |
+| `ownerReportedCondition` | string / null | No | Owner Reported Condition validated by this operation's strict request contract. |
+| `ownerReportedIssues` | string / null | No | Owner Reported Issues validated by this operation's strict request contract. |
 | `engineSize` | string / null | No | Engine Size validated by this operation's strict request contract. |
 | `driveType` | FWD / RWD / AWD / FOUR_WD / OTHER / null | No | Drive Type validated by this operation's strict request contract. |
 | `color` | string / null | No | Color validated by this operation's strict request contract. |
@@ -10679,7 +11094,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### POST `/staff/vehicles/{vehicleId}/assets/upload`
 
 - Operation ID: `postStaffVehiclesByVehicleIdAssetsUpload`
-- Purpose: STAFF requires an active assigned branch matching the vehicle; ADMIN/SUPER_ADMIN retain existing cross-branch authority. All require verified MFA. Writes require CSRF. IMAGE preparation and confirmation retain their original paths and response fields; image confirmations may omit expectedVersion for old clients, but new clients send Vehicle.version. Every image mutation serializes on the vehicle row and increments that same version. PATCH/DELETE require expectedVersion. IMAGE uploads use shared actor/owner/vehicle/purpose/branch-bound tickets, 10 MiB, 20-image limit, JPEG/PNG/WebP, full checksum/signature/decoding, 32-8192px sides and 40MP, sanitized WebP output within 2048px. Still-valid old encrypted IMAGE tickets undergo the same verification; non-image asset contracts are unchanged. Exact confirmation token/body replay lasts 24h; changed replay conflicts. Failed attachments preserve old images. Optional replaceImageId on IMAGE preparation/confirmation supports replacement at the gallery limit; confirmation also requires expectedVersion. It attaches verified new bytes before detaching the old image in the same transaction, preserves its primary selection and queues owned cleanup. The old image remains intact on any failure. sortOrder is an integer 0-10000; ties use image ID, deletion leaves remaining positions unchanged. isPrimary:true replaces the previous primary; false may clear it. Deleting the primary selects the first remaining image. Deleting the last image while any AVAILABLE or RESERVED listing exists fails MEDIA_LAST_PUBLISHED_IMAGE (409), including inactive branches. Existing publication transitions and prices are unchanged. Deletion queues managed or recognized legacy owned keys in the same transaction; external files are never deleted. Preview is authenticated and branch scoped; public bytes require an AVAILABLE listing at an active branch. All byte responses are no-store; subsequent reads revoke immediately on detach. Read projections contain safe URLs, source and nullable dimensions, no keys/tickets. See managed-media.md. Authorize a bounded object upload. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: STAFF requires an active assigned branch matching the vehicle; ADMIN/SUPER_ADMIN retain existing cross-branch authority. All require verified MFA. Writes require CSRF. IMAGE preparation and confirmation retain their original paths and response fields; image confirmations may omit expectedVersion for old clients, but new clients send Vehicle.version. Every image mutation serializes on the vehicle row and increments that same version. PATCH/DELETE require expectedVersion. IMAGE uploads use shared actor/owner/vehicle/purpose/branch-bound tickets, 10 MiB, 20-image limit, JPEG/PNG/WebP, full checksum/signature/decoding, 32-8192px sides and 40MP, sanitized WebP output within 2048px. Still-valid old encrypted IMAGE tickets undergo the same verification; non-image asset contracts are unchanged. Exact confirmation token/body replay lasts 24h; changed replay conflicts. Failed attachments preserve old images. Optional replaceImageId on IMAGE preparation/confirmation supports replacement at the gallery limit; confirmation also requires expectedVersion. It attaches verified new bytes before detaching the old image in the same transaction, preserves its primary selection and queues owned cleanup. The old image remains intact on any failure. sortOrder is an integer 0-10000; ties use image ID, deletion leaves remaining positions unchanged. isPrimary:true replaces the previous primary; false may clear it. Deleting the primary selects the first remaining image. Deleting the last image while any AVAILABLE or RESERVED listing exists fails MEDIA_LAST_PUBLISHED_IMAGE (409), including inactive branches. Publishing AVAILABLE now requires an active branch, a positive asking price and at least one photo. Publication and photo removal serialize in vehicle-then-listing order. Owner-reported condition/issues are public attributed statements, separate from inspection evidence; corrections use Vehicle.version and retain before/after audit notes. Deletion queues managed or recognized legacy owned keys in the same transaction; external files are never deleted. Preview is authenticated and branch scoped; public bytes require an AVAILABLE listing at an active branch. All byte responses are no-store; subsequent reads revoke immediately on detach. Read projections contain safe URLs, source and nullable dimensions, no keys/tickets. See managed-media.md. Authorize a bounded object upload. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
 - Roles: STAFF, ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -10745,7 +11160,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### POST `/staff/vehicles/{vehicleId}/images`
 
 - Operation ID: `postStaffVehiclesByVehicleIdImages`
-- Purpose: STAFF requires an active assigned branch matching the vehicle; ADMIN/SUPER_ADMIN retain existing cross-branch authority. All require verified MFA. Writes require CSRF. IMAGE preparation and confirmation retain their original paths and response fields; image confirmations may omit expectedVersion for old clients, but new clients send Vehicle.version. Every image mutation serializes on the vehicle row and increments that same version. PATCH/DELETE require expectedVersion. IMAGE uploads use shared actor/owner/vehicle/purpose/branch-bound tickets, 10 MiB, 20-image limit, JPEG/PNG/WebP, full checksum/signature/decoding, 32-8192px sides and 40MP, sanitized WebP output within 2048px. Still-valid old encrypted IMAGE tickets undergo the same verification; non-image asset contracts are unchanged. Exact confirmation token/body replay lasts 24h; changed replay conflicts. Failed attachments preserve old images. Optional replaceImageId on IMAGE preparation/confirmation supports replacement at the gallery limit; confirmation also requires expectedVersion. It attaches verified new bytes before detaching the old image in the same transaction, preserves its primary selection and queues owned cleanup. The old image remains intact on any failure. sortOrder is an integer 0-10000; ties use image ID, deletion leaves remaining positions unchanged. isPrimary:true replaces the previous primary; false may clear it. Deleting the primary selects the first remaining image. Deleting the last image while any AVAILABLE or RESERVED listing exists fails MEDIA_LAST_PUBLISHED_IMAGE (409), including inactive branches. Existing publication transitions and prices are unchanged. Deletion queues managed or recognized legacy owned keys in the same transaction; external files are never deleted. Preview is authenticated and branch scoped; public bytes require an AVAILABLE listing at an active branch. All byte responses are no-store; subsequent reads revoke immediately on detach. Read projections contain safe URLs, source and nullable dimensions, no keys/tickets. See managed-media.md. Verify and attach a stock vehicle image. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: STAFF requires an active assigned branch matching the vehicle; ADMIN/SUPER_ADMIN retain existing cross-branch authority. All require verified MFA. Writes require CSRF. IMAGE preparation and confirmation retain their original paths and response fields; image confirmations may omit expectedVersion for old clients, but new clients send Vehicle.version. Every image mutation serializes on the vehicle row and increments that same version. PATCH/DELETE require expectedVersion. IMAGE uploads use shared actor/owner/vehicle/purpose/branch-bound tickets, 10 MiB, 20-image limit, JPEG/PNG/WebP, full checksum/signature/decoding, 32-8192px sides and 40MP, sanitized WebP output within 2048px. Still-valid old encrypted IMAGE tickets undergo the same verification; non-image asset contracts are unchanged. Exact confirmation token/body replay lasts 24h; changed replay conflicts. Failed attachments preserve old images. Optional replaceImageId on IMAGE preparation/confirmation supports replacement at the gallery limit; confirmation also requires expectedVersion. It attaches verified new bytes before detaching the old image in the same transaction, preserves its primary selection and queues owned cleanup. The old image remains intact on any failure. sortOrder is an integer 0-10000; ties use image ID, deletion leaves remaining positions unchanged. isPrimary:true replaces the previous primary; false may clear it. Deleting the primary selects the first remaining image. Deleting the last image while any AVAILABLE or RESERVED listing exists fails MEDIA_LAST_PUBLISHED_IMAGE (409), including inactive branches. Publishing AVAILABLE now requires an active branch, a positive asking price and at least one photo. Publication and photo removal serialize in vehicle-then-listing order. Owner-reported condition/issues are public attributed statements, separate from inspection evidence; corrections use Vehicle.version and retain before/after audit notes. Deletion queues managed or recognized legacy owned keys in the same transaction; external files are never deleted. Preview is authenticated and branch scoped; public bytes require an AVAILABLE listing at an active branch. All byte responses are no-store; subsequent reads revoke immediately on detach. Read projections contain safe URLs, source and nullable dimensions, no keys/tickets. See managed-media.md. Verify and attach a stock vehicle image. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
 - Roles: STAFF, ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -10811,7 +11226,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### PATCH `/staff/vehicles/{vehicleId}/images/{imageId}`
 
 - Operation ID: `patchStaffVehiclesByVehicleIdImagesByImageId`
-- Purpose: STAFF requires an active assigned branch matching the vehicle; ADMIN/SUPER_ADMIN retain existing cross-branch authority. All require verified MFA. Writes require CSRF. IMAGE preparation and confirmation retain their original paths and response fields; image confirmations may omit expectedVersion for old clients, but new clients send Vehicle.version. Every image mutation serializes on the vehicle row and increments that same version. PATCH/DELETE require expectedVersion. IMAGE uploads use shared actor/owner/vehicle/purpose/branch-bound tickets, 10 MiB, 20-image limit, JPEG/PNG/WebP, full checksum/signature/decoding, 32-8192px sides and 40MP, sanitized WebP output within 2048px. Still-valid old encrypted IMAGE tickets undergo the same verification; non-image asset contracts are unchanged. Exact confirmation token/body replay lasts 24h; changed replay conflicts. Failed attachments preserve old images. Optional replaceImageId on IMAGE preparation/confirmation supports replacement at the gallery limit; confirmation also requires expectedVersion. It attaches verified new bytes before detaching the old image in the same transaction, preserves its primary selection and queues owned cleanup. The old image remains intact on any failure. sortOrder is an integer 0-10000; ties use image ID, deletion leaves remaining positions unchanged. isPrimary:true replaces the previous primary; false may clear it. Deleting the primary selects the first remaining image. Deleting the last image while any AVAILABLE or RESERVED listing exists fails MEDIA_LAST_PUBLISHED_IMAGE (409), including inactive branches. Existing publication transitions and prices are unchanged. Deletion queues managed or recognized legacy owned keys in the same transaction; external files are never deleted. Preview is authenticated and branch scoped; public bytes require an AVAILABLE listing at an active branch. All byte responses are no-store; subsequent reads revoke immediately on detach. Read projections contain safe URLs, source and nullable dimensions, no keys/tickets. See managed-media.md. Edit stock image metadata, ordering and primary selection. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: STAFF requires an active assigned branch matching the vehicle; ADMIN/SUPER_ADMIN retain existing cross-branch authority. All require verified MFA. Writes require CSRF. IMAGE preparation and confirmation retain their original paths and response fields; image confirmations may omit expectedVersion for old clients, but new clients send Vehicle.version. Every image mutation serializes on the vehicle row and increments that same version. PATCH/DELETE require expectedVersion. IMAGE uploads use shared actor/owner/vehicle/purpose/branch-bound tickets, 10 MiB, 20-image limit, JPEG/PNG/WebP, full checksum/signature/decoding, 32-8192px sides and 40MP, sanitized WebP output within 2048px. Still-valid old encrypted IMAGE tickets undergo the same verification; non-image asset contracts are unchanged. Exact confirmation token/body replay lasts 24h; changed replay conflicts. Failed attachments preserve old images. Optional replaceImageId on IMAGE preparation/confirmation supports replacement at the gallery limit; confirmation also requires expectedVersion. It attaches verified new bytes before detaching the old image in the same transaction, preserves its primary selection and queues owned cleanup. The old image remains intact on any failure. sortOrder is an integer 0-10000; ties use image ID, deletion leaves remaining positions unchanged. isPrimary:true replaces the previous primary; false may clear it. Deleting the primary selects the first remaining image. Deleting the last image while any AVAILABLE or RESERVED listing exists fails MEDIA_LAST_PUBLISHED_IMAGE (409), including inactive branches. Publishing AVAILABLE now requires an active branch, a positive asking price and at least one photo. Publication and photo removal serialize in vehicle-then-listing order. Owner-reported condition/issues are public attributed statements, separate from inspection evidence; corrections use Vehicle.version and retain before/after audit notes. Deletion queues managed or recognized legacy owned keys in the same transaction; external files are never deleted. Preview is authenticated and branch scoped; public bytes require an AVAILABLE listing at an active branch. All byte responses are no-store; subsequent reads revoke immediately on detach. Read projections contain safe URLs, source and nullable dimensions, no keys/tickets. See managed-media.md. Edit stock image metadata, ordering and primary selection. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
 - Roles: STAFF, ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -10877,7 +11292,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### DELETE `/staff/vehicles/{vehicleId}/images/{imageId}`
 
 - Operation ID: `deleteStaffVehiclesByVehicleIdImagesByImageId`
-- Purpose: STAFF requires an active assigned branch matching the vehicle; ADMIN/SUPER_ADMIN retain existing cross-branch authority. All require verified MFA. Writes require CSRF. IMAGE preparation and confirmation retain their original paths and response fields; image confirmations may omit expectedVersion for old clients, but new clients send Vehicle.version. Every image mutation serializes on the vehicle row and increments that same version. PATCH/DELETE require expectedVersion. IMAGE uploads use shared actor/owner/vehicle/purpose/branch-bound tickets, 10 MiB, 20-image limit, JPEG/PNG/WebP, full checksum/signature/decoding, 32-8192px sides and 40MP, sanitized WebP output within 2048px. Still-valid old encrypted IMAGE tickets undergo the same verification; non-image asset contracts are unchanged. Exact confirmation token/body replay lasts 24h; changed replay conflicts. Failed attachments preserve old images. Optional replaceImageId on IMAGE preparation/confirmation supports replacement at the gallery limit; confirmation also requires expectedVersion. It attaches verified new bytes before detaching the old image in the same transaction, preserves its primary selection and queues owned cleanup. The old image remains intact on any failure. sortOrder is an integer 0-10000; ties use image ID, deletion leaves remaining positions unchanged. isPrimary:true replaces the previous primary; false may clear it. Deleting the primary selects the first remaining image. Deleting the last image while any AVAILABLE or RESERVED listing exists fails MEDIA_LAST_PUBLISHED_IMAGE (409), including inactive branches. Existing publication transitions and prices are unchanged. Deletion queues managed or recognized legacy owned keys in the same transaction; external files are never deleted. Preview is authenticated and branch scoped; public bytes require an AVAILABLE listing at an active branch. All byte responses are no-store; subsequent reads revoke immediately on detach. Read projections contain safe URLs, source and nullable dimensions, no keys/tickets. See managed-media.md. Remove a stock image and queue owned object cleanup. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: STAFF requires an active assigned branch matching the vehicle; ADMIN/SUPER_ADMIN retain existing cross-branch authority. All require verified MFA. Writes require CSRF. IMAGE preparation and confirmation retain their original paths and response fields; image confirmations may omit expectedVersion for old clients, but new clients send Vehicle.version. Every image mutation serializes on the vehicle row and increments that same version. PATCH/DELETE require expectedVersion. IMAGE uploads use shared actor/owner/vehicle/purpose/branch-bound tickets, 10 MiB, 20-image limit, JPEG/PNG/WebP, full checksum/signature/decoding, 32-8192px sides and 40MP, sanitized WebP output within 2048px. Still-valid old encrypted IMAGE tickets undergo the same verification; non-image asset contracts are unchanged. Exact confirmation token/body replay lasts 24h; changed replay conflicts. Failed attachments preserve old images. Optional replaceImageId on IMAGE preparation/confirmation supports replacement at the gallery limit; confirmation also requires expectedVersion. It attaches verified new bytes before detaching the old image in the same transaction, preserves its primary selection and queues owned cleanup. The old image remains intact on any failure. sortOrder is an integer 0-10000; ties use image ID, deletion leaves remaining positions unchanged. isPrimary:true replaces the previous primary; false may clear it. Deleting the primary selects the first remaining image. Deleting the last image while any AVAILABLE or RESERVED listing exists fails MEDIA_LAST_PUBLISHED_IMAGE (409), including inactive branches. Publishing AVAILABLE now requires an active branch, a positive asking price and at least one photo. Publication and photo removal serialize in vehicle-then-listing order. Owner-reported condition/issues are public attributed statements, separate from inspection evidence; corrections use Vehicle.version and retain before/after audit notes. Deletion queues managed or recognized legacy owned keys in the same transaction; external files are never deleted. Preview is authenticated and branch scoped; public bytes require an AVAILABLE listing at an active branch. All byte responses are no-store; subsequent reads revoke immediately on detach. Read projections contain safe URLs, source and nullable dimensions, no keys/tickets. See managed-media.md. Remove a stock image and queue owned object cleanup. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
 - Roles: STAFF, ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -10937,7 +11352,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### GET `/staff/vehicles/{vehicleId}/images/{imageId}/content`
 
 - Operation ID: `getStaffVehiclesByVehicleIdImagesByImageIdContent`
-- Purpose: STAFF requires an active assigned branch matching the vehicle; ADMIN/SUPER_ADMIN retain existing cross-branch authority. All require verified MFA. Writes require CSRF. IMAGE preparation and confirmation retain their original paths and response fields; image confirmations may omit expectedVersion for old clients, but new clients send Vehicle.version. Every image mutation serializes on the vehicle row and increments that same version. PATCH/DELETE require expectedVersion. IMAGE uploads use shared actor/owner/vehicle/purpose/branch-bound tickets, 10 MiB, 20-image limit, JPEG/PNG/WebP, full checksum/signature/decoding, 32-8192px sides and 40MP, sanitized WebP output within 2048px. Still-valid old encrypted IMAGE tickets undergo the same verification; non-image asset contracts are unchanged. Exact confirmation token/body replay lasts 24h; changed replay conflicts. Failed attachments preserve old images. Optional replaceImageId on IMAGE preparation/confirmation supports replacement at the gallery limit; confirmation also requires expectedVersion. It attaches verified new bytes before detaching the old image in the same transaction, preserves its primary selection and queues owned cleanup. The old image remains intact on any failure. sortOrder is an integer 0-10000; ties use image ID, deletion leaves remaining positions unchanged. isPrimary:true replaces the previous primary; false may clear it. Deleting the primary selects the first remaining image. Deleting the last image while any AVAILABLE or RESERVED listing exists fails MEDIA_LAST_PUBLISHED_IMAGE (409), including inactive branches. Existing publication transitions and prices are unchanged. Deletion queues managed or recognized legacy owned keys in the same transaction; external files are never deleted. Preview is authenticated and branch scoped; public bytes require an AVAILABLE listing at an active branch. All byte responses are no-store; subsequent reads revoke immediately on detach. Read projections contain safe URLs, source and nullable dimensions, no keys/tickets. See managed-media.md. Read branch-scoped stock image preview. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: STAFF requires an active assigned branch matching the vehicle; ADMIN/SUPER_ADMIN retain existing cross-branch authority. All require verified MFA. Writes require CSRF. IMAGE preparation and confirmation retain their original paths and response fields; image confirmations may omit expectedVersion for old clients, but new clients send Vehicle.version. Every image mutation serializes on the vehicle row and increments that same version. PATCH/DELETE require expectedVersion. IMAGE uploads use shared actor/owner/vehicle/purpose/branch-bound tickets, 10 MiB, 20-image limit, JPEG/PNG/WebP, full checksum/signature/decoding, 32-8192px sides and 40MP, sanitized WebP output within 2048px. Still-valid old encrypted IMAGE tickets undergo the same verification; non-image asset contracts are unchanged. Exact confirmation token/body replay lasts 24h; changed replay conflicts. Failed attachments preserve old images. Optional replaceImageId on IMAGE preparation/confirmation supports replacement at the gallery limit; confirmation also requires expectedVersion. It attaches verified new bytes before detaching the old image in the same transaction, preserves its primary selection and queues owned cleanup. The old image remains intact on any failure. sortOrder is an integer 0-10000; ties use image ID, deletion leaves remaining positions unchanged. isPrimary:true replaces the previous primary; false may clear it. Deleting the primary selects the first remaining image. Deleting the last image while any AVAILABLE or RESERVED listing exists fails MEDIA_LAST_PUBLISHED_IMAGE (409), including inactive branches. Publishing AVAILABLE now requires an active branch, a positive asking price and at least one photo. Publication and photo removal serialize in vehicle-then-listing order. Owner-reported condition/issues are public attributed statements, separate from inspection evidence; corrections use Vehicle.version and retain before/after audit notes. Deletion queues managed or recognized legacy owned keys in the same transaction; external files are never deleted. Preview is authenticated and branch scoped; public bytes require an AVAILABLE listing at an active branch. All byte responses are no-store; subsequent reads revoke immediately on detach. Read projections contain safe URLs, source and nullable dimensions, no keys/tickets. See managed-media.md. Read branch-scoped stock image preview. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: STAFF, ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Not required
@@ -12677,6 +13092,558 @@ Success: HTTP 200.
 ```
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required provider or database is temporarily unavailable.
+
+### GET `/staff/workforce/support-chat/presence`
+
+- Operation ID: `getStaffWorkforceSupportChatPresence`
+- Purpose: Gated additive availability foundation. No chat claim, message delivery or queue-position promise. Current branch duties and session are checked server-side. Customer responses contain no staff identities; the channel remains queued Customer Care until lifecycle and transport acceptance. Default feature flag is off. Read your explicit availability and current branch live duties. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Read your explicit availability and current branch live duties",
+  "data": {
+    "enabled": true,
+    "version": 0,
+    "branchId": "00000000-0000-4000-8000-000000000001",
+    "optedIn": true,
+    "expiresAt": "2030-01-15T10:00:00.000Z",
+    "capacity": 1,
+    "eligibleBranches": [
+      {
+        "branchId": "00000000-0000-4000-8000-000000000001",
+        "kinds": [
+          "ENQUIRY"
+        ]
+      }
+    ]
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current session required; 403 Current identity, MFA, responsibilities or CSRF denied; 404 Active branch unavailable; 409 Stale revision, expired lease or changed coverage; 422 Strict bounded input invalid; 429 Rate limit reached; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 Live feature or explicit coverage unavailable; ordinary queued Care remains
+
+### PUT `/staff/workforce/support-chat/presence`
+
+- Operation ID: `putStaffWorkforceSupportChatPresence`
+- Purpose: Gated additive availability foundation. No chat claim, message delivery or queue-position promise. Current branch duties and session are checked server-side. Customer responses contain no staff identities; the channel remains queued Customer Care until lifecycle and transport acceptance. Default feature flag is off. Opt in or withdraw one shared, session-bound availability lease. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+| `branchId` | string (uuid) | Yes | Identifier of the branch resource; ownership is resolved server-side. |
+| `available` | boolean | Yes | Available validated by this operation's strict request contract. |
+| `capacity` | integer | Yes | Capacity validated by this operation's strict request contract. |
+
+Synthetic request example:
+
+```json
+{
+  "expectedVersion": 0,
+  "branchId": "00000000-0000-4000-8000-000000000001",
+  "available": true,
+  "capacity": 1
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Opt in or withdraw one shared, session-bound availability lease",
+  "data": {
+    "enabled": true,
+    "version": 0,
+    "branchId": "00000000-0000-4000-8000-000000000001",
+    "optedIn": true,
+    "expiresAt": "2030-01-15T10:00:00.000Z",
+    "capacity": 1,
+    "eligibleBranches": [
+      {
+        "branchId": "00000000-0000-4000-8000-000000000001",
+        "kinds": [
+          "ENQUIRY"
+        ]
+      }
+    ]
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current session required; 403 Current identity, MFA, responsibilities or CSRF denied; 404 Active branch unavailable; 409 Stale revision, expired lease or changed coverage; 422 Strict bounded input invalid; 429 Rate limit reached; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 Live feature or explicit coverage unavailable; ordinary queued Care remains
+
+### POST `/staff/workforce/support-chat/presence/heartbeat`
+
+- Operation ID: `postStaffWorkforceSupportChatPresenceHeartbeat`
+- Purpose: Gated additive availability foundation. No chat claim, message delivery or queue-position promise. Current branch duties and session are checked server-side. Customer responses contain no staff identities; the channel remains queued Customer Care until lifecycle and transport acceptance. Default feature flag is off. Renew an unexpired current lease without multiplying capacity or revisions. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+
+Synthetic request example:
+
+```json
+{
+  "expectedVersion": 1
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Renew an unexpired current lease without multiplying capacity or revisions",
+  "data": {
+    "enabled": true,
+    "version": 0,
+    "branchId": "00000000-0000-4000-8000-000000000001",
+    "optedIn": true,
+    "expiresAt": "2030-01-15T10:00:00.000Z",
+    "capacity": 1,
+    "eligibleBranches": [
+      {
+        "branchId": "00000000-0000-4000-8000-000000000001",
+        "kinds": [
+          "ENQUIRY"
+        ]
+      }
+    ]
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current session required; 403 Current identity, MFA, responsibilities or CSRF denied; 404 Active branch unavailable; 409 Stale revision, expired lease or changed coverage; 422 Strict bounded input invalid; 429 Rate limit reached; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 Live feature or explicit coverage unavailable; ordinary queued Care remains
+
+### GET `/staff/workforce/support-chat/channels`
+
+- Operation ID: `getStaffWorkforceSupportChatChannels`
+- Purpose: Current session/MFA and case-view scope are required. Signed keyset cursors bind session, effective access and kind/state/branch filters. Oldest created channels first, up to 25 per page; per-channel waiting time is not a queue-position promise. State is reconciled before projection. No contact or transcript is returned. Default ACTIVE includes queued and joined channels. Empty/short pages may still have a next cursor after state or routing changes. Read a bounded current-responsibility Care channel queue. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `kind` | query | ENQUIRY / COMPLAINT | No | Kind used to constrain this request. |
+| `state` | query | ACTIVE / QUEUED / HUMAN_ACTIVE / ENDED | No | State used to constrain this request. |
+| `branchId` | query | string (uuid) | No | Branch Id used to constrain this request. |
+| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+| `cursor` | query | string | No | Opaque cursor returned by the preceding page. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Read a bounded current-responsibility Care channel queue",
+  "data": {
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "target": {
+          "kind": "ENQUIRY",
+          "id": "00000000-0000-4000-8000-000000000001"
+        },
+        "branchId": "00000000-0000-4000-8000-000000000001",
+        "state": "QUEUED",
+        "version": 0,
+        "updatedAt": "2030-01-15T10:00:00.000Z",
+        "queuedSince": "2030-01-15T10:00:00.000Z",
+        "claimedAt": "2030-01-15T10:00:00.000Z",
+        "endedAt": "2030-01-15T10:00:00.000Z",
+        "latestPublicMessageId": "00000000-0000-4000-8000-000000000001",
+        "assignedToYou": true,
+        "canClaim": true,
+        "canTransfer": true,
+        "canEnd": true,
+        "pollAfterMs": 5000
+      }
+    ],
+    "nextCursor": "synthetic-nextcursor",
+    "pollAfterMs": 5000
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current session required; 403 Current identity/MFA/action/CSRF denied; 404 Owned or currently scoped case/channel unavailable; 409 Changed state, routing, operation payload or expired recovery key; 422 Strict bounded input invalid; 429 Rate limit reached; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 Fresh eligible availability/capacity unavailable; saved case retained
+
+### GET `/staff/workforce/support-chat/channels/{channelId}/assignees`
+
+- Operation ID: `getStaffWorkforceSupportChatChannelsByChannelIdAssignees`
+- Purpose: Requires the separate current case-assignment duty. Returns only staff profile IDs and display names for current-session, opted-in, eligible, in-hours candidates with capacity in this branch; excludes the current representative. A bounded scan may return a short page with a continuation. Signed cursors bind current operator access and channel version. Transfer rechecks every prerequisite; the business-case assignee is unchanged. Find currently eligible transfer candidates for this scoped channel. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `channelId` | path | string (uuid) | Yes | Identifier selecting the channel resource. |
+| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+| `cursor` | query | string | No | Opaque cursor returned by the preceding page. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Find currently eligible transfer candidates for this scoped channel",
+  "data": {
+    "items": [
+      {
+        "staffId": "00000000-0000-4000-8000-000000000001",
+        "name": "synthetic-name"
+      }
+    ],
+    "nextCursor": "synthetic-nextcursor"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current session required; 403 Current identity/MFA/action/CSRF denied; 404 Owned or currently scoped case/channel unavailable; 409 Changed state, routing, operation payload or expired recovery key; 422 Strict bounded input invalid; 429 Rate limit reached; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 Fresh eligible availability/capacity unavailable; saved case retained
+
+### GET `/staff/workforce/support-chat/channels/operations/{action}/{operationKey}`
+
+- Operation ID: `getStaffWorkforceSupportChatChannelsOperationsByActionByOperationKey`
+- Purpose: The random timestamp/UUID key is a non-bearer identifier. Current actor/action scope and canonical ownership/permissions are required, including after reload or session changes. Returns SAVED plus current channel metadata, or a verified durable CANCELLED marker; never the transfer reason, assistant context or transcript. A 404 does not prove that an in-flight submission failed; do not create a replacement command automatically. Twenty-four-hour timestamp rules remain, including after receipt cleanup. Recover an actor-owned saved channel action without its private request body. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `action` | path | request / claim / transfer / end | Yes | Identifier selecting the action resource. |
+| `operationKey` | path | string | Yes | Identifier selecting the operation key resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Recover an actor-owned saved channel action without its private request body",
+  "data": {
+    "action": "request",
+    "state": "SAVED",
+    "channel": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "target": {
+        "kind": "ENQUIRY",
+        "id": "00000000-0000-4000-8000-000000000001"
+      },
+      "branchId": "00000000-0000-4000-8000-000000000001",
+      "state": "QUEUED",
+      "version": 0,
+      "updatedAt": "2030-01-15T10:00:00.000Z",
+      "queuedSince": "2030-01-15T10:00:00.000Z",
+      "claimedAt": "2030-01-15T10:00:00.000Z",
+      "endedAt": "2030-01-15T10:00:00.000Z",
+      "latestPublicMessageId": "00000000-0000-4000-8000-000000000001",
+      "assignedToYou": true,
+      "canClaim": true,
+      "canTransfer": true,
+      "canEnd": true,
+      "pollAfterMs": 5000
+    }
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current session required; 403 Current identity/MFA/action/CSRF denied; 404 Owned or currently scoped case/channel unavailable; 409 Changed state, routing, operation payload or expired recovery key; 422 Strict bounded input invalid; 429 Rate limit reached; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 Fresh eligible availability/capacity unavailable; saved case retained
+
+### DELETE `/staff/workforce/support-chat/channels/operations/{action}/{operationKey}`
+
+- Operation ID: `deleteStaffWorkforceSupportChatChannelsOperationsByActionByOperationKey`
+- Purpose: Requires current ownership/branch/action authority and CSRF. Serializes with the original command. If already saved, returns SAVED and current authorised state without undoing it. Otherwise stores a target-bound CANCELLED marker for the original recovery window; a delayed original command is then rejected. No case/message/channel is deleted. Used only after explicit cancellation review, never as an automatic retry. Durably stop an unsaved channel action or recover its already-saved outcome. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `action` | path | request / claim / transfer / end | Yes | Identifier selecting the action resource. |
+| `operationKey` | path | string | Yes | Identifier selecting the operation key resource. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `target` | object | Yes | Target validated by this operation's strict request contract. |
+
+Synthetic request example:
+
+```json
+{
+  "target": {
+    "kind": "ENQUIRY",
+    "id": "00000000-0000-4000-8000-000000000001"
+  }
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Durably stop an unsaved channel action or recover its already-saved outcome",
+  "data": {
+    "action": "request",
+    "state": "SAVED",
+    "channel": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "target": {
+        "kind": "ENQUIRY",
+        "id": "00000000-0000-4000-8000-000000000001"
+      },
+      "branchId": "00000000-0000-4000-8000-000000000001",
+      "state": "QUEUED",
+      "version": 0,
+      "updatedAt": "2030-01-15T10:00:00.000Z",
+      "queuedSince": "2030-01-15T10:00:00.000Z",
+      "claimedAt": "2030-01-15T10:00:00.000Z",
+      "endedAt": "2030-01-15T10:00:00.000Z",
+      "latestPublicMessageId": "00000000-0000-4000-8000-000000000001",
+      "assignedToYou": true,
+      "canClaim": true,
+      "canTransfer": true,
+      "canEnd": true,
+      "pollAfterMs": 5000
+    }
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current session required; 403 Current identity/MFA/action/CSRF denied; 404 Owned or currently scoped case/channel unavailable; 409 Changed state, routing, operation payload or expired recovery key; 422 Strict bounded input invalid; 429 Rate limit reached; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 Fresh eligible availability/capacity unavailable; saved case retained
+
+### GET `/staff/workforce/support-chat/channels/by-case/{kind}/{id}`
+
+- Operation ID: `getStaffWorkforceSupportChatChannelsByCaseByKindById`
+- Purpose: Rechecks canonical ownership/scope and session. Returns null when this authorised case has no channel, rather than inferring access from a browser-held UUID. Reconciles current eligibility and returns the case's resulting revision for a deliberate request. No transcript or contact details. Recover a channel through its currently owned or scoped canonical case. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `kind` | path | ENQUIRY / COMPLAINT | Yes | Identifier selecting the kind resource. |
+| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Recover a channel through its currently owned or scoped canonical case",
+  "data": {
+    "channel": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "target": {
+        "kind": "ENQUIRY",
+        "id": "00000000-0000-4000-8000-000000000001"
+      },
+      "branchId": "00000000-0000-4000-8000-000000000001",
+      "state": "QUEUED",
+      "version": 0,
+      "updatedAt": "2030-01-15T10:00:00.000Z",
+      "queuedSince": "2030-01-15T10:00:00.000Z",
+      "claimedAt": "2030-01-15T10:00:00.000Z",
+      "endedAt": "2030-01-15T10:00:00.000Z",
+      "latestPublicMessageId": "00000000-0000-4000-8000-000000000001",
+      "assignedToYou": true,
+      "canClaim": true,
+      "canTransfer": true,
+      "canEnd": true,
+      "pollAfterMs": 5000
+    },
+    "caseVersion": 0,
+    "latestPublicMessageId": "00000000-0000-4000-8000-000000000001"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current session required; 403 Current identity/MFA/action/CSRF denied; 404 Owned or currently scoped case/channel unavailable; 409 Changed state, routing, operation payload or expired recovery key; 422 Strict bounded input invalid; 429 Rate limit reached; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 Fresh eligible availability/capacity unavailable; saved case retained
+
+### GET `/staff/workforce/support-chat/channels/{channelId}`
+
+- Operation ID: `getStaffWorkforceSupportChatChannelsByChannelId`
+- Purpose: Bounded five-second polling, no bearer URL. Rechecks current session and case scope on every read; an expired/revoked/unavailable agent requeues the same canonical case with one generic system entry and an audited state change. Closed cases end the channel. No transcript, internal note or staff identity is returned. Existing canonical message APIs remain the authorised text/replay path. Revalidate one owned/scoped channel and reconcile lost agent eligibility. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `channelId` | path | string (uuid) | Yes | Identifier selecting the channel resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Revalidate one owned/scoped channel and reconcile lost agent eligibility",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "target": {
+      "kind": "ENQUIRY",
+      "id": "00000000-0000-4000-8000-000000000001"
+    },
+    "branchId": "00000000-0000-4000-8000-000000000001",
+    "state": "QUEUED",
+    "version": 0,
+    "updatedAt": "2030-01-15T10:00:00.000Z",
+    "queuedSince": "2030-01-15T10:00:00.000Z",
+    "claimedAt": "2030-01-15T10:00:00.000Z",
+    "endedAt": "2030-01-15T10:00:00.000Z",
+    "latestPublicMessageId": "00000000-0000-4000-8000-000000000001",
+    "assignedToYou": true,
+    "canClaim": true,
+    "canTransfer": true,
+    "canEnd": true,
+    "pollAfterMs": 5000
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current session required; 403 Current identity/MFA/action/CSRF denied; 404 Owned or currently scoped case/channel unavailable; 409 Changed state, routing, operation payload or expired recovery key; 422 Strict bounded input invalid; 429 Rate limit reached; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 Fresh eligible availability/capacity unavailable; saved case retained
+
+### POST `/staff/workforce/support-chat/channels/{channelId}/actions`
+
+- Operation ID: `postStaffWorkforceSupportChatChannelsByChannelIdActions`
+- Purpose: Customer ownership permits ending their channel. Claim requires current same-branch live duties, explicit session-bound presence, hours and shared capacity. Transfer requires the separate current case-assignment duty and another eligible opted-in representative; it does not change the business-case assignee. Every new action checks channel revision. Actor/action/payload-bound reference receipts make original-key replay safe after lost acknowledgement; changed/expired keys conflict. System history/audit and state changes commit together. End preserves the case and ordinary follow-up. Live access cannot be inferred from account role. Transactionally claim, transfer or end the canonical human channel. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Required in `Idempotency-Key`
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `channelId` | path | string (uuid) | Yes | Identifier selecting the channel resource. |
+| `idempotency-key` | header | string | Yes | Unique retry key for this logical mutation. Reuse it only with the identical request. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+Synthetic request example:
+
+```json
+{
+  "action": "claim",
+  "expectedVersion": 0
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Transactionally claim, transfer or end the canonical human channel",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "target": {
+      "kind": "ENQUIRY",
+      "id": "00000000-0000-4000-8000-000000000001"
+    },
+    "branchId": "00000000-0000-4000-8000-000000000001",
+    "state": "QUEUED",
+    "version": 0,
+    "updatedAt": "2030-01-15T10:00:00.000Z",
+    "queuedSince": "2030-01-15T10:00:00.000Z",
+    "claimedAt": "2030-01-15T10:00:00.000Z",
+    "endedAt": "2030-01-15T10:00:00.000Z",
+    "latestPublicMessageId": "00000000-0000-4000-8000-000000000001",
+    "assignedToYou": true,
+    "canClaim": true,
+    "canTransfer": true,
+    "canEnd": true,
+    "pollAfterMs": 5000,
+    "replayed": true
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current session required; 403 Current identity/MFA/action/CSRF denied; 404 Owned or currently scoped case/channel unavailable; 409 Changed state, routing, operation payload or expired recovery key; 422 Strict bounded input invalid; 429 Rate limit reached; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 Fresh eligible availability/capacity unavailable; saved case retained
 
 ### POST `/staff/support/enquiries/{supportId}/email-deliveries/dismiss`
 
@@ -22981,6 +23948,128 @@ Success: HTTP 200.
 ```
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/admin/workforce/support-chat/coverage/{branchId}`
+
+- Operation ID: `getAdminWorkforceSupportChatCoverageByBranchId`
+- Purpose: Gated additive availability foundation. No chat claim, message delivery or queue-position promise. Current branch duties and session are checked server-side. Customer responses contain no staff identities; the channel remains queued Customer Care until lifecycle and transport acceptance. Default feature flag is off. Owner reads explicit support coverage, independent of workshop hours. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `branchId` | path | string (uuid) | Yes | Identifier selecting the branch resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Owner reads explicit support coverage, independent of workshop hours",
+  "data": {
+    "branchId": "00000000-0000-4000-8000-000000000001",
+    "enabled": true,
+    "schedule": {
+      "timezone": "Africa/Lagos",
+      "windows": [
+        {
+          "day": 0,
+          "startMinute": 0,
+          "endMinute": 1
+        }
+      ]
+    },
+    "maxConcurrentPerAgent": 1,
+    "version": 0
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current session required; 403 Current identity, MFA, responsibilities or CSRF denied; 404 Active branch unavailable; 409 Stale revision, expired lease or changed coverage; 422 Strict bounded input invalid; 429 Rate limit reached; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 Live feature or explicit coverage unavailable; ordinary queued Care remains
+
+### PUT `/admin/workforce/support-chat/coverage/{branchId}`
+
+- Operation ID: `putAdminWorkforceSupportChatCoverageByBranchId`
+- Purpose: Gated additive availability foundation. No chat claim, message delivery or queue-position promise. Current branch duties and session are checked server-side. Customer responses contain no staff identities; the channel remains queued Customer Care until lifecycle and transport acceptance. Default feature flag is off. Owner updates audited support coverage using its current revision. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `branchId` | path | string (uuid) | Yes | Identifier selecting the branch resource. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+| `enabled` | boolean | Yes | Enabled validated by this operation's strict request contract. |
+| `schedule` | object | Yes | Schedule validated by this operation's strict request contract. |
+| `maxConcurrentPerAgent` | integer | Yes | Max Concurrent Per Agent validated by this operation's strict request contract. |
+| `reason` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+
+Synthetic request example:
+
+```json
+{
+  "expectedVersion": 0,
+  "enabled": true,
+  "schedule": {
+    "timezone": "Africa/Lagos",
+    "windows": [
+      {
+        "day": 0,
+        "startMinute": 0,
+        "endMinute": 1
+      }
+    ]
+  },
+  "maxConcurrentPerAgent": 1,
+  "reason": "synthetic-reason"
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Owner updates audited support coverage using its current revision",
+  "data": {
+    "branchId": "00000000-0000-4000-8000-000000000001",
+    "enabled": true,
+    "schedule": {
+      "timezone": "Africa/Lagos",
+      "windows": [
+        {
+          "day": 0,
+          "startMinute": 0,
+          "endMinute": 1
+        }
+      ]
+    },
+    "maxConcurrentPerAgent": 1,
+    "version": 0
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current session required; 403 Current identity, MFA, responsibilities or CSRF denied; 404 Active branch unavailable; 409 Stale revision, expired lease or changed coverage; 422 Strict bounded input invalid; 429 Rate limit reached; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 Live feature or explicit coverage unavailable; ordinary queued Care remains
 
 ### GET `/admin/operations/jobs/{source}/{jobId}`
 

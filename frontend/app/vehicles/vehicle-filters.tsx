@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useHydrated } from "@/lib/use-hydrated";
 import { containDialogFocus } from "@/lib/dialog-focus";
 import { ChevronDown, Search, SlidersHorizontal, X } from "lucide-react";
 import { CountryField } from "../components/country-field";
@@ -23,6 +24,7 @@ export function VehicleSearch({
   value: string;
   update: UpdateVehicleQuery;
 }) {
+  const hydrated = useHydrated();
   const [text, setText] = useState(value);
   const [previousValue, setPreviousValue] = useState(value);
   if (previousValue !== value) {
@@ -67,8 +69,9 @@ export function VehicleSearch({
       <label htmlFor="vehicle-search">Search vehicles</label>
       <input
         id="vehicle-search"
+        disabled={!hydrated}
         type="search"
-        placeholder="Make, model or title"
+        placeholder="Make, model, year, colour, location or features"
         maxLength={100}
         value={text}
         onCompositionStart={() => {
@@ -87,6 +90,7 @@ export function VehicleSearch({
       <button
         type="submit"
         className="vehicle-search-submit"
+        disabled={!hydrated}
         aria-label="Search vehicles"
       >
         <Search size={18} aria-hidden="true" />
@@ -97,6 +101,7 @@ export function VehicleSearch({
 
 const labels: Record<string, string> = {
   make: "Make",
+  location: "Location (city or state)",
   model: "Model",
   year: "Year",
   minPriceKobo: "Minimum price (NGN)",
@@ -159,6 +164,7 @@ export function VehicleFilters({
       ]),
     );
   }
+  const hydrated = useHydrated();
   const [values, setValues] = useState<Record<string, string>>(readValues);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [previousQuery, setPreviousQuery] = useState(query);
@@ -268,6 +274,7 @@ export function VehicleFilters({
       <button
         ref={trigger}
         className="vehicle-filter-trigger"
+        disabled={!hydrated}
         type="button"
         aria-expanded={open}
         aria-controls="vehicle-filter-panel"
@@ -334,6 +341,7 @@ export function VehicleFilters({
             {[
               ["Budget", ["minPriceKobo", "maxPriceKobo"]],
               ["Make and model", ["make", "model"]],
+              ["Listing location", ["location"]],
               ["Condition", ["conditions"]],
               ["Model year and body", ["minYear", "maxYear", "bodyType"]],
               [
@@ -395,6 +403,56 @@ export function VehicleFilters({
                         <fieldset className="vehicle-multiple-options">
                           <legend>{labels[key]}</legend>
                           <p>Choose any that apply. Leave all unchecked for any.</p>
+                          {key === "conditions" && (
+                            <label>
+                              <input
+                                type="checkbox"
+                                checked={["USED", "FOREIGN_USED", "LOCALLY_USED"].every(
+                                  (condition) =>
+                                    values.conditions.split(",").includes(condition),
+                                )}
+                                ref={(element) => {
+                                  if (element) {
+                                    const count = [
+                                      "USED",
+                                      "FOREIGN_USED",
+                                      "LOCALLY_USED",
+                                    ].filter((condition) =>
+                                      values.conditions.split(",").includes(condition),
+                                    ).length;
+                                    element.indeterminate = count > 0 && count < 3;
+                                  }
+                                }}
+                                onChange={(event) => {
+                                  const checked = event.target.checked;
+                                  setValues((previous) => {
+                                    const selected = new Set(
+                                      previous.conditions.split(",").filter(Boolean),
+                                    );
+                                    for (const condition of [
+                                      "USED",
+                                      "FOREIGN_USED",
+                                      "LOCALLY_USED",
+                                    ]) {
+                                      if (checked) selected.add(condition);
+                                      else selected.delete(condition);
+                                    }
+                                    return {
+                                      ...previous,
+                                      conditions: [...selected].join(","),
+                                    };
+                                  });
+                                }}
+                              />
+                              <span>
+                                Any used vehicle{" "}
+                                <small>
+                                  Includes unspecified, foreign and Nigerian use. Refine
+                                  the recorded origin below.
+                                </small>
+                              </span>
+                            </label>
+                          )}
                           {vehicleChoices[
                             key === "conditions" ? "condition" : "powertrain"
                           ].map((option) => (

@@ -33,6 +33,7 @@ export function SupportReplyForm({
   userId,
   onReviewChange,
   onReview,
+  keepDraftEditable = false,
 }: {
   record: SupportRecord;
   staff: boolean;
@@ -44,6 +45,7 @@ export function SupportReplyForm({
   userId?: string;
   onReviewChange?: (open: boolean) => void;
   onReview?: (proposal: MutationProposal) => void;
+  keepDraftEditable?: boolean;
 }) {
   const [proposal, setProposal] = useState<MutationProposal | null>(null);
   const [uncertain, setUncertain] = useState(false);
@@ -70,6 +72,16 @@ export function SupportReplyForm({
   });
   const visibility = useWatch({ control: form.control, name: "visibility" });
   const messageText = useWatch({ control: form.control, name: "message" });
+  const writeBlocked = disabled || !!guard?.disabled || (!guard && uncertain);
+  // A passive read must not interrupt typing. Submission and recovery locks stay
+  // independent; callers opt in only while retaining an authorised case snapshot.
+  const fieldsLocked =
+    (writeBlocked && !keepDraftEditable) ||
+    uncertain ||
+    !!guard?.pending ||
+    !!guard?.busy ||
+    !!guard?.storageError ||
+    (guard?.remaining ?? 0) > 0;
   const { getValues, setValue } = form;
   useEffect(() => {
     // The shared draft restorer waits for enabled controls. An uncertain reply
@@ -214,7 +226,7 @@ export function SupportReplyForm({
           noValidate
           onSubmit={(event) => void form.handleSubmit(review)(event)}
         >
-          <fieldset disabled={disabled || guard?.disabled || (!guard && uncertain)}>
+          <fieldset disabled={fieldsLocked}>
             {staff && (
               <fieldset
                 className="support-audience"
@@ -269,7 +281,7 @@ export function SupportReplyForm({
                 </strong>
               </p>
             )}
-            <ActionButton type="submit">
+            <ActionButton type="submit" disabled={writeBlocked}>
               {staff && visibility === "INTERNAL"
                 ? "Review internal note"
                 : "Review reply"}
