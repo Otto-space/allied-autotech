@@ -2204,3 +2204,16 @@ rendering is distinct from locked Next 16.4.3 CI. Physical devices/native keyboa
 zoom, full screen-reader and actual authenticated production-role acceptance remain
 open. Existing launch/policy/permission constraints, other worktrees and unrelated
 Home/dashboard scope are preserved. Site-completion Item 6 remains open.
+
+## Shop publication checkpoint - 28 October 2026
+
+28 October 2026 - Shop visual-audit frontend released. Runtime 552ee418,
+Vercel dpl_79uCiatbRsCvM2jtPJkwsx53efpP READY on both apex/www after promotion
+and 14 live public checks. Preserves 9f9311cf collection guidance and fbb6565a
+mobile navigation. Locked frontend CI 40673723280: 1072 units plus build/types/
+lint/format passed; secret guard 40673723234 passed. Eight final hosted Shop/
+product cases passed; ten retained-navigation cases passed on earlier candidate.
+Backend 79d7a0ac unchanged, ACTIVE/readiness200. No local/shared DB test or write.
+V20 initial mobile spacing and V23 wider vocabulary remain partial; full V01-V55
+goal remains active. Evidence/limitations/rollback and disk-preflight incident:
+backend/docs/shop-audit-production-20261028.md. Other tasks/dirty work preserved.
