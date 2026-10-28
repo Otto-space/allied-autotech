@@ -122,3 +122,14 @@ All 55 findings remain tracked above. Candidate means implemented with the evide
 ## Frontend release checkpoint
 
 Runtime a1b8ce45 is live on both domains as dpl_GKfQv1k4cD5qTKZj3c6LaP8Y4iqz. Final locked CI passed 1,072 units, lint/types/format/build and zero production audit vulnerabilities. Fourteen post-promotion public read-only checks passed at 390/1440px with zero attempted writes. Both aliases independently verified; backend unchanged and readiness 200. See backend/docs/visual-audit-frontend-production-20261027.md for gates, screenshots, retained recovery evidence, rollback and limitations. The 55-finding goal stays active; backend V54/new homepage article, unimplemented findings and remaining role/state acceptance are not closed by this frontend deployment.
+
+## Shop discovery and product details - next bounded batch
+
+- V20: search precedes optional vehicle selection; one searchable category control replaces duplicate shortcut buttons. Compact toolbar and heading spacing retain all filters and sort options. URL normalization, cursor invalidation and explicit sort precedence are unchanged.
+- V21: a confirmed empty make catalogue offers a context-preserving enquiry link instead of a misleading vehicle-finder radio. Existing vehicle deep links remain visible and removable; failed/loading reads retain retry/status rather than being treated as empty. Finder copy explains possible matches without claiming compatibility.
+- V22/V23: empty brand suggestions use a plain text input with explicit manual-entry guidance. Suggestions/retry/paging still work when present. Machine-style product types receive sentence-case display labels without changing stored/query values; viscosity labels use customer language.
+- V24/V25: product breadcrumbs say Shop and the visible tab says Collection. The existing product-delivery fragment remains valid; actual collection-only policy is unchanged.
+- V26/V15: enquiry remains the primary action; WhatsApp and sign-in are quieter alternatives, duplicated assistance removed. Product compatibility help retains product/vehicle context. Missing-photo placeholders are capped at 180px; no substitute product evidence is invented. Authentication, favourites persistence, cart gating and session checks are unchanged.
+- Learning discovery targets and permission/workflow contracts remain unchanged; this batch does not alter the reviewed guide definitions. The existing product-search/filter targets remain available.
+- Concurrent released mobile-navigation source fbb6565a was merged before acceptance. Both sides of the quality-register history and unrelated dirty tracker/asset records were preserved.
+- Pre-release evidence so far: 30 focused query/fitment/category/availability units passed. Hosted keyboard, mobile, empty/error, history and action checks plus exact-lock CI are pending. This section does not claim release or all 55 findings complete.

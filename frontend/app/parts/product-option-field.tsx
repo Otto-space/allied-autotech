@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useResource } from "@/lib/api/use-resource";
 import { parseProductFacets } from "@/lib/api/commerce-schemas";
+import { productTypeLabel } from "@/lib/product-family";
 export function ProductOptionField({
   field,
   value,
@@ -48,7 +49,8 @@ export function ProductOptionField({
             id={`product-filter-${field}`}
             value={value}
             maxLength={100}
-            list="product-brand-choices"
+            list={options.length ? "product-brand-choices" : undefined}
+            placeholder="Enter a brand name"
             aria-invalid={!!error}
             aria-describedby={describedBy}
             onChange={(event) => onChange(event.target.value)}
@@ -69,27 +71,39 @@ export function ProductOptionField({
         >
           <option value="">Any</option>
           {value && !options.some((option) => option.value === value) && (
-            <option value={value}>Selected: {value.replaceAll("_", " ")}</option>
+            <option value={value}>
+              Selected:{" "}
+              {field === "productType"
+                ? productTypeLabel(value)
+                : value.replaceAll("_", " ")}
+            </option>
           )}
           {options.map((option) => (
             <option key={option.value} value={option.value}>
-              {option.label}
+              {field === "productType" ? productTypeLabel(option.value) : option.label}
             </option>
           ))}
         </select>
       )}
       <div className="product-option-state" id={`product-option-${field}-state`}>
         {resource.loading ? (
-          <small>Loading recorded choices…</small>
+          <small>Loading choices…</small>
         ) : resource.error || resource.refreshError ? (
           <>
-            <small>Recorded choices could not be loaded.</small>
+            <small>
+              Choices could not be loaded.
+              {field === "brand" ? " You can still enter the full brand name." : ""}
+            </small>
             <button type="button" onClick={resource.refresh}>
               Retry choices
             </button>
           </>
         ) : options.length === 0 ? (
-          <small>No recorded choices for the current applied search.</small>
+          <small>
+            {field === "brand"
+              ? "No brand suggestions for this search. You can enter the full brand name."
+              : "No choices for this search."}
+          </small>
         ) : field === "brand" ? (
           <small>Choose a suggestion or enter the full brand name.</small>
         ) : null}

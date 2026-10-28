@@ -41,13 +41,15 @@ export function FindPartsForCar({
             {unavailable ? "Get help choosing a product" : "Find products for my vehicle"}
           </h3>
           <p>
-            Vehicle details identify candidates. Reviewed evidence and the necessary
-            technical specifications are required before compatibility can be confirmed.
+            Find possible matches using your vehicle details. Confirm suitability with our
+            team before you order.
           </p>
         </div>
-        <Link href={partsEnquiryHref(new URLSearchParams(enquiryQuery ?? query))}>
-          Get help choosing a product
-        </Link>
+        {!unavailable && (
+          <Link href={partsEnquiryHref(new URLSearchParams(enquiryQuery ?? query))}>
+            Get help choosing a product
+          </Link>
+        )}
       </div>
       {makes.loading ? (
         <p role="status">Checking vehicle choices…</p>

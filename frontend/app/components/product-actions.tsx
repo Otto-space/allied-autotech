@@ -295,8 +295,9 @@ function ProductPurchaseActions({
                   : "We could not check your account. Please try again."}
           </p>
           {access === "anonymous" && (
-            <Link className="button" href={loginHref}>
-              Sign in to continue <ArrowRight size={17} aria-hidden="true" />
+            <Link className={enquiriesOnly ? "pd-link" : "button"} href={loginHref}>
+              {enquiriesOnly ? "Sign in to save this product" : "Sign in to continue"}{" "}
+              <ArrowRight size={17} aria-hidden="true" />
             </Link>
           )}
           {access === "restricted" && (
@@ -316,9 +317,11 @@ function ProductPurchaseActions({
               Retry account check
             </button>
           )}
-          <Link className="pd-link" href="/contact#enquiry">
-            Ask our team <ArrowRight size={17} aria-hidden="true" />
-          </Link>
+          {!enquiriesOnly && (
+            <Link className="pd-link" href={enquiryHref ?? "/contact#enquiry"}>
+              Ask our team <ArrowRight size={17} aria-hidden="true" />
+            </Link>
+          )}
         </div>
       )}
       {access === "customer" && (

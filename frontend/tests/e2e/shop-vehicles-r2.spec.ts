@@ -181,13 +181,9 @@ for (const width of [360, 390, 768, 1024, 1440]) {
     await expect(page.locator(".shop-product-card")).toHaveCount(12);
     await page.getByRole("button", { name: /^Filters/ }).click();
     await page.getByLabel("Product family", { exact: true }).selectOption("ENGINE_OIL");
-    await expect(
-      page.getByLabel("Recorded viscosity grade", { exact: true }),
-    ).toBeVisible();
+    await expect(page.getByLabel("Viscosity grade", { exact: true })).toBeVisible();
     await expect(page.getByLabel("Part condition", { exact: true })).not.toBeVisible();
-    await page
-      .getByLabel("Recorded viscosity grade", { exact: true })
-      .selectOption("5W-30");
+    await page.getByLabel("Viscosity grade", { exact: true }).selectOption("5W-30");
     await page.getByLabel("Pack volume", { exact: true }).selectOption("1000");
     await page
       .getByRole("group", { name: "Budget (NGN)", exact: true })
@@ -216,9 +212,7 @@ for (const width of [360, 390, 768, 1024, 1440]) {
     await page
       .getByLabel("Product family", { exact: true })
       .selectOption("REPLACEMENT_PART");
-    await expect(
-      page.getByLabel("Recorded viscosity grade", { exact: true }),
-    ).not.toBeVisible();
+    await expect(page.getByLabel("Viscosity grade", { exact: true })).not.toBeVisible();
     await page.getByRole("button", { name: "Apply filters", exact: true }).click();
     await expect(page).not.toHaveURL(/oilViscosityGrade|packVolumeMl/);
     await page.goto("/vehicles");

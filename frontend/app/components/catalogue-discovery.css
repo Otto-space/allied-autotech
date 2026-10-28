@@ -141,3 +141,50 @@
     max-height: 100dvh;
   }
 }
+
+/* One category control and a compact search-first Shop toolbar. */
+.shop-page .product-inventory {
+  padding-top: 24px;
+}
+.shop-page .product-hero-copy {
+  padding-block: 24px;
+}
+.shop-page .product-hero h1 {
+  margin-bottom: 12px;
+}
+.shop-page .product-inventory-heading {
+  margin-bottom: 16px;
+}
+.shop-page .product-toolbar {
+  grid-template-columns: minmax(0, 1fr) auto minmax(160px, 1fr);
+}
+.shop-page .product-toolbar:has(.product-subcategory) {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) auto minmax(160px, 1fr);
+}
+.parts-finder-help {
+  margin: 8px 0 0;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.parts-finder-help a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--link);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+@media (max-width: 1050px) {
+  .shop-page .product-toolbar,
+  .shop-page .product-toolbar:has(.product-subcategory) {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .shop-page .product-toolbar > .product-category {
+    grid-column: 1 / -1;
+    grid-row: auto;
+  }
+  .shop-page .product-filter-trigger,
+  .shop-page .product-sort {
+    grid-row: auto;
+  }
+}

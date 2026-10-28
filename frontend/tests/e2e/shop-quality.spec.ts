@@ -691,17 +691,18 @@ test("large category list keeps its search visible during keyboard navigation", 
   ).toBeFocused();
 });
 
-test("category shortcuts preserve search and sort, clear only category and follow history", async ({
+test("category picker preserves search and sort, resets cursors and follows history", async ({
   page,
 }) => {
   const state = await fixture(page);
-  const shortcuts = page.getByRole("group", { name: "Category shortcuts" });
+  const picker = page.locator(
+    ".product-category:not(.product-subcategory) .product-category-trigger",
+  );
   await page.getByLabel("Sort by").selectOption("price_asc");
   await page.getByRole("button", { name: "Next", exact: true }).click();
   await expect(page).toHaveURL(/cursor=/);
-  await shortcuts
-    .getByRole("button", { name: "Category: Oils and fluids", exact: true })
-    .click();
+  await picker.click();
+  await page.getByRole("option", { name: "Oils and fluids", exact: true }).click();
   await expect(page).toHaveURL(new RegExp(`categoryId=${id(102)}`));
   await expect(page).not.toHaveURL(/cursor=|_trail=/);
   await expect
@@ -709,14 +710,18 @@ test("category shortcuts preserve search and sort, clear only category and follo
     .toBe(id(102));
   expect(state.requests.at(-1)?.searchParams.get("search")).toBe("QA");
   expect(state.requests.at(-1)?.searchParams.get("sort")).toBe("price_asc");
-  await shortcuts.getByRole("button", { name: "Category: Filters", exact: true }).focus();
+  await picker.focus();
   await page.keyboard.press("Enter");
+  const search = page.getByRole("combobox", { name: "Search categories" });
+  await search.fill("Filters");
+  await expect(page.getByRole("option", { name: "Filters", exact: true })).toBeVisible();
+  await search.press("ArrowDown");
+  await search.press("Enter");
   await expect(page).toHaveURL(new RegExp(`categoryId=${id(101)}`));
   await page.goBack();
-  await expect(
-    shortcuts.getByRole("button", { name: "Category: Oils and fluids", exact: true }),
-  ).toHaveAttribute("aria-pressed", "true");
-  await shortcuts.getByRole("button", { name: "All product categories" }).click();
+  await expect(picker).toContainText("Oils and fluids");
+  await picker.click();
+  await page.getByRole("option", { name: "All categories", exact: true }).click();
   await expect(page).not.toHaveURL(/categoryId=/);
   await expect(page).toHaveURL(/search=QA/);
   await expect(page).toHaveURL(/sort=price_asc/);

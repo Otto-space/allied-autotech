@@ -22,7 +22,7 @@ import {
   productFilterKeys,
   clearProductFamilyFilters,
 } from "@/lib/product-discovery";
-import { familyLabels, packVolumeLabel } from "@/lib/product-family";
+import { familyLabels, packVolumeLabel, productTypeLabel } from "@/lib/product-family";
 import {
   ProductFilters,
   ProductSearch,
@@ -68,12 +68,11 @@ export function PartsCatalogue({
     category.data &&
     category.data.parentId !== rootId
   );
-  const categoryShortcuts = categories.items.slice(0, 3);
-  if (
-    categories.selected &&
-    !categoryShortcuts.some((item) => item.id === categories.selected?.id)
-  )
-    categoryShortcuts.push(categories.selected);
+  const finderUnavailable =
+    !makes.loading &&
+    !makes.error &&
+    !makes.refreshError &&
+    makes.data?.items.length === 0;
   const selected = [...new Set(productFilterKeys)].filter(
     (key) =>
       params.has(key) &&
@@ -181,32 +180,6 @@ export function PartsCatalogue({
             filters below.
           </p>
         )}
-        <fieldset className="parts-intent">
-          <legend>How would you like to find products?</legend>
-          <label>
-            <input
-              type="radio"
-              name="product-discovery-mode"
-              checked={intent === "part"}
-              onChange={() => {
-                setIntent("part");
-                update(clearVehicleSelection);
-              }}
-            />
-            Search all products
-          </label>
-          <label>
-            <input
-              type="radio"
-              name="product-discovery-mode"
-              checked={intent === "vehicle"}
-              onChange={() => setIntent("vehicle")}
-            />
-            {makes.data?.items.length
-              ? "Find products for my vehicle"
-              : "Get help choosing a product"}
-          </label>
-        </fieldset>
         <div className="product-direct-search">
           <ProductSearch
             key={searchReset}
@@ -214,6 +187,37 @@ export function PartsCatalogue({
             update={update}
           />
         </div>
+        {finderUnavailable && intent !== "vehicle" ? (
+          <p className="parts-finder-help">
+            Need help finding a suitable product?{" "}
+            <Link href={partsEnquiryHref(params)}>Ask our team</Link>
+          </p>
+        ) : (
+          <fieldset className="parts-intent">
+            <legend>How would you like to find products?</legend>
+            <label>
+              <input
+                type="radio"
+                name="product-discovery-mode"
+                checked={intent === "part"}
+                onChange={() => {
+                  setIntent("part");
+                  update(clearVehicleSelection);
+                }}
+              />
+              Search all products
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="product-discovery-mode"
+                checked={intent === "vehicle"}
+                onChange={() => setIntent("vehicle")}
+              />
+              Find products for my vehicle
+            </label>
+          </fieldset>
+        )}
         <div className="catalogue-controls">
           <div className="product-toolbar">
             {(categories.items.length > 0 ||
@@ -288,50 +292,6 @@ export function PartsCatalogue({
               </div>
             </div>
           </div>
-          {(categoryShortcuts.length > 0 || categories.loading) && (
-            <fieldset className="product-category-shortcuts">
-              <legend>Category shortcuts</legend>
-              <div>
-                <button
-                  type="button"
-                  aria-label="All product categories"
-                  aria-pressed={!rootId}
-                  onClick={() =>
-                    update((next) => {
-                      next.delete("categoryId");
-                      next.delete("parentCategoryId");
-                      clearProductFamilyFilters(next);
-                    })
-                  }
-                >
-                  All products
-                </button>
-                {categoryShortcuts.map((item) => (
-                  <button
-                    key={item.id}
-                    type="button"
-                    title={item.name}
-                    aria-label={`Category: ${item.name}`}
-                    aria-pressed={rootId === item.id}
-                    onClick={() =>
-                      update((next) => {
-                        next.delete("parentCategoryId");
-                        clearProductFamilyFilters(next);
-                        next.set("categoryId", item.id);
-                      })
-                    }
-                  >
-                    <span>{item.name}</span>
-                  </button>
-                ))}
-              </div>
-              <p>
-                {categories.loading && !categoryShortcuts.length
-                  ? "Loading category shortcuts…"
-                  : "Use Category for more options."}
-              </p>
-            </fieldset>
-          )}
         </div>
         <div hidden={intent !== "vehicle"}>
           <FindPartsForCar
@@ -392,7 +352,7 @@ export function PartsCatalogue({
                         : key === "packVolumeMl"
                           ? `Pack volume: ${packVolumeLabel(Number(value))}`
                           : key === "productType"
-                            ? `Product type: ${value.replaceAll("_", " ")}`
+                            ? `Product type: ${productTypeLabel(value)}`
                             : key === "featured"
                               ? value === "true"
                                 ? "Featured only"

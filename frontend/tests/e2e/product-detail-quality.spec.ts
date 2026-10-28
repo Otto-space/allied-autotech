@@ -429,7 +429,7 @@ test("product navigation, part identifiers, single mobile price and delivery gui
   await expect(
     page.getByRole("heading", { name: "Vehicle compatibility" }),
   ).toBeInViewport();
-  await nav.getByRole("link", { name: "Delivery", exact: true }).click();
+  await nav.getByRole("link", { name: "Collection", exact: true }).click();
   await expect(page).toHaveURL(/#product-delivery$/);
   const collection = page.locator(".pd-ordering-faq summary").first();
   await collection.focus();
