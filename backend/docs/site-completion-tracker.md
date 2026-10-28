@@ -13,12 +13,36 @@ No backend/database/stock/review/message/transaction writes. Source-authored
 Tyre Change wording and missing product photography are explicit editorial
 dependencies in `frontend/docs/PUBLIC_COPY_IMAGERY_20261028.md`.
 
-Local typecheck, lint and focused 22-case state/regression checks pass. Home
+Local typecheck, lint and focused 23-case state/regression checks pass. Home
 responsive fixtures passed ten widths; recovery, reviews, image failure, doubled
 text, keyboard/menu and mobile/desktop accessibility checks passed after fixing
 mobile hero contrast. Real public-data layout and release gates are in progress.
 No full-site, real-role, physical-device or screen-reader acceptance is claimed.
 
+
+
+## 28 October 2026 current product-fitment availability cycle
+
+Current production baseline was frontend `dpl_5LscxLnZGRXNBorSWq3GFgfUBcGq`
+and backend `3ee6748f-ed72-4c89-b9a1-f1963e891190` ACTIVE. The P0 payment
+session and reconciliation source is included in the consolidated backend;
+the guarded forward migration, separate populated logical restore rehearsal,
+runtime privilege checks and worker heartbeats are recorded in
+`backend/docs/master-consolidation-release-20261028.md`. Live payments remain
+disabled, and real-role/provider acceptance remains separate.
+
+On the published Engine Oil Filter detail, the public fitment-make lookup
+returned zero choices, while the fitment summary told the customer to choose
+a vehicle. The page correctly linked to a product enquiry and prefilled the
+selected product; no request was sent. A focused frontend change now explains
+the unavailable vehicle catalogue and adds retry when that lookup fails.
+The isolated `allied-product-fitment-20261028` worktree is based on the current
+clean master commit, preserving dirty human-chat work in the master checkout.
+TypeScript, scoped lint and two rendered product-detail tests at 390/1440px
+pass. These tests use the one published product for read-only catalogue/SSR
+data and intercept identity and all mutations. Exact-source CI, deployment
+and hosted post-release acceptance remain pending. No payment, enquiry,
+customer or database write was made.
 
 ## 28 October 2026 consolidated production release
 

@@ -1,7 +1,13 @@
 import styles from "./part-fitment-summary.module.css";
 import { fitmentLabels, type FitmentDecision } from "@/lib/parts-fitment";
 
-export function PartFitmentSummary({ decision }: { decision?: FitmentDecision }) {
+export function PartFitmentSummary({
+  decision,
+  unknownMessage,
+}: {
+  decision?: FitmentDecision;
+  unknownMessage?: string;
+}) {
   const status = decision?.status ?? "UNKNOWN";
   const label =
     status === "VERIFIED_FIT"
@@ -16,8 +22,9 @@ export function PartFitmentSummary({ decision }: { decision?: FitmentDecision })
   return (
     <div className={`${styles.summary} ${styles[status]}`}>
       <strong>{label}</strong>
-      <p>
+      <p role={unknownMessage && !decision?.message ? "status" : undefined}>
         {decision?.message ??
+          unknownMessage ??
           "Choose your vehicle to check approved fitment evidence. Make, model and year alone do not confirm suitability."}
       </p>
       {!!decision?.missingQualifiers.length && (

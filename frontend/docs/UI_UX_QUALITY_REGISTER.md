@@ -12,7 +12,7 @@ are preserved. Missing product photos are excluded from Home eligibility, while
 catalogue fallbacks and authoritative stock states remain. See
 [copy, imagery and acceptance handoff](PUBLIC_COPY_IMAGERY_20261028.md).
 
-Evidence: local types/lint; 22 focused state/regression cases; Home fixtures at
+Evidence: local types/lint; 23 focused state/regression cases; Home fixtures at
 320/360/375/390/430/768/1024/1280/1440/1536px; synthetic empty/error/retry,
 published reviews, broken/long media, doubled text, menu/keyboard, and scoped
 Axe at 390/1440px. First failures included stale fixture stock/refresh assumptions,
@@ -21,6 +21,39 @@ Read-only public-data layout/interaction coverage and publication remain pending
 No real stock/reviews, backend, permissions or commerce/AI/chat flags changed.
 Outstanding editorial copy/photo/reviewer dependencies are recorded separately;
 physical devices, full screen-reader and signed-in journeys are outside this cycle.
+
+
+## 28 October 2026: product detail fitment availability and retry
+
+Route `/parts/89fd9258-c580-43e9-9040-c7e52623e82d`, anonymous at 390/1440px.
+The published API returned zero vehicle makes. The live product detail still
+said "Choose your vehicle to check approved fitment evidence" while its action
+changed to "Browse products" because there was no vehicle to choose. That
+contradiction makes the customer look for a missing control. The selected
+product's enquiry link and editable contact draft were verified end to end;
+no message was submitted. The 390px action was initially behind the fixed
+support dock at the bottom edge of the viewport, but normal scrolling and
+keyboard focus exposed it and the actual link opened the correctly focused
+form. Dock placement remains a separate mobile usability review, not a
+claimed blocker in this cycle.
+
+The product fitment summary now says when vehicle choices are not available,
+directs the customer to ask the team to check suitability, and distinguishes
+that state from a failed lookup with a retry button. It preserves any actual
+fitment decision and the existing product enquiry. The published product,
+price, availability and compatibility claims were not changed.
+
+TypeScript, scoped ESLint and Prettier passed. The updated rendered product
+audit passed 2/2 cases at 390/1440px, including empty lookup, failed lookup,
+retry recovery, product enquiry/collection, keyboard focus, scoped axe, no
+overflow and intercepted account mutations. An initial local attempt used
+the test fixture's old blanket 401 for browser catalogue reads and timed out;
+the fixture now passes only public catalogue GETs to the same read-only
+backend that supplies the server-rendered page. Other API writes stay
+intercepted. Live before evidence: `%TEMP%/aat-live-product-detail-390.png`
+and `aat-live-product-detail-1440.png`; local after evidence is in the
+product-audit Playwright output. Exact-source CI, hosted post-release check,
+real-customer and physical-device acceptance remain open.
 
 ## 28 October 2026: combined Allie integration regression correction
 
@@ -2853,3 +2886,5 @@ Ten new component cases and twelve overview/history/launch regression cases pass
 Reproduced the live 390px SMS row showing a prominent On state beside unavailable delivery using isolated account fixtures. The actual settings now distinguish Default/Saved/Last known preference from Service enabled, Delivery unavailable and Availability unknown. Missing or stale channel data never implies sending is available. Marketing consent, versioned writes, explicit recovery and account guards remain unchanged; policy and delivery feature flags are not changed. Shared details explain required messages and valid contact details without repeating future-marketing paragraphs in every row. Both preference consumers use the same availability contract.
 
 12 new contract/render cases plus 29 adjacent notification/recovery cases passed (41 total). TypeScript noEmit and scoped lint passed. Nine hosted role/viewport/state cases were added; the initial live baseline failed at the expected old label and retained its screenshot. An initial harness configuration error (string grep) was corrected to RegExp before that baseline ran. Actual candidate browser checks, exact master CI and production promotion remain pending. Current published source a51a58b8 and later master release records are integrated. Existing dirty tracker/asset records and the active master backend work are preserved. No learning target, permission, backend API, schema or approved delivery policy changed; no learning definition needs a new version for this presentation-only batch. Full V01-V55 scope remains active.
+
+28 October 2026 - V48 delivery preference availability released on master runtime 2725efea, Vercel dpl_Ch3kcHTq565fAMKne6hFT8NPKw7R verified on both domains. Default/saved choices, unavailable delivery and unknown/stale availability are distinct. Final exact CI: 1216 tests passed, 12 optional cases skipped, production audit zero vulnerabilities; frontend 40768336402, isolated backend safety 40768406734 and secret guard 40768336321 all passed. Thirty final hosted notification/permission/recovery cases and 14 candidate plus 14 production public checks passed. An initial refresh test assumption was corrected to verify explicit and background refresh separately; runtime code was unchanged. Published consolidated a51a58b8 and all prior favourites/care/learning improvements are preserved. Backend 3ee6748f remains ACTIVE/readiness200 and unchanged by this task. Master integrations preserved all concurrent source and generated-contract hashes. No shared DB/customer/message writes; actual delivery and private-account/device acceptance remain unverified. Evidence and limitations: backend/docs/notification-preference-availability-production-20261028.md. Full V01-V55 goal remains active; continue the remaining visual, typography and navigation ledger items.

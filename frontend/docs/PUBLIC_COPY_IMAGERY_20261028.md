@@ -4,7 +4,7 @@ Source brief: owner's `Downloads/Allied_AutoTech_Homepage_Copy_Imagery_Codex_Bri
 
 ## Source and publication boundary
 
-Worktree: `allied-contact-validation-20261027`, branch `feat/public-copy-imagery-20261028`. Started from verified apex/www runtime `a51a58b8` / `dpl_5LscxLnZGRXNBorSWq3GFgfUBcGq`; incorporated subsequent live `2725efea` / `dpl_Ch3kcHTq565fAMKne6hFT8NPKw7R` before release. Existing notification preferences, Allie conversations, permissions, scroll/focus repairs and enquiry restrictions remain. No backend/schema, production stock, reviews, messages, appointments or transaction writes.
+Worktree: `allied-contact-validation-20261027`, branch `feat/public-copy-imagery-20261028`. Started from verified apex/www runtime `a51a58b8` / `dpl_5LscxLnZGRXNBorSWq3GFgfUBcGq`; incorporated subsequent live `2725efea` / `dpl_Ch3kcHTq565fAMKne6hFT8NPKw7R` and live fitment fix `8d2dfd69` / `dpl_DfQ8TmtFujaCL215HnWRuaTRuRZr` before release. Existing notification preferences, Allie conversations, permissions, scroll/focus repairs and enquiry restrictions remain. No backend/schema, production stock, reviews, messages, appointments or transaction writes.
 
 ## Final Home order and purpose
 
@@ -100,4 +100,10 @@ Compared points: stable hero hierarchy and two actions; distinct three-task arra
 
 ## Verification receipt
 
-In progress. Final checks, actual viewports, failures corrected, release identity and explicit acceptance limits will be added before handoff.
+Local typecheck, full lint and formatting passed; focused state/notification regression suite passed 23 cases. Home fixture layout checks passed at 320, 360, 375, 390, 430, 768, 1024, 1280, 1440 and 1536 pixels. Separate rendered acceptance passed FAQ/keyboard/product navigation, verified empty state, independent outage/retry recovery, real review rating/refresh controls, image failure with long content, 200% text, stable mobile offer/menu, and scoped Axe at 390/1440px. These use isolated fictional API records and perform no business writes.
+
+Read-only actual public-data captures cover all five routes at 320, 430, 768, 1280 and 1536px with no horizontal overflow or page exceptions. Existing lazy images in closed equipment disclosures are not failures. One first-load service image was still pending at the sampling point and loaded at later widths; no permanent missing-image claim was made. Existing Allie open/Escape/focus return and FAQ keyboard operation passed across the five widths.
+
+Failures corrected: stale legacy fixture stock wording and session-refresh count assumptions; missing fixture product detail response; a cold development compilation exceeding the standalone harness timeout; mobile hero contrast; visit-panel text contrast; and a real background-refresh race changing the Home vehicle CTA destination while clicked. The final action remains the same requirements enquiry throughout loading/error states. A failed refresh also no longer presents stale zero records as a fresh empty result.
+
+GitHub exact-source build/full checks, final release identity, rechecked enquiry path and hosted acceptance are pending below. Physical iOS/Android, full screen-reader, signed-in roles and unrelated site routes are untested in this cycle. No assertion that the entire website is bug-free.

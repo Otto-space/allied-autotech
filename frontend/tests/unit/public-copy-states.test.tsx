@@ -117,6 +117,12 @@ it("changes the vehicle enquiry panel only on verified successful empty data", (
   expect(
     screen.getByRole("link", { name: "Discuss a vehicle" }).getAttribute("href"),
   ).toBe("/contact?vehicle=1#enquiry");
+  state.loading = true;
+  view.rerender(<HomeVehiclesPreview />);
+  expect(
+    screen.getByRole("link", { name: "Discuss a vehicle" }).getAttribute("href"),
+  ).toBe("/contact?vehicle=1#enquiry");
+  state.loading = false;
   state.refreshError = "Vehicle refresh temporarily unavailable";
   view.rerender(<HomeVehiclesPreview />);
   expect(screen.queryByText(/no published listings yet/)).toBeNull();
