@@ -1,7 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { afterAll, describe, expect, it } from "vitest";
 import { prisma } from "../../src/config/database.js";
-import type { PrismaClient } from "../../src/generated/prisma/client.js";
 import type { AuthenticatedActor } from "../../src/common/contracts/actor.js";
 import { PaymentsService } from "../../src/modules/payments/payments.service.js";
 
@@ -26,11 +25,25 @@ async function actor(role: "CUSTOMER" | "ADMIN"): Promise<AuthenticatedActor> {
         : {}),
     },
   });
+  const now = new Date();
+  const expiresAt = new Date(now.getTime() + 3_600_000);
+  const session = await prisma.session.create({
+    data: {
+      userId: account.id,
+      tokenHash: randomUUID(),
+      expiresAt,
+      idleExpiresAt: expiresAt,
+      createdAt: now,
+      lastRotatedAt: now,
+      mfaRequired: role !== "CUSTOMER",
+      mfaVerifiedAt: role === "CUSTOMER" ? null : now,
+    },
+  });
   return {
     userId: account.id,
     email: account.email,
     role,
-    sessionId: randomUUID(),
+    sessionId: session.id,
     mfaRequired: role !== "CUSTOMER",
     mfaVerifiedAt: role === "CUSTOMER" ? null : new Date(),
   };
@@ -97,27 +110,8 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       it(`accepts exactly one decision when approval races ${secondDecision.toLowerCase()}`, async () => {
         const fixture = await pendingReview();
         const reviewers = await Promise.all([actor("ADMIN"), actor("ADMIN")]);
-        let reads = 0;
-        let release!: () => void;
-        const bothRead = new Promise<void>((resolve) => {
-          release = resolve;
-        });
-        // Only synchronize reads. Every write, constraint, settlement and audit runs in PostgreSQL.
-        const database = prisma.$extends({
-          query: {
-            paymentAttempt: {
-              async findUnique({ args, query }) {
-                const result = await query(args);
-                if (args.where.id === fixture.attempt.id && args.include?.manualReview) {
-                  if (++reads === 2) release();
-                  await bothRead;
-                }
-                return result;
-              },
-            },
-          },
-        }) as unknown as PrismaClient;
-        const service = new PaymentsService(database);
+        // Current-session locking serializes the two decisions before their reads.
+        const service = new PaymentsService(prisma);
         const decisions = ["APPROVED", secondDecision] as const;
         const results = await Promise.allSettled(
           reviewers.map((reviewer, index) =>
@@ -132,7 +126,6 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
             ),
           ),
         );
-        expect(reads).toBe(2);
         expect(results.filter((result) => result.status === "fulfilled")).toHaveLength(1);
         const rejected = results.find((result) => result.status === "rejected");
         expect(rejected?.status === "rejected" && rejected.reason.statusCode).toBe(409);

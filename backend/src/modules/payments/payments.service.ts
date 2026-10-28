@@ -41,6 +41,7 @@ import type { MonnifyWebhookEvent } from "../../providers/payments/monnify-webho
 import type { ObjectStoragePort } from "../../providers/storage/object-storage.port.js";
 import { objectStorage } from "../../providers/storage/s3-object-storage.adapter.js";
 import { appendAuditEvent } from "../audit/audit.service.js";
+import { lockAccessActor } from "../organization/team-access-security.js";
 import { enqueueNotification } from "../notifications/notifications.service.js";
 import {
   paymentConflict,
@@ -649,6 +650,7 @@ export class PaymentsService {
   ) {
     assertPaymentApprover(actor);
     return withTransactionRetry(this.database, async (tx) => {
+      await lockAccessActor(tx, actor);
       const attempt = await tx.paymentAttempt.findUnique({
         where: { id: attemptId },
         include: { manualReview: true, payment: true },
@@ -756,6 +758,7 @@ export class PaymentsService {
       `${input.paymentAttemptId}:${rawKey}`,
     );
     return withTransactionRetry(this.database, async (tx) => {
+      await lockAccessActor(tx, actor);
       await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`refund:${keyHash}`}, 0))`;
       const existing = await tx.refund.findUnique({
         where: { idempotencyKeyHash: keyHash },
@@ -879,7 +882,8 @@ export class PaymentsService {
     context: RequestSecurityContext,
   ) {
     await assertCapability(this.database, actor, "REFUND_APPROVE");
-    const approved = await withTransactionRetry(this.database, async (tx) => {
+    await withTransactionRetry(this.database, async (tx) => {
+      await lockAccessActor(tx, actor);
       await assertCapability(tx, actor, "REFUND_APPROVE");
       const rows = await tx.$queryRaw<
         Array<{ id: string }>
@@ -905,11 +909,22 @@ export class PaymentsService {
           );
       }
       const now = new Date();
-      const updated = await tx.refund.update({
+      const requiresOfflineProcessing =
+        input.decision === "APPROVED" &&
+        (refund.paymentAttempt.provider === "MANUAL" ||
+          !refund.paymentAttempt.gatewayTransactionId);
+      await tx.refund.update({
         where: { id },
         data:
           input.decision === "APPROVED"
-            ? { status: "APPROVED", approvedByUserId: actor.userId, approvedAt: now }
+            ? {
+                status: requiresOfflineProcessing ? "NEEDS_ATTENTION" : "APPROVED",
+                approvedByUserId: actor.userId,
+                approvedAt: now,
+                ...(requiresOfflineProcessing
+                  ? { providerStatus: "OFFLINE_PROCESSING_REQUIRED" }
+                  : {}),
+              }
             : {
                 status: "CANCELLED",
                 cancelledAt: now,
@@ -928,19 +943,7 @@ export class PaymentsService {
         context,
       });
       await snapshotRefundClock(tx, id);
-      return { refund: updated, attempt: refund.paymentAttempt };
     });
-    if (
-      input.decision === "APPROVED" &&
-      (approved.attempt.provider === "MANUAL" || !approved.attempt.gatewayTransactionId)
-    )
-      await this.database.refund.update({
-        where: { id },
-        data: {
-          status: "NEEDS_ATTENTION",
-          providerStatus: "OFFLINE_PROCESSING_REQUIRED",
-        },
-      });
     // Dispatch is durable and owned by RefundWorker, including crash recovery.
     return paymentJsonSafe(
       refundCurrentRecord(

@@ -425,6 +425,7 @@ export class AuditOperationsService {
     if (input.expectedStatus === "INVESTIGATING" && input.status === "INVESTIGATING")
       throw auditConflict("The anomaly is already under investigation");
     return this.database.$transaction(async (transaction) => {
+      await lockAccessActor(transaction, actor);
       const existing = await transaction.paymentAnomaly.findUnique({
         where: { id },
         select: { status: true },

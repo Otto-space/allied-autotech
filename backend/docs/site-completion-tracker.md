@@ -3117,3 +3117,36 @@ used clean locked dependencies. No backend, schema, provider, payment or
 production business write changed. Real authenticated roles, physical devices,
 full screen-reader and wider Contact/Help acceptance remain open. Other
 worktrees' concurrent edits were preserved.
+
+26 October 2026 - sign-in MFA challenge atomicity deployed.
+Runtime 8b583921, backend 50b5f5d1-50f6-4bf2-a9d0-f0c4975e02b3 ACTIVE.
+Four active image digests match the manifest, and the non-image app spec is
+unchanged. Nine image and one packaged isolated migration/restore checks passed;
+all 24 deployment steps including read-only PRE_DEPLOY database check succeeded.
+Direct/domain liveness and readiness returned 200; anonymous session and MFA
+verify returned 401. Managed backups through 26 October and retained separate
+populated 90-table restore evidence were reviewed. No schema/grant/production
+business write or frontend release. Real authenticated role, device and genuine
+WebAuthn browser acceptance remain open. Previous backend 96ffc790 is the
+immediate rollback candidate subject to compatibility review. Detail:
+backend/docs/mfa-challenge-atomicity-20261026.md.
+
+28 October 2026 - P0 reconciliation production-compatibility candidate.
+The unreleased payment/refund source was merged with actual production backend
+source 0fd68980 without conflicts; merge 7d4bd735 preserves the inventory
+replay fix and the workshop contact release. Exact candidate 6cab3669 adds the
+27-case reconciliation integration suite to the isolated `_ci` safety workflow.
+Backend safety CI 40673070983 passed migration replay, refund database cases and
+the new reconciliation step; secret guard 40673070788 passed. The last
+independently recorded production backend deployment was
+79d7a0ac-4e83-4b73-ae46-40af4731a604, with providers disabled and no
+reconciliation recovery migration applied. Recheck that state before rollout.
+No production database, provider, financial record or deployment was changed by
+this work.
+The local disk preflight dipped below its 20 GiB reserve, so no local build or
+database test was started. Fresh managed recovery evidence, production migration
+role ownership, new projection runtime DML, populated financial backfill,
+legacy RUNNING/held rows, provider sandbox and real-role acceptance remain release
+gates. Read-only SQL probes are recorded in
+backend/docs/payment-reconciliation-recovery-20261027.md; they have not been run
+on production. Recheck actual deployment and backup state before any rollout.
