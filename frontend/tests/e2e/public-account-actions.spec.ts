@@ -71,6 +71,8 @@ async function fixture(page: Page) {
         idleExpiresAt: "2027-01-01T00:00:00Z",
       });
     if (pathname === "/auth/csrf") return reply(route, { csrfToken: "s".repeat(64) });
+    if (pathname === "/customers/favourites" && request.method() === "GET")
+      return reply(route, { items: [] });
     if (pathname.startsWith("/public/")) return reply(route, publicRecord(pathname));
     if (
       pathname.startsWith("/customers/") &&
