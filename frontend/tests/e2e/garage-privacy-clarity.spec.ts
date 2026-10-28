@@ -74,6 +74,16 @@ for (const width of [390, 1440]) {
     await expect(page.locator(".cpv-guidance")).toContainText(
       "does not currently perform or schedule it",
     );
+    await expect(
+      page
+        .locator(".cpv-guidance li")
+        .filter({ hasText: "An authorised privacy reviewer" }),
+    ).toBeVisible();
+    await expect(
+      page
+        .locator(".cpv-guidance li")
+        .filter({ hasText: "does not currently perform or schedule it" }),
+    ).toBeVisible();
     await expect(page.locator(".cpv-policy")).toContainText(
       "Your information has not been deleted or anonymized",
     );

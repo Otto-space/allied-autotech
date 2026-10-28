@@ -335,7 +335,8 @@
     grid-column: 2;
   }
   .cpv-guidance ol {
-    display: none;
+    grid-column: 1 / -1;
+    margin-block: 16px;
   }
   .cpv-guidance a {
     margin-top: 12px;
