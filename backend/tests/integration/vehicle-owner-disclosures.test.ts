@@ -145,6 +145,18 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       expect(
         await prisma.vehicle.count({ where: { stockNumber: body.stockNumber } }),
       ).toBe(1);
+      for (const [actor, location, count] of [
+        [admin, "Port Harcourt", 1],
+        [admin, "Lagos", 0],
+        [foreign, "Port Harcourt", 0],
+      ] as const) {
+        const scoped = await request(app)
+          .get(path)
+          .set(actor.headers)
+          .query({ search: body.stockNumber, location });
+        expect(scoped.status).toBe(200);
+        expect(scoped.body.data.items).toHaveLength(count);
+      }
       const listingBody = {
         vehicleId: stock.id,
         title: "Synthetic BMW draft",

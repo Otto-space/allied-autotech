@@ -363,6 +363,26 @@ export class VehiclesRepository {
             : { branchId: query.branchId }
           : { branchId }),
         ...vehicleAttributeWhere(query),
+        ...(query.location === undefined
+          ? {}
+          : {
+              branch: {
+                OR: [
+                  {
+                    city: {
+                      contains: literalPattern(query.location),
+                      mode: "insensitive" as const,
+                    },
+                  },
+                  {
+                    state: {
+                      contains: literalPattern(query.location),
+                      mode: "insensitive" as const,
+                    },
+                  },
+                ],
+              },
+            }),
         ...(query.listed === false
           ? { listings: { none: {} } }
           : query.listed === true || Object.keys(listingWhere).length > 0

@@ -2956,3 +2956,8 @@ Two isolated live 390px baselines failed at the expected previous interface and 
   unverified. Public VIN search remains a privacy/business decision.
 
 28 October 2026 - V53/V55 guidance released on master runtime 55714afd, Vercel dpl_6b35E89UpjSP9heFX88nWWB6BFdA verified on apex/www. Garage optional search setup preserves basic entry and drafts; privacy review/execution guidance remains visible on mobile and links to Customer Care. Final combined CI passed 1225 tests (12 optional skipped), lint/types/format/build and zero production audit findings; frontend 40780036790, secret guard 40780036778 and isolated backend safety 40780036897/40780112964 passed. All 41 final hosted cases plus 18 candidate and 18 production public checks passed. Screenshot inspection caught and fixed the old mobile rule hiding privacy steps. Published public-copy source bee7ed8f is preserved; initial promotion correctly stopped for that concurrent release. Backend 3ee6748f remains ACTIVE/readiness200, unchanged by this batch. Other source/contract hashes and both tracker sections were preserved. No shared DB/customer writes. Evidence, initial harness corrections, limits and rollback: backend/docs/garage-privacy-guidance-production-20261028.md. Full V01-V55 remains active; next reconcile published public-page work and continue the service-enquiry/remaining clarity ledger.
+
+Vehicle release follow-up: the inherited staff location query now applies city/state
+filtering after assigned-branch scope. A focused persistence regression covers a
+matching branch, a non-matching location and foreign-branch staff; no permission or
+responsibility was granted. Schema and the populated restore rehearsal are unchanged.
