@@ -3,6 +3,8 @@ import {
   supportDeliveryDismissSchema,
 } from "./customer-email.js";
 import { registerSupportHandoffOpenApi } from "./support-handoff.openapi.js";
+import { registerSupportLiveOpenApi } from "./support-live.openapi.js";
+import { registerSupportChannelOpenApi } from "./support-channel.openapi.js";
 import {
   extendZodWithOpenApi,
   type OpenAPIRegistry,
@@ -173,6 +175,8 @@ type Route = {
 
 export function registerSupportOpenApi(registry: OpenAPIRegistry): void {
   registerSupportHandoffOpenApi(registry);
+  registerSupportLiveOpenApi(registry);
+  registerSupportChannelOpenApi(registry);
   registry.registerPath({
     method: "get",
     path: "/public/support/reviews/{reviewId}/photo",

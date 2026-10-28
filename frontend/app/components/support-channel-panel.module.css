@@ -1,0 +1,134 @@
+.panel {
+  border: 1px solid #cbd9e3;
+  border-radius: 16px;
+  background: #fff;
+  padding: 1rem 1.25rem;
+  margin-block: 0 1rem;
+  min-width: 0;
+}
+.heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+.heading h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  line-height: 1.4;
+}
+.status {
+  border: 1px solid #b4cbd4;
+  border-radius: 999px;
+  padding: 0.25rem 0.65rem;
+  color: #15506a;
+  background: #f2f7f9;
+  font-size: 0.875rem;
+}
+.panel p {
+  line-height: 1.6;
+  margin: 0.65rem 0;
+}
+.panel > summary {
+  min-height: 44px;
+  cursor: pointer;
+  font-weight: 600;
+  padding-block: 0.6rem;
+}
+.actions {
+  display: flex;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.actions button,
+.actions a {
+  min-height: 44px;
+}
+.recovery {
+  padding: 1rem;
+  border: 1px solid #ae7621;
+  border-radius: 12px;
+  background: #fff8e9;
+  margin-block: 0.75rem;
+}
+.transfer {
+  border-top: 1px solid #dbe5eb;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  display: grid;
+  gap: 0.75rem;
+}
+.transfer label {
+  display: grid;
+  gap: 0.4rem;
+  font-weight: 600;
+}
+.transfer select,
+.transfer textarea {
+  min-width: 0;
+  width: 100%;
+  padding: 0.7rem;
+  border: 1px solid #8ba6b8;
+  border-radius: 8px;
+  font: inherit;
+  background: #fff;
+  color: #102c3e;
+}
+.transfer textarea {
+  min-height: 88px;
+  resize: vertical;
+  font-weight: 400;
+}
+.panel :focus-visible {
+  outline: 3px solid #087ea4;
+  outline-offset: 3px;
+}
+.workspace {
+  display: grid;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+.workspace > section {
+  min-width: 0;
+}
+.workspace select {
+  max-width: 100%;
+  min-height: 44px;
+  font: inherit;
+  padding: 0.5rem;
+  border: 1px solid #8ba6b8;
+  border-radius: 8px;
+  background: #fff;
+  color: #102c3e;
+}
+.queue {
+  list-style: none;
+  padding: 0;
+}
+.queue li {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding-block: 0.75rem;
+  border-bottom: 1px solid #dbe5eb;
+}
+.queue a {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+@media (max-width: 480px) {
+  .panel {
+    padding: 1rem;
+  }
+  .actions {
+    align-items: stretch;
+  }
+  .actions > button,
+  .actions > a {
+    flex: 1 1 11rem;
+  }
+}

@@ -1,4 +1,5 @@
 import { SupportCustomerEmailWorker } from "./support-customer-email.worker.js";
+import { SupportChannelWorker } from "./support-channel.worker.js";
 import { purgeExpiredAllieState } from "../modules/learning/allie.retention.js";
 import { PushWorker } from "./push.worker.js";
 import { OperationalAlertsWorker } from "./operational-alerts.worker.js";
@@ -84,6 +85,8 @@ export async function runGeneralWorker(): Promise<void> {
   process.once("SIGTERM", stopOnce);
   let nextExpirationAt = 0;
   let nextReconciliationAt = 0;
+  let nextSupportReconciliationAt = 0;
+  const supportChannels = new SupportChannelWorker();
 
   await prisma.$connect();
   await assertDatabaseSchemaCompatible(prisma);
@@ -113,6 +116,12 @@ export async function runGeneralWorker(): Promise<void> {
       );
       await safely("refunds", () => refunds.runOnce(env.WORKER_BATCH_SIZE));
       const now = Date.now();
+      if (now >= nextSupportReconciliationAt) {
+        await safely("support-channel-reconciliation", () =>
+          supportChannels.runOnce(Math.min(10, env.WORKER_BATCH_SIZE)),
+        );
+        nextSupportReconciliationAt = Date.now() + 30_000;
+      }
       if (now >= nextExpirationAt) {
         await safely("assistant-retention", () =>
           purgeExpiredAllieState(Math.min(env.WORKER_BATCH_SIZE, 500)),

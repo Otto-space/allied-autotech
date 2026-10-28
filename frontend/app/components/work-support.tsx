@@ -25,6 +25,7 @@ import { useAccountSession, useOwnStaffPermissions } from "./dashboard-shell";
 import { AdminBranchPicker } from "./admin-branch-picker";
 import { StaffPicker } from "./staff-picker";
 import { Feedback } from "./feedback";
+import { SupportChannelWorkspace } from "./support-channel-workspace";
 
 export function WorkSupport() {
   const session = useAccountSession();
@@ -145,6 +146,12 @@ function SupportWorkspace({
           Refresh support records
         </button>
       </header>
+      {!query.invalid && (
+        <SupportChannelWorkspace
+          kind={query.kind}
+          branchId={filters.get("branchId") || branchId}
+        />
+      )}
       <div className="wsu-kinds" role="group" aria-label="Support category">
         {(["enquiries", "complaints"] as const).map((kind) => (
           <button

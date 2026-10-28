@@ -164,3 +164,22 @@ jobs:
             -e HELP_LEARN_ENABLED=true -e HELP_LEARN_GUIDES_ENABLED=true -e HELP_LEARN_PRACTICE_ENABLED=true \
             node:24.13.0 node node_modules/vitest/vitest.mjs run \
             tests/integration/learning.test.ts --maxWorkers=1
+      - name: Verify shared Care availability, lifecycle and durable recovery
+        # Native loopback checks remain strict inside the disposable DB namespace.
+        # Provider replies are injected fixtures; no external delivery is enabled.
+        run: |
+          docker run --rm --network "container:${{ job.services.postgres.id }}" \
+            --mount "type=bind,source=$PWD,target=/workspace" --workdir /workspace \
+            -e NODE_ENV=test -e DEPLOYMENT_ENV=local -e DB_HOST=127.0.0.1 -e DB_PORT=5432 \
+            -e DB_NAME=allied_autotech_schema_ci -e TEST_DB_NAME=allied_autotech_schema_ci \
+            -e DB_USER=postgres -e DB_PASSWORD=isolated-ci-only-password -e DB_SSL_MODE=disable \
+            -e CONFIRM_EMPTY_MIGRATION_DATABASE=true -e RUN_DATABASE_TESTS=true \
+            -e EMAIL_DELIVERY_ENABLED=false -e SMS_DELIVERY_ENABLED=false \
+            -e HELP_LEARN_ENABLED=true -e HELP_LEARN_GUIDES_ENABLED=true -e HELP_LEARN_PRACTICE_ENABLED=true \
+            -e HELP_LEARN_AI_ENABLED=false -e SUPPORT_LIVE_CHAT_ENABLED=false \
+            node:24.13.0 node node_modules/vitest/vitest.mjs run \
+            tests/integration/support-live-availability.test.ts \
+            tests/integration/support-channel.test.ts \
+            tests/integration/support-channel-discovery.test.ts \
+            tests/unit/support-live-contracts.test.ts \
+            tests/unit/allie-role-guidance.test.ts --maxWorkers=1

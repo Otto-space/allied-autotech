@@ -1,5 +1,45 @@
 # Revision 4 implementation checkpoint
 
+W16 source checkpoint `c098a484` is committed. Remote vehicle-disclosure changes were
+then reviewed and merged without losing the Care implementation; combined source
+has 78 migrations. A new isolated replay/native run and exact-source CI are pending.
+The CI workflow now includes explicit W16 native acceptance. Earlier 77-migration
+evidence below is preserved separately and does not prove that merged release.
+
+## Current W16C local continuation — 28–29 October 2026
+
+Scoped queue/candidate discovery, signed cursors, body-free saved-operation recovery,
+durable cancellation and quiet shared worker reconciliation are implemented locally.
+The final 23 lifecycle and 13 discovery/recovery/worker cases, schema, OpenAPI and
+route checks pass. Existing Care pages now have local channel controls, availability
+opt-in, polling and an explicit public-update jump. All 13 new and three existing
+browser scenarios are accepted across corrected runs, including actual passive
+polling with editor focus/drafts preserved. Five widths passed overflow/Axe checks;
+37 frontend and 27 backend units pass. Local types, lint, scoped formatting and
+secret checks pass. Exact-source release CI/publication, managed Care UI and hosted
+acceptance remain open; no new publication or live enablement is claimed.
+See [W16C evidence and remaining acceptance](SUPPORT_CHANNEL_DISCOVERY_W16C.md).
+The W16A/W16B entries below describe earlier checkpoints, not the current backlog.
+
+## Active W16A local work — 28 October 2026
+
+Shared support coverage, session-bound presence, current branch eligibility and
+capacity contracts are implemented locally with a new additive migration. Fresh
+77-migration replay/schema check, 17 unit contracts, 20 HTTP/database availability
+cases, 60 Care/session/handoff regressions and populated synthetic forward checks
+passed. No production migration, live enablement, provider call or external message
+was performed. Channel lifecycle, customer/staff UI and hosted transport acceptance
+remain unfinished. See [W16A evidence and continuation](SUPPORT_LIVE_FOUNDATION_W16A.md).
+Full Revision 4 and all 106 exact-route completion decisions remain open.
+
+W16B continuation: canonical request/claim/transfer/end, exact scoped receipt replay,
+case-based recovery and shared read-triggered requeue are implemented locally.
+Explicit owned AI-context closure rejects delayed provider completion. All 23 real
+HTTP/database lifecycle cases, current 20 availability cases and 60 Care/session/
+handoff regressions pass. Quiet-channel reconciliation, queue/candidate discovery,
+reload operation recovery and the actual Care UI/polling remain unfinished. No new
+publication or enablement. See [W16B evidence](SUPPORT_CHANNEL_LIFECYCLE_W16B.md).
+
 ## Current publication checkpoint - 28 October 2026
 
 Committed W1-W15 foundations are now included in production runtime
@@ -46,7 +86,7 @@ release. Other worktrees and their uncommitted work remain preserved.
 | Canonical conversational retrieval and actual AI provider                                                                       | Implemented and evaluated locally; full journey/hosted gates open                      | W9 real provider baseline/rechecks and actual guest/customer browser composition; W8 UI/W7 state. All routes, reviewed persisted handoff and gated shared transport remain required.                                          |
 | All-dashboard reviewed topics, guides and isolated practice                                                                     | Incomplete                                                                             | Preserve current working content; extend and verify per-page decisions and actual task states                                                                                                                                 |
 | Reviewed persisted human handoff                                                                                                | W15 implemented locally; native and browser acceptance passed; publication pending      | Canonical records, explicit review/sharing, encrypted recovery and uncertain-result safeguards; REVIEWED_HANDOFF_W15.md. Shared staffed transport remains incomplete                                                                                                                           |
-| Gated live transport, availability, takeover and replay                                                                         | Not implemented                                                                        | Staffing, separate support schedule and hosting readiness unverified; do not promise live service                                                                                                                             |
+| Gated live transport, availability, takeover and replay                                                                         | W16 implemented locally; UI/hosted acceptance remains open                              | W16A/B/C contracts, lifecycle, scoped queue, recovery and quiet worker pass native checks. Staffing, support schedule and multi-instance/deploy acceptance remain unverified; live mode stays off.                              |
 | At least 100 reviewed AI evaluation cases and critical security checks                                                          | W9 bounded checkpoint; limitations explicit                                            | 100 real baseline, ten local negatives, 12 targeted rechecks; 80 focused units and 39 native cases. Baseline quality issues corrected; not a second complete final 100-case run or hosted acceptance. ALLIE_EVALUATION_W9.md. |
 
 Run from backend:

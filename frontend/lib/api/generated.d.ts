@@ -5000,6 +5000,322 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/customers/support/live/availability/{branchId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Check current staffed eligibility without promising live transport
+         * @description Gated additive availability foundation. No chat claim, message delivery or queue-position promise. Current branch duties and session are checked server-side. Customer responses contain no staff identities; the channel remains queued Customer Care until lifecycle and transport acceptance. Default feature flag is off. Check current staffed eligibility without promising live transport. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+         */
+        get: operations["getCustomersSupportLiveAvailabilityByBranchId"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/workforce/support-chat/coverage/{branchId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Owner reads explicit support coverage, independent of workshop hours
+         * @description Gated additive availability foundation. No chat claim, message delivery or queue-position promise. Current branch duties and session are checked server-side. Customer responses contain no staff identities; the channel remains queued Customer Care until lifecycle and transport acceptance. Default feature flag is off. Owner reads explicit support coverage, independent of workshop hours. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+         */
+        get: operations["getAdminWorkforceSupportChatCoverageByBranchId"];
+        /**
+         * Owner updates audited support coverage using its current revision
+         * @description Gated additive availability foundation. No chat claim, message delivery or queue-position promise. Current branch duties and session are checked server-side. Customer responses contain no staff identities; the channel remains queued Customer Care until lifecycle and transport acceptance. Default feature flag is off. Owner updates audited support coverage using its current revision. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         */
+        put: operations["putAdminWorkforceSupportChatCoverageByBranchId"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/staff/workforce/support-chat/presence": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read your explicit availability and current branch live duties
+         * @description Gated additive availability foundation. No chat claim, message delivery or queue-position promise. Current branch duties and session are checked server-side. Customer responses contain no staff identities; the channel remains queued Customer Care until lifecycle and transport acceptance. Default feature flag is off. Read your explicit availability and current branch live duties. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+         */
+        get: operations["getStaffWorkforceSupportChatPresence"];
+        /**
+         * Opt in or withdraw one shared, session-bound availability lease
+         * @description Gated additive availability foundation. No chat claim, message delivery or queue-position promise. Current branch duties and session are checked server-side. Customer responses contain no staff identities; the channel remains queued Customer Care until lifecycle and transport acceptance. Default feature flag is off. Opt in or withdraw one shared, session-bound availability lease. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         */
+        put: operations["putStaffWorkforceSupportChatPresence"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/staff/workforce/support-chat/presence/heartbeat": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Renew an unexpired current lease without multiplying capacity or revisions
+         * @description Gated additive availability foundation. No chat claim, message delivery or queue-position promise. Current branch duties and session are checked server-side. Customer responses contain no staff identities; the channel remains queued Customer Care until lifecycle and transport acceptance. Default feature flag is off. Renew an unexpired current lease without multiplying capacity or revisions. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         */
+        post: operations["postStaffWorkforceSupportChatPresenceHeartbeat"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/staff/workforce/support-chat/channels": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read a bounded current-responsibility Care channel queue
+         * @description Current session/MFA and case-view scope are required. Signed keyset cursors bind session, effective access and kind/state/branch filters. Oldest created channels first, up to 25 per page; per-channel waiting time is not a queue-position promise. State is reconciled before projection. No contact or transcript is returned. Default ACTIVE includes queued and joined channels. Empty/short pages may still have a next cursor after state or routing changes. Read a bounded current-responsibility Care channel queue. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+         */
+        get: operations["getStaffWorkforceSupportChatChannels"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/staff/workforce/support-chat/channels/{channelId}/assignees": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Find currently eligible transfer candidates for this scoped channel
+         * @description Requires the separate current case-assignment duty. Returns only staff profile IDs and display names for current-session, opted-in, eligible, in-hours candidates with capacity in this branch; excludes the current representative. A bounded scan may return a short page with a continuation. Signed cursors bind current operator access and channel version. Transfer rechecks every prerequisite; the business-case assignee is unchanged. Find currently eligible transfer candidates for this scoped channel. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+         */
+        get: operations["getStaffWorkforceSupportChatChannelsByChannelIdAssignees"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/customers/support/live/channels": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Request a queued human channel for one explicitly selected owned case
+         * @description Does not create another case or forward an AI transcript. An optional explicitly selected current-session AI context is cancelled/closed without exporting its text, including while AI is disabled. Ordinary queued requests work independently of live staffing. Original-key/body replay returns the current owned reference, never another request. Uses support-reply-v1 timestamp/UUID keys with a 24-hour reference-only recovery window. Request a queued human channel for one explicitly selected owned case. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
+         */
+        post: operations["postCustomersSupportLiveChannels"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/customers/support/live/channels/operations/{action}/{operationKey}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Recover an actor-owned saved channel action without its private request body
+         * @description The random timestamp/UUID key is a non-bearer identifier. Current actor/action scope and canonical ownership/permissions are required, including after reload or session changes. Returns SAVED plus current channel metadata, or a verified durable CANCELLED marker; never the transfer reason, assistant context or transcript. A 404 does not prove that an in-flight submission failed; do not create a replacement command automatically. Twenty-four-hour timestamp rules remain, including after receipt cleanup. Recover an actor-owned saved channel action without its private request body. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+         */
+        get: operations["getCustomersSupportLiveChannelsOperationsByActionByOperationKey"];
+        put?: never;
+        post?: never;
+        /**
+         * Durably stop an unsaved channel action or recover its already-saved outcome
+         * @description Requires current ownership/branch/action authority and CSRF. Serializes with the original command. If already saved, returns SAVED and current authorised state without undoing it. Otherwise stores a target-bound CANCELLED marker for the original recovery window; a delayed original command is then rejected. No case/message/channel is deleted. Used only after explicit cancellation review, never as an automatic retry. Durably stop an unsaved channel action or recover its already-saved outcome. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         */
+        delete: operations["deleteCustomersSupportLiveChannelsOperationsByActionByOperationKey"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/customers/support/live/channels/by-case/{kind}/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Recover a channel through its currently owned or scoped canonical case
+         * @description Rechecks canonical ownership/scope and session. Returns null when this authorised case has no channel, rather than inferring access from a browser-held UUID. Reconciles current eligibility and returns the case's resulting revision for a deliberate request. No transcript or contact details. Recover a channel through its currently owned or scoped canonical case. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+         */
+        get: operations["getCustomersSupportLiveChannelsByCaseByKindById"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/customers/support/live/channels/{channelId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Revalidate one owned/scoped channel and reconcile lost agent eligibility
+         * @description Bounded five-second polling, no bearer URL. Rechecks current session and case scope on every read; an expired/revoked/unavailable agent requeues the same canonical case with one generic system entry and an audited state change. Closed cases end the channel. No transcript, internal note or staff identity is returned. Existing canonical message APIs remain the authorised text/replay path. Revalidate one owned/scoped channel and reconcile lost agent eligibility. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+         */
+        get: operations["getCustomersSupportLiveChannelsByChannelId"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/customers/support/live/channels/{channelId}/actions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Transactionally claim, transfer or end the canonical human channel
+         * @description Customer ownership permits ending their channel. Claim requires current same-branch live duties, explicit session-bound presence, hours and shared capacity. Transfer requires the separate current case-assignment duty and another eligible opted-in representative; it does not change the business-case assignee. Every new action checks channel revision. Actor/action/payload-bound reference receipts make original-key replay safe after lost acknowledgement; changed/expired keys conflict. System history/audit and state changes commit together. End preserves the case and ordinary follow-up. Live access cannot be inferred from account role. Transactionally claim, transfer or end the canonical human channel. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
+         */
+        post: operations["postCustomersSupportLiveChannelsByChannelIdActions"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/staff/workforce/support-chat/channels/operations/{action}/{operationKey}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Recover an actor-owned saved channel action without its private request body
+         * @description The random timestamp/UUID key is a non-bearer identifier. Current actor/action scope and canonical ownership/permissions are required, including after reload or session changes. Returns SAVED plus current channel metadata, or a verified durable CANCELLED marker; never the transfer reason, assistant context or transcript. A 404 does not prove that an in-flight submission failed; do not create a replacement command automatically. Twenty-four-hour timestamp rules remain, including after receipt cleanup. Recover an actor-owned saved channel action without its private request body. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+         */
+        get: operations["getStaffWorkforceSupportChatChannelsOperationsByActionByOperationKey"];
+        put?: never;
+        post?: never;
+        /**
+         * Durably stop an unsaved channel action or recover its already-saved outcome
+         * @description Requires current ownership/branch/action authority and CSRF. Serializes with the original command. If already saved, returns SAVED and current authorised state without undoing it. Otherwise stores a target-bound CANCELLED marker for the original recovery window; a delayed original command is then rejected. No case/message/channel is deleted. Used only after explicit cancellation review, never as an automatic retry. Durably stop an unsaved channel action or recover its already-saved outcome. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         */
+        delete: operations["deleteStaffWorkforceSupportChatChannelsOperationsByActionByOperationKey"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/staff/workforce/support-chat/channels/by-case/{kind}/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Recover a channel through its currently owned or scoped canonical case
+         * @description Rechecks canonical ownership/scope and session. Returns null when this authorised case has no channel, rather than inferring access from a browser-held UUID. Reconciles current eligibility and returns the case's resulting revision for a deliberate request. No transcript or contact details. Recover a channel through its currently owned or scoped canonical case. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+         */
+        get: operations["getStaffWorkforceSupportChatChannelsByCaseByKindById"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/staff/workforce/support-chat/channels/{channelId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Revalidate one owned/scoped channel and reconcile lost agent eligibility
+         * @description Bounded five-second polling, no bearer URL. Rechecks current session and case scope on every read; an expired/revoked/unavailable agent requeues the same canonical case with one generic system entry and an audited state change. Closed cases end the channel. No transcript, internal note or staff identity is returned. Existing canonical message APIs remain the authorised text/replay path. Revalidate one owned/scoped channel and reconcile lost agent eligibility. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+         */
+        get: operations["getStaffWorkforceSupportChatChannelsByChannelId"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/staff/workforce/support-chat/channels/{channelId}/actions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Transactionally claim, transfer or end the canonical human channel
+         * @description Customer ownership permits ending their channel. Claim requires current same-branch live duties, explicit session-bound presence, hours and shared capacity. Transfer requires the separate current case-assignment duty and another eligible opted-in representative; it does not change the business-case assignee. Every new action checks channel revision. Actor/action/payload-bound reference receipts make original-key replay safe after lost acknowledgement; changed/expired keys conflict. System history/audit and state changes commit together. End preserves the case and ordinary follow-up. Live access cannot be inferred from account role. Transactionally claim, transfer or end the canonical human channel. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
+         */
+        post: operations["postStaffWorkforceSupportChatChannelsByChannelIdActions"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/public/support/reviews/{reviewId}/photo": {
         parameters: {
             query?: never;
@@ -8045,7 +8361,7 @@ export interface components {
                  * @description Stable application error code.
                  * @enum {string}
                  */
-                code: "BAD_REQUEST" | "MEDIA_INVALID" | "MEDIA_UNSUPPORTED_FORMAT" | "MEDIA_TOO_LARGE" | "MEDIA_INVALID_DIMENSIONS" | "MEDIA_CHECKSUM_MISMATCH" | "MEDIA_OBJECT_MISSING" | "MEDIA_TICKET_EXPIRED" | "MEDIA_TICKET_CONSUMED" | "MEDIA_TICKET_INVALID" | "MEDIA_WRONG_OWNER" | "MEDIA_WRONG_PURPOSE" | "MEDIA_WRONG_RESOURCE" | "MEDIA_COUNT_LIMIT" | "MEDIA_LAST_PUBLISHED_IMAGE" | "MEDIA_MANAGED_URL_IMMUTABLE" | "MEDIA_STORAGE_UNAVAILABLE" | "VALIDATION_FAILED" | "MALFORMED_JSON" | "PAYLOAD_TOO_LARGE" | "UNAUTHORIZED" | "AUTHENTICATION_FAILED" | "SESSION_EXPIRED" | "CSRF_INVALID" | "MFA_REQUIRED" | "TOKEN_INVALID" | "ACCOUNT_LOCKED" | "ACCOUNT_SUSPENDED" | "ACCOUNT_ALREADY_SUSPENDED" | "ACCOUNT_ALREADY_ACTIVE" | "FORBIDDEN" | "NOT_FOUND" | "CONFLICT" | "BOOKING_CAPACITY_POLICY_REQUIRED" | "BOOKING_CAPACITY_FULL" | "BOOKING_CALENDAR_CLOSED" | "BOOKING_ASSIGNMENT_REQUIRED" | "IDEMPOTENCY_CONFLICT" | "IDEMPOTENCY_EXPIRED" | "PAYMENT_ATTEMPT_PENDING" | "PAYMENT_TARGET_PENDING" | "INSUFFICIENT_STOCK" | "STALE_VERSION" | "INVALID_TRANSITION" | "SCHEDULE_CONFLICT" | "RATE_LIMITED" | "DATABASE_UNAVAILABLE" | "PROVIDER_UNAVAILABLE" | "REQUEST_TIMEOUT" | "INTERNAL_ERROR";
+                code: "BAD_REQUEST" | "MEDIA_INVALID" | "MEDIA_UNSUPPORTED_FORMAT" | "MEDIA_TOO_LARGE" | "MEDIA_INVALID_DIMENSIONS" | "MEDIA_CHECKSUM_MISMATCH" | "MEDIA_OBJECT_MISSING" | "MEDIA_TICKET_EXPIRED" | "MEDIA_TICKET_CONSUMED" | "MEDIA_TICKET_INVALID" | "MEDIA_WRONG_OWNER" | "MEDIA_WRONG_PURPOSE" | "MEDIA_WRONG_RESOURCE" | "MEDIA_COUNT_LIMIT" | "MEDIA_LAST_PUBLISHED_IMAGE" | "MEDIA_MANAGED_URL_IMMUTABLE" | "MEDIA_STORAGE_UNAVAILABLE" | "VALIDATION_FAILED" | "MALFORMED_JSON" | "PAYLOAD_TOO_LARGE" | "UNAUTHORIZED" | "AUTHENTICATION_FAILED" | "SESSION_EXPIRED" | "CSRF_INVALID" | "MFA_REQUIRED" | "TOKEN_INVALID" | "ACCOUNT_LOCKED" | "ACCOUNT_SUSPENDED" | "ACCOUNT_ALREADY_SUSPENDED" | "ACCOUNT_ALREADY_ACTIVE" | "FORBIDDEN" | "NOT_FOUND" | "CONFLICT" | "BOOKING_CAPACITY_POLICY_REQUIRED" | "BOOKING_CAPACITY_FULL" | "BOOKING_CALENDAR_CLOSED" | "BOOKING_ASSIGNMENT_REQUIRED" | "IDEMPOTENCY_CONFLICT" | "IDEMPOTENCY_EXPIRED" | "PAYMENT_ATTEMPT_PENDING" | "PAYMENT_TARGET_PENDING" | "INSUFFICIENT_STOCK" | "STALE_VERSION" | "INVALID_TRANSITION" | "SCHEDULE_CONFLICT" | "RATE_LIMITED" | "DATABASE_UNAVAILABLE" | "PROVIDER_UNAVAILABLE" | "SUPPORT_LIVE_UNAVAILABLE" | "REQUEST_TIMEOUT" | "INTERNAL_ERROR";
                 /** @description Optional validation messages keyed by field path. */
                 fields?: {
                     [key: string]: string[];
@@ -84671,6 +84987,4519 @@ export interface operations {
                      */
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
+            };
+        };
+    };
+    getCustomersSupportLiveAvailabilityByBranchId: {
+        parameters: {
+            query?: {
+                /**
+                 * @description Kind used to constrain this request.
+                 * @example ENQUIRY
+                 */
+                kind?: "ENQUIRY" | "COMPLAINT";
+            };
+            header?: never;
+            path: {
+                /**
+                 * @description Identifier selecting the branch resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                branchId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success: Check current staffed eligibility without promising live transport. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Check current staffed eligibility without promising live transport",
+                     *       "data": {
+                     *         "branchId": "00000000-0000-4000-8000-000000000001",
+                     *         "kind": "ENQUIRY",
+                     *         "state": "disabled",
+                     *         "checkedAt": "2030-01-15T10:00:00.000Z",
+                     *         "channel": "queued_customer_care"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the branch resource; ownership is resolved server-side.
+                             */
+                            branchId: string;
+                            /**
+                             * @description Kind validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            kind: "ENQUIRY" | "COMPLAINT";
+                            /**
+                             * @description State validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            state: "disabled" | "after_hours" | "unavailable" | "available";
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            checkedAt: string;
+                            /**
+                             * @description Channel validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            channel: "queued_customer_care";
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Current session required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Current identity, MFA, responsibilities or CSRF denied */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Active branch unavailable */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Stale revision, expired lease or changed coverage */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Strict bounded input invalid */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Rate limit reached */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Live feature or explicit coverage unavailable; ordinary queued Care remains */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    getAdminWorkforceSupportChatCoverageByBranchId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description Identifier selecting the branch resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                branchId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success: Owner reads explicit support coverage, independent of workshop hours. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Owner reads explicit support coverage, independent of workshop hours",
+                     *       "data": {
+                     *         "branchId": "00000000-0000-4000-8000-000000000001",
+                     *         "enabled": true,
+                     *         "schedule": {
+                     *           "timezone": "Africa/Lagos",
+                     *           "windows": [
+                     *             {
+                     *               "day": 0,
+                     *               "startMinute": 0,
+                     *               "endMinute": 1
+                     *             }
+                     *           ]
+                     *         },
+                     *         "maxConcurrentPerAgent": 1,
+                     *         "version": 0
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the branch resource; ownership is resolved server-side.
+                             */
+                            branchId: string;
+                            /** @description Enabled validated by this operation's strict request contract. */
+                            enabled: boolean;
+                            /** @description Schedule validated by this operation's strict request contract. */
+                            schedule: {
+                                /**
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 * @enum {string}
+                                 */
+                                timezone: "Africa/Lagos";
+                                /** @description Windows validated by this operation's strict request contract. */
+                                windows: {
+                                    /** @description Day validated by this operation's strict request contract. */
+                                    day: number;
+                                    /** @description Start Minute validated by this operation's strict request contract. */
+                                    startMinute: number;
+                                    /** @description End Minute validated by this operation's strict request contract. */
+                                    endMinute: number;
+                                }[];
+                            };
+                            /** @description Max Concurrent Per Agent validated by this operation's strict request contract. */
+                            maxConcurrentPerAgent: number;
+                            /** @description Version validated by this operation's strict request contract. */
+                            version: number;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Current session required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Current identity, MFA, responsibilities or CSRF denied */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Active branch unavailable */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Stale revision, expired lease or changed coverage */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Strict bounded input invalid */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Rate limit reached */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Live feature or explicit coverage unavailable; ordinary queued Care remains */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    putAdminWorkforceSupportChatCoverageByBranchId: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+                 * @example synthetic-token-value-not-a-real-secret
+                 */
+                "x-csrf-token": string;
+            };
+            path: {
+                /**
+                 * @description Identifier selecting the branch resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                branchId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "expectedVersion": 0,
+                 *       "enabled": true,
+                 *       "schedule": {
+                 *         "timezone": "Africa/Lagos",
+                 *         "windows": [
+                 *           {
+                 *             "day": 0,
+                 *             "startMinute": 0,
+                 *             "endMinute": 1
+                 *           }
+                 *         ]
+                 *       },
+                 *       "maxConcurrentPerAgent": 1,
+                 *       "reason": "synthetic-reason"
+                 *     }
+                 */
+                "application/json": {
+                    /** @description Last server version observed by the client; stale writes are rejected. */
+                    expectedVersion: number;
+                    /** @description Enabled validated by this operation's strict request contract. */
+                    enabled: boolean;
+                    /** @description Schedule validated by this operation's strict request contract. */
+                    schedule: {
+                        /**
+                         * @description ISO 8601 timestamp interpreted and validated by the server.
+                         * @enum {string}
+                         */
+                        timezone: "Africa/Lagos";
+                        /** @description Windows validated by this operation's strict request contract. */
+                        windows: {
+                            /** @description Day validated by this operation's strict request contract. */
+                            day: number;
+                            /** @description Start Minute validated by this operation's strict request contract. */
+                            startMinute: number;
+                            /** @description End Minute validated by this operation's strict request contract. */
+                            endMinute: number;
+                        }[];
+                    };
+                    /** @description Max Concurrent Per Agent validated by this operation's strict request contract. */
+                    maxConcurrentPerAgent: number;
+                    /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                    reason: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Success: Owner updates audited support coverage using its current revision. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Owner updates audited support coverage using its current revision",
+                     *       "data": {
+                     *         "branchId": "00000000-0000-4000-8000-000000000001",
+                     *         "enabled": true,
+                     *         "schedule": {
+                     *           "timezone": "Africa/Lagos",
+                     *           "windows": [
+                     *             {
+                     *               "day": 0,
+                     *               "startMinute": 0,
+                     *               "endMinute": 1
+                     *             }
+                     *           ]
+                     *         },
+                     *         "maxConcurrentPerAgent": 1,
+                     *         "version": 0
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the branch resource; ownership is resolved server-side.
+                             */
+                            branchId: string;
+                            /** @description Enabled validated by this operation's strict request contract. */
+                            enabled: boolean;
+                            /** @description Schedule validated by this operation's strict request contract. */
+                            schedule: {
+                                /**
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 * @enum {string}
+                                 */
+                                timezone: "Africa/Lagos";
+                                /** @description Windows validated by this operation's strict request contract. */
+                                windows: {
+                                    /** @description Day validated by this operation's strict request contract. */
+                                    day: number;
+                                    /** @description Start Minute validated by this operation's strict request contract. */
+                                    startMinute: number;
+                                    /** @description End Minute validated by this operation's strict request contract. */
+                                    endMinute: number;
+                                }[];
+                            };
+                            /** @description Max Concurrent Per Agent validated by this operation's strict request contract. */
+                            maxConcurrentPerAgent: number;
+                            /** @description Version validated by this operation's strict request contract. */
+                            version: number;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Current session required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Current identity, MFA, responsibilities or CSRF denied */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Active branch unavailable */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Stale revision, expired lease or changed coverage */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Strict bounded input invalid */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Rate limit reached */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Live feature or explicit coverage unavailable; ordinary queued Care remains */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    getStaffWorkforceSupportChatPresence: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success: Read your explicit availability and current branch live duties. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Read your explicit availability and current branch live duties",
+                     *       "data": {
+                     *         "enabled": true,
+                     *         "version": 0,
+                     *         "branchId": "00000000-0000-4000-8000-000000000001",
+                     *         "optedIn": true,
+                     *         "expiresAt": "2030-01-15T10:00:00.000Z",
+                     *         "capacity": 1,
+                     *         "eligibleBranches": [
+                     *           {
+                     *             "branchId": "00000000-0000-4000-8000-000000000001",
+                     *             "kinds": [
+                     *               "ENQUIRY"
+                     *             ]
+                     *           }
+                     *         ]
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /** @description Enabled validated by this operation's strict request contract. */
+                            enabled: boolean;
+                            /** @description Version validated by this operation's strict request contract. */
+                            version: number;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the branch resource; ownership is resolved server-side.
+                             */
+                            branchId: string | null;
+                            /** @description Opted In validated by this operation's strict request contract. */
+                            optedIn: boolean;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            expiresAt: string | null;
+                            /** @description Capacity validated by this operation's strict request contract. */
+                            capacity: number;
+                            /** @description Eligible Branches validated by this operation's strict request contract. */
+                            eligibleBranches: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the branch resource; ownership is resolved server-side.
+                                 */
+                                branchId: string;
+                                /** @description Kinds validated by this operation's strict request contract. */
+                                kinds: ("ENQUIRY" | "COMPLAINT")[];
+                            }[];
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Current session required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Current identity, MFA, responsibilities or CSRF denied */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Active branch unavailable */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Stale revision, expired lease or changed coverage */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Strict bounded input invalid */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Rate limit reached */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Live feature or explicit coverage unavailable; ordinary queued Care remains */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    putStaffWorkforceSupportChatPresence: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+                 * @example synthetic-token-value-not-a-real-secret
+                 */
+                "x-csrf-token": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "expectedVersion": 0,
+                 *       "branchId": "00000000-0000-4000-8000-000000000001",
+                 *       "available": true,
+                 *       "capacity": 1
+                 *     }
+                 */
+                "application/json": {
+                    /** @description Last server version observed by the client; stale writes are rejected. */
+                    expectedVersion: number;
+                    /**
+                     * Format: uuid
+                     * @description Identifier of the branch resource; ownership is resolved server-side.
+                     */
+                    branchId: string;
+                    /** @description Available validated by this operation's strict request contract. */
+                    available: boolean;
+                    /** @description Capacity validated by this operation's strict request contract. */
+                    capacity: number;
+                };
+            };
+        };
+        responses: {
+            /** @description Success: Opt in or withdraw one shared, session-bound availability lease. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Opt in or withdraw one shared, session-bound availability lease",
+                     *       "data": {
+                     *         "enabled": true,
+                     *         "version": 0,
+                     *         "branchId": "00000000-0000-4000-8000-000000000001",
+                     *         "optedIn": true,
+                     *         "expiresAt": "2030-01-15T10:00:00.000Z",
+                     *         "capacity": 1,
+                     *         "eligibleBranches": [
+                     *           {
+                     *             "branchId": "00000000-0000-4000-8000-000000000001",
+                     *             "kinds": [
+                     *               "ENQUIRY"
+                     *             ]
+                     *           }
+                     *         ]
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /** @description Enabled validated by this operation's strict request contract. */
+                            enabled: boolean;
+                            /** @description Version validated by this operation's strict request contract. */
+                            version: number;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the branch resource; ownership is resolved server-side.
+                             */
+                            branchId: string | null;
+                            /** @description Opted In validated by this operation's strict request contract. */
+                            optedIn: boolean;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            expiresAt: string | null;
+                            /** @description Capacity validated by this operation's strict request contract. */
+                            capacity: number;
+                            /** @description Eligible Branches validated by this operation's strict request contract. */
+                            eligibleBranches: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the branch resource; ownership is resolved server-side.
+                                 */
+                                branchId: string;
+                                /** @description Kinds validated by this operation's strict request contract. */
+                                kinds: ("ENQUIRY" | "COMPLAINT")[];
+                            }[];
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Current session required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Current identity, MFA, responsibilities or CSRF denied */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Active branch unavailable */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Stale revision, expired lease or changed coverage */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Strict bounded input invalid */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Rate limit reached */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Live feature or explicit coverage unavailable; ordinary queued Care remains */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    postStaffWorkforceSupportChatPresenceHeartbeat: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+                 * @example synthetic-token-value-not-a-real-secret
+                 */
+                "x-csrf-token": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "expectedVersion": 1
+                 *     }
+                 */
+                "application/json": {
+                    /** @description Last server version observed by the client; stale writes are rejected. */
+                    expectedVersion: number;
+                };
+            };
+        };
+        responses: {
+            /** @description Success: Renew an unexpired current lease without multiplying capacity or revisions. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Renew an unexpired current lease without multiplying capacity or revisions",
+                     *       "data": {
+                     *         "enabled": true,
+                     *         "version": 0,
+                     *         "branchId": "00000000-0000-4000-8000-000000000001",
+                     *         "optedIn": true,
+                     *         "expiresAt": "2030-01-15T10:00:00.000Z",
+                     *         "capacity": 1,
+                     *         "eligibleBranches": [
+                     *           {
+                     *             "branchId": "00000000-0000-4000-8000-000000000001",
+                     *             "kinds": [
+                     *               "ENQUIRY"
+                     *             ]
+                     *           }
+                     *         ]
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /** @description Enabled validated by this operation's strict request contract. */
+                            enabled: boolean;
+                            /** @description Version validated by this operation's strict request contract. */
+                            version: number;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the branch resource; ownership is resolved server-side.
+                             */
+                            branchId: string | null;
+                            /** @description Opted In validated by this operation's strict request contract. */
+                            optedIn: boolean;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            expiresAt: string | null;
+                            /** @description Capacity validated by this operation's strict request contract. */
+                            capacity: number;
+                            /** @description Eligible Branches validated by this operation's strict request contract. */
+                            eligibleBranches: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the branch resource; ownership is resolved server-side.
+                                 */
+                                branchId: string;
+                                /** @description Kinds validated by this operation's strict request contract. */
+                                kinds: ("ENQUIRY" | "COMPLAINT")[];
+                            }[];
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Current session required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Current identity, MFA, responsibilities or CSRF denied */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Active branch unavailable */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Stale revision, expired lease or changed coverage */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Strict bounded input invalid */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Rate limit reached */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Live feature or explicit coverage unavailable; ordinary queued Care remains */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    getStaffWorkforceSupportChatChannels: {
+        parameters: {
+            query?: {
+                /**
+                 * @description Kind used to constrain this request.
+                 * @example ENQUIRY
+                 */
+                kind?: "ENQUIRY" | "COMPLAINT";
+                /**
+                 * @description State used to constrain this request.
+                 * @example ACTIVE
+                 */
+                state?: "ACTIVE" | "QUEUED" | "HUMAN_ACTIVE" | "ENDED";
+                /**
+                 * @description Branch Id used to constrain this request.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                branchId?: string;
+                /**
+                 * @description Maximum number of records to return, bounded by the API.
+                 * @example 1
+                 */
+                limit?: number;
+                /**
+                 * @description Opaque cursor returned by the preceding page.
+                 * @example synthetic-cursor
+                 */
+                cursor?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success: Read a bounded current-responsibility Care channel queue. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Read a bounded current-responsibility Care channel queue",
+                     *       "data": {
+                     *         "items": [
+                     *           {
+                     *             "id": "00000000-0000-4000-8000-000000000001",
+                     *             "target": {
+                     *               "kind": "ENQUIRY",
+                     *               "id": "00000000-0000-4000-8000-000000000001"
+                     *             },
+                     *             "branchId": "00000000-0000-4000-8000-000000000001",
+                     *             "state": "QUEUED",
+                     *             "version": 0,
+                     *             "updatedAt": "2030-01-15T10:00:00.000Z",
+                     *             "queuedSince": "2030-01-15T10:00:00.000Z",
+                     *             "claimedAt": "2030-01-15T10:00:00.000Z",
+                     *             "endedAt": "2030-01-15T10:00:00.000Z",
+                     *             "latestPublicMessageId": "00000000-0000-4000-8000-000000000001",
+                     *             "assignedToYou": true,
+                     *             "canClaim": true,
+                     *             "canTransfer": true,
+                     *             "canEnd": true,
+                     *             "pollAfterMs": 5000
+                     *           }
+                     *         ],
+                     *         "nextCursor": "synthetic-nextcursor",
+                     *         "pollAfterMs": 5000
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /** @description Items validated by this operation's strict request contract. */
+                            items: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
+                                 */
+                                id: string;
+                                /** @description Target validated by this operation's strict request contract. */
+                                target: {
+                                    /**
+                                     * @description Kind validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    kind: "ENQUIRY" | "COMPLAINT";
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the id resource; ownership is resolved server-side.
+                                     */
+                                    id: string;
+                                };
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the branch resource; ownership is resolved server-side.
+                                 */
+                                branchId: string;
+                                /**
+                                 * @description State validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                state: "QUEUED" | "HUMAN_ACTIVE" | "ENDED";
+                                /** @description Version validated by this operation's strict request contract. */
+                                version: number;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                updatedAt: string;
+                                /**
+                                 * Format: date-time
+                                 * @description Queued Since validated by this operation's strict request contract.
+                                 */
+                                queuedSince: string | null;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                claimedAt: string | null;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                endedAt: string | null;
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the latest public message resource; ownership is resolved server-side.
+                                 */
+                                latestPublicMessageId: string | null;
+                                /** @description Assigned To You validated by this operation's strict request contract. */
+                                assignedToYou: boolean;
+                                /** @description Can Claim validated by this operation's strict request contract. */
+                                canClaim: boolean;
+                                /** @description Can Transfer validated by this operation's strict request contract. */
+                                canTransfer: boolean;
+                                /** @description Can End validated by this operation's strict request contract. */
+                                canEnd: boolean;
+                                /**
+                                 * @description Poll After Ms validated by this operation's strict request contract.
+                                 * @enum {number}
+                                 */
+                                pollAfterMs: 5000;
+                            }[];
+                            /** @description Next Cursor validated by this operation's strict request contract. */
+                            nextCursor?: string;
+                            /**
+                             * @description Poll After Ms validated by this operation's strict request contract.
+                             * @enum {number}
+                             */
+                            pollAfterMs: 5000;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Current session required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Current identity/MFA/action/CSRF denied */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Owned or currently scoped case/channel unavailable */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Changed state, routing, operation payload or expired recovery key */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Strict bounded input invalid */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Rate limit reached */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Fresh eligible availability/capacity unavailable; saved case retained */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    getStaffWorkforceSupportChatChannelsByChannelIdAssignees: {
+        parameters: {
+            query?: {
+                /**
+                 * @description Maximum number of records to return, bounded by the API.
+                 * @example 1
+                 */
+                limit?: number;
+                /**
+                 * @description Opaque cursor returned by the preceding page.
+                 * @example synthetic-cursor
+                 */
+                cursor?: string;
+            };
+            header?: never;
+            path: {
+                /**
+                 * @description Identifier selecting the channel resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                channelId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success: Find currently eligible transfer candidates for this scoped channel. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Find currently eligible transfer candidates for this scoped channel",
+                     *       "data": {
+                     *         "items": [
+                     *           {
+                     *             "staffId": "00000000-0000-4000-8000-000000000001",
+                     *             "name": "synthetic-name"
+                     *           }
+                     *         ],
+                     *         "nextCursor": "synthetic-nextcursor"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /** @description Items validated by this operation's strict request contract. */
+                            items: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the staff resource; ownership is resolved server-side.
+                                 */
+                                staffId: string;
+                                /** @description Name validated by this operation's strict request contract. */
+                                name: string;
+                            }[];
+                            /** @description Next Cursor validated by this operation's strict request contract. */
+                            nextCursor?: string;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Current session required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Current identity/MFA/action/CSRF denied */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Owned or currently scoped case/channel unavailable */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Changed state, routing, operation payload or expired recovery key */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Strict bounded input invalid */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Rate limit reached */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Fresh eligible availability/capacity unavailable; saved case retained */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    postCustomersSupportLiveChannels: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description Unique retry key for this logical mutation. Reuse it only with the identical request.
+                 * @example synthetic-idempotency-key
+                 */
+                "idempotency-key": string;
+                /**
+                 * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+                 * @example synthetic-token-value-not-a-real-secret
+                 */
+                "x-csrf-token": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "target": {
+                 *         "kind": "ENQUIRY",
+                 *         "id": "00000000-0000-4000-8000-000000000001"
+                 *       },
+                 *       "expectedCaseVersion": 0,
+                 *       "expectedChannelVersion": 0,
+                 *       "assistantContext": {
+                 *         "conversationId": "00000000-0000-4000-8000-000000000001",
+                 *         "expectedVersion": 0
+                 *       }
+                 *     }
+                 */
+                "application/json": {
+                    /** @description Target validated by this operation's strict request contract. */
+                    target: {
+                        /**
+                         * @description Kind validated by this operation's strict request contract.
+                         * @enum {string}
+                         */
+                        kind: "ENQUIRY" | "COMPLAINT";
+                        /**
+                         * Format: uuid
+                         * @description Identifier of the id resource; ownership is resolved server-side.
+                         */
+                        id: string;
+                    };
+                    /** @description Expected Case Version validated by this operation's strict request contract. */
+                    expectedCaseVersion: number;
+                    /** @description Expected Channel Version validated by this operation's strict request contract. */
+                    expectedChannelVersion: number;
+                    /** @description Assistant Context validated by this operation's strict request contract. */
+                    assistantContext?: {
+                        /**
+                         * Format: uuid
+                         * @description Identifier of the conversation resource; ownership is resolved server-side.
+                         */
+                        conversationId: string;
+                        /** @description Last server version observed by the client; stale writes are rejected. */
+                        expectedVersion: number;
+                    };
+                };
+            };
+        };
+        responses: {
+            /** @description Success: Request a queued human channel for one explicitly selected owned case. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Request a queued human channel for one explicitly selected owned case",
+                     *       "data": {
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "target": {
+                     *           "kind": "ENQUIRY",
+                     *           "id": "00000000-0000-4000-8000-000000000001"
+                     *         },
+                     *         "branchId": "00000000-0000-4000-8000-000000000001",
+                     *         "state": "QUEUED",
+                     *         "version": 0,
+                     *         "updatedAt": "2030-01-15T10:00:00.000Z",
+                     *         "queuedSince": "2030-01-15T10:00:00.000Z",
+                     *         "claimedAt": "2030-01-15T10:00:00.000Z",
+                     *         "endedAt": "2030-01-15T10:00:00.000Z",
+                     *         "latestPublicMessageId": "00000000-0000-4000-8000-000000000001",
+                     *         "assignedToYou": true,
+                     *         "canClaim": true,
+                     *         "canTransfer": true,
+                     *         "canEnd": true,
+                     *         "pollAfterMs": 5000,
+                     *         "replayed": true
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the id resource; ownership is resolved server-side.
+                             */
+                            id: string;
+                            /** @description Target validated by this operation's strict request contract. */
+                            target: {
+                                /**
+                                 * @description Kind validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                kind: "ENQUIRY" | "COMPLAINT";
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
+                                 */
+                                id: string;
+                            };
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the branch resource; ownership is resolved server-side.
+                             */
+                            branchId: string;
+                            /**
+                             * @description State validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            state: "QUEUED" | "HUMAN_ACTIVE" | "ENDED";
+                            /** @description Version validated by this operation's strict request contract. */
+                            version: number;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            updatedAt: string;
+                            /**
+                             * Format: date-time
+                             * @description Queued Since validated by this operation's strict request contract.
+                             */
+                            queuedSince: string | null;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            claimedAt: string | null;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            endedAt: string | null;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the latest public message resource; ownership is resolved server-side.
+                             */
+                            latestPublicMessageId: string | null;
+                            /** @description Assigned To You validated by this operation's strict request contract. */
+                            assignedToYou: boolean;
+                            /** @description Can Claim validated by this operation's strict request contract. */
+                            canClaim: boolean;
+                            /** @description Can Transfer validated by this operation's strict request contract. */
+                            canTransfer: boolean;
+                            /** @description Can End validated by this operation's strict request contract. */
+                            canEnd: boolean;
+                            /**
+                             * @description Poll After Ms validated by this operation's strict request contract.
+                             * @enum {number}
+                             */
+                            pollAfterMs: 5000;
+                            /** @description Replayed validated by this operation's strict request contract. */
+                            replayed: boolean;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Current session required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Current identity/MFA/action/CSRF denied */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Owned or currently scoped case/channel unavailable */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Changed state, routing, operation payload or expired recovery key */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Strict bounded input invalid */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Rate limit reached */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Fresh eligible availability/capacity unavailable; saved case retained */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    getCustomersSupportLiveChannelsOperationsByActionByOperationKey: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description Identifier selecting the action resource.
+                 * @example request
+                 */
+                action: "request" | "claim" | "transfer" | "end";
+                /**
+                 * @description Identifier selecting the operation key resource.
+                 * @example synthetic-operationkey
+                 */
+                operationKey: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success: Recover an actor-owned saved channel action without its private request body. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Recover an actor-owned saved channel action without its private request body",
+                     *       "data": {
+                     *         "action": "request",
+                     *         "state": "SAVED",
+                     *         "channel": {
+                     *           "id": "00000000-0000-4000-8000-000000000001",
+                     *           "target": {
+                     *             "kind": "ENQUIRY",
+                     *             "id": "00000000-0000-4000-8000-000000000001"
+                     *           },
+                     *           "branchId": "00000000-0000-4000-8000-000000000001",
+                     *           "state": "QUEUED",
+                     *           "version": 0,
+                     *           "updatedAt": "2030-01-15T10:00:00.000Z",
+                     *           "queuedSince": "2030-01-15T10:00:00.000Z",
+                     *           "claimedAt": "2030-01-15T10:00:00.000Z",
+                     *           "endedAt": "2030-01-15T10:00:00.000Z",
+                     *           "latestPublicMessageId": "00000000-0000-4000-8000-000000000001",
+                     *           "assignedToYou": true,
+                     *           "canClaim": true,
+                     *           "canTransfer": true,
+                     *           "canEnd": true,
+                     *           "pollAfterMs": 5000
+                     *         }
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /**
+                             * @description Action validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            action: "request" | "claim" | "transfer" | "end";
+                            /**
+                             * @description State validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            state: "SAVED";
+                            /** @description Channel validated by this operation's strict request contract. */
+                            channel: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
+                                 */
+                                id: string;
+                                /** @description Target validated by this operation's strict request contract. */
+                                target: {
+                                    /**
+                                     * @description Kind validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    kind: "ENQUIRY" | "COMPLAINT";
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the id resource; ownership is resolved server-side.
+                                     */
+                                    id: string;
+                                };
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the branch resource; ownership is resolved server-side.
+                                 */
+                                branchId: string;
+                                /**
+                                 * @description State validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                state: "QUEUED" | "HUMAN_ACTIVE" | "ENDED";
+                                /** @description Version validated by this operation's strict request contract. */
+                                version: number;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                updatedAt: string;
+                                /**
+                                 * Format: date-time
+                                 * @description Queued Since validated by this operation's strict request contract.
+                                 */
+                                queuedSince: string | null;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                claimedAt: string | null;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                endedAt: string | null;
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the latest public message resource; ownership is resolved server-side.
+                                 */
+                                latestPublicMessageId: string | null;
+                                /** @description Assigned To You validated by this operation's strict request contract. */
+                                assignedToYou: boolean;
+                                /** @description Can Claim validated by this operation's strict request contract. */
+                                canClaim: boolean;
+                                /** @description Can Transfer validated by this operation's strict request contract. */
+                                canTransfer: boolean;
+                                /** @description Can End validated by this operation's strict request contract. */
+                                canEnd: boolean;
+                                /**
+                                 * @description Poll After Ms validated by this operation's strict request contract.
+                                 * @enum {number}
+                                 */
+                                pollAfterMs: 5000;
+                            };
+                        } | {
+                            /**
+                             * @description Action validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            action: "request" | "claim" | "transfer" | "end";
+                            /**
+                             * @description State validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            state: "CANCELLED";
+                            /** @description Channel validated by this operation's strict request contract. */
+                            channel: null;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Current session required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Current identity/MFA/action/CSRF denied */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Owned or currently scoped case/channel unavailable */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Changed state, routing, operation payload or expired recovery key */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Strict bounded input invalid */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Rate limit reached */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Fresh eligible availability/capacity unavailable; saved case retained */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    deleteCustomersSupportLiveChannelsOperationsByActionByOperationKey: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+                 * @example synthetic-token-value-not-a-real-secret
+                 */
+                "x-csrf-token": string;
+            };
+            path: {
+                /**
+                 * @description Identifier selecting the action resource.
+                 * @example request
+                 */
+                action: "request" | "claim" | "transfer" | "end";
+                /**
+                 * @description Identifier selecting the operation key resource.
+                 * @example synthetic-operationkey
+                 */
+                operationKey: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "target": {
+                 *         "kind": "ENQUIRY",
+                 *         "id": "00000000-0000-4000-8000-000000000001"
+                 *       }
+                 *     }
+                 */
+                "application/json": {
+                    /** @description Target validated by this operation's strict request contract. */
+                    target: {
+                        /**
+                         * @description Kind validated by this operation's strict request contract.
+                         * @enum {string}
+                         */
+                        kind: "ENQUIRY" | "COMPLAINT";
+                        /**
+                         * Format: uuid
+                         * @description Identifier of the id resource; ownership is resolved server-side.
+                         */
+                        id: string;
+                    };
+                };
+            };
+        };
+        responses: {
+            /** @description Success: Durably stop an unsaved channel action or recover its already-saved outcome. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Durably stop an unsaved channel action or recover its already-saved outcome",
+                     *       "data": {
+                     *         "action": "request",
+                     *         "state": "SAVED",
+                     *         "channel": {
+                     *           "id": "00000000-0000-4000-8000-000000000001",
+                     *           "target": {
+                     *             "kind": "ENQUIRY",
+                     *             "id": "00000000-0000-4000-8000-000000000001"
+                     *           },
+                     *           "branchId": "00000000-0000-4000-8000-000000000001",
+                     *           "state": "QUEUED",
+                     *           "version": 0,
+                     *           "updatedAt": "2030-01-15T10:00:00.000Z",
+                     *           "queuedSince": "2030-01-15T10:00:00.000Z",
+                     *           "claimedAt": "2030-01-15T10:00:00.000Z",
+                     *           "endedAt": "2030-01-15T10:00:00.000Z",
+                     *           "latestPublicMessageId": "00000000-0000-4000-8000-000000000001",
+                     *           "assignedToYou": true,
+                     *           "canClaim": true,
+                     *           "canTransfer": true,
+                     *           "canEnd": true,
+                     *           "pollAfterMs": 5000
+                     *         }
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /**
+                             * @description Action validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            action: "request" | "claim" | "transfer" | "end";
+                            /**
+                             * @description State validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            state: "SAVED";
+                            /** @description Channel validated by this operation's strict request contract. */
+                            channel: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
+                                 */
+                                id: string;
+                                /** @description Target validated by this operation's strict request contract. */
+                                target: {
+                                    /**
+                                     * @description Kind validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    kind: "ENQUIRY" | "COMPLAINT";
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the id resource; ownership is resolved server-side.
+                                     */
+                                    id: string;
+                                };
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the branch resource; ownership is resolved server-side.
+                                 */
+                                branchId: string;
+                                /**
+                                 * @description State validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                state: "QUEUED" | "HUMAN_ACTIVE" | "ENDED";
+                                /** @description Version validated by this operation's strict request contract. */
+                                version: number;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                updatedAt: string;
+                                /**
+                                 * Format: date-time
+                                 * @description Queued Since validated by this operation's strict request contract.
+                                 */
+                                queuedSince: string | null;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                claimedAt: string | null;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                endedAt: string | null;
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the latest public message resource; ownership is resolved server-side.
+                                 */
+                                latestPublicMessageId: string | null;
+                                /** @description Assigned To You validated by this operation's strict request contract. */
+                                assignedToYou: boolean;
+                                /** @description Can Claim validated by this operation's strict request contract. */
+                                canClaim: boolean;
+                                /** @description Can Transfer validated by this operation's strict request contract. */
+                                canTransfer: boolean;
+                                /** @description Can End validated by this operation's strict request contract. */
+                                canEnd: boolean;
+                                /**
+                                 * @description Poll After Ms validated by this operation's strict request contract.
+                                 * @enum {number}
+                                 */
+                                pollAfterMs: 5000;
+                            };
+                        } | {
+                            /**
+                             * @description Action validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            action: "request" | "claim" | "transfer" | "end";
+                            /**
+                             * @description State validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            state: "CANCELLED";
+                            /** @description Channel validated by this operation's strict request contract. */
+                            channel: null;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Current session required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Current identity/MFA/action/CSRF denied */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Owned or currently scoped case/channel unavailable */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Changed state, routing, operation payload or expired recovery key */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Strict bounded input invalid */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Rate limit reached */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Fresh eligible availability/capacity unavailable; saved case retained */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    getCustomersSupportLiveChannelsByCaseByKindById: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description Identifier selecting the kind resource.
+                 * @example ENQUIRY
+                 */
+                kind: "ENQUIRY" | "COMPLAINT";
+                /**
+                 * @description Identifier selecting the id resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success: Recover a channel through its currently owned or scoped canonical case. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Recover a channel through its currently owned or scoped canonical case",
+                     *       "data": {
+                     *         "channel": {
+                     *           "id": "00000000-0000-4000-8000-000000000001",
+                     *           "target": {
+                     *             "kind": "ENQUIRY",
+                     *             "id": "00000000-0000-4000-8000-000000000001"
+                     *           },
+                     *           "branchId": "00000000-0000-4000-8000-000000000001",
+                     *           "state": "QUEUED",
+                     *           "version": 0,
+                     *           "updatedAt": "2030-01-15T10:00:00.000Z",
+                     *           "queuedSince": "2030-01-15T10:00:00.000Z",
+                     *           "claimedAt": "2030-01-15T10:00:00.000Z",
+                     *           "endedAt": "2030-01-15T10:00:00.000Z",
+                     *           "latestPublicMessageId": "00000000-0000-4000-8000-000000000001",
+                     *           "assignedToYou": true,
+                     *           "canClaim": true,
+                     *           "canTransfer": true,
+                     *           "canEnd": true,
+                     *           "pollAfterMs": 5000
+                     *         },
+                     *         "caseVersion": 0,
+                     *         "latestPublicMessageId": "00000000-0000-4000-8000-000000000001"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /** @description Channel validated by this operation's strict request contract. */
+                            channel: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
+                                 */
+                                id: string;
+                                /** @description Target validated by this operation's strict request contract. */
+                                target: {
+                                    /**
+                                     * @description Kind validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    kind: "ENQUIRY" | "COMPLAINT";
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the id resource; ownership is resolved server-side.
+                                     */
+                                    id: string;
+                                };
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the branch resource; ownership is resolved server-side.
+                                 */
+                                branchId: string;
+                                /**
+                                 * @description State validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                state: "QUEUED" | "HUMAN_ACTIVE" | "ENDED";
+                                /** @description Version validated by this operation's strict request contract. */
+                                version: number;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                updatedAt: string;
+                                /**
+                                 * Format: date-time
+                                 * @description Queued Since validated by this operation's strict request contract.
+                                 */
+                                queuedSince: string | null;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                claimedAt: string | null;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                endedAt: string | null;
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the latest public message resource; ownership is resolved server-side.
+                                 */
+                                latestPublicMessageId: string | null;
+                                /** @description Assigned To You validated by this operation's strict request contract. */
+                                assignedToYou: boolean;
+                                /** @description Can Claim validated by this operation's strict request contract. */
+                                canClaim: boolean;
+                                /** @description Can Transfer validated by this operation's strict request contract. */
+                                canTransfer: boolean;
+                                /** @description Can End validated by this operation's strict request contract. */
+                                canEnd: boolean;
+                                /**
+                                 * @description Poll After Ms validated by this operation's strict request contract.
+                                 * @enum {number}
+                                 */
+                                pollAfterMs: 5000;
+                            } | null;
+                            /** @description Case Version validated by this operation's strict request contract. */
+                            caseVersion: number;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the latest public message resource; ownership is resolved server-side.
+                             */
+                            latestPublicMessageId: string | null;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Current session required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Current identity/MFA/action/CSRF denied */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Owned or currently scoped case/channel unavailable */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Changed state, routing, operation payload or expired recovery key */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Strict bounded input invalid */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Rate limit reached */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Fresh eligible availability/capacity unavailable; saved case retained */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    getCustomersSupportLiveChannelsByChannelId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description Identifier selecting the channel resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                channelId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success: Revalidate one owned/scoped channel and reconcile lost agent eligibility. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Revalidate one owned/scoped channel and reconcile lost agent eligibility",
+                     *       "data": {
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "target": {
+                     *           "kind": "ENQUIRY",
+                     *           "id": "00000000-0000-4000-8000-000000000001"
+                     *         },
+                     *         "branchId": "00000000-0000-4000-8000-000000000001",
+                     *         "state": "QUEUED",
+                     *         "version": 0,
+                     *         "updatedAt": "2030-01-15T10:00:00.000Z",
+                     *         "queuedSince": "2030-01-15T10:00:00.000Z",
+                     *         "claimedAt": "2030-01-15T10:00:00.000Z",
+                     *         "endedAt": "2030-01-15T10:00:00.000Z",
+                     *         "latestPublicMessageId": "00000000-0000-4000-8000-000000000001",
+                     *         "assignedToYou": true,
+                     *         "canClaim": true,
+                     *         "canTransfer": true,
+                     *         "canEnd": true,
+                     *         "pollAfterMs": 5000
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the id resource; ownership is resolved server-side.
+                             */
+                            id: string;
+                            /** @description Target validated by this operation's strict request contract. */
+                            target: {
+                                /**
+                                 * @description Kind validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                kind: "ENQUIRY" | "COMPLAINT";
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
+                                 */
+                                id: string;
+                            };
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the branch resource; ownership is resolved server-side.
+                             */
+                            branchId: string;
+                            /**
+                             * @description State validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            state: "QUEUED" | "HUMAN_ACTIVE" | "ENDED";
+                            /** @description Version validated by this operation's strict request contract. */
+                            version: number;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            updatedAt: string;
+                            /**
+                             * Format: date-time
+                             * @description Queued Since validated by this operation's strict request contract.
+                             */
+                            queuedSince: string | null;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            claimedAt: string | null;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            endedAt: string | null;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the latest public message resource; ownership is resolved server-side.
+                             */
+                            latestPublicMessageId: string | null;
+                            /** @description Assigned To You validated by this operation's strict request contract. */
+                            assignedToYou: boolean;
+                            /** @description Can Claim validated by this operation's strict request contract. */
+                            canClaim: boolean;
+                            /** @description Can Transfer validated by this operation's strict request contract. */
+                            canTransfer: boolean;
+                            /** @description Can End validated by this operation's strict request contract. */
+                            canEnd: boolean;
+                            /**
+                             * @description Poll After Ms validated by this operation's strict request contract.
+                             * @enum {number}
+                             */
+                            pollAfterMs: 5000;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Current session required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Current identity/MFA/action/CSRF denied */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Owned or currently scoped case/channel unavailable */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Changed state, routing, operation payload or expired recovery key */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Strict bounded input invalid */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Rate limit reached */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Fresh eligible availability/capacity unavailable; saved case retained */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    postCustomersSupportLiveChannelsByChannelIdActions: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description Unique retry key for this logical mutation. Reuse it only with the identical request.
+                 * @example synthetic-idempotency-key
+                 */
+                "idempotency-key": string;
+                /**
+                 * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+                 * @example synthetic-token-value-not-a-real-secret
+                 */
+                "x-csrf-token": string;
+            };
+            path: {
+                /**
+                 * @description Identifier selecting the channel resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                channelId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "action": "claim",
+                 *       "expectedVersion": 0
+                 *     }
+                 */
+                "application/json": {
+                    /**
+                     * @description Action validated by this operation's strict request contract.
+                     * @enum {string}
+                     */
+                    action: "claim";
+                    /** @description Last server version observed by the client; stale writes are rejected. */
+                    expectedVersion: number;
+                } | {
+                    /**
+                     * @description Action validated by this operation's strict request contract.
+                     * @enum {string}
+                     */
+                    action: "transfer";
+                    /** @description Last server version observed by the client; stale writes are rejected. */
+                    expectedVersion: number;
+                    /**
+                     * Format: uuid
+                     * @description Identifier of the target staff resource; ownership is resolved server-side.
+                     */
+                    targetStaffId: string;
+                    /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                    reason: string;
+                } | {
+                    /**
+                     * @description Action validated by this operation's strict request contract.
+                     * @enum {string}
+                     */
+                    action: "end";
+                    /** @description Last server version observed by the client; stale writes are rejected. */
+                    expectedVersion: number;
+                };
+            };
+        };
+        responses: {
+            /** @description Success: Transactionally claim, transfer or end the canonical human channel. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Transactionally claim, transfer or end the canonical human channel",
+                     *       "data": {
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "target": {
+                     *           "kind": "ENQUIRY",
+                     *           "id": "00000000-0000-4000-8000-000000000001"
+                     *         },
+                     *         "branchId": "00000000-0000-4000-8000-000000000001",
+                     *         "state": "QUEUED",
+                     *         "version": 0,
+                     *         "updatedAt": "2030-01-15T10:00:00.000Z",
+                     *         "queuedSince": "2030-01-15T10:00:00.000Z",
+                     *         "claimedAt": "2030-01-15T10:00:00.000Z",
+                     *         "endedAt": "2030-01-15T10:00:00.000Z",
+                     *         "latestPublicMessageId": "00000000-0000-4000-8000-000000000001",
+                     *         "assignedToYou": true,
+                     *         "canClaim": true,
+                     *         "canTransfer": true,
+                     *         "canEnd": true,
+                     *         "pollAfterMs": 5000,
+                     *         "replayed": true
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the id resource; ownership is resolved server-side.
+                             */
+                            id: string;
+                            /** @description Target validated by this operation's strict request contract. */
+                            target: {
+                                /**
+                                 * @description Kind validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                kind: "ENQUIRY" | "COMPLAINT";
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
+                                 */
+                                id: string;
+                            };
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the branch resource; ownership is resolved server-side.
+                             */
+                            branchId: string;
+                            /**
+                             * @description State validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            state: "QUEUED" | "HUMAN_ACTIVE" | "ENDED";
+                            /** @description Version validated by this operation's strict request contract. */
+                            version: number;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            updatedAt: string;
+                            /**
+                             * Format: date-time
+                             * @description Queued Since validated by this operation's strict request contract.
+                             */
+                            queuedSince: string | null;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            claimedAt: string | null;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            endedAt: string | null;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the latest public message resource; ownership is resolved server-side.
+                             */
+                            latestPublicMessageId: string | null;
+                            /** @description Assigned To You validated by this operation's strict request contract. */
+                            assignedToYou: boolean;
+                            /** @description Can Claim validated by this operation's strict request contract. */
+                            canClaim: boolean;
+                            /** @description Can Transfer validated by this operation's strict request contract. */
+                            canTransfer: boolean;
+                            /** @description Can End validated by this operation's strict request contract. */
+                            canEnd: boolean;
+                            /**
+                             * @description Poll After Ms validated by this operation's strict request contract.
+                             * @enum {number}
+                             */
+                            pollAfterMs: 5000;
+                            /** @description Replayed validated by this operation's strict request contract. */
+                            replayed: boolean;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Current session required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Current identity/MFA/action/CSRF denied */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Owned or currently scoped case/channel unavailable */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Changed state, routing, operation payload or expired recovery key */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Strict bounded input invalid */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Rate limit reached */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Fresh eligible availability/capacity unavailable; saved case retained */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    getStaffWorkforceSupportChatChannelsOperationsByActionByOperationKey: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description Identifier selecting the action resource.
+                 * @example request
+                 */
+                action: "request" | "claim" | "transfer" | "end";
+                /**
+                 * @description Identifier selecting the operation key resource.
+                 * @example synthetic-operationkey
+                 */
+                operationKey: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success: Recover an actor-owned saved channel action without its private request body. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Recover an actor-owned saved channel action without its private request body",
+                     *       "data": {
+                     *         "action": "request",
+                     *         "state": "SAVED",
+                     *         "channel": {
+                     *           "id": "00000000-0000-4000-8000-000000000001",
+                     *           "target": {
+                     *             "kind": "ENQUIRY",
+                     *             "id": "00000000-0000-4000-8000-000000000001"
+                     *           },
+                     *           "branchId": "00000000-0000-4000-8000-000000000001",
+                     *           "state": "QUEUED",
+                     *           "version": 0,
+                     *           "updatedAt": "2030-01-15T10:00:00.000Z",
+                     *           "queuedSince": "2030-01-15T10:00:00.000Z",
+                     *           "claimedAt": "2030-01-15T10:00:00.000Z",
+                     *           "endedAt": "2030-01-15T10:00:00.000Z",
+                     *           "latestPublicMessageId": "00000000-0000-4000-8000-000000000001",
+                     *           "assignedToYou": true,
+                     *           "canClaim": true,
+                     *           "canTransfer": true,
+                     *           "canEnd": true,
+                     *           "pollAfterMs": 5000
+                     *         }
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /**
+                             * @description Action validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            action: "request" | "claim" | "transfer" | "end";
+                            /**
+                             * @description State validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            state: "SAVED";
+                            /** @description Channel validated by this operation's strict request contract. */
+                            channel: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
+                                 */
+                                id: string;
+                                /** @description Target validated by this operation's strict request contract. */
+                                target: {
+                                    /**
+                                     * @description Kind validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    kind: "ENQUIRY" | "COMPLAINT";
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the id resource; ownership is resolved server-side.
+                                     */
+                                    id: string;
+                                };
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the branch resource; ownership is resolved server-side.
+                                 */
+                                branchId: string;
+                                /**
+                                 * @description State validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                state: "QUEUED" | "HUMAN_ACTIVE" | "ENDED";
+                                /** @description Version validated by this operation's strict request contract. */
+                                version: number;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                updatedAt: string;
+                                /**
+                                 * Format: date-time
+                                 * @description Queued Since validated by this operation's strict request contract.
+                                 */
+                                queuedSince: string | null;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                claimedAt: string | null;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                endedAt: string | null;
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the latest public message resource; ownership is resolved server-side.
+                                 */
+                                latestPublicMessageId: string | null;
+                                /** @description Assigned To You validated by this operation's strict request contract. */
+                                assignedToYou: boolean;
+                                /** @description Can Claim validated by this operation's strict request contract. */
+                                canClaim: boolean;
+                                /** @description Can Transfer validated by this operation's strict request contract. */
+                                canTransfer: boolean;
+                                /** @description Can End validated by this operation's strict request contract. */
+                                canEnd: boolean;
+                                /**
+                                 * @description Poll After Ms validated by this operation's strict request contract.
+                                 * @enum {number}
+                                 */
+                                pollAfterMs: 5000;
+                            };
+                        } | {
+                            /**
+                             * @description Action validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            action: "request" | "claim" | "transfer" | "end";
+                            /**
+                             * @description State validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            state: "CANCELLED";
+                            /** @description Channel validated by this operation's strict request contract. */
+                            channel: null;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Current session required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Current identity/MFA/action/CSRF denied */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Owned or currently scoped case/channel unavailable */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Changed state, routing, operation payload or expired recovery key */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Strict bounded input invalid */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Rate limit reached */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Fresh eligible availability/capacity unavailable; saved case retained */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    deleteStaffWorkforceSupportChatChannelsOperationsByActionByOperationKey: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+                 * @example synthetic-token-value-not-a-real-secret
+                 */
+                "x-csrf-token": string;
+            };
+            path: {
+                /**
+                 * @description Identifier selecting the action resource.
+                 * @example request
+                 */
+                action: "request" | "claim" | "transfer" | "end";
+                /**
+                 * @description Identifier selecting the operation key resource.
+                 * @example synthetic-operationkey
+                 */
+                operationKey: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "target": {
+                 *         "kind": "ENQUIRY",
+                 *         "id": "00000000-0000-4000-8000-000000000001"
+                 *       }
+                 *     }
+                 */
+                "application/json": {
+                    /** @description Target validated by this operation's strict request contract. */
+                    target: {
+                        /**
+                         * @description Kind validated by this operation's strict request contract.
+                         * @enum {string}
+                         */
+                        kind: "ENQUIRY" | "COMPLAINT";
+                        /**
+                         * Format: uuid
+                         * @description Identifier of the id resource; ownership is resolved server-side.
+                         */
+                        id: string;
+                    };
+                };
+            };
+        };
+        responses: {
+            /** @description Success: Durably stop an unsaved channel action or recover its already-saved outcome. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Durably stop an unsaved channel action or recover its already-saved outcome",
+                     *       "data": {
+                     *         "action": "request",
+                     *         "state": "SAVED",
+                     *         "channel": {
+                     *           "id": "00000000-0000-4000-8000-000000000001",
+                     *           "target": {
+                     *             "kind": "ENQUIRY",
+                     *             "id": "00000000-0000-4000-8000-000000000001"
+                     *           },
+                     *           "branchId": "00000000-0000-4000-8000-000000000001",
+                     *           "state": "QUEUED",
+                     *           "version": 0,
+                     *           "updatedAt": "2030-01-15T10:00:00.000Z",
+                     *           "queuedSince": "2030-01-15T10:00:00.000Z",
+                     *           "claimedAt": "2030-01-15T10:00:00.000Z",
+                     *           "endedAt": "2030-01-15T10:00:00.000Z",
+                     *           "latestPublicMessageId": "00000000-0000-4000-8000-000000000001",
+                     *           "assignedToYou": true,
+                     *           "canClaim": true,
+                     *           "canTransfer": true,
+                     *           "canEnd": true,
+                     *           "pollAfterMs": 5000
+                     *         }
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /**
+                             * @description Action validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            action: "request" | "claim" | "transfer" | "end";
+                            /**
+                             * @description State validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            state: "SAVED";
+                            /** @description Channel validated by this operation's strict request contract. */
+                            channel: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
+                                 */
+                                id: string;
+                                /** @description Target validated by this operation's strict request contract. */
+                                target: {
+                                    /**
+                                     * @description Kind validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    kind: "ENQUIRY" | "COMPLAINT";
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the id resource; ownership is resolved server-side.
+                                     */
+                                    id: string;
+                                };
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the branch resource; ownership is resolved server-side.
+                                 */
+                                branchId: string;
+                                /**
+                                 * @description State validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                state: "QUEUED" | "HUMAN_ACTIVE" | "ENDED";
+                                /** @description Version validated by this operation's strict request contract. */
+                                version: number;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                updatedAt: string;
+                                /**
+                                 * Format: date-time
+                                 * @description Queued Since validated by this operation's strict request contract.
+                                 */
+                                queuedSince: string | null;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                claimedAt: string | null;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                endedAt: string | null;
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the latest public message resource; ownership is resolved server-side.
+                                 */
+                                latestPublicMessageId: string | null;
+                                /** @description Assigned To You validated by this operation's strict request contract. */
+                                assignedToYou: boolean;
+                                /** @description Can Claim validated by this operation's strict request contract. */
+                                canClaim: boolean;
+                                /** @description Can Transfer validated by this operation's strict request contract. */
+                                canTransfer: boolean;
+                                /** @description Can End validated by this operation's strict request contract. */
+                                canEnd: boolean;
+                                /**
+                                 * @description Poll After Ms validated by this operation's strict request contract.
+                                 * @enum {number}
+                                 */
+                                pollAfterMs: 5000;
+                            };
+                        } | {
+                            /**
+                             * @description Action validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            action: "request" | "claim" | "transfer" | "end";
+                            /**
+                             * @description State validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            state: "CANCELLED";
+                            /** @description Channel validated by this operation's strict request contract. */
+                            channel: null;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Current session required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Current identity/MFA/action/CSRF denied */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Owned or currently scoped case/channel unavailable */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Changed state, routing, operation payload or expired recovery key */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Strict bounded input invalid */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Rate limit reached */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Fresh eligible availability/capacity unavailable; saved case retained */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    getStaffWorkforceSupportChatChannelsByCaseByKindById: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description Identifier selecting the kind resource.
+                 * @example ENQUIRY
+                 */
+                kind: "ENQUIRY" | "COMPLAINT";
+                /**
+                 * @description Identifier selecting the id resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success: Recover a channel through its currently owned or scoped canonical case. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Recover a channel through its currently owned or scoped canonical case",
+                     *       "data": {
+                     *         "channel": {
+                     *           "id": "00000000-0000-4000-8000-000000000001",
+                     *           "target": {
+                     *             "kind": "ENQUIRY",
+                     *             "id": "00000000-0000-4000-8000-000000000001"
+                     *           },
+                     *           "branchId": "00000000-0000-4000-8000-000000000001",
+                     *           "state": "QUEUED",
+                     *           "version": 0,
+                     *           "updatedAt": "2030-01-15T10:00:00.000Z",
+                     *           "queuedSince": "2030-01-15T10:00:00.000Z",
+                     *           "claimedAt": "2030-01-15T10:00:00.000Z",
+                     *           "endedAt": "2030-01-15T10:00:00.000Z",
+                     *           "latestPublicMessageId": "00000000-0000-4000-8000-000000000001",
+                     *           "assignedToYou": true,
+                     *           "canClaim": true,
+                     *           "canTransfer": true,
+                     *           "canEnd": true,
+                     *           "pollAfterMs": 5000
+                     *         },
+                     *         "caseVersion": 0,
+                     *         "latestPublicMessageId": "00000000-0000-4000-8000-000000000001"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /** @description Channel validated by this operation's strict request contract. */
+                            channel: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
+                                 */
+                                id: string;
+                                /** @description Target validated by this operation's strict request contract. */
+                                target: {
+                                    /**
+                                     * @description Kind validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    kind: "ENQUIRY" | "COMPLAINT";
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the id resource; ownership is resolved server-side.
+                                     */
+                                    id: string;
+                                };
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the branch resource; ownership is resolved server-side.
+                                 */
+                                branchId: string;
+                                /**
+                                 * @description State validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                state: "QUEUED" | "HUMAN_ACTIVE" | "ENDED";
+                                /** @description Version validated by this operation's strict request contract. */
+                                version: number;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                updatedAt: string;
+                                /**
+                                 * Format: date-time
+                                 * @description Queued Since validated by this operation's strict request contract.
+                                 */
+                                queuedSince: string | null;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                claimedAt: string | null;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                endedAt: string | null;
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the latest public message resource; ownership is resolved server-side.
+                                 */
+                                latestPublicMessageId: string | null;
+                                /** @description Assigned To You validated by this operation's strict request contract. */
+                                assignedToYou: boolean;
+                                /** @description Can Claim validated by this operation's strict request contract. */
+                                canClaim: boolean;
+                                /** @description Can Transfer validated by this operation's strict request contract. */
+                                canTransfer: boolean;
+                                /** @description Can End validated by this operation's strict request contract. */
+                                canEnd: boolean;
+                                /**
+                                 * @description Poll After Ms validated by this operation's strict request contract.
+                                 * @enum {number}
+                                 */
+                                pollAfterMs: 5000;
+                            } | null;
+                            /** @description Case Version validated by this operation's strict request contract. */
+                            caseVersion: number;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the latest public message resource; ownership is resolved server-side.
+                             */
+                            latestPublicMessageId: string | null;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Current session required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Current identity/MFA/action/CSRF denied */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Owned or currently scoped case/channel unavailable */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Changed state, routing, operation payload or expired recovery key */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Strict bounded input invalid */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Rate limit reached */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Fresh eligible availability/capacity unavailable; saved case retained */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    getStaffWorkforceSupportChatChannelsByChannelId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description Identifier selecting the channel resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                channelId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success: Revalidate one owned/scoped channel and reconcile lost agent eligibility. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Revalidate one owned/scoped channel and reconcile lost agent eligibility",
+                     *       "data": {
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "target": {
+                     *           "kind": "ENQUIRY",
+                     *           "id": "00000000-0000-4000-8000-000000000001"
+                     *         },
+                     *         "branchId": "00000000-0000-4000-8000-000000000001",
+                     *         "state": "QUEUED",
+                     *         "version": 0,
+                     *         "updatedAt": "2030-01-15T10:00:00.000Z",
+                     *         "queuedSince": "2030-01-15T10:00:00.000Z",
+                     *         "claimedAt": "2030-01-15T10:00:00.000Z",
+                     *         "endedAt": "2030-01-15T10:00:00.000Z",
+                     *         "latestPublicMessageId": "00000000-0000-4000-8000-000000000001",
+                     *         "assignedToYou": true,
+                     *         "canClaim": true,
+                     *         "canTransfer": true,
+                     *         "canEnd": true,
+                     *         "pollAfterMs": 5000
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the id resource; ownership is resolved server-side.
+                             */
+                            id: string;
+                            /** @description Target validated by this operation's strict request contract. */
+                            target: {
+                                /**
+                                 * @description Kind validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                kind: "ENQUIRY" | "COMPLAINT";
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
+                                 */
+                                id: string;
+                            };
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the branch resource; ownership is resolved server-side.
+                             */
+                            branchId: string;
+                            /**
+                             * @description State validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            state: "QUEUED" | "HUMAN_ACTIVE" | "ENDED";
+                            /** @description Version validated by this operation's strict request contract. */
+                            version: number;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            updatedAt: string;
+                            /**
+                             * Format: date-time
+                             * @description Queued Since validated by this operation's strict request contract.
+                             */
+                            queuedSince: string | null;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            claimedAt: string | null;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            endedAt: string | null;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the latest public message resource; ownership is resolved server-side.
+                             */
+                            latestPublicMessageId: string | null;
+                            /** @description Assigned To You validated by this operation's strict request contract. */
+                            assignedToYou: boolean;
+                            /** @description Can Claim validated by this operation's strict request contract. */
+                            canClaim: boolean;
+                            /** @description Can Transfer validated by this operation's strict request contract. */
+                            canTransfer: boolean;
+                            /** @description Can End validated by this operation's strict request contract. */
+                            canEnd: boolean;
+                            /**
+                             * @description Poll After Ms validated by this operation's strict request contract.
+                             * @enum {number}
+                             */
+                            pollAfterMs: 5000;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Current session required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Current identity/MFA/action/CSRF denied */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Owned or currently scoped case/channel unavailable */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Changed state, routing, operation payload or expired recovery key */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Strict bounded input invalid */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Rate limit reached */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Fresh eligible availability/capacity unavailable; saved case retained */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    postStaffWorkforceSupportChatChannelsByChannelIdActions: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description Unique retry key for this logical mutation. Reuse it only with the identical request.
+                 * @example synthetic-idempotency-key
+                 */
+                "idempotency-key": string;
+                /**
+                 * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+                 * @example synthetic-token-value-not-a-real-secret
+                 */
+                "x-csrf-token": string;
+            };
+            path: {
+                /**
+                 * @description Identifier selecting the channel resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                channelId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "action": "claim",
+                 *       "expectedVersion": 0
+                 *     }
+                 */
+                "application/json": {
+                    /**
+                     * @description Action validated by this operation's strict request contract.
+                     * @enum {string}
+                     */
+                    action: "claim";
+                    /** @description Last server version observed by the client; stale writes are rejected. */
+                    expectedVersion: number;
+                } | {
+                    /**
+                     * @description Action validated by this operation's strict request contract.
+                     * @enum {string}
+                     */
+                    action: "transfer";
+                    /** @description Last server version observed by the client; stale writes are rejected. */
+                    expectedVersion: number;
+                    /**
+                     * Format: uuid
+                     * @description Identifier of the target staff resource; ownership is resolved server-side.
+                     */
+                    targetStaffId: string;
+                    /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                    reason: string;
+                } | {
+                    /**
+                     * @description Action validated by this operation's strict request contract.
+                     * @enum {string}
+                     */
+                    action: "end";
+                    /** @description Last server version observed by the client; stale writes are rejected. */
+                    expectedVersion: number;
+                };
+            };
+        };
+        responses: {
+            /** @description Success: Transactionally claim, transfer or end the canonical human channel. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Transactionally claim, transfer or end the canonical human channel",
+                     *       "data": {
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "target": {
+                     *           "kind": "ENQUIRY",
+                     *           "id": "00000000-0000-4000-8000-000000000001"
+                     *         },
+                     *         "branchId": "00000000-0000-4000-8000-000000000001",
+                     *         "state": "QUEUED",
+                     *         "version": 0,
+                     *         "updatedAt": "2030-01-15T10:00:00.000Z",
+                     *         "queuedSince": "2030-01-15T10:00:00.000Z",
+                     *         "claimedAt": "2030-01-15T10:00:00.000Z",
+                     *         "endedAt": "2030-01-15T10:00:00.000Z",
+                     *         "latestPublicMessageId": "00000000-0000-4000-8000-000000000001",
+                     *         "assignedToYou": true,
+                     *         "canClaim": true,
+                     *         "canTransfer": true,
+                     *         "canEnd": true,
+                     *         "pollAfterMs": 5000,
+                     *         "replayed": true
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the id resource; ownership is resolved server-side.
+                             */
+                            id: string;
+                            /** @description Target validated by this operation's strict request contract. */
+                            target: {
+                                /**
+                                 * @description Kind validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                kind: "ENQUIRY" | "COMPLAINT";
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
+                                 */
+                                id: string;
+                            };
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the branch resource; ownership is resolved server-side.
+                             */
+                            branchId: string;
+                            /**
+                             * @description State validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            state: "QUEUED" | "HUMAN_ACTIVE" | "ENDED";
+                            /** @description Version validated by this operation's strict request contract. */
+                            version: number;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            updatedAt: string;
+                            /**
+                             * Format: date-time
+                             * @description Queued Since validated by this operation's strict request contract.
+                             */
+                            queuedSince: string | null;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            claimedAt: string | null;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            endedAt: string | null;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the latest public message resource; ownership is resolved server-side.
+                             */
+                            latestPublicMessageId: string | null;
+                            /** @description Assigned To You validated by this operation's strict request contract. */
+                            assignedToYou: boolean;
+                            /** @description Can Claim validated by this operation's strict request contract. */
+                            canClaim: boolean;
+                            /** @description Can Transfer validated by this operation's strict request contract. */
+                            canTransfer: boolean;
+                            /** @description Can End validated by this operation's strict request contract. */
+                            canEnd: boolean;
+                            /**
+                             * @description Poll After Ms validated by this operation's strict request contract.
+                             * @enum {number}
+                             */
+                            pollAfterMs: 5000;
+                            /** @description Replayed validated by this operation's strict request contract. */
+                            replayed: boolean;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Current session required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Current identity/MFA/action/CSRF denied */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Owned or currently scoped case/channel unavailable */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Changed state, routing, operation payload or expired recovery key */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Strict bounded input invalid */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Rate limit reached */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Fresh eligible availability/capacity unavailable; saved case retained */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

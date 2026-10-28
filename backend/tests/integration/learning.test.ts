@@ -322,7 +322,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       expect(customer.body.data.steps.join(" ")).toContain(
         "Internal staff notes are not shown",
       );
-      expect(customer.body.data.version).toBe(5);
+      expect(customer.body.data.version).toBe(6);
       expect(customer.body.data.steps.join(" ")).toContain(
         "no help transcript is attached automatically",
       );
@@ -330,6 +330,12 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         "exact message, branch and destination",
       );
       expect(customer.body.data.steps.join(" ")).toContain("Go back to edit your draft");
+      expect(customer.body.data.steps.join(" ")).toContain(
+        "Queued means saved for Customer Care, not a promised wait time",
+      );
+      expect(customer.body.data.steps.join(" ")).toContain(
+        "New conversation updates do not mark notifications as read",
+      );
     });
     it("removes revoked/expired assignments and session assurance on the next read", async () => {
       const person = await f.account("ACCOUNTANT");

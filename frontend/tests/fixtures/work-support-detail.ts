@@ -51,6 +51,19 @@ export async function workThreadFixture(
       meta: { requestId: "work-thread" },
     },
   });
+  await page.route(
+    "**/api/v1/staff/workforce/support-chat/channels/by-case/**",
+    (route) =>
+      route.fulfill(
+        ok({
+          channel: null,
+          caseVersion: detail.record.version,
+          latestPublicMessageId:
+            detail.messages.findLast((message) => message.visibility === "CUSTOMER")
+              ?.id ?? null,
+        }),
+      ),
+  );
   await page.route("**/api/v1/auth/csrf", (route) =>
     route.fulfill(ok({ csrfToken: "synthetic-conversation-token-".repeat(3) })),
   );

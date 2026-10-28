@@ -128,6 +128,16 @@ for (const width of [390, 1440]) {
     await heading.hover();
     await expect(heading).toBeFocused();
     await fillDraft(page);
+    const privacy = page.getByRole("link", {
+      name: "privacy notice (opens in a new tab)",
+      exact: true,
+    });
+    await privacy.focus();
+    await page.keyboard.press("Shift+Tab");
+    await page.keyboard.press("Tab");
+    await privacy.hover();
+    await expect(privacy).toBeFocused();
+    await expect(privacy).toHaveCSS("text-decoration-line", "underline");
     await page.screenshot({ path: info.outputPath(`service-enquiry-${width}.png`) });
     const axe = await new AxeBuilder({ page })
       .include("main")

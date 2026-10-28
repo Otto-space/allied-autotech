@@ -26,6 +26,37 @@ physical-device and full screen-reader acceptance remain open. A concurrent
 public-copy release and garage/privacy master update are integrated before
 this catalogue change is published.
 
+## 28–29 October 2026: shared Care channel controls, local checkpoint
+
+Customer `/dashboard/support/{enquiries|complaints}/:id` and legacy
+`/admin/support` / `/admin/support/{enquiries|complaints}/:id` retain their canonical
+case/message forms. New controls provide reviewed channel request/join/transfer/end,
+reference-only unknown-outcome recovery and durable cancellation. New public updates
+offer an explicit jump without moving the reader or acknowledging notifications;
+reply drafts stay editable. A compact queue/availability disclosure links back to
+existing cases and requires explicit opt-in. Refresh and paging use shared secondary
+buttons, 44px targets and visible focus; no online or wait-time promise is invented.
+
+Evidence: 13 new intercepted browser scenarios accepted across corrected runs,
+plus three existing browser regressions (stale record, uncertain reply recovery,
+single-flight internal note). Actual passive polling preserves editor focus and
+the new-update notice stays until explicitly opened, including when already loaded.
+Choosing it focuses the timeline entry. Background draft editing does not unlock
+review/send or bypass pending/storage/rate-limit guards. Customer layouts at 390/1024px and legacy Staff,
+Admin/Super Admin at 360/768/1440px passed overflow and Axe checks. Browser runtime
+error/overlay checks pass in accepted runs. Screenshots and JSON receipts are outside
+Git at `%TEMP%/allied-w16-care-ui-20261028/`; the Browser plugin was unavailable,
+so existing Playwright/Edge was used. Scoped frontend units: 37 pass. Early cold-
+compile, fixture-envelope/CSRF and worker-start failures remain documented rather
+than counted as acceptance. The task preview was stopped; other previews retained.
+
+This is local fixture/native evidence, not production or real-role acceptance.
+Responsibility-managed enquiry/complaint views, owner coverage editing, actual
+browser/API composition, hosted multi-instance/reconnect/load checks and final
+publication remain unfinished. No real support message, inventory, provider call
+or staffing/AI/live flag was changed. See
+[`SUPPORT_CHANNEL_DISCOVERY_W16C.md`](../../docs/help-learn/SUPPORT_CHANNEL_DISCOVERY_W16C.md).
+
 ## 28 October 2026: bounded public content and imagery improvement
 
 Current cycle: owner's content brief, instruction 7. Home now has a stable offer,

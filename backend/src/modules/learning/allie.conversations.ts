@@ -299,6 +299,41 @@ export async function finishCustomerHandoffContext(
     data: { closedAt: at, encryptedState: Prisma.DbNull, version: { increment: 1 } },
   });
 }
+
+/** Explicit customer transition to human support closes only the chosen owned AI
+ * context, without exporting it. Works while AI/help is disabled. A delayed provider
+ * completion is rejected by the existing closed-context/version safeguards. */
+export async function closeCustomerContextForSupport(
+  tx: Tx,
+  actor: AuthenticatedActor,
+  input: { conversationId: string; expectedVersion: number },
+) {
+  if (actor.role !== "CUSTOMER") throw learningUnavailable();
+  const access = await learningAccessInTransaction(tx, actor);
+  if (!access.verified) throw learningUnavailable();
+  await mutex(tx);
+  const key = hashToken(
+    "assistant-owner",
+    JSON.stringify([actor.userId, actor.sessionId, actor.role]),
+  );
+  await tx.$queryRaw`SELECT "id" FROM "AssistantConversation" WHERE "id"=${input.conversationId}::uuid AND "ownerKey"=${key} FOR UPDATE`;
+  const row = await tx.assistantConversation.findFirst({
+    where: { id: input.conversationId, ownerKey: key, audience: "CUSTOMER" },
+  });
+  if (!row) throw learningUnavailable();
+  if (row.version !== input.expectedVersion)
+    conflict("Your help context changed. Review the transition to Customer Care again.");
+  const at = await now(tx);
+  await discard(tx, row.id, at);
+  await tx.assistantConversation.update({
+    where: { id: row.id },
+    data: {
+      closedAt: row.closedAt ?? at,
+      encryptedState: Prisma.DbNull,
+      version: { increment: 1 },
+    },
+  });
+}
 export async function bootstrapAllieGuest(ip: string, existingToken?: string) {
   requireAllieEnabled();
   return prisma.$transaction(async (tx) => {

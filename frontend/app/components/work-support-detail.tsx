@@ -39,6 +39,7 @@ import { MutationReview, type MutationProposal } from "./mutation-review";
 import { SupportStaffActions } from "./support-staff-actions";
 import { ComplaintAcknowledgement } from "./complaint-acknowledgement";
 import { SupportReplyForm } from "./support-reply-form";
+import { SupportChannelPanel } from "./support-channel-panel";
 type HistorySeed = { path: string; data: ReturnType<typeof parseThreadMessages> };
 export function WorkSupportDetail({ kind, id }: { kind: SupportKind; id: string }) {
   const session = useAccountSession();
@@ -140,6 +141,8 @@ function ThreadWorkspace({
     [unavailable, setUnavailable] = useState(false),
     [generation, setGeneration] = useState(0),
     [revision, setRevision] = useState(0),
+    [channelRevision, setChannelRevision] = useState(0),
+    [publicUpdate, setPublicUpdate] = useState<string>(),
     [lastReceipt, setLastReceipt] = useState<ThreadReceipt>(),
     [historySeed, setHistorySeed] = useState<HistorySeed>();
   const parse = useCallback(
@@ -489,17 +492,43 @@ function ThreadWorkspace({
               </details>
             )}
           </section>
+          {current.contact?.customerId && (
+            <SupportChannelPanel
+              userId={owner}
+              kind={kind}
+              id={id}
+              staff
+              disabled={disabled}
+              closed={current.status === "CLOSED"}
+              onCaseChanged={() => {
+                resource.revalidate();
+                setChannelRevision((value) => value + 1);
+              }}
+              onPublicUpdate={setPublicUpdate}
+            />
+          )}
           <div className="wst-workspace">
             <div>
               <ThreadHistory
                 record={current}
                 base={base}
                 disabled={disabled}
-                readDisabled={busy || !!error}
+                readDisabled={resource.loading || checking || !!error}
+                backgroundReading={
+                  resource.refreshing &&
+                  !checking &&
+                  !pending &&
+                  !proposal &&
+                  !error &&
+                  !unavailable
+                }
                 onReview={review}
                 revision={revision}
+                channelRevision={channelRevision}
                 onDenied={deny}
                 seed={historySeed}
+                publicUpdate={publicUpdate}
+                onOpenPublicUpdate={() => setPublicUpdate(undefined)}
               />
             </div>
             <aside id="conversation-management" aria-label="Conversation management">
@@ -696,8 +725,12 @@ function ThreadHistory({
   readDisabled,
   onReview,
   revision,
+  channelRevision,
+  backgroundReading,
   onDenied,
   seed,
+  publicUpdate,
+  onOpenPublicUpdate,
 }: {
   record: SupportRecord;
   base: string;
@@ -705,8 +738,12 @@ function ThreadHistory({
   readDisabled: boolean;
   onReview: (p: MutationProposal) => void;
   revision: number;
+  channelRevision: number;
+  backgroundReading: boolean;
   onDenied: () => void;
   seed?: HistorySeed;
+  publicUpdate?: string;
+  onOpenPublicUpdate: () => void;
 }) {
   const search = useSearchParams(),
     router = useRouter(),
@@ -716,6 +753,10 @@ function ThreadHistory({
     error = messages.error || messages.refreshError,
     busy = messages.loading || messages.refreshing,
     blocked = readDisabled || busy || !!error || !messages.data;
+  const revalidateMessages = messages.revalidate;
+  useEffect(() => {
+    if (channelRevision > 0) revalidateMessages();
+  }, [channelRevision, revalidateMessages]);
   useEffect(() => {
     if (messages.denied) onDenied();
   }, [messages.denied, onDenied]);
@@ -739,6 +780,12 @@ function ThreadHistory({
           staff
           base={base}
           disabled={disabled || blocked || query.invalid}
+          keepDraftEditable={
+            !query.invalid &&
+            !error &&
+            !readDisabled &&
+            (backgroundReading || (messages.refreshing && !disabled))
+          }
           onSaved={() => {}}
           onUncertain={() => {}}
           onReview={onReview}
@@ -757,8 +804,24 @@ function ThreadHistory({
         </div>
         <p className="wst-meta">
           Replies and status updates appear in chronological order. Use Next for later
-          pages. Refresh to check for updates; this is not a live-agent chat.
+          pages. Conversation status is shown above for linked customer accounts. Updates
+          preserve your message position and do not mark notifications as read.
         </p>
+        {publicUpdate && (
+          <div className="notice" role="status">
+            A new customer-visible update is available.{" "}
+            <button
+              className="button secondary"
+              disabled={blocked || disabled || query.invalid}
+              onClick={() => {
+                navigate(new URLSearchParams({ messageId: publicUpdate }));
+                onOpenPublicUpdate();
+              }}
+            >
+              View latest update
+            </button>
+          </div>
+        )}
         {query.invalid ? (
           <div className="wi-state">
             <h3>Message filters unavailable</h3>
