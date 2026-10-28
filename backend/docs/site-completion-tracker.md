@@ -1,5 +1,21 @@
 # Allied AutoTech completion tracker
 
+## 28 October 2026 current vehicle requirements cycle
+
+Owner supplied the vehicle-filter Word document, 14 BMW photographs and an explicit
+implementation request. Active reused tree is allied-contact-validation-20261027,
+branch feat/vehicle-disclosures-20261028; incorporated current origin/master
+cfd3fadd without touching dirty master/live-support work. Additive owner-reported
+condition/issues, engine code/cylinders, crossover/minivan, literal location discovery,
+saved-content preview and photo publication validation passed isolated and mocked
+rendered verification: 78 backend checks, 66 focused frontend unit cases and ten
+distinct browser cases. Current live 55714afd is included; incorporating newer
+master c0790beb preserves the service-enquiry and fitment corrections.
+BMW remains a private validated import; genuine branch/price and owner review are
+missing. No production stock, enquiry, availability or transaction write. See
+vehicle-marketplace-implementation-20261028.md for matrix, photo review and gates.
+Release must integrate to exact checked master and deploy compatible backend first.
+
 ## 28 October 2026 current catalogue fitment-guidance cycle
 
 Initial production baseline: frontend `dpl_DfQ8TmtFujaCL215HnWRuaTRuRZr` on both

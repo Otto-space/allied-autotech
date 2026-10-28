@@ -1,0 +1,168 @@
+[
+  {
+    "index": 1,
+    "sha256": "219839ffdf6ba24f3e897a5d3bb6a4cb9d727658b81e28e77bbdfd446bea17fa",
+    "bytes": 49502,
+    "width": 1000,
+    "height": 750,
+    "format": "JPEG",
+    "view": "Dashboard warning and odometer close-up",
+    "review": "Selected; warning symbols retained. Odometer not verified; do not import mileage.",
+    "galleryOrder": 5
+  },
+  {
+    "index": 2,
+    "sha256": "c4d20a11714bd9c54da02c51ae78aaa80d4629c9adb55ffd46017907c85459d0",
+    "bytes": 49055,
+    "width": 1000,
+    "height": 750,
+    "format": "JPEG",
+    "view": "Cabin from rear",
+    "review": "Omit; overlaps front cabin and rear-seat coverage.",
+    "galleryOrder": null
+  },
+  {
+    "index": 3,
+    "sha256": "26ddab3a8af975b48518dbda0139e51405d236760f9b56e4ec2c49787d7ead56",
+    "bytes": 89546,
+    "width": 1000,
+    "height": 750,
+    "format": "JPEG",
+    "view": "Driver doorway and front cabin",
+    "review": "Omit; near duplicate of 04.",
+    "galleryOrder": null
+  },
+  {
+    "index": 4,
+    "sha256": "081e4c44c61dbcb3f9c530430c88a37db00de9af640bd60c2805a444782a8854",
+    "bytes": 87426,
+    "width": 1000,
+    "height": 750,
+    "format": "JPEG",
+    "view": "Front cabin from driver doorway",
+    "review": "Selected; no legible personal identifier observed.",
+    "galleryOrder": 2
+  },
+  {
+    "index": 5,
+    "sha256": "1286877556080f134f9890f13f463c22ac3c9b8dcf5b34503c722ea2646de4aa",
+    "bytes": 100616,
+    "width": 1000,
+    "height": 750,
+    "format": "JPEG",
+    "view": "Engine bay with bonnet open",
+    "review": "Selected; preserve visible wear and dirt.",
+    "galleryOrder": 6
+  },
+  {
+    "index": 6,
+    "sha256": "ef94f5fdf1a63ce038701f94d6e5caeaadd4f5090a797e6808cdff5666c768c0",
+    "bytes": 96112,
+    "width": 750,
+    "height": 1000,
+    "format": "JPEG",
+    "view": "Front with doors open, portrait",
+    "review": "Omit; plate visible and stronger exterior cover supplied.",
+    "galleryOrder": null
+  },
+  {
+    "index": 7,
+    "sha256": "b6d8e88b89155e14c2b045a4148392c793591268fb44845dcdad552dd473a835",
+    "bytes": 104707,
+    "width": 1000,
+    "height": 750,
+    "format": "JPEG",
+    "view": "Front three-quarter close-up",
+    "review": "Omit; overlaps cover and plate partly visible.",
+    "galleryOrder": null
+  },
+  {
+    "index": 8,
+    "sha256": "3041681ac55a7025d710f20c5eb8f76ec6293d2cee419fcc63e8a3bea434eab4",
+    "bytes": 96775,
+    "width": 1000,
+    "height": 750,
+    "format": "JPEG",
+    "view": "Alternate front three-quarter view",
+    "review": "Omit; tilted framing and plate visible.",
+    "galleryOrder": null
+  },
+  {
+    "index": 9,
+    "sha256": "d401ef4c4f418a101697fdd3c2f290365447c10539d4b5654514a73738945fa6",
+    "bytes": 65169,
+    "width": 1000,
+    "height": 750,
+    "format": "JPEG",
+    "view": "Rear-seat view",
+    "review": "Selected; no legible personal identifier observed.",
+    "galleryOrder": 3
+  },
+  {
+    "index": 10,
+    "sha256": "000bc0f3707bb4bb81d1c7b0ecbf726ef778ce804afef834abf798e771ec0209",
+    "bytes": 99060,
+    "width": 1000,
+    "height": 750,
+    "format": "JPEG",
+    "view": "Rear three-quarter view",
+    "review": "Selected; conceal plate on derivative only.",
+    "galleryOrder": 1,
+    "privacyPolygon": [
+      [883, 506],
+      [934, 473],
+      [934, 526],
+      [883, 563]
+    ]
+  },
+  {
+    "index": 11,
+    "sha256": "141921704e18d7a935dfefa37b888f7791ecfdfc0fbc15db543ca1851bea2e6c",
+    "bytes": 89755,
+    "width": 1000,
+    "height": 750,
+    "format": "JPEG",
+    "view": "Driver door panel",
+    "review": "Omit; identifiable bystanders and redundant view.",
+    "galleryOrder": null
+  },
+  {
+    "index": 12,
+    "sha256": "be85223dcef5a76ab68fcf0da752e3b7a72affeff6ff942a9a21cfff38cc98bd",
+    "bytes": 83896,
+    "width": 1000,
+    "height": 750,
+    "format": "JPEG",
+    "view": "Dashboard and front cabin",
+    "review": "Selected; no legible personal identifier observed.",
+    "galleryOrder": 4
+  },
+  {
+    "index": 13,
+    "sha256": "9d7b3916ac986dc33c80cc35aa9a016bc056681e7a2b870c9ffaee239c4fae27",
+    "bytes": 110260,
+    "width": 1000,
+    "height": 750,
+    "format": "JPEG",
+    "view": "Front three-quarter exterior",
+    "review": "Selected cover; conceal plate on derivative only.",
+    "galleryOrder": 0,
+    "privacyPolygon": [
+      [131, 462],
+      [188, 497],
+      [188, 555],
+      [131, 518]
+    ]
+  },
+  {
+    "index": 14,
+    "sha256": "abe38e6484540da3171323133daf206dcededb2df65dc43d247770e11b2abae2",
+    "bytes": 101589,
+    "width": 1000,
+    "height": 750,
+    "format": "JPEG",
+    "view": "Alternate rear three-quarter view",
+    "review": "Omit; overlaps 10 and partial plate visible.",
+    "galleryOrder": null
+  }
+]

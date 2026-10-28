@@ -2968,4 +2968,22 @@ Privacy guidance now explains request, authorised review and the separate execut
 
 Two isolated live 390px baselines failed at the expected previous interface and retained screenshots. Local TypeScript noEmit, scoped lint and formatting passed. Six new rendered acceptance cases and existing garage/fitment/privacy regressions are prepared; hosted checks, exact master CI and promotion are pending. Current published fitment source 8d2dfd69 has been incorporated. The active public-copy worktree and all unrelated edits remain preserved. Full V01-V55 scope remains active.
 
+## 28 October 2026 vehicle condition and owner-draft cycle
+
+- Preserve current live 55714afd and master garage/privacy guidance; use existing
+  stock, listing, managed media, Customer Care, permissions and workforce boundary.
+- Add attributed owner condition/issues with correction audit, engine code/cylinders,
+  crossover/minivan, actual branch-location discovery, saved-content preview and
+  photo-before-publication validation. Unknown owner facts stay unknown.
+- Private BMW preparation uses seven actual reviewed views; plate masks are limited
+  to identifier pixels. No stock/listing published or production enquiry submitted.
+- Isolated persistence, denied access, CAS, publication/media race, search and enquiry
+  regression checks pass. Ten distinct mocked rendered cases cover public card/detail,
+  home, filters, missing photos, authoring import, preview/correction and Axe.
+  Exact-master CI, production rollout and hosted acceptance remain pending.
+- Backend handoff and requirement matrix:
+  `backend/docs/vehicle-marketplace-implementation-20261028.md`.
+- Real-role, physical-device and independent vehicle-condition acceptance remain
+  unverified. Public VIN search remains a privacy/business decision.
+
 28 October 2026 - V53/V55 guidance released on master runtime 55714afd, Vercel dpl_6b35E89UpjSP9heFX88nWWB6BFdA verified on apex/www. Garage optional search setup preserves basic entry and drafts; privacy review/execution guidance remains visible on mobile and links to Customer Care. Final combined CI passed 1225 tests (12 optional skipped), lint/types/format/build and zero production audit findings; frontend 40780036790, secret guard 40780036778 and isolated backend safety 40780036897/40780112964 passed. All 41 final hosted cases plus 18 candidate and 18 production public checks passed. Screenshot inspection caught and fixed the old mobile rule hiding privacy steps. Published public-copy source bee7ed8f is preserved; initial promotion correctly stopped for that concurrent release. Backend 3ee6748f remains ACTIVE/readiness200, unchanged by this batch. Other source/contract hashes and both tracker sections were preserved. No shared DB/customer writes. Evidence, initial harness corrections, limits and rollback: backend/docs/garage-privacy-guidance-production-20261028.md. Full V01-V55 remains active; next reconcile published public-page work and continue the service-enquiry/remaining clarity ledger.

@@ -63,6 +63,10 @@ export const recordSchema = z.object({
       new Set(a.map((f) => f.toLowerCase())).size === a.length
     );
   }, "Use up to 40 distinct features, each up to 80 characters, separated by commas."),
+  engineCode: text(40).optional(),
+  cylinders: optionalInteger(1, 24).optional(),
+  ownerReportedCondition: text(2000).optional(),
+  ownerReportedIssues: text(4000).optional(),
   engineSize: text(40),
   color: text(40),
   doors: optionalInteger(1, 20),
@@ -118,6 +122,16 @@ export function vehicleRecordBody(
       .split(",")
       .map((v) => v.trim())
       .filter(Boolean),
+    ...(value.engineCode !== undefined ? { engineCode: value.engineCode || null } : {}),
+    ...(value.cylinders !== undefined
+      ? { cylinders: nullableNumber(value.cylinders) }
+      : {}),
+    ...(value.ownerReportedCondition !== undefined
+      ? { ownerReportedCondition: value.ownerReportedCondition || null }
+      : {}),
+    ...(value.ownerReportedIssues !== undefined
+      ? { ownerReportedIssues: value.ownerReportedIssues || null }
+      : {}),
     engineSize: value.engineSize || null,
     color: value.color || null,
     doors: nullableNumber(value.doors),
@@ -172,6 +186,10 @@ export function vehicleDefaults(
     powertrain: vehicle?.powertrain ?? "",
     engineCapacityCc: vehicle?.engineCapacityCc?.toString() ?? "",
     features: vehicle?.features?.join(", ") ?? "",
+    engineCode: vehicle?.engineCode ?? "",
+    cylinders: vehicle?.cylinders?.toString() ?? "",
+    ownerReportedCondition: vehicle?.ownerReportedCondition ?? "",
+    ownerReportedIssues: vehicle?.ownerReportedIssues ?? "",
     engineSize: vehicle?.engineSize ?? "",
     color: vehicle?.color ?? "",
     doors: vehicle?.doors?.toString() ?? "",

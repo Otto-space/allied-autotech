@@ -1,4 +1,5 @@
 "use client";
+import { VehicleOwnerDisclosure } from "./vehicle-owner-disclosure";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -158,7 +159,12 @@ export function VehicleCard({
               listing.vehicle.images[0]
             )?.url
           }
-          alt={listing.title}
+          alt={
+            (
+              listing.vehicle.images.find((image) => image.isPrimary) ??
+              listing.vehicle.images[0]
+            )?.altText || listing.title
+          }
           fallbackIcon={<CarFront size={34} strokeWidth={1.4} />}
           sizes="(max-width: 767px) 100vw, (max-width: 1050px) 50vw, 33vw"
         />
@@ -218,6 +224,7 @@ export function VehicleCard({
               ? ` · Assembled in ${vehicleLabel(listing.vehicle.manufactureCountryCode)}`
               : ""}
           </p>
+          <VehicleOwnerDisclosure vehicle={listing.vehicle} compact />
           <div className="vehicle-card-location">
             <MapPin size={15} aria-hidden="true" />
             <span>

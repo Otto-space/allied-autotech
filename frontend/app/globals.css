@@ -3563,3 +3563,61 @@ html {
   outline: none;
   box-shadow: none;
 }
+
+/* Vehicle disclosures remain visible in the card and beside the enquiry action. */
+.vehicle-owner-issue-preview {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+  color: #4b3524;
+  background: #fff8eb;
+  border: 1px solid #dac8ab;
+  border-radius: 8px;
+  padding: 0.65rem;
+  font-size: 0.85rem;
+  overflow-wrap: anywhere;
+}
+.vehicle-owner-issue-preview svg {
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+}
+.vehicle-owner-issue-preview span {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+}
+.vehicle-owner-disclosure {
+  padding: 1rem;
+  border: 1px solid #dac8ab;
+  border-radius: 10px;
+  background: #fffaf1;
+  color: #292524;
+  margin-block: 1rem;
+  overflow-wrap: anywhere;
+}
+.vehicle-owner-disclosure h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 1rem;
+  margin: 0 0 0.5rem;
+}
+.vehicle-owner-disclosure h3:not(:first-child) {
+  margin-top: 1rem;
+}
+.vehicle-owner-disclosure p {
+  white-space: pre-line;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin: 0 0 0.7rem;
+}
+.vehicle-owner-disclosure small {
+  display: block;
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.vehicle-detail .vd-summary .vehicle-owner-disclosure :is(p, h3, small) {
+  color: #292524;
+}

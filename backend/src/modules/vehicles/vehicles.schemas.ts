@@ -74,6 +74,9 @@ export const publicVehicleListQueryBase = z
     cursor: uuid.optional(),
     limit: z.coerce.number().int().min(1).max(50).default(20),
     search: clean(100).optional(),
+    location: clean(80)
+      .optional()
+      .describe("Literal branch city or state; not a vehicle import origin"),
     make: clean(80).optional(),
     model: clean(80).optional(),
     year: z.coerce.number().int().min(1886).max(2200).optional(),
@@ -97,6 +100,8 @@ export const publicVehicleListQueryBase = z
     inspected: optionalBoolean,
     bodyType: z
       .enum([
+        "CROSSOVER",
+        "MINIVAN",
         "SEDAN",
         "SUV",
         "COUPE",
@@ -243,6 +248,8 @@ export const vehicleCreateBodySchema = z
     condition: z.enum(["NEW", "USED", "FOREIGN_USED", "LOCALLY_USED"]).default("USED"),
     bodyType: z
       .enum([
+        "CROSSOVER",
+        "MINIVAN",
         "SEDAN",
         "SUV",
         "COUPE",
@@ -267,6 +274,10 @@ export const vehicleCreateBodySchema = z
         "Features must be unique",
       )
       .optional(),
+    engineCode: nullableClean(40),
+    cylinders: z.number().int().min(1).max(24).nullable().optional(),
+    ownerReportedCondition: nullableClean(2000),
+    ownerReportedIssues: nullableClean(4000),
     engineSize: nullableClean(40),
     driveType: z.enum(["FWD", "RWD", "AWD", "FOUR_WD", "OTHER"]).nullable().optional(),
     color: nullableClean(40),

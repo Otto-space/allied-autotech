@@ -450,6 +450,8 @@ enum Powertrain {
 }
 
 enum BodyType {
+  CROSSOVER
+  MINIVAN
   SEDAN
   SUV
   COUPE
@@ -1974,6 +1976,10 @@ model Vehicle {
   powertrain             Powertrain?
   engineCapacityCc       Int?
   features               String[]         @default([])
+  engineCode             String?          @db.VarChar(40)
+  cylinders              Int?
+  ownerReportedCondition String?          @db.VarChar(2000)
+  ownerReportedIssues    String?          @db.VarChar(4000)
   engineSize             String?
   driveType              DriveType?
   color                  String?

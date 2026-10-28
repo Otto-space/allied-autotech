@@ -1,0 +1,17 @@
+{
+  "format": "allied-vehicle-stock-draft-v1",
+  "stockNumber": "OWNER-BMW120I-2007-01",
+  "vehicle": {
+    "make": "BMW",
+    "model": "120i",
+    "year": 2007,
+    "engineCapacityCc": 2000,
+    "engineCode": "N46",
+    "cylinders": 4,
+    "bodyType": "HATCHBACK",
+    "doors": 5,
+    "driveType": "RWD",
+    "ownerReportedCondition": "The owner describes the engine, transmission, interior and exterior as being in excellent condition.",
+    "ownerReportedIssues": "AC not working. Owner reports a leak. Diagnosis and repair required."
+  }
+}

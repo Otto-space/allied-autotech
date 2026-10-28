@@ -3,6 +3,8 @@ import { countryCodes, europeanCountryCodes, countryName } from "./reference/cou
 /** Public listing filters only. Keep aligned with publicVehicleListQuerySchema. */
 export const vehicleChoices = {
   bodyType: [
+    "CROSSOVER",
+    "MINIVAN",
     "SEDAN",
     "SUV",
     "COUPE",
@@ -35,6 +37,7 @@ export const vehicleChoices = {
 } as const;
 export const advancedVehicleKeys = [
   "make",
+  "location",
   "model",
   "year",
   "trim",
@@ -86,7 +89,9 @@ export function normalizeVehicleQuery(input: URLSearchParams) {
         new Set(selected).size === selected.length &&
         selected.every((option) => choices.includes(option));
       value = choices.filter((option) => selected.includes(option)).join(",");
-    } else if (["search", "make", "model", "trim", "color", "feature"].includes(key))
+    } else if (
+      ["search", "make", "model", "trim", "color", "feature", "location"].includes(key)
+    )
       valid =
         value.length <= (key === "search" ? 100 : key === "color" ? 40 : 80) &&
         !/[\x00-\x1f\x7f]/.test(value);

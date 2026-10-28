@@ -344,7 +344,9 @@ export function VehicleListingStatus({
   listing,
   disabled,
   onReview,
-}: ReviewProps & { listing: StaffListing }) {
+  photoCount,
+  branchActive,
+}: ReviewProps & { listing: StaffListing; photoCount?: number; branchActive?: boolean }) {
   const choices = transitions[listing.status];
   const [target, setTarget] = useState(choices[0]);
   if (!choices.length) return null;
@@ -368,7 +370,7 @@ export function VehicleListingStatus({
           },
           description:
             target === "AVAILABLE"
-              ? "This makes the listing available to customers while its branch is active. Check the description, price and vehicle details before publishing."
+              ? "This makes the listing available to customers while its branch is active. Review the preview, price, photo privacy, owner-reported faults and inspection evidence before publishing. Owner statements are not an Allied inspection."
               : target === "ARCHIVED"
                 ? "This archives the listing and removes it from the public catalogue. An archived listing cannot be reopened through this workflow."
                 : "This removes the listing from the public catalogue. It can be made available again through a separate review.",
@@ -402,7 +404,25 @@ export function VehicleListingStatus({
             ))}
           </select>
         </div>
-        <button className="button secondary">Review publication</button>
+        {target === "AVAILABLE" && photoCount === 0 && (
+          <p role="status">
+            Add a vehicle photo before publishing. Check the owner disclosures and photo
+            privacy in the preview.
+          </p>
+        )}
+        {target === "AVAILABLE" && branchActive === false && (
+          <p role="status">
+            This branch is inactive. Publication requires an active branch.
+          </p>
+        )}
+        <button
+          className="button secondary"
+          disabled={
+            target === "AVAILABLE" && (photoCount === 0 || branchActive === false)
+          }
+        >
+          Review publication
+        </button>
       </fieldset>
     </form>
   );

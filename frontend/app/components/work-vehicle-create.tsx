@@ -1,4 +1,6 @@
 "use client";
+import { VehicleOwnerFields } from "./vehicle-owner-fields";
+import { importVehicleDraft } from "@/lib/forms/vehicle-draft-import";
 import { CountryField } from "./country-field";
 import { vehicleLabel } from "@/lib/vehicle-discovery";
 import Link from "next/link";
@@ -312,6 +314,16 @@ function CreationWorkspace({
         { label: "Fuel type", value: human(body.fuelType) },
         { label: "Body type", value: human(body.bodyType) },
         { label: "Drive type", value: human(body.driveType) },
+        { label: "Engine code", value: body.engineCode ?? "Not recorded" },
+        { label: "Cylinders", value: String(body.cylinders ?? "Not recorded") },
+        {
+          label: "Owner-reported condition",
+          value: body.ownerReportedCondition ?? "Not recorded",
+        },
+        {
+          label: "Owner-reported known issues",
+          value: body.ownerReportedIssues ?? "Not recorded",
+        },
         { label: "Engine size", value: body.engineSize ?? "Not recorded" },
         { label: "Colour", value: body.color ?? "Not recorded" },
         { label: "Doors", value: body.doors?.toString() ?? "Not recorded" },
@@ -570,6 +582,8 @@ type TextField =
   | "mileageKm"
   | "engineCapacityCc"
   | "features"
+  | "engineCode"
+  | "cylinders"
   | "engineSize"
   | "color"
   | "doors"
@@ -613,6 +627,7 @@ function CreationForm({
     defaultValues: vehicleDefaults(undefined, initialBranch),
     shouldFocusError: false,
   });
+  const [importMessage, setImportMessage] = useState("");
   const input = (name: TextField, label: string, max: number) => {
     const error = form.formState.errors[name];
     return (
@@ -703,6 +718,10 @@ function CreationForm({
           "powertrain",
           "engineCapacityCc",
           "features",
+          "engineCode",
+          "cylinders",
+          "ownerReportedCondition",
+          "ownerReportedIssues",
           "engineSize",
           "color",
           "doors",
@@ -719,6 +738,56 @@ function CreationForm({
     >
       <fieldset disabled={disabled}>
         <legend className="sr-only">New vehicle details</legend>
+        <details>
+          <summary>Import a prepared vehicle draft</summary>
+          <p>
+            This replaces the fields in this unsaved form. It preserves your selected
+            branch. No record or listing is created until you review and save. Check the
+            stock number in inventory first to resume an existing record; repeating a
+            stock number cannot create another vehicle.
+          </p>
+          <p>
+            Imported statements are owner supplied. Confirm the condition classification
+            and all supplied facts before saving. Unknown specifications stay blank.
+          </p>
+          <label htmlFor="vehicle-draft-import">Prepared stock JSON (up to 16 KB)</label>
+          <input
+            id="vehicle-draft-import"
+            type="file"
+            accept="application/json,.json"
+            onChange={async (event) => {
+              const file = event.currentTarget.files?.[0];
+              event.currentTarget.value = "";
+              if (!file) return;
+              try {
+                if (file.size > 16384) throw Error("Draft is too large");
+                const currentBranch = form.getValues("branchId");
+                if (!currentBranch) {
+                  setImportMessage(
+                    "Select an active workshop branch before importing. The file does not supply a branch.",
+                  );
+                  return;
+                }
+                const content = await file.text();
+                if (
+                  draftIdentity() !== `${owner}:${role}` ||
+                  form.getValues("branchId") !== currentBranch
+                )
+                  return;
+                const values = importVehicleDraft(JSON.parse(content), currentBranch);
+                form.reset(values);
+                setImportMessage(
+                  "Draft loaded into this unsaved form. Review the condition classification and supplied details before saving. Photos and listing price are separate steps.",
+                );
+              } catch {
+                setImportMessage(
+                  "This is not a valid prepared stock draft. Your form was kept. Use the Allied stock draft format without price, branch or publication commands.",
+                );
+              }
+            }}
+          />
+          {importMessage && <p role="status">{importMessage}</p>}
+        </details>
         {group(
           1,
           "Vehicle identity",
@@ -802,7 +871,10 @@ function CreationForm({
             {input("features", "Recorded features (optional, comma separated)", 3239)}
             {select("bodyType", "Body type")}
             {select("driveType", "Drive type")}
+            {input("engineCode", "Engine code (optional)", 40)}
+            {input("cylinders", "Cylinders (optional)", 2)}
             {input("engineSize", "Engine size (optional)", 40)}
+            <VehicleOwnerFields form={form} />
             {input("color", "Colour (optional)", 40)}
             {input("doors", "Doors (optional)", 2)}
             {input("seats", "Seats (optional)", 3)}
