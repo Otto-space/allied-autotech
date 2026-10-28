@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 
 function headerOffset() {
@@ -29,6 +29,8 @@ function reveal(element: HTMLElement, focus: boolean, nearest = false) {
         once: true,
       });
     }
+    if (!element.matches("a[href], button, input, select, textarea"))
+      element.setAttribute("data-reading-focus", "");
     element.focus({ preventScroll: true });
   }
   if (element.closest("dialog[open]")) {
@@ -57,8 +59,25 @@ function hashTarget(hash: string) {
 
 export function ViewportNavigation() {
   const pathname = usePathname();
+  const previousPath = useRef(pathname);
+  const restoring = useRef<string | null>(null);
 
   useEffect(() => {
+    const restore = () => {
+      restoring.current = location.pathname;
+    };
+    window.addEventListener("popstate", restore);
+    return () => window.removeEventListener("popstate", restore);
+  }, []);
+
+  useEffect(() => {
+    const initial = previousPath.current === pathname;
+    previousPath.current = pathname;
+    const historyRestore = restoring.current === pathname;
+    restoring.current = null;
+    // Hydration must never reset an already scrolling/restored document. The browser
+    // owns initial positioning; only an explicit fragment needs an entry adjustment.
+    if (historyRestore || (initial && (!location.hash || scrollY > 0))) return;
     let frame = 0;
     let cancelled = false;
     let observer: MutationObserver | undefined;
@@ -97,11 +116,13 @@ export function ViewportNavigation() {
     document.addEventListener("pointerdown", cancelEntry, { capture: true, once: true });
     document.addEventListener("keydown", cancelEntry, { capture: true, once: true });
     window.addEventListener("wheel", cancelEntry, { passive: true, once: true });
+    window.addEventListener("touchstart", cancelEntry, { passive: true, once: true });
     return () => {
       cancelEntry();
       document.removeEventListener("pointerdown", cancelEntry, true);
       document.removeEventListener("keydown", cancelEntry, true);
       window.removeEventListener("wheel", cancelEntry);
+      window.removeEventListener("touchstart", cancelEntry);
       clearTimeout(timeout);
     };
   }, [pathname]);
@@ -109,12 +130,16 @@ export function ViewportNavigation() {
   useEffect(() => {
     const frames = new Set<number>();
     let pointerHeld = false;
+    let pointerMoved = false;
+    let viewportHeight = window.visualViewport?.height ?? innerHeight;
+    let interaction = 0;
     const afterRender = (action: () => void) => {
+      const generation = interaction;
       const first = requestAnimationFrame(() => {
         frames.delete(first);
         const second = requestAnimationFrame(() => {
           frames.delete(second);
-          action();
+          if (generation === interaction) action();
         });
         frames.add(second);
       });
@@ -241,7 +266,7 @@ export function ViewportNavigation() {
         element instanceof HTMLElement &&
         element.closest("main, dialog[open]") &&
         element.matches(
-          ":focus-visible, input, select, textarea, [contenteditable='true']",
+          "input, select, textarea, [contenteditable='true'], a[href]:focus-visible, button:focus-visible, [role='tab']:focus-visible",
         )
       )
         afterRender(() => {
@@ -254,15 +279,36 @@ export function ViewportNavigation() {
       if (target) afterRender(() => reveal(target, true));
     }
     function pointerDown() {
+      interaction++;
+      pointerMoved = false;
       pointerHeld = true;
     }
-    function pointerUp() {
+    function pointerUp(event: PointerEvent) {
       pointerHeld = false;
-      focus();
+      // A scrolling touch must not re-reveal the last focused page/link.
+      if (
+        !pointerMoved &&
+        event.type !== "pointercancel" &&
+        document.activeElement?.matches(
+          "input, select, textarea, [contenteditable='true']",
+        )
+      )
+        focus();
+    }
+    function scrolling() {
+      pointerMoved = true;
+      interaction++;
+    }
+    function keyboardResize() {
+      const height = window.visualViewport?.height ?? innerHeight;
+      if (height < viewportHeight - 80) focus();
+      viewportHeight = height;
     }
     function keyboard() {
       pointerHeld = false;
     }
+    window.addEventListener("touchmove", scrolling, { passive: true });
+    window.addEventListener("wheel", scrolling, { passive: true });
     document.addEventListener("pointerdown", pointerDown, true);
     document.addEventListener("pointerup", pointerUp, true);
     document.addEventListener("pointercancel", pointerUp, true);
@@ -272,11 +318,13 @@ export function ViewportNavigation() {
     document.addEventListener("focusin", focus);
     window.addEventListener("hashchange", hash);
     window.addEventListener("resize", updateInsets, { passive: true });
-    window.visualViewport?.addEventListener("resize", focus);
+    window.visualViewport?.addEventListener("resize", keyboardResize);
     return () => {
       frames.forEach(cancelAnimationFrame);
       structure.disconnect();
       resize.disconnect();
+      window.removeEventListener("touchmove", scrolling);
+      window.removeEventListener("wheel", scrolling);
       document.removeEventListener("pointerdown", pointerDown, true);
       document.removeEventListener("pointerup", pointerUp, true);
       document.removeEventListener("pointercancel", pointerUp, true);
@@ -286,7 +334,7 @@ export function ViewportNavigation() {
       document.removeEventListener("focusin", focus);
       window.removeEventListener("hashchange", hash);
       window.removeEventListener("resize", updateInsets);
-      window.visualViewport?.removeEventListener("resize", focus);
+      window.visualViewport?.removeEventListener("resize", keyboardResize);
       document.documentElement.style.removeProperty("--viewport-header-offset");
       document.documentElement.style.removeProperty("--viewport-support-offset");
     };

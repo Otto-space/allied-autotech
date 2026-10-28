@@ -16,7 +16,9 @@ export function LearningGuideRunner({
 }) {
   const resource = useLearningCatalogue(),
     path = usePathname();
-  const definition = resource.data?.guides.find((g) => g.id === id);
+  const definition = resource.data?.flags.guides
+    ? resource.data.guides.find((g) => g.id === id)
+    : undefined;
   return (
     <>
       {resource.loading && (
@@ -28,6 +30,9 @@ export function LearningGuideRunner({
       {resource.error && (
         <aside className="learning-guide-panel">
           <p role="alert">{resource.error}</p>
+          <button className="button secondary" onClick={resource.refresh}>
+            Retry guide
+          </button>
           <button onClick={onClose}>Exit guide</button>
         </aside>
       )}
@@ -268,6 +273,7 @@ function Guide({
     <aside
       ref={panel}
       tabIndex={-1}
+      data-reading-focus
       className="learning-guide-panel"
       data-side={side}
       data-edge={edge}
@@ -277,6 +283,12 @@ function Guide({
         Optional guide · {step + 1} of {guide.steps.length}
       </p>
       <h2>{guide.title}</h2>
+      <progress
+        className="learning-guide-progress"
+        aria-label="Guide progress"
+        max={guide.steps.length}
+        value={status === "completed" ? guide.steps.length : step}
+      />
       {saved === "restart" && (
         <p role="status">
           This definition changed. Start again with these reviewed steps.
@@ -332,6 +344,18 @@ function Guide({
             onClick={next}
           >
             {written ? "Mark step read" : "Next step"}
+          </button>
+        )}
+        {status === "active" && !written && !missing && page === guide.page && (
+          <button
+            className="button secondary"
+            onClick={() => {
+              document
+                .querySelector<HTMLElement>(`[data-learning-target="${current.target}"]`)
+                ?.scrollIntoView({ block: "center", behavior: "instant" });
+            }}
+          >
+            Show page control
           </button>
         )}
         {status === "active" && step > 0 && (
@@ -398,7 +422,12 @@ function Guide({
           Open the guide page when ready
         </Link>
       )}
-      {written && <WrittenGuide guide={guide} />}
+      {written && (
+        <details className="learning-written-reference">
+          <summary>Read all written steps</summary>
+          <WrittenGuide guide={guide} />
+        </details>
+      )}
     </aside>
   );
 }

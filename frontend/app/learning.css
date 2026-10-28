@@ -1120,3 +1120,46 @@ body:has(.learning-guide-panel) .support-controls {
     scroll-behavior: auto;
   }
 }
+
+.learning-breadcrumb {
+  font-size: 0.85rem;
+  margin-bottom: 20px;
+  line-height: 1.7;
+}
+.learning-breadcrumb a {
+  color: var(--action-primary);
+  text-underline-offset: 3px;
+}
+.learning-detail,
+#help-results {
+  scroll-margin-top: var(--viewport-header-offset, 96px);
+}
+.learning-guide-progress {
+  width: 100%;
+  height: 8px;
+  accent-color: var(--action-primary);
+}
+.learning-written-reference {
+  border-top: 1px solid var(--border-control);
+  padding-top: 12px;
+}
+.learning-written-reference > summary {
+  min-height: 44px;
+  cursor: pointer;
+}
+html:has(.allie-dialog[open]) {
+  overflow: hidden;
+}
+@media (max-width: 767px) {
+  .learning-guide-panel {
+    bottom: max(12px, env(safe-area-inset-bottom));
+    max-height: 55dvh;
+    width: calc(100vw - 24px);
+    inset-inline: 12px;
+    padding: 16px;
+  }
+  .learning-guide-panel[data-side="left"] {
+    left: 12px;
+    right: 12px;
+  }
+}
