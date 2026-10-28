@@ -18,10 +18,20 @@ responsive fixtures passed ten widths; recovery, reviews, image failure, doubled
 text, keyboard/menu and mobile/desktop accessibility checks passed after fixing
 mobile hero contrast. Real public-data layout checks cover five routes at 320/430/768/1280/1536px.
 Enquiry and anchor journeys pass at 430/1536px; the native comparison is 1774px.
-The production build and full frontend tests passed; the first final gate found
-only merged register formatting, now corrected. Exact-source release gates are
-being rerun before promotion.
+The production build, full frontend tests, formatting, database safety and secret
+checks passed for bee7ed8f. READY dpl_Akw8ic1B6NQFGgL7tDDrm3pskZZ3 is published
+on apex/www; ancestry guards preserved live notification and fitment releases.
+Hosted acceptance passed 12 checks at 390/1440px, including refresh scrolling,
+Allie launcher focus, enquiry context and equipment anchor. Final current-tree
+fixtures passed six responsive/state/Axe cases; count/pricing fixtures also pass.
+Backend remains 3ee6748f ACTIVE; managed backup and existing separate logical
+restore receipts were rechecked. No backend or database rollout was performed.
+See the handoff for exact CI links, evidence, editorial dependencies and limits.
 No full-site, real-role, physical-device or screen-reader acceptance is claimed.
+Local preview stopped; existing dependencies, generated evidence and Docker
+resources retained. C: postflight 29.31 GiB free at measurement, above the 20 GiB
+reserve; this is a point-in-time check, not an OS quota.
+
 
 
 
