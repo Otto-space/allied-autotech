@@ -31,6 +31,7 @@ beforeEach(() => {
   request.mockReset();
   request.mockImplementation(async (path) => {
     if (path === "/auth/session") return result(session.data);
+    if (path.startsWith("/customers/favourites?")) return result({ items: [] });
     if (path === `/customers/favourites/${product.id}`) return result({ product });
     if (path === `/customers/saved-vehicles/${listing.id}`)
       return result({ vehicleListingId: listing.id });
@@ -172,5 +173,5 @@ it("keeps the full-mode product cart available", async () => {
   render(<ProductActions productId={product.id} available />);
   await screen.findByRole("button", { name: "Save quantity to cart" });
   expect(screen.getByRole("spinbutton")).toBeTruthy();
-  expect(screen.getByRole("button", { name: "Save to favourites" })).toBeTruthy();
+  expect(await screen.findByRole("button", { name: "Save to favourites" })).toBeTruthy();
 });
