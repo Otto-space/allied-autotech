@@ -6,6 +6,26 @@
   max-width: 34ch;
   margin-block: 16px 22px;
 }
+.home-page .home-feedback--empty {
+  padding-block: 28px;
+}
+.home-feedback__invitation {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px 32px;
+}
+.home-page .home-feedback__invitation h2 {
+  font:
+    700 20px/1.4 var(--font-quicksand),
+    sans-serif;
+  margin: 0 0 6px;
+}
+.home-feedback__invitation p,
+.home-feedback__invitation .actions {
+  margin: 0;
+}
 .home-feedback__status {
   position: absolute;
   width: 1px;

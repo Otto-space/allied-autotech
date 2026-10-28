@@ -272,8 +272,8 @@ test("carousel, keyboard, FAQ and navigation perform their advertised actions", 
   await page.getByRole("button", { name: "Next slide", exact: true }).click();
   await expect(page.locator("main h1")).toContainText("Find the car");
   await page.getByRole("button", { name: "Next slide", exact: true }).press("ArrowRight");
-  await expect(page.locator("main h1")).toContainText("Built for every");
-  await page.getByRole("button", { name: "Show slide 4: Visit the Shop" }).click();
+  await expect(page.locator("main h1")).toContainText("Quality parts.");
+  await page.getByRole("button", { name: "Show slide 3: Visit the Shop" }).click();
   await expect(page.locator(".hero-copy .button").first()).toHaveAttribute(
     "href",
     "/parts",
@@ -302,12 +302,11 @@ test("empty collections retain useful contact and browsing paths", async ({ page
   await ready(page);
   await expect(page.locator(".partner-links a")).toHaveCount(3);
   await expect(page.locator(".home-feedback")).toBeVisible();
-  await expect(page.getByRole("link", { name: "View all reviews" })).toHaveAttribute(
-    "href",
-    "/reviews",
-  );
   await expect(
-    page.getByText("No customer reviews have been published yet."),
+    page.getByRole("link", { name: "About customer reviews" }),
+  ).toHaveAttribute("href", "/reviews");
+  await expect(
+    page.getByText(/No customer reviews have been published yet/),
   ).toBeVisible();
   await expect(
     page.locator(".home-product-card, .home-vehicle-card, .review-card"),

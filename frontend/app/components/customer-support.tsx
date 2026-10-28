@@ -263,20 +263,6 @@ export function CustomerSupport({ userId }: { userId: string }) {
             <option value="complaints">Complaints</option>
           </select>
         </div>
-        <nav className="cc-jump-links" aria-label="Customer care tasks">
-          <a
-            href="#support-create-heading"
-            onClick={() => {
-              const details = document.querySelector(".care-create");
-              if (details instanceof HTMLDetailsElement) details.open = true;
-            }}
-          >
-            Write a request <ArrowRight size={16} aria-hidden="true" />
-          </a>
-          <a href="#support-list-heading">
-            View your records <ArrowRight size={16} aria-hidden="true" />
-          </a>
-        </nav>
       </div>
       <p className="cc-kind-help" id="support-kind-help">
         {kind === "enquiries"

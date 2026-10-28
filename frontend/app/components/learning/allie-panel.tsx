@@ -199,13 +199,18 @@ function Answers({
     (intent === "answer" ? matches[0] : undefined);
   const relevant = page === "other" ? [] : data.articles.filter((a) => a.page === page);
   const guides = data.guides
-    .filter((g) => data.flags.guides && (page === "other" || g.page === page))
+    .filter(
+      (g) =>
+        data.flags.guides && (page === "other" || page === "home" || g.page === page),
+    )
     .slice(0, 3);
   const scenarios = data.scenarios
     .filter(
       (s) =>
         data.flags.practice &&
-        (page === "other" || relevant.some((a) => a.id === s.articleId)),
+        (page === "other" ||
+          page === "home" ||
+          relevant.some((a) => a.id === s.articleId)),
     )
     .slice(0, 3);
   function selectIntent(next: typeof intent) {
@@ -238,15 +243,33 @@ function Answers({
             onChange={(e) => setQuestion(e.target.value)}
             placeholder="For example: find a part"
           />
-          <button className="button" aria-label="Find reviewed help">
+          <button
+            className="button"
+            aria-label="Find reviewed help"
+            aria-controls={uid + "-response"}
+          >
             <Search size={18} aria-hidden="true" />
           </button>
         </div>
       </form>
       <div className="allie-prompts" aria-label="Suggested help">
-        <button onClick={() => selectIntent("context")}>Explain this page</button>
-        <button onClick={() => selectIntent("guide")}>Show me the steps</button>
-        <button onClick={() => selectIntent("practice")}>Let me practise</button>
+        {(path === "/learn" || relevant.length > 0) && (
+          <button
+            aria-controls={uid + "-response"}
+            onClick={() => selectIntent("context")}
+          >
+            Explain this page
+          </button>
+        )}
+        <button aria-controls={uid + "-response"} onClick={() => selectIntent("guide")}>
+          Show me the steps
+        </button>
+        <button
+          aria-controls={uid + "-response"}
+          onClick={() => selectIntent("practice")}
+        >
+          Let me practise
+        </button>
       </div>
       {!intent && (
         <p className="allie-welcome">
@@ -254,7 +277,12 @@ function Answers({
           starting point.
         </p>
       )}
-      <div className="allie-response" aria-live="polite" aria-atomic="false">
+      <div
+        id={uid + "-response"}
+        className="allie-response"
+        aria-live="polite"
+        aria-atomic="false"
+      >
         {intent === "answer" && !article && (
           <p>
             I couldn’t find a reviewed answer for that. Try a task such as parts, support
@@ -269,6 +297,21 @@ function Answers({
                 Read an answer, follow optional steps on the relevant page, or practise
                 with sample data. Choose a mode to get started.
               </p>
+            ) : path === "/" && relevant.length ? (
+              <>
+                <p>{relevant[0].summary}</p>
+                <nav className="learning-actions" aria-label="Homepage next steps">
+                  <Link href="/services" onClick={onNavigate}>
+                    Services
+                  </Link>
+                  <Link href="/parts" onClick={onNavigate}>
+                    Shop
+                  </Link>
+                  <Link href="/vehicles" onClick={onNavigate}>
+                    Vehicles
+                  </Link>
+                </nav>
+              </>
             ) : relevant.length ? (
               <p>
                 Choose the task you want help with. These instructions describe the page;

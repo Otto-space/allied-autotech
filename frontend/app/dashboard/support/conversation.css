@@ -172,6 +172,14 @@
 .ct-message-content {
   padding: 0 20px;
 }
+.customer-conversation .support-timeline-compact {
+  padding: 12px;
+  margin-block: 8px;
+  border-radius: 6px;
+}
+.customer-conversation .support-timeline-compact .support-timeline-header {
+  margin-bottom: 6px;
+}
 .ct-message {
   padding: 20px 0;
   border-bottom: 1px solid var(--ct-line);

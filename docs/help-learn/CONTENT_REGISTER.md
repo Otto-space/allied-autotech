@@ -114,3 +114,7 @@ access. New source passages have unit/native eligibility checks and rendered/nat
 handoff evidence; no fresh real-provider evaluation is authorised under the exhausted
 W9 allowance. See REVIEWED_HANDOFF_W15.md. Shared staffed transport and all106 full
 route completion decisions remain open.
+
+## Visual audit candidate, 27 October 2026
+
+Added public `home-next-step`, version 1, reviewed 2026-10-27 against existing Home routes, published branch availability and the approved enquiries-only launch. Its homepage context describes Services, Shop and Vehicles without claiming to read records, confirm appointments or reserve vehicles. Destination: /services; contextual links preserve /parts and /vehicles. Eligibility remains the existing public gate; private content remains server-filtered. No flags or permission rules changed. Existing article versions above are historical; source remains authoritative.

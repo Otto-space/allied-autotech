@@ -228,16 +228,16 @@ test("hero keyboard, slide links, optional playback and marquee pause work", asy
     "Built on trust driven by quality",
   );
   await hero.getByRole("button", { name: "Next slide", exact: true }).click();
-  await expect(hero.getByRole("link", { name: "Explore Vehicles" })).toHaveAttribute(
+  await expect(hero.getByRole("link", { name: "Explore vehicles" })).toHaveAttribute(
     "href",
     "/vehicles",
   );
   await page.keyboard.press("ArrowRight");
-  await expect(hero.getByRole("link", { name: "Discover Vehicles" })).toHaveAttribute(
+  await expect(hero.getByRole("link", { name: "Visit the Shop" })).toHaveAttribute(
     "href",
     "/vehicles",
   );
-  await hero.getByRole("button", { name: "Show slide 4: Visit the Shop" }).click();
+  await hero.getByRole("button", { name: "Show slide 3: Visit the Shop" }).click();
   await expect(hero.getByRole("link", { name: "Visit the Shop" })).toHaveAttribute(
     "href",
     "/parts",

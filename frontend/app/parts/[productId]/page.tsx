@@ -10,6 +10,7 @@ import { packVolumeLabel } from "@/lib/product-family";
 import { browseEnquiriesOnly } from "@/lib/public-launch";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { productAvailability } from "@/lib/product-availability";
 import { cache, Suspense } from "react";
 import { headers } from "next/headers";
 import {
@@ -337,11 +338,15 @@ export default async function ProductPage({
                     ))}
                   </ul>
                 ) : (
-                  <p>Availability has not been listed. Contact our team to check.</p>
+                  <p>
+                    {productAvailability(product.availability).label}. Contact our team to
+                    check.
+                  </p>
                 )}
                 {!available && !!product.availability.length && (
                   <p>
-                    Currently unavailable. Save this product or contact our team for help.
+                    {productAvailability(product.availability).label}. Contact our team
+                    for help.
                   </p>
                 )}
               </section>

@@ -57,6 +57,8 @@ export function ProfilePhoto({
         onChange={setSelection}
         validate={validateProfilePhoto}
         prepare={prepareProfilePhoto}
+        preparationHint="Choose a photo, check its preview, then upload it. Select Save profile photo to review and confirm the change."
+        uploadedHint="Photo uploaded. Select Save profile photo to review and confirm it. Your current photo has not changed yet."
       />
       <div className="actions">
         <button

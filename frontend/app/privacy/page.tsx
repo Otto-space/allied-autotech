@@ -38,13 +38,44 @@ export default function PrivacyPage() {
           </a>
           , or {business.address}.
         </p>
-        <h2>What this website offers</h2>
+        <nav className="privacy-contents" aria-label="Privacy notice contents">
+          <h2>In this notice</h2>
+          <ul>
+            <li>
+              <a href="#privacy-website">What this website offers</a>
+            </li>
+            <li>
+              <a href="#privacy-information">Information we use and why</a>
+            </li>
+            {!catalogue && (
+              <li>
+                <a href="#privacy-accounts">Accounts, forms and reviews</a>
+              </li>
+            )}
+            <li>
+              <a href="#privacy-recipients">Who receives information</a>
+            </li>
+            <li>
+              <a href="#privacy-ai">Optional AI help and Customer Care</a>
+            </li>
+            <li>
+              <a href="#privacy-browser">Links, cookies and your browser</a>
+            </li>
+            <li>
+              <a href="#privacy-retention">How long we keep information</a>
+            </li>
+            <li>
+              <a href="#privacy-requests">Your requests and complaints</a>
+            </li>
+          </ul>
+        </nav>
+        <h2 id="privacy-website">What this website offers</h2>
         <p>
           {catalogue
             ? "You can browse services, products, vehicles and approved customer reviews, and contact us by phone, email or WhatsApp. Website enquiry forms, customer registration, checkout and paid reservations are currently unavailable. Staff access is restricted."
             : "You can browse the catalogue, create an account, save information to your profile and garage, and send enquiries, complaints and requests for service visits or vehicle inspections. Staff must confirm availability and arrangements. Submitting a request does not place an order, reserve a vehicle or guarantee an appointment. Online checkout, paid reservations and payment collection are unavailable in this release."}
         </p>
-        <h2>Information we use and why</h2>
+        <h2 id="privacy-information">Information we use and why</h2>
         <p>
           Our website and hosting providers process technical information such as your IP
           address, requested pages, browser details, request times and errors to deliver
@@ -67,7 +98,7 @@ export default function PrivacyPage() {
         </p>
         {!catalogue && (
           <>
-            <h2>Accounts, forms and reviews</h2>
+            <h2 id="privacy-accounts">Accounts, forms and reviews</h2>
             <p>
               Registration uses your name, email, phone number and securely hashed
               password. We also keep verification, sign-in and security records. Optional
@@ -89,7 +120,7 @@ export default function PrivacyPage() {
             </p>
           </>
         )}
-        <h2>Who receives information</h2>
+        <h2 id="privacy-recipients">Who receives information</h2>
         <p>
           Authorised staff and our authorised technical administrator access information
           as needed for their work. We use website hosting, cloud storage and email
@@ -104,7 +135,7 @@ export default function PrivacyPage() {
           relevant to your information; we do not promise that all processing stays in
           Nigeria or London.
         </p>
-        <h2>Optional AI help</h2>
+        <h2 id="privacy-ai">Optional AI help</h2>
         <p>
           If conversational Allie is available and you choose to use it, your typed help
           questions, eligible reviewed website instructions and recent help context are
@@ -125,7 +156,15 @@ export default function PrivacyPage() {
           saved in browser storage. Choosing a contact link does not submit your question
           or conversation to Customer Care.
         </p>
-        <h2>Links, cookies and your browser</h2>
+        <p>
+          Signed-in customers can separately review and send a Customer Care message. Only
+          the summary and optional help excerpts you select on that review are attached.
+          An encrypted temporary review can be recovered for up to 15 minutes in the same
+          account session; it is separate from a submitted support record. Cancelling a
+          review does not remove a message already saved. The browser keeps only a
+          recovery reference, not the message or help excerpts.
+        </p>
+        <h2 id="privacy-browser">Links, cookies and your browser</h2>
         <p>
           WhatsApp, email and map links open the service you choose. That service&apos;s
           own privacy terms also apply. This website does not use advertising or analytics
@@ -143,7 +182,7 @@ export default function PrivacyPage() {
             can affect how long drafts remain. Clear site data when using a shared device.
           </p>
         )}
-        <h2>How long we keep information</h2>
+        <h2 id="privacy-retention">How long we keep information</h2>
         {!catalogue && (
           <p>
             Account and related profile or garage information is kept while needed for
@@ -176,7 +215,7 @@ export default function PrivacyPage() {
           remain until their recovery cycle ends; deletion is not instantaneous across
           every system.
         </p>
-        <h2>Your requests and complaints</h2>
+        <h2 id="privacy-requests">Your requests and complaints</h2>
         <p>
           Contact <a href={`mailto:${business.email}`}>{business.email}</a> to request
           access, correction, deletion, restriction or portability, or to object to

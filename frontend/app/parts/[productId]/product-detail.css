@@ -259,7 +259,9 @@
   overflow-wrap: anywhere;
 }
 .pd-price-row strong {
-  font-family: var(--font-nippo), sans-serif;
+  font-family: var(--font-quicksand), sans-serif;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: normal;
   font-size: clamp(24px, 2.2vw, 30px);
   line-height: 1.2;
 }

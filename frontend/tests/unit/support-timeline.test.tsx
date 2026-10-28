@@ -14,6 +14,19 @@ const entry = {
 };
 afterEach(cleanup);
 describe("support timeline distinction", () => {
+  it("condenses customer replies while retaining author, time, body and accessible type", () => {
+    render(
+      <SupportTimelineEntry
+        compact
+        entry={{ ...entry, kind: "REPLY", body: "Thank you" }}
+      />,
+    );
+    const message = screen.getByLabelText("Reply from Allied AutoTech team");
+    expect(screen.getAllByText("Allied AutoTech team")).toHaveLength(1);
+    expect(screen.getByText("Thank you")).toBeTruthy();
+    expect(message.querySelector("time")?.dateTime).toBe(entry.createdAt);
+    expect(screen.queryByText("Message")).toBeNull();
+  });
   it("renders status transitions separately from conversational replies", () => {
     render(
       <>

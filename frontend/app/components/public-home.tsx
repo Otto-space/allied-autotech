@@ -61,7 +61,7 @@ export async function PublicHome() {
                 {
                   icon: CarFront,
                   title: "Vehicle marketplace",
-                  copy: "Explore current vehicles and arrange a closer look with our team.",
+                  copy: "View published listings or discuss your vehicle search with our team.",
                   href: "/vehicles",
                 },
               ].map((item) => (
@@ -83,7 +83,7 @@ export async function PublicHome() {
               <CampaignArtwork
                 artwork="precision-autocare"
                 alt="Allied AutoTech Precision Autocare You Can Trust campaign, with a person in a red branded uniform"
-                sizes="(max-width: 420px) calc(100vw - 40px), (max-width: 700px) 380px, (max-width: 1280px) 36vw, 490px"
+                sizes="(max-width: 380px) calc(100vw - 40px), 320px"
               />
             </div>
             <div>
@@ -147,14 +147,9 @@ export async function PublicHome() {
                   sizes="(max-width: 390px) calc(100vw - 40px), 350px"
                 />
               </div>
-              <figcaption>Built on trust. Driven by quality.</figcaption>
             </figure>
             <div>
-              <h2>
-                Built on trust.
-                <br />
-                Driven by quality.
-              </h2>
+              <h2>What you can expect from us.</h2>
               <p>
                 Our principles shape the way we care for your vehicle and the way we work
                 with you.
@@ -173,11 +168,11 @@ export async function PublicHome() {
               <div className="section-heading">
                 <h2>Your next chapter starts here.</h2>
                 <p>
-                  Current listings. Clear details. A closer look before your next move.
+                  View published listings or discuss what you need before your next move.
                 </p>
               </div>
               <Link className="button secondary" href="/vehicles">
-                Explore Vehicles <ArrowUpRight size={17} aria-hidden="true" />
+                Explore vehicles <ArrowUpRight size={17} aria-hidden="true" />
               </Link>
             </div>
             <HomeVehiclesPreview initial={vehicles} />

@@ -2160,3 +2160,30 @@ and the prior separate populated 90-table restore receipt were reviewed.
 Details and limits: frontend/docs/BRAND_ASSETS_R2_REPORT.md. Physical devices,
 actual zoom, screen reader, authenticated role acceptance and broader Item 6
 remain open. Docker resources retained; C: postflight 27.08 GiB free.
+
+
+27 October 2026 - Workshop location and public Whatsapp label release. Frontend source
+42855c0d is READY on Vercel dpl_JDtwMW41Nk8fxMDP7ak2U6WTwo5h; both apex/www
+aliases independently verified. Hosted Edge Contact at 390px showed the full
+owner-supplied address, no visible phone digits and the Whatsapp footer link.
+Frontend CI 40474302615 and secret guard 40474302279 passed; local lint/types,
+focused units and ten route/viewport checks passed.
+
+Backend source 0fd68980 on fix/workshop-contact-backend-20261027, reusing
+allied-inventory-replay-release-20261027, builds directly on current production
+3bb51d21. DigitalOcean 79d7a0ac-4e83-4b73-ae46-40af4731a604 is ACTIVE with
+all four immutable digests verified. Only those digests changed in the existing
+app spec. Backend safety CI 40474496504 and secret guard 40474496554 passed;
+28 focused units and ten packaged image/database tests passed, including a
+fresh isolated replay and separate local restore. Existing 8 managed backups
+(latest 2026-10-27T05:22:11Z), encrypted off-device retention/PITR evidence and
+the successful 26 October separate managed-target rehearsal were reviewed.
+No production migration, explicit customer-data write or message was sent.
+Historical snapshots/migrations remain intact; old approved collection-policy
+addresses remain readable. Prior frontend dpl_24sXMLFwUuX6ag8PqMTtGaVH2xPh
+and backend 71c5e9a7-bd3c-46c4-a503-cef24761837e are retained for rollback.
+
+The subsequent owner request is now in progress in the same frontend worktree:
+fixed mobile support dock, Allie scrollbar treatment, breadcrumb/anchor page
+entry and linked selection targets. This is a separate finite shared-UX cycle;
+no claim of exhaustive role/device acceptance.

@@ -165,7 +165,9 @@ export function DashboardPageSearch({ groups }: { groups: DashboardGroup[] }) {
       {term && focused && (
         <div className="dashboard-search-results">
           <p role="status">
-            {matches.length ? `${matches.length} matching pages` : "No matching pages"}
+            {matches.length
+              ? `${matches.length} matching ${matches.length === 1 ? "page" : "pages"}`
+              : "No matching pages"}
           </p>
           {matches.map((link) => (
             <Link

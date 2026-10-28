@@ -174,7 +174,22 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
     it("filters private titles, snippets, bodies, guide and scenario definitions before public search or direct reads", async () => {
       const publicResult = await read(null, "/public/learning/catalogue");
       expect(publicResult.status).toBe(200);
-      expect(ids(publicResult)).toHaveLength(5);
+      expect(ids(publicResult)).toEqual([
+        "home-next-step",
+        "parts-fitment",
+        "vehicle-enquiry",
+        "service-request",
+        "security-basics",
+        "no-live-lookup",
+      ]);
+      const home = await read(null, "/public/learning/articles/home-next-step");
+      expect(home.status).toBe(200);
+      expect(home.body.data).toMatchObject({
+        id: "home-next-step",
+        page: "home",
+        href: "/services",
+        version: 1,
+      });
       expect(publicResult.headers["cache-control"]).toContain("no-store");
       expect(publicResult.headers.vary).toContain("Cookie");
       for (const id of [
@@ -341,7 +356,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
     it("searches across fields with synonyms; unknown, draft and disabled items do not leak", async () => {
       expect(
         ids(await read(null, "/public/learning/catalogue?q=shop+compatibility")),
-      ).toEqual(["parts-fitment"]);
+      ).toEqual(["home-next-step", "parts-fitment"]);
       expect(
         ids(await read(null, "/public/learning/catalogue?q=no-such-fixture")),
       ).toEqual([]);

@@ -2040,3 +2040,100 @@ campaign image loaded. The local reused Next installation is 16.3.8 while the
 project requests 16.4.3, so locked CI and an exact-version hosted candidate
 remain required before release. The local preview's unrelated authentication
 proxy aimed at absent localhost:5000; no account or API mutation was tested.
+
+Production follow-up: exact frontend source `8fa386cba46836adfaf43d8529b985c83c47255a`
+passed locked frontend CI and the secret guard, then deployed as Vercel
+`dpl_6wmkNSL8eWDvHKKmqafU6rkb9C5k` READY. Independent apex and www
+inspection resolved to that ID; the previous `dpl_A8CLYwBc6h4tYAwNqconFJTXfQFZ`
+remains a rollback candidate. A protected exact-source preview first measured
+zero or about 0.0000056 CLS at 390px. On the live apex, three fresh 390px
+About loads each measured 0.0000056. About at 320/481/1440 and Home, Contact
+and Help at 390 returned 200, with titles/headings, no page errors or overflow.
+The About campaign artwork loaded; its Services/Contact CTAs kept valid
+destinations and the sampled 390px Axe scan reported no violations. API
+mutations were blocked and none attempted. Backend readiness remained 200;
+no backend image, schema, payment, provider or business record changed.
+This is sampled lab/browser evidence, not a field Core Web Vitals claim or
+physical-device/complete screen-reader acceptance.
+
+27 October 2026 - read-only Contact enlarged-root-text sampling. Browser plugin
+was unavailable; installed Edge/Playwright inspected live `/contact` at
+320, 390 and 1440 CSS pixels with a 200% root-font-size override. The page
+identified correctly, had a meaningful heading, no document overflow or page
+exceptions, and the form controls stayed within each viewport. At 390px the
+public branch loaded as Allied AutoTech - Port Harcourt, a synthetic reserved-
+domain draft opened the local review dialog, and its subject/message/branch were
+readable without overflow. All API mutations were blocked; Send was not clicked.
+Screenshots are retained outside the repo under `%TEMP%/aat-contact-text-200-*`.
+Aborted About/Help prefetches occurred during navigation; there were no failed
+form-data requests. This is a CSS root-size simulation, not actual browser zoom,
+mobile keyboard, screen-reader or production submission acceptance. No Contact
+defect was confirmed or code changed. Existing product/service/vehicle account-
+change source and focused rendered-test coverage were inspected, not rerun; the old
+release-blockers bullet claiming that reset was still unimplemented is superseded.
+
+27 October 2026 - visual identity audit candidate on feat/visual-identity-audit-20261027.
+All V01-V55 findings from the owner audit are retained in VISUAL_IDENTITY_AUDIT_CHECKPOINT.md.
+Initial fixes cover the overview/Care CSS collision, availability truth, reply focus,
+reference/message density, authoritative unread counts, reviewed homepage help,
+practice instructions, Privacy/numeric type, footer destinations and customer wording.
+Backend session labels have isolated pure-unit evidence; no backend release yet.
+Homepage follow-up bounds the intact campaign, compacts sparse product/review states,
+removes duplicate vehicle promotion and uses the existing black/red gradient.
+Latest full unit run 1070 passed; two additional Home behavior tests passed separately.
+Four isolated actual-component Home Edge cases passed at 360/390/768/1440; earlier
+8 booking-card cases passed, with a later browser-close timeout followed by a successful sequential 8/8 rerun.
+Full Next journeys, exact-lock CI, remaining audit findings and actual-role/device
+acceptance remain open. Candidate is not yet published. See checkpoint for precise
+evidence, dependencies, local-preview restriction and preserved unrelated work.
+
+27 October 2026 - Contact visit-preference validation, P1. The released
+`8fa386cb` source sent every visit-preference error to the date field and marked
+both date and time invalid, even when time or the message needed correction.
+Runtime `317b1678` targets and announces the actual date, time or message field,
+clears stale feedback when edited, and keeps the request subject to staff
+confirmation. Eleven focused units, six Edge Contact scenarios (including
+320/390/1440px), TypeScript, changed-file lint/format and an optimized Next
+16.4.3 build passed. The local build used a junction to matching installed
+dependencies, so standalone tracing warned about paths outside the worktree;
+the exact-source locked frontend CI `40472135463` and secret guard `40472135440`
+passed independently. Vercel `dpl_24sXMLFwUuX6ag8PqMTtGaVH2xPh` is READY on
+both apex and www. Live Edge at 390/1440px used the published Tyre Change
+service and confirmed field focus, `aria-invalid`, visible error text and zero
+API writes. API readiness returned 200. No backend, schema, provider, payment,
+customer record or business policy changed. Other authenticated journeys,
+physical devices and complete screen-reader acceptance remain open.
+
+27 October 2026 - Shared viewport and support UX, P1/P2. The owner explicitly
+requested a fixed mobile Ask Allie/Whatsapp dock, no visible Allie scrollbar,
+breadcrumb-first page entry and scrolling to linked controls/selection targets.
+The mobile rule had changed the dock to position: static. It now stays fixed
+above the safe area with reserved document space and focus clearance. Allie
+keeps a fixed header/close action and a separate scrollable body with hidden
+scrollbar styling; scrolling and keyboard access remain available.
+
+ViewportNavigation is mounted once in the shared root layout. New pathname
+entries reveal breadcrumbs (or main content when none exist); explicit hashes
+reveal their targets. Same-page hash links, linked buttons/tabs, selectors and
+checked controls reveal visible aria-controls/data-scroll-target destinations.
+Ordinary controls remain visible. Contact enquiry type, vehicle-intent radios,
+visit preferences and Allie responses identify their actual target fields.
+Keyboard focus stays clear of the header and support dock. Pointer activation
+finishes before scrolling; validation/dialog focus takes precedence, pending
+entry adjustments cancel on fresh user input, and optional learning walkthroughs
+retain their own focus. A duplicate legacy support focus handler was removed.
+
+The first fixture run rejected an invalid synthetic learning href and incomplete
+API envelopes; fixtures were corrected without weakening production validation.
+Subsequent checks caught pointer-focus scrolling cancelling a checkbox click;
+that defect was fixed and the picker/validation/review regressions passed.
+Reload acceptance checks actual hash visibility below the header, allowing native
+browser focus restoration. Browser plugin not available; existing Playwright/Edge
+was reused with intercepted synthetic API responses and no real writes. Final
+14-case browser matrix passed: 320x568, 390x844, 768x900, 844x390, 1024x900 and
+1440x900 support/modal tests with axe scans; 390/1440 page entry, repeated anchors,
+hash/reload, selection, checkbox and radio journeys; and four adjacent Contact
+validation, review/confirmation and pointer-picker regressions. No horizontal
+overflow or page errors were observed. Screenshots: %TEMP%/allied-allie-viewport-
+390.png and matching 1440.png. Native keyboard, physical devices, screen readers
+and exhaustive authenticated-role combinations remain unverified.

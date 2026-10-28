@@ -8,6 +8,7 @@ import { parseListings } from "@/lib/api/vehicle-schemas";
 import { formatKobo } from "@/lib/format/money";
 import { PublicMedia } from "./public-media";
 import { Feedback } from "./feedback";
+import { productAvailability } from "@/lib/product-availability";
 
 function PreviewLoading({ vehicles = false }: { vehicles?: boolean }) {
   return (
@@ -52,10 +53,13 @@ export function HomePartsPreview({
       )}
       {parts.loading && <p role="status">Loading products…</p>}
       {parts.loading && !parts.data && <PreviewLoading />}
-      <div className="home-product-grid">
+      <div
+        className="home-product-grid"
+        data-sparse={!!parts.data && parts.data.items.length <= 2}
+      >
         {(!parts.error ? parts.data : undefined)?.items.map((part) => {
           const media = part.images.find((item) => item.isPrimary) ?? part.images[0];
-          const inStock = part.availability.some((branch) => branch.inStock);
+          const availability = productAvailability(part.availability);
           return (
             <article className="home-product-card" key={part.id}>
               <PublicMedia
@@ -72,9 +76,7 @@ export function HomePartsPreview({
                   <Link href={`/parts/${part.id}`}>{part.name}</Link>
                 </h3>
                 <p className="home-card__price">{formatKobo(part.priceKobo)}</p>
-                <p className="home-card__stock">
-                  {inStock ? "In stock at a branch" : "Currently out of stock"}
-                </p>
+                <p className="home-card__stock">{availability.label}</p>
                 <Link
                   className="text-link home-card__link"
                   href={`/parts/${part.id}`}

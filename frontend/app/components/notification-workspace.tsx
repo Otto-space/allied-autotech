@@ -22,7 +22,9 @@ export function NotificationWorkspace({
         <div>
           <h1>Notifications</h1>
           <p>
-            Keep track of your account and work updates.
+            {role === "CUSTOMER"
+              ? "Keep track of your account, requests and service updates."
+              : "Keep track of your account and work updates."}
             {role === "CUSTOMER" && (
               <>
                 {" "}
