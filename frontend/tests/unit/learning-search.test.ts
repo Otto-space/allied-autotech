@@ -69,6 +69,7 @@ describe("one eligible learning corpus on all surfaces", () => {
   it("does not answer from missing/ineligible content or a disabled kind", () => {
     expect(assistantArticles(publicData, "How do I find a part?")[0].id).toBe("parts");
     expect(assistantArticles(publicData, "issue a refund now")).toEqual([]);
+    expect(assistantArticles(publicData, "parts quaternion rocket")).toEqual([]);
     expect(assistantArticles({ ...publicData, articles: [] }, "find part")).toEqual([]);
     const disabled: LearningCatalogue = {
       ...publicData,
@@ -77,6 +78,9 @@ describe("one eligible learning corpus on all surfaces", () => {
     expect(learningResults(disabled, "part").map((x) => x.kind)).toEqual(["answer"]);
   });
   it("preserves bounded results state and rejects arbitrary return destinations", () => {
+    expect(learningReturn(new URLSearchParams("q=part&mode=all"))).toBe(
+      "/learn?q=part&mode=all",
+    );
     expect(
       learningReturn(
         new URLSearchParams(
@@ -93,5 +97,17 @@ describe("one eligible learning corpus on all surfaces", () => {
         "https://example.com",
       ).searchParams.get("q"),
     ).toHaveLength(120);
+  });
+  it("ranks a specific task title above a broad overview mentioning the topic", () => {
+    const broad = {
+      ...publicData.articles[0],
+      id: "home",
+      title: "Choose your next step",
+      keywords: "home products",
+      summary: "Choose Shop to find parts or Services for care.",
+    };
+    const data = { ...publicData, articles: [broad, ...publicData.articles] };
+    expect(assistantArticles(data, "parts").map((a) => a.id)).toEqual(["parts", "home"]);
+    expect(assistantArticles(data, "how do I find a part?")[0].id).toBe("parts");
   });
 });

@@ -16,11 +16,16 @@ export function LearningPractice({ id }: { id: string }) {
     params.has("q") || params.has("mode")
       ? learningReturn(params)
       : "/learn?mode=practice";
-  const resource = useLearningCatalogue();
+  const contentRef = useRef<HTMLDivElement>(null);
+  const resource = useLearningCatalogue(true, contentRef);
   const scenario = resource.data?.scenarios.find((s) => s.id === id);
   return (
     <>
-      {resource.loading && <p role="status">Checking practice access…</p>}
+      {resource.loading && (
+        <p className={resource.data ? "learning-check-status" : undefined} role="status">
+          Checking practice access…
+        </p>
+      )}
       {resource.error && (
         <div role="alert">
           <p>{resource.error}</p>
@@ -30,7 +35,13 @@ export function LearningPractice({ id }: { id: string }) {
         </div>
       )}
       {resource.data && (
-        <div hidden={resource.loading} inert={resource.loading}>
+        <div
+          ref={contentRef}
+          className="learning-access-content"
+          aria-busy={resource.loading}
+          aria-hidden={resource.loading || undefined}
+          inert={resource.loading}
+        >
           {scenario ? (
             <Definition
               key={resource.data.accessKey + ":" + id + ":" + scenario.version}
@@ -113,6 +124,8 @@ export function PracticeSession({
     [replace, setReplace] = useState(false);
   const [hint, setHint] = useState(false);
   const errors = useRef<HTMLDivElement>(null),
+    feedback = useRef<HTMLDivElement>(null),
+    results = useRef<HTMLDivElement>(null),
     example = useRef<HTMLButtonElement>(null),
     confirm = useRef<HTMLDialogElement>(null);
   function execute(command: PracticeCommand) {
@@ -120,6 +133,12 @@ export function PracticeSession({
     setState(next);
     if (Object.keys(next.errors).length)
       requestAnimationFrame(() => errors.current?.focus());
+    else if (command.type === "review" || command.type === "search")
+      requestAnimationFrame(() => {
+        const target = command.type === "search" ? results.current : feedback.current;
+        target?.focus({ preventScroll: true });
+        target?.scrollIntoView({ block: "start", behavior: "instant" });
+      });
   }
   function fill() {
     execute({ type: "example", replace: true });
@@ -303,7 +322,7 @@ export function PracticeSession({
             </button>
             {state.errors.search && <p>{state.errors.search}</p>}
             {state.results && (
-              <>
+              <div ref={results} id="practice-results" tabIndex={-1} data-reading-focus>
                 <p>{state.results.length} fictional candidates</p>
                 <ul className="learning-topics">
                   {state.results.map((part) => (
@@ -317,7 +336,7 @@ export function PracticeSession({
                     </li>
                   ))}
                 </ul>
-              </>
+              </div>
             )}
             <p>
               These are teaching examples, not catalogue stock or real fitment decisions.
@@ -356,7 +375,13 @@ export function PracticeSession({
         </button>
       </form>
       {state.feedback && (
-        <div className="learning-feedback" role="status">
+        <div
+          ref={feedback}
+          tabIndex={-1}
+          data-reading-focus
+          className="learning-feedback"
+          role="status"
+        >
           <h3>{state.completed ? "Practice review complete" : "Practice feedback"}</h3>
           {state.reviewed && (
             <p>
