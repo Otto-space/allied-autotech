@@ -53,6 +53,7 @@ import {
 import {
   assertPaymentApprover,
   assertPaymentCustomer,
+  lockCurrentPaymentCustomer,
   assertPaymentOperator,
 } from "./payments.policy.js";
 import { PaymentsRepository, staffPaymentView } from "./payments.repository.js";
@@ -231,6 +232,7 @@ export class PaymentsService {
     const keyHash = hashToken("payment-intent-idempotency", `${actor.userId}:${rawKey}`);
     const fingerprint = paymentFingerprint(input);
     return withTransactionRetry(this.database, async (tx) => {
+      await lockCurrentPaymentCustomer(tx, actor);
       await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`payment:${keyHash}`}, 0))`;
       const profile = await this.repository.customerProfile(actor.userId, tx);
       if (!profile) throw paymentNotFound();
@@ -323,6 +325,7 @@ export class PaymentsService {
     );
     const reference = `AAT-${provider}-${attemptKey.slice(0, 32)}`;
     const prepared = await withTransactionRetry(this.database, async (tx) => {
+      await lockCurrentPaymentCustomer(tx, actor);
       await lockStoredTarget(tx, id);
       const payment = await this.repository.lockPayment(id, tx);
       if (!payment || payment.customerId !== profile.id) throw paymentNotFound();
@@ -427,6 +430,7 @@ export class PaymentsService {
     if (authorizationExpiresAt <= new Date())
       throw paymentConflict("The payable expired during checkout initialization");
     await withTransactionRetry(this.database, async (tx) => {
+      await lockCurrentPaymentCustomer(tx, actor);
       await tx.$queryRaw`SELECT "id" FROM "PaymentAttempt" WHERE "id" = ${prepared.existing.id}::uuid FOR UPDATE`;
       await lockStoredTarget(tx, id);
       const current = await tx.paymentAttempt.findUnique({
@@ -542,7 +546,10 @@ export class PaymentsService {
       reference,
       requestFingerprint,
     );
-    if (replay) return replay;
+    if (replay) {
+      await this.database.$transaction((tx) => lockCurrentPaymentCustomer(tx, actor));
+      return replay;
+    }
     const evidence = input.evidenceToken
       ? this.readEvidence(input.evidenceToken, actor.userId, id)
       : null;
@@ -557,6 +564,7 @@ export class PaymentsService {
     )
       throw paymentConflict("Payment evidence could not be verified");
     return withTransactionRetry(this.database, async (tx) => {
+      await lockCurrentPaymentCustomer(tx, actor);
       await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`manual-payment:${reference}`}, 0))`;
       await lockStoredTarget(tx, id);
       const payment = await this.repository.lockPayment(id, tx);

@@ -10,6 +10,7 @@ import { VehicleSalesService } from "../../src/modules/vehicle-sales/vehicle-sal
 import { VehicleSalesRepository } from "../../src/modules/vehicle-sales/vehicle-sales.repository.js";
 import { PaymentProviderRegistry } from "../../src/providers/payments/payment-provider.registry.js";
 import type { PaymentProviderPort } from "../../src/providers/payments/payment-provider.port.js";
+import { paymentTestSession } from "../helpers/payment-session.js";
 
 const context = () => ({ requestId: randomUUID(), ipAddress: null, userAgent: null });
 const manual = () => ({
@@ -37,7 +38,7 @@ async function administrator(): Promise<AuthenticatedActor> {
     userId: user.id,
     email: user.email,
     role: "ADMIN",
-    sessionId: randomUUID(),
+    sessionId: await paymentTestSession(user.id, "ADMIN"),
     mfaRequired: true,
     mfaVerifiedAt: new Date(),
   };
@@ -74,7 +75,7 @@ async function fixture(kind: PaymentCreateInput["targetType"] = "ORDER") {
     userId: user.id,
     email: user.email,
     role: "CUSTOMER",
-    sessionId: randomUUID(),
+    sessionId: await paymentTestSession(user.id),
     mfaRequired: false,
     mfaVerifiedAt: null,
   };

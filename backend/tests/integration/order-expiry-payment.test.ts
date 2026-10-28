@@ -5,6 +5,7 @@ import type { AuthenticatedActor } from "../../src/common/contracts/actor.js";
 import { OrdersService } from "../../src/modules/orders/orders.service.js";
 import { OrdersRepository } from "../../src/modules/orders/orders.repository.js";
 import { PaymentsService } from "../../src/modules/payments/payments.service.js";
+import { paymentTestSession } from "../helpers/payment-session.js";
 
 const context = () => ({ requestId: randomUUID(), ipAddress: null, userAgent: null });
 function gate() {
@@ -38,7 +39,7 @@ async function account(role: "CUSTOMER" | "ADMIN"): Promise<AuthenticatedActor> 
     userId: user.id,
     email: user.email,
     role,
-    sessionId: randomUUID(),
+    sessionId: await paymentTestSession(user.id, role),
     mfaRequired: role !== "CUSTOMER",
     mfaVerifiedAt: role === "CUSTOMER" ? null : new Date(),
   };

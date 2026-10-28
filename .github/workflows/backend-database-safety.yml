@@ -127,6 +127,13 @@ jobs:
             node:24.13.0 node node_modules/vitest/vitest.mjs run \
             tests/integration/phase8-payment-flow.test.ts \
             tests/integration/monnify-payment-flow.test.ts \
+            tests/integration/payment-attempt-exclusivity.test.ts \
+            tests/integration/manual-evidence-replay.test.ts \
+            tests/integration/payment-initialization-race.test.ts \
+            tests/integration/payment-capture-accounting.test.ts \
+            tests/integration/payment-target-concurrency.test.ts \
+            tests/integration/order-expiry-payment.test.ts \
+            tests/integration/vehicle-expiry-payment.test.ts \
             tests/unit/refund-request-session-boundary.test.ts \
             tests/unit/refund-approval-atomicity.test.ts --maxWorkers=1
       - name: Verify customer account controls and scoped Customer Care on exact loopback target
