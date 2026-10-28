@@ -10,6 +10,7 @@ for (const width of [390, 1440]) {
     await page.setViewportSize({ width, height: 936 });
     await page.emulateMedia({ reducedMotion: "reduce" });
     let role = "ANONYMOUS";
+    let makesError = false;
     const writes: string[] = [];
     const unexpected: string[] = [];
     const ok = (data: unknown) => ({
@@ -26,7 +27,12 @@ for (const width of [390, 1440]) {
           json: ok({ csrfToken: "isolated-product-audit-".repeat(3) }),
         });
       if (url.pathname.endsWith("/public/fitment/makes"))
-        return route.fulfill({ json: ok({ items: [] }) });
+        return makesError
+          ? route.fulfill({
+              status: 503,
+              json: { success: false, error: { code: "SERVICE_UNAVAILABLE" } },
+            })
+          : route.fulfill({ json: ok({ items: [] }) });
       if (url.pathname.endsWith("/auth/session"))
         return role === "ANONYMOUS"
           ? route.fulfill({
@@ -44,6 +50,10 @@ for (const width of [390, 1440]) {
           }),
         });
       }
+      // This acceptance case deliberately uses a published product. Public
+      // catalogue reads must reach the same backend as the server-rendered page.
+      if (req.method() === "GET" && url.pathname.startsWith("/api/v1/public/catalog/"))
+        return route.continue();
       if (!["GET", "HEAD", "OPTIONS"].includes(req.method())) {
         unexpected.push(url.pathname);
         return route.abort();
@@ -65,6 +75,28 @@ for (const width of [390, 1440]) {
       "A published public product is required for this SSR acceptance case",
     ).toBeTruthy();
     await page.goto(href!);
+    await expect(
+      page.getByText("Vehicle choices are not available in the parts finder yet.", {
+        exact: false,
+      }),
+    ).toBeVisible();
+    await expect(
+      page.getByText("Choose your vehicle to check approved fitment evidence.", {
+        exact: false,
+      }),
+    ).toHaveCount(0);
+    makesError = true;
+    await page.reload();
+    await expect(
+      page.getByRole("button", { name: "Retry vehicle choices" }),
+    ).toBeVisible();
+    makesError = false;
+    await page.getByRole("button", { name: "Retry vehicle choices" }).click();
+    await expect(
+      page.getByText("Vehicle choices are not available in the parts finder yet.", {
+        exact: false,
+      }),
+    ).toBeVisible();
     await expect(
       page
         .getByRole("navigation", { name: "Breadcrumb" })
