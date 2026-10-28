@@ -53,8 +53,10 @@ describe.skipIf(process.env.RUN_VISUAL_AUDIT_COMPONENTS !== "true")(
         <a class="care-next" href="#reply">Reply to this request</a><textarea id="reply" aria-label="Fixture reply"></textarea>
         </main></div></body></html>`);
             await page.evaluate(() => document.fonts.ready);
-            const card = page.locator(".customer-care-next");
-            const heading = card.getByRole("heading", { name: "Next booking" });
+            const card = page.locator(empty ? ".care-empty" : ".customer-care-next");
+            const heading = card.getByRole("heading", {
+              name: empty ? "No service in progress" : "Next booking",
+            });
             await expect(heading).toBeVisible();
             await expect(heading).toHaveCSS("color", "rgb(8, 12, 15)");
             await expect(card).toHaveCSS("background-color", "rgb(255, 255, 255)");
@@ -63,7 +65,9 @@ describe.skipIf(process.env.RUN_VISUAL_AUDIT_COMPONENTS !== "true")(
               "rgb(255, 255, 255)",
             );
             await expect(card).toContainText(
-              empty ? "No upcoming requested or confirmed booking." : "Routine service",
+              empty
+                ? "Your bookings and updates will appear here when recorded."
+                : "Routine service",
             );
             expect(
               await page.evaluate(

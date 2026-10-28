@@ -62,8 +62,9 @@
 }
 .care-primary-grid {
   display: grid;
-  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 330px), 1fr));
   gap: 20px;
+  align-items: start;
 }
 .care-service-column {
   min-width: 0;
@@ -72,6 +73,8 @@
   align-content: start;
 }
 .care-service,
+.care-empty,
+.care-vehicle-summary,
 .care-review,
 .customer-care-next,
 .customer-care-secondary {
@@ -165,6 +168,18 @@
 .care-service .care-link {
   color: white;
 }
+.care-vehicle-summary .care-vehicle {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: 0;
+  border-top-color: var(--line);
+}
+.care-vehicle-summary .care-vehicle span {
+  color: #435563;
+}
+.customer-overview .care-vehicle-summary h2 {
+  color: var(--ink);
+}
 .care-timeline {
   list-style: none;
   margin: 20px 0 12px;
@@ -233,7 +248,7 @@
 .customer-care-secondary {
   margin-top: 20px;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
   gap: 24px;
 }
 .customer-care-secondary section {
@@ -251,6 +266,7 @@
   gap: 12px 28px;
   border-top: 1px solid #dce3e9;
   padding-top: 12px;
+  margin-top: 16px;
 }
 .customer-activity-heading {
   border-top: 1px solid #cbd5df;
@@ -353,6 +369,8 @@
     font-size: 27px;
   }
   .care-service,
+  .care-empty,
+  .care-vehicle-summary,
   .care-review,
   .customer-care-next,
   .customer-care-secondary {
