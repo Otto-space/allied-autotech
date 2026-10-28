@@ -80,6 +80,62 @@ jobs:
           TEST_DB_NAME: allied_autotech_schema_ci
           RUN_DATABASE_TESTS: "true"
         run: npx --no-install vitest run tests/integration/vehicle-requirements-enquiry.test.ts tests/integration/product-families.test.ts tests/integration/product-options.test.ts tests/integration/catalogue-search-r2.test.ts tests/integration/product-discovery.test.ts tests/integration/vehicle-discovery.test.ts tests/unit/vehicle-enquiry-intent.test.ts tests/unit/product-family-contract.test.ts --maxWorkers=2
+      - name: Verify current-session manual payment review and concurrent decisions
+        run: |
+          docker run --rm --network "container:${{ job.services.postgres.id }}" \
+            --mount "type=bind,source=$PWD,target=/workspace" --workdir /workspace \
+            -e NODE_ENV=test -e DEPLOYMENT_ENV=local -e DB_HOST=127.0.0.1 -e DB_PORT=5432 \
+            -e DB_NAME=allied_autotech_schema_ci -e TEST_DB_NAME=allied_autotech_schema_ci \
+            -e DB_USER=postgres -e DB_PASSWORD=isolated-ci-only-password -e DB_SSL_MODE=disable \
+            -e CONFIRM_EMPTY_MIGRATION_DATABASE=true -e RUN_DATABASE_TESTS=true \
+            -e EMAIL_DELIVERY_ENABLED=false -e SMS_DELIVERY_ENABLED=false \
+            node:24.13.0 node node_modules/vitest/vitest.mjs run \
+            tests/integration/manual-review-concurrency.test.ts \
+            tests/unit/manual-payment-session-boundary.test.ts --maxWorkers=1
+      - name: Verify manual refund approval and processing on isolated PostgreSQL
+        run: |
+          docker run --rm --network "container:${{ job.services.postgres.id }}" \
+            --mount "type=bind,source=$PWD,target=/workspace" --workdir /workspace \
+            -e NODE_ENV=test -e DEPLOYMENT_ENV=local -e DB_HOST=127.0.0.1 -e DB_PORT=5432 \
+            -e DB_NAME=allied_autotech_schema_ci -e TEST_DB_NAME=allied_autotech_schema_ci \
+            -e DB_USER=postgres -e DB_PASSWORD=isolated-ci-only-password -e DB_SSL_MODE=disable \
+            -e CONFIRM_EMPTY_MIGRATION_DATABASE=true -e RUN_DATABASE_TESTS=true \
+            -e EMAIL_DELIVERY_ENABLED=false -e SMS_DELIVERY_ENABLED=false \
+            node:24.13.0 node node_modules/vitest/vitest.mjs run \
+            tests/integration/refund-processing.test.ts \
+            tests/integration/dispute-workflow.test.ts --maxWorkers=1
+      - name: Verify reconciliation queue, backfill and retries on isolated PostgreSQL
+        run: |
+          docker run --rm --network "container:${{ job.services.postgres.id }}" \
+            --mount "type=bind,source=$PWD,target=/workspace" --workdir /workspace \
+            -e NODE_ENV=test -e DEPLOYMENT_ENV=local -e DB_HOST=127.0.0.1 -e DB_PORT=5432 \
+            -e DB_NAME=allied_autotech_schema_ci -e TEST_DB_NAME=allied_autotech_schema_ci \
+            -e DB_USER=postgres -e DB_PASSWORD=isolated-ci-only-password -e DB_SSL_MODE=disable \
+            -e CONFIRM_EMPTY_MIGRATION_DATABASE=true -e RUN_DATABASE_TESTS=true \
+            -e EMAIL_DELIVERY_ENABLED=false -e SMS_DELIVERY_ENABLED=false \
+            node:24.13.0 node node_modules/vitest/vitest.mjs run \
+            tests/integration/payment-reconciliation.test.ts --maxWorkers=1
+      - name: Verify current-session refund requests and approvals
+        run: |
+          docker run --rm --network "container:${{ job.services.postgres.id }}" \
+            --mount "type=bind,source=$PWD,target=/workspace" --workdir /workspace \
+            -e NODE_ENV=test -e DEPLOYMENT_ENV=local -e DB_HOST=127.0.0.1 -e DB_PORT=5432 \
+            -e DB_NAME=allied_autotech_schema_ci -e TEST_DB_NAME=allied_autotech_schema_ci \
+            -e DB_USER=postgres -e DB_PASSWORD=isolated-ci-only-password -e DB_SSL_MODE=disable \
+            -e CONFIRM_EMPTY_MIGRATION_DATABASE=true -e RUN_DATABASE_TESTS=true \
+            -e EMAIL_DELIVERY_ENABLED=false -e SMS_DELIVERY_ENABLED=false \
+            node:24.13.0 node node_modules/vitest/vitest.mjs run \
+            tests/integration/phase8-payment-flow.test.ts \
+            tests/integration/monnify-payment-flow.test.ts \
+            tests/integration/payment-attempt-exclusivity.test.ts \
+            tests/integration/manual-evidence-replay.test.ts \
+            tests/integration/payment-initialization-race.test.ts \
+            tests/integration/payment-capture-accounting.test.ts \
+            tests/integration/payment-target-concurrency.test.ts \
+            tests/integration/order-expiry-payment.test.ts \
+            tests/integration/vehicle-expiry-payment.test.ts \
+            tests/unit/refund-request-session-boundary.test.ts \
+            tests/unit/refund-approval-atomicity.test.ts --maxWorkers=1
       - name: Verify customer account controls and scoped Customer Care on exact loopback target
         # Share the disposable service's network namespace. The exact-target helper
         # then verifies PostgreSQL's actual loopback host/port, without trusting a

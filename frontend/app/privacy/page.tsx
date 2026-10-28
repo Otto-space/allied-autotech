@@ -56,6 +56,9 @@ export default function PrivacyPage() {
               <a href="#privacy-recipients">Who receives information</a>
             </li>
             <li>
+              <a href="#privacy-ai">Optional AI help and Customer Care</a>
+            </li>
+            <li>
               <a href="#privacy-browser">Links, cookies and your browser</a>
             </li>
             <li>
@@ -131,6 +134,35 @@ export default function PrivacyPage() {
           part of our safeguards. Contact us for information about the arrangements
           relevant to your information; we do not promise that all processing stays in
           Nigeria or London.
+        </p>
+        <h2 id="privacy-ai">Optional AI help</h2>
+        <p>
+          If conversational Allie is available and you choose to use it, your typed help
+          questions, eligible reviewed website instructions and recent help context are
+          processed by OpenAI. We do not include private records, support threads, uploads
+          or form contents. Do not type personal records, passwords, codes or banking
+          details; automatic secret screening can miss sensitive text. Allie can make
+          mistakes and cannot change your records or send a message for you. Reviewed help
+          remains available without AI.
+        </p>
+        <p>
+          Active conversation data and temporary turn receipts are encrypted on our server
+          and expire after 15 minutes without a completed answer or one hour overall,
+          possibly sooner with your session. Up to six recent turns are used as context.
+          Clear removes active server history; expired payload cleanup depends on our
+          retention worker, and backups follow their own policy. We request no stored
+          provider response, but OpenAI&apos;s abuse-monitoring rules may still apply.
+          Clearing local help does not promise provider deletion. Conversations are not
+          saved in browser storage. Choosing a contact link does not submit your question
+          or conversation to Customer Care.
+        </p>
+        <p>
+          Signed-in customers can separately review and send a Customer Care message. Only
+          the summary and optional help excerpts you select on that review are attached.
+          An encrypted temporary review can be recovered for up to 15 minutes in the same
+          account session; it is separate from a submitted support record. Cancelling a
+          review does not remove a message already saved. The browser keeps only a
+          recovery reference, not the message or help excerpts.
         </p>
         <h2 id="privacy-browser">Links, cookies and your browser</h2>
         <p>

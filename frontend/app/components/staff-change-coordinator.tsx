@@ -13,6 +13,7 @@ import {
   parseCapabilityGrants,
 } from "@/lib/api/capability-schemas";
 import { parseWorkforceAccount } from "@/lib/api/workforce-schemas";
+import { announceWorkforceRefresh } from "@/lib/workforce-invalidation";
 import { staffRevision, type StaffMember } from "@/lib/api/staff-admin-schemas";
 import { parseStaffDirectory } from "@/lib/admin/work-staff-directory";
 import {
@@ -310,6 +311,7 @@ export function StaffChangeCoordinator({
             refresh();
           }}
           onSuccess={() => {
+            announceWorkforceRefresh();
             callbacks.success?.();
             setMessage("Access change recorded. Current details are being refreshed.");
             requestAnimationFrame(() => success.current?.focus());

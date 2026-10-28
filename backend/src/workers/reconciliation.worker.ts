@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { prisma } from "../config/database.js";
 import type {
   PaymentAttempt,
@@ -12,6 +13,7 @@ import {
 } from "../providers/payments/payment-provider.registry.js";
 
 const batchSize = 250;
+const reconciliationLeaseMs = 10 * 60_000;
 
 function receivedAmount(attempt: PaymentAttempt): bigint | null {
   if (attempt.status !== "SUCCESSFUL") return 0n;
@@ -35,7 +37,7 @@ function compare(
 } {
   if (remote.reference !== attempt.internalReference)
     return {
-      status: "MISSING_IN_PROVIDER",
+      status: "STATUS_MISMATCH",
       providerAmountKobo: null,
       note: "Provider returned a different reference; excluded from NGN totals",
     };
@@ -107,6 +109,7 @@ export class PaymentReconciliationWorker {
     periodStart: Date,
     periodEnd: Date,
     provider: OnlinePaymentProvider = "PAYSTACK",
+    reobserveCompleted = false,
   ) {
     if (
       !Number.isFinite(periodStart.getTime()) ||
@@ -114,9 +117,60 @@ export class PaymentReconciliationWorker {
       periodStart >= periodEnd
     )
       throw new Error("Invalid reconciliation period");
-    const run = await this.database.paymentReconciliationRun.create({
-      data: { provider, periodStart, periodEnd },
+    let previous = await this.database.paymentReconciliationRun.findFirst({
+      where: { provider, periodStart, periodEnd },
+      orderBy: { attemptNumber: "desc" },
     });
+    if (previous?.status === "RUNNING") {
+      const now = new Date();
+      if (!previous.leaseToken || !previous.leaseUntil || previous.leaseUntil >= now)
+        throw new Error("Reconciliation period already running");
+      const released = await this.database.paymentReconciliationRun.updateMany({
+        where: {
+          id: previous.id,
+          status: "RUNNING",
+          leaseToken: previous.leaseToken,
+          leaseUntil: { lt: now },
+        },
+        data: {
+          status: "FAILED",
+          completedAt: now,
+          failureMessage: "Reconciliation ownership expired before completion",
+          leaseToken: null,
+          leaseUntil: null,
+        },
+      });
+      if (released.count !== 1)
+        throw new Error("Reconciliation period ownership changed");
+      previous = { ...previous, status: "FAILED" };
+    }
+    if (
+      !reobserveCompleted &&
+      (previous?.status === "MATCHED" || previous?.status === "DIFFERENCES_FOUND")
+    )
+      return previous;
+    const leaseToken = randomUUID();
+    const run = await this.database.paymentReconciliationRun.create({
+      data: {
+        provider,
+        periodStart,
+        periodEnd,
+        attemptNumber: (previous?.attemptNumber ?? 0) + 1,
+        leaseToken,
+        leaseUntil: new Date(Date.now() + reconciliationLeaseMs),
+      },
+    });
+    const renewLease = async () => {
+      await this.database.paymentReconciliationRun.update({
+        where: {
+          id: run.id,
+          status: "RUNNING",
+          leaseToken,
+          leaseUntil: { gt: new Date() },
+        },
+        data: { leaseUntil: new Date(Date.now() + reconciliationLeaseMs) },
+      });
+    };
     try {
       let matchedCount = 0;
       let differenceCount = 0;
@@ -145,27 +199,20 @@ export class PaymentReconciliationWorker {
         });
         if (attempts.length === 0) break;
         for (const attempt of attempts) {
+          await renewLease();
           const internalAmountKobo = receivedAmount(attempt);
-          let remote: VerifiedPayment | undefined;
+          let remote: VerifiedPayment;
           try {
             remote = await this.providers.get(provider).verify(attempt.internalReference);
           } catch {
-            // Only provider failures become unavailable observations. Database
-            // errors must fail the run, never manufacture a provider mismatch.
+            // An unavailable provider is not evidence that a receipt is absent.
+            // Leave this run incomplete so a later attempt can verify it again.
+            throw new Error(
+              "Provider verification unavailable; reconciliation will retry",
+            );
           }
-          let result =
-            remote === undefined
-              ? {
-                  status: "MISSING_IN_PROVIDER" as const,
-                  providerAmountKobo: null,
-                  note: "Provider verification was unavailable or did not return this reference",
-                }
-              : compare(attempt, remote, internalAmountKobo);
-          if (
-            remote !== undefined &&
-            result.providerAmountKobo !== null &&
-            result.providerAmountKobo > 0n
-          ) {
+          let result = compare(attempt, remote, internalAmountKobo);
+          if (result.providerAmountKobo !== null && result.providerAmountKobo > 0n) {
             const [confirmedElsewhere, alreadyCounted] = await Promise.all([
               this.database.paymentAttempt.findFirst({
                 where: {
@@ -192,15 +239,28 @@ export class PaymentReconciliationWorker {
                 note: "Provider receipt belongs to another confirmed attempt or was already counted in this run; excluded from NGN totals",
               };
           }
-          await this.database.paymentReconciliationItem.create({
-            data: {
-              runId: run.id,
-              paymentAttemptId: attempt.id,
-              ...result,
-              providerReference: attempt.providerReference,
-              providerGatewayTransactionId: remote?.gatewayTransactionId ?? null,
-              internalAmountKobo,
-            },
+          await this.database.$transaction(async (transaction) => {
+            // Hold the run row through the insert. A replacement cannot claim an
+            // expired lease between our ownership check and the observation write.
+            await transaction.paymentReconciliationRun.update({
+              where: {
+                id: run.id,
+                status: "RUNNING",
+                leaseToken,
+                leaseUntil: { gt: new Date() },
+              },
+              data: { leaseUntil: new Date(Date.now() + reconciliationLeaseMs) },
+            });
+            await transaction.paymentReconciliationItem.create({
+              data: {
+                runId: run.id,
+                paymentAttemptId: attempt.id,
+                ...result,
+                providerReference: attempt.providerReference,
+                providerGatewayTransactionId: remote.gatewayTransactionId,
+                internalAmountKobo,
+              },
+            });
           });
           internalTotalKobo += internalAmountKobo ?? 0n;
           providerTotalKobo += result.providerAmountKobo ?? 0n;
@@ -210,34 +270,177 @@ export class PaymentReconciliationWorker {
         const last = attempts[attempts.length - 1]!;
         after = { initiatedAt: last.initiatedAt, id: last.id };
       }
-      return await this.database.paymentReconciliationRun.update({
-        where: { id: run.id },
-        data: {
-          status: differenceCount === 0 ? "MATCHED" : "DIFFERENCES_FOUND",
-          matchedCount,
-          differenceCount,
-          providerTotalKobo,
-          internalTotalKobo,
-          completedAt: new Date(),
+      await renewLease();
+      return await this.database.$transaction(
+        async (transaction) => {
+          const completed = await transaction.paymentReconciliationRun.update({
+            where: {
+              id: run.id,
+              status: "RUNNING",
+              leaseToken,
+              leaseUntil: { gt: new Date() },
+            },
+            data: {
+              status: differenceCount === 0 ? "MATCHED" : "DIFFERENCES_FOUND",
+              matchedCount,
+              differenceCount,
+              providerTotalKobo,
+              internalTotalKobo,
+              completedAt: new Date(),
+              leaseToken: null,
+              leaseUntil: null,
+            },
+          });
+          // Publish scheduling state only if the completed evidence commits. Lock
+          // attempts in a stable order so a concurrent status change cannot
+          // overwrite the decision with a stale local state.
+          await transaction.$executeRaw`
+            WITH locked_attempts AS MATERIALIZED (
+              SELECT a."id", a."provider", a."initiatedAt", a."status"
+              FROM "PaymentAttempt" AS a
+              WHERE EXISTS (
+                SELECT 1 FROM "PaymentReconciliationItem" AS i
+                WHERE i."runId" = ${run.id}::uuid
+                  AND i."paymentAttemptId" = a."id"
+              )
+              ORDER BY a."id"
+              FOR UPDATE OF a
+            ), newest AS (
+              SELECT DISTINCT ON (i."paymentAttemptId")
+                a."id" AS "paymentAttemptId", a."provider", a."initiatedAt",
+                a."status" AS "attemptStatus", i."status" AS "itemStatus",
+                i."createdAt" AS "itemCreatedAt", i."id" AS "itemId",
+                r."completedAt", r."startedAt", r."attemptNumber"
+              FROM locked_attempts AS a
+              JOIN "PaymentReconciliationItem" AS i ON i."paymentAttemptId" = a."id"
+              JOIN "PaymentReconciliationRun" AS r ON r."id" = i."runId"
+              WHERE i."runId" = ${run.id}::uuid
+              ORDER BY i."paymentAttemptId", i."createdAt" DESC, i."id" DESC
+            )
+            INSERT INTO "PaymentReconciliationDue" AS due (
+              "paymentAttemptId", "provider", "initiatedAt", "nextDueAt",
+              "latestItemStatus", "latestCompletedAt", "latestItemCreatedAt",
+              "latestRunStartedAt", "latestRunAttemptNumber", "latestItemId"
+            )
+            SELECT "paymentAttemptId", "provider", "initiatedAt",
+              CASE WHEN "itemStatus" = 'MATCHED'
+                AND "attemptStatus" NOT IN ('INITIALIZED', 'PENDING', 'PROCESSING')
+                THEN NULL ELSE "completedAt" END,
+              "itemStatus", "completedAt", "itemCreatedAt", "startedAt",
+              "attemptNumber", "itemId"
+            FROM newest
+            WHERE TRUE
+            ON CONFLICT ("paymentAttemptId") DO UPDATE SET
+              "provider" = EXCLUDED."provider",
+              "initiatedAt" = EXCLUDED."initiatedAt",
+              "nextDueAt" = EXCLUDED."nextDueAt",
+              "latestItemStatus" = EXCLUDED."latestItemStatus",
+              "latestCompletedAt" = EXCLUDED."latestCompletedAt",
+              "latestItemCreatedAt" = EXCLUDED."latestItemCreatedAt",
+              "latestRunStartedAt" = EXCLUDED."latestRunStartedAt",
+              "latestRunAttemptNumber" = EXCLUDED."latestRunAttemptNumber",
+              "latestItemId" = EXCLUDED."latestItemId"
+            WHERE due."latestItemId" IS NULL OR
+              (EXCLUDED."latestItemCreatedAt", EXCLUDED."latestRunStartedAt",
+                EXCLUDED."latestRunAttemptNumber", EXCLUDED."latestItemId") >
+              (due."latestItemCreatedAt", due."latestRunStartedAt",
+                due."latestRunAttemptNumber", due."latestItemId")
+          `;
+          return completed;
         },
-      });
+        { timeout: 5 * 60_000 },
+      );
     } catch (error) {
-      await this.database.paymentReconciliationRun.update({
-        where: { id: run.id },
+      await this.database.paymentReconciliationRun.updateMany({
+        where: { id: run.id, status: "RUNNING", leaseToken },
         data: {
           status: "FAILED",
           completedAt: new Date(),
           failureMessage: "Reconciliation did not complete",
+          leaseToken: null,
+          leaseUntil: null,
         },
       });
       throw error;
     }
   }
 
-  async runConfigured(periodStart: Date, periodEnd: Date) {
+  /** Process one closed window containing an unobserved or still-open attempt. */
+  async runNextDueForProvider(
+    provider: OnlinePaymentProvider,
+    intervalMs: number,
+    now = new Date(),
+  ) {
+    if (
+      !Number.isSafeInteger(intervalMs) ||
+      intervalMs <= 0 ||
+      !Number.isFinite(now.getTime())
+    )
+      throw new Error("Invalid reconciliation schedule");
+    const dueBefore = new Date(now.getTime() - intervalMs);
+    const [uncovered] = await this.database.$queryRaw<Array<{ initiatedAt: Date }>>`
+      SELECT "initiatedAt"
+      FROM "PaymentReconciliationDue"
+      WHERE "provider" = CAST(${provider} AS "PaymentProvider")
+        AND "initiatedAt" <= ${dueBefore}
+        AND "nextDueAt" <= ${dueBefore}
+      ORDER BY "initiatedAt", "paymentAttemptId"
+      LIMIT 1
+    `;
+    if (!uncovered) return null;
+    const running = await this.database.paymentReconciliationRun.findFirst({
+      where: {
+        provider,
+        periodStart: { lte: uncovered.initiatedAt },
+        periodEnd: { gt: uncovered.initiatedAt },
+        status: "RUNNING",
+      },
+      orderBy: { startedAt: "desc" },
+      select: { periodStart: true, periodEnd: true },
+    });
+    if (running) return this.run(running.periodStart, running.periodEnd, provider);
+    const covering = await this.database.paymentReconciliationRun.findFirst({
+      where: {
+        provider,
+        periodStart: { lte: uncovered.initiatedAt },
+        periodEnd: { gt: uncovered.initiatedAt },
+        status: { in: ["MATCHED", "DIFFERENCES_FOUND"] },
+      },
+      orderBy: { startedAt: "desc" },
+      select: { periodStart: true, periodEnd: true },
+    });
+    const failed = await this.database.paymentReconciliationRun.findFirst({
+      where: {
+        provider,
+        status: "FAILED",
+        periodStart: { lte: uncovered.initiatedAt },
+        periodEnd: { gt: uncovered.initiatedAt },
+      },
+      orderBy: [{ periodStart: "asc" }, { attemptNumber: "desc" }],
+    });
+    const periodStart =
+      covering?.periodStart ?? failed?.periodStart ?? uncovered.initiatedAt;
+    const periodEnd =
+      covering?.periodEnd ??
+      failed?.periodEnd ??
+      new Date(periodStart.getTime() + intervalMs);
+    return this.run(periodStart, periodEnd, provider, covering !== null);
+  }
+
+  async runNextDue(intervalMs: number, now = new Date()) {
     const results = [];
-    for (const provider of this.providers.enabledProviders())
-      results.push(await this.run(periodStart, periodEnd, provider));
+    const failures: Error[] = [];
+    for (const provider of this.providers.enabledProviders()) {
+      try {
+        results.push(await this.runNextDueForProvider(provider, intervalMs, now));
+      } catch (error) {
+        failures.push(
+          error instanceof Error ? error : new Error("Reconciliation provider failed"),
+        );
+      }
+    }
+    if (failures.length > 0)
+      throw new AggregateError(failures, "Payment reconciliation incomplete");
     return results;
   }
 }

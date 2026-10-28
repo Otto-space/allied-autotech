@@ -1,4 +1,5 @@
 import { SupportCustomerEmailWorker } from "./support-customer-email.worker.js";
+import { purgeExpiredAllieState } from "../modules/learning/allie.retention.js";
 import { PushWorker } from "./push.worker.js";
 import { OperationalAlertsWorker } from "./operational-alerts.worker.js";
 import { DepartmentEmailWorker } from "./department-email.worker.js";
@@ -82,7 +83,7 @@ export async function runGeneralWorker(): Promise<void> {
   process.once("SIGINT", stopOnce);
   process.once("SIGTERM", stopOnce);
   let nextExpirationAt = 0;
-  let nextReconciliationAt = Date.now() + env.RECONCILIATION_INTERVAL_MS;
+  let nextReconciliationAt = 0;
 
   await prisma.$connect();
   await assertDatabaseSchemaCompatible(prisma);
@@ -113,20 +114,21 @@ export async function runGeneralWorker(): Promise<void> {
       await safely("refunds", () => refunds.runOnce(env.WORKER_BATCH_SIZE));
       const now = Date.now();
       if (now >= nextExpirationAt) {
+        await safely("assistant-retention", () =>
+          purgeExpiredAllieState(Math.min(env.WORKER_BATCH_SIZE, 500)),
+        );
         await safely("media-cleanup", () => mediaCleanup.runOnce(env.WORKER_BATCH_SIZE));
         await safely("expiration", () => expiration.runOnce(env.WORKER_BATCH_SIZE));
         await safely("operational-alerts", () => operationalAlerts.runOnce());
         nextExpirationAt = now + env.EXPIRATION_INTERVAL_MS;
       }
       if (env.PAYMENT_RECONCILIATION_ENABLED && now >= nextReconciliationAt) {
-        const periodEnd = new Date();
-        const periodStart = new Date(
-          periodEnd.getTime() - env.RECONCILIATION_INTERVAL_MS,
-        );
         await safely("payment-reconciliation", () =>
-          reconciliation.runConfigured(periodStart, periodEnd),
+          reconciliation.runNextDue(env.RECONCILIATION_INTERVAL_MS),
         );
-        nextReconciliationAt = now + env.RECONCILIATION_INTERVAL_MS;
+        // Revisit a bounded backlog promptly; a restart cannot move the cursor
+        // past an unobserved attempt or an incomplete run.
+        nextReconciliationAt = Date.now() + 60_000;
       }
       await wait(env.WORKER_POLL_INTERVAL_MS, stop.signal);
     }

@@ -10,6 +10,7 @@ import {
   publicLearningAccess,
 } from "./learning.service.js";
 import { learningParams, learningQuery } from "./learning.schemas.js";
+import { createAllieRouter } from "./allie.routes.js";
 export function createLearningRouter() {
   const router = Router();
   for (const prefix of ["/public/learning", "/learning"]) {
@@ -42,5 +43,6 @@ export function createLearningRouter() {
       );
     }
   }
+  router.use(createAllieRouter());
   return router;
 }

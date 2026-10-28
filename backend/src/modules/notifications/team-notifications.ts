@@ -69,6 +69,7 @@ export async function notifySupportTeam(
               (!user.staffProfile || user.staffProfile.id !== record.assignedStaffId)
             )
               return false;
+            if (assignmentAllows(a, "CARE_CASE_VIEW")) return true;
             if (input.kind === "COMPLAINT") return assignmentAllows(a, "COMPLAINTS");
             return (
               assignmentAllows(a, "CUSTOMER_ENQUIRIES") ||

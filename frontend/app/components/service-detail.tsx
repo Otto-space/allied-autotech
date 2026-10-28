@@ -56,6 +56,15 @@ type BookingReview = {
 };
 const parseBranches = (value: unknown) =>
   z.object({ items: z.array(branchRef), nextCursor: z.string().optional() }).parse(value);
+function focus(element: HTMLElement | null) {
+  element?.focus({ preventScroll: true });
+  element?.scrollIntoView({
+    block: "center",
+    behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      ? "instant"
+      : "smooth",
+  });
+}
 export function ServiceDetail({
   serviceId,
   initialService,
@@ -133,10 +142,11 @@ export function ServiceDetail({
     parseBookingPolicy,
   );
   const branchPages = useCursorPage();
+  const branchCursor = branchPages.cursor
+    ? "&cursor=" + encodeURIComponent(branchPages.cursor)
+    : "";
   const branches = useResource(
-    bookable
-      ? `/public/branches?limit=20${branchPages.cursor ? `&cursor=${branchPages.cursor}` : ""}`
-      : null,
+    bookable ? `/public/branches?limit=20${branchCursor}` : null,
     parseBranches,
   );
   const [branchName, setBranchName] = useState("");
@@ -210,15 +220,6 @@ export function ServiceDetail({
     (item) =>
       item.id === slot && item.branchId === branch && item.serviceId === serviceId,
   );
-  function focus(element: HTMLElement | null) {
-    element?.focus({ preventScroll: true });
-    element?.scrollIntoView({
-      block: "center",
-      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
-        ? "instant"
-        : "smooth",
-    });
-  }
   useEffect(() => {
     if (booking) focus(confirmation.current);
   }, [booking]);
@@ -387,6 +388,17 @@ export function ServiceDetail({
   }
 
   const locked = busy || uncertain;
+  let formTitle = "Tell us what you need.";
+  if (fixed) {
+    if (booking) formTitle = "Your booking request";
+    else if (review) formTitle = "Review your booking request";
+    else formTitle = "Choose an available appointment.";
+  }
+  let priceText = "Quotation required";
+  if (listedFixed && current) {
+    if (current.priceKobo !== null) priceText = formatKobo(current.priceKobo);
+    else priceText = "Contact us for pricing";
+  }
   return (
     <>
       <SiteHeader />
@@ -428,9 +440,7 @@ export function ServiceDetail({
             </div>
           )}
           {!current && service.loading && (
-            <p role="status" className="sd-recovery">
-              Loading service details…
-            </p>
+            <output className="sd-recovery">Loading service details…</output>
           )}
         </div>
         {current && (
@@ -448,13 +458,7 @@ export function ServiceDetail({
                   )}
                   <div className="sd-facts">
                     <div>
-                      <p className="sd-price">
-                        {listedFixed && current.priceKobo !== null
-                          ? formatKobo(current.priceKobo)
-                          : listedFixed
-                            ? "Contact us for pricing"
-                            : "Quotation required"}
-                      </p>
+                      <p className="sd-price">{priceText}</p>
                       {listedFixed && current.priceKobo !== null && (
                         <p className="sd-price-label">Fixed price</p>
                       )}
@@ -571,7 +575,9 @@ export function ServiceDetail({
                 {bookable && (access === "customer" || access === "anonymous") && (
                   <ol className="sd-booking-progress" aria-label="Booking progress">
                     {["Details", "Review", "Received"].map((label, index) => {
-                      const step = booking ? 2 : review ? 1 : 0;
+                      let step = 0;
+                      if (review) step = 1;
+                      if (booking) step = 2;
                       return (
                         <li
                           key={label}
@@ -592,13 +598,7 @@ export function ServiceDetail({
                   tabIndex={-1}
                   className={booking ? "sr-only" : "sd-form-title"}
                 >
-                  {fixed
-                    ? booking
-                      ? "Your booking request"
-                      : review
-                        ? "Review your booking request"
-                        : "Choose an available appointment."
-                    : "Tell us what you need."}
+                  {formTitle}
                 </h2>
                 {!fixed ? (
                   <>

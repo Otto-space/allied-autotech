@@ -6,6 +6,7 @@ import type { AuthenticatedActor } from "../../src/common/contracts/actor.js";
 import { issuePaymentEvidenceTicket } from "../../src/common/security/payment-evidence-tickets.js";
 import { PaymentsService } from "../../src/modules/payments/payments.service.js";
 import type { ObjectStoragePort } from "../../src/providers/storage/object-storage.port.js";
+import { paymentTestSession } from "../helpers/payment-session.js";
 
 const context = () => ({ requestId: randomUUID(), ipAddress: null, userAgent: null });
 async function customer(): Promise<AuthenticatedActor> {
@@ -23,7 +24,7 @@ async function customer(): Promise<AuthenticatedActor> {
     userId: user.id,
     email: user.email,
     role: "CUSTOMER",
-    sessionId: randomUUID(),
+    sessionId: await paymentTestSession(user.id),
     mfaRequired: false,
     mfaVerifiedAt: null,
   };

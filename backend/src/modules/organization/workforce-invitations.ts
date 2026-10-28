@@ -9,7 +9,15 @@ export async function assertWorkforceInvitationDelegation(
   inviterId: string,
   recipientId: string,
 ) {
-  const envelope = await tx.workforceAccess.findUnique({ where: { userId: inviterId } });
+  const inviter = await tx.user.findUnique({
+    where: { id: inviterId },
+    select: { role: true, workforceAccess: true },
+  });
+  if (!inviter) workforceDenied();
+  // A business-position record cannot narrow the established protected-owner
+  // invitation baseline. The caller still enforces current owner/tier/MFA/proof.
+  if (inviter.role === "SUPER_ADMIN") return;
+  const envelope = inviter.workforceAccess;
   if (!envelope) return;
   const recipient = await tx.user.findUnique({
     where: { id: recipientId },

@@ -4,8 +4,11 @@ import { workforceNotificationsFixture } from "./workforce-notifications";
 export const complaintFixtureId = (n: number) =>
   `bc000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
 
-export async function workforceComplaintsFixture(page: Page) {
-  const base = await workforceNotificationsFixture(page, "CUSTOMER_SERVICE");
+export async function workforceComplaintsFixture(
+  page: Page,
+  role: "STAFF" | "ADMIN" = "STAFF",
+) {
+  const base = await workforceNotificationsFixture(page, "CUSTOMER_SERVICE", role);
   const branchId = base.access.assignments[0].branchId;
   const items = [
     {

@@ -236,14 +236,10 @@ test("delegated administrator loses open directory and copied detail route when 
   await expect(page.getByLabel("Account role", { exact: true })).toHaveCount(0);
   s.state.mode = "revoked";
   await page.evaluate(() => document.dispatchEvent(new Event("visibilitychange")));
-  await expect(
-    page.getByRole("heading", { name: "Access unavailable", exact: true }),
-  ).toBeVisible();
+  await expect(page).toHaveURL(/\/admin\?workAccess=updated$/);
   await expect(page.getByText("Ada Okoro", { exact: true })).toHaveCount(0);
   await page.goto(`${base}/${s.f.member.id}`);
-  await expect(
-    page.getByRole("heading", { name: "Access unavailable", exact: true }),
-  ).toBeVisible();
+  await expect(page).toHaveURL(/\/admin\?workAccess=updated$/);
   await expect(
     page.getByRole("heading", {
       name: "Responsibilities & temporary cover",

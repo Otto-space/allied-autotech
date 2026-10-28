@@ -5,6 +5,7 @@ import { containDialogFocus } from "@/lib/dialog-focus";
 import { learningEnabled } from "@/lib/learning/contracts";
 import { clearLearningProgress } from "@/lib/learning/progress";
 import { LEARNING_SESSION_CHANGED } from "@/lib/learning/read";
+import { WORKFORCE_ACCESS_CHANGED } from "@/lib/workforce-invalidation";
 import {
   consumeLearningOpen,
   OPEN_LEARNING,
@@ -17,6 +18,7 @@ import {
 } from "@/lib/learning/search";
 import { AllieAvatar } from "./allie-avatar";
 import { X } from "lucide-react";
+import type { HandoffMemory } from "./allie-handoff";
 const Panel = lazy(() =>
   import("./allie-panel").then((m) => ({ default: m.AlliePanel })),
 );
@@ -28,6 +30,7 @@ export function LearningCompanion() {
   const path = usePathname(),
     dialog = useRef<HTMLDialogElement>(null),
     launcher = useRef<HTMLElement | null>(null);
+  const [handoffMemory, setHandoffMemory] = useState<HandoffMemory>(null);
   const [open, setOpen] = useState(false),
     [guide, setGuide] = useState<string | null>(null);
   const restoreFocus = useRef(true);
@@ -82,6 +85,7 @@ export function LearningCompanion() {
       }
     }
     function invalidate() {
+      setHandoffMemory(null);
       clearLearningProgress();
       close(false);
       setGuide(null);
@@ -102,6 +106,7 @@ export function LearningCompanion() {
     window.addEventListener("hashchange", hash);
     window.addEventListener("popstate", hash);
     window.addEventListener(LEARNING_SESSION_CHANGED, invalidate);
+    window.addEventListener(WORKFORCE_ACCESS_CHANGED, invalidate);
     window.addEventListener("keydown", escape);
     return () => {
       window.removeEventListener(OPEN_LEARNING, show);
@@ -109,6 +114,7 @@ export function LearningCompanion() {
       window.removeEventListener("hashchange", hash);
       window.removeEventListener("popstate", hash);
       window.removeEventListener(LEARNING_SESSION_CHANGED, invalidate);
+      window.removeEventListener(WORKFORCE_ACCESS_CHANGED, invalidate);
       window.removeEventListener("keydown", escape);
     };
   }, [path]);
@@ -142,7 +148,11 @@ export function LearningCompanion() {
         <div className="allie-dialog-body">
           {open && (
             <Suspense fallback={<p role="status">Loading help…</p>}>
-              <Panel onNavigate={() => close(false)} />
+              <Panel
+                onNavigate={() => close(false)}
+                handoffMemory={handoffMemory}
+                onHandoffMemoryChange={setHandoffMemory}
+              />
             </Suspense>
           )}
           <button

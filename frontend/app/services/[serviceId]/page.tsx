@@ -30,7 +30,7 @@ const getService = cache(async (id: string) => {
     throw error;
   }
 });
-async function OtherServices({ serviceId }: { serviceId: string }) {
+async function OtherServices({ serviceId }: { readonly serviceId: string }) {
   let services: z.infer<typeof serviceSchema>[] = [];
   let failed = false;
   try {
@@ -52,38 +52,47 @@ async function OtherServices({ serviceId }: { serviceId: string }) {
         </div>
         {services.length ? (
           <div className="sd-more-grid">
-            {services.map((item) => (
-              <Link className="sd-more-item" key={item.id} href={`/services/${item.id}`}>
-                <div className="sd-more-media">
-                  {item.image ? (
-                    <ServicePhoto
-                      url={item.image.url}
-                      alt={item.image.altText ?? item.name}
-                      width={item.image.width}
-                      height={item.image.height}
-                    />
-                  ) : (
-                    <Wrench size={26} strokeWidth={1.3} aria-hidden="true" />
-                  )}
-                </div>
-                <div>
-                  <h3>{item.name}</h3>
-                  <p>
-                    {item.durationMinutes !== null && item.durationMinutes > 0
-                      ? `${item.durationMinutes} ${item.durationMinutes === 1 ? "minute" : "minutes"}`
-                      : "Duration not listed"}
-                  </p>
-                  <strong>
-                    {item.pricingType === "QUOTE_REQUIRED"
-                      ? "Quotation required"
-                      : item.priceKobo !== null
-                        ? formatKobo(item.priceKobo)
-                        : "Contact us for pricing"}
-                  </strong>
-                </div>
-                <ArrowRight size={18} aria-hidden="true" />
-              </Link>
-            ))}
+            {services.map((item) => {
+              const durationUnit = item.durationMinutes === 1 ? "minute" : "minutes";
+              let priceLabel: string;
+              if (item.pricingType === "QUOTE_REQUIRED") {
+                priceLabel = "Quotation required";
+              } else if (item.priceKobo !== null) {
+                priceLabel = formatKobo(item.priceKobo);
+              } else {
+                priceLabel = "Contact us for pricing";
+              }
+              return (
+                <Link
+                  className="sd-more-item"
+                  key={item.id}
+                  href={`/services/${item.id}`}
+                >
+                  <div className="sd-more-media">
+                    {item.image ? (
+                      <ServicePhoto
+                        url={item.image.url}
+                        alt={item.image.altText ?? item.name}
+                        width={item.image.width}
+                        height={item.image.height}
+                      />
+                    ) : (
+                      <Wrench size={26} strokeWidth={1.3} aria-hidden="true" />
+                    )}
+                  </div>
+                  <div>
+                    <h3>{item.name}</h3>
+                    <p>
+                      {item.durationMinutes !== null && item.durationMinutes > 0
+                        ? `${item.durationMinutes} ${durationUnit}`
+                        : "Duration not listed"}
+                    </p>
+                    <strong>{priceLabel}</strong>
+                  </div>
+                  <ArrowRight size={18} aria-hidden="true" />
+                </Link>
+              );
+            })}
           </div>
         ) : (
           <p className="sd-more-empty">
@@ -124,8 +133,8 @@ export default async function Page({
   params,
   searchParams,
 }: {
-  params: Promise<{ serviceId: string }>;
-  searchParams: SearchParameters;
+  readonly params: Promise<{ serviceId: string }>;
+  readonly searchParams: SearchParameters;
 }) {
   const { serviceId } = await params;
   const service = await getService(serviceId);
@@ -184,7 +193,7 @@ export default async function Page({
               <section className="sd-more" id="service-more">
                 <div className="sd-container">
                   <h2>Explore other services</h2>
-                  <p role="status">Loading other services…</p>
+                  <output>Loading other services…</output>
                 </div>
               </section>
             }

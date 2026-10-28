@@ -4,6 +4,10 @@ import { env } from "../../config/env.js";
 
 export type TokenPurpose =
   | "rate-limit"
+  | "assistant-owner"
+  | "assistant-session"
+  | "assistant-idempotency"
+  | "assistant-handoff-review"
   | "session"
   | "csrf"
   | "email-verification"
@@ -15,6 +19,7 @@ export type TokenPurpose =
   | "order-checkout-idempotency"
   | "order-reservation"
   | "order-inventory"
+  | "workforce-aftercare-review"
   | "vehicle-reservation-idempotency"
   | "vehicle-creation-idempotency"
   | "saved-vehicle-cursor"

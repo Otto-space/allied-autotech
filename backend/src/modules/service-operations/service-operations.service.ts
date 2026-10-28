@@ -6,10 +6,19 @@ import {
   assertFinanceGate,
 } from "../policies/policies.service.js";
 import { assertBookingCapacity } from "./booking-capacity.js";
+import { lockWorkforce } from "../organization/workforce-access.service.js";
+import { lockAccessActor } from "../organization/team-access-security.js";
+import {
+  bookingScope,
+  workforceSnapshot,
+  workforceDenied,
+  workforceNotFound,
+} from "../organization/workforce.policy.js";
 import { createHash, randomUUID } from "node:crypto";
 
 import type { AuthenticatedActor } from "../../common/contracts/actor.js";
 import type { RequestSecurityContext } from "../../common/contracts/request-security.js";
+import { AppError } from "../../common/errors/app-error.js";
 import { hashToken } from "../../common/security/session-tokens.js";
 import { prisma } from "../../config/database.js";
 import type { Prisma, PrismaClient } from "../../generated/prisma/client.js";
@@ -941,81 +950,180 @@ export class ServiceOperationsService {
         transaction,
         input.status !== "CONFIRMED",
       );
-      if (!bookingTransitions[booking.status].includes(input.status))
-        throw invalidServiceTransition();
-      if (input.status === "CONFIRMED") {
-        await assertCapability(transaction, actor, "BOOKING_CONFIRM");
-        await assertBookingCapacity(transaction, booking, input.resourceReviewNote);
-
-        if (booking.assignedStaffId === null || booking.service.durationMinutes === null)
-          throw serviceOperationConflict(
-            "Assign an available staff member before confirmation",
-          );
-        await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`staff-schedule:${booking.assignedStaffId}`}, 0))`;
-        const end = new Date(
-          booking.scheduledAt.getTime() + booking.service.durationMinutes * 60_000,
-        );
-        if (
-          await this.repository.hasScheduleConflict(
-            booking.assignedStaffId,
-            booking.scheduledAt,
-            end,
-            booking.id,
-            transaction,
-          )
-        )
-          throw scheduleConflict();
-      }
-      if (input.status === "CANCELLED" && input.reason === undefined)
-        throw serviceOperationConflict("A cancellation reason is required");
-      const now = new Date();
-      const timestamps: Prisma.BookingUncheckedUpdateManyInput = {
-        status: input.status,
-        ...(input.staffNotes === undefined ? {} : { staffNotes: input.staffNotes }),
-        ...(input.status === "CONFIRMED" ? { confirmedAt: now } : {}),
-        ...(input.status === "IN_PROGRESS" ? { startedAt: now } : {}),
-        ...(input.status === "COMPLETED" ? { completedAt: now } : {}),
-        ...(input.status === "CANCELLED"
-          ? { cancelledAt: now, cancellationReason: input.reason! }
-          : {}),
-      };
-      const result = await this.repository.updateBooking(
-        id,
-        input.expectedVersion,
-        timestamps,
-        transaction,
+      return jsonSafe(
+        await this.transitionLockedBooking(transaction, actor, booking, input, context),
       );
-      if (result.count !== 1) throw staleServiceOperation();
-      const updated = await this.repository.staffBooking(
-        id,
-        actor.role === "ADMIN" || actor.role === "SUPER_ADMIN",
-        transaction,
-      );
-      if (updated === null) throw serviceOperationNotFound();
-      if (input.status === "CONFIRMED") await scheduleReminders(transaction, updated);
-      if (["COMPLETED", "CANCELLED", "NO_SHOW"].includes(input.status))
-        await cancelPendingReminders(transaction, id);
-      if (input.status === "NO_SHOW") {
-        const customer = await transaction.customerProfile.findUniqueOrThrow({
-          where: { id: booking.customerId },
-          select: { userId: true },
-        });
-        await enqueueNotification(transaction, {
-          userId: customer.userId,
-          type: "BOOKING",
-          category: "TRANSACTIONAL",
-          title: "Booking marked as no-show",
-          message:
-            "Staff marked this appointment as a no-show. No automatic fee or deposit forfeiture has been applied.",
-          resourceType: "BOOKING",
-          resourceId: id,
-          deduplicationKey: `booking:${id}:no-show`,
-          channels: ["EMAIL"],
-        });
-      }
-      await this.auditBooking(transaction, actor, booking, updated, context);
-      return jsonSafe(updated);
     });
+  }
+
+  async confirmWorkforceBooking(
+    actor: AuthenticatedActor,
+    id: string,
+    input: Pick<BookingTransitionInput, "expectedVersion" | "resourceReviewNote">,
+    context: RequestSecurityContext,
+  ) {
+    assertPrivilegedActor(actor);
+    return this.database.$transaction(async (tx) => {
+      await lockWorkforce(tx);
+      await lockAccessActor(tx, actor);
+      const scope = async () => {
+        const access = await workforceSnapshot(tx, actor);
+        if (
+          !access.managed ||
+          !access.independentCapabilities.includes("BOOKING_CONFIRM")
+        )
+          workforceDenied();
+        return bookingScope(access, "BOOKINGS_READ");
+      };
+      const permitted = async () =>
+        tx.booking.findFirst({
+          where: { AND: [{ id }, await scope()] },
+          select: { id: true },
+        });
+      if (!(await permitted())) workforceNotFound();
+      const booking = await this.repository.lockBooking(id, tx);
+      if (!booking || !(await permitted())) workforceNotFound();
+      try {
+        await this.transitionLockedBooking(
+          tx,
+          actor,
+          booking,
+          { ...input, status: "CONFIRMED" },
+          context,
+        );
+      } catch (error) {
+        // Add only reviewed recovery codes to the new scoped contract. Legacy
+        // responses and all original business checks retain their existing shape.
+        if (
+          error instanceof AppError &&
+          error.statusCode === 409 &&
+          error.code === "CONFLICT"
+        ) {
+          const message = error.message;
+          const reason =
+            message.startsWith("Policy configuration is missing: booking-capacity:") ||
+            message.startsWith("This operation requires approved booking-capacity:") ||
+            message === "Approved branch capacity and opening calendar are not configured"
+              ? "CAPACITY_POLICY_REQUIRED"
+              : message === "Approved branch daily capacity is full"
+                ? "CAPACITY_FULL"
+                : message === "Appointment is outside the approved workshop calendar"
+                  ? "CALENDAR_CLOSED"
+                  : message === "Assign an available staff member before confirmation"
+                    ? "ASSIGNMENT_REQUIRED"
+                    : undefined;
+          if (reason)
+            throw new AppError({
+              code: `BOOKING_${reason}`,
+              statusCode: error.statusCode,
+              message,
+            });
+        }
+        throw error;
+      }
+      // A time-based expiry while waiting on capacity/schedule locks must roll the
+      // entire change back. All side effects above are transactional database rows.
+      if (!(await permitted())) workforceNotFound();
+      const receipt = await tx.booking.findUniqueOrThrow({
+        where: { id },
+        select: {
+          id: true,
+          branchId: true,
+          assignedStaffId: true,
+          status: true,
+          version: true,
+          scheduledAt: true,
+          confirmedAt: true,
+          resourceReviewNote: true,
+          capacityPolicyVersionId: true,
+        },
+      });
+      return { ...receipt, performedByUserId: actor.userId };
+    });
+  }
+
+  private async transitionLockedBooking(
+    transaction: Prisma.TransactionClient,
+    actor: AuthenticatedActor,
+    booking: NonNullable<Awaited<ReturnType<ServiceOperationsRepository["lockBooking"]>>>,
+    input: BookingTransitionInput,
+    context: RequestSecurityContext,
+  ) {
+    const id = booking.id;
+    if (!bookingTransitions[booking.status].includes(input.status))
+      throw invalidServiceTransition();
+    if (input.status === "CONFIRMED") {
+      await assertCapability(transaction, actor, "BOOKING_CONFIRM");
+      await assertBookingCapacity(transaction, booking, input.resourceReviewNote);
+
+      if (booking.assignedStaffId === null || booking.service.durationMinutes === null)
+        throw serviceOperationConflict(
+          "Assign an available staff member before confirmation",
+        );
+      await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`staff-schedule:${booking.assignedStaffId}`}, 0))`;
+      const end = new Date(
+        booking.scheduledAt.getTime() + booking.service.durationMinutes * 60_000,
+      );
+      if (
+        await this.repository.hasScheduleConflict(
+          booking.assignedStaffId,
+          booking.scheduledAt,
+          end,
+          booking.id,
+          transaction,
+        )
+      )
+        throw scheduleConflict();
+    }
+    if (input.status === "CANCELLED" && input.reason === undefined)
+      throw serviceOperationConflict("A cancellation reason is required");
+    const now = new Date();
+    const timestamps: Prisma.BookingUncheckedUpdateManyInput = {
+      status: input.status,
+      ...(input.staffNotes === undefined ? {} : { staffNotes: input.staffNotes }),
+      ...(input.status === "CONFIRMED" ? { confirmedAt: now } : {}),
+      ...(input.status === "IN_PROGRESS" ? { startedAt: now } : {}),
+      ...(input.status === "COMPLETED" ? { completedAt: now } : {}),
+      ...(input.status === "CANCELLED"
+        ? { cancelledAt: now, cancellationReason: input.reason! }
+        : {}),
+    };
+    const result = await this.repository.updateBooking(
+      id,
+      input.expectedVersion,
+      timestamps,
+      transaction,
+    );
+    if (result.count !== 1) throw staleServiceOperation();
+    const updated = await this.repository.staffBooking(
+      id,
+      actor.role === "ADMIN" || actor.role === "SUPER_ADMIN",
+      transaction,
+    );
+    if (updated === null) throw serviceOperationNotFound();
+    if (input.status === "CONFIRMED") await scheduleReminders(transaction, updated);
+    if (["COMPLETED", "CANCELLED", "NO_SHOW"].includes(input.status))
+      await cancelPendingReminders(transaction, id);
+    if (input.status === "NO_SHOW") {
+      const customer = await transaction.customerProfile.findUniqueOrThrow({
+        where: { id: booking.customerId },
+        select: { userId: true },
+      });
+      await enqueueNotification(transaction, {
+        userId: customer.userId,
+        type: "BOOKING",
+        category: "TRANSACTIONAL",
+        title: "Booking marked as no-show",
+        message:
+          "Staff marked this appointment as a no-show. No automatic fee or deposit forfeiture has been applied.",
+        resourceType: "BOOKING",
+        resourceId: id,
+        deduplicationKey: `booking:${id}:no-show`,
+        channels: ["EMAIL"],
+      });
+    }
+    await this.auditBooking(transaction, actor, booking, updated, context);
+    return updated;
   }
 
   async reportBusinessDisruption(

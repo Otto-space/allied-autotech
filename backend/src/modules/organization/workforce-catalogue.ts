@@ -62,12 +62,46 @@ for (const definition of Object.values(versionOne)) {
   Object.freeze(definition.actions);
   Object.freeze(definition);
 }
-export const workforceTemplateVersions = Object.freeze({ 1: Object.freeze(versionOne) });
-export const currentWorkforceTemplateVersion = 1;
+const versionTwo = {
+  ...versionOne,
+  CARE_VIEWER: {
+    label: "Customer Care: view cases",
+    department: "Customer Service",
+    scope: "BRANCH",
+    actions: ["CARE_CASE_VIEW"],
+  },
+  CARE_RESPONDER: {
+    label: "Customer Care: reply to customers",
+    department: "Customer Service",
+    scope: "BRANCH",
+    actions: ["CARE_PUBLIC_REPLY"],
+  },
+  CARE_ASSIGNER: {
+    label: "Customer Care: assign cases",
+    department: "Customer Service",
+    scope: "BRANCH",
+    actions: ["CARE_CASE_ASSIGN"],
+  },
+  CARE_LIVE_AGENT: {
+    label: "Customer Care: accept live conversations",
+    department: "Customer Service",
+    scope: "BRANCH",
+    actions: ["CARE_LIVE_ACCEPT"],
+  },
+} as const;
+for (const definition of Object.values(versionTwo)) {
+  Object.freeze(definition.actions);
+  Object.freeze(definition);
+}
+export const workforceTemplateVersions = Object.freeze({
+  1: Object.freeze(versionOne),
+  2: Object.freeze(versionTwo),
+});
+export const currentWorkforceTemplateVersion = 2;
 export const workforceTemplates =
   workforceTemplateVersions[currentWorkforceTemplateVersion];
 export type WorkforceAction =
-  (typeof versionOne)[keyof typeof versionOne]["actions"][number];
+  (typeof versionTwo)[keyof typeof versionTwo]["actions"][number];
 export type WorkforceDefinition = {
   readonly label: string;
   readonly department: string;
@@ -77,17 +111,23 @@ export type WorkforceDefinition = {
 export function isKnownWorkforcePolicyVersion(version: number): boolean {
   return Number.isInteger(version) && Object.hasOwn(workforceTemplateVersions, version);
 }
+export function workforceCatalogueForVersion(
+  version: number,
+): Readonly<Record<string, WorkforceDefinition>> | undefined {
+  if (!isKnownWorkforcePolicyVersion(version)) return;
+  return (
+    workforceTemplateVersions as Readonly<
+      Record<number, Readonly<Record<string, WorkforceDefinition>>>
+    >
+  )[version];
+}
 export function isSupportedDelegationTemplate(
   template: string,
   version: number,
 ): boolean {
   if (!isKnownWorkforcePolicyVersion(version)) return false;
   if (template === "ADMIN_INVITE") return true;
-  const catalogue = (
-    workforceTemplateVersions as Readonly<
-      Record<number, Readonly<Record<string, WorkforceDefinition>>>
-    >
-  )[version];
+  const catalogue = workforceCatalogueForVersion(version);
   return !!catalogue && Object.hasOwn(catalogue, template);
 }
 export function definitionForAssignment(assignment: {
@@ -96,11 +136,7 @@ export function definitionForAssignment(assignment: {
   scope: string;
 }): WorkforceDefinition | undefined {
   if (!isKnownWorkforcePolicyVersion(assignment.templateVersion)) return;
-  const catalogue = (
-    workforceTemplateVersions as Readonly<
-      Record<number, Readonly<Record<string, WorkforceDefinition>>>
-    >
-  )[assignment.templateVersion];
+  const catalogue = workforceCatalogueForVersion(assignment.templateVersion);
   if (!catalogue || !Object.hasOwn(catalogue, assignment.template)) return;
   const definition = catalogue[assignment.template];
   return definition?.scope === assignment.scope ? definition : undefined;

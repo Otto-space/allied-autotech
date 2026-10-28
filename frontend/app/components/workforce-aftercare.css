@@ -1,0 +1,69 @@
+.workforce-aftercare .wfc-heading {
+  margin-top: 20px;
+}
+.workforce-aftercare > .card {
+  margin-top: 20px;
+  padding: clamp(16px, 3vw, 28px);
+}
+.workforce-aftercare .wfa-facts {
+  display: grid;
+  grid-template-columns: minmax(8rem, 1fr) minmax(0, 2fr);
+  gap: 12px 24px;
+  margin: 20px 0;
+}
+.workforce-aftercare .wfa-facts :is(dt, dd) {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.workforce-aftercare .wfa-facts dd {
+  font-weight: 650;
+}
+.workforce-aftercare .wfa-note {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.workforce-aftercare .card h3 {
+  margin-top: 20px;
+}
+.workforce-aftercare .wfa-form {
+  display: grid;
+  gap: 20px;
+  margin-top: 20px;
+}
+.workforce-aftercare .wfa-form .field {
+  margin: 0;
+}
+.workforce-aftercare .wfa-form :is(input, textarea, select) {
+  width: 100%;
+}
+.workforce-aftercare .wfa-form > .button {
+  justify-self: start;
+}
+.workforce-aftercare .wfa-checkbox {
+  display: flex;
+  gap: 10px;
+  align-items: start;
+  margin: 20px 0;
+}
+.workforce-aftercare .wfa-checkbox input {
+  flex: none;
+  margin-top: 4px;
+  width: 20px;
+  height: 20px;
+  min-height: 20px;
+}
+.workforce-aftercare .card {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 600px) {
+  .workforce-aftercare .wfa-facts {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
+  }
+  .workforce-aftercare .wfa-facts dt:not(:first-child) {
+    margin-top: 12px;
+  }
+  .workforce-aftercare .wfa-form > .button {
+    width: 100%;
+  }
+}

@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useState, type FormEvent } from "react";
+import { useCallback, useLayoutEffect, useRef, useState, type FormEvent } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { z } from "zod";
 import { ApiError, apiRequest } from "@/lib/api/client";
@@ -8,15 +8,22 @@ import {
   parseWorkforceAccount,
   workforceTemplateLabels,
   workforceTemplateSchema,
+  workforceAssignmentLabel,
+  workforceHistoryDefinition,
   type WorkforceAccount,
 } from "@/lib/api/workforce-schemas";
 import {
   verifyWorkforceReceipt,
   workforceBody,
   workforceLocalTime,
+  workforcePreviewBody,
   type WorkforceAction,
 } from "@/lib/admin/work-staff-workforce";
 import { formatBusinessDate } from "@/lib/format/date";
+import {
+  assignableWorkforcePositionSchema,
+  workforcePositionLabels,
+} from "@/lib/api/workforce-positions";
 import { useAccountSession, useOwnStaffPermissions } from "./dashboard-shell";
 import { Feedback } from "./feedback";
 import { AdminBranchPicker } from "./admin-branch-picker";
@@ -25,9 +32,19 @@ import {
   useStaffChangeCoordinator,
 } from "./staff-change-coordinator";
 import "./workforce-access-panel.css";
+import { WorkforceEffectiveAccess } from "./workforce-effective-access";
+import {
+  parseWorkforceAccessPreview,
+  type WorkforceAccessPreview,
+} from "@/lib/api/workforce-effective-access";
 
-function PasswordReason({ prefix }: { prefix: string }) {
-  const [shown, setShown] = useState(false);
+function PasswordReason({
+  prefix,
+  passwordEpoch,
+}: {
+  prefix: string;
+  passwordEpoch: number;
+}) {
   return (
     <>
       <div className="field wf-wide">
@@ -40,40 +57,50 @@ function PasswordReason({ prefix }: { prefix: string }) {
           maxLength={1000}
         />
       </div>
-      <div className="field wf-wide">
-        <label htmlFor={`${prefix}-password`}>Your current password</label>
-        <div className="wf-password">
-          <input
-            id={`${prefix}-password`}
-            name="currentPassword"
-            type={shown ? "text" : "password"}
-            required
-            autoComplete="current-password"
-            maxLength={256}
-          />
-          <button
-            type="button"
-            aria-label={shown ? "Hide password" : "Show password"}
-            title={shown ? "Hide password" : "Show password"}
-            aria-pressed={shown}
-            aria-controls={`${prefix}-password`}
-            onClick={() => setShown((v) => !v)}
-          >
-            {shown ? (
-              <EyeOff size={18} aria-hidden="true" />
-            ) : (
-              <Eye size={18} aria-hidden="true" />
-            )}
-          </button>
-        </div>
-      </div>
+      <PasswordProof key={passwordEpoch} prefix={prefix} />
     </>
+  );
+}
+function PasswordProof({ prefix }: { prefix: string }) {
+  const [shown, setShown] = useState(false);
+  return (
+    <div className="field wf-wide">
+      <label htmlFor={`${prefix}-password`}>Your current password</label>
+      <div className="wf-password">
+        <input
+          id={`${prefix}-password`}
+          name="currentPassword"
+          type={shown ? "text" : "password"}
+          required
+          autoComplete="current-password"
+          maxLength={256}
+        />
+        <button
+          type="button"
+          aria-label={shown ? "Hide password" : "Show password"}
+          title={shown ? "Hide password" : "Show password"}
+          aria-pressed={shown}
+          aria-controls={`${prefix}-password`}
+          onClick={() => setShown((v) => !v)}
+        >
+          {shown ? (
+            <EyeOff size={18} aria-hidden="true" />
+          ) : (
+            <Eye size={18} aria-hidden="true" />
+          )}
+        </button>
+      </div>
+    </div>
   );
 }
 export function WorkforceAccessPanel({ userId }: { userId: string }) {
   const coordinator = useStaffChangeCoordinator();
+  const session = useAccountSession();
   return coordinator ? (
-    <WorkforcePanel userId={userId} />
+    <WorkforcePanel
+      key={`${session?.id}:${session?.user.id}:${session?.user.role}:${userId}`}
+      userId={userId}
+    />
   ) : (
     <StandaloneWorkforce userId={userId} />
   );
@@ -126,7 +153,10 @@ function StandaloneWorkforce({ userId }: { userId: string }) {
       {(change, recovery) => (
         <>
           {recovery}
-          <WorkforcePanel key={`${userId}:${change.epoch}`} userId={userId} />
+          <WorkforcePanel
+            key={`${session.id}:${userId}:${change.epoch}`}
+            userId={userId}
+          />
         </>
       )}
     </StaffChangeCoordinator>
@@ -147,16 +177,91 @@ function WorkforcePanel({ userId }: { userId: string }) {
     data = record.data;
   const [message, setMessage] = useState<string>(),
     [epoch, setEpoch] = useState(0);
+  const [preparing, setPreparing] = useState(false),
+    [previewError, setPreviewError] = useState<string>();
+  const mounted = useRef(true),
+    previewRequest = useRef<AbortController | null>(null);
+  useLayoutEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+      previewRequest.current?.abort();
+    };
+  }, []);
   const busy = record.loading || record.refreshing,
     error = record.error || record.refreshError;
-  const locked = coordinator.locked || busy || !!error || !data;
+  const locked = coordinator.locked || busy || preparing || !!error || !data;
+  const current = useRef({ data, coordinator, busy, error });
+  useLayoutEffect(() => {
+    current.current = { data, coordinator, busy, error };
+  }, [data, coordinator, busy, error]);
   function review(
     action: WorkforceAction,
     body: Record<string, unknown>,
     facts: { label: string; value: string }[],
     assignmentId?: string,
   ) {
-    if (locked || !data || !session) return;
+    if (locked || previewRequest.current || !data || !session) return;
+    if (action !== "assign" && action !== "revoke")
+      return openReview(action, body, facts, assignmentId);
+    const controller = new AbortController();
+    previewRequest.current = controller;
+    setPreparing(true);
+    setPreviewError(undefined);
+    setMessage(undefined);
+    void apiRequest(`/admin/workforce/accounts/${userId}/access-preview`, {
+      method: "POST",
+      csrf: true,
+      signal: controller.signal,
+      body: workforcePreviewBody(action, body, assignmentId),
+    })
+      .then((response) => {
+        controller.signal.throwIfAborted();
+        if (!mounted.current) return;
+        const preview = parseWorkforceAccessPreview(response.data, {
+          userId,
+          expectedVersion: body.expectedVersion,
+          operation: action,
+          account: data,
+          input: workforcePreviewBody(action, body, assignmentId),
+        });
+        const latest = current.current;
+        if (
+          latest.coordinator.locked ||
+          latest.busy ||
+          latest.error ||
+          latest.data?.access?.version !== body.expectedVersion
+        )
+          throw new ApiError(409, { error: { code: "STALE_VERSION" } });
+        openReview(
+          action,
+          { ...body, expectedAccessPreview: preview.fingerprint },
+          facts,
+          assignmentId,
+          preview,
+        );
+      })
+      .catch((error) => {
+        if (mounted.current && !controller.signal.aborted)
+          setPreviewError(
+            error instanceof ApiError
+              ? error.message
+              : "The access change could not be checked. Refresh responsibility access and review it again.",
+          );
+      })
+      .finally(() => {
+        if (previewRequest.current === controller) previewRequest.current = null;
+        if (mounted.current) setPreparing(false);
+      });
+  }
+  function openReview(
+    action: WorkforceAction,
+    body: Record<string, unknown>,
+    facts: { label: string; value: string }[],
+    assignmentId?: string,
+    preview?: WorkforceAccessPreview,
+  ) {
+    if (!data || !session) return;
     const suffix =
       action === "enroll"
         ? ""
@@ -175,6 +280,7 @@ function WorkforcePanel({ userId }: { userId: string }) {
     coordinator.review(
       {
         title,
+        workforceAccessChange: preview,
         description:
           action === "enroll" && !data.access
             ? "Enrollment replaces broad legacy operational access with explicit responsibilities and revokes existing sessions. No assignments are created automatically. Existing financial grants and business histories are retained. Review previously approved duties before confirming."
@@ -217,6 +323,32 @@ function WorkforcePanel({ userId }: { userId: string }) {
               !current.assignments.some((a) => a.id === assignmentId && !a.revokedAt))
           )
             throw new ApiError(409, { error: { code: "STALE_VERSION" } });
+          if (preview && (action === "assign" || action === "revoke")) {
+            try {
+              const latest = parseWorkforceAccessPreview(
+                (
+                  await apiRequest(`/admin/workforce/accounts/${userId}/access-preview`, {
+                    method: "POST",
+                    csrf: true,
+                    body: workforcePreviewBody(action, body, assignmentId),
+                  })
+                ).data,
+                {
+                  userId,
+                  expectedVersion: body.expectedVersion,
+                  operation: action,
+                  account: current,
+                  input: workforcePreviewBody(action, body, assignmentId),
+                },
+              );
+              if (latest.fingerprint !== preview.fingerprint)
+                throw new ApiError(409, { error: { code: "STALE_VERSION" } });
+            } catch (error) {
+              if (error instanceof ApiError && error.status >= 400 && error.status < 500)
+                throw error;
+              throw new ApiError(409, { error: { code: "PRECONDITION_UNAVAILABLE" } });
+            }
+          }
           const result = await apiRequest(
             `/admin/workforce/accounts/${userId}${suffix}`,
             {
@@ -259,6 +391,8 @@ function WorkforcePanel({ userId }: { userId: string }) {
       </div>
       <Feedback message={error} />
       <Feedback message={message} tone="success" />
+      <Feedback message={previewError} />
+      {preparing && <p role="status">Checking what access will change…</p>}
       {busy && <p role="status">Checking responsibility access…</p>}
       {error && data && (
         <p className="notice">
@@ -273,7 +407,7 @@ function WorkforcePanel({ userId }: { userId: string }) {
         <>
           <p>
             {data.access
-              ? `Enrolled ${formatBusinessDate(data.access.enabledAt)}. Position: ${workforceTemplateLabels[data.access.position as keyof typeof workforceTemplateLabels] ?? data.access.position}.`
+              ? `Enrolled ${formatBusinessDate(data.access.enabledAt)}. Position: ${workforcePositionLabels[data.access.position as keyof typeof workforcePositionLabels] ?? data.access.position}.`
               : "Legacy access is still active. No responsibilities have been silently assigned."}
           </p>
           {!Object.values(data.management).some((v) => v === true) && (
@@ -282,6 +416,7 @@ function WorkforcePanel({ userId }: { userId: string }) {
               access.
             </p>
           )}
+          <WorkforceEffectiveAccess value={data.effectiveAccess} />
           <WorkforceEditors
             key={`${userId}:${epoch}`}
             data={data}
@@ -389,8 +524,8 @@ function WorkforceEditors({
                 {
                   label: "Job position",
                   value:
-                    workforceTemplateLabels[
-                      position as keyof typeof workforceTemplateLabels
+                    workforcePositionLabels[
+                      position as keyof typeof workforcePositionLabels
                     ] ?? position,
                 },
               ]);
@@ -406,14 +541,14 @@ function WorkforceEditors({
                   defaultValue={data.access?.position ?? ""}
                 >
                   <option value="">Choose a position</option>
-                  {workforceTemplateSchema.options.map((v) => (
+                  {assignableWorkforcePositionSchema.options.map((v) => (
                     <option key={v} value={v}>
-                      {workforceTemplateLabels[v]}
+                      {workforcePositionLabels[v]}
                     </option>
                   ))}
                 </select>
               </div>
-              <PasswordReason key={`enroll-${passwordEpoch}`} prefix="workforce-enroll" />
+              <PasswordReason passwordEpoch={passwordEpoch} prefix="workforce-enroll" />
               <button className="button secondary">
                 Review {data.access ? "position" : "enrollment"}
               </button>
@@ -429,7 +564,7 @@ function WorkforceEditors({
             {data.assignments.map((a) => (
               <li key={a.id}>
                 <div className="wf-assignment-heading">
-                  <h4>{workforceTemplateLabels[a.template]}</h4>
+                  <h4>{workforceAssignmentLabel(a.template)}</h4>
                   <span>
                     {a.revokedAt
                       ? "Revoked"
@@ -441,18 +576,27 @@ function WorkforceEditors({
                 </div>
                 <p>
                   {branchName(a.branchId)} ·{" "}
-                  {a.scope === "ASSIGNED" ? "Assigned work only" : "Branch scope"}
+                  {a.scope === "ASSIGNED"
+                    ? "Assigned work only"
+                    : a.scope === "BRANCH"
+                      ? "Branch scope"
+                      : `Unrecognised scope: ${a.scope}`}
                 </p>
-                {data.assignmentDefinitions?.[a.id] === null && (
+                {!workforceHistoryDefinition(data, a) && (
                   <p className="notice">
-                    Definition version {a.templateVersion ?? 1} is unavailable. This
-                    assignment grants no access. Ask the owner to review it, or revoke the
-                    assignment if authorised.
+                    The recorded responsibility, definition version{" "}
+                    {a.templateVersion ?? 1} or scope is unsupported. This assignment
+                    grants no access. Ask the owner to review it, or revoke the assignment
+                    if authorised.
                   </p>
                 )}
                 <details>
                   <summary>Assignment details</summary>
                   <dl>
+                    <div>
+                      <dt>Recorded responsibility</dt>
+                      <dd>{a.template}</dd>
+                    </div>
                     <div>
                       <dt>Starts</dt>
                       <dd>{formatBusinessDate(a.startsAt)}</dd>
@@ -484,11 +628,8 @@ function WorkforceEditors({
                     <div>
                       <dt>Supported actions</dt>
                       <dd>
-                        {(data.assignmentDefinitions
-                          ? data.assignmentDefinitions[a.id]
-                          : data.templates[a.template]
-                        )?.actions
-                          .map((v) => v.toLowerCase().replaceAll("_", " "))
+                        {workforceHistoryDefinition(data, a)
+                          ?.actions.map((v) => v.toLowerCase().replaceAll("_", " "))
                           .join(", ") || "No action details available"}
                       </dd>
                     </div>
@@ -522,7 +663,7 @@ function WorkforceEditors({
                           [
                             {
                               label: "Responsibility",
-                              value: workforceTemplateLabels[a.template],
+                              value: workforceAssignmentLabel(a.template),
                             },
                             { label: "Branch", value: branchName(a.branchId) },
                           ],
@@ -532,7 +673,7 @@ function WorkforceEditors({
                     >
                       <fieldset className="wf-fields" disabled={disabled}>
                         <PasswordReason
-                          key={`revoke-${a.id}-${passwordEpoch}`}
+                          passwordEpoch={passwordEpoch}
                           prefix={`revoke-${a.id}`}
                         />
                         <button className="button secondary">Review revocation</button>
@@ -665,7 +806,7 @@ function WorkforceEditors({
                 <input type="checkbox" name="temporary" />
                 Temporary cover
               </label>
-              <PasswordReason key={`assign-${passwordEpoch}`} prefix="workforce-assign" />
+              <PasswordReason passwordEpoch={passwordEpoch} prefix="workforce-assign" />
               <button className="button">Review responsibility assignment</button>
             </fieldset>
           </form>
@@ -726,17 +867,19 @@ function WorkforceEditors({
             <fieldset className="wf-fields" disabled={disabled}>
               <fieldset className="wf-wide wf-checks">
                 <legend>Responsibilities this admin may assign</legend>
-                {workforceTemplateSchema.options.map((v) => (
-                  <label className="wf-check" key={v}>
-                    <input
-                      type="checkbox"
-                      name="templates"
-                      value={v}
-                      defaultChecked={data.access?.delegatedTemplates.includes(v)}
-                    />
-                    {workforceTemplateLabels[v]}
-                  </label>
-                ))}
+                {workforceTemplateSchema.options
+                  .filter((v) => Object.hasOwn(data.templates, v))
+                  .map((v) => (
+                    <label className="wf-check" key={v}>
+                      <input
+                        type="checkbox"
+                        name="templates"
+                        value={v}
+                        defaultChecked={data.access?.delegatedTemplates.includes(v)}
+                      />
+                      {workforceTemplateLabels[v]}
+                    </label>
+                  ))}
               </fieldset>
               <div className="field wf-wide">
                 <label htmlFor="workforce-delegated-branch">Add a permitted branch</label>
@@ -785,7 +928,7 @@ function WorkforceEditors({
                 Permit secure admin invitations within these branches
               </label>
               <PasswordReason
-                key={`delegate-${passwordEpoch}`}
+                passwordEpoch={passwordEpoch}
                 prefix="workforce-delegation"
               />
               <button className="button secondary">Review delegation envelope</button>

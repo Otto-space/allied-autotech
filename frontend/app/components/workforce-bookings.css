@@ -8,6 +8,29 @@
 .workforce-bookings * {
   min-width: 0;
 }
+.workforce-booking-detail > .card {
+  margin-top: 20px;
+  padding: clamp(16px, 3vw, 28px);
+}
+.workforce-booking-detail > .card > .totals {
+  grid-template-columns: minmax(8rem, 1fr) minmax(0, 2fr);
+  gap: 12px 24px;
+  margin-top: 18px;
+}
+.workforce-booking-detail > .card > .totals :is(dt, dd) {
+  margin: 0;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 600px) {
+  .workforce-booking-detail > .card > .totals {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
+  }
+  .workforce-booking-detail > .card > .totals dt:not(:first-child) {
+    margin-top: 12px;
+  }
+}
 .workforce-bookings :is(a, button, input, select):focus-visible {
   outline: 3px solid var(--focus-ring);
   outline-offset: 3px;

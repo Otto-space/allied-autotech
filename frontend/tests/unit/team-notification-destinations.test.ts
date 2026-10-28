@@ -11,6 +11,20 @@ const item = {
   supportMessageId: id,
 };
 describe("staff notification awareness", () => {
+  it("uses independent managed finance destinations only while their work link remains eligible", () => {
+    for (const [resourceType, section, query] of [
+      ["REFUND", "/admin/refunds", "refundId"],
+      ["DISPUTE", "/admin/payment-disputes/work", "selected"],
+    ]) {
+      const update = { ...item, resourceType, supportMessageId: null };
+      expect(
+        staffNotificationDestination(update, { managed: true, links: [section] })?.href,
+      ).toBe(`${section}?${query}=${id}`);
+      expect(
+        staffNotificationDestination(update, { managed: true, links: [] }),
+      ).toBeNull();
+    }
+  });
   it("uses exact legacy conversation and message destinations", () => {
     expect(
       staffNotificationDestination(item, { managed: false, links: ["/admin/support"] })

@@ -4,7 +4,11 @@ import {
   workforceBookingsQuery,
   workforceBookingsPageParams,
   parseScopedWorkforceBookings,
+  parseWorkforceBookingDetail,
+  parseBookingConfirmationReceipt,
 } from "../../lib/admin/workforce-bookings";
+import { ApiError } from "../../lib/api/client";
+import { workforceAllows, workforceActionPredicates } from "../../lib/workforce-registry";
 const id = (n: number) => `b7000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
 function data() {
   const stamp = "2026-10-19T08:00:00.000Z";
@@ -56,6 +60,104 @@ function data() {
   };
 }
 describe("workforce bookings query and scope", () => {
+  it("requires both the explicit confirmation grant and the applicable booking scope", () => {
+    const access = parseScopedWorkforceBookings(data()).access;
+    access.accessRevision = "a".repeat(64);
+    access.nextChangeAt = null;
+    access.capabilityScopes = [
+      { capability: "BOOKINGS_READ", branchId: id(4), scope: "BRANCH" },
+    ];
+    const predicate = workforceActionPredicates.bookingConfirm;
+    expect(workforceAllows(access, predicate, { branchId: id(4) })).toBe(false);
+    access.independentCapabilities = ["BOOKING_CONFIRM"];
+    expect(workforceAllows(access, predicate, { branchId: id(4) })).toBe(true);
+    expect(workforceAllows(access, predicate, { branchId: id(99) })).toBe(false);
+    access.permissions = [];
+    expect(workforceAllows(access, predicate, { branchId: id(4) })).toBe(false);
+  });
+  it("binds a confirmation receipt to the inspected appointment, actor, version and review", () => {
+    const value = data(),
+      original = value.items[0];
+    const row = parseWorkforceBookingDetail(
+      {
+        ...original,
+        status: "REQUESTED",
+        service: { ...original.service, durationMinutes: 60 },
+        assignedStaff: { id: id(7), firstName: "Synthetic", lastName: "Technician" },
+        confirmedAt: null,
+        access: value.access,
+        generatedAt: value.generatedAt,
+      },
+      original.id,
+    ).row;
+    const receipt = {
+      id: row.id,
+      branchId: row.branchId,
+      assignedStaffId: row.assignedStaff!.id,
+      scheduledAt: row.scheduledAt,
+      status: "CONFIRMED",
+      version: row.version + 1,
+      confirmedAt: value.generatedAt,
+      performedByUserId: id(1),
+      capacityPolicyVersionId: id(8),
+      resourceReviewNote: "Synthetic people and equipment review",
+    };
+    expect(
+      parseBookingConfirmationReceipt(receipt, row, id(1), receipt.resourceReviewNote)
+        .version,
+    ).toBe(1);
+    for (const changed of [
+      { performedByUserId: id(99) },
+      { branchId: id(99) },
+      { assignedStaffId: id(99) },
+      { version: 9 },
+      { resourceReviewNote: "Different reviewed appointment note" },
+      { scheduledAt: "2026-10-20T10:00:00Z" },
+    ])
+      expect(() =>
+        parseBookingConfirmationReceipt(
+          { ...receipt, ...changed },
+          row,
+          id(1),
+          receipt.resourceReviewNote,
+        ),
+      ).toThrow();
+    expect(() =>
+      parseBookingConfirmationReceipt(
+        receipt,
+        { ...row, assignedStaff: null },
+        id(1),
+        receipt.resourceReviewNote,
+      ),
+    ).toThrow();
+    expect(() =>
+      parseWorkforceBookingDetail(
+        { ...original, access: value.access, generatedAt: value.generatedAt },
+        id(99),
+      ),
+    ).toThrow();
+  });
+  it("shows only reviewed business-configuration recovery messages", () => {
+    const error = (code: string) =>
+      new ApiError(409, {
+        error: {
+          code,
+          message: "Untrusted private server text",
+          fields: { confirmation: ["untrusted private field"] },
+        },
+      });
+    expect(error("BOOKING_CAPACITY_POLICY_REQUIRED").message).toContain(
+      "authorised policy owner",
+    );
+    expect(error("BOOKING_CAPACITY_FULL").message).toContain("capacity is full");
+    expect(error("BOOKING_CALENDAR_CLOSED").message).toContain(
+      "approved workshop calendar",
+    );
+    expect(error("BOOKING_ASSIGNMENT_REQUIRED").message).toContain("Assigned staff");
+    expect(error("UNKNOWN_PRIVATE_REASON").message).not.toContain("Untrusted");
+    expect(error("__proto__").message).not.toContain("Untrusted");
+    expect(error("BOOKING_CAPACITY_POLICY_REQUIRED").fields).toBeUndefined();
+  });
   it("normalizes supported filters and keeps trail out of the API request", () => {
     const query = workforceBookingsQuery(
       new URLSearchParams({

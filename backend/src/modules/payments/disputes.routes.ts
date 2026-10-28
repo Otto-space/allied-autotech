@@ -29,6 +29,7 @@ import {
 import { objectStorage } from "../../providers/storage/s3-object-storage.adapter.js";
 import { appendAuditEvent } from "../audit/audit.service.js";
 import { assertCapability } from "../policies/policies.service.js";
+import { lockAccessActor } from "../organization/team-access-security.js";
 import { paymentConflict, paymentForbidden, paymentNotFound } from "./payments.errors.js";
 import { paymentEvidenceUploadBodySchema } from "./payments.schemas.js";
 import type { AuthenticatedActor } from "../../common/contracts/actor.js";
@@ -283,6 +284,7 @@ export function createDisputesRouter() {
           throw paymentConflict("Evidence upload is incomplete");
       }
       const result = await prisma.$transaction(async (tx) => {
+        await lockAccessActor(tx, actor);
         await tx.$queryRaw`SELECT "id" FROM "PaymentDispute" WHERE "id" = ${id}::uuid FOR UPDATE`;
         const dispute = await authorized(tx, actor, id);
         let data: Prisma.PaymentDisputeUncheckedUpdateInput = {};

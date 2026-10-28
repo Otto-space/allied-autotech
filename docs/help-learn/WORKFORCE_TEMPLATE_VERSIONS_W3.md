@@ -128,3 +128,13 @@ resources were created or pruned; current/rollback/other-task images, containers
 volumes and useful caches remain. Current build and isolated CI verification data
 are useful for the next foundation batch. No duplicate dependencies, worktree or
 editor profile. Shared native PostgreSQL remains; owned app preview is stopped.
+
+
+### W14B compatible version-two foundation (local, not deployed)
+
+Version1 is unchanged. New Care duties exist only in version2. Supported old
+immutable definitions may still be explicitly reviewed/assigned at version1, and
+a version1 delegated manager retains that catalogue. An old request never upgrades
+to version2, cannot assign a new duty under version1, and cannot escape its reviewed
+envelope. Unknown names remain unsupported under their old envelope version.
+See WORKFORCE_CARE_POLICY_W14B.md; operational new-duty adapters remain required.

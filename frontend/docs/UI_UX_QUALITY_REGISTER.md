@@ -1,5 +1,45 @@
 # UI and UX quality register
 
+## 28 October 2026: combined Allie integration regression correction
+
+The held consolidated 8e6aab3b candidate reproduced two integration defects at
+390/1440px: the newer explicit Learn page classification removed guide/practice
+suggestions from Allie, and the merged loading message added about 42px during
+access checks. Learn now offers only the guide/practice definitions already
+present in its verified catalogue and permitted by its feature flags. Unrelated
+page filtering remains in place. The existing positioned loading treatment is
+retained while verified content is hidden and inert, with guarded focus recovery.
+Conversation/handoff state boundaries, workforce invalidation and security-page
+restrictions remain unchanged. Three new focused route/flag cases and the adjacent
+access/conversation/handoff/search cases passed (41 tests in five files). The
+failed hosted run is retained; final rendered rechecks and publication are pending.
+Browser plugin unavailable: hosted checks use existing Playwright with Edge and
+isolated API fixtures. They do not send support messages, seed inventory, upload to
+real storage or call an AI provider. Physical-device and real-role limits remain.
+
+## 28 October 2026: deployment-aware API image URLs
+
+The integrated held candidate `4fbc9cbb` exposed a real framework/API mismatch.
+The installed Next 16.4.3 adds `?dpl=...` to relative unoptimized image sources
+on Vercel; the public product/vehicle and protected preview endpoints deliberately
+accept no query parameters. Four controlled tests reproduced the URL change with
+the real framework deployment bootstrap. `PublicMedia` now uses `overrideSrc`
+only for its already-validated API image URLs. This preserves Next image geometry,
+loading behaviour, fallbacks and approved-host/preview boundaries while keeping
+the API URL exact. Server validation and permissions remain unchanged.
+
+The first hosted run retained 68 passes and 13 failures as evidence. Four were
+the known not-found stylesheet warning with Vercel's deployment query; six were
+gallery/upload cases requiring investigation or fixture-environment correction;
+three were DNS/connection failures. The upload fixture's `.test` storage host is
+correctly unapproved in production and must be intercepted at a configured public
+storage hostname for hosted acceptance. No real storage upload is authorised by
+the test. Corrected rendered acceptance and publication remain pending.
+
+### Historical merged-branch checkpoint
+
+The following dated observation is retained from origin/feat/visual-identity-audit-20261027; it is not a claim of current production identity.
+
 ## 28 October 2026: Notification bell preview prioritizes unread updates
 
 The initial live frontend `09efa694` / `dpl_9us8TLTvZJxzA8KNvdKNqFMqjg8F`
@@ -17,8 +57,7 @@ customer, staff, admin and super-admin journeys at 390/1440px (9/9); the first
 browser attempt used `127.0.0.1` and Next blocked its development resources,
 then the same test passed on the server's `localhost` origin. Fixtures do not
 prove live authenticated-role behavior. No customer record, read state, message,
-backend, schema or provider was changed. Exact-source CI, staged deployment and
-hosted acceptance remain before publication; physical-device and full
+backend, schema or provider was changed. Physical-device and full
 screen-reader acceptance remain open. During release preparation, both domains
 advanced to navbar runtime `4aafaebb` / `dpl_F5XnU2aiSxhtK78P8dnbvrffYCR5`.
 Both domains then advanced to favourites runtime `ef06efb7` /
@@ -29,11 +68,25 @@ historical-commerce case passed after setting the local launch mode to the
 production `browse_enquiries` value; the default `full` fixture had exposed a
 test-environment mismatch. Exact-source GitHub frontend, secret and backend
 safety checks passed on `ddfab325`. Production then advanced to Learn/Allie
-runtime `072e0509` / `dpl_Bov9FbKyy4yPMRqWnJG3CpX6MMQz`; that source is being
-merged before staging, so fresh checks remain. A local full check was stopped
+runtime `072e0509` / `dpl_Bov9FbKyy4yPMRqWnJG3CpX6MMQz`; that source was
+merged. A local full check was stopped
 after the disk preflight fell below the owner's 20 GiB reserve; the shortfall
 later cleared without any cleanup. The product-favourite browser fixture
 requires server-side product data and cannot run on this standalone server.
+
+Final runtime `1a33815c` passed frontend release CI `40713279695`, secret
+guard `40713279399` and backend safety `40713279822`. Vercel built
+`dpl_71G8rw7VmXo7WZZCDJpvTb5eCMib` from that exact SHA with production
+settings; protected hosted reads of Home, Help, Learn, Parts and Notifications
+returned 200. Promotion succeeded and both custom domains independently
+resolved to the same READY deployment. Post-promotion Playwright passed the
+mixed unread preview plus eight customer, staff, admin and super-admin
+journeys at 390/1440px with synthetic API data. No production notification
+was marked read and no real account write occurred. The previous
+`dpl_Bov9FbKyy4yPMRqWnJG3CpX6MMQz` release remains available for rollback.
+Real authenticated-role, physical-device and full screen-reader acceptance
+remain open. Disk reserve was rechecked after promotion and no Docker resource
+or database was modified.
 
 ## 28 October 2026: Learn, Allie and walkthrough interaction audit
 
@@ -42,7 +95,7 @@ Finite cycle covers anonymous public journeys, synthetic delayed/error/access ch
 keyboard controls and narrow/desktop layouts. Reused the contact-validation worktree
 on fix/learning-interaction-audit-20261028, initially from dfd79d91 (same runtime
 as published 4aafaebb). A later favourites release ef06efb7 was observed during
-verification and must be included before publication. Other dirty work is preserved.
+verification and was merged before publication. Other dirty work is preserved.
 
 Verified P1/P2 issues and fixes:
 
@@ -63,8 +116,10 @@ Verified P1/P2 issues and fixes:
   written mode was deliberately chosen. Missing/obscured controls offer an immediate
   written fallback. Step changes reset panel scroll, completion retains a focus
   destination, and removing/changing the same-page guide fragment closes the guide.
-  Cross-page pause remains supported. Guide exit restores an available same-page
-  launcher after the floating dock becomes visible again.
+  Cross-page pause remains supported. A final real-content probe also found that an
+  unavailable guide stayed over Learn after Available learning; that navigation now
+  explicitly closes its guide, with a regression assertion. Guide exit restores an
+  available same-page launcher after the floating dock becomes visible again.
 - Practice search/review results are focused and revealed. Existing local-only inputs,
   explicit sample replacement, errors, choices, reset and exit boundaries remain.
 
@@ -80,20 +135,77 @@ geometry/focus, denial/retry/identity changes, responsive guide pause/resume/res
 completion/hash/error recovery, and practice errors/replacement/review/reset/return.
 The first delayed-focus run exposed a React commit timing race; restoration moved
 from a requestAnimationFrame into the post-commit effect and both focused cases
-passed. Final combined regression and exact-source CI/hosted acceptance are pending.
+passed. Ten interaction cases passed locally before the last recovery-link
+assertion was added; the combined local run reached 23 passes before a renewed
+disk-reserve stop. Final exact-source hosted regression is recorded below.
 Evidence remains in %TEMP%/aat-learning-* and the maintained e2e/unit tests.
 
 Disk preflight initially passed at 26.74 GiB free with a 1 GiB budget. A later
 measurement fell to 19.15 GiB; task-owned dev/browser/test processes were stopped.
 Read-only inventory preserved all source, caches, dependencies, other tasks and
 Docker/data resources. Free space subsequently returned to 25.74 GiB without any
-agent deletion. A fresh preflight is required before resuming substantial writes;
-this records point-in-time measurements, not a machine-wide quota guarantee.
+agent deletion. A subsequent check again fell below reserve. Native npm cache
+verification
+reclaimed 185 unreferenced blobs (101,752,433 logical bytes). Automatic approval
+review rejected the combined generated-cache/duplicate-CLI removal command with
+"blocked by policy"; no alternate agent deletion was attempted. At the owner's
+request, exact manual PowerShell/native npm instructions were supplied. The two
+generated directories were subsequently absent and a fresh preflight passed at
+20.45 GiB free before hosted testing. These are point-in-time measurements, not a
+machine-wide quota guarantee.
 
 Acceptance limits: intercepted data is synthetic, not real authenticated-role
 acceptance. Physical Safari/Android phones, mobile OS keyboards, full screen-reader
 acceptance and inaccessible private guides remain unverified. No claim of complete
 WCAG conformance or absence of every possible site defect.
+
+### Learning audit production release
+
+Final runtime `072e0509683df08c8635c495a76245ea1cc60379`, Vercel
+`dpl_Bov9FbKyy4yPMRqWnJG3CpX6MMQz`, is READY and promoted on apex/www.
+The promotion guard verified project, runtime, both previous alias ancestries and
+all three green exact-source workflows. Preserved prior favourites deployment
+`dpl_FAJ8oVhecCNTGac2XAyufAgg7hvv` / `ef06efb7` for rollback. The first build
+`dpl_2yoSNBWLTchrnmzy49kGXgUjKMtt` was superseded by the final recovery-link repair
+before public alias promotion.
+
+[Frontend release CI](https://github.com/Otto-space/allied-autotech/actions/runs/40710727313),
+[secret guard](https://github.com/Otto-space/allied-autotech/actions/runs/40710727576)
+and [isolated database safety CI](https://github.com/Otto-space/allied-autotech/actions/runs/40711362859)
+passed. Frontend gates include locked dependencies, zero reported production audit
+vulnerabilities, lint, types, complete units, Next 16.4.3 optimized build and format.
+The last frontend-only commit did not trigger the path-filtered database workflow;
+it was explicitly dispatched at the same frozen commit and passed against isolated
+CI PostgreSQL. No application database test/write or backend release occurred.
+Backend `8fd37e1c-d2e2-4e2f-bbe4-3e9acb8c5650` remains ACTIVE without pending
+release. Provider backup inventory showed eight backups, newest 2026-10-28T05:22:10Z;
+existing separate restore receipt passed with equal original row hashes on
+2026-10-26T19:53:05Z. No new shared restore or database safety override.
+
+Hosted acceptance passed all 39 cases on actual deployed CSS with no asset patch:
+%TEMP%/aat-learning-hosted-regression. This includes ten new interaction cases,
+seven refresh/Help/authentication-focus cases, ten dock/navigation/selection cases,
+five container/control-focus cases and seven navbar cases. APIs are intercepted
+synthetic GET/auth fixtures; these do not count as real signed-in acceptance.
+
+Separately, real public-content interaction passed at 390 and 1440px: all six
+available articles and both disclosures, search/modes/clear/empty recovery, Allie
+relevance/repeat/alternatives/context/guide/practice controls, guide entry, page
+highlight, written reference, pause/resume/restart/completion/exit, same-page Allie
+guide start, and the actual Corolla practice's sample fields, fictional search,
+each evidence disclosure, each choice/review, reset and return. Additional real
+320x568, 701x900 and 844x390 checks passed for overflow, modal fit and close access.
+Scoped automated Axe scans passed for hub/Allie. There were no page exceptions or
+API writes in this public audit. Receipt: %TEMP%/aat-learning-live-acceptance.json.
+Screenshots aat-learning-final-hub-320.png, aat-learning-final-hub-1440.png and
+aat-learning-final-allie-390.png were visually inspected; files remain in %TEMP%.
+
+Real www-domain 390/1440 checks also passed repeated article refresh without the
+dark focus border, specific Allie relevance, hide-floating-help/Help-card reopen,
+keyboard focus return, retained Whatsapp access and unavailable-guide navigation
+cleanup. Receipt: %TEMP%/aat-learning-www-acceptance.json. Both provider aliases
+were rechecked against the same final runtime/deployment. Physical-device, real
+private-account and full screen-reader acceptance remain open.
 
 ## 28 October 2026: Stable navbar through Help to Learn navigation
 
@@ -286,6 +398,43 @@ recheck passed, and the route wait allows development compilation. Production
 checks and hosted receipts are appended below when complete. Physical iPhone/Safari/Android and real authenticated roles
 remain untested; browser emulation is not their acceptance.
 
+### Production acceptance
+
+Runtime `0d4dd9921d28c7b9c87020c5c045496874473de2` is deployed as
+`dpl_DAgy9emEabtd3H58kWjoBw35EUUc` to both alliedautotech.com and
+www.alliedautotech.com. The guarded promotion re-read both previous aliases and
+verified their source was included. Rollback is the preserved preceding deployment
+`dpl_79uCiatbRsCvM2jtPJkwsx53efpP` (`552ee418`). No backend was redeployed.
+
+Exact-source checks passed:
+[frontend production checks](https://github.com/Otto-space/allied-autotech/actions/runs/40678376969)
+(locked install, runtime audit, lint, typecheck, full unit suite, production build,
+formatting), [secret guard](https://github.com/Otto-space/allied-autotech/actions/runs/40678377082)
+and [database safety CI](https://github.com/Otto-space/allied-autotech/actions/runs/40678376941).
+The Vercel production build is READY. No application database writes or migrations
+were made. Read-only operational preflight found eight managed backup entries,
+latest 28 October 05:22:10 UTC, and the existing successful separate restore receipt
+from 26 October; this task did not perform a new restore rehearsal.
+
+Live Edge acceptance passed at 390 and 1440 pixels: three actual reload/immediate
+trusted touch gestures per viewport, Help search/result focus, full hub navigation,
+public guide written-mode completion/exit, Allie unmatched-search/topic recovery,
+another-question focus and Escape return. The six settled positions remained below
+the preceding position rather than returning to the top. No page errors or real API
+writes were observed. Receipt: `%TEMP%/aat-live-acceptance.json`. This touch check
+replaces an unsuitable programmatic-scroll probe: native reload restoration may
+replace a script-issued scroll, so that probe is not counted as user touch evidence.
+The hosted login/MFA focus checks also passed (two intercepted synthetic cases,
+`%TEMP%/aat-live-auth-focus`). The www learning page returned 200 with its new
+breadcrumb and no horizontal overflow. Screenshots inspected:
+`%TEMP%/aat-live-allie-390.png`, `aat-live-guide-390.png`, `aat-live-allie-1440.png`.
+
+No Docker resources, dependencies or duplicate worktrees were created. Existing
+suitable dependencies/worktree were reused. Final disk reserve preflight passed at
+21.74 GiB free; this is a point-in-time check. Next acceptance priority is physical
+mobile browser/keyboard behavior and genuine permitted/denied account journeys;
+these are not certified by the synthetic authentication or Edge emulation checks.
+
 ## 27 October 2026: Workshop address and Whatsapp labels
 
 Updated the public address to "133 Stadium Road, beside Kilimanjaro Pizza Jungle
@@ -308,12 +457,45 @@ intercepted; no message sent). Screenshots: `%TEMP%/allied-location-390.png` and
 `allied-location-1440.png`; receipt: `allied-location-browser.json`. These are
 local, mocked API checks, not real-device or authenticated acceptance.
 
-Updated 26 October 2026. This is the ongoing quality register, not an assertion
+Updated 27 October 2026. This is the ongoing quality register, not an assertion
 that every route or state has passed review. Work proceeds in finite batches.
 
 ## Standing responsibility and source
 
-Current bounded implementation: the owner's complete colour/state brief, branch
+Current bounded implementation: reviewed Customer Care handoff W15; see the final checkpoint and docs/help-learn/REVIEWED_HANDOFF_W15.md. Complete Revision 4 remains active.
+
+Prior W14B checkpoint: W14B reviewed Care policy foundation. Immutable v1
+is preserved; v2 adds separate view/reply/assign/live duties. Job positions remain
+fixed, existing delegated v1 management stays usable and unknown old names do not
+become authority. 45 native regression/final5 focused cases,51 backend units,
+full1134 frontend plus29 focused/final12 component,8 final responsive fixtures,
+types/contracts/lint/secret guard and final cached build passed. Fixed real review
+reason loss while retaining immediate password clearing. Operational Care adapters,
+handoff and staffed transport remain required; these duties are not declared usable
+or deployed. See `docs/help-learn/WORKFORCE_CARE_POLICY_W14B.md`.
+
+W14A prerequisite: branch-specific Care contact boundary. Mixed-branch
+Staff/Admin and natural-expiry lock-wait defects were reproduced and corrected.
+Six native cases,13 parser units and8 responsive fixtures at390/1440 passed;
+foreign contact responses fail closed, legitimate Sales reply access remains.
+See `docs/help-learn/WORKFORCE_CARE_CONTACT_W14A.md`. No publication/schema/provider
+call; granular Care duties, reviewed handoff and staffed shared transport remain open.
+
+Previous bounded implementation: Revision4 W13 scoped financial aftercare, branch
+`feat/workforce-scoped-aftercare-20261027`, based on W12 `e31af199` in the reused
+`allied-home-restoration-20261025` worktree. Finance branch scope and the separate
+financial approval duty both govern the queue/detail/decision. Customer-visible notes,
+internal evidence, current-review HMAC and uncertain outcome recovery are explicit.
+Final62 native,60 backend units, full1130 frontend/final67 focused,21 responsive
+fixtures and1 actual native-browser case passed, with types/contracts/lint/build.
+No new schema, provider call, external customer message or publication. AI defaults
+stay off and W9 allowance remains exhausted. Granular Care authority, canonical
+reviewed handoff, gated shared staffed transport and all106 route learning acceptance
+remain open. Evidence: `docs/help-learn/WORKFORCE_AFTERCARE_W13.md` and retained W12
+booking/W11 independent-grant/W10 history/W9 evaluation checkpoints. Customer-table/
+sidebar responsiveness remains Cycle13; unrelated newer release work is preserved.
+
+Deployed colour/state baseline: the owner's complete colour/state brief, branch
 `feat/colour-states-20261026` in the reused `allied-shop-vehicles-r2-20261025`
 worktree, based on `3cea520f` / released runtime `8c11c3a0`. Shared black/red/white
 tokens and contextual states are deployed as runtime `d6d8534d`, preserving the
@@ -353,8 +535,8 @@ collection only; no fabricated stock, fitment evidence, products or vehicles.
 
 ## Route, role and state inventory
 
-[Machine-readable source inventory](ui-quality-inventory.json) lists all 104
-`app/**/page.tsx` route patterns, dynamic segments, role families and 320 source
+[Machine-readable source inventory](ui-quality-inventory.json) lists all 106
+`app/**/page.tsx` route patterns, dynamic segments, role families and 338 source
 files with form, table, disclosure, select, file input, dialog, feedback or
 boundary signals. Regenerate with `node scripts/ui-quality-inventory.mjs` from
 `frontend`. These are source signals, not proofs that a route exposes a control,
@@ -2033,6 +2215,151 @@ in backend/docs/workforce-versions-production-20261026.md. Other worktrees and
 uncommitted edits preserved; no speculative Docker cleanup; C: 27.71 GiB free.
 Full Revision 4 implementation and broader Item 6 remain open.
 
+26 October 2026 - Revision 4 W4A local checkpoint: server-derived responsibility
+capabilities/branch/scope/provenance and assign/revoke added/removed/retained preview.
+Delegated hidden-source and maximum-scope redaction retained; optional impact digest
+is recomputed inside the existing locked mutation, rejecting stale/expired reviews
+without partial writes. Position, baseline, independent grants and approval rules
+are unchanged; full effective-policy/nav/session/subscription composition is open.
+Fresh synthetic native CI target replayed 72 migrations, schema/db:check and runtime
+least-privilege checks passed. 56 workforce plus seven learning integrations, 12
+backend units, 1,066 frontend units, final lint/types/contracts and optimized build
+passed; 24 focused units rechecked the final lifecycle correction. 77 distinct local
+fixture browser cases accepted at 320-1920px, impact review 390/1440px with Axe,
+keyboard, overflow and inspected screenshots. An initial raw-503 fixture expectation
+was corrected to the existing safe generic error; no product safety was weakened.
+The exact prepared preview script started on 127.0.0.1:3167 after fresh explicit
+owner approval. All browser APIs were intercepted; no real submissions/deployment.
+Evidence: docs/help-learn/WORKFORCE_EFFECTIVE_ACCESS_W4.md. The 106-route completion
+gate remains unmet; actual AI/provider evaluation, full learning, persisted Customer
+Care handoff and staffed/gated live chat remain required. C: postflight 27.85 GiB;
+no Docker/worktree/profile/install duplication or speculative pruning. Other active
+worktree changes/releases are preserved and require reconciliation before any rollout.
+Full Revision 4 and Item 6 remain open.
+
+26 October 2026 - Revision 4 W5 local checkpoint: canonical managed-workforce
+navigation/page/action predicates, scoped revision metadata and server-relative
+activation/expiry rechecks. Access loss discards stale reads, protected drafts,
+learning and staff notification previews; forbidden pages return to the permitted
+overview with an explanation. Owner baseline preserved even with a business-position
+record, including the current-role guarded legacy invitation helper. No authority,
+commerce, schema or real messaging capability added. Existing unknown-save recovery,
+MFA, branch/assigned scope and independent approvals retained.
+75 distinct native HTTP/DB cases accepted across bounded runs on the W4 synthetic
+CI target; db:check and runtime restrictions reverified. Full 1,086 frontend units,
+then 29 route/draft and 16 final preview cases passed; lint/types/contracts and the
+final optimized build passed. 87 distinct intercepted browser cases accepted in
+12 bounded batches, plus two console/Axe/overflow screenshot rechecks at 390/1440px.
+Mobile/desktop images visually inspected; real roles, physical devices and full
+screen-reader acceptance remain open. Tests exposed/fixed notification cache and
+record-navigation draft regressions; harness qualifications are documented.
+Evidence: docs/help-learn/WORKFORCE_NAVIGATION_SESSIONS_W5.md. The full Revision 4
+and 106-route completion gate remain open: independent policy composition, real AI,
+persisted reviewed handoff, gated staffed chat and provider evaluation are required.
+No W4/W5 deployment. Other active worktree changes/releases retained and need
+reconciliation before publication. Disk preflight stopped a low-headroom build;
+space recovered without deletion. Reviewed obsolete dev-output deletion was blocked
+by automatic approval review; no alternate removal attempted. Browser batches kept
+at least 27.074 GiB in accepted receipts. No Docker resources created/pruned.
+
+Revision 4 W6 (27 October): backend-only provider/retrieval core passed 51 contract/unit and 10 native learning cases with the provider mocked. No frontend interaction or source inventory changed; W5 rendered evidence above remains the UI checkpoint. Allie UI is still reviewed search, not an enabled conversation. See `docs/help-learn/ALLIE_PROVIDER_CORE_W6.md` for actual checks, provisional data flow and unfinished state/quota/endpoint/UI/provider evaluation. No new visual acceptance or deployment claimed.
+
+Revision 4 W7 (27 October): owned transient conversation backend passed 36 native HTTP/DB and 139 unit cases with provider mocked; migration 73 fresh replay/schema/db:check and generated API types passed. No conversation UI added or new rendered acceptance claimed; W5 remains the frontend checkpoint. Owner setup instructions and a DPAPI masked-key helper are available. AI remains disabled; full 106-route acceptance, configured-provider evaluation, privacy UI, persisted Customer Care handoff and gated chat remain open. Evidence: docs/help-learn/ALLIE_CONVERSATIONS_W7.md and learning-threat-model.md. No publication.
+
+Revision 4 W8 (27 October): local Allie conversation/privacy UI accepted in 16 distinct browser fixtures, 19 new unit cases and full 1,109-case frontend run; final focused/format/lint/build checks passed. Public and all existing dashboard roles, six widths plus 390x844, stop/unknown-outcome/clear/access boundaries, keyboard/focus/reduced motion and Axe verified as documented. Native backend 37 integrations and 60 core/state units passed with provider mocked; no real model or combined hosted journey. Existing auth launcher exclusion preserved after correcting the test assumption. Evidence: docs/help-learn/ALLIE_CONVERSATION_UI_W8.md; no publication/default AI enablement. All 106 route decisions, provider evaluation, persisted handoff and gated chat remain open.
+
+Revision 4 W9 (27 October): actual provider evaluation and local browser composition
+checkpoint accepted within limits; baseline quality issues and representative fixes
+recorded in docs/help-learn/ALLIE_EVALUATION_W9.md. 80 units/39 native cases, backend/
+frontend types/lint, actual guest/customer flows, native-dialog Axe and inspected
+390/1440 screenshots. No new UI redesign, publication, permission expansion or build.
+All 106 route gates and full handoff/live/workforce foundation remain open.
+
+27 October 2026 - Revision 4 W10 local checkpoint: unsupported workforce history
+preserved by bounded read-only contracts and revocation receipts; current grants
+and mutation inputs remain strict. Nine native effective-access cases, 17 focused
+frontend cases, full 1112 tests/167 files, source/scripts/frontend types and lint,
+OpenAPI375/routes439+4 and one optimized cached build passed. Four final rendered
+fixtures at 320/390/768/1440 passed with keyboard, Axe, overflow and no writes/errors/
+external calls. Inspected mobile/desktop viewport screenshots; fixed test disclosure
+and tall-element screenshot assumptions. No provider call, schema change, install,
+new worktree or publication. Evidence: docs/help-learn/WORKFORCE_HISTORY_W10.md.
+Exact-lock Next16.4.3 CI, hosted/real-role/device acceptance remain open. Independent
+grant/account-baseline composition and granular care authority are next foundation
+dependencies before persisted reviewed handoff and gated shared/staffed transport.
+All 106 route completion gates remain open; full Revision4/Item6 stays active.
+
+27 October 2026 - Revision 4 W11 local checkpoint: separate recognised active
+owner grants compose with the managed boundary without widening branch duties.
+Existing refund/dispute/privacy/financial-policy workspaces, current grant revision,
+source eligibility, scoped notification links and stale-read/review disposal align.
+Managed Admin uses the scoped refund queue and cannot recover broad legacy refund
+inspection; owner/unenrolled legacy inspection and independent approval remain.
+57 native HTTP/DB cases, 112 backend units, full 1114 frontend units and final45
+focused cases, 18 populated role/width browser fixtures and11 history/session
+regressions passed. Types/lint/contracts, final cached build and secret guard pass.
+Known Next not-found CSS preload warning is verified/reported separately; full
+route acceptance, hosted/device/screen-reader checks remain open. No schema/model
+call, real message, install, new worktree or publication. W9 approval stays exhausted.
+Evidence: docs/help-learn/WORKFORCE_INDEPENDENT_ACCESS_W11.md. C:25.79GiB free; Docker
+retention reviewed without deletion, denied dev folders unchanged. Next: compatible
+scoped BOOKING_CONFIRM and financial-aftercare adapters, then granular Care duties,
+persisted reviewed handoff and shared staffed/gated transport. All106 completion
+decisions and full Revision4/Item6 remain active.
+
+27 October 2026 - Revision4 W12 local checkpoint: scoped booking confirmation
+requires current BOOKINGS_READ branch scope AND separate BOOKING_CONFIRM. Shared
+legacy capacity/calendar/assignment/schedule/version/audit/reminder guards retained.
+Eleven scoped native,57 workforce/session/learning,11 legacy booking,59 backend units,
+full1121 frontend and final34+35 focused cases passed. Twenty final responsive
+fixtures at320/390/768/1440 and one actual browser/CSRF/API/restricted-CI-DB
+confirmation passed. Fixed stripped recovery hints via explicit reviewed error codes
+and narrow-detail label squeezing via detail-only stacked mobile facts.
+OpenAPI376/routes440+4, generated types, types/lint/secret guard and final cached
+build pass; exact-lock16.4.3/hosted/device acceptance remains open. No schema change,
+model call, real message, install, new worktree or publication; W9 allowance exhausted.
+Evidence: docs/help-learn/WORKFORCE_BOOKING_W12.md. C:25.56GiB measured free. Native
+API stopped and synthetic browser session/cookie retired; existing frontend preview
+retained. Docker resources preserved, denied dev-folder cleanup not retried.
+Next: scoped financial-aftercare then granular Care permissions, persisted reviewed
+handoff/shared staffed transport. All106 route gates and fullRevision4/Item6 active.
+
+27 October 2026 - Revision4 W13 local checkpoint: scoped financial aftercare
+requires current FINANCE_READ branch scope AND separate FINANCE_POLICY_APPROVE.
+Minimal queue/detail, current evidence HMAC, customer-visible reviewed decision note,
+receipt verification and reload-safe uncertainty block implemented. Existing legacy
+fee/inspection/immutable-data/audit rules retained; no stock/refund execution.
+Final62 native across7 suites,60 backend units, full1130 frontend plus67 focused,
+21 responsive Staff/Admin fixtures and1 actual browser/CSRF/API/CI-DB case passed.
+OpenAPI379/routes443+4, generated types, types/lint/secret guard and cached build pass.
+Evidence: docs/help-learn/WORKFORCE_AFTERCARE_W13.md. No schema/model call, real message,
+install/new worktree or publication. W9 allowance exhausted. Native API/session/cookie
+retired; frontend preview retained. C:25.43GiB measured free; Docker useful resources
+preserved and denied dev-folder cleanup untouched. Next: granular Care permissions,
+canonical reviewed persisted handoff and shared staffed/gated transport. All106
+route learning decisions, exact-lock/hosted/device gates and fullRevision4 remain open.
+
+27 October 2026 - Revision4 W14C local checkpoint: operational Care view/reply/assign
+intersect on the actual branch. General enquiries and complaints use canonical
+reviewed assignment with checked eligible-handler pagination, CAS/audit/notifications.
+Read-only controls, current help/practice predicates, public/internal separation,
+revocation and reference-only uncertainty recovery implemented; unsent cross-action
+drafts retained after verified success. Final14 native+61 regressions,21 backend
+units, full1145 frontend/171files+36 focused,36 new responsive and50 legacy browser
+cases pass. One real browser/CSRF/API/restricted-CI-DB flow saved2 assignments and
+2 public replies,4 audits,zero internal messages,unchanged inventory/bookings.
+OpenAPI381/routes445+4,types/lint/secret3260/correctly configured cached build pass.
+Screens inspected; synthetic sessions revoked/cookie removed. No schema/provider
+call,real delivery or publication. Evidence: docs/help-learn/WORKFORCE_CARE_CASES_W14C.md.
+FullRevision4 remains active: next canonical reviewed persisted Allie handoff, then
+shared staffed/gated transport and all106 exact route-learning decisions. W9 allowance
+exhausted; new Care guidance has no actual-provider re-evaluation. Exact-lock16.4.3,
+hosted/actual-role/device/screen-reader gates stay open. Useful Docker/caches retained.
+
+## Revision 4 W15: reviewed Customer Care handoff
+
+Verified customer Allie now opens an editable queued-message flow without requiring AI attempts. Exact destination/audience review, selected excerpts, cancel/edit, loss/reload recovery, independent drafts and canonical history/operator visibility are implemented. Full 1,161 frontend tests, 32 distinct Allie/handoff browser fixtures at 320-1440px and one real browser/API/restricted-CI-DB composition pass; scoped Axe and keyboard/focus checks are recorded. Backend ownership/privacy and transactional acceptance remain distinct from real delivery. Evidence and screenshots: `../../docs/help-learn/REVIEWED_HANDOFF_W15.md`. No provider call, production seed, publication or live-chat staffing claim. Two exact customer-support matrix entries contain partial evidence; all 106 complete route decisions remain open. Physical devices, complete screen readers, current hosted roles, new-source real-provider quality and shared staffed transport remain unverified.
+
 26 October 2026 - complete colour/state brief, local implementation checkpoint.
 Branch feat/colour-states-20261026 in allied-shop-vehicles-r2-20261025, based on
 3cea520f / released runtime 8c11c3a0. Shared black/red/white tokens, branded
@@ -2275,6 +2602,46 @@ that is a preview configuration gap, not hosted journey acceptance. Desktop and
 exact-source CI and production verification remain pending. No customer form or financial action was
 submitted.
 
+### Historical 26 October Allie visual checkpoint
+
+This earlier visual checkpoint is retained as evidence. Its AI deferral wording
+is superseded by Revision 4 and the later W6-W15 implementation records.
+
+## Cycle 15 - Help, Help & Learn and Allie - 26 October 2026
+
+Bounded owner-requested refinement, runtime candidate aa54fba8, branch
+feat/help-allie-20261026 in allied-shop-vehicles-r2-20261025. Help's bare learning
+link is now a branded card; /learn has three visible modes, all-kind eligible search,
+plain task/source presentation and query/mode-preserving navigation. Allie uses a
+small native SVG and compact content-based panel/sheet with approved answers,
+source/actions/unknown fallback; no provider, record lookup or action tool. Actual
+role/context eligibility and in-memory practice boundaries remain authoritative.
+Reproduced oil-filter search progression timing failure and repaired refresh/remount
+readiness. Busy/missing/written/paused states explain themselves; live guides are
+non-modal and do not fill/submit. Practice uses a single sticky mode signal,
+editable sample care replies, honest hints and specific feedback. Dedicated practice
+pages suppress floating support controls after actual mobile overlap review.
+
+Evidence: 1,039 frontend tests; seven actual authenticated API cases, 71-migration
+fresh isolated replay/db:check and runtime privilege checks; lint/types/build,
+OpenAPI/types/424 operations. All three exact-runtime CI workflows passed. Real
+isolated API/compiled Edge acceptance: 29/29 baseline plus six final-polish rechecks,
+Help/hub/Allie at 360/390/768/1024/1440 and practice at 320/390/768/1440; scoped Axe,
+keyboard/focus/Escape, reduced-motion/logical reflow, denied/private/unknown/error,
+identity clearing, actual 30-second guide refresh and node replacement. Practice
+network assertions observe no business writes or external traffic; form drafts and
+practice inputs remain separate. No new production publication or real business write.
+
+Full criteria, design-reference comparison, screenshot index, CI links and precise
+limits: [Allie checkpoint](../../docs/help-learn/ALLIE_IMPLEMENTATION.md).
+Local screenshots: %TEMP%/allied-allie-20261026/. Installed Edge/Next 16.3.8 local
+rendering is distinct from locked Next 16.4.3 CI. Physical devices/native keyboards/
+zoom, full screen-reader and actual authenticated production-role acceptance remain
+open. Existing launch/policy/permission constraints, other worktrees and unrelated
+Home/dashboard scope are preserved. Site-completion Item 6 remains open.
+
+## Shop publication checkpoint - 28 October 2026
+
 28 October 2026 - Shop visual-audit frontend released. Runtime 552ee418,
 Vercel dpl_79uCiatbRsCvM2jtPJkwsx53efpP READY on both apex/www after promotion
 and 14 live public checks. Preserves 9f9311cf collection guidance and fbb6565a
@@ -2286,6 +2653,99 @@ V20 initial mobile spacing and V23 wider vocabulary remain partial; full V01-V55
 goal remains active. Evidence/limitations/rollback and disk-preflight incident:
 backend/docs/shop-audit-production-20261028.md. Other tasks/dirty work preserved.
 
+### Historical merged-branch checkpoint
+
+The following dated observation is retained from origin/fix/compatibility-release-20261025; it is not a claim of current production identity.
+
+Release source `313c4f9c` passed exact-source frontend CI. Production-configured
+Vercel `dpl_GDqL1pgfFbWtb7avvNGGW8Zu3bNH` is READY on both main and www aliases,
+after the matching API became ACTIVE on `634b9110-8ad0-455e-ad7d-48cd9ee35681`.
+Protected candidate Home, Help, Parts and admin routes responded successfully.
+The final three browser-isolated editor cases passed on the actual main domain:
+320px write-time conflict/draft reload, safe failed-read retry, and mobile
+layout/automated accessibility. All requests that could write were intercepted
+inside the browser; this does not claim an authenticated operator test or
+production data change. Public Home/Help/Parts responded 200 after promotion,
+`/shop` resolved to `/parts`, and `/demo` remained 404. Wider role/device and
+manual screen-reader acceptance remain in the prioritized backlog.
+
+### Historical merged-branch checkpoint
+
+The following dated observation is retained from origin/fix/parts-enquiry-copy-current-20261028; it is not a claim of current production identity.
+
+28 October 2026 - P1 public Parts detail enquiry copy released. The only live
+oil filter had no branch availability, yet its detail told visitors to arrange
+collection from a listed branch and repeatedly described ordering. Runtime
+9f9311cf builds on fbb6565a and uses the existing launch-mode gate to require
+staff confirmation of stock and collection arrangements before visiting.
+Full-commerce wording remains separate. Price, availability, fitment and the
+product-specific enquiry destination are unchanged. Exact-source frontend CI
+40668317540 and secret guard 40668317916 passed. A preview without
+BACKEND_ORIGIN returned 503 on dynamic detail; the protected production-target
+deployment returned the corrected page, then was promoted as
+dpl_68bNV74wNajB9vW1Ly85nzmmdEvU. Both apex and www serve that ID. Live Edge
+at 390/1440px passed product-detail heading, corrected copy, collection FAQ,
+product-specific Contact navigation, no horizontal overflow and no page errors.
+No customer form, payment or inventory action was submitted. Native devices,
+screen readers and authenticated-role acceptance remain outside this check.
+
+### Historical merged-branch checkpoint
+
+The following dated observation is retained from origin/fix/customer-vehicle-payment-filter-20261027; it is not a claim of current production identity.
+
+27 October 2026 - P1 vehicle-payment history on purchase detail. The verified
+customer list API candidate filters by the owned vehicle transaction before
+pagination, and the purchase panel requests that target and rejects a mismatched
+row or incomplete history. This prevents unrelated account history from exhausting
+the client scan; source payment locks and eligibility remain authoritative.
+Six focused Edge/Playwright fixture cases passed on the locally compiled page:
+later-page unresolved requests, wrong-target data, failed fetch and repeated cursor.
+The first run used a blocked Next development origin and was not counted; the
+successful run used localhost. Frontend typecheck, scoped ESLint/formatting and
+exact-lock GitHub frontend release checks passed. A fresh isolated PostgreSQL
+service test covered owner/target/cursor boundaries. This is not a full-page
+accessibility or real production-role acceptance. The backend and frontend must
+release in that order; no production deployment or financial transaction was made.
+Evidence and provider-access limit: backend/docs/customer-vehicle-payment-filter-20261027.md.
+
+27 October 2026 - Contact visit-preference validation, P1 local correction. At
+`/contact` with an anonymous service enquiry, a future date and missing time,
+the rendered form focused and marked the already completed date field. Entering
+the time left the shared error visible until another review. A 4,000-character
+message plus visit details also focused the date rather than the message. The
+shared SERVICE/VEHICLE preference validator now identifies the field that needs
+correction; the form marks it, connects its error description, focuses it and
+clears stale feedback on editing. Both visible preference fields expose their
+required state. Review still creates no booking, hold or payment. Eleven focused
+unit cases, frontend typecheck, scoped lint/format and `git diff --check` passed.
+Read-only isolated Edge/Playwright CLI interaction confirmed the before/after
+missing-time focus and correction, message-overflow focus, valid review dialog,
+and no overflow at 320px. The local API responses were fixtures; no POST was
+sent. Exact-source locked Next 16.4.3 frontend release CI 40448703220 and
+redacted secret guard 40448703167 passed for runtime c54ef088; the reused local
+Next installation is 16.3.8. Hosted acceptance, wider public forms, physical
+keyboard/screen-reader checks and full site completion remain open.
+
+### Historical merged-branch checkpoint
+
+The following dated observation is retained from origin/fix/parts-enquiry-copy-20261027; it is not a claim of current production identity.
+
+27 October 2026 - P1 public Parts detail enquiry copy. On the live 390px page,
+the only listed oil filter had no branch availability, yet the detail said to
+arrange collection from a listed branch and repeatedly described ordering.
+The bounded candidate, rebased onto exact live frontend source a1b8ce45,
+uses the existing launch-mode gate to ask visitors to confirm stock and
+collection arrangements before visiting. Full-commerce wording remains separate.
+The product's price, availability, fitment and enquiry destination are unchanged.
+An optimized Next 16.4.3 build and scoped lint passed; a rendered 390px detail
+showed the revised wording, exact product enquiry link, no overflow and no page
+exception. Desktop optimized/hosted acceptance and release verification remain
+pending. No customer form or financial action was submitted.
+
+### Historical merged-branch checkpoint
+
+The following dated observation is retained from origin/feat/visual-identity-audit-20261027; it is not a claim of current production identity.
+
 ## Customer history and Saved items - bounded candidate, 28 October 2026
 
 V41/V42: current care and load/retry status remain first. Customer-only Activity history uses a native keyboard-operable disclosure; date drafts remain mounted across closing/opening. Verified all-zero periods use one message instead of five metrics, a flat chart and repeated empty record panels. Existing records, date filtering, permissions and staff analytics remain available. The launch limitation is shorter and placed with historical records. Remaining current-care empty cards are outside this batch.
@@ -2293,6 +2753,55 @@ V41/V42: current care and load/retry status remain first. Customer-only Activity
 V52: a successfully loaded empty collection has one browse action. Loading/error states retain navigation and retry; populated collections retain the toolbar action. Labels say Favourite products/Browse Shop without changing API values, saved IDs or mutation contracts.
 
 Acceptance: 12 focused units pass (including empty vs historical data, date draft retention, staff preservation and refresh/session behavior); types and scoped lint pass. Six hosted desktop/mobile history/Saved fixtures added for native keyboard disclosure/tabs, date changes, error recovery, one action, overflow and sampled Axe. These browser checks and exact-source cloud CI are pending; this candidate is not deployed. Existing dirty tracker/asset files and other worktrees remain untouched.
+
+### Historical merged-branch checkpoint
+
+The following dated observation is retained from fix/compatibility-concurrency-20261025; it is not a claim of current production identity.
+
+The earlier hosted run passed 11/15 scenarios. It found phone overflow caused by
+absolute assistive labels escaping the table's scroll containing block, and a
+1366px filter-grid override. Both are fixed in source and await final compiled
+acceptance. Earlier fixture envelope/ambiguous-selector failures were corrected;
+they are not counted as product regressions. Final checks and release evidence
+will follow; this checkpoint does not certify production rollout.
+
+## Cycle 10: Product compatibility concurrent edits — 25 October 2026
+
+Route `/admin/products`, administrator product detail editor. A second editor could
+change a legacy compatibility between the first editor's freshness read and write.
+The older draft could then overwrite the newer record. The editor now sends the
+child's version for update and retirement; the API compares it inside the existing
+product mutation lock and returns 409 before history or record mutation if stale.
+
+The administrator response exposes the child version while public product data
+retains its limited projection. Existing bare DELETE clients remain accepted during
+the transition. When an older response lacks a version, the editor disables
+edit/retire and asks for refresh. A rejected review disables repeat confirmation,
+preserves the draft, refreshes the record and offers explicit reload. Including the
+child version in the form draft key prevents reload from restoring obsolete values.
+
+Nine isolated PostgreSQL integration tests passed using a new `_test` database on
+127.0.0.1:55581 with a non-owning runtime role. Concurrent same-version writes
+produced one success and one 409; history advanced once and stale retirement was
+rejected. All 65 then-current migrations replayed without schema diff. Thirteen
+local Edge/Playwright product-extras cases passed, including a 320px conflict,
+draft recovery, no horizontal overflow and automated WCAG 2.2 AA rule checks. A
+focused follow-up verified that a rejected confirmation cannot be resent. Frontend
+and backend types, lint and builds passed on the pre-merge source. The integrated
+source then passed a fresh 71-migration replay, restricted-role `db:check`, nine
+focused backend integration cases, generated contracts, typecheck, lint and
+optimized builds. Its rendered editor suite and hosted release checks remain open.
+The mobile capture is `%TEMP%/allied-compatibility-conflict-mobile.png`.
+
+These are isolated and fixture-rendered checks, not an authenticated production
+editor session. Real device and screen-reader speech remain untested. The current
+`browse_enquiries` restriction and genuine catalogue content requirements remain.
+The next review should verify an authorised admin QA session on the matching
+release and continue the per-page operations backlog.
+
+### Historical merged-branch checkpoint
+
+The following dated observation is retained from origin/feat/visual-identity-audit-20261027; it is not a claim of current production identity.
 
 28 October 2026 - Customer history and Saved items released. Runtime 0b5a9b76, Vercel dpl_GWDKwqj3Gs7uT8o1qNt4ce2jdLno READY on both domains after 14 public checks. Preserves published Help/Allie/navigation 0d4dd992 and Shop 552ee418. Exact frontend CI 40680419648 passed 1074 units, lint/types/format/build and production audit; secret guard 40680419233 and isolated backend safety 40680419675 passed. Eighteen final hosted journeys plus two native keyboard/focus/hover cases passed. Backend 79d7a0ac unchanged, ACTIVE/readiness200; no local/shared database write. V42/V52 released with sampled evidence; V41 remains partial for current-care empty cards. Full V01-V55 goal stays active. Evidence, recovery, harness failure and limitations: backend/docs/customer-history-production-20261028.md. Other tasks and dirty files preserved.
 

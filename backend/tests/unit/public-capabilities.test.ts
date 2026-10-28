@@ -14,7 +14,7 @@ import { publicCapabilitiesSchema } from "../../src/modules/policies/policies.sc
 const originalEnvironment = env.DEPLOYMENT_ENV;
 const now = new Date("2026-09-24T12:00:00Z");
 const address =
-  "133 Stadium Road, beside Kilimanjaro, Port Harcourt, Rivers State, Nigeria";
+  "133 Stadium Road, beside Kilimanjaro Pizza Jungle Restaurant, Port Harcourt, Rivers State, Nigeria";
 const deliverySettings = {
   collectionEnabled: true,
   collectionAddress: address,

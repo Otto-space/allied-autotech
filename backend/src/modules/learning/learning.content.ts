@@ -6,6 +6,12 @@ export type LearningGate =
   | "care"
   | "sales"
   | "finance"
+  | "refunds"
+  | "disputes"
+  | "privacy"
+  | "financial-policy"
+  | "booking-confirmation"
+  | "financial-aftercare"
   | "jobs"
   | "assign"
   | "operations"
@@ -66,10 +72,12 @@ const article = (
   outcome:
     "You understand the next permitted step. Reading help does not change a live record.",
   recovery:
-    "If the required control is unavailable, refresh your access or use Contact support. Do not bypass a restriction or repeat an uncertain submission.",
-  version: 2,
+    gate === "public" || gate === "customer"
+      ? "If the required control is unavailable, refresh your access or use Contact support. Do not bypass a restriction or repeat an uncertain submission."
+      : "If the required work control is unavailable, refresh your access or ask an authorised access manager. No internal escalation link is supplied here. Do not forward staff guidance to public Contact or Customer Care, bypass restrictions or repeat an uncertain submission.",
+  version: gate === "public" || gate === "customer" ? 2 : 3,
   status: "published",
-  reviewedAt: "2026-10-26",
+  reviewedAt: gate === "public" || gate === "customer" ? "2026-10-26" : "2026-10-27",
 });
 export const learningArticles: LearningArticle[] = [
   {
@@ -92,6 +100,101 @@ export const learningArticles: LearningArticle[] = [
     version: 1,
     reviewedAt: "2026-10-27",
   },
+  article(
+    "financial-aftercare",
+    "financial-aftercare",
+    "work",
+    "Review a scoped financial aftercare decision",
+    "Financial aftercare requires current finance scope and a separate financial approval grant. A title, payment-reading permission or approval grant alone does not provide another branch's records.",
+    [
+      "Open Financial aftercare and filter by order reference, request type or status. Open a permitted request and inspect its requested quantities, branch, total and stored policy evidence.",
+      "Treat missing or unrecognised item/policy evidence as unknown. An authorised operator must review that evidence; do not invent a policy, fee or inspection. A return needs receipt and inspection before approval.",
+      "Choose a financial decision and record an explicit fee, including zero, when approving. Cancellation before order confirmation is free. Explain the monetary basis in the customer-visible note; never copy internal inspection notes or private financial details into it.",
+      "Review the order, branch, decision, fee and Customer-visible audience before explicitly recording the decision. The server rechecks current scope/grant and the evidence revision. This does not cancel the order, restock goods, initiate a refund or mark money received.",
+      "For a lost or unverified response, do not retry automatically. Check the current request and earlier decision history with an authorised operator, then acknowledge the inspected state. A current decision alone cannot attribute an earlier uncertain submission.",
+    ],
+    "/admin/workforce/aftercare",
+    "Scoped financial aftercare adapter, shared OrderAftercareService fee/inspection/audit core and customerAftercareView review-note projection",
+    "financial aftercare return cancellation fee approval reject inspection customer-visible decision evidence",
+  ),
+  article(
+    "booking-confirmation",
+    "booking-confirmation",
+    "work",
+    "Review a scoped appointment confirmation",
+    "Confirmation requires both current booking scope and a separate owner-granted confirmation permission. A job title or booking-reading responsibility alone is insufficient.",
+    [
+      "Open Bookings, then a permitted requested appointment. Check the branch, date, assigned staff and service duration.",
+      "Record your people and equipment review. An authorised policy owner must configure approved branch capacity and the opening calendar; missing configuration is not permission to invent capacity or confirm availability.",
+      "Review the exact appointment and note, then explicitly confirm. The server rechecks scope, the confirmation grant, calendar, daily capacity, staff schedule and version. Confirmation does not collect money.",
+      "If the result is uncertain, do not retry automatically. Check the current booking and its history, then acknowledge what you inspected. A current confirmed status alone does not attribute an earlier uncertain request.",
+    ],
+    "/admin/workforce/bookings",
+    "Scoped confirmation adapter, shared ServiceOperations transition/capacity/schedule/reminders and reviewed booking form",
+    "booking appointment confirm calendar capacity equipment people staff schedule resource review requested",
+  ),
+  article(
+    "refund-work",
+    "refunds",
+    "work",
+    "Use your separately granted refund duty",
+    "Refund approval, transfer and independent checking are separate owner-granted duties. Payment-record reading alone supplies none of them.",
+    [
+      "Open Refund requests and inspect the current refund. The queue is limited to the stages permitted by your explicit grants; it is not a list of every company refund.",
+      "Use only the action enabled for your current grant and the refund's actual status. Re-read the current amount, evidence and recipient before reviewing a change.",
+      "A checker must be independent of the requester, approver and transfer recorder. A responsibility template or Admin title does not bypass this rule.",
+      "Review and confirm explicitly. If a request's result is uncertain, inspect its saved recovery state before sending anything again. Allie cannot approve or transfer money.",
+    ],
+    "/admin/refunds",
+    "ManualRefundsService scope/current/check, PaymentsService refund decisions and StaffRefunds review/recovery",
+    "refund approve approval transfer independent checker payment evidence uncertain",
+  ),
+  article(
+    "dispute-work",
+    "disputes",
+    "work",
+    "Handle a permitted payment dispute",
+    "DISPUTE_MANAGE is an explicit grant. Staff may handle only disputes assigned to them as primary or backup; authorised Admin supervision retains its existing policy.",
+    [
+      "Open Dispute work queue and select a permitted current record. Inspect its status, response deadline and evidence before acting.",
+      "Acknowledgement and evidence actions do not themselves resolve money. Recording a provider submission reference is evidence of an external submission, not provider acceptance.",
+      "Only an authorised Admin with this grant may assign the required primary and backup operators. Possessing the handling grant alone does not permit Staff to assign cases.",
+      "Review the action and current record before confirming; refresh stale versions and reconcile an uncertain result rather than resending it.",
+    ],
+    "/admin/payment-disputes/work",
+    "DisputesRouter authorized/current/assignment and WorkDisputeHandling review/recovery",
+    "dispute chargeback primary backup acknowledge evidence submission assignment",
+  ),
+  article(
+    "privacy-work",
+    "privacy",
+    "work",
+    "Review privacy requests and retention holds",
+    "Privacy review requires a separate explicit grant, including for the protected owner. A review does not promise deletion or bypass legal or retention holds.",
+    [
+      "Open Privacy review and inspect the permitted request's kind, status and current holds.",
+      "Check the customer identity, protected records and unresolved disputes. Use only the current reviewed action and record its reason.",
+      "Review before confirming. Approval pending policy does not erase data or schedule destructive maintenance; releasing a hold does not delete a record.",
+    ],
+    "/admin/privacy",
+    "PrivacyRouter assertCapability, hold protection and WorkPrivacy review/recovery",
+    "privacy deletion export erasure retention hold review personal data",
+  ),
+  article(
+    "financial-policy-work",
+    "financial-policy",
+    "work",
+    "Review the financial policy workspace",
+    "FINANCE_POLICY_APPROVE is a separate owner-granted duty. Current, latest and scheduled versions may differ; merely holding Accountant responsibility is insufficient.",
+    [
+      "Open Financial policy and compare its current, latest and next scheduled versions. Use the recorded effective dates and evidence.",
+      "Use approved business details and evidence, review the exact change and expected version, then confirm only through the authorised form.",
+      "A version conflict requires refreshing and reviewing again. Policy publication does not itself collect money or enable unavailable checkout capabilities.",
+    ],
+    "/admin/finance-policy",
+    "readFinancePolicy and publishPolicy FINANCE branch, FinancePolicy current/version/review",
+    "financial policy finance VAT invoice terms effective scheduled approval version",
+  ),
   article(
     "parts-fitment",
     "public",
@@ -168,53 +271,70 @@ export const learningArticles: LearningArticle[] = [
     "Launch restrictions and existing status contracts",
     "money pending paid order confirmed",
   ),
-  article(
-    "own-conversation",
-    "customer",
-    "customer-care",
-    "Follow your own Customer Care request",
-    "Keep updates in the same owned conversation and review a reply before sending it.",
-    [
-      "Open Customer Care and select your enquiry or complaint.",
-      "Read the original request, public conversation and current status.",
-      "Draft relevant new details, review them and confirm only when you intend to send. The guide ends before submission.",
-    ],
-    "/dashboard/support",
-    "Customer support ownership, drafts and review-before-send",
-    "support complaint enquiry reply message",
-    "Sign in to your verified customer account; only your own requests are available.",
-  ),
-  article(
-    "work-access",
-    "work",
-    "work",
-    "Understand your current work access",
-    "Your current responsibilities, branch and assignment determine the work you can see.",
-    [
-      "Open your dashboard and use its available navigation.",
-      "Check the scope and actual status on a record before acting.",
-      "If a responsibility is missing, ask an authorised access manager. A job title or practice completion never grants access.",
-    ],
-    "/admin",
-    "Workforce snapshot, scope policy and dashboard navigation",
-    "staff role responsibility operations permissions security",
-  ),
-  article(
-    "care-triage",
-    "care",
-    "staff-care",
-    "Handle a Customer Care request",
-    "Read customer identity, status and conversation before choosing a next step.",
-    [
-      "Open your permitted enquiry or complaint queue; filter by subject or message.",
-      "Open an authorised case and read its existing conversation.",
-      "Use the public-reply or internal-note option only where your actual workspace provides it. Managed Customer Service replies are customer-visible.",
-      "Review before sending. Dismissing an eligible delivery notice affects only your view; failed delivery and history remain truthful.",
-    ],
-    "/admin/workforce/enquiries",
-    "Managed care scope, public/internal separation and delivery acknowledgements",
-    "customer service officer support complaints follow up",
-  ),
+  {
+    ...article(
+      "own-conversation",
+      "customer",
+      "customer-care",
+      "Follow your own Customer Care request",
+      "Keep updates in the same owned conversation and review a reply before sending it.",
+      [
+        "Open Customer Care and select your enquiry or complaint.",
+        "Read the original request, public conversation and current status.",
+        "Internal staff notes are not shown in your customer conversation. Only customer-visible messages are available.",
+        "Draft relevant new details and review them. Choose Go back to edit your draft or cancel before Send reply; nothing is sent until you explicitly confirm. The guide ends before submission.",
+        "For a human from Allie, choose Customer Care · leave a message. Start a new enquiry with a handling branch, or explicitly choose one of your own existing enquiries or complaints. Edit the summary; no help transcript is attached automatically.",
+        "Optionally select up to two help message parts, then choose Review message. Check the exact message, branch and destination before Send message to Customer Care. AI-generated excerpts are labelled guidance, not verified case evidence. This handoff works without AI and queues a message; it does not promise live availability or human reading.",
+        "If the result is uncertain, use Check handoff or retry the same reviewed message. Go back and edit first checks or cancels the old operation; a message already saved is preserved. Open the verified Customer Care reference to continue. Unsent support and help drafts stay separate.",
+      ],
+      "/dashboard/support",
+      "Customer support ownership, drafts and review-before-send",
+      "support complaint enquiry reply message",
+      "Sign in to your verified customer account; only your own requests are available.",
+    ),
+    version: 5,
+    reviewedAt: "2026-10-27",
+  },
+  {
+    ...article(
+      "work-access",
+      "work",
+      "work",
+      "Understand your current work access",
+      "Your current responsibilities, branch and assignment determine the work you can see.",
+      [
+        "Open your dashboard and use its available navigation. Check the scope and actual status on a record before acting.",
+        "In a responsibility-managed workspace, an access change can remove an open page and return you to the overview with an explanation. Protected unsent work is discarded, never sent automatically.",
+        "If the current access check fails, retry before continuing. Do not repeat an uncertain save without checking its existing recovery guidance.",
+        "If a responsibility is missing, ask an authorised access manager. A job title, availability status or practice completion never grants access.",
+        "Separately granted refund, dispute, privacy and financial-policy duties use explicit owner grants and their own record and approval rules. They do not widen your branch responsibilities; responsibility removal does not revoke an independent grant.",
+      ],
+      "/admin",
+      "Current workforce scope, registered navigation and access-change recovery",
+      "staff role responsibility operations permissions security access removed overview",
+    ),
+    version: 5,
+  },
+  {
+    ...article(
+      "care-triage",
+      "care",
+      "staff-care",
+      "Handle a Customer Care request",
+      "Read customer identity, status and conversation before choosing a next step.",
+      [
+        "Open your permitted enquiry or complaint queue; filter by subject or message.",
+        "Open an authorised case and read its existing conversation.",
+        "Use the public-reply or internal-note option only where your actual workspace provides it. Managed Customer Service replies are customer-visible.",
+        "Review before sending. Dismissing an eligible delivery notice affects only your view; failed delivery and history remain truthful.",
+      ],
+      "/admin/workforce/enquiries",
+      "Managed care scope, public/internal separation and delivery acknowledgements",
+      "customer service officer support complaints follow up",
+    ),
+    version: 2,
+    reviewedAt: "2026-10-27",
+  },
   article(
     "sales-enquiries",
     "sales",
@@ -339,21 +459,27 @@ export const learningArticles: LearningArticle[] = [
     "Customer account lock, session enforcement and audit contract",
     "suspend reactivate admin customer directory",
   ),
-  article(
-    "access-review",
-    "access",
-    "work",
-    "Review invitations and responsibility access safely",
-    "Existing MFA, password, branch and delegation controls still apply.",
-    [
-      "Open the appropriate Team & Access workspace.",
-      "Check the intended recipient, role, responsibility, branch and current delegation.",
-      "Review the proposal and reason. Do not share an invitation or use help to acquire additional privileges.",
-    ],
-    "/admin/workforce/access",
-    "Team access security and delegation policy",
-    "invite staff admin operations permissions",
-  ),
+  {
+    ...article(
+      "access-review",
+      "access",
+      "work",
+      "Review invitations and responsibility access safely",
+      "Existing MFA, password, branch and delegation controls still apply.",
+      [
+        "Open the appropriate Team & Access workspace and inspect the intended person. Account role, job position and responsibility assignments are separate.",
+        "Expand Effective responsibility access to check capabilities, branches and grant sources within your permitted view. Account baseline and separately granted permissions keep their existing rules.",
+        "Before assigning or revoking a responsibility, review access added, removed and retained. Revoking one grant can leave the same access supplied by another active grant. Scheduled assignments supply no access before their start.",
+        "Check the reason and current delegation. If access changes before confirmation, refresh and review again; if a save is uncertain, inspect and reconcile it before retrying.",
+        "Do not delegate a capability or scope outside your current permitted delegation. Having permission to act does not by itself give permission to delegate, and a job title does not expand your authority.",
+        "Do not share invitations or enter a password into help. Reading help or completing practice never grants privileges.",
+      ],
+      "/admin/workforce/access",
+      "Team access security, pinned delegation and reviewed responsibility impact",
+      "invite staff admin operations permissions access added removed retained grant sources delegate delegation authority privileges",
+    ),
+    version: 4,
+  },
   article(
     "privileged-recovery",
     "owner",

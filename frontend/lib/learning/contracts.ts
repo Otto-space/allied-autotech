@@ -77,7 +77,7 @@ export const catalogueSchema = z.object({
   audience: z.enum(["public", "customer", "work"]),
   contentVersion: z.literal(1),
   mode: z.enum(["full", "browse_enquiries", "catalogue"]),
-  flags: z.object({ guides: z.boolean(), practice: z.boolean(), ai: z.literal(false) }),
+  flags: z.object({ guides: z.boolean(), practice: z.boolean(), ai: z.boolean() }),
   articles: z.array(articleSchema).max(40),
   guides: z.array(guideSchema).max(20),
   scenarios: z.array(scenarioSummary).max(30),
@@ -110,9 +110,17 @@ export type LearningGuide = z.infer<typeof guideSchema>;
 export type LearningArticle = z.infer<typeof articleSchema>;
 export type PracticeDefinition = z.infer<typeof practiceSchema>;
 export function learningPage(path: string) {
+  if (
+    /^\/(?:login|register|mfa|forgot-password|reset-password|verify-email)(?:\/|$)/.test(
+      path,
+    ) ||
+    /^\/(?:dashboard|admin|staff)\/security(?:\/|$)/.test(path)
+  )
+    return "security";
   if (path === "/") return "home";
   if (path === "/parts") return "parts";
   if (path === "/vehicles") return "vehicles";
+  if (["/services", "/contact", "/help", "/learn"].includes(path)) return path.slice(1);
   if (/^\/dashboard\/support(?:\/|$)/.test(path)) return "customer-care";
   if (/^\/admin\/(?:workforce\/(?:enquiries|complaints)|support)(?:\/|$)/.test(path))
     return "staff-care";

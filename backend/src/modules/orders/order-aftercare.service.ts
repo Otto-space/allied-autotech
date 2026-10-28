@@ -2,7 +2,30 @@ import { aftercareReceipt } from "./order-aftercare-receipt.js";
 import { withTransactionRetry } from "../../common/database/transaction-retry.js";
 import type { AuthenticatedActor } from "../../common/contracts/actor.js";
 import type { RequestSecurityContext } from "../../common/contracts/request-security.js";
-import type { Prisma } from "../../generated/prisma/client.js";
+import type {
+  Prisma,
+  OrderAftercareRequest,
+  Order,
+} from "../../generated/prisma/client.js";
+import type { z } from "zod";
+import { lockWorkforce } from "../organization/workforce-access.service.js";
+import { lockAccessActor } from "../organization/team-access-security.js";
+import {
+  workforceSnapshot,
+  workforceConflict,
+  workforceNotFound,
+} from "../organization/workforce.policy.js";
+import {
+  aftercareBranches,
+  aftercareSummarySelect,
+  aftercareDetailSelect,
+  projectAftercareSummary,
+  projectAftercareDetail,
+} from "../organization/workforce-aftercare-workspace.js";
+import type {
+  workforceAftercareQuerySchema,
+  workforceAftercareDecisionSchema,
+} from "../organization/workforce.schemas.js";
 import { prisma } from "../../config/database.js";
 import { appendAuditEvent } from "../audit/audit.service.js";
 import {
@@ -15,8 +38,10 @@ import { assertCustomer, assertOrderOperator } from "./orders.policy.js";
 import {
   aftercarePartialBody,
   aftercareReturnBody,
+  aftercareReviewBody,
   customerAftercareSelect,
 } from "./order-aftercare.schemas.js";
+type AftercareReviewInput = z.infer<typeof aftercareReviewBody>;
 
 export async function requestAftercare(
   tx: Prisma.TransactionClient,
@@ -273,13 +298,7 @@ export class OrderAftercareService {
   async process(
     actor: AuthenticatedActor,
     id: string,
-    input: {
-      stage: "RECEIVED" | "INSPECTED" | "APPROVED" | "REJECTED";
-      note: string;
-      goodCondition?: boolean | undefined;
-      approvedFeeKobo?: string | undefined;
-      expectedStatus?: string | undefined;
-    },
+    input: AftercareReviewInput,
     context: RequestSecurityContext,
   ) {
     return this.database.$transaction(async (tx) => {
@@ -287,72 +306,268 @@ export class OrderAftercareService {
       const record = await tx.orderAftercareRequest.findUnique({ where: { id } });
       if (!record) throw orderNotFound();
       const order = await this.authorize(tx, actor, record.orderId);
-      if (input.expectedStatus !== undefined && record.status !== input.expectedStatus)
-        throw orderConflict("Request changed; refresh before reviewing another stage");
-      if (["APPROVED", "REJECTED"].includes(record.status))
-        throw orderConflict("This request already has a reviewed decision");
-      const now = new Date();
-      let data: Prisma.OrderAftercareRequestUncheckedUpdateInput;
-      if (input.stage === "RECEIVED") {
-        if (record.kind !== "RETURN" || record.status !== "REQUESTED")
-          throw orderConflict("Only a requested return can be received");
-        data = { status: "RECEIVED", receivedAt: now };
-      } else if (input.stage === "INSPECTED") {
-        if (
-          record.kind !== "RETURN" ||
-          record.status !== "RECEIVED" ||
-          input.goodCondition === undefined
+      return this.processLocked(tx, actor, record, order, input, context);
+    });
+  }
+
+  private async aftercareAccess(tx: Prisma.TransactionClient, actor: AuthenticatedActor) {
+    await lockWorkforce(tx);
+    await lockAccessActor(tx, actor);
+    const access = await workforceSnapshot(tx, actor);
+    return { access, branchIds: aftercareBranches(access) };
+  }
+  async workforceList(
+    actor: AuthenticatedActor,
+    query: z.infer<typeof workforceAftercareQuerySchema>,
+    context: RequestSecurityContext,
+  ) {
+    return this.database.$transaction(async (tx) => {
+      const { branchIds } = await this.aftercareAccess(tx, actor);
+      const filters: Prisma.OrderAftercareRequestWhereInput[] = [
+        { orderIdRelation: { branchId: { in: branchIds } } },
+      ];
+      if (query.status) filters.push({ status: query.status });
+      if (query.kind) filters.push({ kind: query.kind });
+      for (const term of query.q?.split(/\s+/).filter(Boolean) ?? [])
+        filters.push({
+          orderIdRelation: {
+            orderNumber: {
+              contains: term.replace(/[\\%_]/g, "\\$&"),
+              mode: "insensitive",
+            },
+          },
+        });
+      const where = { AND: filters };
+      if (
+        query.cursor &&
+        !(await tx.orderAftercareRequest.findFirst({
+          where: { AND: [where, { id: query.cursor }] },
+          select: { id: true },
+        }))
+      )
+        workforceConflict(
+          "Refresh the filtered aftercare queue before continuing pagination",
+        );
+      const rows = await tx.orderAftercareRequest.findMany({
+        where,
+        select: aftercareSummarySelect,
+        orderBy: [{ requestedAt: "desc" }, { id: "desc" }],
+        take: query.limit + 1,
+        ...(query.cursor ? { cursor: { id: query.cursor }, skip: 1 } : {}),
+      });
+      const access = await workforceSnapshot(tx, actor);
+      const finalBranches = aftercareBranches(access);
+      if (
+        rows.some(
+          (row) =>
+            !row.orderIdRelation.branchId ||
+            !finalBranches.includes(row.orderIdRelation.branchId),
         )
-          throw orderConflict("Receive goods and record condition before inspection");
-        data = {
-          status: "INSPECTED",
-          inspectedAt: now,
-          inspectedByUserId: actor.userId,
-          inspectionNote: input.note,
-          goodCondition: input.goodCondition,
-        };
-      } else {
-        await assertCapability(tx, actor, "FINANCE_POLICY_APPROVE");
-        if (input.stage === "APPROVED" && record.kind === "RETURN" && !record.inspectedAt)
-          throw orderConflict("Inspect a received return before approval");
-        if (
-          input.stage === "APPROVED" &&
-          order.confirmedAt !== null &&
-          input.approvedFeeKobo === undefined
-        )
-          throw orderConflict(
-            "Record the reviewed fee explicitly, including zero, and explain its monetary basis",
-          );
-        const fee = BigInt(input.approvedFeeKobo ?? "0");
-        if (fee < 0n || fee > order.totalKobo)
-          throw orderConflict("Reviewed fee must be within the order total");
-        if (record.kind === "CANCELLATION" && order.confirmedAt === null && fee !== 0n)
-          throw orderConflict("Cancellation before confirmation is free");
-        data = {
-          status: input.stage,
-          reviewedAt: now,
-          reviewedByUserId: actor.userId,
-          reviewNote: input.note,
-          approvedFeeKobo: fee,
-        };
-      }
-      const updated = await tx.orderAftercareRequest.update({ where: { id }, data });
+      )
+        workforceNotFound();
+      const items = rows.slice(0, query.limit).map(projectAftercareSummary);
       await appendAuditEvent(tx, {
         actorUserId: actor.userId,
-        action: "UPDATE",
+        action: "READ",
         entityType: "ORDER",
-        entityId: record.orderId,
-        newValues: {
-          aftercareRequestId: id,
-          stage: input.stage,
-          note: input.note,
-          approvedFeeKobo: input.approvedFeeKobo ?? null,
-        },
+        entityId: null,
+        newValues: { workspace: "workforce-financial-aftercare", count: items.length },
         context,
       });
-      // Inspection/approval never creates stock or marks a refund paid. Existing inventory
-      // adjustment and segregated refund workflows require their own auditable actions.
-      return updated;
+      return {
+        items,
+        ...(rows.length > query.limit ? { nextCursor: items.at(-1)!.id } : {}),
+        access,
+        generatedAt: new Date().toISOString(),
+      };
     });
+  }
+  async workforceRequest(
+    actor: AuthenticatedActor,
+    id: string,
+    context: RequestSecurityContext,
+  ) {
+    return this.database.$transaction(async (tx) => {
+      const initial = await this.aftercareAccess(tx, actor);
+      if (
+        !(await tx.orderAftercareRequest.findFirst({
+          where: { id, orderIdRelation: { branchId: { in: initial.branchIds } } },
+          select: { id: true },
+        }))
+      )
+        workforceNotFound();
+      await tx.$queryRaw`SELECT "id" FROM "OrderAftercareRequest" WHERE "id" = ${id}::uuid FOR SHARE`;
+      const branchIds = aftercareBranches(await workforceSnapshot(tx, actor));
+      const row = await tx.orderAftercareRequest.findFirst({
+        where: { id, orderIdRelation: { branchId: { in: branchIds } } },
+        select: aftercareDetailSelect,
+      });
+      if (!row) workforceNotFound();
+      await tx.$queryRaw`SELECT "id" FROM "Order" WHERE "id" = ${row.orderId}::uuid FOR SHARE`;
+      const finalAccess = await workforceSnapshot(tx, actor);
+      if (
+        !row.orderIdRelation.branchId ||
+        !aftercareBranches(finalAccess).includes(row.orderIdRelation.branchId)
+      )
+        workforceNotFound();
+      // Reload after the order lock: a legacy correction made while waiting must
+      // not be represented by a stale review revision.
+      const current = await tx.orderAftercareRequest.findUniqueOrThrow({
+        where: { id },
+        select: aftercareDetailSelect,
+      });
+      if (
+        !current.orderIdRelation.branchId ||
+        !aftercareBranches(finalAccess).includes(current.orderIdRelation.branchId)
+      )
+        workforceNotFound();
+      await appendAuditEvent(tx, {
+        actorUserId: actor.userId,
+        action: "READ",
+        entityType: "ORDER",
+        entityId: row.orderId,
+        newValues: { workspace: "workforce-financial-aftercare", aftercareRequestId: id },
+        context,
+      });
+      return {
+        ...projectAftercareDetail(current),
+        access: finalAccess,
+        generatedAt: new Date().toISOString(),
+      };
+    });
+  }
+  async workforceDecision(
+    actor: AuthenticatedActor,
+    id: string,
+    input: z.infer<typeof workforceAftercareDecisionSchema>,
+    context: RequestSecurityContext,
+  ) {
+    return this.database.$transaction(async (tx) => {
+      const initial = await this.aftercareAccess(tx, actor);
+      if (
+        !(await tx.orderAftercareRequest.findFirst({
+          where: { id, orderIdRelation: { branchId: { in: initial.branchIds } } },
+          select: { id: true },
+        }))
+      )
+        workforceNotFound();
+      await tx.$queryRaw`SELECT "id" FROM "OrderAftercareRequest" WHERE "id" = ${id}::uuid FOR UPDATE`;
+      const branchIds = aftercareBranches(await workforceSnapshot(tx, actor));
+      const record = await tx.orderAftercareRequest.findFirst({
+        where: { id, orderIdRelation: { branchId: { in: branchIds } } },
+      });
+      if (!record) workforceNotFound();
+      await tx.$queryRaw`SELECT "id" FROM "Order" WHERE "id" = ${record.orderId}::uuid FOR UPDATE`;
+      const order = await tx.order.findFirst({
+        where: {
+          id: record.orderId,
+          branchId: { in: aftercareBranches(await workforceSnapshot(tx, actor)) },
+        },
+      });
+      if (!order || !order.branchId) workforceNotFound();
+      const detail = projectAftercareDetail(
+        await tx.orderAftercareRequest.findUniqueOrThrow({
+          where: { id },
+          select: aftercareDetailSelect,
+        }),
+      );
+      if (detail.reviewRevision !== input.expectedRevision)
+        workforceConflict(
+          "Aftercare evidence changed; refresh and review the current record",
+        );
+      if (!detail.reviewEvidenceReady)
+        workforceConflict(
+          "The stored request, item or policy evidence requires authorised review",
+        );
+      const updated = await this.processLocked(tx, actor, record, order, input, context);
+      if (!aftercareBranches(await workforceSnapshot(tx, actor)).includes(order.branchId))
+        workforceNotFound();
+      return {
+        id: updated.id,
+        orderId: updated.orderId,
+        branchId: order.branchId,
+        status: updated.status,
+        reviewNote: updated.reviewNote,
+        approvedFeeKobo: updated.approvedFeeKobo?.toString() ?? null,
+        reviewedAt: updated.reviewedAt,
+        performedByUserId: actor.userId,
+      };
+    });
+  }
+  private async processLocked(
+    tx: Prisma.TransactionClient,
+    actor: AuthenticatedActor,
+    record: OrderAftercareRequest,
+    order: Order,
+    input: AftercareReviewInput,
+    context: RequestSecurityContext,
+  ) {
+    const id = record.id;
+    if (input.expectedStatus !== undefined && record.status !== input.expectedStatus)
+      throw orderConflict("Request changed; refresh before reviewing another stage");
+    if (["APPROVED", "REJECTED"].includes(record.status))
+      throw orderConflict("This request already has a reviewed decision");
+    const now = new Date();
+    let data: Prisma.OrderAftercareRequestUncheckedUpdateInput;
+    if (input.stage === "RECEIVED") {
+      if (record.kind !== "RETURN" || record.status !== "REQUESTED")
+        throw orderConflict("Only a requested return can be received");
+      data = { status: "RECEIVED", receivedAt: now };
+    } else if (input.stage === "INSPECTED") {
+      if (
+        record.kind !== "RETURN" ||
+        record.status !== "RECEIVED" ||
+        input.goodCondition === undefined
+      )
+        throw orderConflict("Receive goods and record condition before inspection");
+      data = {
+        status: "INSPECTED",
+        inspectedAt: now,
+        inspectedByUserId: actor.userId,
+        inspectionNote: input.note,
+        goodCondition: input.goodCondition,
+      };
+    } else {
+      await assertCapability(tx, actor, "FINANCE_POLICY_APPROVE");
+      if (input.stage === "APPROVED" && record.kind === "RETURN" && !record.inspectedAt)
+        throw orderConflict("Inspect a received return before approval");
+      if (
+        input.stage === "APPROVED" &&
+        order.confirmedAt !== null &&
+        input.approvedFeeKobo === undefined
+      )
+        throw orderConflict(
+          "Record the reviewed fee explicitly, including zero, and explain its monetary basis",
+        );
+      const fee = BigInt(input.approvedFeeKobo ?? "0");
+      if (fee < 0n || fee > order.totalKobo)
+        throw orderConflict("Reviewed fee must be within the order total");
+      if (record.kind === "CANCELLATION" && order.confirmedAt === null && fee !== 0n)
+        throw orderConflict("Cancellation before confirmation is free");
+      data = {
+        status: input.stage,
+        reviewedAt: now,
+        reviewedByUserId: actor.userId,
+        reviewNote: input.note,
+        approvedFeeKobo: fee,
+      };
+    }
+    const updated = await tx.orderAftercareRequest.update({ where: { id }, data });
+    await appendAuditEvent(tx, {
+      actorUserId: actor.userId,
+      action: "UPDATE",
+      entityType: "ORDER",
+      entityId: record.orderId,
+      newValues: {
+        aftercareRequestId: id,
+        stage: input.stage,
+        note: input.note,
+        approvedFeeKobo: input.approvedFeeKobo ?? null,
+      },
+      context,
+    });
+    // Inspection/approval never creates stock or marks a refund paid. Existing inventory
+    // adjustment and segregated refund workflows require their own auditable actions.
+    return updated;
   }
 }

@@ -10,10 +10,12 @@ export interface SessionIssueResult {
 }
 
 // Snapshot authenticated and CSRF-validated by middleware, never supplied by the body.
-export interface MfaEnrollmentSession {
+export interface AuthenticatedSessionSnapshot {
   sessionId: string;
   csrfTokenHash: string;
 }
+
+export type MfaEnrollmentSession = AuthenticatedSessionSnapshot;
 
 export interface IdentityEmailPayload {
   template: "verify-email" | "reset-password" | "privileged-invitation";

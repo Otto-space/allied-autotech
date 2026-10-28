@@ -5,6 +5,7 @@ import type { AuthenticatedActor } from "../../src/common/contracts/actor.js";
 import { PaymentsService } from "../../src/modules/payments/payments.service.js";
 import { PaymentProviderRegistry } from "../../src/providers/payments/payment-provider.registry.js";
 import type { PaymentProviderPort } from "../../src/providers/payments/payment-provider.port.js";
+import { paymentTestSession } from "../helpers/payment-session.js";
 
 const context = () => ({ requestId: randomUUID(), ipAddress: null, userAgent: null });
 async function fixture(beforeInitialize?: () => Promise<void>) {
@@ -23,7 +24,7 @@ async function fixture(beforeInitialize?: () => Promise<void>) {
     userId: user.id,
     email: user.email,
     role: "CUSTOMER",
-    sessionId: randomUUID(),
+    sessionId: await paymentTestSession(user.id),
     mfaRequired: false,
     mfaVerifiedAt: null,
   };
@@ -93,13 +94,72 @@ async function fixture(beforeInitialize?: () => Promise<void>) {
     transferredAt: new Date().toISOString(),
     bankReference: `AE-${randomUUID()}`,
   };
-  return { actor, service, payment, manual, initialize, provider };
+  return { actor, service, order, payment, manual, initialize, provider };
 }
 
 describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
   "one unresolved attempt per payment",
   () => {
     afterAll(() => prisma.$disconnect());
+    it("denies a revoked customer session before intent, checkout or manual attempt writes", async () => {
+      const f = await fixture();
+      await prisma.session.update({
+        where: { id: f.actor.sessionId },
+        data: { revokedAt: new Date() },
+      });
+      await expect(
+        f.service.createIntent(
+          f.actor,
+          { targetType: "ORDER", targetId: f.order.id, purpose: "ORDER_PAYMENT" },
+          randomUUID(),
+          context(),
+        ),
+      ).rejects.toMatchObject({ code: "FORBIDDEN" });
+      await expect(
+        f.service.initializePaystack(f.actor, f.payment.id, randomUUID(), context()),
+      ).rejects.toMatchObject({ code: "FORBIDDEN" });
+      await expect(
+        f.service.submitManual(f.actor, f.payment.id, f.manual, randomUUID(), context()),
+      ).rejects.toMatchObject({ code: "FORBIDDEN" });
+      expect(
+        await prisma.paymentAttempt.count({ where: { paymentId: f.payment.id } }),
+      ).toBe(0);
+      expect(f.initialize).not.toHaveBeenCalled();
+    });
+    it("withholds checkout when its session is revoked during provider initialization", async () => {
+      let sessionId = "";
+      const f = await fixture(async () => {
+        await prisma.session.update({
+          where: { id: sessionId },
+          data: { revokedAt: new Date() },
+        });
+      });
+      sessionId = f.actor.sessionId;
+      await expect(
+        f.service.initializePaystack(f.actor, f.payment.id, randomUUID(), context()),
+      ).rejects.toMatchObject({ code: "FORBIDDEN" });
+      expect(f.initialize).toHaveBeenCalledOnce();
+      expect(
+        await prisma.paymentAttempt.findFirstOrThrow({
+          where: { paymentId: f.payment.id },
+        }),
+      ).toMatchObject({ status: "INITIALIZED", encryptedCheckoutState: null });
+    });
+    it("does not disclose an idempotent manual replay after session revocation", async () => {
+      const f = await fixture();
+      const key = randomUUID();
+      await f.service.submitManual(f.actor, f.payment.id, f.manual, key, context());
+      await prisma.session.update({
+        where: { id: f.actor.sessionId },
+        data: { revokedAt: new Date() },
+      });
+      await expect(
+        f.service.submitManual(f.actor, f.payment.id, f.manual, key, context()),
+      ).rejects.toMatchObject({ code: "FORBIDDEN" });
+      expect(
+        await prisma.paymentAttempt.count({ where: { paymentId: f.payment.id } }),
+      ).toBe(1);
+    });
     it("blocks both online providers while a reported manual payment is under review", async () => {
       const f = await fixture();
       await f.service.submitManual(

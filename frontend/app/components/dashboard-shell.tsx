@@ -2,7 +2,14 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { LogOut, Menu, PanelLeftClose, PanelLeftOpen, UserRound, X } from "lucide-react";
-import { createContext, useContext, useEffect, useRef, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import {
   apiRequest,
   ApiError,
@@ -10,6 +17,7 @@ import {
   invalidateSession,
   isExternalSessionChange,
   SESSION_CHANGED,
+  invalidateWorkforceAccess,
 } from "@/lib/api/client";
 import type { SessionState } from "@/lib/api/types";
 import { Brand } from "./brand";
@@ -20,6 +28,12 @@ import { useResource } from "@/lib/api/use-resource";
 import { parseOwnStaffProfile } from "@/lib/api/capability-schemas";
 import { parseWorkforceAccess } from "@/lib/api/workforce-schemas";
 import { workforceNavigation } from "@/lib/workforce-navigation";
+import { workforceAccessKey, workforceDestination } from "@/lib/workforce-registry";
+import {
+  WORKFORCE_CHANNEL,
+  WORKFORCE_RECHECK,
+  isExternalWorkforceRefresh,
+} from "@/lib/workforce-invalidation";
 import { WorkforceWorkspace, useWorkforceRefresh } from "./workforce-workspace";
 import { useNotificationSummary } from "@/lib/notifications/use-notification-summary";
 import {
@@ -78,6 +92,68 @@ export function DashboardShell({
       ? workforce.data
       : undefined;
   const verifiedWorkforce = !workforce.loading ? retainedWorkforce : undefined;
+  const workforceMismatch = !!(
+    session?.workforceManaged &&
+    workforce.data &&
+    (!workforce.data.managed || workforce.data.userId !== session.user.id)
+  );
+  const acceptedWorkforce = useRef<{ userId: string; key: string } | undefined>(
+    undefined,
+  );
+  useLayoutEffect(() => {
+    const previous = acceptedWorkforce.current;
+    if (
+      !session?.workforceManaged ||
+      workforce.error ||
+      workforce.refreshError ||
+      workforceMismatch
+    ) {
+      const owner =
+        previous?.userId ??
+        (workforce.error || workforce.refreshError || workforceMismatch
+          ? session?.user.id
+          : undefined);
+      if (owner) invalidateWorkforceAccess(owner);
+      acceptedWorkforce.current = undefined;
+      return;
+    }
+    if (!verifiedWorkforce) return;
+    const key = workforceAccessKey(verifiedWorkforce);
+    if (
+      previous &&
+      (previous.userId !== verifiedWorkforce.userId || previous.key !== key)
+    )
+      invalidateWorkforceAccess(previous.userId);
+    acceptedWorkforce.current = { userId: verifiedWorkforce.userId, key };
+  }, [
+    session?.workforceManaged,
+    session?.user.id,
+    verifiedWorkforce,
+    workforce.error,
+    workforce.refreshError,
+    workforceMismatch,
+  ]);
+  const refreshWorkforce = workforce.refresh;
+  useEffect(() => {
+    const recheck = () => {
+      refreshWorkforce();
+      setRetry((value) => value + 1);
+    };
+    const channel =
+      typeof BroadcastChannel !== "undefined"
+        ? new BroadcastChannel(WORKFORCE_CHANNEL)
+        : null;
+    if (channel)
+      channel.onmessage = (event) => {
+        if (isExternalWorkforceRefresh(event.data)) recheck();
+      };
+    window.addEventListener(WORKFORCE_RECHECK, recheck);
+    return () => {
+      channel?.close();
+      window.removeEventListener(WORKFORCE_RECHECK, recheck);
+    };
+  }, [refreshWorkforce]);
+  const workforcePage = workforceDestination(pathname);
   const notifications = useNotificationSummary(
     session && (!session.workforceManaged || verifiedWorkforce) ? session : null,
   );
@@ -540,35 +616,43 @@ export function DashboardShell({
           <SessionContext.Provider value={session}>
             <NotificationAccessContext.Provider value={notificationAccess}>
               <StaffPermissionContext.Provider
-                value={session.user.role === "STAFF" ? grants : null}
+                value={
+                  session.user.role === "STAFF" && !session.workforceManaged
+                    ? grants
+                    : null
+                }
               >
                 {session.workforceManaged ? (
                   <>
                     {retainedWorkforce && (
                       <div hidden={!verifiedWorkforce} inert={!verifiedWorkforce}>
-                        {pathname === "/admin/security" ||
-                        pathname === "/admin/notifications" ? (
+                        {workforcePage?.id === "security" ||
+                        workforcePage?.id === "notifications" ? (
                           children
                         ) : (
                           <WorkforceWorkspace
-                            key={JSON.stringify([
-                              retainedWorkforce.userId,
-                              retainedWorkforce.version,
-                              retainedWorkforce.assignments.map((a) => a.id),
-                            ])}
+                            key={workforceAccessKey(retainedWorkforce)}
                             access={retainedWorkforce}
                             refreshAccess={workforce.refresh}
-                          />
+                          >
+                            {children}
+                          </WorkforceWorkspace>
                         )}
                       </div>
                     )}
                     {!verifiedWorkforce && (
                       <>
-                        {workforce.error || workforce.refreshError ? (
+                        {workforce.error ||
+                        workforce.refreshError ||
+                        workforceMismatch ? (
                           <>
                             <h1>Work access unavailable</h1>
                             <Feedback
-                              message={workforce.error || workforce.refreshError}
+                              message={
+                                workforce.error ||
+                                workforce.refreshError ||
+                                "Your current work access could not be verified. Retry before continuing."
+                              }
                             />
                             <p>
                               We could not verify your current responsibilities. Retry

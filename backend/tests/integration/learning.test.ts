@@ -1,9 +1,13 @@
 import request from "supertest";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { createApp } from "../../src/app.js";
 import { prisma } from "../../src/config/database.js";
 import { env } from "../../src/config/env.js";
 import { learningArticles } from "../../src/modules/learning/learning.content.js";
+import { learningResponseSchemas } from "../../src/modules/learning/learning.schemas.js";
+import { answerAllie } from "../../src/modules/learning/allie.answer.js";
+import { AllieFailure } from "../../src/modules/learning/allie.contracts.js";
+import { createAllieProvider } from "../../src/modules/learning/allie.provider.js";
 import {
   learningCatalogue,
   learningEligible,
@@ -29,6 +33,144 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       f = await workforceFixture();
     }, 30000);
     afterAll(() => prisma.$disconnect());
+    const currentCatalogue = (identity: Identity | null) => async () => {
+      const result = await read(
+        identity,
+        identity ? "/learning/catalogue" : "/public/learning/catalogue",
+      );
+      if (result.status !== 200) throw new AllieFailure("access_changed");
+      return learningResponseSchemas.catalogue.parse(result.body.data);
+    };
+    const providerReply = () =>
+      new Response(
+        JSON.stringify({
+          status: "completed",
+          model: "isolated-test-model",
+          output: [
+            {
+              type: "message",
+              role: "assistant",
+              status: "completed",
+              content: [
+                {
+                  type: "output_text",
+                  text: JSON.stringify({
+                    kind: "clarification",
+                    answer: "Which supported task would you like explained?",
+                    steps: [],
+                    caveat: null,
+                    sourceIds: [],
+                    actionIds: [],
+                  }),
+                },
+              ],
+            },
+          ],
+          usage: { input_tokens: 100, output_tokens: 20, total_tokens: 120 },
+        }),
+        { headers: { "Content-Type": "application/json" } },
+      );
+    const providerSettings = {
+      apiKey: "synthetic-isolated-key-not-real",
+      model: "isolated-test-model",
+    };
+    it("filters the model input through actual current HTTP learning access for every responsibility and account audience", async () => {
+      const owner = await f.session(f.owner.id, "SUPER_ADMIN");
+      const identities = [
+        null,
+        f.customer,
+        f.operations,
+        f.scopedAdmin,
+        f.care,
+        f.cashier,
+        f.sales,
+        f.accountant,
+        f.mechanical1,
+        f.electrical,
+        f.lead,
+        owner,
+      ];
+      for (const identity of identities) {
+        const getCatalogue = currentCatalogue(identity),
+          eligible = await getCatalogue();
+        const outbound = vi.fn<typeof fetch>().mockResolvedValue(providerReply());
+        const result = await answerAllie({
+          question:
+            "Explain work access, finance, customer care, assignment, product photos, invitations and privileged recovery",
+          page: "other",
+          getCatalogue,
+          provider: createAllieProvider(providerSettings, outbound),
+        });
+        expect(result.usage.total_tokens).toBe(120);
+        const requestBody = JSON.parse(outbound.mock.calls[0]![1]!.body as string);
+        const payload = JSON.parse(requestBody.input[0].content) as {
+          reviewedPassages: { id: string; passage: string }[];
+        };
+        const eligibleIds = eligible.articles.map(
+          (article) => `${article.id}@v${article.version}`,
+        );
+        for (const source of payload.reviewedPassages)
+          expect(eligibleIds).toContain(source.id);
+        expect(payload.reviewedPassages.length).toBeLessThanOrEqual(4);
+        expect(requestBody.store).toBe(false);
+        expect(JSON.stringify(requestBody)).not.toContain(f.owner.id);
+        expect(JSON.stringify(requestBody)).not.toContain(f.customer.user.email);
+        expect(JSON.stringify(requestBody)).not.toContain(f.generalEnquiry.id);
+        expect(payload).not.toHaveProperty("accessKey");
+      }
+    });
+    it("discards an in-flight model answer after actual responsibility expiry", async () => {
+      const person = await f.account("ACCOUNTANT");
+      const outbound = vi.fn<typeof fetch>().mockImplementation(async () => {
+        await prisma.workforceAssignment.updateMany({
+          where: { userId: person.user.id },
+          data: { expiresAt: new Date(Date.now() - 1) },
+        });
+        return providerReply();
+      });
+      await expect(
+        answerAllie({
+          question: "Explain finance records",
+          page: "work",
+          getCatalogue: currentCatalogue(person),
+          provider: createAllieProvider(providerSettings, outbound),
+        }),
+      ).rejects.toMatchObject({ code: "access_changed" });
+      expect(outbound).toHaveBeenCalledOnce();
+      expect(
+        (await currentCatalogue(person)()).articles.map((article) => article.id),
+      ).not.toContain("finance-meaning");
+    });
+    it("requires current MFA before a call and current session ownership after generation", async () => {
+      const weak = await f.session(f.care.user.id, "STAFF", false),
+        before = vi.fn<typeof fetch>();
+      await expect(
+        answerAllie({
+          question: "Explain care",
+          page: "work",
+          getCatalogue: currentCatalogue(weak),
+          provider: createAllieProvider(providerSettings, before),
+        }),
+      ).rejects.toMatchObject({ code: "access_changed" });
+      expect(before).not.toHaveBeenCalled();
+      const person = await f.account("CUSTOMER_SERVICE");
+      const outbound = vi.fn<typeof fetch>().mockImplementation(async () => {
+        await prisma.session.update({
+          where: { id: person.record.id },
+          data: { revokedAt: new Date() },
+        });
+        return providerReply();
+      });
+      await expect(
+        answerAllie({
+          question: "Explain care",
+          page: "work",
+          getCatalogue: currentCatalogue(person),
+          provider: createAllieProvider(providerSettings, outbound),
+        }),
+      ).rejects.toMatchObject({ code: "access_changed" });
+      expect(outbound).toHaveBeenCalledOnce();
+    });
     it("filters private titles, snippets, bodies, guide and scenario definitions before public search or direct reads", async () => {
       const publicResult = await read(null, "/public/learning/catalogue");
       expect(publicResult.status).toBe(200);
@@ -142,6 +284,52 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       expect((await read(admin, "/learning/articles/care-triage")).body.data.href).toBe(
         "/admin/support",
       );
+      const accessReview = await read(f.scopedAdmin, "/learning/articles/access-review");
+      expect(accessReview.status).toBe(200);
+      expect(accessReview.body.data).toMatchObject({ version: 4 });
+      expect(accessReview.body.data.steps.join(" ")).toContain(
+        "review access added, removed and retained",
+      );
+      expect(accessReview.body.data.steps.join(" ")).toContain(
+        "Scheduled assignments supply no access before their start",
+      );
+      const workAccess = await read(f.care, "/learning/articles/work-access");
+      expect(workAccess.status).toBe(200);
+      expect(workAccess.body.data.version).toBe(5);
+      expect(workAccess.body.data.steps.join(" ")).toContain(
+        "They do not widen your branch responsibilities",
+      );
+      expect(workAccess.body.data.steps.join(" ")).toContain(
+        "Protected unsent work is discarded, never sent automatically",
+      );
+    });
+    it("projects actual managed reply audience, sales scope and customer note privacy", async () => {
+      const managed = await read(f.care, "/learning/articles/care-triage");
+      expect(managed.status).toBe(200);
+      expect(managed.body.data.steps.join(" ")).toContain(
+        "does not provide internal notes",
+      );
+      expect(managed.body.data.recovery).not.toContain("use Contact support");
+      const admin = await f.account(null, "ADMIN");
+      const legacy = await read(admin, "/learning/articles/care-triage");
+      expect(legacy.body.data.steps.join(" ")).toContain("internal-note");
+      expect(legacy.body.data.href).toBe("/admin/support");
+      const cashier = await read(f.cashier, "/learning/articles/sales-enquiries");
+      expect(cashier.body.data.summary).toContain("Only enquiries assigned to you");
+      const supervisor = await read(f.sales, "/learning/articles/sales-enquiries");
+      expect(supervisor.body.data.summary).toContain("authorised branch scope");
+      const customer = await read(f.customer, "/learning/articles/own-conversation");
+      expect(customer.body.data.steps.join(" ")).toContain(
+        "Internal staff notes are not shown",
+      );
+      expect(customer.body.data.version).toBe(5);
+      expect(customer.body.data.steps.join(" ")).toContain(
+        "no help transcript is attached automatically",
+      );
+      expect(customer.body.data.steps.join(" ")).toContain(
+        "exact message, branch and destination",
+      );
+      expect(customer.body.data.steps.join(" ")).toContain("Go back to edit your draft");
     });
     it("removes revoked/expired assignments and session assurance on the next read", async () => {
       const person = await f.account("ACCOUNTANT");

@@ -356,6 +356,20 @@ describe.skipIf(!runDatabaseTests)("database-backed identity flow", () => {
     expect(changed.status).toBe(200);
     const changedCookie = changed.headers["set-cookie"]?.[0];
     expect(changedCookie).not.toBe(assuredCookie);
+    expect(
+      (
+        await request(app)
+          .get("/api/v1/auth/session")
+          .set("Cookie", assuredCookie ?? "")
+      ).status,
+    ).toBe(401);
+    expect(
+      (
+        await request(app)
+          .get("/api/v1/auth/session")
+          .set("Cookie", changedCookie ?? "")
+      ).status,
+    ).toBe(200);
 
     const forgot = await request(app)
       .post("/api/v1/auth/password/forgot")

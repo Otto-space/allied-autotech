@@ -38,17 +38,22 @@ async function changed(page: Page) {
 }
 
 for (const role of ["CUSTOMER", "STAFF", "ADMIN", "SUPER_ADMIN"]) {
-  test(`sign-in uses the ${role} response role and retains its success notification`, async ({
+  test(`sign-in uses the ${role} response role and retains its next-step notification`, async ({
     page,
   }) => {
+    const requiresMfa = role !== "CUSTOMER";
     await page.route("**/api/v1/**", (route) => {
       const pathname = new URL(route.request().url()).pathname;
       let data: unknown = { items: [] };
       if (pathname.endsWith("/auth/login"))
-        data = { user: session(role).user, mfaRequired: false };
+        data = { user: session(role).user, mfaRequired: requiresMfa };
       else if (pathname.endsWith("/auth/csrf"))
         data = { csrfToken: "synthetic-csrf-token-".repeat(3) };
-      else if (pathname.endsWith("/auth/session")) data = session(role);
+      else if (pathname.endsWith("/auth/session"))
+        data = {
+          ...session(role),
+          mfaVerifiedAt: requiresMfa ? null : session(role).mfaVerifiedAt,
+        };
       else if (pathname.endsWith("/overview")) data = overviewFixture(role);
       else if (pathname.endsWith("/operations/status"))
         data = { queues: [], openPaymentAnomalies: 0, lastReconciliation: null };
@@ -64,13 +69,15 @@ for (const role of ["CUSTOMER", "STAFF", "ADMIN", "SUPER_ADMIN"]) {
     await page.goto("/login");
     await page.getByLabel("Email address").fill("role@example.test");
     await page.getByLabel("Password", { exact: true }).fill("synthetic-password");
-    await page.getByRole("button", { name: "Sign in securely" }).click();
-    await expect(page).toHaveURL(
-      new RegExp(role === "CUSTOMER" ? "/dashboard$" : "/admin$"),
-    );
+    await page.getByRole("button", { name: "Sign in", exact: true }).click();
+    await expect(page).toHaveURL(new RegExp(requiresMfa ? "/mfa$" : "/dashboard$"));
     await expect(
       page.getByRole("region", { name: "Notifications", exact: true }),
-    ).toContainText("Signed in successfully.");
+    ).toContainText(
+      requiresMfa
+        ? "Password accepted. Complete your security verification."
+        : "Signed in successfully.",
+    );
   });
 }
 
@@ -98,7 +105,7 @@ test("sign-in defers dashboard access when its response requires MFA", async ({
   await page.goto("/login");
   await page.getByLabel("Email address").fill("admin@example.test");
   await page.getByLabel("Password", { exact: true }).fill("synthetic-password");
-  await page.getByRole("button", { name: "Sign in securely" }).click();
+  await page.getByRole("button", { name: "Sign in", exact: true }).click();
   await expect(page).toHaveURL(/\/mfa$/);
 });
 

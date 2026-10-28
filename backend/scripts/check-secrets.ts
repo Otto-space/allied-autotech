@@ -111,6 +111,7 @@ const credentialPatterns: readonly CredentialPattern[] = [
 ];
 
 const sensitiveExampleVariables = new Set([
+  "OPENAI_API_KEY",
   "PRIVATE_TESTING_PASSWORD",
   "DIGITALOCEAN_ACCESS_TOKEN",
   "VERCEL_TOKEN",

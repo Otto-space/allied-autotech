@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { customerHandoffRouter } from "./support-handoff.routes.js";
 import { supportDeliveryDismissSchema } from "./customer-email.js";
 import { supportService } from "./support.service.js";
 import { successResponse } from "../../common/http/api-response.js";
@@ -89,6 +90,7 @@ export function createCustomerSupportRouter(): Router {
   const router = Router();
   const controller = new SupportController();
   router.use(authenticate(), requireCustomer);
+  router.use("/handoff", customerHandoffRouter());
   router.get(
     "/review-sources",
     validate({ query: reviewSourceListQuerySchema }),

@@ -1,5 +1,8 @@
 # Linux container entrypoints must retain executable Unix shebangs on Windows.
 backend/docker/*.sh text eol=lf
+# Generated API artifacts are compared byte-for-byte with LF output.
+backend/docs/api/allied-autotech.openapi.json text eol=lf
+backend/docs/api/endpoint-handbook.md text eol=lf
 # Migration checksums were established from CRLF files. Preserve those exact
 # checkout bytes on every OS without changing any applied SQL or database history.
 backend/prisma/migrations/**/migration.sql text eol=crlf
@@ -21,3 +24,5 @@ frontend/docs/Allied_AutoTech_Home_Parts_Vehicles_Codex_Prompt.md -text
 backend/prisma/migrations/20261025170000_support_delivery_notice_dismissal/migration.sql text eol=lf
 # This reviewed responsibility-version migration was replayed with LF bytes.
 backend/prisma/migrations/20261026180000_workforce_template_versions/migration.sql text eol=lf
+# Assistant transient state was first replayed with LF bytes; retain that checksum.
+backend/prisma/migrations/20261027003000_assistant_transient_state/migration.sql text eol=lf

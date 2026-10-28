@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState, type RefObject } from "react";
 import { catalogueSchema, type LearningCatalogue } from "./contracts";
 import { clearLearningProgress } from "./progress";
+import { WORKFORCE_ACCESS_CHANGED, workforceReadGuard } from "../workforce-invalidation";
 
 export const LEARNING_SESSION_CHANGED = "aat:session-changed";
 export class LearningReadError extends Error {
@@ -18,17 +19,20 @@ export async function readLearning(
   if (id !== undefined && !/^[a-z][a-z0-9-]{0,63}$/.test(id))
     throw new LearningReadError(404);
   const suffix = kind + (id ? "/" + encodeURIComponent(id) : "");
+  const workGuard = workforceReadGuard("/learning/" + suffix);
   for (const prefix of ["/learning/", "/public/learning/"]) {
     const response = await fetch("/api/v1" + prefix + suffix, {
       method: "GET",
       credentials: "same-origin",
       cache: "no-store",
-      signal,
+      signal: workGuard ? AbortSignal.any([signal, workGuard.signal]) : signal,
     });
     if ((response.status === 401 || response.status === 403) && prefix === "/learning/")
       continue;
     if (!response.ok) throw new LearningReadError(response.status);
     const body: unknown = await response.json();
+    signal.throwIfAborted();
+    workGuard?.signal.throwIfAborted();
     if (
       !body ||
       typeof body !== "object" ||
@@ -126,6 +130,7 @@ export function useLearningCatalogue(
       if (document.visibilityState === "visible") void load();
     }, 30000);
     window.addEventListener(LEARNING_SESSION_CHANGED, changed);
+    window.addEventListener(WORKFORCE_ACCESS_CHANGED, changed);
     document.addEventListener("pointerdown", interacted, true);
     document.addEventListener("keydown", interacted, true);
     window.addEventListener("wheel", interacted, { passive: true });
@@ -139,6 +144,7 @@ export function useLearningCatalogue(
       pending?.abort();
       clearInterval(timer);
       window.removeEventListener(LEARNING_SESSION_CHANGED, changed);
+      window.removeEventListener(WORKFORCE_ACCESS_CHANGED, changed);
       window.removeEventListener("focus", visible);
       window.removeEventListener("online", visible);
       document.removeEventListener("visibilitychange", visible);

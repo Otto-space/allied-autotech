@@ -2,6 +2,7 @@ import {
   supportEmailDeliveryPageSchema,
   supportDeliveryDismissSchema,
 } from "./customer-email.js";
+import { registerSupportHandoffOpenApi } from "./support-handoff.openapi.js";
 import {
   extendZodWithOpenApi,
   type OpenAPIRegistry,
@@ -171,6 +172,7 @@ type Route = {
 };
 
 export function registerSupportOpenApi(registry: OpenAPIRegistry): void {
+  registerSupportHandoffOpenApi(registry);
   registry.registerPath({
     method: "get",
     path: "/public/support/reviews/{reviewId}/photo",

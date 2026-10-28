@@ -134,3 +134,37 @@ work are preserved. The main checkout tracker receives an append-only update.
 Site-completion Item 6, business-policy decisions and the broader dashboard/home
 work remain open. Next acceptance is actual authorised-role/device review; AI and
 unselected training/reporting/CMS scope remain deferred.
+
+## 28 October 2026 Learn interaction audit release
+
+Owner-authorised frontend follow-up: runtime
+`072e0509683df08c8635c495a76245ea1cc60379`, deployment
+`dpl_Bov9FbKyy4yPMRqWnJG3CpX6MMQz`, READY and promoted on both custom domains.
+Includes published favourites source ef06efb7 and prior navbar/container-focus
+repairs. The preceding `dpl_FAJ8oVhecCNTGac2XAyufAgg7hvv` remains the immediate
+rollback. Project/source, both alias ancestries and all exact-source CI gates were
+checked before promotion.
+
+Presentation/focus changes: explicit All help and matching search modes, deliberate
+search-result focus and clear-field return, specific-title Allie relevance,
+repeated-question and whitespace feedback, stable invisible/inert access checks
+with guarded post-commit focus recovery, responsive written/interactive guides,
+missing-control recovery, guide fragment/unavailable-link cleanup and practice
+result/review reveal. No reviewed content, semantic target, access entitlement,
+content version, backend deployment or application database changed. AI remains off.
+
+Frontend CI 40710727313, secret guard 40710727576 and explicitly dispatched
+isolated database-safety CI 40711362859 passed. Exact validation, hosted acceptance,
+disk stop/cleanup evidence and private/physical-device limitations are maintained
+in the matching frontend/docs/UI_UX_QUALITY_REGISTER.md entry and current completion
+tracker. The original unreleased/local-only checkpoints above are historical.
+
+Hosted follow-up: all 39 deployed browser regression cases passed. Separate real
+public mobile/desktop sweeps covered all six articles, Allie, the Parts guide and
+Corolla practice, including action destinations and clearing local sample inputs
+on leave/Back. Real www refresh/hide/reopen/unavailable-guide recovery passed;
+320px, tablet and short-landscape geometry passed. These are public/read-only
+journeys plus intercepted authentication/access fixtures, not real private-account
+or physical-device acceptance. Receipts, screenshots, disk measurements and exact
+limits are in the quality register. Post-release documentation does not change
+the deployed application tree.

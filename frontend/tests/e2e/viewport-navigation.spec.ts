@@ -185,8 +185,21 @@ for (const width of [390, 1440]) {
           ),
       )
       .toBe(true);
-    await page.goto("/contact#workshop");
+    await page.locator('.contact-channels a[href="#workshop"]').click();
     await expect(page.locator("#workshop")).toBeFocused();
+    await page.goto("/contact#workshop");
+    await expect
+      .poll(() =>
+        page.locator("#workshop").evaluate((el) => {
+          const box = el.getBoundingClientRect();
+          return (
+            box.top >=
+              document.querySelector(".site-header")!.getBoundingClientRect().bottom &&
+            box.bottom < innerHeight
+          );
+        }),
+      )
+      .toBe(true);
     await page.reload();
     // Reload may restore native browser focus; the hash destination must remain
     // visible below the sticky header regardless of that browser preference.

@@ -22,11 +22,11 @@ export function ServiceImageEditor({
   onClose,
   blocked = false,
 }: {
-  serviceId: string;
-  name: string;
-  onUpdated: () => void;
-  onClose: () => void;
-  blocked?: boolean;
+  readonly serviceId: string;
+  readonly name: string;
+  readonly onUpdated: () => void;
+  readonly onClose: () => void;
+  readonly blocked?: boolean;
 }) {
   const endpoint = `/admin/services/${serviceId}`;
   const resource = useResource(`${endpoint}/images`, parseServiceImages);
@@ -89,7 +89,7 @@ export function ServiceImageEditor({
         tone="info"
       />
       <Feedback message={message} tone="success" toast={message} />
-      {resource.loading && <p role="status">Loading service image…</p>}
+      {resource.loading && <output>Loading service image…</output>}
       <div className="actions">
         <button
           type="button"
@@ -125,9 +125,9 @@ export function ServiceImageEditor({
                 onSubmit={(event) => {
                   event.preventDefault();
                   if (disabled || !resource.data) return;
-                  const altText = String(
-                    new FormData(event.currentTarget).get("altText") ?? "",
-                  ).trim();
+                  const altTextValue = new FormData(event.currentTarget).get("altText");
+                  const altText =
+                    typeof altTextValue === "string" ? altTextValue.trim() : "";
                   const body: RequestBody<
                     "/admin/services/{serviceId}/images/{imageId}",
                     "patch"
@@ -159,7 +159,7 @@ export function ServiceImageEditor({
                   </span>
                 </div>
                 <div className="actions">
-                  <button className="button secondary" disabled={disabled}>
+                  <button type="submit" className="button secondary" disabled={disabled}>
                     Save description
                   </button>
                   <button

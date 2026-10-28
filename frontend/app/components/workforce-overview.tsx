@@ -1,6 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import {
+  workforceDestinationAllowed,
+  workforceDestinations,
+} from "@/lib/workforce-registry";
 import {
   ArrowRight,
   Bell,
@@ -24,6 +29,7 @@ import {
   type WorkforceAccess,
 } from "@/lib/api/workforce-schemas";
 import { sameWorkforceScope } from "@/lib/admin/workforce-overview";
+import { workforcePositionLabels } from "@/lib/api/workforce-positions";
 import { formatBusinessDate } from "@/lib/format/date";
 import "./workforce-overview.css";
 
@@ -57,6 +63,7 @@ export function WorkforceOverview({
   access: WorkforceAccess;
   refreshAccess: () => void;
 }) {
+  const search = useSearchParams();
   const record = useResource("/staff/workforce/overview", parseWorkforceOverview);
   const mismatch = !!record.data && !sameWorkforceScope(access, record.data.access);
   const unavailable =
@@ -67,6 +74,13 @@ export function WorkforceOverview({
     mismatch;
   const data = !unavailable ? record.data : undefined;
   const active = data?.access;
+  const independentDestinations = active
+    ? workforceDestinations.filter(
+        (entry) =>
+          entry.predicate.scope === "independent" &&
+          workforceDestinationAllowed(active, entry.id),
+      )
+    : [];
   const branches = new Map(data?.branches.map((branch) => [branch.id, branch.name]));
   function refresh() {
     refreshAccess();
@@ -76,8 +90,8 @@ export function WorkforceOverview({
     active?.position === "CEO_MD"
       ? "Chief Executive / Managing Director"
       : active?.position
-        ? (workforceTemplateLabels[
-            active.position as keyof typeof workforceTemplateLabels
+        ? (workforcePositionLabels[
+            active.position as keyof typeof workforcePositionLabels
           ] ?? "Team member")
         : "Team member";
   const working = record.loading || record.refreshing;
@@ -111,6 +125,12 @@ export function WorkforceOverview({
           )}
         </div>
       </header>
+      {search.get("workAccess") === "updated" && (
+        <p className="notice" role="status">
+          Your current responsibilities do not permit that page. You can continue with the
+          tools available here.
+        </p>
+      )}
       {failure && (
         <div className="wfo-feedback" role="alert">
           <strong>
@@ -153,9 +173,15 @@ export function WorkforceOverview({
               <ul className="wfo-queues">
                 {queues.map(
                   ({ key, title, detail, icon: Icon }) =>
-                    data.counts[key] !== undefined && (
+                    data.counts[key] !== undefined &&
+                    workforceDestinationAllowed(data.access, key) && (
                       <li key={key}>
-                        <Link prefetch={false} href={`/admin/workforce/${key}`}>
+                        <Link
+                          prefetch={false}
+                          href={
+                            workforceDestinations.find((entry) => entry.id === key)!.href
+                          }
+                        >
                           <Icon size={22} aria-hidden="true" />
                           <span className="wfo-queue-copy">
                             <strong>{title}</strong>
@@ -172,7 +198,7 @@ export function WorkforceOverview({
                       </li>
                     ),
                 )}
-                {active?.permissions.includes("FINANCE_READ") && (
+                {active && workforceDestinationAllowed(active, "finance") && (
                   <li>
                     <Link prefetch={false} href="/admin/workforce/finance">
                       <CreditCard size={22} aria-hidden="true" />
@@ -185,9 +211,23 @@ export function WorkforceOverview({
                     </Link>
                   </li>
                 )}
+                {active && workforceDestinationAllowed(active, "financialAftercare") && (
+                  <li>
+                    <Link prefetch={false} href="/admin/workforce/aftercare">
+                      <ClipboardList size={22} aria-hidden="true" />
+                      <span className="wfo-queue-copy">
+                        <strong>Financial aftercare</strong>
+                        <span>Scoped return and cancellation decisions</span>
+                      </span>
+                      <span className="wfo-open">View requests</span>
+                      <ChevronRight size={18} aria-hidden="true" />
+                    </Link>
+                  </li>
+                )}
               </ul>
               {!Object.keys(data.counts).length &&
-                !active?.permissions.includes("FINANCE_READ") && (
+                !independentDestinations.length &&
+                !(active && workforceDestinationAllowed(active, "finance")) && (
                   <div className="wfo-empty">
                     <h3>No work queues available</h3>
                     <p>
@@ -203,6 +243,24 @@ export function WorkforceOverview({
                 Current work is unavailable until access and overview are verified.
               </p>
             )
+          )}
+          {independentDestinations.length > 0 && (
+            <nav className="wfo-independent" aria-label="Separately granted work">
+              <h2>Separately granted work</h2>
+              <p>
+                These duties use explicit owner grants and their existing record and
+                approval rules.
+              </p>
+              <ul>
+                {independentDestinations.map((entry) => (
+                  <li key={entry.id}>
+                    <Link className="text-link" href={entry.href} prefetch={false}>
+                      {entry.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
           )}
         </section>
         <aside className="wfo-side" aria-label="Your account access">
@@ -259,7 +317,7 @@ export function WorkforceOverview({
               <span>My account security</span>
               <ChevronRight size={18} aria-hidden="true" />
             </Link>
-            {active?.canManageAssignments && (
+            {active && workforceDestinationAllowed(active, "access") && (
               <Link href="/admin/workforce/access" prefetch={false}>
                 <Users size={20} aria-hidden="true" />
                 <span>Responsibility assignments</span>

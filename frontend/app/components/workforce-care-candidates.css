@@ -1,0 +1,53 @@
+.care-candidates .wfe-staff-search {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: end;
+  margin: 16px 0;
+}
+.care-candidates form.wfe-staff-search .field {
+  margin: 0;
+}
+.care-candidates .wfe-staff-options {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.care-candidates fieldset.wfe-staff-options > label {
+  display: flex;
+  align-items: start;
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid #ccd6df;
+  cursor: pointer;
+  font-weight: 500;
+}
+.care-candidates fieldset.wfe-staff-options input[type="radio"] {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  margin: 3px 0;
+  accent-color: var(--checked);
+}
+.care-candidates .wfe-staff-options em {
+  font-size: 12px;
+  font-style: normal;
+}
+.care-candidates .wfe-staff-options small,
+.care-candidates .wfe-selected-staff small {
+  overflow-wrap: anywhere;
+}
+.care-candidates .wfe-paging {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+@media (max-width: 380px) {
+  .care-candidates .wfe-staff-search {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .care-candidates .wfe-staff-search button {
+    justify-self: start;
+  }
+}

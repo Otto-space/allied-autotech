@@ -2,11 +2,12 @@ import { z } from "zod";
 import { workforceAccessSchema, workforceJobSchema } from "../api/workforce-schemas";
 import { parseScopedWorkforceJobs } from "./workforce-jobs";
 import { sameWorkforceScope } from "./workforce-overview";
+import { workforceActionPredicates, workforceAllows } from "../workforce-registry";
 
 const person = z.object({ id: z.uuid(), firstName: z.string(), lastName: z.string() });
 const detailSchema = workforceJobSchema.extend({
   generatedAt: z.iso.datetime(),
-  access: workforceAccessSchema.extend({ managed: z.literal(true) }),
+  access: workforceAccessSchema.safeExtend({ managed: z.literal(true) }),
   branch: z.object({ id: z.uuid(), name: z.string() }).nullable(),
   assignedStaff: person.nullable(),
 });
@@ -36,7 +37,7 @@ export const parseWorkforceJobCandidates = (value: unknown) => {
       jobVersion: z.number().int().min(0),
       branchId: z.uuid(),
       generatedAt: z.iso.datetime(),
-      access: workforceAccessSchema.extend({ managed: z.literal(true) }),
+      access: workforceAccessSchema.safeExtend({ managed: z.literal(true) }),
     })
     .parse(value);
   if (
@@ -81,7 +82,7 @@ export function jobActionAllowed(
     work = job.workOrder;
   if (action === "work")
     return (
-      access.permissions.includes("JOBS_UPDATE") &&
+      workforceAllows(access, workforceActionPredicates.jobWork, job) &&
       !!work &&
       ["CONFIRMED", "IN_PROGRESS"].includes(job.status) &&
       Object.hasOwn(workTransitions, work.status)
@@ -96,11 +97,11 @@ export function jobActionAllowed(
   if (!lead) return false;
   if (action === "assignment")
     return (
-      access.permissions.includes("JOBS_ASSIGN") &&
+      workforceAllows(access, workforceActionPredicates.jobAssign, job) &&
       ["REQUESTED", "AWAITING_DEPOSIT", "CONFIRMED", "IN_PROGRESS"].includes(job.status)
     );
   return (
-    access.permissions.includes("QUALITY_APPROVE") &&
+    workforceAllows(access, workforceActionPredicates.jobQuality, job) &&
     job.status === "IN_PROGRESS" &&
     work?.status === "QUALITY_CHECK" &&
     work.workedByUserIds.length > 0 &&

@@ -5,7 +5,10 @@ import { afterEach, expect, it, vi } from "vitest";
 import { WorkforceWorkspace } from "@/app/components/workforce-workspace";
 import { workforceNavigation } from "@/lib/workforce-navigation";
 import { parseWorkforceAccess } from "@/lib/api/workforce-schemas";
-vi.mock("next/navigation", () => ({ usePathname: () => "/admin/fitment" }));
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/admin/fitment",
+  useRouter: () => ({ replace: vi.fn() }),
+}));
 vi.mock("@/app/components/work-parts-fitment", () => ({
   WorkPartsFitment: () => <h1>Permitted fitment workspace</h1>,
 }));

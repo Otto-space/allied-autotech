@@ -126,7 +126,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       expect(created.status).toBe(200);
       expect(created.body.data.templateVersion).toBe(1);
       const inspect = await read(owner, `/admin/workforce/accounts/${target.user.id}`);
-      expect(inspect.body.data.templatesVersion).toBe(1);
+      expect(inspect.body.data.templatesVersion).toBe(2);
       expect(
         inspect.body.data.assignmentDefinitions[created.body.data.id].actions,
       ).toContain("CUSTOMER_ENQUIRIES");

@@ -152,7 +152,7 @@ function fulfillmentAvailability(
     collection: {
       enabled: true as const,
       address:
-        "133 Stadium Road, beside Kilimanjaro, Port Harcourt, Rivers State, Nigeria",
+        "133 Stadium Road, beside Kilimanjaro Pizza Jungle Restaurant, Port Harcourt, Rivers State, Nigeria",
     },
     // Preserve stored policy/history, but never advertise delivery for new orders.
     delivery: { enabled: false as const, policyVersion: null, zones: [] },

@@ -1,5 +1,42 @@
 # Allied AutoTech completion tracker
 
+## 28 October 2026 consolidation checkpoint
+
+Authoritative checkout: C:/Users/PC/.codex/worktrees/allied-home-restoration-20261025,
+integration branch master. The owner authorized tested integration, production
+publication and retirement of completed branches, and has paused other releases.
+The older branch-specific release notes below are retained as dated evidence.
+
+Production backend 8fd37e1c-d2e2-4e2f-bbe4-3e9acb8c5650 is ACTIVE on four
+4fbc9cbb images. The guarded forward migration completed all 76 migrations;
+read-only schema verification, non-owning runtime privilege checks and six worker
+heartbeats passed. A separate populated restore and forward migration rehearsal
+passed before that rollout. This is not a physical managed PITR rehearsal.
+Production frontend most recently resolved on both domains to 1a33815c /
+dpl_71G8rw7VmXo7WZZCDJpvTb5eCMib. These runtime changes are incorporated here.
+No commerce, provider AI or live-human-chat flag has been enabled.
+
+All initial remote heads and unique local history have been reconciled, including
+current payment-session evidence checks, favourites refresh, navbar/container
+focus, learning interactions, unread notification preview and compact customer
+care. Current integration testing found and corrected two conflicts in Allie:
+the Learn catalogue now retains its eligible guide/practice entry points, and
+access revalidation retains dialog geometry while content stays hidden/inert.
+The workforce invalidation listener and conversation/handoff lifecycle remain.
+The focused combined five-file frontend run passed 41 cases after these fixes.
+The earlier combined candidate passed 27 hosted gallery/handoff/workforce cases,
+23 public read-only checks and 41 packaged image/spec checks. Final corrected
+candidate, exact-source GitHub gates and promotion are still pending at this
+checkpoint; private release receipts preserve their eventual actual results.
+
+The complete Revision 4 goal remains open: gated shared human-chat implementation,
+all 106 exact-route decisions, final bounded provider re-evaluation and real-role,
+physical-device and full screen-reader acceptance remain. Queued Customer Care is
+the truthful current handoff. Do not count this consolidation as full completion.
+Missing/dirty/active worktrees and provider-connected release branches must remain
+protected during branch retirement. Never prune the metadata of the three source
+worktrees the owner reported deleting without completing recovery review.
+
 ## 28 October 2026 current notification-preview cycle
 
 The exact live frontend before this cycle is `09efa694` /
@@ -11,8 +48,7 @@ with recent-history fallback if another tab already read them. The separate
 the P0 backend candidate and unrelated dirty worktrees remain untouched.
 Focused four-case unit, type, scoped lint and nine rendered role/viewport
 fixtures pass. See `frontend/docs/UI_UX_QUALITY_REGISTER.md` for evidence and
-limits. Exact-source CI, staged frontend promotion and hosted acceptance are
-pending. No notification read, message, payment or production data write was
+limits. No notification read, message, payment or production data write was
 made; live authenticated-role and physical-device checks remain open. During
 release preparation, both domains advanced to navbar runtime `4aafaebb` /
 `dpl_F5XnU2aiSxhtK78P8dnbvrffYCR5`. Both domains then advanced to the
@@ -23,8 +59,19 @@ the remaining historical-commerce case passed when the local launch mode was
 set to production's `browse_enquiries`. No application defect was found in that
 fixture mismatch. Exact-source CI passed on `ddfab325`. Production then
 advanced to Learn/Allie runtime `072e0509` / `dpl_Bov9FbKyy4yPMRqWnJG3CpX6MMQz`,
-which is being merged before notification staging. A fresh exact-source check
-and disk preflight are required.
+which was merged. Final runtime `1a33815c` passed frontend release CI
+`40713279695`, secret guard `40713279399` and backend safety `40713279822`.
+Vercel deployment `dpl_71G8rw7VmXo7WZZCDJpvTb5eCMib` was built with production
+settings, verified READY and exact SHA, then promoted after the prior alias
+was rechecked. Both apex and www resolve to this ID. Protected hosted Home,
+Help, Learn, Parts and Notifications reads returned 200. Post-promotion
+Playwright passed the unread-preview case and all eight customer/staff/admin/
+super-admin journeys at 390/1440px using isolated API fixtures. No real
+notification, account or backend write was made. Previous deployment
+`dpl_Bov9FbKyy4yPMRqWnJG3CpX6MMQz` remains the frontend rollback target;
+real-role and physical-device acceptance remain open. C: finished above the
+20 GiB reserve after a transient local-check shortfall; no destructive cleanup
+or database action was used.
 
 ## 28 October 2026 current Learn, Allie and guide audit
 
@@ -37,11 +84,22 @@ fragment cleanup and unrevealed practice feedback. Prior permissions, eligibilit
 content versions, target contracts and local simulation boundaries remain intact.
 
 A concurrent frontend favourites release ef06efb7 / dpl_FAJ8oVhecCNTGac2XAyufAgg7hvv
-was observed and will be integrated before rollout. Backend 8fd37e1c remains ACTIVE
-with no pending release. Focused units pass; final combined browser tests, locked
-CI and actual public-content acceptance are pending. Full scope, evidence and
-physical-device/private-role limits are in the matching quality-register entry.
-No backend/schema/provider write or real support/account operation initiated.
+was observed and merged before rollout. Backend 8fd37e1c remains ACTIVE
+with no pending release. Focused units and ten local interaction cases passed
+before the final recovery-link assertion; the combined local run reached 23
+passes before a renewed disk-reserve stop. Final runtime 072e0509 /
+dpl_Bov9FbKyy4yPMRqWnJG3CpX6MMQz is promoted on both domains after exact-source
+frontend 40710727313, secret guard 40710727576 and isolated database safety
+40711362859 passed. All 39 deployed browser cases passed. Separate real public
+390/1440 article/Allie/guide/practice checks, three compact viewport checks and
+www-domain refresh/hide/reopen/recovery checks passed without page errors or API
+writes. A final real action-link sweep also confirmed every article destination,
+Allie-to-article focus, practice entry/exit and input clearing on leave/Back. Final
+disk postflight measured 27.9 GiB free; task dev/browser processes are stopped.
+Full scope, evidence and physical-device/private-role limits are in the matching quality-register entry.
+No backend/schema write or real support/account operation initiated. Frontend
+promotion followed the owner's standing authorization and preserved the prior
+favourites release as rollback. The guard receipt is %TEMP%/aat-learning-promotion.json.
 
 ## 28 October 2026 current navbar stability follow-up
 
@@ -100,8 +158,16 @@ unrelated main, production-sync and visual-audit changes. Current scope is share
 scroll/focus stability, Help search and Learn/Allie/guide interaction recovery.
 Details and test limits: `frontend/docs/UI_UX_QUALITY_REGISTER.md`, 28 October entry.
 No backend/schema, policy, permission, provider flag or transaction-mode changes.
-Final runtime source, CI, provider IDs and hosted acceptance are recorded below
-when complete. Physical mobile browsers and real-account acceptance remain open.
+Released runtime: `0d4dd9921d28c7b9c87020c5c045496874473de2`; frontend
+`dpl_DAgy9emEabtd3H58kWjoBw35EUUc`, verified on both apex/www aliases.
+Frontend production checks `40678376969`, secret guard `40678377082` and database
+safety CI `40678376941` passed. Live 390/1440 reload/touch and Help/guide/Allie
+acceptance passed without real API writes or page errors. Hosted mocked login/MFA
+focus passed separately. Backend remains active deployment
+`79d7a0ac-4e83-4b73-ae46-40af4731a604` / source `0fd68980`.
+Prior frontend `dpl_79uCiatbRsCvM2jtPJkwsx53efpP` is retained for rollback.
+Full receipts/limitations are in the quality register. Physical mobile browsers and
+real-account acceptance remain open.
 
 ## Working agreement
 
@@ -136,6 +202,18 @@ are separate; a configuration flag or passing build alone does not prove complet
 
 ## Source locations and release context
 
+### 28 October 2026 consolidation in progress
+
+The current release review uses `release/allie-workforce-reviewed-20261027` in
+`C:/Users/PC/.codex/worktrees/allied-home-restoration-20261025`. The owner has
+approved the remaining Revision 4 phases and the master/checks/production/finished
+branch workflow. Follow `integration-release-workflow.md` and
+`../../docs/help-learn/COMMITTED_RELEASE_20261027.md` for the current candidate,
+76-migration composition, evidence and remaining gates. All older source and
+provider identities below are dated historical checkpoints; re-read provider
+state before publication. No production migration or promotion of this combined
+candidate has occurred at this checkpoint. Preserve active/dirty worktrees.
+
 This tracker lives in the user's main checkout. That checkout is not the latest
 public-release source. Inspect current live state and Git history before any edit
 or deployment; never deploy the older checkout merely because it is the cwd.
@@ -149,6 +227,16 @@ or deployment; never deploy the older checkout merely because it is the cwd.
   backend: `1876e3d1-ab99-4e26-8a58-1ea4fcb0d46a` (ACTIVE).
   Recheck provider state before further changes. Full notification evidence:
   `backend/docs/notifications-experience-20261025.md` in that worktree.
+
+
+### Historical merged-branch checkpoint
+
+The following dated observation is retained from origin/release/audit-copy-current-20261024; it is not a claim of current production identity.
+
+- Current frontend release source: `C:/Users/PC/.codex/worktrees/allied-audit-copy-current-20261024`,
+  commit `5e7deb6a` based on dashboard-quality release `d5269cb3`.
+  Backend runtime remains the verified discovery/fitment release; its source is
+  `C:/Users/PC/.codex/worktrees/allied-discovery-fitment-20261023`.
 - Previous release and ongoing separate audit worktree: `C:/Users/PC/.codex/worktrees/allied-email-evidence-20261023`,
   committed gallery/navigation source `098b580c`. Preserve its independent pending
   audit/copy changes and merge them against the new release before any future rollout.
@@ -171,6 +259,25 @@ or deployment; never deploy the older checkout merely because it is the cwd.
   its image was not promoted after the concurrent deployment changed the
   production source. Authenticated production staff-filter acceptance remains
   open; local isolated integration tests and live anonymous boundary passed.
+
+
+### Historical merged-branch checkpoint
+
+The following dated observation is retained from origin/fix/staff-vehicle-filters-20261024; it is not a claim of current production identity.
+
+- Current stock-query audit worktree: `C:/Users/PC/.codex/worktrees/allied-staff-vehicle-filters-20261024`,
+  branch `fix/staff-vehicle-filters-20261024`, based on `c3f4076f`. Its backend
+  changes are local until release checks and a matching backend rollout complete.
+
+
+### Historical merged-branch checkpoint
+
+The following dated observation is retained from origin/release/audit-copy-current-20261024; it is not a claim of current production identity.
+
+- Current backend observed: `5c1ea9a7-6211-46d2-995f-c45e504bf9e9` (ACTIVE),
+  all four verified images; read-only predeploy passed and 64 migrations compatible.
+- Current frontend observed: `dpl_CMG2vPpWCQMvQdCWMZYsxbwproTZ` (READY),
+  assigned to both main and www domains on 24 October 2026. Recheck before changes.
 - Full release evidence: `backend/docs/discovery-fitment-release-review.md` in this
   worktree. Earlier release pointers/checkpoints below describe their historical state.
 
@@ -930,6 +1037,7 @@ backup, payment-disabled, enquiry-only and collection policies remain in force.
 All earlier Item 6 staff-media/real-publication and operational decisions retain
 their recorded scope. Other worktrees' pending audit/copy edits were preserved.
 
+
 ## Current frontend handoff - dashboards and managed workforce, 24 October 2026
 
 The owner's page-by-page UI directive is now applied to the dashboard/workforce
@@ -1006,6 +1114,16 @@ customer toast separately. No real authenticated role journey or live provider
 transaction was claimed for this release. Item 6 and owner/operational
 dependencies remain open.
 
+The release branch was pushed to GitHub at `origin/release/audit-copy-current-20261024`.
+Its automatic Vercel **preview** status was canceled before build because Vercel
+reported that the commit signature could not be verified; the preceding
+dashboard-quality release branch shows the same status. Do not disable commit
+verification to turn that preview green. The CLI-created production deployment
+had already built READY from the reviewed source and both production aliases
+remained on `dpl_CMG2vPpWCQMvQdCWMZYsxbwproTZ` after the branch push. A
+verified signing/identity workflow is a separate release-pipeline follow-up.
+
+
 24 October 2026, 23:17 Lagos - scoped catalogue/customer-care design release:
 runtime `1aacb6af5ffbe72c23e1f0f7d35b78fadf5f4447` on
 `C:/Users/PC/.codex/worktrees/allied-catalogue-care-ux-20261024`, branch
@@ -1044,6 +1162,7 @@ was provider READY/actual alias identity; browser checks used local synthetic
 fixtures. Payments stay disabled. Dependencies and Docker resources were retained;
 preview port 3155 stopped. Original main-checkout edits remain untouched except
 the guarded documentation handoff. Item 6 and owner dependencies retain scope.
+
 
 25 October 2026 - Home/Parts/Vehicles implementation checkpoint (not released):
 `C:/Users/PC/.codex/worktrees/allied-home-discovery-20261025`, branch
@@ -1362,6 +1481,7 @@ Kept private backups, native recovery database, current/rollback/base/tool image
 warm dependencies/builds, source and all unrelated work. Final C: reserve reading
 was approximately 23.74 GiB free, a point-in-time observation rather than an OS quota.
 
+
 25 October 2026 - notification-only local implementation checkpoint.
 Source branch feat/notifications-experience-20261025 in the reused
 C:/Users/PC/.codex/worktrees/allied-home-restoration-20261025. Initial checkpoint
@@ -1404,6 +1524,7 @@ No Docker resource was created or deleted; retained 42 images, 14 containers,
 14 volumes and 96 cache entries, including the unrelated active compatibility DB.
 Source, histories, secrets, databases/backups and current/rollback resources retained.
 
+
 25 October 2026 - notification build blocker resolved.
 Owner confirmed manual cleanup; all four approved redundant installer files were
 verified absent (1,147,739,384 measured prior file bytes, approximately 1.07 GiB).
@@ -1419,6 +1540,7 @@ and optimized hosted browser acceptance remain release checks. Native device
 subscription/delivery/click acceptance retains its documented permission-denied
 limit. No notification production deployment occurred; API/general worker must
 precede frontend rollout. All previous fixture/live evidence distinctions remain.
+
 
 ## Production notification release - 25 October 2026, 17:26 UTC
 
@@ -1527,6 +1649,7 @@ identities, backups, current/rollback/tool/base images and other tasks retained.
 C: postflight 28.77 GiB free at measurement. Existing main-checkout content was
 preserved by append-only continuity updates; no unrelated source was overwritten.
 
+
 25 October 2026, 19:44 UTC - final customer-detail refinement released.
 Frontend fd19aabc9d0a0843857821cf2eb12651f2ce505c /
 dpl_BVUgeibwBeTL3EvTZPiiCM9nMNgf is READY on main/www; backend remains
@@ -1617,6 +1740,7 @@ remains separate. See backend/docs/fitment-product-media-20261026.md and
 all containers/volumes and useful caches retained; C: 29.82 GiB free. Unrelated
 Help/Learn, customer-table and staff-revision work not bundled. Main tracker existing
 bytes preserved by append-only update. Broader Item 6 remains open.
+
 
 26 October 2026 - Help, Learn and Practice production deployment completed.
 Owner explicitly authorised publication after the original local/test milestone.
@@ -1782,6 +1906,27 @@ W3 uncommitted work remains in its original worktree; Revision 4/Item 6 not comp
 Evidence/rollback: backend/docs/pending-commits-production-20261026.md. Local preview
 stopped, no cleanup deletion, current/rollback/data retained; C: 28.19 GiB free.
 
+26 October 2026 - payment-source expiry correction is live. Backend runtime
+2033b159, DigitalOcean 3cb61958-e460-494b-ae29-1ce826ac22b9 ACTIVE,
+all four registry digests verified; no frontend or schema change. The read-only
+predeploy database checker passed. Direct and public readiness returned 200;
+anonymous session/payment reads returned 401. Local exact-source gates passed
+48 focused integrations, nine image checks, OpenAPI/routes, types, lint, format
+and secret guard. Eight managed backups and the prior separate restore evidence
+were reviewed. GitHub PR creation returned 403, so locked PR CI is not claimed.
+See the release-worktree backend/docs/payment-source-concurrency-20261026.md.
+Real-provider, authenticated-role and broader site acceptance remain open.
+
+26 October 2026 - post-release invoice/vehicle payment source test-only
+follow-up a2e0be2e. Six valid synthetic source-row races passed across
+intent, online initialization and manual evidence. Three adjacent integration
+files passed 38 tests; fresh isolated 71-migration replay, db:check, types,
+targeted lint and format passed. The disposable database was removed with all
+14 pre-existing Docker volumes retained; C: postflight was 27.75 GiB free.
+No runtime redeployment or production business write. Actual operator-service
+transition races and real-provider acceptance remain open. See release-worktree
+backend/docs/payment-source-concurrency-20261026.md.
+
 26 October 2026 - owner-authorised pending W3 workforce commit 432308e0 deployed
 as reconciled runtime c4e0005d, preserving live campaign/W1/W2 and payment-source
 concurrency source 2033b159. Backend 707a200f-17c3-4947-a0bd-21b39496cf6a ACTIVE;
@@ -1797,6 +1942,886 @@ Operator harness/timeout qualifications and compatible recovery composition are
 in backend/docs/workforce-versions-production-20261026.md. Other worktrees and
 uncommitted edits preserved; no speculative Docker cleanup; C: 27.71 GiB free.
 Full Revision 4 implementation and broader Item 6 remain open.
+
+26 October 2026 - complete colour/state brief, local implementation checkpoint.
+Branch feat/colour-states-20261026 in allied-shop-vehicles-r2-20261025, based on
+3cea520f / released runtime 8c11c3a0. Shared black/red/white tokens, branded
+marketing/navigation/Allie gradients, contextual focus/selection and semantic
+statuses are implemented; approved imagery and white operational surfaces remain.
+No backend, schema, permission or business mutation changed. 1,053 units, lint,
+typecheck, optimized build and 30 contrast pairs passed. Browser evidence accepts
+324 distinct cases across 118 files; three optional cart-drawer cases unexecuted.
+Firefox/WebKit, native autofill/pickers, physical devices and full screen-reader
+acceptance remain unverified. Exact coverage, initial harness corrections, safe
+screenshots and remaining limits: frontend/docs/COLOUR_AND_STATE_REPORT.md and
+colour-browser-coverage.json. No push/deploy under this brief. Other worktrees,
+Desktop edits and the separate workforce/Allie scope are preserved. Broader site
+completion Item 6 remains open. Task servers stopped after checks; no Docker
+resources created/deleted; final disk preflight 28.15 GiB free.
+
+26 October 2026 - actual invoice and vehicle operator-service source locks
+verified locally against intent creation, online initialization and manual
+evidence, on a test-only branch merged with deployed runtime `c4e0005d`.
+All six races passed through the real billing/vehicle-sale services: each
+payment action waited for the operator transaction, then rejected the cancelled
+source without a new payment or attempt. A fresh isolated
+`_test` PostgreSQL database replayed 72 migrations with no schema difference;
+`db:check`, 44 adjacent integration cases, backend typecheck, targeted lint and
+format passed. No runtime release or production/provider write was made.
+Provider sandbox settlement and real authenticated-role acceptance remain open.
+Detailed test scope is in the
+release-worktree backend/docs/payment-source-concurrency-20261026.md.
+
+26 October 2026 - historical refund replay authorization blocker rechecked.
+Current backend matches the original requester and exact refund input before
+returning an idempotent replay, then checks branch access; STAFF, CUSTOMER and
+MFA-unverified administrators are denied at the request route. A focused HTTP
+case passed on a newly isolated native loopback `_test` PostgreSQL target after
+72-migration replay and `db:check`. Three denied-role POST assertions were added.
+The first Docker NAT attempt stopped at its direct-host guard and was not counted
+as test acceptance. No production refund or runtime deployment was performed.
+Provider completion and authenticated production-role acceptance remain open;
+details: release-worktree backend/docs/refund-replay-authorization-20261026.md.
+The native test server was stopped; automatic command review blocked removal
+of its 76,629,829-byte task directory in Temp. C: postflight was 28 GiB free;
+the original 14 Docker volumes were retained.
+
+26 October 2026 - password-change session atomicity corrected locally in the
+compatibility release worktree, based on deployed source `c4e0005d`.
+The service now rechecks the credential and CSRF-bound session under locks and
+commits password, revocations, audit, security notification and session rotation
+together. Injected post-rotation failure rolls back all changes; competing
+requests leave one successful credential. A newly isolated native loopback
+`_test` database replayed all 72 migrations and passed `db:check`; two new
+race cases, the identity HTTP flow, 20 MFA integrations, five identity units,
+types and targeted lint/format passed. Backend runtime release is pending;
+real-role/device acceptance and sign-in challenge failure recovery remain open.
+See release-worktree backend/docs/password-change-atomicity-20261026.md.
+
+
+26 October 2026 - Revision 4 W4A local checkpoint: server-derived responsibility
+capabilities/branch/scope/provenance and assign/revoke added/removed/retained preview.
+Delegated hidden-source and maximum-scope redaction retained; optional impact digest
+is recomputed inside the existing locked mutation, rejecting stale/expired reviews
+without partial writes. Position, baseline, independent grants and approval rules
+are unchanged; full effective-policy/nav/session/subscription composition is open.
+Fresh synthetic native CI target replayed 72 migrations, schema/db:check and runtime
+least-privilege checks passed. 56 workforce plus seven learning integrations, 12
+backend units, 1,066 frontend units, final lint/types/contracts and optimized build
+passed; 24 focused units rechecked the final lifecycle correction. 77 distinct local
+fixture browser cases accepted at 320-1920px, impact review 390/1440px with Axe,
+keyboard, overflow and inspected screenshots. An initial raw-503 fixture expectation
+was corrected to the existing safe generic error; no product safety was weakened.
+The exact prepared preview script started on 127.0.0.1:3167 after fresh explicit
+owner approval. All browser APIs were intercepted; no real submissions/deployment.
+Evidence: docs/help-learn/WORKFORCE_EFFECTIVE_ACCESS_W4.md. The 106-route completion
+gate remains unmet; actual AI/provider evaluation, full learning, persisted Customer
+Care handoff and staffed/gated live chat remain required. C: postflight 27.85 GiB;
+no Docker/worktree/profile/install duplication or speculative pruning. Other active
+worktree changes/releases are preserved and require reconciliation before any rollout.
+Full Revision 4 and Item 6 remain open.
+
+26 October 2026 - owner-authorised colour/state release deployed.
+Runtime d6d8534d preserves deployed workforce/payment source c4e0005d and adds the
+black/red/white presentation. Vercel dpl_9YTq9gSNUnb3XuHKry5MgCVvigdD READY;
+both apex/www aliases verified. Backend 707a200f-17c3-4947-a0bd-21b39496cf6a
+remains ACTIVE and unchanged. All three exact-source CI gates passed, including
+1,057 units, zero production audit vulnerabilities and isolated 72-migration
+replay/db:check. 39 hosted fixture cases and 12 post-promotion public checks passed;
+independent www and backend health reads passed. Formatting/hydration harness
+corrections and explicit device/native/three cart-drawer limits are documented in
+backend/docs/colour-production-20261026.md. Managed backups and retained populated
+restore proof verified; no new restore, production DB command or business write.
+Prior frontend dpl_GRVrwacMhYkrqktFvGRChY5LB2Ln retained for compatible rollback.
+Other worktrees and Desktop edits preserved; no Docker cleanup; C: 27.86 GiB free.
+Broader site completion Item 6 and the separate workforce/Allie roadmap remain open.
+26 October 2026 - password-change atomicity correction deployed.
+Runtime 3ec9c822, backend deployment 96ffc790-f572-49f4-9047-3ae6cb30469e
+ACTIVE. The four image digests match the release manifest; the non-image app
+spec is unchanged. Exact-source backend check passed 577 default tests (1,117
+intentional database skips), with focused isolated transaction/HTTP cases
+separately passed; nine image checks and a packaged isolated migration/restore
+check passed. Production PRE_DEPLOY database checker and all component steps
+succeeded. Direct and domain liveness/readiness returned 200, anonymous session
+401, /shop 308 to /parts, /parts 200. Eight managed backups through 26 October
+and the retained separate populated 90-table restore evidence were reviewed.
+No schema migration, grant, production business write or frontend release.
+Authenticated role/device acceptance and sign-in challenge rotation remain open.
+Release detail: backend/docs/password-change-atomicity-20261026.md in the
+compatibility release worktree. Previous deployment 707a200f remains the
+immediate rollback candidate subject to compatibility review.
+
+26 October 2026 - sign-in MFA challenge rotation defect corrected locally.
+TOTP, recovery-code and WebAuthn proof consumption now commits with session
+assurance/token rotation after account/session/CSRF recheck. Three injected
+post-rotation failures roll back all proof and session state; concurrent use
+of one recovery code admits one request. A fresh isolated native loopback
+`_test` database replayed 72 migrations, schema/db:check passed, and four new
+transaction cases plus identity HTTP and 20 adjacent MFA cases passed. Full
+backend check passed 577 default unit/API tests with 1,121 database-gated skips;
+OpenAPI/routes, types, lint, format, scripts and secret checks passed. No
+schema, route or frontend runtime change. Deployment and genuine browser
+WebAuthn/real-role acceptance remain open. Detail in compatibility release
+worktree backend/docs/mfa-challenge-atomicity-20261026.md.
+
+26 October 2026 - sign-in MFA challenge atomicity deployed.
+Runtime 8b583921, backend 50b5f5d1-50f6-4bf2-a9d0-f0c4975e02b3 ACTIVE.
+Four active image digests match the manifest, and the non-image app spec is
+unchanged. Nine image and one packaged isolated migration/restore checks passed;
+all 24 deployment steps including read-only PRE_DEPLOY database check succeeded.
+Direct/domain liveness and readiness returned 200; anonymous session and MFA
+verify returned 401. Managed backups through 26 October and retained separate
+populated 90-table restore evidence were reviewed. No schema/grant/production
+business write or frontend release. Real authenticated role, device and genuine
+WebAuthn browser acceptance remain open. Previous backend 96ffc790 is the
+immediate rollback candidate subject to compatibility review. Detail in
+compatibility release worktree backend/docs/mfa-challenge-atomicity-20261026.md.
+
+
+26 October 2026 - colour and brand assets Revision 2 local checkpoint.
+Branch feat/brand-assets-r2-20261026 in allied-shop-vehicles-r2-20261025, based on
+ce3121b8 / released d6d8534d. All nine supplied files inspected and original hashes
+preserved; five pixel-identical logo crops and nine responsive WebP posters prepared.
+Shared red/white/black marks, Home trust/service artwork, About portrait and Services
+workmanship implemented. Ad 4 withheld: nationwide delivery contradicts collection
+policy; clean corrected artwork is a business/source dependency. No policy changed.
+1,057 units, lint/types/build/format and 30 contrast pairs passed. 103/109 broad
+fixture browser cases passed; six await optimized replay (three development loading/
+navigation failures and three Help/Learn tests with the local flag disabled). The
+three prior cart gaps passed in focused checks; real Strict Mode dialog cleanup and
+pre-hydration image-error handling repaired. Final local preview start was rejected
+by automatic approval review, reason only "blocked by policy"; specific local-only
+approval requested and pending. No bypass, push, deployment or database command.
+See frontend/docs/BRAND_ASSETS_R2_REPORT.md and brand-assets-r2-coverage.json for
+exact evidence, missing clean recaptures, platform limits and reused dependency
+version discrepancy. Both live domains still dpl_9YTq9gSNUnb3XuHKry5MgCVvigdD.
+Other worktrees and unrelated edits preserved; broader Item 6 remains open.
+
+
+26 October 2026 - Revision 4 W5 local checkpoint: canonical managed-workforce
+navigation/page/action predicates, scoped revision metadata and server-relative
+activation/expiry rechecks. Access loss discards stale reads, protected drafts,
+learning and staff notification previews; forbidden pages return to the permitted
+overview with an explanation. Owner baseline preserved even with a business-position
+record, including the current-role guarded legacy invitation helper. No authority,
+commerce, schema or real messaging capability added. Existing unknown-save recovery,
+MFA, branch/assigned scope and independent approvals retained.
+75 distinct native HTTP/DB cases accepted across bounded runs on the W4 synthetic
+CI target; db:check and runtime restrictions reverified. Full 1,086 frontend units,
+then 29 route/draft and 16 final preview cases passed; lint/types/contracts and the
+final optimized build passed. 87 distinct intercepted browser cases accepted in
+12 bounded batches, plus two console/Axe/overflow screenshot rechecks at 390/1440px.
+Mobile/desktop images visually inspected; real roles, physical devices and full
+screen-reader acceptance remain open. Tests exposed/fixed notification cache and
+record-navigation draft regressions; harness qualifications are documented.
+Evidence: docs/help-learn/WORKFORCE_NAVIGATION_SESSIONS_W5.md. The full Revision 4
+and 106-route completion gate remain open: independent policy composition, real AI,
+persisted reviewed handoff, gated staffed chat and provider evaluation are required.
+No W4/W5 deployment. Other active worktree changes/releases retained and need
+reconciliation before publication. Disk preflight stopped a low-headroom build;
+space recovered without deletion. Reviewed obsolete dev-output deletion was blocked
+by automatic approval review; no alternate removal attempted. Browser batches kept
+at least 27.074 GiB in accepted receipts. No Docker resources created/pruned.
+
+
+27 October 2026 - Revision 4 W6 local backend dependency: actual configurable
+Responses HTTP adapter, bounded reviewed eligible retrieval and follow-up context,
+plain-text/source/action validation, secret screening and current access/content
+recheck after generation. No new assistant endpoint or customer-facing AI enabled;
+existing UI remains reviewed search and flags.ai=false. No schema or migration.
+51 focused unit/contract cases passed; 10 native learning HTTP/DB cases passed on
+the W4 synthetic CI target, with actual current role/MFA/expiry/session checks and
+isolated mocked provider. Backend lint/types passed. An initial secret-screening
+false positive and control-regex lint warning were corrected. No real model call,
+answer-quality score, >=100-case evaluation or full conversational acceptance.
+Evidence: docs/help-learn/ALLIE_PROVIDER_CORE_W6.md. Shared encrypted state, quotas,
+idempotent turns, endpoint/UI, provider configuration/evaluation and final data-flow
+review remain required. Reviewed persisted Customer Care handoff, gated staffed
+chat and complete route learning remain open. No deployment, install, Docker or
+cleanup operation. Preview 3167 retains W5 frontend; C: approximately 27.10 GiB free.
+Full Revision 4 and broader Item 6 remain open; unrelated worktrees preserved.
+
+
+27 October 2026 - brand assets and mobile support placement deployed.
+Final frontend source 8433ff57, Vercel dpl_A8CLYwBc6h4tYAwNqconFJTXfQFZ
+READY on both apex/www; previous dpl_9YTq9gSNUnb3XuHKry5MgCVvigdD retained
+for rollback. Owner-supplied transparent marks and three truthful artworks are
+live; Ad 4 remains withheld because nationwide delivery is not approved. The
+fixed mobile support dock previously covered 31px of the Tyre Change branch
+field at 320px; live field hit-testing and Allie open/close now pass with an
+in-flow support strip. Locked frontend and secret CI, protected hosted
+artwork/role fixtures, seven public read-only production route samples,
+backend readiness and exact alias identity passed. Backend 50b5f5d1 remains
+ACTIVE; no schema, payment, business write or provider change. Managed backups
+and the prior separate populated 90-table restore receipt were reviewed.
+Details and limits: frontend/docs/BRAND_ASSETS_R2_REPORT.md in the brand worktree.
+Physical devices, actual zoom, screen reader, authenticated role acceptance
+and broader Item 6 remain open. Docker resources retained; C: postflight
+27.08 GiB free.
+
+27 October 2026 - current P1 contact/support account-isolation finding revalidated
+against deployed frontend source 8433ff57. Public SupportCreateForm already clears
+contact fields, message, review proposal and success receipt on session invalidation;
+an in-flight anonymous send retains its unknown-outcome lock. Catalogue enquiry
+drafts are account/guest scoped. Existing browser coverage includes both enquiry
+and complaint at draft, review, pending, unknown and completed stages plus a
+validation/session race. Vercel inspect confirmed both production domains remain
+on READY dpl_A8CLYwBc6h4tYAwNqconFJTXfQFZ. No frontend behavior was changed or
+tests repeated. The historical release-blocker note was corrected in the brand
+release worktree; real API/cross-device acceptance remains open. Independent
+financial follow-up inspection confirmed the refund replay finding, operational
+job cursor gap and staff vehicle filter gap have already been corrected in current
+source, avoiding duplicate implementations. The reconciliation scheduler still
+starts with only its most recent interval after a restart or long pause; catch-up
+and same-period failed-run recovery remain a P0 design/verification task. No
+provider call, database write or deployment was performed in this audit.
+
+27 October 2026 - About mobile font-swap shift corrected and released. Three
+independent 390px live baselines each measured a 0.0832804 CLS contribution:
+Quicksand loading wrapped the second hero CTA and moved the campaign artwork
+57.09px. Narrow hero actions now stack through 480px. The optimized local
+build/typecheck and sampled responsive/Axe checks passed; its reused local Next
+16.3.8 installation differed from the requested 16.4.3, so locked GitHub
+frontend/secret checks and an exact-source protected preview were required and
+passed. Runtime 8fa386cb, Vercel dpl_6wmkNSL8eWDvHKKmqafU6rkb9C5k READY
+on both apex/www; prior dpl_A8CLYwBc6h4tYAwNqconFJTXfQFZ retained for
+rollback. Three fresh 390px live About loads each measured about 0.0000056
+CLS. Sampled About 320/481/1440 plus Home/Contact/Help 390 returned 200 with
+no page exceptions or horizontal overflow; About artwork, exact CTA links and
+390px Axe scan passed. Backend readiness returned 200 and remained unchanged.
+All browser API writes were blocked; no customer, payment or provider action.
+Physical devices, actual browser zoom, complete screen-reader and authenticated
+role acceptance remain open. See brand-worktree UI_UX_QUALITY_REGISTER.md.
+
+27 October 2026 - Revision 4 W7 local checkpoint: owned encrypted transient
+conversations, guest/account CSRF and isolation, shared quota/concurrency/leases,
+idempotent claims, cancellation, current-access finalization and bounded retention.
+Forward migration 73/client generation/fresh synthetic empty replay/schema/db:check
+and restricted runtime passed. Final 36 native HTTP/DB cases and 139 units passed;
+backend lint/types/scripts, OpenAPI 375 paths, 439 operations plus 4 infrastructure
+routes and frontend generated types/typecheck passed. Provider output was mocked;
+zero real model calls, customer messages or application/shared DB writes.
+Evidence: docs/help-learn/ALLIE_CONVERSATIONS_W7.md and learning-threat-model.md.
+Owner could not confirm topology; public/multi-instance assumptions remain explicit.
+Masked Windows-user-encrypted evaluation setup helper verified with a synthetic key;
+no app environment changed or AI enabled. UI still reviewed search; W5 rendered
+checkpoint unchanged. Frontend conversation/privacy, >=100 reviewed real-provider
+evaluation, full workforce policy/history, all-route learning, persisted reviewed
+Customer Care handoff and staffed/gated transport remain required. Coverage gate
+still has all 106 routes open. Fresh replay is not a production restore rehearsal.
+No W4-W7 deployment; preserve/reconcile newer release work before any rollout.
+Owner-approved deletion of exactly four obsolete .next/dev folders was rejected
+again before execution by automatic approval review (blocked by policy). No alternate
+removal attempted; 895,695,897 logical bytes remain. C: final-check preflight 26.93
+GiB free. No Docker resources, dependency install, new worktree or duplicate profile.
+Full Revision 4 and broader Item 6 remain open.
+
+27 October 2026 - Revision 4 W8 local checkpoint: existing Allie panel gains explicit
+conversation/send, safe current source/actions, stop, unknown-outcome checks, recent
+sessions, reviewed clear and accurate provider/privacy disclosures with search fallback.
+Default AI remains off. Security paths suppress conversation; existing auth launcher
+exclusion preserved. Public/account namespaces and CSRF remain separate; no transcript
+browser storage, form capture, automatic resend or implicit Customer Care submission.
+Full frontend lint/types and 1,109 units passed; final polish rechecked 26 focused
+cases. Final optimized build passed with cached Next 16.3.8; exact-lock 16.4.3 CI open.
+16 distinct intercepted Chromium cases at 320/360/390/768/1024/1440 plus 390x844
+follow-up/composer passed, with keyboard/focus return/reduced motion, Axe and inspected
+screenshots. Initial login-launcher test assumption corrected to actual intended UI.
+37 native HTTP/DB cases plus 60 provider/state units and schema db:check passed on
+W7 synthetic CI; provider mocked. No W8 schema change. The retention test now uses
+explicit ancient synthetic expiries rather than assuming a fixed backlog size.
+Further guest-lock/retention ordering reproduction remains required before exposure.
+Contracts/types, secret guard and structural coverage passed; all 106 gates stay open.
+Evidence: docs/help-learn/ALLIE_CONVERSATION_UI_W8.md. Real combined browser/backend/
+provider acceptance, >=100 reviewed evaluation, full workforce policy/history and
+route learning, persisted reviewed handoff and availability-gated chat remain open.
+Owner reports purchased credits, model 60k TPM/10 RPM and enforced US$1 project cap;
+private key setup ongoing, no real model call or deployment. Helper accepts Yes and
+clipboard entry after an explicit pause; synthetic checks never read real clipboard.
+C: about 26.40 GiB free. No Docker/install/worktree/profile duplication or deletion;
+read-only Docker inventory retained. Denied four dev-folder targets remain preserved.
+Full Revision 4/Item 6 active; unrelated newer releases require reconciliation.
+
+27 October 2026 - P0 reconciliation catch-up and failed-period recovery
+implemented locally in the current backend release worktree. Runtime commit
+c98342b3, documentation HEAD 4097e675 on fix/payment-expiry-race-20261026.
+The worker now locates the oldest unobserved online attempt per enabled provider
+after a restart, retries a failed period as a separate numbered run, reobserves
+late-created attempts in a new immutable snapshot, and fails rather than calling
+provider outages missing receipts. A renewable ten-minute lease permits safe
+recovery of a crashed RUNNING run while stopping a displaced worker before
+persistence. Existing run/item evidence remains. A forward migration adds
+attempt/lease and due-query indexes without altering payment/ledger rows.
+A fresh disposable _ci PostgreSQL target replayed all 73 migrations and had no
+Prisma schema difference; 23/23 reconciliation/Monnify integration cases,
+TypeScript, scoped lint/format and diff checks passed. GitHub backend safety run
+40428951879 and secret guard 40428951880 passed for exact runtime c98342b3.
+The task-created database container was stopped/removed; no provider call,
+production database write, payment movement or deployment occurred. The current
+production backend was rechecked read-only as ACTIVE
+50b5f5d1-50f6-4bf2-a9d0-f0c4975e02b3. A previous RUNNING row without a lease
+must be reviewed, not auto-reclaimed. Recurring reobservation of pending/mismatched
+receipts, hold resolution, provider sandbox acceptance, current backup/restore
+and guarded production migration/release remain open. See the source-worktree
+backend/docs/payment-reconciliation-recovery-20261027.md. Preserve separate W7
+Allie migration and all unrelated worktrees; broader Item 6/Revision 4 open.
+
+27 October 2026 - P0 reconciliation recurring observation follow-up.
+Runtime 7033ce68, documentation HEAD 5a946372 on the same backend release
+worktree/branch. The due scan now uses each attempt's latest completed observation:
+matched pending and discrepant receipts are rechecked after the configured
+interval; terminal matched attempts stop recurring. Failed partial runs cannot
+claim coverage. Additive migration 74 indexes the latest-item lookup and sorts
+before the separate unreleased Allie migration. A new isolated _ci database
+replayed all 74 migrations with no Prisma difference; reconciliation/Monnify
+integration 24/24, TypeScript, scoped lint/format and GitHub backend safety
+40431495357 plus secret guard 40431495423 passed. Read-only production confirms
+backend 50b5f5d1 ACTIVE, no pending rollout; API ready/live 200, anonymous
+customer-payment 401; general worker reconciliation false and Paystack/Monnify
+disabled. Managed cluster listed eight backups through 26 October 05:22:11 UTC.
+No populated restore rehearsal, production migration, provider call or deployment
+was done in this follow-up. Explicit hold/anomaly resolution, provider sandbox,
+production-scale query assessment and guarded release remain open. Preserve
+unrelated W8 Allie changes and current production frontend/rollback.
+
+27 October 2026 - P1 inventory reservation unknown-outcome recovery fixed locally
+on the current backend reconciliation branch. The request now reaches its
+authorized idempotency replay after the requested expiry; a genuinely new expired
+or over-seven-day reservation still fails 422 before a stock write, and a changed
+request with the old key fails 409. Existing stock, status and expiry are not
+extended on replay. A newly created loopback-only _ci database replayed all 74
+migrations with no schema difference; the real Phase 4 inventory HTTP flow passed,
+along with seven focused/adjacent units, TypeScript, scoped lint/format and OpenAPI.
+The flow's stale cart-clear fixture was updated to the already-released reviewed
+snapshot contract after the initial isolated run exposed it; the final run passed.
+Both task-created test containers were removed. This is not a production release;
+populated restore, guarded migrations and real staff acceptance remain open.
+Exact runtime 8b8f1e4a passed backend database-safety CI 40434368733 and secret
+guard 40434368672. See backend/docs/inventory-reservation-replay-20261027.md in the
+compatibility worktree. Preserve unrelated changes in this main checkout.
+
+27 October 2026 - Revision 4 W9 local checkpoint: owner DPAPI settings verified;
+100 actual gpt-6-luna baseline cases reviewed, ten local negative cases stopped
+before provider, twelve targeted rechecks accepted after guidance/retrieval fixes.
+Baseline 75/100 accepted without recorded quality issue, 25 needed improvement;
+not a second full final run. Managed replies, note privacy, assigned sales scope,
+internal escalation, delegation/checkout evidence, editable drafts and missing-guide
+wording corrected. Guest-retention row/advisory lock wait reproduced and fixed.
+Final 80 focused units and 39 native HTTP/DB cases passed; backend/source/scripts
+and frontend typechecks/lint passed. Existing optimized preview reused; real guest
+two-turn flow and final customer/CSRF/source flow accepted, with native-dialog Axe
+and 390/1440 readback/screenshots. Test envelope/selector/CSRF harness assumptions
+were corrected; product permissions were not loosened. No W9 schema/build/install.
+117 real calls; 120 conservative reservations / USD0.189681 retained, including
+three unused browser reservations. Approval exhausted: do not reset the ledger or
+make further calls without a new bounded approval. Provider usage estimate USD0.0257841
+is not an invoice. No real records/messages, public AI enablement or W4-W9 deployment.
+Evidence: docs/help-learn/ALLIE_EVALUATION_W9.md and case-level review JSON. Isolated
+API stopped gracefully; existing frontend preview remains. C: about 26.33 GiB free;
+no Docker/new worktree/profile/archive, and denied dev-folder deletion untouched.
+Full Revision 4/Item 6 remains active. Next: canonical reviewed handoff contracts and
+backend; full workforce policy/history, all 106 routes and gated shared transport open.
+
+27 October 2026 - P0 reconciliation populated restore gate advanced locally.
+A receipt/hash-verified 26 October production archive was restored into a fresh,
+loopback-only PostgreSQL 18 _ci target with 90 public tables and populated account,
+branch, catalogue and notification rows. The protected db:migrate runner made a
+fresh private exact-target backup, applied pending workforce migration 72 and
+reconciliation migrations 73/74, then passed db:check/schema diff. Sampled business
+table counts were unchanged; the source snapshot has no payment, refund, ledger,
+order or inventory-reservation rows, so those populated financial cases remain
+unverified. The test container was removed and the retained rehearsal backup ACL
+restricted to owner/Admins/SYSTEM. Production backend 50b5f5d1 stayed ACTIVE;
+eight managed backups and app-only firewall were checked read-only. The app spec's
+migrator secret is provider-encrypted and local DB access blocked; no firewall,
+credential, production DB, provider or deployment change occurred. Fresh production
+backup, guarded production migration, source/image rollout and real/provider
+acceptance remain open. See the compatibility worktree's
+backend/docs/payment-reconciliation-recovery-20261027.md.
+
+27 October 2026 - Active Revision 4 W10 dependency: unsupported workforce history.
+Branch feat/workforce-history-policy-20261027 based on committed W9 8b360b89, reusing
+the same checkout. Actual synthetic HTTP response preserved unknown template/scope/
+position while response/frontend schemas rejected it. Read-only history contracts,
+labels and revocation receipt validation corrected; active grants/input enums stay
+strict. Full frontend 1112 tests/167 files, 17 focused cases and nine native effective
+access cases passed, plus types/lint/OpenAPI375/routes439+4. No migration/model call.
+Rendered 320/390/768/1440 acceptance pending; one optimized reused-cache build now
+running, old owned 3167 preview stopped after identity check. Preflight 25.93 GiB
+free, 21 GiB required. See docs/help-learn/WORKFORCE_HISTORY_W10.md. No publication.
+Next dependencies remain independent-grant/baseline composition and granular care
+authority, followed by canonical reviewed handoff and shared staffed transport.
+
+27 October 2026 - P1 inventory reservation replay hotfix released to production.
+Exact backend source 3bb51d21, based on the prior production runtime without the
+unreleased reconciliation migrations, passed the focused real HTTP flow, seven
+adjacent units, fresh isolated 72-migration replay, image/runtime tests, packaged
+migration safety tests and exact-source GitHub safety/secret checks. All four images
+were promoted by changing only their immutable digests in the existing app spec.
+DigitalOcean deployment 71c5e9a7-bd3c-46c4-a503-cef24761837e is ACTIVE with
+all four manifest digests matched; its read-only pre-deploy check succeeded and
+API live/ready each returned 200. `/shop` redirects to `/parts`, which returned
+200. No production migration, customer inventory write, provider payment call or
+frontend deployment was made. A controlled real-role replay remains unverified.
+Private prior/candidate app specs and provider receipts are retained for rollback.
+See the hotfix branch's backend/docs/inventory-reservation-production-20261027.md.
+P0 reconciliation recovery remains implemented/verified on a separate unreleased
+branch; do not infer it from this hotfix deployment. Full Item 6 and role acceptance
+remain open.
+
+27 October 2026 - Revision 4 W10 local checkpoint: unsupported workforce history
+preserved by bounded read-only contracts and revocation receipts; current grants
+and mutation inputs remain strict. Nine native effective-access cases, 17 focused
+frontend cases, full 1112 tests/167 files, source/scripts/frontend types and lint,
+OpenAPI375/routes439+4 and one optimized cached build passed. Four final rendered
+fixtures at 320/390/768/1440 passed with keyboard, Axe, overflow and no writes/errors/
+external calls. Inspected mobile/desktop viewport screenshots; fixed test disclosure
+and tall-element screenshot assumptions. No provider call, schema change, install,
+new worktree or publication. Evidence: docs/help-learn/WORKFORCE_HISTORY_W10.md.
+Exact-lock Next16.4.3 CI, hosted/real-role/device acceptance remain open. Independent
+grant/account-baseline composition and granular care authority are next foundation
+dependencies before persisted reviewed handoff and gated shared/staffed transport.
+All 106 route completion gates remain open; full Revision4/Item6 stays active.
+
+27 October 2026 - P0 reconciliation due-scan scale probe. The separate unreleased
+reconciliation source was rechecked after the inventory hotfix release. A newly
+created loopback-only PostgreSQL 18 `_ci` target replayed all 74 candidate
+migrations with no Prisma schema difference. `EXPLAIN ANALYZE` on 50,000 synthetic
+Paystack attempts/items measured 672 ms on the first all-matched scan and 330 ms
+on the cached repeat (201,523 shared-buffer hits); one due attempt at the midpoint
+took 159 ms (100,763 hits). This demonstrates linear scan work and gives a local
+baseline, not production latency or financial correctness. Synthetic attempt
+insertion bypassed parent FK checks only inside the disposable `_ci` target; the
+container/storage were removed. No production database, provider, payment or
+deployment change. See the reconciliation branch's
+backend/docs/payment-reconciliation-recovery-20261027.md. Representative target
+statistics/larger-volume assessment, explicit anomaly/hold operations, legacy
+RUNNING inspection, provider sandbox, guarded migration and compatible rollout
+remain open. Production backend currently runs the inventory-only hotfix.
+
+27 October 2026 - P0 production-row inspection path checked. Current backend
+deployment 71c5e9a7 remained ACTIVE with no pending rollout, readiness 200 and
+reconciliation disabled. The existing DigitalOcean app-console route for its API
+component returned provider HTTP 403 (not authorized). No remote command ran;
+the database firewall, credentials, payment mode and production rows were not
+changed or inspected. Do not infer that legacy RUNNING rows or holds are absent
+from the older empty financial backup. Use an authorized read-only operational
+route or reviewed hosted runner before the reconciliation cutover. Independent
+live Contact enlarged-text/review sampling passed without a submitted request;
+see the brand worktree's UI_UX_QUALITY_REGISTER.md. The product/service/vehicle
+account-change result-reset gap in an older blocker list was source/test-inspected
+and corrected as a stale note, avoiding duplicate implementation.
+
+27 October 2026 - Revision 4 W11 local checkpoint: separate recognised active
+owner grants compose with the managed boundary without widening branch duties.
+Existing refund/dispute/privacy/financial-policy workspaces, current grant revision,
+source eligibility, scoped notification links and stale-read/review disposal align.
+Managed Admin uses the scoped refund queue and cannot recover broad legacy refund
+inspection; owner/unenrolled legacy inspection and independent approval remain.
+57 native HTTP/DB cases, 112 backend units, full 1114 frontend units and final45
+focused cases, 18 populated role/width browser fixtures and11 history/session
+regressions passed. Types/lint/contracts, final cached build and secret guard pass.
+Known Next not-found CSS preload warning is verified/reported separately; full
+route acceptance, hosted/device/screen-reader checks remain open. No schema/model
+call, real message, install, new worktree or publication. W9 approval stays exhausted.
+Evidence: docs/help-learn/WORKFORCE_INDEPENDENT_ACCESS_W11.md. C:25.79GiB free; Docker
+retention reviewed without deletion, denied dev folders unchanged. Next: compatible
+scoped BOOKING_CONFIRM and financial-aftercare adapters, then granular Care duties,
+persisted reviewed handoff and shared staffed/gated transport. All106 completion
+decisions and full Revision4/Item6 remain active.
+
+27 October 2026 - P1 vehicle-payment history filter candidate. In the existing
+compatibility worktree, merged current frontend 8fa386cb and backend 3bb51d21;
+runtime 54e83b3f adds the owned vehicleTransactionId customer-payment filter and
+uses it on purchase detail. Fresh isolated PostgreSQL 18 _ci replayed 72 migrations,
+schema/db:check and one focused ownership/pagination service case passed; six
+focused Edge page fixtures, types, lint, OpenAPI/routes, and exact-source GitHub
+frontend 40445007425, backend 40445007397 and secret 40445007545 checks passed.
+No production release or payment/provider action. Installed doctl has no usable
+token, no Vercel CLI is installed, and connected browser automation is unavailable.
+Backend-first deployment and authorized live-role acceptance remain open. See the
+candidate backend/docs/customer-vehicle-payment-filter-20261027.md. P0
+reconciliation and broader Item 6/Revision 4 remain open.
+
+27 October 2026 - P1 Contact visit-preference correction prepared on the same
+unreleased vehicle-payment-filter candidate branch. Runtime c54ef088 directs
+missing date/time and overlong message errors to the actual field, clears stale
+feedback during correction and exposes required preference controls. Eleven unit
+cases, frontend typecheck/lint/format, isolated Edge browser review (desktop and
+320px), and exact-source locked frontend 40448703220 plus secret 40448703167
+GitHub checks passed. No real form POST, provider call, database/Docker change or
+production promotion. The backend-first vehicle-payment release and hosted/real-
+role acceptance remain open; wider public forms and physical-device QA remain.
+
+27 October 2026 - Revision4 W12 local checkpoint: scoped booking confirmation
+requires current BOOKINGS_READ branch scope AND separate BOOKING_CONFIRM. Shared
+legacy capacity/calendar/assignment/schedule/version/audit/reminder guards retained.
+Eleven scoped native,57 workforce/session/learning,11 legacy booking,59 backend units,
+full1121 frontend and final34+35 focused cases passed. Twenty final responsive
+fixtures at320/390/768/1440 and one actual browser/CSRF/API/restricted-CI-DB
+confirmation passed. Fixed stripped recovery hints via explicit reviewed error codes
+and narrow-detail label squeezing via detail-only stacked mobile facts.
+OpenAPI376/routes440+4, generated types, types/lint/secret guard and final cached
+build pass; exact-lock16.4.3/hosted/device acceptance remains open. No schema change,
+model call, real message, install, new worktree or publication; W9 allowance exhausted.
+Evidence: docs/help-learn/WORKFORCE_BOOKING_W12.md. C:25.56GiB measured free. Native
+API stopped and synthetic browser session/cookie retired; existing frontend preview
+retained. Docker resources preserved, denied dev-folder cleanup not retried.
+Next: scoped financial-aftercare then granular Care permissions, persisted reviewed
+handoff/shared staffed transport. All106 route gates and fullRevision4/Item6 active.
+
+27 October 2026 - Active Revision4 W13 dependency: scoped financial aftercare.
+Branch feat/workforce-scoped-aftercare-20261027 based on W12 e31af199, same checkout.
+Fixture contracts preceded implementation. After fixture corrections, nine original
+cases reproduced missing routes. Ten final scoped native cases now pass: FINANCE_READ
+branch scope AND explicit FINANCE_POLICY_APPROVE, projection privacy, unknown JSON
+evidence, immutable pricing/kind/status DB guards, fee/inspection checks, stale
+evidence and mixed legacy/scoped concurrency. Existing legacy business core reused;
+no stock/refund execution. HMAC review revision binds current stored evidence without
+exposing raw policy settings. Legacy regression/contracts running. Frontend journey
+is not implemented yet and remains required. No schema/provider call/publication.
+See docs/help-learn/WORKFORCE_AFTERCARE_W13.md. Full Revision4 remains active.
+
+27 October 2026 - Revision4 W13 local checkpoint: scoped financial aftercare
+requires current FINANCE_READ branch scope AND separate FINANCE_POLICY_APPROVE.
+Minimal queue/detail, current evidence HMAC, customer-visible reviewed decision note,
+receipt verification and reload-safe uncertainty block implemented. Existing legacy
+fee/inspection/immutable-data/audit rules retained; no stock/refund execution.
+Final62 native across7 suites,60 backend units, full1130 frontend plus67 focused,
+21 responsive Staff/Admin fixtures and1 actual browser/CSRF/API/CI-DB case passed.
+OpenAPI379/routes443+4, generated types, types/lint/secret guard and cached build pass.
+Evidence: docs/help-learn/WORKFORCE_AFTERCARE_W13.md. No schema/model call, real message,
+install/new worktree or publication. W9 allowance exhausted. Native API/session/cookie
+retired; frontend preview retained. C:25.43GiB measured free; Docker useful resources
+preserved and denied dev-folder cleanup untouched. Next: granular Care permissions,
+canonical reviewed persisted handoff and shared staffed/gated transport. All106
+route learning decisions, exact-lock/hosted/device gates and fullRevision4 remain open.
+
+27 October 2026 - P0 reconciliation reference-classification candidate. Branch
+fix/reconciliation-reference-classification-20261027 at 9f4c9638 builds on the
+unreleased reconciliation source. A provider response with a different reference
+is recorded as STATUS_MISMATCH rather than MISSING_IN_PROVIDER;
+the unallocatable provider amount remains excluded while confirmed local funds
+remain in internal totals. A fresh loopback-only PostgreSQL 18 `_ci` target
+replayed all 74 candidate migrations with no schema difference; 24/24 focused
+integration cases, backend types, scoped lint and formatting passed. Exact-source
+GitHub backend safety 40452332576 and secret guard 40452332536 also passed. The exact
+task-owned container and tmpfs were removed. No provider, production database,
+payment or deployment action occurred. See the branch's
+backend/docs/payment-reconciliation-recovery-20261027.md. The measured linear
+due scan, provider sandbox, hold resolution, legacy RUNNING inspection and
+compatible guarded release remain open; payments stay disabled.
+
+W13 final addendum: eleven focused scoped native cases pass after adding actual
+enrolled-Admin positive/customer-history privacy acceptance; combined62 and focused11
+receipts remain separate. C:25.41GiB final measured free; read-only Docker retention
+review preserved useful/current/rollback/other-task resources. No cleanup or publication.
+
+27 October 2026 - P0 reconciliation observation-write race corrected on the
+unreleased worker branch. Its lease check/renewal and item insert now share one
+database transaction, holding the run row through the write. A new isolated
+PostgreSQL lock case reproduced the renewal-to-insert window and verified that
+a second connection cannot claim the run during a blocked insert. Fresh `_ci`
+replay of all 74 migrations had no schema difference; reconciliation 25/25,
+adjacent Monnify 1/1, backend types, scoped lint and formatting passed. The
+task-owned container/tmpfs were removed. No provider, customer, production
+database or deployment action occurred. Exact runtime 13fa09d8 passed GitHub
+backend safety 40453684995 and secret guard 40453684938. Due-scan scaling,
+provider sandbox, hold resolution, legacy RUNNING inspection and guarded rollout
+stay open.
+
+
+27 October 2026 - Revision4 W14A contact boundary: Staff/Admin mixed-branch
+Care authority no longer supplies contacts for a Sales-only case in another branch.
+Natural expiry after a blocked record read is rechecked; inaccessible cases fail
+closed and legitimate Sales reads remain redacted. Six focused native +57 existing
+workforce/session/learning regressions,13 parser units and8 browser fixtures at
+390/1440 passed; screenshots inspected with Axe/overflow/no-write assertions.
+Source types, changed lint and cached build pass. No schema/model call/publication.
+See docs/help-learn/WORKFORCE_CARE_CONTACT_W14A.md. C:25.32GiB free at last check.
+Granular Care duties, persisted handoff/shared staffed transport and all106 route
+completion gates remain open; fullRevision4/Item6 stays active.
+
+27 October 2026 - P0 reconciliation due-state scaling candidate. The separate
+unreleased branch fix/reconciliation-reference-classification-20261027 now has
+runtime 1cb7b0b7. Additive migration 75 backfills an indexed due projection
+from the latest completed observation; new attempts, later status changes and
+atomic completed-run publication maintain it. Failed partial runs remain due;
+terminal matches leave the scan until their state changes. A fresh isolated
+PostgreSQL 18 `_ci` target replayed all 75 migrations with no Prisma difference;
+27/27 reconciliation and 1/1 adjacent Monnify cases passed. A transaction-local
+synthetic pre-existing-row fixture verified migration backfill. A separate
+50,000-row projection-only EXPLAIN used the index: no due row 0.044 ms/six
+buffer hits; one due row 0.066 ms/four hits. This is local plan evidence,
+not provider or production latency. Backend types, scoped lint, formatting,
+secret guard and build passed. Task-owned containers/tmpfs were removed;
+no production/provider/payment/database write or release. Exact-source GitHub
+backend safety 40457237952 and secret guard 40457237957 passed. Current
+production backend remains inventory-hotfix-only;
+current populated restore rehearsal, legacy RUNNING/holds inspection, runtime
+grants, provider sandbox and protected compatible rollout remain open. See the
+candidate backend/docs/payment-reconciliation-recovery-20261027.md.
+
+
+27 October 2026 - Revision4 W14B local foundation checkpoint: immutable version1
+retained; reviewed version2 adds independent Care view/reply/assign/live duties.
+Business positions now have a separate fixed catalogue; CEO enrolment restriction
+remains. Version1 delegated management remains usable and cannot acquire new duties
+from unknown historical names. Explicit pinned requests/receipts, current previews,
+MFA/password/reason/target/revision safeguards retained. Fixed reason loss on review
+while preserving immediate password clearing. 45 native regression +final5 focused
+policy cases,51 backend units, full1134 frontend plus29 focused/final12 component,
+and8 final responsive fixtures at320/390/768/1440 passed with types/contracts/lint/
+secret guard/final cached build. Screens inspected. No schema/provider call or
+publication. See docs/help-learn/WORKFORCE_CARE_POLICY_W14B.md. C:25.20GiB measured;
+Docker retained after read-only review. Next required: operational Care view/reply/
+assign adapters and notification/help predicates before these new journeys are
+declared usable, then canonical persisted handoff/shared staffed transport. All106
+route completion gates and fullRevision4/Item6 remain active; W9 allowance exhausted.
+
+27 October 2026 - P0 exact-candidate restored-snapshot migration rehearsal.
+The hash/receipt-verified 26 October production archive was restored into a fresh
+loopback-only PostgreSQL 18 `_ci` database. The protected db:migrate runner made a
+new verified private exact-target backup and applied pending migrations 72-75;
+its post-check and separate db:check passed. Sampled user/customer/branch/product/
+service/notification and payment-attempt/run/item counts stayed unchanged, as did a
+combined row fingerprint for the six populated business tables. The due-state
+row count equalled payment attempts and 75 migrations were recorded. The first
+disposable restore's verification query lost quoted SQL identifiers; it stopped
+before migration and was removed. The successful attempt piped read-only SQL
+through standard input. Both task-owned containers/tmpfs were removed. The new
+backup/receipt inherited owner/Admins/SYSTEM-only ACL. No production database,
+provider, payment, release or existing grant changed. The 26 October archive has
+no financial rows and is not a fresh pre-cutover snapshot; current managed backup/
+PITR, runtime DML grants, legacy RUNNING/holds, provider sandbox and compatible
+guarded rollout remain open. See the candidate reconciliation recovery record.
+
+
+27 October 2026 - Active Revision4 W14C operational Care adapters, branch
+feat/workforce-care-case-adapters-20261027 based on W14B daaa2e2a. Initial8 native
+cases reproduced7 missing behaviours; expanded12 now pass. Backend current branch
+view/reply/assignment, checked eligible-handler pagination, complaint assignment,
+notification recipients/revocation, lock-wait expiry and customer ownership verified.
+Separate61 workforce/session/learning regressions pass across12 current templates.
+Frontend scope/nav/read-only controls partially implemented;44 focused units pass.
+Complaint assignment controls/shared candidates/pending recovery are in progress,
+not accepted. New browser fixtures, help predicates, original browser regressions,
+contracts/build/final review remain. Existing3167 preview serves W14B only. See
+docs/help-learn/WORKFORCE_CARE_CASES_W14C.md. No schema/model call/publication.
+FullRevision4, canonical handoff/shared staffed transport and all106 route gates active.
+
+27 October 2026 - P0 payment-exception session-boundary candidate. The existing
+Admin/Super Admin investigation queue was confirmed; its status write checked the
+actor before, but not inside, the mutation transaction. Source 383cd077 on the
+unreleased reconciliation branch now uses the existing locked current-account/
+session/MFA check before reading or changing the anomaly. Three focused unit cases
+cover revoked-session start/closure denial and a current-admin audited transition.
+Backend types, changed lint/format, OpenAPI validation (365 paths) and diff checks
+passed. No schema, financial record, provider or production deployment changed.
+Exact-source backend database-safety CI 40460993538 and secret guard 40460993655
+both passed. Reconciliation release gates above remain open.
+
+27 October 2026 - P0 refund-approval atomicity candidate. Source 9e04031f on
+the unreleased reconciliation branch eliminates a post-commit update: approving
+a manual refund or online attempt without a captured provider transaction ID now
+commits NEEDS_ATTENTION and OFFLINE_PROCESSING_REQUIRED with the approval/audit.
+Provider-ready online refunds still commit APPROVED for the worker. A focused
+transaction-double regression reproduced the old post-commit failure, then three
+approval cases plus seven adjacent Phase 8 security units passed after the fix.
+Backend types, changed lint/format and diff checks passed. No migration, provider,
+financial record or production deployment was changed. Exact-source backend safety
+CI 40462330861 and secret guard 40462330852 passed, including migration replay;
+the CI workflow did not run the focused refund-processing integration suite.
+Automatic approval review rejected a local task-owned PostgreSQL container run
+for that suite with the stated reason `blocked by policy`; it created nothing.
+Direct real-database refund-transition acceptance remains open. See candidate
+backend/docs/refund-approval-atomicity-20261027.md; release gates remain open.
+
+27 October 2026 - P0 manual-payment current-session boundary candidate.
+The unreleased reconciliation branch now locks and rechecks the approver's
+current account, session, expiry and MFA inside the manual-review transaction
+before payment read, decision, settlement or audit. Two revoked-session units
+passed locally; the updated concurrent-review fixture uses real isolated test
+sessions and retains the one-decision/one-ledger/one-audit assertions. The first
+CI run exposed a fixture-only MFA timestamp constraint error; a single shared
+creation/verification timestamp corrected it. Exact runtime 768012a7 passed
+GitHub backend safety 40464788011, including both isolated database race cases,
+and secret guard 40464787921. Local types, scoped lint/format and adjacent units
+passed. No provider, financial record, application database or production release
+was changed. Real-role acceptance and P0 reconciliation release gates remain open.
+
+27 October 2026 - P0 refund request/decision current-session boundary candidate.
+The same unreleased reconciliation branch now locks and rechecks the current
+operator/approver session, expiry and MFA inside both refund request and approval
+transactions before replay lookup, refund read, capability recheck or writes.
+Requester-bound replay, branch checks, independent approval and refund worker
+remain intact. Revoked-session units first reproduced the gap and then passed.
+The Phase 8 and Monnify direct-service fixtures now use real isolated sessions.
+Exact runtime e74d4ae7 passed GitHub backend safety 40465987685, including
+two real-database payment flows plus five focused refund units, and secret guard
+40465987682. Local combined session/approval units passed 10/10; types, scoped
+lint and formatting passed. No production database, provider, payment/refund or
+release changed. Provider sandbox, production-role acceptance, legacy holds,
+managed recovery checks and compatible guarded rollout remain open.
+
+
+27 October 2026 - Revision4 W14C local checkpoint: operational Care view/reply/assign
+intersect on the actual branch. General enquiries and complaints use canonical
+reviewed assignment with checked eligible-handler pagination, CAS/audit/notifications.
+Read-only controls, current help/practice predicates, public/internal separation,
+revocation and reference-only uncertainty recovery implemented; unsent cross-action
+drafts retained after verified success. Final14 native+61 regressions,21 backend
+units, full1145 frontend/171files+36 focused,36 new responsive and50 legacy browser
+cases pass. One real browser/CSRF/API/restricted-CI-DB flow saved2 assignments and
+2 public replies,4 audits,zero internal messages,unchanged inventory/bookings.
+OpenAPI381/routes445+4,types/lint/secret3260/correctly configured cached build pass.
+Screens inspected; synthetic sessions revoked/cookie removed. No schema/provider
+call,real delivery or publication. Evidence: docs/help-learn/WORKFORCE_CARE_CASES_W14C.md.
+FullRevision4 remains active: next canonical reviewed persisted Allie handoff, then
+shared staffed/gated transport and all106 exact route-learning decisions. W9 allowance
+exhausted; new Care guidance has no actual-provider re-evaluation. Exact-lock16.4.3,
+hosted/actual-role/device/screen-reader gates stay open. Useful Docker/caches retained.
+
+27 October 2026 - P0 reconciliation scheduler and refund DB follow-up.
+The candidate scheduler was re-inspected rather than rewritten: it selects the
+oldest persisted due attempt per provider, rechecks incomplete/failed periods
+and processes a bounded window per minute after restart. Existing isolated
+cases cover two historical windows across a new worker instance and exact failed
+period retry. The older scheduler-gap note describes prior production source,
+not this candidate; production remains on the inventory-only backend hotfix.
+The earlier local refund DB run was rejected by automatic command review, so
+the existing real-database `refund-processing` suite was added to exact-source
+GitHub isolated `_ci` safety CI. Both cases passed on runtime 70f5615a; the
+manual approval case now checks committed NEEDS_ATTENTION, offline-processing
+reason and approver in PostgreSQL. Backend safety 40466928896 and secret guard
+40466928798 passed. Live API readiness was 200 read-only. No local Docker,
+application/production DB, provider, payment or deployment action occurred.
+Provider sandbox, live financial backfill/holds, current recovery/grants and
+guarded compatible rollout remain open.
+
+
+27 October 2026 - Revision4 W15A backend-only checkpoint: reviewed canonical
+asynchronous handoff contracts implemented. Current customer identity/CSRF, exact
+keyed review, selected owned customer help excerpts, branch/target/version and
+24-hour owner/payload-bound receipt. Canonical Enquiry/Complaint/SupportMessage
+reuse; atomic audit/notification/context ending, no second inbox or schema change.
+Final14 focused native and109 combined legacy/support/Allie/session/Care cases,
+70 provider/state/guidance units+51 workforce units, OpenAPI384/routes448+4, types/
+lint/secret guard pass. No actual-provider call, real delivery or publication.
+Frontend handoff is unfinished; next implement review/edit/cancel/recovery/draft
+preservation and responsive/native browser acceptance. Preview3167 is W14C only.
+See docs/help-learn/REVIEWED_HANDOFF_W15.md. FullRevision4/shared staffed transport/
+all106 route gates remain active; W9 provider allowance stays exhausted.
+
+
+27 October 2026 - Revision 4 W15 reviewed Customer Care handoff checkpoint: customer review/edit, explicit selected help sharing, canonical new/existing support persistence and encrypted session-bound recovery are implemented locally. Browser storage retains only an operation ID; uncertain results block a new operation, and cancellation preserves a case already saved. AI-off/guest/workforce boundaries and separate drafts remain intact. Accepted evidence: 116 distinct native cases across seven suites (115 broad plus the revised 11-case learning run), 84 Allie backend units, full 1,161 frontend tests in 173 files, 32 distinct browser fixtures and one actual browser/CSRF/API/restricted-CI-DB composition. That composition saved one enquiry and one complaint reply, two audits, preserved an internal note and left inventory/bookings unchanged. OpenAPI 385 paths / 450 operations plus 4 infrastructure routes, generated contracts, types/lint/secret guard and optimized build pass. See docs/help-learn/REVIEWED_HANDOFF_W15.md. No schema, provider call, real delivery or publication. Temporary native sessions revoked/cookie removed; C: measured 23.34 GiB free; useful Docker/cache resources retained. Full Revision 4 remains active: shared staffed/gated transport, operational readiness and all 106 exact-route acceptance decisions remain open. The owner authorised a reviewed committed release before the session limit; reconcile newer live frontend/backend fixes and complete the migration-73/backup/restore/exact-lock/hosted gates before publication.
+
+
+
+### Historical merged-branch checkpoint
+
+The following dated observation is retained from origin/fix/customer-vehicle-payment-filter-20261027; it is not a claim of current production identity.
+
+Details and limits: frontend/docs/BRAND_ASSETS_R2_REPORT.md. Physical devices,
+actual zoom, screen reader, authenticated role acceptance and broader Item 6
+remain open. Docker resources retained; C: postflight 27.08 GiB free.
+26 October 2026 - payment-source expiry correction released from runtime
+`2033b159`. DigitalOcean deployment `3cb61958-e460-494b-ae29-1ce826ac22b9`
+is ACTIVE with no in-progress rollout; all four component digests match the
+reviewed registry manifest. The existing-app proposal changed only those four
+digests. Its read-only predeploy database checker and all 16 deployment steps
+succeeded. Direct API live/ready and apex readiness returned 200; anonymous
+session/payments returned 401. Public Home, Parts and Help returned 200, `/shop`
+redirects to `/parts`, and `www` redirects to the apex. No frontend rollout,
+schema migration, production business DML, provider transaction or grant change.
+Eight managed backups were present, latest 26 October 05:22:11 UTC; the prior
+separate 25 October 18:03:19 UTC restore rehearsal was reused. Exact-source
+local gates included 48 integration cases, nine image tests, OpenAPI/routes,
+types, lint, format, script/configuration checks and secret guard. GitHub PR
+creation returned 403, so PR-triggered locked CI is not claimed. Full details
+and limitations: `payment-source-concurrency-20261026.md`. Real-provider and
+authenticated-role acceptance, broader Item 6 and site completion remain open.
+
+26 October 2026 - post-release payment-source transition verification. The
+runtime deployment above remains unchanged. Six new isolated PostgreSQL races
+held a valid invoice-void or vehicle-cancellation source-row transition while
+intent creation, online initialization and manual evidence each waited, then
+rejected the changed source without a new intent or attempt. Three adjacent
+integration files passed 38 tests; 71-migration replay, schema comparison,
+`db:check`, backend typecheck and targeted lint/format passed. The first vehicle
+fixture was corrected to satisfy the existing cancellation timestamp/reason
+constraint; no application code, schema, provider or production business record
+was changed. These tests model the status transition directly; actual operator
+service races and real-provider acceptance remain open. See
+`payment-source-concurrency-20261026.md`.
+
+26 October 2026 - actual invoice and vehicle operator-service lock order was
+verified locally after incorporating the newer `c4e0005d` workforce runtime.
+`BillingService.void` and `VehicleSalesService.transition` each held the real
+source-row lock while intent creation, online initialization or manual evidence
+waited, then committed; all six actions rejected the cancelled source with no
+new payment or attempt. Fresh isolated
+`_test` PostgreSQL replayed all 72 migrations with no schema difference and
+passed `db:check`; the adjacent set passed 44 tests, with backend typecheck,
+targeted lint and format passing. This test-only work needs no runtime rollout.
+Provider sandbox and real-role acceptance remain open. The newer `c4e0005d` runtime is recorded in the main
+checkout tracker and includes the earlier payment fix. See the payment-source
+release record for exact scope.
+
+26 October 2026 - the historical refund replay authorization blocker was
+rechecked against current code and HTTP behavior. Existing refunds are returned
+only after matching the original requester and exact input, followed by branch
+access; STAFF and MFA-unverified administrators cannot request a refund. One
+focused route/integration case passed on a fresh native loopback `_test` cluster
+after 72-migration replay and `db:check`; three explicit denied-role POST checks
+were added. A Docker NAT direct-host guard correctly blocked the first attempt,
+so it was not counted as test acceptance. No runtime/provider/production financial
+write was made. Provider completion and real-role acceptance remain open. See
+`refund-replay-authorization-20261026.md`.
+The native test server was stopped; automatic command review blocked removal
+of its 76,629,829-byte task directory, which remains in Temp. C: postflight
+was 28 GiB free; original Docker volumes were retained.
+
+26 October 2026 - password-change session-rotation defect corrected locally.
+The new password, other-session/reset-token revocations, audit, notification
+and current-session rotation now share one locked transaction. A failed
+post-rotation step rolls all of them back; a second request with the old
+credential/snapshot is rejected. A fresh native loopback `_test` database
+replayed all 72 migrations with no schema difference and passed `db:check`.
+Two new deterministic races, the full identity HTTP flow, 20 MFA integration
+cases, five identity unit cases, types, targeted lint and format passed.
+No schema/frontend change or production deployment has yet occurred for this
+candidate. See `password-change-atomicity-20261026.md`; real-role/browser
+acceptance and the separate sign-in challenge rotation gap remain open.
+
+26 October 2026 - password-change atomicity correction deployed.
+Runtime 3ec9c822, backend deployment 96ffc790-f572-49f4-9047-3ae6cb30469e
+ACTIVE. The four image digests match the release manifest; the non-image app
+spec is unchanged. Exact-source backend check passed 577 default tests (1,117
+intentional database skips), with focused isolated transaction/HTTP cases
+separately passed; nine image checks and a packaged isolated migration/restore
+check passed. Production PRE_DEPLOY database checker and all component steps
+succeeded. Direct and domain liveness/readiness returned 200, anonymous session
+401, /shop 308 to /parts, /parts 200. Eight managed backups through 26 October
+and the retained separate populated 90-table restore evidence were reviewed.
+No schema migration, grant, production business write or frontend release.
+Authenticated role/device acceptance and sign-in challenge rotation remain open.
+Release detail: backend/docs/password-change-atomicity-20261026.md in the
+compatibility release worktree. Previous deployment 707a200f remains the
+immediate rollback candidate subject to compatibility review.
+
+26 October 2026 - sign-in MFA challenge rotation defect corrected locally.
+TOTP, recovery-code and WebAuthn proof consumption now commits with session
+assurance/token rotation after account/session/CSRF recheck. Three injected
+post-rotation failures roll back all proof and session state; concurrent use
+of one recovery code admits one request. A fresh isolated native loopback
+`_test` database replayed 72 migrations, schema/db:check passed, and four new
+transaction cases plus identity HTTP and 20 adjacent MFA cases passed. Full
+backend check passed 577 default unit/API tests with 1,121 database-gated skips;
+OpenAPI/routes, types, lint, format, scripts and secret checks passed. No
+schema, route or frontend runtime change. Deployment and genuine browser
+WebAuthn/real-role acceptance remain open. Detail:
+backend/docs/mfa-challenge-atomicity-20261026.md.
 
 26 October 2026 - complete colour/state brief, local implementation checkpoint.
 Branch feat/colour-states-20261026 in allied-shop-vehicles-r2-20261025, based on
@@ -1889,3 +2914,649 @@ The subsequent owner request is now in progress in the same frontend worktree:
 fixed mobile support dock, Allie scrollbar treatment, breadcrumb/anchor page
 entry and linked selection targets. This is a separate finite shared-UX cycle;
 no claim of exhaustive role/device acceptance.
+
+
+27 October 2026 - Revision 4 W15 reviewed Customer Care handoff checkpoint: customer review/edit, explicit selected help sharing, canonical new/existing support persistence and encrypted session-bound recovery are implemented locally. Browser storage retains only an operation ID; uncertain results block a new operation, and cancellation preserves a case already saved. AI-off/guest/workforce boundaries and separate drafts remain intact. Accepted evidence: 116 distinct native cases across seven suites (115 broad plus the revised 11-case learning run), 84 Allie backend units, full 1,161 frontend tests in 173 files, 32 distinct browser fixtures and one actual browser/CSRF/API/restricted-CI-DB composition. That composition saved one enquiry and one complaint reply, two audits, preserved an internal note and left inventory/bookings unchanged. OpenAPI 385 paths / 450 operations plus 4 infrastructure routes, generated contracts, types/lint/secret guard and optimized build pass. See docs/help-learn/REVIEWED_HANDOFF_W15.md. No schema, provider call, real delivery or publication. Temporary native sessions revoked/cookie removed; C: measured 23.34 GiB free; useful Docker/cache resources retained. Full Revision 4 remains active: shared staffed/gated transport, operational readiness and all 106 exact-route acceptance decisions remain open. The owner authorised a reviewed committed release before the session limit; reconcile newer live frontend/backend fixes and complete the migration-73/backup/restore/exact-lock/hosted gates before publication.
+
+
+27 October 2026 - visual-audit frontend batch released. Runtime a1b8ce45 preserves
+concurrent Contact/location source 42855c0d and publishes customer clarity and sparse
+Home fixes. Vercel dpl_GKfQv1k4cD5qTKZj3c6LaP8Y4iqz READY on both domains.
+Exact locked frontend CI 40478325501: 1072 units, lint/types/format/build and zero
+production audit vulnerabilities; secret guard 40478325469 passed. Same backend
+source at e925ecec passed isolated safety CI 40476605252. Hosted fixture acceptance
+7 new plus 35 regressions passed; 14 candidate and 14 production public read-only
+checks passed at 390/1440 with zero mutations/page exceptions. Backend remains
+79d7a0ac-4e83-4b73-ae46-40af4731a604 ACTIVE/readiness200. No DB/worker/provider write.
+Session-label and new homepage-help backend changes remain committed, not released.
+Full V01-V55 goal remains active; next Shop discovery/detail and empty overview.
+Evidence/rollback: backend/docs/visual-audit-frontend-production-20261027.md and
+frontend/docs/VISUAL_IDENTITY_AUDIT_CHECKPOINT.md. Existing other-task edits preserved.
+
+
+27 October 2026 - Shared support/viewport UX released. Concurrent frontend source
+a1b8ce45 went live while the earlier candidate was gated. The ancestry guard
+rejected promotion; the UI change was integrated onto that exact newer source
+and its homepage/customer-interface changes were preserved. Runtime fbb6565a
+on fix/mobile-navigation-current-20261027 is now READY as Vercel
+dpl_J5k6BjFUZVTFgeGJSrH4WHhiFxcq, independently verified on apex and www.
+Immediate compatible frontend rollback is dpl_GKfQv1k4cD5qTKZj3c6LaP8Y4iqz.
+The earlier f61ccc51/5063c844 candidates were never promoted.
+
+Exact-runtime frontend CI 40480113708, secret guard 40480113700 and backend
+safety 40480113595 passed. Integrated focused units passed 36/36. The integrated
+browser matrix passed 13/14 initially; the remaining check incorrectly required
+native browser focus restoration after a direct hash navigation. Test-only
+7eefc123 preserves explicit clicked-link focus checks and verifies actual target
+visibility for native hash navigation/reload; both 390/1440 rechecks passed. All
+14 distinct final scenarios are covered across those runs, not one clean
+integrated invocation. Runtime/app/config/public-asset trees are identical to
+the green fbb6565a build. No additional runtime build was needed for that
+test-only correction.
+
+Post-promotion live Edge at 390/1440 passed fixed-dock geometry through scrolling,
+real reviewed Allie search, hidden scrollbar with native scrolling, modal-to-Help
+navigation with visible breadcrumbs, and Contact vehicle radio/visit checkbox
+targets. Both had zero page errors and zero attempted API writes. Public address
+and Whatsapp labels remained correct; public capabilities returns the full new
+address. Backend 79d7a0ac-4e83-4b73-ae46-40af4731a604 remains ACTIVE; API live
+and ready returned 200. Receipts/screenshots: %TEMP%/allied-viewport-promotion.json,
+allied-viewport-live.json, allied-viewport-live-390.png and allied-allie-live-390.png
+(and matching 1440px captures). Physical devices, native mobile keyboard, full
+screen-reader and exhaustive real-role acceptance remain unverified. No real
+message, support request, payment or production migration was performed.
+
+Docker image/database tests removed their own disposable containers/network;
+the original 13 stopped containers and 14 volumes remain. The four new current
+release images and useful warm build cache are retained; no Docker cleanup or
+physical-byte reclamation is claimed. Final disk preflight and temporary server
+shutdown are part of this task closeout. Preserve Item 6 and the settled queue.
+
+
+## Historical master notes retained during 28 October reconciliation
+
+These are prior observations from the merged master history, not current deployment
+claims. Current provider identity must be checked before any rollout.
+
+Main/www frontend: `dpl_37Wd7HsDbxGiqpaZw8qL1oZuDpG3` (READY);
+  backend: `1876e3d1-ab99-4e26-8a58-1ea4fcb0d46a` (ACTIVE), 25 October 2026.
+  Preserves preferred Home, reviews, R2, audit fixes and all 70 migrations.
+  Recheck actual provider state before another rollout. Detailed evidence is
+  `backend/docs/notifications-experience-20261025.md` in that worktree.
+
+- Earlier backend observed: `5c1ea9a7-6211-46d2-995f-c45e504bf9e9` (ACTIVE)
+  from the discovery/fitment release.
+- Earlier frontend observed: `dpl_CMG2vPpWCQMvQdCWMZYsxbwproTZ` (READY),
+  assigned to both main and www domains on 24 October 2026. Recheck before changes.
+
+24 October audit continuation: read-only live Parts search updated the URL and active filter correctly, with a clear no-match state against the currently empty public catalogue. The live guidance still referred to purchase and cart use under the approved browse/enquiries mode. The current release worktree now has mode-aware Parts guidance and neutral filter copy; targeted lint and TypeScript checks passed. A local enquiry-mode page returned 200, and its browser snapshot confirmed the wording and filter dialog. The local API was not running, so this did not validate product data or suggestions. No production change was deployed; all previously recorded financial, role, catalogue-content and owner-decision gates remain open.
+
+Parts filter source review found mappings and backend predicates for the visible search, category, brand, fitment, price, featured, availability and sort controls. Actual result correctness still requires approved real product records or isolated fixtures; no fake public listing was created.
+
+24 October P0 financial follow-up: isolated refund suites passed 49/49. A later
+direct-network test runner used a new, disposable PostgreSQL 17 `_test` database
+on `127.0.0.1:5432`, confirmed before writes, and replayed all 62 migrations
+with no Prisma schema difference. Paystack and Monnify were disabled. The
+work-payments and reconciliation suites passed together, 22/22 tests. The
+1,003-attempt case had first passed alone in 14.97 seconds; its test-only
+deadline was changed from 20 to 60 seconds to tolerate shared-suite load.
+The disposable database was removed. No application database or live money
+action was used. Provider settlement, authenticated role acceptance, catalogue
+content and owner/operational decisions remain open. The user has now explicitly
+authorized production deployment of completed work without another permission
+request, while keeping live payments disabled until Paystack is configured.
+
+## Local Docker disk maintenance - 24 October 2026
+
+This separate maintenance task does not close Item 6 or change the release source,
+deployment, outstanding decisions or acceptance gates above. The current worktrees,
+release runner, local Docker context and actual active/pending DigitalOcean releases
+were inspected before selecting resources. Current component digests, the two prior
+successful production releases, linked-worktree builds, recent images and all images
+referenced by running or stopped containers were protected.
+
+Removed 49 confirmed superseded local project images using exact references without
+force. Docker image storage fell from 14.18 GB to 10.3 GB. Also removed the exact
+stopped, unregistered BuildKit container and its verified build-cache-only volume
+(approximately 1.95 GB). Combined logical Docker storage reclaimed was about 5.8 GB.
+The conservative inactive/unshared cache prune reclaimed 0 B; 4.398 GB of reusable
+builder cache was retained. No blanket prune, image archive, new build or pull was
+used. All 33 retained image IDs, all 13 original database containers and all original
+database volumes were verified afterward. No application/database volume was removed.
+
+Windows C: free space measured approximately 19.57 GB before and 19.79 GB after;
+concurrent local work means that difference cannot be attributed solely to cleanup.
+Docker's VHDX logical length stayed 32,284,606,464 bytes. The 5.8 GB figure is Docker
+storage reclaimed, not a claim of equivalent Windows physical disk recovery. Docker
+and WSL were not stopped and no manual VHDX compaction was attempted.
+
+Mandatory retention-aware disk hygiene is now in `AGENTS.md` and
+`backend/docs/docker-disk-hygiene.md` in this checkout and the active
+`allied-email-evidence-20261023` and `allied-discovery-fitment-20261023` worktrees.
+Existing code and pending work were preserved. Small, secret-free before/after and
+removal receipts are in `%TEMP%/allied-docker-cleanup-20261024`. Documentation diff
+checks passed. No application tests, database writes, migrations, backup/restore
+tests, deployments or remote registry deletions were performed for this maintenance.
+
+
+## Latest production handoff - discovery/fitment, 24 October 2026
+
+This later observation supersedes earlier live-source pointers above while
+preserving the independent audit checkpoints and the settled site-completion queue.
+Current release worktree: C:/Users/PC/.codex/worktrees/allied-discovery-fitment-20261023,
+branch feat/discovery-fitment-20261023, verified code 7bb485b8 (pushed). Backend
+images are from 59d5141b; frontend source e2143b56. Backend deployment
+5c1ea9a7-6211-46d2-995f-c45e504bf9e9 is ACTIVE, 16/16 steps successful.
+Vercel dpl_Ew6X9yGVXF37FEpnqoED8srmKkzr is READY and separately verified on
+alliedautotech.com and www.alliedautotech.com. Recheck actual provider state before
+choosing source for another release; the older email-evidence worktree's pending
+audit/copy changes were not silently deployed or discarded.
+
+Final checks: 1,422 backend tests passed, 156 intentional skips; 985 frontend tests
+plus lint/types/build/format passed; 168 combined browser scenarios passed with
+zero failures/skips/flaky results; both production audits reported zero
+vulnerabilities. GitHub frontend release, database safety and secret guard passed.
+A new empty isolated _ci target replayed all 64 migrations. An actual restore of
+a fresh production archive into a separate new _ci database verified 86 tables,
+then rehearsed the two additive migrations with existing rows preserved. Production
+used only the protected db:migrate runner with another fresh verified backup;
+db:check, runtime privilege/schema checks and restoration of the app-only firewall
+passed. Existing data/grants and staging were preserved. Eight live backend GET
+checks passed. Existing launch/payment/provider policy remains in place.
+
+The vehicle/parts filters, category hierarchy, reviewed fitment, saved garage and
+notification context/read-state requirements are live. Full evidence is in the
+release worktree's backend/docs/discovery-fitment-release-review.md. Item 6 and
+the remaining site queue retain their recorded scope; synthetic tests do not
+supply real manufacturer evidence or close staff/media acceptance. Independent
+main-checkout edits and audit work are preserved. Only this handoff was appended.
+
+25 October 2026 - owner-requested local disk cleanup:
+Removed 5,542,707,536 bytes of verified redundant files: 1,780,236,350 bytes
+of cached installers from an inactive temporary editor-test profile, and
+3,762,471,186 bytes (108 files) of superseded webpack compiler caches across
+seven older worktrees. Source worktrees, uncommitted changes and current/rollback
+caches were preserved; source Git statuses were rechecked. Installed Codex,
+sandbox runtime/state, settings, session/history stores, dependencies, database
+folders/volumes and backups were retained. No database command or application
+code change was performed. Free C: space measured 11,313,684,480 bytes immediately
+before cleanup and 16,812,593,152 bytes at final verification; concurrent activity
+means the change differs slightly from the sum of removed file lengths.
+
+Reviewed five stale unshared Docker cache records and ran the documented bounded
+24-hour native prune, excluding shared/in-use/package-cache records. It reclaimed
+0B. All 38 images/11.84GB, 13 containers, 14 volumes/1.012GB and 6.715GB cache
+remain. No blanket prune, image/volume removal or Docker/WSL disk operation ran.
+
+Automatic approval review rejected recursive removal of the inactive temporary
+extension copy at C:/Users/PC/AppData/Local/Temp/codex-ui-test-20261024-150755/extensions
+(4,770,580,255 bytes), including after the owner explicitly approved that exact
+path. It remains. Removal of this task's superseded local .next dev/standalone
+output was also rejected as blocked by policy; no alternate deletion was used.
+The successfully removed installer archives are separate files, not the installed
+extension. Detailed filesystem audit/target/cleanup receipts are under %TEMP%
+with allied-disk-* and allied-cleanup-* names dated 20261025. The existing hygiene
+document and main AGENTS now also cover local builds and editor-test copies.
+
+25 October 2026 - owner explicitly approved deleting the 143,481,750 bytes of superseded generated output in allied-home-restoration-20261025/frontend/.next while retaining cache/source/dependencies. Rechecked the exact folder and confirmed no Next.js process uses it; application worktree remained clean. Automatic approval review again rejected the bounded native deletion before execution as blocked by policy. No output was removed. The owner's authorization is recorded; do not request the same permission again or evade the tool restriction.
+
+25 October 2026 - staff vehicle filters released from the current backend source:
+`C:/Users/PC/.codex/worktrees/allied-staff-vehicle-current-20261025`, branch
+`fix/staff-vehicle-filters-current-20261025`. Runtime commit `ff42b0e2` and
+release receipt `1e1b6152` are pushed. Production DigitalOcean deployment
+`f9239c36-d4b7-4ef0-b8ba-479cda926a13` is ACTIVE with API digest
+`sha256:6ceab2563f0f15dc6b877aac02de89542113e98f5079c9d85803b383a7bbafb3`;
+both workers and the predeploy job retain their prior digests. Its build, deploy,
+component and read-only predeploy job steps succeeded. Live readiness, public
+products and public vehicles returned 200; anonymous staff vehicles returned 401.
+The API fix had passed 3/3 isolated staff-stock integration tests and a complete
+isolated migration replay on the exact deployed source. Today's managed backup
+and the previous separate restore evidence were reviewed; the API-only rollout
+did not write to the application database. Hosted authenticated staff-filter
+acceptance remains open until a suitable QA login is available. See the release
+receipt in the fix branch's copy of this tracker for exact scope and limits.
+
+25 October 2026 - audit A01-A07 implementation checkpoint:
+Current implementation branch fix/audit-actions-20261025 reuses the existing
+allied-home-restoration-20261025 worktree and caches. Combined source b45513f1
+preserves bb92ca52 preferred Home and the ff42b0e2 active backend filter fix;
+main-checkout user edits remain separate. All seven findings were revalidated
+against source and isolated rendered fixtures. The 31-case responsive matrix
+passed; additional recovery, permission, text-enlargement and regression checks
+are being completed. Current production remains dpl_Hspe97LQ9MsxdKoNwaiqURvKFQPU
+and ACTIVE f9239c36-d4b7-4ef0-b8ba-479cda926a13. No publication or real operational
+write is part of this batch. See Cycle 6 in the release worktree's quality register
+for scope, current acceptance and remaining checks. Preserve the disk-cleanup
+approvals/rejections and existing database/Item 6 constraints recorded above.
+
+25 October 2026 - owner-requested disk reserve and bounded cache maintenance:
+The Desktop checkout owns the shared Git history used by 23 linked worktrees.
+Several worktrees have uncommitted changes or release/policy evidence; all were
+retained, together with installed/shared dependencies and active development.
+No repository consolidation, application change or deployment was attempted.
+
+Native `npm cache npx rm` removed seven explicitly reviewed inactive entries:
+2778af9cee32ff87, ce0d8c019a05051b, 69c381f8ad94b576, 420ff84f11983ee5,
+5fdb855d8f7e0fd1, cc2145a2fe1558fa and 1d6e82a4126006c4. These contained an
+unused Prisma 8 prerelease, superseded Vercel 65.1 and old disposable test/setup
+tools; current project Prisma 7 and useful current CLI/MCP caches remain.
+Removed entry file lengths totalled 1,187,310,775 bytes. `npm cache verify`
+then garbage-collected 1,110 unreferenced blobs / 2,436,362,178 bytes and verified
+3,471 retained cache entries / 1,899,363,748 bytes. Total logical cache removal:
+3,623,672,953 bytes. Host C: free space rose from 22,592,446,464 to
+26,330,132,480 bytes (24.52 GiB); concurrent activity and allocation accounting
+mean the host-space change differs from the removed file lengths.
+
+The owner's mandatory 20 GiB reserve is recorded in global/repository instructions
+and docker-disk-hygiene.md. Shared read-only checker:
+C:/Users/PC/.codex/scripts/assert-disk-space.ps1. Default expected growth is 5 GiB,
+requiring 25 GiB free before substantial writes; justified growth estimates can
+vary, but the 20 GiB reserve cannot be reduced. Actual-space pass, insufficient-
+space block and unverifiable-target block were tested (exit codes 0/1/1).
+This is an agent preflight, not a background service or machine-wide quota.
+
+Automatic approval review rejected the proposed removal of compiler-pack files
+in allied-catalogue-care-ux-20261024 and allied-home-discovery-20261025 as
+"blocked by policy" before execution. No compiler files were removed and no
+alternate deletion was attempted. Prior deletion rejections remain in force.
+Docker stayed at 38 images / 11.84 GB, 14 containers, 14 volumes / 1.012 GB and
+87 cache records / 6.715 GB; Docker-reclaimed space was 0 B. No database command,
+backup, restore rehearsal, grant change, image build, new worktree or dependency
+installation ran. Existing source/uncommitted work, databases, backups, secrets,
+history and useful current/rollback resources were preserved. Small inventory
+receipts are under %TEMP%/allied-*-inventory-20261025.json; no large archive made.
+
+25 October 2026 - audit batch completion receipt:
+Implemented and committed e9f48ef5 on fix/audit-actions-20261025 in the reused
+allied-home-restoration-20261025 worktree; its Git status is clean. Local lint,
+types, all 996 frontend tests, format, optimized build and standalone preparation
+passed. Selected browser/portrait evidence and remaining real-role/device/hosted
+limits are in Cycle 6 of that worktree's quality register. A01-A07 is complete;
+A08-A15 remains the next batch. No production deployment was made. Current review
+build and useful caches are retained; no new Docker image, dependency copy or
+worktree was created. Final fixed-reserve check passed at 24.42 GiB free on C:.
+No claim is made about unrelated applications' later disk use. Main-checkout
+uncommitted work and all existing data/backup/security constraints remain intact.
+
+25 October 2026, 12:15 Lagos - audit A01-A07 production release complete:
+Frontend runtime e9f48ef525b80cc215f340015b0553e5b1e3af73 is READY on Vercel
+dpl_5vyykAdQnDsAshfCKRU9KNkePJgb. Both main/www aliases independently matched
+at 11:13:48 UTC. Release branch fix/audit-actions-20261025 in reused worktree
+allied-home-restoration-20261025 now includes test-only 8b5fe871 and release
+receipt 0253a651; neither changes the deployed runtime inputs. Runtime frontend
+CI 40186973452, backend safety 40186973448 and secret guard 40186973443 passed;
+test-correction frontend CI 40187506046 and secret guard 40187506070 also passed.
+34/34 optimized hosted isolated audit scenarios, 9/9 real-data candidate scenarios,
+9/9 production public scenarios and 3/3 live main/www Privacy/restriction checks
+passed. Final browser checks ended 11:15:50 UTC / 12:15:50 Lagos with zero page
+exceptions. Expected anonymous-session 401 and intentional /demo 404 are not
+application exceptions. Real authenticated operational submissions remain untested.
+No synthetic data, real reply, approval, transaction or production migration ran.
+
+Backend remains ACTIVE f9239c36-d4b7-4ef0-b8ba-479cda926a13 / ff42b0e2; no backend
+image or database configuration changed. Read-only recovery review confirmed the
+online target, nine managed backups (latest 05:22:10 UTC), existing encrypted
+off-device seven-day/PITR safeguards and today's successful separate 89-table /
+65-migration restore rehearsal with original rows unchanged. No new DB command,
+backup/restore or grant change was performed. Existing browse/enquiry restrictions
+and protection are retained; owned temporary QA keys were revoked and verified
+absent. Rollback frontend: dpl_Hspe97LQ9MsxdKoNwaiqURvKFQPU. Future R2 publication
+must retain this audit frontend rather than overwrite it from the older b45513f1
+base. The separate in-progress R2 source and other uncommitted work are preserved.
+
+Evidence: release worktree Cycle 6 quality register and %TEMP%/allied-audit-deploy-20261025/.
+Browsers closed; C: fixed-reserve check passed at 23.83 GiB free. No new local
+build, dependency installation/copy, worktree, editor profile or Docker resource
+was created for rollout. Docker remains 38 images/11.84GB, 14 containers,
+14 volumes/1.012GB and 87 caches/6.715GB; current/rollback/other-task resources,
+source, history, secrets, databases and backups were retained.
+
+25 October 2026 - compatibility concurrency correction released:
+runtime source `313c4f9c` from
+`C:/Users/PC/.codex/worktrees/allied-compatibility-concurrency-20261025`,
+branch `fix/compatibility-release-20261025`. DigitalOcean deployment
+`634b9110-8ad0-455e-ad7d-48cd9ee35681` is ACTIVE with API digest
+`sha256:bf2d62febe09d0c0800214b53830c016ea29c205286a83d3901d807746067ac8`;
+both worker and read-only predeploy digests are unchanged. Vercel
+`dpl_GDqL1pgfFbWtb7avvNGGW8Zu3bNH` is READY on main/www. The editor now sends
+the child version so stale update/retirement returns 409 before mutation/history,
+retains the draft and allows only safe failed-read retry. All 70 migrations replayed
+in an isolated database; nine concurrency tests and final-source CI passed.
+Three browser-isolated editor cases passed on the actual domain after promotion;
+all possible writes were intercepted. API readiness/public products returned 200,
+anonymous admin access 401, Home/Help/Parts 200, `/shop` reached `/parts` and
+`/demo` remained 404. Existing same-day managed backup and separate restore
+evidence were reviewed; no production migration or business data write ran.
+Real signed-in admin acceptance and the wider Item 6/site goal remain open.
+The newer Customer Care branch with migration 71 remains a separate pending release;
+its changes were not deployed by this correction. Detailed release evidence is in
+the source worktree's tracker and UI quality Cycle 9. The main checkout's other
+uncommitted work is preserved.
+
+25 October 2026 - reviewed cart-clear race correction released. Runtime source
+76377d43fb6e595e40ea27d24994794ceed37706 from
+C:/Users/PC/.codex/worktrees/allied-compatibility-concurrency-20261025,
+branch fix/cart-clear-atomic-20261025. Backend DigitalOcean deployment
+98401193-fb85-48d9-8c51-462dcadd6d19 is ACTIVE with four matching image
+digests; Vercel dpl_JD4ffNmmmo2W7dgrzBHN4evwNd6u is READY on main/www.
+A reviewed cart snapshot is now required and compared under the cart lock before
+DELETE; stale contents return 409 without removal. Existing customer-care,
+notification and compatibility changes are included. Three GitHub workflows,
+71-migration isolated replay, related database cases, 13 compiled cart browser
+cases, image contracts and public-domain smoke passed. No schema change,
+production cart/payment write or full real-role acceptance occurred. The same-day
+managed backups and separate logical restore evidence were reviewed. Detailed
+evidence: backend/docs/cart-clear-atomic-20261025.md in the release worktree.
+Documentation-only follow-up commit ea52d6a3 records the release; runtime remains
+76377d43. Item 6 and wider operational acceptance remain open. Main-checkout
+uncommitted work and other worktrees were preserved.
+
+
+26 October 2026 - customer table/sidebar responsive correction implemented locally.
+Branch fix/customer-table-responsive-20261026 reuses allied-shop-vehicles-r2-20261025
+from released 76377d43. Expanded/collapsed rows now keep matching compact actions;
+desktop columns fit, visible table/sidebar/drawer scrollbars are removed, and
+necessary scrolling plus keyboard focus remain usable. The 1024px partially clipped
+focus case is fixed. Permissions, account safeguards, data and unrelated work retained.
+Final optimized local Edge acceptance: 22/22 browser cases; four related units,
+TypeScript/lint/format/build/postbuild passed. See UI quality Cycle 13 and
+%TEMP%/allied-customer-table-20261026/ for screenshots, metrics and honest limits.
+Installed Next 16.3.8 differs from locked 16.4.3; locked CI/hosted/real-role/device
+acceptance remains separate. Vercel management read returned 403; no production
+deployment or database/business write was performed. Item 6 remains open.
+
+Task preview servers stopped. C: postflight 29.99 GiB; useful build/cache and 8.4 MiB
+review evidence retained. No Docker resource/duplicate install/worktree created.
+
+26 October 2026 - fitment/product-media candidate committed as b8f93c27 on
+feat/fitment-media-20261026 in allied-home-restoration-20261025 (base 76377d43).
+Fixed reproduced Toyota/Camry legacy hydration, explicit reconciliation, evidence-led
+rule editing/review, retained/conflicting drafts and product Images/Compatibility
+separation. Added compatible atomic audited image ordering and safer hosted URL
+validation; no migration or production data/role/storage write. Actual isolated API
+upload/public-read/removal journey passed. Final compiled browser checks: 36/36 scope
+and 12/12 adjacent regressions; 40 frontend units, seven backend units, 21 real
+integration cases, fresh 71-migration replay/db:check, lint/types/build/OpenAPI passed.
+Detailed receipts and limitations: candidate backend/docs/fitment-product-media-20261026.md.
+Before/after desktop/mobile index: %TEMP%/allied-fitment-media-review-20261026/index.md.
+Owned preview/test API stopped; current evidence/cache/data retained, 54.78 MiB
+superseded task output removed; C: 29.88 GiB free at measurement. Docker unavailable,
+no Docker resources or duplicate worktree/dependency installation created. Candidate
+is NOT deployed; backend-first rollout, locked CI, real-role/provider/device checks
+and wider Item 6 remain separate. Existing main-checkout changes were preserved.
+Fitment/media final local HEAD is a28753ab (implementation b8f93c27 plus the measured
+gallery-alignment follow-up). Rebuilt and all five gallery widths passed again;
+candidate worktree clean, review screenshots refreshed, preview stopped. No deployment.
+
+26 October 2026 - Help, Help & Learn and Allie refinement implemented and verified.
+Runtime candidate aa54fba8378d879e50ca99750dd7cf6e9fa2195e on
+feat/help-allie-20261026 in reused allied-shop-vehicles-r2-20261025, preserving
+adef02f9 and unrelated worktrees. Backend batch 38e7df62, frontend d0272949,
+final bounded practice polish aa54fba8. Feature branch pushed for locked CI;
+no main merge, new production deployment or shared/application database write.
+Help entry now a branded card; hub has three modes/all-kind search and coherent
+article/back navigation. Allie is a native SVG/content-based website guide using
+reviewed eligible help, with source/action/fallback and honest no-live-record/no-AI
+boundaries. No provider, paid resource, new permission, schema or operational API.
+Reproduced oil-filter Next timing failure; fixed retained interaction evidence,
+retargeting, loading explanation and compact guide controls. Practice has one mode
+indicator, editable care-reply sample, honest choice-only hints, specific feedback
+and no obstructing floating toolbar. Practice remains in memory, with no business
+mutations, external requests, uploads, messaging, approvals or dummy live-field fill.
+Local 1,039 frontend tests, seven authenticated API cases, lint/types/build/postbuild,
+OpenAPI/types/424-operation contracts and restricted-runtime checks passed. New
+exact-loopback help_allie_21a045ec5c_ci replayed 71 migrations and db:check passed.
+Compiled browse/enquiries: 29/29 browser cases plus six final-polish rechecks passed;
+360/390/768/1024/1440 Help/hub/Allie, 320/390/768/1440 practice, keyboard/Escape/
+return, scoped Axe, reflow/reduced-motion, role/identity/failure/guide transitions.
+All three exact-runtime CI workflows passed with locked dependencies. Screenshots
+and limits: docs/help-learn/ALLIE_IMPLEMENTATION.md; local index
+%TEMP%/allied-allie-20261026/index.md. Real production roles, physical devices,
+native keyboards/zoom and full screen-reader acceptance remain unverified.
+Task previews stopped; Docker unchanged (67 images, 13 stopped containers, same
+14 volumes, warm cache retained), no pruning or dependency/profile duplication.
+C: postflight measured 28.85 GiB free; no machine-wide space guarantee.
+Main tracker original bytes preserved append-only. Production remains separately
+recorded adef02f9; broader site-completion Item 6 remains open.
+
+27 October 2026 - P1 Contact visit-preference validation released. Clean
+frontend branch fix/contact-visit-validation-live-20261027 was based on exact
+live source 8fa386cb. Runtime 317b1678 directs missing date/time and overlong
+message feedback to the affected field, clears stale errors on editing, and
+preserves staff-confirmed preference semantics. Eleven units, six Edge Contact
+scenarios at 320/390/1440px, types/lint/format, Next 16.4.3 optimized build,
+exact-source frontend CI 40472135463 and secret guard 40472135440 passed.
+Vercel dpl_24sXMLFwUuX6ag8PqMTtGaVH2xPh is READY and both apex/www HTML expose
+that exact deployment ID; API readiness returned 200. Read-only live Edge at
+390/1440px selected the published Tyre Change service and verified time/message
+focus, aria-invalid and visible guidance with zero API writes. Local build's
+linked dependency directory caused a standalone trace warning; independent CI
+used clean locked dependencies. No backend, schema, provider, payment or
+production business write changed. Real authenticated roles, physical devices,
+full screen-reader and wider Contact/Help acceptance remain open. Other
+worktrees' concurrent edits were preserved.
+
+26 October 2026 - sign-in MFA challenge atomicity deployed.
+Runtime 8b583921, backend 50b5f5d1-50f6-4bf2-a9d0-f0c4975e02b3 ACTIVE.
+Four active image digests match the manifest, and the non-image app spec is
+unchanged. Nine image and one packaged isolated migration/restore checks passed;
+all 24 deployment steps including read-only PRE_DEPLOY database check succeeded.
+Direct/domain liveness and readiness returned 200; anonymous session and MFA
+verify returned 401. Managed backups through 26 October and retained separate
+populated 90-table restore evidence were reviewed. No schema/grant/production
+business write or frontend release. Real authenticated role, device and genuine
+WebAuthn browser acceptance remain open. Previous backend 96ffc790 is the
+immediate rollback candidate subject to compatibility review. Detail:
+backend/docs/mfa-challenge-atomicity-20261026.md.
+
+28 October 2026 - P0 reconciliation production-compatibility candidate.
+The unreleased payment/refund source was merged with actual production backend
+source 0fd68980 without conflicts; merge 7d4bd735 preserves the inventory
+replay fix and the workshop contact release. Exact candidate 6cab3669 adds the
+27-case reconciliation integration suite to the isolated `_ci` safety workflow.
+Backend safety CI 40673070983 passed migration replay, refund database cases and
+the new reconciliation step; secret guard 40673070788 passed. The last
+independently recorded production backend deployment was
+79d7a0ac-4e83-4b73-ae46-40af4731a604, with providers disabled and no
+reconciliation recovery migration applied. Recheck that state before rollout.
+No production database, provider, financial record or deployment was changed by
+this work.
+The local disk preflight dipped below its 20 GiB reserve, so no local build or
+database test was started. Fresh managed recovery evidence, production migration
+role ownership, new projection runtime DML, populated financial backfill,
+legacy RUNNING/held rows, provider sandbox and real-role acceptance remain release
+gates. Read-only SQL probes are recorded in
+backend/docs/payment-reconciliation-recovery-20261027.md; they have not been run
+on production. Recheck actual deployment and backup state before any rollout.
+
+
+### Historical merged-branch checkpoint
+
+The following dated observation is retained from origin/fix/compatibility-release-20261025; it is not a claim of current production identity.
+
+Production release, 25 October 2026: source `313c4f9ccddc5bed89ab6a3fbd8e8fbac4308a96`
+on `fix/compatibility-release-20261025` passed exact-source frontend CI
+`40225020885`, backend database safety CI `40225020883` and secret guard
+`40225020879`. The API-only image was pushed with registry digest
+`sha256:bf2d62febe09d0c0800214b53830c016ea29c205286a83d3901d807746067ac8`.
+DigitalOcean deployment `634b9110-8ad0-455e-ad7d-48cd9ee35681` is ACTIVE,
+with all build/deploy component steps successful. The two worker digests and
+read-only predeploy `db:check` migration-job digest/command remained unchanged.
+No production migration, application database DML, grant change or reset ran.
+API readiness and public products return 200; anonymous administrator catalogue
+access returns 401.
+
+Production-configured Vercel candidate `dpl_GDqL1pgfFbWtb7avvNGGW8Zu3bNH`
+was READY before promotion and now serves both main and www aliases. The first
+unaliased candidate failed because the CLI was run inside `frontend` while the
+project already configured `frontend` as its root; deploying from the repository
+root succeeded, with no public-domain change during the failed attempt. Protected
+candidate Home/Help/Parts/admin requests returned 200. After promotion, the
+browser-isolated hosted editor scenarios passed 3/3 on alliedautotech.com with
+all API writes intercepted: mobile stale-write conflict, safe failed-read retry,
+and mobile layout/automated accessibility. Real authenticated admin acceptance
+remains untested without an authorised QA session. Public Home/Help/Parts return
+200, www Parts resolves to main, `/shop` reaches `/parts`, and `/demo` remains 404.
+
+Read-only rollout review confirmed today's 05:22:10 UTC managed off-device backup
+and reused the earlier 25 October separate 89-table logical restore rehearsal and
+documented encryption/retention/PITR; no new physical PITR rehearsal is claimed.
+Local disk stayed above the mandated reserve, 28.79 GiB free at the last check.
+The task's two disposable PostgreSQL containers were removed by `--rm`; 14 existing
+volumes, current/rollback/other-task images and useful build caches were retained.
+Docker totals observed 46 to 55 images and 103 to 120 cache entries during
+concurrent work; those aggregate changes are not all attributable to this task.
+The current API image is retained for production/rollback. An automatic policy
+review blocked removal of the task-created ignored Vercel `.env.local` token file;
+it remains local and untracked. No alternative deletion path was attempted.
+Item 6 and the full site-completion goal remain open.
+
+
+### Historical merged-branch checkpoint
+
+The following dated observation is retained from origin/fix/parts-enquiry-copy-current-20261028; it is not a claim of current production identity.
+
+28 October 2026 - P1 public Parts detail enquiry guidance released. The live
+unavailable oil filter had no branch listed, but its page instructed visitors to
+collect from a listed branch and described ordering in enquiry-only mode.
+Frontend runtime 9f9311cf builds on exact prior live fbb6565a, keeps its shared
+support/navigation changes, and asks visitors to confirm stock and collection
+arrangements with staff before travelling. The full-commerce copy stays gated;
+no product, fitment, price or enquiry destination data changed. Frontend CI
+40668317540 and secret guard 40668317916 passed on the exact commit. A normal
+preview built but its dynamic product route returned 503 because preview lacks
+BACKEND_ORIGIN. A production-configured deployment was built with domain
+assignment disabled; its protected product page rendered the corrected copy,
+then dpl_68bNV74wNajB9vW1Ly85nzmmdEvU was promoted. Both apex and www expose
+the exact ID; the previous dpl_J5k6BjFUZVTFgeGJSrH4WHhiFxcq is the immediate
+rollback. API readiness returned 200. Live read-only Edge at 390/1440px passed
+the product detail, collection FAQ and exact-product Contact navigation with no
+horizontal overflow or page exception. No form, inventory, provider, payment,
+database or backend change was made. Physical devices, screen readers and
+authenticated-role acceptance remain open; P0 backend release gates are unchanged.
+
+
+### Historical merged-branch checkpoint
+
+The following dated observation is retained from origin/fix/customer-vehicle-payment-filter-20261027; it is not a claim of current production identity.
+
+27 October 2026 - P1 vehicle-payment history filter local checkpoint on a
+merged current-release source (frontend 8fa386cb plus backend 3bb51d21).
+Customer payment list applies optional vehicleTransactionId within the owned
+profile before cursor pagination; foreign/other-target filtered cursors fail.
+The purchase panel uses that filter and rejects mismatched rows or incomplete
+history before offering a new payment request. A fresh isolated PostgreSQL 18
+_ci target replayed 72 migrations, passed schema diff/db:check and the focused
+real-service ownership/pagination integration. Six focused Edge fixture cases,
+backend/frontend types, scoped lint and OpenAPI validation passed. The task
+database was stopped/removed; no production financial/provider write. Exact-lock
+CI, API-first deployment, both frontend aliases and authorized live-role
+acceptance remain open. See backend/docs/customer-vehicle-payment-filter-20261027.md.
+P0 reconciliation recovery remains on its separate unreleased branch, and full
+Item 6/Revision 4 remain active.
+The exact candidate 54e83b3f passed frontend 40445007425, backend 40445007397
+and secret 40445007545 GitHub runs. Provider promotion did not run: local doctl
+returns access-token-required, no Vercel CLI is installed, and browser automation
+surfaces are unavailable. Recheck live source/access before release; no image or
+production app/database change was made for this candidate.
+
+27 October 2026 - P1 Contact visit-preference correction on the same candidate
+branch. Source c54ef088 makes missing date/time and overlong visit messages
+focus/mark the actual field, announce its error and clear stale feedback when
+edited; it does not change request-only visit policy. Eleven focused unit cases,
+frontend types/lint/format, local isolated Edge interaction at desktop and 320px,
+and exact-source locked frontend 40448703220 plus secret 40448703167 GitHub
+checks passed. The browser sent no POST; local API results were fixtures. No
+Docker resource or production deployment/database/provider action. The original
+vehicle-payment API-first release and live role checks remain open, along with
+wider public-form/physical-device acceptance. See the frontend quality register.
+
+
+### Historical merged-branch checkpoint
+
+The following dated observation is retained from origin/fix/staff-vehicle-filters-20261024; it is not a claim of current production identity.
+
+`aat_stock_*_test` PostgreSQL database. The disposable database container was
+removed. No application database or production backend was written. Backend
+promotion still requires the current target's read-only database check,
+backup/restore evidence and deployment verification. Item 6 remains open for
+real catalogue publication and authenticated staff acceptance.
+
+
+### Historical merged-branch checkpoint
+
+The following dated observation is retained from origin/fix/p0-reconciliation-production-compatible-20261028; it is not a claim of current production identity.
+
+28 October 2026 - P0 finance operator session boundary. Candidate commit 9798ed9a
+rechecks the current staff session inside bank refund transfer/check and dispute
+write transactions before changing records. The independent refund test now proves
+revoked sessions cannot record either stage, and the isolated CI suite includes
+the dispute journey. Commit d0c98151 updates the older payment-flow fixture to
+use actual isolated operator sessions. Exact backend database-safety run
+40677044143 passed, including migration replay, refund/dispute integration,
+reconciliation, payment-flow, type and lint steps; secret guard 40677044459
+passed. Local typecheck, lint, formatting and seven focused unit cases passed.
+No production database, provider or deployment was changed. The production
+recovery, migration-role, populated backfill and real-role gates above remain.
+
+
+### Historical merged-branch checkpoint
+
+The following dated observation is retained from fix/compatibility-concurrency-20261025; it is not a claim of current production identity.
+
+25 October 2026 - legacy product compatibility concurrency correction checkpoint:
+worktree `C:/Users/PC/.codex/worktrees/allied-compatibility-concurrency-20261025`,
+branch `fix/compatibility-concurrency-20261025`, originally based on the verified
+homepage and stock releases and now integrating the newer Customers/Customer Care
+source. The API compares an optional expected child version under the existing
+product mutation lock on legacy compatibility update and retirement. The new editor
+always supplies it; versionless old responses cannot be edited or retired there.
+Public fields stay limited. A stale write returns 409 before mutation/history,
+repeat confirmation is disabled and the draft is retained for explicit reload.
+Bare legacy DELETE remains compatible.
+
+Before the newer-source merge, all 65 then-current migrations replayed in a new
+isolated `_test` PostgreSQL target with no schema diff. Nine focused integration
+cases passed against a restricted non-owning role: concurrent writes yielded one
+success, one conflict and one history increment; stale retirement was rejected.
+No application database was written. Backend typecheck, lint, OpenAPI (347 paths),
+route coverage (407 operations), format and build passed. Frontend types, lint and
+optimized build passed. Thirteen Edge/Playwright editor cases passed locally,
+including mobile conflict, accessibility and draft recovery; a focused follow-up
+verified no repeat confirmation. After integration, all 71 migrations replayed on
+a fresh isolated `_test` target with no schema diff; `db:check` and the nine focused
+cases passed again under a non-owning runtime role. Regenerated OpenAPI and frontend
+types, backend/frontend typecheck, lint and optimized builds passed on the combined
+source (355 API paths, 415 documented operations). The combined rendered editor
+suite and release checks remain open. No production mutation, migration or deployment has
+occurred for this correction yet. Hosted authenticated acceptance needs a real
+authorised QA session. Item 6 and the broader goal remain open.
+
+
+### Historical merged-branch checkpoint
+
+The following dated observation is retained from origin/fix/p0-reconciliation-production-compatible-20261028; it is not a claim of current production identity.
+
+28 October 2026 - P0 customer payment session boundary. Candidate f156f880
+locks and rechecks the customer account/session in the intent, online checkout
+preparation/finalization and manual-attempt write transactions; an idempotent
+manual replay also rechecks the session before returning a record. Verified
+provider outcomes still settle through the independent provider path. Isolated
+payment fixtures now create real sessions. A first expanded CI run exposed a
+fixture MFA timestamp constraint, corrected in 4a3284f0. Exact backend
+database-safety run 40680567495 passed all 11 files and 91 cases in the expanded
+payment/refund step, plus migration replay and all other safety jobs; secret
+guard 40680567554 passed. Local typecheck, scoped lint and formatting passed.
+No production database, provider or deployment was changed. The recovery,
+migration-role, populated financial backfill and real-role gates remain.
+
+28 October 2026 - P0 private manual-payment evidence access boundary.
+The staff evidence-link path now locks and rechecks the current operator account
+and session before reading the attempt and audit-writing in one transaction.
+A session revoked before that transaction recheck cannot receive a newly signed
+private evidence URL. Two focused unit cases cover revoked and authorized paths;
+the adjacent manual-review session cases, TypeScript, scoped lint and formatting
+passed locally. No payment/provider/schema/production write was made. Exact-source
+CI passed for runtime commit 7b1c552b: backend database safety 40685222582
+and redacted secret guard 40685222451 both completed successfully. The
+production recovery/migration/real-role gates remain.

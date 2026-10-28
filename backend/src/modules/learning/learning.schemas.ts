@@ -68,7 +68,7 @@ export const learningResponseSchemas = {
     audience: z.enum(["public", "customer", "work"]),
     contentVersion: z.literal(1),
     mode: z.enum(["full", "browse_enquiries", "catalogue"]),
-    flags: z.object({ guides: z.boolean(), practice: z.boolean(), ai: z.literal(false) }),
+    flags: z.object({ guides: z.boolean(), practice: z.boolean(), ai: z.boolean() }),
     articles: z.array(article),
     guides: z.array(guide),
     scenarios: z.array(scenarioSummary),

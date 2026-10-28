@@ -466,6 +466,294 @@
   line-height: 1.6;
   font-weight: 500;
 }
+.allie-human-option {
+  margin: 16px 0;
+}
+.allie-handoff {
+  padding: 12px 0 20px;
+  font-size: 0.9rem;
+}
+.allie-handoff h3 {
+  font-size: 1.2rem;
+  line-height: 1.4;
+  margin: 8px 0 12px;
+}
+.allie-handoff fieldset {
+  min-width: 0;
+  border: 1px solid #b5c0ca;
+  border-radius: 8px;
+  padding: 12px;
+  margin: 16px 0;
+}
+.allie-handoff legend {
+  font-weight: 700;
+  padding: 0 5px;
+}
+.allie-handoff form > label,
+.allie-handoff fieldset > label:not(.handoff-choice) {
+  display: block;
+  font-weight: 700;
+  margin: 12px 0 6px;
+}
+.allie-handoff input:not([type="radio"]):not([type="checkbox"]),
+.allie-handoff select,
+.allie-handoff textarea {
+  box-sizing: border-box;
+  min-height: 44px;
+  width: 100%;
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid #8594a2;
+  border-radius: 6px;
+  color: #182129;
+  background: #fff;
+  font: inherit;
+}
+.allie-handoff input[type="radio"],
+.allie-handoff input[type="checkbox"] {
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  margin: 2px 0;
+  accent-color: #b80201;
+}
+.handoff-choice,
+.handoff-excerpt label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-height: 44px;
+  padding: 12px 0;
+  border-bottom: 1px solid #d5dbe1;
+  cursor: pointer;
+}
+.handoff-choice span,
+.handoff-excerpt label > span {
+  min-width: 0;
+  flex: 1;
+}
+.handoff-choice small,
+.handoff-excerpt span span {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.85rem;
+  white-space: pre-wrap;
+}
+.handoff-destinations .pagination {
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.handoff-destinations .pagination .button {
+  padding: 8px 12px;
+  font-size: 0.85rem;
+}
+.handoff-selected {
+  font-size: 0.85rem;
+}
+.handoff-review-facts {
+  margin: 16px 0;
+}
+.handoff-review-facts dt {
+  font-weight: 700;
+  margin-top: 12px;
+}
+.handoff-review-facts dd {
+  margin: 4px 0 0;
+}
+.handoff-exact-message {
+  padding: 16px;
+  border: 1px solid #a5b3bf;
+  border-radius: 8px;
+  background: #f5f8fa;
+  white-space: pre-wrap;
+  line-height: 1.65;
+}
+.handoff-recovery {
+  padding: 12px;
+  border: 1px solid #a4433f;
+  border-radius: 8px;
+  margin: 16px 0;
+}
+.handoff-reference {
+  font-family: inherit;
+  overflow-wrap: anywhere;
+}
+.allie-handoff .learning-actions {
+  flex-wrap: wrap;
+}
+.allie-modes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  padding: 5px;
+  background: #edf1f4;
+  border-radius: 10px;
+  margin: 16px 0;
+}
+.allie-modes button {
+  min-height: 44px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  background: transparent;
+  color: #354454;
+  font: inherit;
+  font-size: 0.9rem;
+}
+.allie-modes button[aria-pressed="true"] {
+  background: #fff;
+  border-color: #8596a4;
+  color: #142634;
+  font-weight: 700;
+}
+.allie-chat h3,
+.allie-chat h4 {
+  margin: 14px 0 8px;
+  font-size: 1rem;
+}
+.allie-ai-label {
+  display: inline-block;
+  color: #52606c;
+  background: #edf1f4;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  vertical-align: middle;
+}
+.allie-chat .allie-boundary {
+  margin: 8px 0 12px;
+}
+.allie-privacy {
+  font-size: 0.85rem;
+  border-bottom: 1px solid #d5dbe1;
+  padding-bottom: 10px;
+}
+.allie-privacy summary {
+  min-height: 44px;
+  padding: 10px 0;
+  cursor: pointer;
+  font-weight: 700;
+  color: #324d61;
+}
+.allie-chat-status {
+  min-height: 24px;
+  margin: 10px 0;
+  font-size: 0.875rem;
+  color: #40576a;
+}
+.allie-chat-error,
+.allie-clear-review {
+  border: 1px solid #a4433f;
+  border-radius: 8px;
+  padding: 12px;
+  margin: 12px 0;
+  min-width: 0;
+  font-size: 0.9rem;
+}
+.allie-chat-error p,
+.allie-clear-review p {
+  margin-top: 0;
+}
+.allie-chat-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 14px 0;
+}
+.allie-chat-tools .button {
+  flex: 1;
+}
+.allie-chat .button {
+  min-height: 44px;
+  font-size: 0.85rem;
+  padding: 9px 12px;
+}
+.allie-transcript {
+  list-style: none;
+  margin: 12px 0;
+  padding: 0;
+  font-size: 0.9rem;
+}
+.allie-transcript > li + li {
+  border-top: 1px solid #c9d2dc;
+  padding-top: 14px;
+}
+.allie-user-message {
+  background: #edf2f6;
+  border-radius: 10px 10px 2px 10px;
+  padding: 12px;
+  margin-left: 20px;
+  white-space: pre-wrap;
+}
+.allie-message-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #43586b;
+}
+.allie-user-message p {
+  margin: 4px 0 0;
+}
+.allie-ai-message {
+  border-left: 3px solid #a51a21;
+  padding: 1px 0 1px 12px;
+  margin: 14px 0 20px;
+}
+.allie-ai-message p {
+  white-space: pre-wrap;
+}
+.allie-ai-message ol {
+  padding-left: 20px;
+}
+.allie-caveat {
+  background: #fff5e9;
+  color: #694615;
+  padding: 10px;
+  border-radius: 6px;
+}
+.allie-citations p {
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin: 8px 0 0;
+}
+.allie-citations a {
+  display: block;
+  padding: 10px 0;
+  min-height: 44px;
+}
+.allie-chat textarea {
+  display: block;
+  width: 100%;
+  resize: vertical;
+  min-height: 96px;
+  max-height: 200px;
+  padding: 10px 12px;
+  border: 1px solid #8794a1;
+  border-radius: 8px;
+  color: #182129;
+  background: #fff;
+  font: inherit;
+  font-size: 1rem;
+}
+.allie-input-hint {
+  font-size: 0.8rem;
+  color: #52606c;
+  margin: 6px 0 12px;
+}
+.allie-pending {
+  font-size: 0.875rem;
+  color: #40576a;
+}
+.allie-back {
+  min-height: 44px;
+  margin: 12px 0;
+}
+.allie-recent .allie-topic {
+  flex-wrap: wrap;
+}
+.allie-recent .allie-topic span {
+  color: #52606c;
+  font-size: 0.8rem;
+}
 .allie-boundary {
   color: #4b5864;
   font-size: 0.85rem;

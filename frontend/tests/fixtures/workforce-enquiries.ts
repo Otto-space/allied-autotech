@@ -9,8 +9,9 @@ export async function workforceEnquiriesFixture(
   page: Page,
   template:
     "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" = "SALES_SUPERVISOR",
+  role: "STAFF" | "ADMIN" = "STAFF",
 ) {
-  const base = await workforceNotificationsFixture(page, template);
+  const base = await workforceNotificationsFixture(page, template, role);
   const branchId = base.access.assignments[0].branchId;
   const items = [
     {

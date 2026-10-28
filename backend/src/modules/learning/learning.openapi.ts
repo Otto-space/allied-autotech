@@ -1,11 +1,13 @@
 import type { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import { z } from "zod";
+import { registerAllieOpenApi } from "./allie.openapi.js";
 import {
   learningResponseSchemas,
   learningParams,
   learningQuery,
 } from "./learning.schemas.js";
 export function registerLearningOpenApi(registry: OpenAPIRegistry) {
+  registerAllieOpenApi(registry);
   for (const prefix of ["/public/learning", "/learning"])
     for (const kind of ["catalogue", "articles", "guides", "scenarios"] as const)
       registry.registerPath({

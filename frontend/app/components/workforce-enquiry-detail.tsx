@@ -16,6 +16,7 @@ import { draftIdentity } from "@/lib/forms/drafts";
 import { sameWorkforceScope } from "@/lib/admin/workforce-overview";
 import {
   canAssignEnquiry,
+  canReplyEnquiry,
   enquiriesHref,
   enquiryRevision,
   enquiryStaffName,
@@ -35,6 +36,7 @@ import {
   type WorkforceEnquiryPending,
 } from "@/lib/admin/workforce-enquiry-pending";
 import { formatBusinessDate } from "@/lib/format/date";
+import { careCaseAllows } from "@/lib/workforce-care";
 import { MutationReview, type MutationProposal } from "./mutation-review";
 import { Feedback } from "./feedback";
 import { EnquiryCandidates } from "./workforce-enquiry-candidates";
@@ -83,6 +85,7 @@ export function WorkforceEnquiryDetail({
     { refreshKey },
   );
   const [draft, setDraft] = useState<Draft>();
+  const retainedDraft = useRef<Partial<Omit<Draft, "base">>>({});
   const [expanded, setExpanded] = useState(false);
   const [pending, setPending] = useState<WorkforceEnquiryPending>();
   const [storageReady, setStorageReady] = useState(false);
@@ -120,6 +123,7 @@ export function WorkforceEnquiryDetail({
       }
     });
     function discard() {
+      retainedDraft.current = {};
       setDraft(undefined);
       setProposal(null);
       setInspection(undefined);
@@ -138,11 +142,15 @@ export function WorkforceEnquiryDetail({
     let active = true;
     if (row && !draft && row.version >= confirmedVersion.current)
       queueMicrotask(() => {
-        if (active) setDraft(newDraft(row));
+        if (active) {
+          setDraft({ ...newDraft(row), ...retainedDraft.current });
+          retainedDraft.current = {};
+        }
       });
     if (denied || record.denied || mismatch)
       queueMicrotask(() => {
         if (active) {
+          retainedDraft.current = {};
           setDraft(undefined);
           setProposal(null);
           setMessage(undefined);
@@ -197,6 +205,7 @@ export function WorkforceEnquiryDetail({
     };
     let change: EnquiryChange;
     if (action === "reply") {
+      if (!canReplyEnquiry(base, access)) return;
       const body = draft.body.trim();
       if (!body || body.length > 5000)
         return invalid("body", "Enter a reply between 1 and 5000 characters.");
@@ -211,7 +220,7 @@ export function WorkforceEnquiryDetail({
     } else {
       if (!canAssignEnquiry(base, access)) return;
       if (!chosen || chosen.id === base.assignedStaffId)
-        return invalid("staff", "Choose a different eligible sales colleague.");
+        return invalid("staff", "Choose a different eligible colleague.");
       const reason = draft.reason.trim();
       if (reason.length < 10 || reason.length > 1000)
         return invalid(
@@ -241,7 +250,7 @@ export function WorkforceEnquiryDetail({
               { label: "Current assignee", value: enquiryStaffName(base.assignedStaff) },
               { label: "New assignee", value: enquiryStaffName(chosen!) },
               { label: "Staff reference", value: chosen!.id },
-              { label: "Reason", value: change.body.reason },
+              { label: "Internal assignment reason", value: change.body.reason },
             ]),
       ],
       retryAfterRejection: false,
@@ -252,7 +261,8 @@ export function WorkforceEnquiryDetail({
           const latest = await current();
           if (
             enquiryRevision(latest) !== enquiryRevision(base) ||
-            !["OPEN", "IN_PROGRESS"].includes(latest.status)
+            !["OPEN", "IN_PROGRESS"].includes(latest.status) ||
+            (change.action === "reply" && !canReplyEnquiry(latest, latest.access))
           )
             throw rejection(
               "The conversation changed. Close this review, refresh and review your retained draft.",
@@ -319,6 +329,10 @@ export function WorkforceEnquiryDetail({
           confirmedVersion.current = receipt.version;
           clearWorkforceEnquiryPending(access.userId, token);
           setPending(undefined);
+          retainedDraft.current =
+            change.action === "assignment"
+              ? { body: draft.body }
+              : { reason: draft.reason, selected: draft.selected };
           setDraft(undefined);
         } catch (caught) {
           if (!sent)
@@ -327,6 +341,8 @@ export function WorkforceEnquiryDetail({
                 ? caught.message
                 : "The change was not sent. Refresh before reviewing again.",
             );
+          if (caught instanceof ApiError && [408, 429].includes(caught.status))
+            throw Error("The change outcome could not be confirmed.");
           if (caught instanceof ApiError && caught.status >= 400 && caught.status < 500) {
             try {
               clearWorkforceEnquiryPending(access.userId, token);
@@ -517,9 +533,11 @@ export function WorkforceEnquiryDetail({
             {row.contact && (
               <CopyableValue value={row.contact.email} label="Copy customer email" />
             )}
-            <a className="care-next" href="#wfe-body">
-              Write a reply
-            </a>
+            {canReplyEnquiry(row, access) && (
+              <a className="care-next" href="#wfe-body">
+                Write a reply
+              </a>
+            )}
           </div>{" "}
           <dl className="wfe-facts">
             <div>
@@ -618,7 +636,7 @@ export function WorkforceEnquiryDetail({
               <section className="wfe-panel" aria-labelledby="wfe-reply-title">
                 <h3 id="wfe-reply-title">Reply to customer</h3>
                 <p>This reply will be visible in the customer conversation.</p>
-                {["OPEN", "IN_PROGRESS"].includes(row.status) ? (
+                {canReplyEnquiry(row, access) ? (
                   <form
                     onSubmit={(e) => {
                       e.preventDefault();
@@ -645,14 +663,19 @@ export function WorkforceEnquiryDetail({
                   </form>
                 ) : (
                   <p>
-                    This enquiry is {enquiryStatusLabels[row.status].toLowerCase()} and
-                    cannot receive a staff reply.
+                    {["OPEN", "IN_PROGRESS"].includes(row.status)
+                      ? "Your current responsibilities allow viewing this enquiry. Replying requires reply access in this branch."
+                      : `This enquiry is ${enquiryStatusLabels[row.status].toLowerCase()} and cannot receive a staff reply.`}
                   </p>
                 )}
               </section>
               {canAssignEnquiry(row, access) && (
                 <section className="wfe-panel" aria-labelledby="wfe-assignment-title">
-                  <h3 id="wfe-assignment-title">Sales assignment</h3>
+                  <h3 id="wfe-assignment-title">
+                    {careCaseAllows(access, "ENQUIRY", "assign", row)
+                      ? "Care assignment"
+                      : "Sales assignment"}
+                  </h3>
                   <p>
                     Current assignee
                     <br />
@@ -669,7 +692,10 @@ export function WorkforceEnquiryDetail({
                   </button>
                   {expanded && (
                     <div id="wfe-assignment-fields">
-                      <p>Choose an eligible sales colleague in this branch.</p>
+                      <p>
+                        Choose an eligible colleague who can view and reply to this
+                        enquiry in this branch.
+                      </p>
                       <EnquiryCandidates
                         row={row}
                         selected={draft?.selected}
@@ -696,7 +722,10 @@ export function WorkforceEnquiryDetail({
                             aria-invalid={invalidField === "reason"}
                             aria-describedby={`wfe-reason-hint${invalidField === "reason" && errorId ? ` ${errorId}` : ""}`}
                           />
-                          <small id="wfe-reason-hint">10–1000 characters</small>
+                          <small id="wfe-reason-hint">
+                            10–1000 characters. Internal; this is not sent as a customer
+                            reply.
+                          </small>
                         </div>
                         <button className="button" disabled={blocked || !draft}>
                           Review reassignment
@@ -715,7 +744,7 @@ export function WorkforceEnquiryDetail({
           </details>
           <SupportEmailDeliverySummary
             dismissPath={
-              row.access.permissions.includes("CUSTOMER_ENQUIRIES")
+              careCaseAllows(row.access, "ENQUIRY", "view", row)
                 ? "/staff/workforce/enquiries/" + row.id + "/email-deliveries/dismiss"
                 : undefined
             }
