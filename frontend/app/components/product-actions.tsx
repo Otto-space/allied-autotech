@@ -8,6 +8,7 @@ import { ArrowRight, Check, Heart, ShoppingBag } from "lucide-react";
 import { z } from "zod";
 import { apiRequest, ApiError, SESSION_CHANGED } from "@/lib/api/client";
 import { productSchema } from "@/lib/api/commerce-schemas";
+import { readProductFavourite } from "@/lib/api/product-favourite";
 import { parseCartUpdate, type CartUpdate } from "@/lib/api/cart-update";
 import { notify } from "@/lib/notifications";
 import type { RequestBody } from "@/lib/api/contracts";
@@ -42,7 +43,11 @@ export function ProductActions(props: {
       enquiryHref={props.enquiryHref}
     />
   ) : (
-    <ProductPurchaseActions {...props} enquiriesOnly={browseEnquiriesOnly()} />
+    <ProductPurchaseActions
+      key={props.productId}
+      {...props}
+      enquiriesOnly={browseEnquiriesOnly()}
+    />
   );
 }
 
@@ -69,7 +74,10 @@ function ProductPurchaseActions({
   const [drawerOpen, setDrawerOpen] = useState(false);
   const cartButton = useRef<HTMLButtonElement>(null);
   const [active, setActive] = useState<Action>();
-  const [saved, setSaved] = useState(false);
+  const [favourite, setFavourite] = useState<"checking" | "saved" | "unsaved" | "error">(
+    "checking",
+  );
+  const saved = favourite === "saved";
   const [access, setAccess] = useState<
     "checking" | "customer" | "anonymous" | "restricted" | "error"
   >("checking");
@@ -86,8 +94,16 @@ function ProductPurchaseActions({
           signal: controller.signal,
         });
         const session = identity.parse(response.data);
-        if (!controller.signal.aborted)
-          setAccess(session.user.role === "CUSTOMER" ? "customer" : "restricted");
+        if (controller.signal.aborted) return;
+        setAccess(session.user.role === "CUSTOMER" ? "customer" : "restricted");
+        if (session.user.role === "CUSTOMER") {
+          try {
+            const exists = await readProductFavourite(productId, controller.signal);
+            if (!controller.signal.aborted) setFavourite(exists ? "saved" : "unsaved");
+          } catch {
+            if (!controller.signal.aborted) setFavourite("error");
+          }
+        }
       } catch (error) {
         if (!controller.signal.aborted)
           setAccess(
@@ -97,6 +113,7 @@ function ProductPurchaseActions({
     }
     function changed() {
       setAccess("checking");
+      setFavourite("checking");
       void check();
     }
     void check();
@@ -105,7 +122,7 @@ function ProductPurchaseActions({
       pending?.abort();
       window.removeEventListener(SESSION_CHANGED, changed);
     };
-  }, [accessRetry]);
+  }, [accessRetry, productId]);
   const heading = useRef<HTMLHeadingElement>(null);
   const notice = useRef<HTMLDivElement>(null);
   const purchaseForm = useRef<HTMLFormElement>(null);
@@ -114,7 +131,7 @@ function ProductPurchaseActions({
     setDrawerOpen(false);
     setResult(undefined);
     setActive(undefined);
-    setSaved(false);
+    setFavourite("checking");
     purchaseForm.current?.reset();
     reset({ quantity: 1 });
   }, [reset]);
@@ -142,6 +159,7 @@ function ProductPurchaseActions({
   }, [result, operation.sessionChanged, getFieldState, setFocus]);
   async function mutate(action: Action, quantity = 1) {
     if (access !== "customer") return;
+    if (action === "favourite" && favourite !== "unsaved") return;
     if (action === "cart" && (enquiriesOnly || !available)) return;
     const controller = operation.begin();
     if (!controller) return;
@@ -196,7 +214,7 @@ function ProductPurchaseActions({
       }
       if (controller.signal.aborted) return;
       if (action === "favourite") {
-        setSaved(true);
+        setFavourite("saved");
         notify("Product saved to your favourites.", {
           tone: "success",
           inlineAnnounced: true,
@@ -374,23 +392,47 @@ function ProductPurchaseActions({
               </p>
             </form>
           )}
-          <button
-            type="button"
-            className="button secondary pd-favourite"
-            disabled={busy || saved}
-            onClick={() => void mutate("favourite")}
-          >
-            {saved ? (
-              <Check size={18} aria-hidden="true" />
-            ) : (
-              <Heart size={18} aria-hidden="true" />
-            )}
-            {active === "favourite"
-              ? "Saving…"
-              : saved
-                ? "Saved to favourites"
-                : "Save to favourites"}
-          </button>
+          {favourite === "error" ? (
+            <div className="pd-access">
+              <p role="status">We could not check whether this product is saved.</p>
+              <button
+                type="button"
+                className="button secondary"
+                disabled={busy}
+                onClick={() => {
+                  setFavourite("checking");
+                  setAccessRetry((value) => value + 1);
+                }}
+              >
+                Retry favourites check
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              className="button secondary pd-favourite"
+              disabled={busy || favourite !== "unsaved"}
+              onClick={() => void mutate("favourite")}
+            >
+              {saved ? (
+                <Check size={18} aria-hidden="true" />
+              ) : (
+                <Heart size={18} aria-hidden="true" />
+              )}
+              {active === "favourite"
+                ? "Saving…"
+                : favourite === "checking"
+                  ? "Checking favourites…"
+                  : saved
+                    ? "Saved to favourites"
+                    : "Save to favourites"}
+            </button>
+          )}
+          {saved && result?.action !== "favourite" && (
+            <Link className="pd-link" href="/dashboard/saved">
+              View favourites <ArrowRight size={17} aria-hidden="true" />
+            </Link>
+          )}
           {!enquiriesOnly && (
             <Link className="pd-link" href="/dashboard/cart">
               View cart <ArrowRight size={17} aria-hidden="true" />

@@ -34,6 +34,8 @@ for (const width of [390, 1440]) {
               json: { success: false, error: { code: "UNAUTHORIZED" } },
             })
           : route.fulfill({ json: ok({ user: { role } }) });
+      if (req.method() === "GET" && url.pathname.endsWith("/customers/favourites"))
+        return route.fulfill({ json: ok({ items: [] }) });
       if (req.method() === "PUT" && url.pathname.includes("/customers/favourites/")) {
         writes.push(url.pathname);
         return route.fulfill({

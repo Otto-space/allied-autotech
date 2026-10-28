@@ -1,5 +1,43 @@
 # Allied AutoTech completion tracker
 
+## 28 October 2026 current navbar stability follow-up
+
+Owner's Help → Explore Help & Learn journey reproduced on current production
+`09efa694` / `dpl_9us8TLTvZJxzA8KNvdKNqFMqjg8F`. The sticky header's scroll-state
+height change caused 78/68px and scrollY 20/10px oscillation on desktop. Removed
+that height change while retaining responsive geometry and scrolled elevation.
+Reused the clean contact-validation worktree on
+`fix/stable-navbar-navigation-20261028`, based on `7fe53063` (documentation-only
+descendant of the current runtime). Seven rendered pre-publication viewport cases
+passed; exact evidence and remaining acceptance limits are in the quality register's
+matching navbar entry. Prior published focus/Help and customer-history changes,
+permissions, flags, data and unrelated main edits are preserved.
+
+## 28 October 2026 current automatic container-focus follow-up
+
+The owner's follow-up applies to all automatically focused containers, beyond
+reading destinations. Confirmed the production-only article outline after refresh
+on `0b5a9b76` / `dpl_GWDKwqj3Gs7uT8o1qNt4ce2jdLno`; scoped CSS defeated the
+old shared exception. Reused the clean contact-validation worktree on
+`fix/reading-focus-border-20261028`, based on that latest released source so newer
+customer-history and saved-item changes are preserved. The shared CSS policy
+covers non-interactive automatic targets while retaining control/widget focus and
+normal error/dialog borders. See the quality register's matching entry for exact
+verification, role/device limitations and final release receipts. No data, schema,
+permissions, business policy or production feature-flag changes.
+
+Released automatic-focus follow-up: runtime
+`09efa694603ea7b1fcb3312974543a7e262cdf6d`, frontend
+`dpl_9us8TLTvZJxzA8KNvdKNqFMqjg8F`, confirmed on apex/www. Frontend CI
+`40685951828`, secret guard `40685951914` and database safety `40685952202` passed.
+Actual deployed-CSS acceptance passed all five container/control regression cases
+and the 19-route public audit; the exact reported article was refreshed repeatedly
+on apex/www without the dark focus outline. Network resets/timeouts in the first
+concurrent run passed sequential rechecks without code changes. Preserve the
+preceding `dpl_GWDKwqj3Gs7uT8o1qNt4ce2jdLno` as rollback. Real-account/private
+states and physical-device testing remain open. Complete evidence is in the
+quality register's "All automatically focused containers" entry.
+
 ## 28 October 2026 current refresh and help cycle
 
 Reproduced the owner's homepage refresh/scroll jump on both-domain production

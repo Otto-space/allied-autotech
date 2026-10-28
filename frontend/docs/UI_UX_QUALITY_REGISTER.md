@@ -19,6 +19,113 @@ correctly unapproved in production and must be intercepted at a configured publi
 storage hostname for hosted acceptance. No real storage upload is authorised by
 the test. Corrected rendered acceptance and publication remain pending.
 
+### Historical merged-branch checkpoint
+
+The following dated observation is retained from origin/feat/visual-identity-audit-20261027; it is not a claim of current production identity.
+
+## 28 October 2026: Stable navbar through Help to Learn navigation
+
+Reproduced the owner's exact anonymous journey on deployed source `09efa694`:
+Help → Explore Help & Learn. Desktop frame samples repeatedly alternated header
+height 78px/68px and scrollY 20px/10px. The brand stylesheet shortened the sticky
+header when scrollY exceeded 12px; browser scroll anchoring then crossed that same
+threshold in the opposite direction, creating a continuous feedback loop. Mobile
+390px retained its 68px header and did not exhibit that height loop in this probe.
+Before receipts: `%TEMP%/aat-navshake-before-390.json` and
+`aat-navshake-before-1440.json`.
+
+Removed the scrolled-state height override. Header geometry now remains stable at
+its existing responsive height: 78px above 700px and 68px at/below 700px. Existing
+scroll elevation/background treatment and navigation behavior remain. The source
+change is limited to the brand stylesheet; the preceding focus, Help, customer
+history and saved-item releases are preserved. No permissions, data, flags or
+backend changes.
+
+Browser plugin unavailable; reused Playwright/Edge. All seven pre-publication
+regression cases passed at 390, 700, 701, 768, 1024, 1280 and 1440 pixels, using the
+real optimized production stylesheet with only the offending height declaration
+removed in intercepted asset responses. Checks sample header/brand geometry during
+the actual link transition and loading/results states, verify settled scroll
+position, visible destination breadcrumbs, scroll positions 0/10/13/20/35/200,
+retained scrolled shadow, and Back/Forward navigation. APIs were intercepted
+read-only synthetic responses; no real writes. Receipt:
+`%TEMP%/aat-navbar-prepublication`; screenshots `aat-navbar-stable-390.png` and
+`aat-navbar-stable-1440.png`. These are pre-publication probes; exact deployed-CSS
+acceptance is recorded below after release. Real signed-in account changes,
+physical-device browser behavior and other inaccessible states are not claimed.
+
+## 28 October 2026: All automatically focused containers
+
+The owner confirmed that the dark automatic-focus border must be removed from all
+containers, including completion headings, dialogs, confirmation/status/error
+panels and grouped sections. Interactive keyboard controls retain their focus
+indicators. Reproduced the reported direct refresh at
+`/learn?article=parts-fitment` on production source `0b5a9b76` /
+`dpl_GWDKwqj3Gs7uT8o1qNt4ce2jdLno`: the focused answer had a 3px dark outline
+and white focus shadow despite its existing exception. The optimized stylesheet
+loaded a scoped learning rule after an equal-specificity global exception. About,
+workforce and payment styles also have container focus selectors.
+
+The root policy now covers programmatically focused non-interactive negative-tabindex
+containers, dialogs and static ARIA panels as well as the existing destination
+marker. Its explicit specificity exceeds the scoped container rules regardless of
+chunk order. Native controls, editable fields and composite widgets (including
+negative-tabindex options) are excluded. Normal dialog borders, error borders,
+focus ownership, announcements, scrolling, keyboard behavior and permissions are
+preserved. No component rewrite, backend/schema, content definition or flag change.
+The newer customer-history/saved-item release is the base and remains included.
+
+Browser plugin unavailable; reused installed Playwright/Edge. Pre-publication
+checks used the exact source policy prepended to real optimized stylesheet
+responses, with CSP enabled. Five regression cases passed: direct article refresh
+three times at 390/1440 pixels; Allie response focus at both widths; automatic
+heading/section/panel/fieldset/status/error/dialog focus, retained error/dialog
+borders and retained keyboard field/button/roving-option focus. An additional
+anonymous browser audit passed 19 public routes and their rendered static focus
+targets (Home, About, Contact, Help/article, Learn/article/unavailable guide,
+authentication pages, Services, Shop, Vehicles, Reviews, Privacy). These are
+asset-patched pre-publication checks, not yet exact deployed-source acceptance.
+Receipts: `%TEMP%/aat-container-focus-patched-final`,
+`aat-container-surface-patch.json`; before image `aat-reading-border-before.png`.
+Protected-role completion/error states have source/policy coverage plus
+representative synthetic panels; no real private records or transactions were used.
+Physical Safari/Android and actual staff-account acceptance remain unverified.
+
+### Published follow-up and actual hosted acceptance
+
+Runtime `09efa694603ea7b1fcb3312974543a7e262cdf6d` is READY and assigned to both
+apex/www as `dpl_9us8TLTvZJxzA8KNvdKNqFMqjg8F`. The guarded promotion verified
+exact project/source, all required CI results and that both then-current production
+sources are ancestors of the candidate. Prior `dpl_GWDKwqj3Gs7uT8o1qNt4ce2jdLno`
+(`0b5a9b76`) remains the rollback target. Backend deployment remains unchanged.
+
+Exact-source [frontend release checks](https://github.com/Otto-space/allied-autotech/actions/runs/40685951828),
+[secret guard](https://github.com/Otto-space/allied-autotech/actions/runs/40685951914)
+and [database safety CI](https://github.com/Otto-space/allied-autotech/actions/runs/40685952202)
+passed. Frontend checks include locked install, runtime audit, lint, typecheck,
+full unit suite, optimized production build and formatting. No local duplicate
+build, dependency installation, worktree or Docker resources were created.
+
+After deployment, all five regression cases passed on the real optimized CSS,
+with the asset override disabled. The first run's desktop/panel cases encountered
+connection resets; a sequential recheck passed all three without a code change.
+Receipt directories: `%TEMP%/aat-container-focus-live` and
+`aat-container-focus-live-recheck`. The complete real-content, read-only 19-route
+public audit then passed without overrides or page errors:
+`%TEMP%/aat-container-surface-live.json`. An earlier concurrent audit's navigation
+timeout is retained as an infrastructure/connection observation, not counted as
+passing acceptance. No application API writes were sent.
+
+The owner's exact article was also refreshed repeatedly using actual public
+content: its focused container has `outline-style: none` and `box-shadow: none`.
+The www article passed the same check. Before and after screenshots were inspected:
+`%TEMP%/aat-reading-border-before.png` and `aat-reading-border-after.png`.
+Authored prerequisite/error/dialog borders remain; focus stays on the intended
+destination and controls retain keyboard indicators. Real authenticated private
+states and physical-device/browser acceptance remain unverified as recorded above.
+Final disk preflight passed at 27 GiB free, a point-in-time check; unrelated main
+checkout changes were preserved.
+
 ## 28 October 2026: Refresh scrolling, reading focus and Help & Learn
 
 Owner-reported cross-phone homepage jumps were reproduced on production
@@ -2477,3 +2584,13 @@ release and continue the per-page operations backlog.
 The following dated observation is retained from origin/feat/visual-identity-audit-20261027; it is not a claim of current production identity.
 
 28 October 2026 - Customer history and Saved items released. Runtime 0b5a9b76, Vercel dpl_GWDKwqj3Gs7uT8o1qNt4ce2jdLno READY on both domains after 14 public checks. Preserves published Help/Allie/navigation 0d4dd992 and Shop 552ee418. Exact frontend CI 40680419648 passed 1074 units, lint/types/format/build and production audit; secret guard 40680419233 and isolated backend safety 40680419675 passed. Eighteen final hosted journeys plus two native keyboard/focus/hover cases passed. Backend 79d7a0ac unchanged, ACTIVE/readiness200; no local/shared database write. V42/V52 released with sampled evidence; V41 remains partial for current-care empty cards. Full V01-V55 goal stays active. Evidence, recovery, harness failure and limitations: backend/docs/customer-history-production-20261028.md. Other tasks and dirty files preserved.
+
+## Owner-reported favourites refresh defect - 28 October 2026
+
+P1: on the reported public Engine Oil Filter page, a confirmed save displayed Saved to favourites only until reload. ProductActions initialised a local false flag and never read the saved collection. Reproduced against live frontend 0b5a9b76 with an isolated customer/collection fixture: save succeeded, reload lost the saved label. An initial fixture envelope lacked its required message and was corrected before reproducing the actual failure.
+
+Candidate reads the existing authenticated, uncached owned favourites API, following pagination until the product is found or absence is confirmed. It shows Checking favourites while reading and an explicit retry on failure; an incomplete read is never treated as unsaved. Product navigation resets the action instance; session changes cancel late reads. Successful saves still depend on matching server receipts and retain existing CSRF/role/mutation guards. No browser storage substitute, API/schema change or customer-data mutation is introduced. A pathological repeated cursor or more than 100 pages fails safely with retry, rather than making an unsupported unsaved claim.
+
+35 focused units passed across saved-state persistence, later pages, removal, failure/retry, product/account changes, account mutation and launch gates. Hosted desktop/mobile refresh acceptance and exact-source CI are next. Current-care/notification presentation investigations are deferred while this owner-reported failure is repaired. Wider V01-V55 goal remains active.
+
+28 October 2026 - Owner-reported product favourites refresh defect released. Runtime ef06efb7, Vercel dpl_FAJ8oVhecCNTGac2XAyufAgg7hvv READY on both domains after 14 production public checks. Product detail now reads persisted favourites with pagination and explicit loading/error/retry states. Final CI 40704788016 passed 1080 tests, lint/types/format/build and zero production audit vulnerabilities; secret guard 40704788037 and isolated backend safety 40704788003 passed. Sixteen hosted fixture cases passed, including save-refresh/removal/retry at 390/1440 and retained focus/navbar behavior. Concurrent published sources 09efa694 and 4aafaebb are preserved. Backend independently advanced to 8fd37e1c (image 4fbc9cbb), ACTIVE/readiness200 with the favourites API unchanged; this task made no backend/database write. Evidence and precise limits: backend/docs/favourite-refresh-production-20261028.md. Wider V01-V55 goal stays active; next current-care empty-card and notification-availability clarity work. Existing dirty files and other worktrees preserved.
