@@ -46,6 +46,16 @@ or deployment; never deploy the older checkout merely because it is the cwd.
   backend: `1876e3d1-ab99-4e26-8a58-1ea4fcb0d46a` (ACTIVE).
   Recheck provider state before further changes. Full notification evidence:
   `backend/docs/notifications-experience-20261025.md` in that worktree.
+
+
+### Historical merged-branch checkpoint
+
+The following dated observation is retained from origin/release/audit-copy-current-20261024; it is not a claim of current production identity.
+
+- Current frontend release source: `C:/Users/PC/.codex/worktrees/allied-audit-copy-current-20261024`,
+  commit `5e7deb6a` based on dashboard-quality release `d5269cb3`.
+  Backend runtime remains the verified discovery/fitment release; its source is
+  `C:/Users/PC/.codex/worktrees/allied-discovery-fitment-20261023`.
 - Previous release and ongoing separate audit worktree: `C:/Users/PC/.codex/worktrees/allied-email-evidence-20261023`,
   committed gallery/navigation source `098b580c`. Preserve its independent pending
   audit/copy changes and merge them against the new release before any future rollout.
@@ -77,6 +87,16 @@ The following dated observation is retained from origin/fix/staff-vehicle-filter
 - Current stock-query audit worktree: `C:/Users/PC/.codex/worktrees/allied-staff-vehicle-filters-20261024`,
   branch `fix/staff-vehicle-filters-20261024`, based on `c3f4076f`. Its backend
   changes are local until release checks and a matching backend rollout complete.
+
+
+### Historical merged-branch checkpoint
+
+The following dated observation is retained from origin/release/audit-copy-current-20261024; it is not a claim of current production identity.
+
+- Current backend observed: `5c1ea9a7-6211-46d2-995f-c45e504bf9e9` (ACTIVE),
+  all four verified images; read-only predeploy passed and 64 migrations compatible.
+- Current frontend observed: `dpl_CMG2vPpWCQMvQdCWMZYsxbwproTZ` (READY),
+  assigned to both main and www domains on 24 October 2026. Recheck before changes.
 - Full release evidence: `backend/docs/discovery-fitment-release-review.md` in this
   worktree. Earlier release pointers/checkpoints below describe their historical state.
 
