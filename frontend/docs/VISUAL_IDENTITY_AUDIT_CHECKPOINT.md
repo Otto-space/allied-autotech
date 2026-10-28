@@ -40,9 +40,9 @@ Published batches and their exact evidence are recorded below. Open and partial 
 | V25 | P2       | Product section navigation says Delivery, but the section is Collection and ordering and explicitly says delivery is unavailable                             | Rename the visible tab to Collection or Collection & enquiry while retaining compatible old anchors                                                                                       | Released; sampled evidence |
 | V26 | P2       | Product action card has enquiry, WhatsApp, a large red Sign in to continue action, and repeated Ask our team links                                           | Make enquiry the primary product action. Reduce saving/sign-in to a clearly secondary utility and consolidate redundant contact links                                                     | Released; sampled evidence |
 | V27 | P3       | Catalogue says 1 matching services; description says technical equipments                                                                                    | Correct pluralisation and use equipment. Review catalogue copy as authored content as well as component labels                                                                            | Partial; see evidence      |
-| V28 | P3       | Enquiry column repeats Tell us what you need, Send an enquiry and supporting introductions in close succession                                               | Use one section heading and a concise contextual line, then start the fields                                                                                                              | Candidate; see evidence    |
-| V29 | P3       | Portrait tyre equipment photography is cropped into a wide hero composition                                                                                  | Use a deliberate uncropped equipment presentation or a suitable approved landscape image; retain useful context                                                                           | Candidate; see evidence    |
-| V30 | P2       | The six-step services journey describes choosing an available appointment and following a booking, while the sampled service's actionable flow is an enquiry | Distinguish request, human confirmation and any actual account tracking. Align wording to the enabled release without enabling commerce/booking features just for consistency             | Candidate; see evidence    |
+| V28 | P3       | Enquiry column repeats Tell us what you need, Send an enquiry and supporting introductions in close succession                                               | Use one section heading and a concise contextual line, then start the fields                                                                                                              | Verified; release pending  |
+| V29 | P3       | Portrait tyre equipment photography is cropped into a wide hero composition                                                                                  | Use a deliberate uncropped equipment presentation or a suitable approved landscape image; retain useful context                                                                           | Verified; release pending  |
+| V30 | P2       | The six-step services journey describes choosing an available appointment and following a booking, while the sampled service's actionable flow is an enquiry | Distinguish request, human confirmation and any actual account tracking. Align wording to the enabled release without enabling commerce/booking features just for consistency             | Verified; release pending  |
 | V31 | P3       | Eleven principles form a long repeated two-column section, with several related trust/commitment messages                                                    | Group into fewer memorable themes or provide concise primary principles with optional expanded detail                                                                                     | Open                       |
 | V32 | P3       | Equipment images are small thumbnails with no evident enlarge/inspect action in the sampled groups                                                           | Add an accessible lightweight preview or better image/detail layout if detailed equipment proof is intended                                                                               | Open                       |
 | V33 | P3       | The same portrait campaign appears on Home, About and service-support content                                                                                | Retain useful reuse, but vary section composition and supporting evidence so pages do not feel like repeated poster placements                                                            | Open                       |
@@ -224,3 +224,60 @@ colour alone did not distinguish it from surrounding text. IntakePrivacyNote now
 uses an underlined inline link, including hover, without button-sized layout.
 Service keyboard/hover and shared Contact/registration regressions will verify it.
 Initial failures and receipts are retained in the task evidence folder.
+
+## 29 October 2026 - service clarity acceptance and integration checkpoint
+
+Implemented V28/V29; verified the existing request-only V30 journey. One named
+Service enquiry region replaces repeated headings, its hero link focuses the heading,
+and complete portrait equipment media fits its bounded frame. The shared intake
+privacy link is now underlined with preserved keyboard/hover focus. Contact and
+registration retain their own headings and reviewed submission behaviour.
+
+Evidence: 29 focused frontend units, scoped TypeScript/lint/format and the initial
+exact-source 1225-test frontend CI passed. After fixing the detected privacy-link
+accessibility defect, 19 hosted fixture cases passed on 919f73b5, then all 19 passed
+again on integrated runtime b4baff2d. They cover service source/branch payload,
+review/cancel/send, draft retention, rejected submission, branch retry, photo failure,
+full photo, 360/390/768/1440 layouts, keyboard/hover and scoped Axe, plus Contact,
+registration (320/390/768/1440), catalogue and favourites regressions. Twenty public
+read-only checks passed on the integrated candidate. Screenshots were inspected.
+Browser plugin unavailable; existing Playwright/Edge used. No real account, enquiry,
+registration, stock, message or shared database writes were made by this audit.
+
+Task evidence: %TEMP%/allied-service-clarity-20261028, including baseline.json,
+initial/corrected/verified-hosted-results.json (failed attempts retained),
+release-hosted-results.json (19), integrated-hosted-results.json (19),
+integrated-candidate-public-receipt.json (20), screenshot folders and preservation
+receipts. Initial fixture corrections covered the public-media GET allowlist, two
+branch choices, native link role and safe server-validation text. A second attempt
+still used the one-branch fixture because a text replacement did not match; it is
+recorded as failed, not acceptance. The subsequent real Axe privacy-link finding
+was fixed in the shared component. An incorrect backend ESLint invocation found no
+config; the repository's Oxlint and Prettier checks passed instead.
+
+Held integrated candidate: dpl_3BfS5y6wwow9uk1U9HEh846ATLZ6, runtime b4baff2d.
+This is not a production-domain release. Concurrent vehicle disclosures and W16
+Care changes are preserved in master and require their compatible guarded backend
+rollout. The backend CI initially failed only the old learning article version-5
+assertion after the reviewed version-6 change. Commit 82c1f322 updates that exact
+expectation and verifies truthful queue and notification wording; it does not
+change permissions/content or disable a test. Current merged source 2586c61b
+contains the fix and the additional vehicle branch-scope correction. Its frontend
+and isolated backend CI are running; secret guard passed. Preserve current
+production/rollback resources and do not promote the older candidate over newer
+backend work. Physical-device, real-account and full screen-reader acceptance,
+authored service typo correction and the remaining V01-V55 findings remain open.
+
+Final provider check at 2026-10-28T23:54:44Z: apex/www remain on
+dpl_6fhYRQMnYyxcNhCmnHbhJQTFbGdU; backend 3ee6748f remains ACTIVE with no
+pending/in-progress deployment. No domain promotion was performed. The newer
+integrated backend has two additive migrations whose guarded shared rollout,
+fresh verified backup and separate populated restore-forward acceptance must be
+completed before publication. Prior old-schema restore evidence is not substituted
+for that new-source acceptance. Exact-source CI does not prove hosted rollout.
+
+The service runtime is already in remote master 2586c61b. This documentation-only
+checkpoint is retained on the audit branch while that runtime is the checked
+integration source. Next audit batch: Contact V34/V35/V36, preserving public
+request-only policy, drafts, branch routing and form focus. Recheck source and
+provider deployment before any release; the full visual goal remains active.
