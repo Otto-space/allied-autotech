@@ -1836,3 +1836,12 @@ payment/refund step, plus migration replay and all other safety jobs; secret
 guard 40680567554 passed. Local typecheck, scoped lint and formatting passed.
 No production database, provider or deployment was changed. The recovery,
 migration-role, populated financial backfill and real-role gates remain.
+
+28 October 2026 - P0 private manual-payment evidence access boundary.
+The staff evidence-link path now locks and rechecks the current operator account
+and session before reading the attempt and audit-writing in one transaction.
+A session revoked before that transaction recheck cannot receive a newly signed
+private evidence URL. Two focused unit cases cover revoked and authorized paths;
+the adjacent manual-review session cases, TypeScript, scoped lint and formatting
+passed locally. No payment/provider/schema/production write was made. Exact-source
+CI and the existing production recovery/migration/real-role gates remain.

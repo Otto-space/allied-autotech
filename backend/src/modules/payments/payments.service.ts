@@ -735,21 +735,23 @@ export class PaymentsService {
     context: RequestSecurityContext,
   ) {
     assertPaymentOperator(actor);
-    const attempt = await this.repository.attempt(attemptId);
-    if (!attempt?.manualReview?.evidenceObjectKey) throw paymentNotFound();
-    await this.assertBranch(actor, attempt.paymentId);
-    await this.database.$transaction((tx) =>
-      appendAuditEvent(tx, {
+    const objectKey = await this.database.$transaction(async (tx) => {
+      await lockAccessActor(tx, actor);
+      const attempt = await this.repository.attempt(attemptId, tx);
+      if (!attempt?.manualReview?.evidenceObjectKey) throw paymentNotFound();
+      await this.assertBranch(actor, attempt.paymentId, tx);
+      await appendAuditEvent(tx, {
         actorUserId: actor.userId,
         action: "READ",
         entityType: "PAYMENT_ATTEMPT",
         entityId: attemptId,
         newValues: { privateEvidence: true },
         context,
-      }),
-    );
+      });
+      return attempt.manualReview.evidenceObjectKey;
+    });
     return {
-      url: await this.storage.createView(attempt.manualReview.evidenceObjectKey),
+      url: await this.storage.createView(objectKey),
       expiresInSeconds: env.ASSET_DOWNLOAD_TTL_SECONDS,
     };
   }
