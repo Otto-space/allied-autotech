@@ -3382,3 +3382,21 @@ source (355 API paths, 415 documented operations). The combined rendered editor
 suite and release checks remain open. No production mutation, migration or deployment has
 occurred for this correction yet. Hosted authenticated acceptance needs a real
 authorised QA session. Item 6 and the broader goal remain open.
+
+
+### Historical merged-branch checkpoint
+
+The following dated observation is retained from origin/fix/p0-reconciliation-production-compatible-20261028; it is not a claim of current production identity.
+
+28 October 2026 - P0 customer payment session boundary. Candidate f156f880
+locks and rechecks the customer account/session in the intent, online checkout
+preparation/finalization and manual-attempt write transactions; an idempotent
+manual replay also rechecks the session before returning a record. Verified
+provider outcomes still settle through the independent provider path. Isolated
+payment fixtures now create real sessions. A first expanded CI run exposed a
+fixture MFA timestamp constraint, corrected in 4a3284f0. Exact backend
+database-safety run 40680567495 passed all 11 files and 91 cases in the expanded
+payment/refund step, plus migration replay and all other safety jobs; secret
+guard 40680567554 passed. Local typecheck, scoped lint and formatting passed.
+No production database, provider or deployment was changed. The recovery,
+migration-role, populated financial backfill and real-role gates remain.

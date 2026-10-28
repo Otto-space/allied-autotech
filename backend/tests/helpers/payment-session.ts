@@ -8,13 +8,15 @@ export async function paymentTestSession(
   userId: string,
   role: AuthenticatedActor["role"] = "CUSTOMER",
 ): Promise<string> {
+  const verifiedAt = new Date();
   const session = await prisma.session.create({
     data: {
       userId,
+      createdAt: new Date(verifiedAt.getTime() - 1_000),
       tokenHash: randomUUID(),
       ...sessionWindow(3_600_000),
       mfaRequired: role !== "CUSTOMER",
-      mfaVerifiedAt: role === "CUSTOMER" ? null : new Date(),
+      mfaVerifiedAt: role === "CUSTOMER" ? null : verifiedAt,
     },
     select: { id: true },
   });
