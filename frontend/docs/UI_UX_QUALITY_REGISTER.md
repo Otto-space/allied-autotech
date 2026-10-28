@@ -2166,3 +2166,41 @@ product route returned 503 because the preview environment lacks BACKEND_ORIGIN;
 that is a preview configuration gap, not hosted journey acceptance. Desktop and
 exact-source CI and production verification remain pending. No customer form or financial action was
 submitted.
+
+### Historical 26 October Allie visual checkpoint
+
+This earlier visual checkpoint is retained as evidence. Its AI deferral wording
+is superseded by Revision 4 and the later W6-W15 implementation records.
+
+## Cycle 15 - Help, Help & Learn and Allie - 26 October 2026
+
+Bounded owner-requested refinement, runtime candidate aa54fba8, branch
+feat/help-allie-20261026 in allied-shop-vehicles-r2-20261025. Help's bare learning
+link is now a branded card; /learn has three visible modes, all-kind eligible search,
+plain task/source presentation and query/mode-preserving navigation. Allie uses a
+small native SVG and compact content-based panel/sheet with approved answers,
+source/actions/unknown fallback; no provider, record lookup or action tool. Actual
+role/context eligibility and in-memory practice boundaries remain authoritative.
+Reproduced oil-filter search progression timing failure and repaired refresh/remount
+readiness. Busy/missing/written/paused states explain themselves; live guides are
+non-modal and do not fill/submit. Practice uses a single sticky mode signal,
+editable sample care replies, honest hints and specific feedback. Dedicated practice
+pages suppress floating support controls after actual mobile overlap review.
+
+Evidence: 1,039 frontend tests; seven actual authenticated API cases, 71-migration
+fresh isolated replay/db:check and runtime privilege checks; lint/types/build,
+OpenAPI/types/424 operations. All three exact-runtime CI workflows passed. Real
+isolated API/compiled Edge acceptance: 29/29 baseline plus six final-polish rechecks,
+Help/hub/Allie at 360/390/768/1024/1440 and practice at 320/390/768/1440; scoped Axe,
+keyboard/focus/Escape, reduced-motion/logical reflow, denied/private/unknown/error,
+identity clearing, actual 30-second guide refresh and node replacement. Practice
+network assertions observe no business writes or external traffic; form drafts and
+practice inputs remain separate. No new production publication or real business write.
+
+Full criteria, design-reference comparison, screenshot index, CI links and precise
+limits: [Allie checkpoint](../../docs/help-learn/ALLIE_IMPLEMENTATION.md).
+Local screenshots: %TEMP%/allied-allie-20261026/. Installed Edge/Next 16.3.8 local
+rendering is distinct from locked Next 16.4.3 CI. Physical devices/native keyboards/
+zoom, full screen-reader and actual authenticated production-role acceptance remain
+open. Existing launch/policy/permission constraints, other worktrees and unrelated
+Home/dashboard scope are preserved. Site-completion Item 6 remains open.

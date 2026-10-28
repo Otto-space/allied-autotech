@@ -60,6 +60,26 @@ fixtures never represent real stock or recommendations.
 
 ## Review and maintenance responsibility
 
+Allie refinement (26 October 2026): `care-triage` now presents "Handle a Customer
+Care request" and the owner procedure has a plain-language title; IDs and access
+rules remain unchanged. Added `product-photos` v2, legacy administrator gate,
+the existing `/admin` work entry, then Products, based on ProductExtrasEditor/ProductImageForm and the existing
+administrator-only media API. No product editing permission is created. Product
+photo/image synonyms work only where this help is eligible.
+
+`parts-find` v2 refreshes the instruction and reconciles interaction evidence across
+same-page target remounts/access checks. The other two guides remain v1. All
+decision-helper scenarios are now v2 with scenario-specific feedback; `care-triage`
+v2 is a bounded editable sample public-reply draft. Fitment, customer enquiry and
+job handover scenarios retain their v1 field contracts. Choice-only exercises use
+an honest hint, never a pretend field insertion. No text-quality assessment or
+operational competence is inferred from required-length/choice validation.
+
+The same eligible model serves hub search and Allie. Search covers articles,
+guides and scenarios independently, includes synonyms and eligible parent context,
+and never retrieves a private item merely because a query mentions its title.
+See ALLIE_IMPLEMENTATION.md for current verification and publication status.
+
 The developer changing a covered workflow must recheck its source, permission gate,
 links, target anchors, validation and fixtures; increment the affected definition
 version when meaning, steps or prerequisites change. Re-run role/direct-link and
