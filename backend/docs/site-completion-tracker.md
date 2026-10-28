@@ -1,5 +1,17 @@
 # Allied AutoTech completion tracker
 
+## 28 October 2026 current refresh and help cycle
+
+Reproduced the owner's homepage refresh/scroll jump on both-domain production
+source `552ee418`; reused the clean contact-validation worktree on
+`fix/refresh-learning-experience-20261028` based on that exact source. Preserved
+unrelated main, production-sync and visual-audit changes. Current scope is shared
+scroll/focus stability, Help search and Learn/Allie/guide interaction recovery.
+Details and test limits: `frontend/docs/UI_UX_QUALITY_REGISTER.md`, 28 October entry.
+No backend/schema, policy, permission, provider flag or transaction-mode changes.
+Final runtime source, CI, provider IDs and hosted acceptance are recorded below
+when complete. Physical mobile browsers and real-account acceptance remain open.
+
 ## Working agreement
 
 The user requested on 22 October 2026 that we finish the site one item at a time,
@@ -1760,7 +1772,6 @@ and the prior separate populated 90-table restore receipt were reviewed.
 Details and limits: frontend/docs/BRAND_ASSETS_R2_REPORT.md. Physical devices,
 actual zoom, screen reader, authenticated role acceptance and broader Item 6
 remain open. Docker resources retained; C: postflight 27.08 GiB free.
-
 
 27 October 2026 - Workshop location and public Whatsapp label release. Frontend source
 42855c0d is READY on Vercel dpl_JDtwMW41Nk8fxMDP7ak2U6WTwo5h; both apex/www

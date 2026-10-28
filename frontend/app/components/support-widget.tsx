@@ -7,7 +7,7 @@ import { answerFaq, business, faqs } from "@/lib/business";
 import { HelpAccountAction } from "./help-account-action";
 import { SESSION_CHANGED } from "@/lib/api/client";
 import { learningEnabled } from "@/lib/learning/contracts";
-import { OPEN_LEARNING } from "./learning/learning-entry";
+import { requestLearningOpen } from "./learning/learning-entry";
 import { containDialogFocus } from "@/lib/dialog-focus";
 import { AllieAvatar } from "./learning/allie-avatar";
 import {
@@ -69,9 +69,7 @@ export function SupportWidget() {
               learningEnabled() ? "support-trigger allie-trigger" : "support-trigger"
             }
             onClick={() =>
-              learningEnabled()
-                ? window.dispatchEvent(new Event(OPEN_LEARNING))
-                : dialog.current?.showModal()
+              learningEnabled() ? requestLearningOpen() : dialog.current?.showModal()
             }
             aria-haspopup="dialog"
             aria-label={learningEnabled() ? `Ask ${assistantName}` : "Quick help"}

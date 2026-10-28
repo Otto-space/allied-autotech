@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { assistantName } from "@/lib/learning/search";
-import { OPEN_LEARNING } from "./learning-entry";
+import { requestLearningOpen } from "./learning-entry";
 import { AllieAvatar } from "./allie-avatar";
 export function HelpLearningCard() {
   return (
@@ -19,10 +19,7 @@ export function HelpLearningCard() {
         <Link className="button" href="/learn">
           Explore Help &amp; Learn <ArrowRight size={17} aria-hidden="true" />
         </Link>
-        <button
-          className="button secondary"
-          onClick={() => window.dispatchEvent(new Event(OPEN_LEARNING))}
-        >
+        <button className="button secondary" onClick={() => requestLearningOpen()}>
           Ask {assistantName}
         </button>
       </div>

@@ -50,11 +50,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   await connection();
 
   return (
-    <html
-      lang="en"
-      data-scroll-behavior="smooth"
-      className={`${quicksand.variable} ${nippo.variable}`}
-    >
+    <html lang="en" className={`${quicksand.variable} ${nippo.variable}`}>
       <head>
         {/* Keep one versioned icon mounted across route metadata updates. */}
         <link

@@ -14,6 +14,13 @@ export default function LearnPage() {
       <SiteHeader />
       <main id="main" className="public-site learning-page">
         <header>
+          <nav className="learning-breadcrumb" aria-label="Breadcrumb">
+            <Link href="/">Home</Link>
+            <span aria-hidden="true"> / </span>
+            <Link href="/help">Help centre</Link>
+            <span aria-hidden="true"> / </span>
+            <span aria-current="page">Help &amp; Learn</span>
+          </nav>
           <h1>Help & Learn</h1>
           <p>Answers, a little guidance and room to practise.</p>
         </header>
