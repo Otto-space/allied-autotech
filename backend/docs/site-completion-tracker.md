@@ -1,5 +1,18 @@
 # Allied AutoTech completion tracker
 
+## 28 October 2026 current automatic container-focus follow-up
+
+The owner's follow-up applies to all automatically focused containers, beyond
+reading destinations. Confirmed the production-only article outline after refresh
+on `0b5a9b76` / `dpl_GWDKwqj3Gs7uT8o1qNt4ce2jdLno`; scoped CSS defeated the
+old shared exception. Reused the clean contact-validation worktree on
+`fix/reading-focus-border-20261028`, based on that latest released source so newer
+customer-history and saved-item changes are preserved. The shared CSS policy
+covers non-interactive automatic targets while retaining control/widget focus and
+normal error/dialog borders. See the quality register's matching entry for exact
+verification, role/device limitations and final release receipts. No data, schema,
+permissions, business policy or production feature-flag changes.
+
 ## 28 October 2026 current refresh and help cycle
 
 Reproduced the owner's homepage refresh/scroll jump on both-domain production
