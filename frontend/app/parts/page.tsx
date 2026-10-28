@@ -71,7 +71,7 @@ export default async function PartsPage({
         <section className="product-hero" aria-labelledby="product-title">
           <div className="public-wrap product-hero-inner">
             <div className="product-hero-copy">
-              <h1 id="product-title">Auto Parts &amp; Automotive Essentials</h1>
+              <h1 id="product-title">Parts, oils &amp; automotive essentials</h1>
               <p>
                 Browse replacement parts, engine oils and automotive essentials. Check
                 product specifications and collection availability with our team.
@@ -97,16 +97,8 @@ export default async function PartsPage({
         </section>
         <section className="product-guidance">
           <div className="public-wrap">
-            <div className="product-guidance-media">
-              <Image
-                src="/images/allied-autotech/workshop-editorial.webp"
-                alt="Editorial automotive workshop scene"
-                fill
-                sizes="(max-width: 767px) 100vw, 40vw"
-              />
-            </div>
             <div className="product-guidance-copy">
-              <h2>Find the right fit.</h2>
+              <h2>Check before you choose</h2>
               <p>
                 Check the product specifications and listed vehicle compatibility before
                 {enquiriesOnly ? " contacting our team." : " purchase."}
@@ -116,13 +108,13 @@ export default async function PartsPage({
                   [
                     [
                       FileSearch,
-                      "Match the part number",
-                      "Compare the manufacturer part number with the part you need. Use the SKU when speaking with our team.",
+                      "Check part numbers and specifications",
+                      "For replacement parts, compare the manufacturer part number. For oils, check the vehicle manufacturer’s required specification and pack size; a grade alone does not establish suitability.",
                     ],
                     [
                       CarFront,
                       "Review vehicle compatibility",
-                      "Check the listed make, model, year range and notes on the product page. Ask our team if you are unsure.",
+                      "Check the listed make, model, year range and product notes where available. Share the product SKU and vehicle details if you need help.",
                     ],
                     [
                       MapPin,

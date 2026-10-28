@@ -71,7 +71,7 @@
   right: 14px;
   width: fit-content;
   color: #fff;
-  background: #091b38e8;
+  background: var(--palette-charcoal);
   padding: 6px 9px;
   font-size: 11px;
   line-height: 1.5;

@@ -987,7 +987,7 @@
 }
 .product-guidance > div {
   display: grid;
-  grid-template-columns: 0.8fr 1.2fr;
+  grid-template-columns: 1fr;
   gap: 40px;
   align-items: stretch;
 }
@@ -1389,5 +1389,20 @@
   }
   .product-filter-panel {
     grid-row: 5;
+  }
+}
+
+.product-guidance-copy > p {
+  max-width: 720px;
+}
+@media (min-width: 768px) {
+  .product-guidance-copy ul {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 32px;
+  }
+  .product-guidance-copy li {
+    border-bottom: 0;
+    padding-block: 16px 0;
   }
 }

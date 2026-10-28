@@ -96,7 +96,7 @@ export function ServicesCatalogue({
               ? "Loading services…"
               : resource.error
                 ? "Services unavailable"
-                : `${resource.data?.totalMatches ?? 0} matching ${resource.data?.totalMatches === 1 ? "service" : "services"} · ${resource.data?.items.length ?? 0} on this page`}
+                : `${resource.data?.totalMatches ?? 0} ${resource.data?.totalMatches === 1 ? "service" : "services"} found${cursor || resource.data?.nextCursor ? ` · ${resource.data?.items.length ?? 0} on this page` : ""}`}
           </p>
         </div>
         {invalid && (
@@ -260,9 +260,9 @@ export function ServicesCatalogue({
                 {service.category && (
                   <p className="services-row-type">{service.category.name}</p>
                 )}
-                <p className="services-row-type">
-                  {service.pricingType === "FIXED" ? "Fixed price" : "Quotation required"}
-                </p>
+                {service.pricingType === "FIXED" && (
+                  <p className="services-row-type">Fixed price</p>
+                )}
                 <p className="services-row-description">
                   {service.shortDescription ||
                     service.description ||

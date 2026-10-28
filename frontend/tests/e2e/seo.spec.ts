@@ -758,43 +758,15 @@ test("homepage feedback hydrates without another read or anonymous solicitation"
   await expect.poll(() => clientReads).toBe(1);
 });
 
-test("homepage feedback distinguishes empty, failed refresh and recovery", async ({
+test("homepage omits verified empty reviews and retains their public route", async ({
   page,
 }) => {
   mode = "empty";
-  let unavailable = false;
-  await page.route("**/api/v1/public/support/reviews?*", (route) =>
-    unavailable
-      ? route.fulfill({
-          status: 503,
-          json: { success: false, error: { code: "DATABASE_UNAVAILABLE" } },
-        })
-      : route.fulfill({
-          json: {
-            success: true,
-            message: "Retrieved",
-            data: { items: [publicReview] },
-            meta: { requestId: "home-review" },
-          },
-        }),
-  );
   await page.goto("/");
-  const section = page.getByRole("region", { name: "Customer feedback", exact: true });
+  await expect(page.locator(".home-feedback")).toHaveCount(0);
   await expect(
-    section.getByText("No customer reviews have been published yet."),
-  ).toBeVisible();
-  await section.getByRole("button", { name: "Refresh customer feedback" }).click();
-  await expect(section.getByRole("heading", { name: publicReview.title })).toBeVisible();
-  unavailable = true;
-  await section.getByRole("button", { name: "Refresh customer feedback" }).click();
-  await expect(section.getByRole("alert")).toBeVisible();
-  await expect(section.getByRole("heading", { name: publicReview.title })).toHaveCount(0);
-  await expect(
-    section.getByText("No customer reviews have been published yet."),
-  ).toHaveCount(0);
-  unavailable = false;
-  await section.getByRole("button", { name: "Retry customer feedback" }).click();
-  await expect(section.getByRole("heading", { name: publicReview.title })).toBeVisible();
+    page.getByRole("link", { name: "Customer reviews", exact: true }),
+  ).toHaveAttribute("href", "/reviews");
 });
 
 test("homepage review outage preserves other content and offers honest recovery", async ({

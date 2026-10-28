@@ -1,5 +1,27 @@
 # UI and UX quality register
 
+## 28 October 2026: bounded public content and imagery improvement
+
+Current cycle: owner's content brief, instruction 7. Home now has a stable offer,
+three distinct tasks, sparse published services, real equipment, compact Shop and
+vehicle preview, conditional real feedback and practical visit/help information.
+Repeated motto/campaign/principle/process blocks are removed from Home/Services;
+About retains the approved mission and all principles. Vehicles uses a separate
+neutral editorial derivative and charcoal caption; originals and factual colours
+are preserved. Missing product photos are excluded from Home eligibility, while
+catalogue fallbacks and authoritative stock states remain. See
+[copy, imagery and acceptance handoff](PUBLIC_COPY_IMAGERY_20261028.md).
+
+Evidence: local types/lint; 23 focused state/regression cases; Home fixtures at
+320/360/375/390/430/768/1024/1280/1440/1536px; synthetic empty/error/retry,
+published reviews, broken/long media, doubled text, menu/keyboard, and scoped
+Axe at 390/1440px. First failures included stale fixture stock/refresh assumptions,
+missing fixture detail data and a mobile hero contrast regression, corrected.
+Read-only public-data layout/interaction coverage and publication remain pending.
+No real stock/reviews, backend, permissions or commerce/AI/chat flags changed.
+Outstanding editorial copy/photo/reviewer dependencies are recorded separately;
+physical devices, full screen-reader and signed-in journeys are outside this cycle.
+
 ## 28 October 2026: product detail fitment availability and retry
 
 Route `/parts/89fd9258-c580-43e9-9040-c7e52623e82d`, anonymous at 390/1440px.

@@ -98,11 +98,9 @@ export function ServiceList({
               <Wrench className="service-discovery__icon" size={22} aria-hidden="true" />
             )}
             <div className="service-discovery__body">
-              <p className="service-discovery__type">
-                {service.pricingType === "QUOTE_REQUIRED"
-                  ? "Custom Quote"
-                  : "Standard Care"}
-              </p>
+              {service.pricingType === "FIXED" && (
+                <p className="service-discovery__type">Fixed price</p>
+              )}
               <CardHeading className="service-discovery__title">
                 {service.name}
               </CardHeading>
@@ -116,7 +114,7 @@ export function ServiceList({
                 <div>
                   <strong>
                     {service.pricingType === "QUOTE_REQUIRED"
-                      ? "Request a quote"
+                      ? "Quotation required"
                       : formatKobo(service.priceKobo)}
                   </strong>
                 </div>
