@@ -441,12 +441,6 @@ export default async function ProductPage({
                   your vehicle with our team before ordering.
                 </p>
               )}
-              <Link
-                className="pd-link"
-                href={partsEnquiryHref(selectedQuery, product.id)}
-              >
-                Ask about compatibility <ArrowRight size={17} aria-hidden="true" />
-              </Link>
             </section>
           </div>
           <section

@@ -109,7 +109,18 @@ it.each(["product", "vehicle"])(
         vehicle()
       ),
     );
-    await screen.findByRole("link", { name: /Sign in to continue/ });
+    const login = await screen.findByRole("link", {
+      name: kind === "product" ? /Sign in to save this product/ : /Sign in to continue/,
+    });
+    if (kind === "product") {
+      expect(login.getAttribute("href")).toBe(
+        `/login?next=${encodeURIComponent(`/parts/${product.id}`)}`,
+      );
+      expect(login.classList.contains("button")).toBe(false);
+      expect(
+        screen.queryByRole("link", { name: "Ask our team", exact: true }),
+      ).toBeNull();
+    }
     expect(
       screen.queryByRole("button", { name: /Save to favourites|Save vehicle/ }),
     ).toBeNull();

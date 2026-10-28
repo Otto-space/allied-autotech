@@ -11,10 +11,12 @@ import {
 } from "@/lib/parts-fitment";
 import { PartFitmentSummary } from "./part-fitment-summary";
 import { Feedback } from "./feedback";
+import { usePartsMakeCatalogue } from "./find-parts-for-car";
 
 const parseDecision = (value: unknown) => fitmentDecisionSchema.parse(value);
 export function ProductFitmentCheck({ productId }: { productId: string }) {
   const search = useSearchParams();
+  const makes = usePartsMakeCatalogue();
   const { params } = normalizeProductQuery(new URLSearchParams(search.toString()));
   const selection = new URLSearchParams();
   for (const key of vehicleSelectionKeys)
@@ -44,7 +46,9 @@ export function ProductFitmentCheck({ productId }: { productId: string }) {
           className="pd-link"
           href={`/parts${selection.size ? `?${selection}` : ""}#products`}
         >
-          Choose or update my vehicle
+          {params.has("vehicleModelId") || makes.data?.items.length
+            ? "Choose or update my vehicle"
+            : "Browse products"}
         </Link>
         <Link className="button secondary" href={partsEnquiryHref(params, productId)}>
           Request the right part
