@@ -2408,3 +2408,49 @@ V41/V42: current care and load/retry status remain first. Customer-only Activity
 V52: a successfully loaded empty collection has one browse action. Loading/error states retain navigation and retry; populated collections retain the toolbar action. Labels say Favourite products/Browse Shop without changing API values, saved IDs or mutation contracts.
 
 Acceptance: 12 focused units pass (including empty vs historical data, date draft retention, staff preservation and refresh/session behavior); types and scoped lint pass. Six hosted desktop/mobile history/Saved fixtures added for native keyboard disclosure/tabs, date changes, error recovery, one action, overflow and sampled Axe. These browser checks and exact-source cloud CI are pending; this candidate is not deployed. Existing dirty tracker/asset files and other worktrees remain untouched.
+
+
+### Historical merged-branch checkpoint
+
+The following dated observation is retained from fix/compatibility-concurrency-20261025; it is not a claim of current production identity.
+
+The earlier hosted run passed 11/15 scenarios. It found phone overflow caused by
+absolute assistive labels escaping the table's scroll containing block, and a
+1366px filter-grid override. Both are fixed in source and await final compiled
+acceptance. Earlier fixture envelope/ambiguous-selector failures were corrected;
+they are not counted as product regressions. Final checks and release evidence
+will follow; this checkpoint does not certify production rollout.
+
+## Cycle 10: Product compatibility concurrent edits — 25 October 2026
+
+Route `/admin/products`, administrator product detail editor. A second editor could
+change a legacy compatibility between the first editor's freshness read and write.
+The older draft could then overwrite the newer record. The editor now sends the
+child's version for update and retirement; the API compares it inside the existing
+product mutation lock and returns 409 before history or record mutation if stale.
+
+The administrator response exposes the child version while public product data
+retains its limited projection. Existing bare DELETE clients remain accepted during
+the transition. When an older response lacks a version, the editor disables
+edit/retire and asks for refresh. A rejected review disables repeat confirmation,
+preserves the draft, refreshes the record and offers explicit reload. Including the
+child version in the form draft key prevents reload from restoring obsolete values.
+
+Nine isolated PostgreSQL integration tests passed using a new `_test` database on
+127.0.0.1:55581 with a non-owning runtime role. Concurrent same-version writes
+produced one success and one 409; history advanced once and stale retirement was
+rejected. All 65 then-current migrations replayed without schema diff. Thirteen
+local Edge/Playwright product-extras cases passed, including a 320px conflict,
+draft recovery, no horizontal overflow and automated WCAG 2.2 AA rule checks. A
+focused follow-up verified that a rejected confirmation cannot be resent. Frontend
+and backend types, lint and builds passed on the pre-merge source. The integrated
+source then passed a fresh 71-migration replay, restricted-role `db:check`, nine
+focused backend integration cases, generated contracts, typecheck, lint and
+optimized builds. Its rendered editor suite and hosted release checks remain open.
+The mobile capture is `%TEMP%/allied-compatibility-conflict-mobile.png`.
+
+These are isolated and fixture-rendered checks, not an authenticated production
+editor session. Real device and screen-reader speech remain untested. The current
+`browse_enquiries` restriction and genuine catalogue content requirements remain.
+The next review should verify an authorised admin QA session on the matching
+release and continue the per-page operations backlog.

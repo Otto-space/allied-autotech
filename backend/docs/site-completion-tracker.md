@@ -3337,3 +3337,36 @@ reconciliation, payment-flow, type and lint steps; secret guard 40677044459
 passed. Local typecheck, lint, formatting and seven focused unit cases passed.
 No production database, provider or deployment was changed. The production
 recovery, migration-role, populated backfill and real-role gates above remain.
+
+
+### Historical merged-branch checkpoint
+
+The following dated observation is retained from fix/compatibility-concurrency-20261025; it is not a claim of current production identity.
+
+25 October 2026 - legacy product compatibility concurrency correction checkpoint:
+worktree `C:/Users/PC/.codex/worktrees/allied-compatibility-concurrency-20261025`,
+branch `fix/compatibility-concurrency-20261025`, originally based on the verified
+homepage and stock releases and now integrating the newer Customers/Customer Care
+source. The API compares an optional expected child version under the existing
+product mutation lock on legacy compatibility update and retirement. The new editor
+always supplies it; versionless old responses cannot be edited or retired there.
+Public fields stay limited. A stale write returns 409 before mutation/history,
+repeat confirmation is disabled and the draft is retained for explicit reload.
+Bare legacy DELETE remains compatible.
+
+Before the newer-source merge, all 65 then-current migrations replayed in a new
+isolated `_test` PostgreSQL target with no schema diff. Nine focused integration
+cases passed against a restricted non-owning role: concurrent writes yielded one
+success, one conflict and one history increment; stale retirement was rejected.
+No application database was written. Backend typecheck, lint, OpenAPI (347 paths),
+route coverage (407 operations), format and build passed. Frontend types, lint and
+optimized build passed. Thirteen Edge/Playwright editor cases passed locally,
+including mobile conflict, accessibility and draft recovery; a focused follow-up
+verified no repeat confirmation. After integration, all 71 migrations replayed on
+a fresh isolated `_test` target with no schema diff; `db:check` and the nine focused
+cases passed again under a non-owning runtime role. Regenerated OpenAPI and frontend
+types, backend/frontend typecheck, lint and optimized builds passed on the combined
+source (355 API paths, 415 documented operations). The combined rendered editor
+suite and release checks remain open. No production mutation, migration or deployment has
+occurred for this correction yet. Hosted authenticated acceptance needs a real
+authorised QA session. Item 6 and the broader goal remain open.
