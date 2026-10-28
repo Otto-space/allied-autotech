@@ -1,5 +1,37 @@
 # UI and UX quality register
 
+## 28 October 2026: product detail fitment availability and retry
+
+Route `/parts/89fd9258-c580-43e9-9040-c7e52623e82d`, anonymous at 390/1440px.
+The published API returned zero vehicle makes. The live product detail still
+said "Choose your vehicle to check approved fitment evidence" while its action
+changed to "Browse products" because there was no vehicle to choose. That
+contradiction makes the customer look for a missing control. The selected
+product's enquiry link and editable contact draft were verified end to end;
+no message was submitted. The 390px action was initially behind the fixed
+support dock at the bottom edge of the viewport, but normal scrolling and
+keyboard focus exposed it and the actual link opened the correctly focused
+form. Dock placement remains a separate mobile usability review, not a
+claimed blocker in this cycle.
+
+The product fitment summary now says when vehicle choices are not available,
+directs the customer to ask the team to check suitability, and distinguishes
+that state from a failed lookup with a retry button. It preserves any actual
+fitment decision and the existing product enquiry. The published product,
+price, availability and compatibility claims were not changed.
+
+TypeScript, scoped ESLint and Prettier passed. The updated rendered product
+audit passed 2/2 cases at 390/1440px, including empty lookup, failed lookup,
+retry recovery, product enquiry/collection, keyboard focus, scoped axe, no
+overflow and intercepted account mutations. An initial local attempt used
+the test fixture's old blanket 401 for browser catalogue reads and timed out;
+the fixture now passes only public catalogue GETs to the same read-only
+backend that supplies the server-rendered page. Other API writes stay
+intercepted. Live before evidence: `%TEMP%/aat-live-product-detail-390.png`
+and `aat-live-product-detail-1440.png`; local after evidence is in the
+product-audit Playwright output. Exact-source CI, hosted post-release check,
+real-customer and physical-device acceptance remain open.
+
 ## 28 October 2026: combined Allie integration regression correction
 
 The held consolidated 8e6aab3b candidate reproduced two integration defects at

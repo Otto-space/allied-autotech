@@ -27,6 +27,17 @@ export function ProductFitmentCheck({ productId }: { productId: string }) {
       : null,
     parseDecision,
   );
+  const noVehicleChoices =
+    !params.has("vehicleModelId") &&
+    !makes.loading &&
+    !makes.error &&
+    !makes.refreshError &&
+    makes.data?.items.length === 0;
+  const vehicleChoicesFailed =
+    !params.has("vehicleModelId") &&
+    !makes.loading &&
+    !makes.data?.items.length &&
+    !!(makes.error || makes.refreshError);
   return (
     <div className="product-configuration-fitment">
       {result.loading ? (
@@ -39,9 +50,23 @@ export function ProductFitmentCheck({ productId }: { productId: string }) {
           </button>
         </>
       ) : (
-        <PartFitmentSummary decision={result.data} />
+        <PartFitmentSummary
+          decision={result.data}
+          unknownMessage={
+            noVehicleChoices
+              ? "Vehicle choices are not available in the parts finder yet. Ask our team to check suitability before requesting this product."
+              : vehicleChoicesFailed
+                ? "Vehicle choices could not be checked right now. Retry below or ask our team to verify suitability."
+                : undefined
+          }
+        />
       )}
       <div className="actions">
+        {vehicleChoicesFailed && (
+          <button className="button secondary" type="button" onClick={makes.refresh}>
+            Retry vehicle choices
+          </button>
+        )}
         <Link
           className="pd-link"
           href={`/parts${selection.size ? `?${selection}` : ""}#products`}

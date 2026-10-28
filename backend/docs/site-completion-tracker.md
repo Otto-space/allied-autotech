@@ -1,5 +1,28 @@
 # Allied AutoTech completion tracker
 
+## 28 October 2026 current product-fitment availability cycle
+
+Current production baseline was frontend `dpl_5LscxLnZGRXNBorSWq3GFgfUBcGq`
+and backend `3ee6748f-ed72-4c89-b9a1-f1963e891190` ACTIVE. The P0 payment
+session and reconciliation source is included in the consolidated backend;
+the guarded forward migration, separate populated logical restore rehearsal,
+runtime privilege checks and worker heartbeats are recorded in
+`backend/docs/master-consolidation-release-20261028.md`. Live payments remain
+disabled, and real-role/provider acceptance remains separate.
+
+On the published Engine Oil Filter detail, the public fitment-make lookup
+returned zero choices, while the fitment summary told the customer to choose
+a vehicle. The page correctly linked to a product enquiry and prefilled the
+selected product; no request was sent. A focused frontend change now explains
+the unavailable vehicle catalogue and adds retry when that lookup fails.
+The isolated `allied-product-fitment-20261028` worktree is based on the current
+clean master commit, preserving dirty human-chat work in the master checkout.
+TypeScript, scoped lint and two rendered product-detail tests at 390/1440px
+pass. These tests use the one published product for read-only catalogue/SSR
+data and intercept identity and all mutations. Exact-source CI, deployment
+and hosted post-release acceptance remain pending. No payment, enquiry,
+customer or database write was made.
+
 ## 28 October 2026 consolidated production release
 
 Runtime master a51a58b856e12c0187c1d5753f2f30ef4382a894 is now published:
