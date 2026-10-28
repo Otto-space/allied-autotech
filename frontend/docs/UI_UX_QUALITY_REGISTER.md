@@ -12,7 +12,10 @@ retained while verified content is hidden and inert, with guarded focus recovery
 Conversation/handoff state boundaries, workforce invalidation and security-page
 restrictions remain unchanged. Three new focused route/flag cases and the adjacent
 access/conversation/handoff/search cases passed (41 tests in five files). The
-failed hosted run is retained; final rendered rechecks and publication are pending.
+failed hosted run is retained. Corrected hosted acceptance passed 47 cases; master
+`a51a58b8` is published on both domains after all three exact-source CI checks
+passed. Public apex/www acceptance passed 23 cases each. Exact release evidence
+and remaining limits: `backend/docs/master-consolidation-release-20261028.md`.
 Browser plugin unavailable: hosted checks use existing Playwright with Edge and
 isolated API fixtures. They do not send support messages, seed inventory, upload to
 real storage or call an AI provider. Physical-device and real-role limits remain.

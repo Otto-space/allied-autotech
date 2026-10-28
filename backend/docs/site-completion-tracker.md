@@ -1,41 +1,50 @@
 # Allied AutoTech completion tracker
 
-## 28 October 2026 consolidation checkpoint
+## 28 October 2026 consolidated production release
 
-Authoritative checkout: C:/Users/PC/.codex/worktrees/allied-home-restoration-20261025,
-integration branch master. The owner authorized tested integration, production
-publication and retirement of completed branches, and has paused other releases.
-The older branch-specific release notes below are retained as dated evidence.
+Runtime master a51a58b856e12c0187c1d5753f2f30ef4382a894 is now published:
+frontend dpl_5LscxLnZGRXNBorSWq3GFgfUBcGq on apex/www, backend
+3ee6748f-ed72-4c89-b9a1-f1963e891190 ACTIVE with all four matching image digests.
+The authoritative checkout remains allied-home-restoration-20261025 on master.
+Later documentation-only receipts do not change the deployed application tree.
+See master-consolidation-release-20261028.md for checks, retained evidence and limits.
+Older branch-specific notes below are dated historical checkpoints.
 
-Production backend 8fd37e1c-d2e2-4e2f-bbe4-3e9acb8c5650 is ACTIVE on four
-4fbc9cbb images. The guarded forward migration completed all 76 migrations;
-read-only schema verification, non-owning runtime privilege checks and six worker
-heartbeats passed. A separate populated restore and forward migration rehearsal
-passed before that rollout. This is not a physical managed PITR rehearsal.
-Production frontend most recently resolved on both domains to 1a33815c /
-dpl_71G8rw7VmXo7WZZCDJpvTb5eCMib. These runtime changes are incorporated here.
-No commerce, provider AI or live-human-chat flag has been enabled.
+All reviewed committed remote heads and unique local history were integrated,
+including payment evidence session checks, favourites, navbar/container focus,
+learning interactions, unread notification preview and compact customer care.
+Integration tests exposed and fixed Learn guide/practice eligibility and Allie
+access-check geometry regressions. The focused five-file frontend run passed 41
+cases; 41 packaged-image/spec cases and all three exact-source GitHub checks pass.
+Hosted corrected Allie/handoff/access/learning acceptance passed 47 cases after
+preserving the preceding 59-pass/four-failure regression evidence. Apex public
+acceptance passed 23 cases; www canonical-redirect acceptance passed 23 cases.
+Fixtures intercepted writes; no real messages, storage uploads, AI requests,
+customer transactions or fictional inventory publication were used.
 
-All initial remote heads and unique local history have been reconciled, including
-current payment-session evidence checks, favourites refresh, navbar/container
-focus, learning interactions, unread notification preview and compact customer
-care. Current integration testing found and corrected two conflicts in Allie:
-the Learn catalogue now retains its eligible guide/practice entry points, and
-access revalidation retains dialog geometry while content stays hidden/inert.
-The workforce invalidation listener and conversation/handoff lifecycle remain.
-The focused combined five-file frontend run passed 41 cases after these fixes.
-The earlier combined candidate passed 27 hosted gallery/handoff/workforce cases,
-23 public read-only checks and 41 packaged image/spec checks. Final corrected
-candidate, exact-source GitHub gates and promotion are still pending at this
-checkpoint; private release receipts preserve their eventual actual results.
+Production has 76 forward migrations. Guarded backup/migration, a populated
+separate restore-and-forward rehearsal, schema checks and six worker heartbeats
+passed. Runtime remains non-owning with no schema or TRUNCATE authority. Managed
+backup metadata was rechecked; no grants changed. The restore was logical, not a
+physical managed PITR exercise. Current and preceding releases remain retained.
+Commerce, provider AI and live-human-chat flags are unchanged.
+
+Retirement removed 62 completed local branch references, preserving source folders,
+clean detached checkouts, dirty/active worktrees and missing-worktree recovery
+metadata. GitHub's existing Protect ruleset blocks all remote deletion with no
+bypass. The 42 reviewed remote deletions remain pending the owner's specific
+decision on a temporary exact-branch exception; no protection was weakened.
+Twenty-four superseded task build images/32 tags were removed natively. Containers,
+volumes, current/rollback images and useful caches were retained. Docker logical
+image usage changed 11.48 to 11.36 GB; host free space measured about 29.34 GiB
+before/after. Logical image removal did not immediately reclaim equivalent C: space.
 
 The complete Revision 4 goal remains open: gated shared human-chat implementation,
 all 106 exact-route decisions, final bounded provider re-evaluation and real-role,
 physical-device and full screen-reader acceptance remain. Queued Customer Care is
-the truthful current handoff. Do not count this consolidation as full completion.
-Missing/dirty/active worktrees and provider-connected release branches must remain
-protected during branch retirement. Never prune the metadata of the three source
-worktrees the owner reported deleting without completing recovery review.
+the truthful current handoff. This release does not complete the full goal.
+Do not prune the metadata of the three owner-deleted worktrees without completing
+recovery review, reset provider spending ledgers, or enable unverified capabilities.
 
 ## 28 October 2026 current notification-preview cycle
 
