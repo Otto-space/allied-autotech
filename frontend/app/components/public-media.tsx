@@ -35,6 +35,9 @@ export function PublicMedia({
     (isPublicMediaUrl(src, allowed) ||
       (adminPreview && isManagedProductPreviewUrl(src)) ||
       (stockPreview && isStockPreviewUrl(src)));
+  // These API streams reject extra query parameters. Keep Next's deployment ID
+  // on framework assets, while retaining the exact authenticated/public media URL.
+  const apiSrc = src?.startsWith("/api/v1/") ? src : undefined;
   return (
     <div className="product-media">
       {safe && src && !failed ? (
@@ -43,6 +46,7 @@ export function PublicMedia({
           alt={alt}
           fill
           unoptimized
+          overrideSrc={apiSrc}
           priority={priority}
           loading={loading}
           sizes={sizes}

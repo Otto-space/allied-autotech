@@ -1,5 +1,23 @@
 # Reviewed committed workforce and Allie release (in preparation)
 
+The combined source reached GitHub `master` as `4fbc9cbb`; all three exact-source
+checks passed (frontend 40683327555, backend 40683327771, secret guard 40683327553).
+Four images were built, passed 41 packaging/specification checks and were pushed.
+The matching held Vercel candidate was not assigned to either customer domain.
+Native payment regressions passed 92 cases on a separate restricted `_ci` target;
+the reviewed fitment suite passed nine more cases on the workforce target. An
+extracted predecessor runtime's 89-model schema probe passed against schema 76
+without reading business rows or writing data. This supports a recovery
+composition using the new read-only migration checker and preceding runtime,
+without reversing migrations; full payment-provider recovery remains untested.
+
+Hosted testing then found a Next deployment-query/API-media mismatch, now being
+corrected in the frontend. The backend build inputs remain identical to `4fbc9cbb`;
+retain those verified images rather than duplicate them for a frontend-only
+correction. Reuse requires an explicit zero-difference check of backend source,
+and exact-source CI/browser acceptance for the new frontend master commit. No
+production migration, backend rollout or custom-domain promotion has run yet.
+
 ## Current consolidation checkpoint: 28 October 2026
 
 The owner approved completing integration through `master`, exact-source GitHub

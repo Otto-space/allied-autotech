@@ -1,5 +1,24 @@
 # UI and UX quality register
 
+## 28 October 2026: deployment-aware API image URLs
+
+The integrated held candidate `4fbc9cbb` exposed a real framework/API mismatch.
+The installed Next 16.4.3 adds `?dpl=...` to relative unoptimized image sources
+on Vercel; the public product/vehicle and protected preview endpoints deliberately
+accept no query parameters. Four controlled tests reproduced the URL change with
+the real framework deployment bootstrap. `PublicMedia` now uses `overrideSrc`
+only for its already-validated API image URLs. This preserves Next image geometry,
+loading behaviour, fallbacks and approved-host/preview boundaries while keeping
+the API URL exact. Server validation and permissions remain unchanged.
+
+The first hosted run retained 68 passes and 13 failures as evidence. Four were
+the known not-found stylesheet warning with Vercel's deployment query; six were
+gallery/upload cases requiring investigation or fixture-environment correction;
+three were DNS/connection failures. The upload fixture's `.test` storage host is
+correctly unapproved in production and must be intercepted at a configured public
+storage hostname for hosted acceptance. No real storage upload is authorised by
+the test. Corrected rendered acceptance and publication remain pending.
+
 ## 28 October 2026: Refresh scrolling, reading focus and Help & Learn
 
 Owner-reported cross-phone homepage jumps were reproduced on production
