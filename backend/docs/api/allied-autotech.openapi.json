@@ -129821,7 +129821,7 @@
                             "address": {
                               "type": "string",
                               "enum": [
-                                "133 Stadium Road, beside Kilimanjaro, Port Harcourt, Rivers State, Nigeria"
+                                "133 Stadium Road, beside Kilimanjaro Pizza Jungle Restaurant, Port Harcourt, Rivers State, Nigeria"
                               ],
                               "description": "Address validated by this operation's strict request contract."
                             }
@@ -130024,7 +130024,7 @@
                     "checkoutEnabled": true,
                     "collection": {
                       "enabled": true,
-                      "address": "133 Stadium Road, beside Kilimanjaro, Port Harcourt, Rivers State, Nigeria"
+                      "address": "133 Stadium Road, beside Kilimanjaro Pizza Jungle Restaurant, Port Harcourt, Rivers State, Nigeria"
                     },
                     "delivery": {
                       "enabled": false,
@@ -130214,7 +130214,7 @@
                             "address": {
                               "type": "string",
                               "enum": [
-                                "133 Stadium Road, beside Kilimanjaro, Port Harcourt, Rivers State, Nigeria"
+                                "133 Stadium Road, beside Kilimanjaro Pizza Jungle Restaurant, Port Harcourt, Rivers State, Nigeria"
                               ],
                               "description": "Address validated by this operation's strict request contract."
                             }
@@ -130399,7 +130399,7 @@
                     "checkoutEnabled": true,
                     "collection": {
                       "enabled": true,
-                      "address": "133 Stadium Road, beside Kilimanjaro, Port Harcourt, Rivers State, Nigeria"
+                      "address": "133 Stadium Road, beside Kilimanjaro Pizza Jungle Restaurant, Port Harcourt, Rivers State, Nigeria"
                     },
                     "delivery": {
                       "enabled": true
@@ -137137,6 +137137,7 @@
                           "collectionAddress": {
                             "type": "string",
                             "enum": [
+                              "133 Stadium Road, beside Kilimanjaro Pizza Jungle Restaurant, Port Harcourt, Rivers State, Nigeria",
                               "133 Stadium Road, beside Kilimanjaro, Port Harcourt, Rivers State, Nigeria"
                             ],
                             "description": "Collection Address validated by this operation's strict request contract."

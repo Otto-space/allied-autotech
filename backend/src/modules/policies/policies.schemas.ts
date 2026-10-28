@@ -45,9 +45,11 @@ const deliveryAreaText = (max: number) =>
 export const deliverySettingsSchema = z
   .object({
     collectionEnabled: z.literal(true),
-    collectionAddress: z.literal(
+    // Preserve readability of previously approved policy snapshots.
+    collectionAddress: z.enum([
+      "133 Stadium Road, beside Kilimanjaro Pizza Jungle Restaurant, Port Harcourt, Rivers State, Nigeria",
       "133 Stadium Road, beside Kilimanjaro, Port Harcourt, Rivers State, Nigeria",
-    ),
+    ]),
     zones: z
       .array(
         z
@@ -75,7 +77,7 @@ export const publicFulfillmentOptionsSchema = z.object({
   collection: z.object({
     enabled: z.literal(true),
     address: z.literal(
-      "133 Stadium Road, beside Kilimanjaro, Port Harcourt, Rivers State, Nigeria",
+      "133 Stadium Road, beside Kilimanjaro Pizza Jungle Restaurant, Port Harcourt, Rivers State, Nigeria",
     ),
   }),
   delivery: z.discriminatedUnion("enabled", [

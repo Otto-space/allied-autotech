@@ -170,7 +170,7 @@ export class OrdersService {
       const deliverySnapshot: Prisma.InputJsonObject = {
         method: "COLLECTION",
         address:
-          "133 Stadium Road, beside Kilimanjaro, Port Harcourt, Rivers State, Nigeria",
+          "133 Stadium Road, beside Kilimanjaro Pizza Jungle Restaurant, Port Harcourt, Rivers State, Nigeria",
       };
       const { taxKobo } = draftTotals(
         subtotalKobo + taxableDeliveryKobo,
