@@ -11,8 +11,7 @@ with recent-history fallback if another tab already read them. The separate
 the P0 backend candidate and unrelated dirty worktrees remain untouched.
 Focused four-case unit, type, scoped lint and nine rendered role/viewport
 fixtures pass. See `frontend/docs/UI_UX_QUALITY_REGISTER.md` for evidence and
-limits. Exact-source CI, staged frontend promotion and hosted acceptance are
-pending. No notification read, message, payment or production data write was
+limits. No notification read, message, payment or production data write was
 made; live authenticated-role and physical-device checks remain open. During
 release preparation, both domains advanced to navbar runtime `4aafaebb` /
 `dpl_F5XnU2aiSxhtK78P8dnbvrffYCR5`. Both domains then advanced to the
@@ -23,8 +22,19 @@ the remaining historical-commerce case passed when the local launch mode was
 set to production's `browse_enquiries`. No application defect was found in that
 fixture mismatch. Exact-source CI passed on `ddfab325`. Production then
 advanced to Learn/Allie runtime `072e0509` / `dpl_Bov9FbKyy4yPMRqWnJG3CpX6MMQz`,
-which is being merged before notification staging. A fresh exact-source check
-and disk preflight are required.
+which was merged. Final runtime `1a33815c` passed frontend release CI
+`40713279695`, secret guard `40713279399` and backend safety `40713279822`.
+Vercel deployment `dpl_71G8rw7VmXo7WZZCDJpvTb5eCMib` was built with production
+settings, verified READY and exact SHA, then promoted after the prior alias
+was rechecked. Both apex and www resolve to this ID. Protected hosted Home,
+Help, Learn, Parts and Notifications reads returned 200. Post-promotion
+Playwright passed the unread-preview case and all eight customer/staff/admin/
+super-admin journeys at 390/1440px using isolated API fixtures. No real
+notification, account or backend write was made. Previous deployment
+`dpl_Bov9FbKyy4yPMRqWnJG3CpX6MMQz` remains the frontend rollback target;
+real-role and physical-device acceptance remain open. C: finished above the
+20 GiB reserve after a transient local-check shortfall; no destructive cleanup
+or database action was used.
 
 ## 28 October 2026 current Learn, Allie and guide audit
 
