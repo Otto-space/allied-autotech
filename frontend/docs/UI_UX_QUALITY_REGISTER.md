@@ -1,5 +1,65 @@
 # UI and UX quality register
 
+## 28 October 2026: Learn, Allie and walkthrough interaction audit
+
+Owner requested exhaustive interaction of /learn, Allie and optional walkthroughs.
+Finite cycle covers anonymous public journeys, synthetic delayed/error/access changes,
+keyboard controls and narrow/desktop layouts. Reused the contact-validation worktree
+on fix/learning-interaction-audit-20261028, initially from dfd79d91 (same runtime
+as published 4aafaebb). A later favourites release ef06efb7 was observed during
+verification and must be included before publication. Other dirty work is preserved.
+
+Verified P1/P2 issues and fixes:
+
+- Learn selected Find an answer while showing guides/practice. Explicit All help
+  selection, matching panel label and keyboard Home/End/arrow handling now agree.
+  Search submission reveals/focuses results; Clear search restores the input.
+  Text-field blur does not interpret aria-controls as a navigation instruction.
+- Allie ranked the broad homepage overview above the specific parts task. Exact
+  normalized task-title matches now rank ahead without using unrestricted content.
+  Repeated questions/intents reveal the answer; whitespace gets actionable feedback.
+- Periodic/focus access verification collapsed Allie and dropped input focus.
+  Content remains invisible, aria-hidden and inert during checks, retaining geometry.
+  Focus restores after the React commit only when the access key is unchanged and
+  no intervening interaction selected another destination. Denial/malformed data
+  removes previous content; identity changes clear inputs/progress as before.
+- Mobile Try page controls silently returned to written mode. The ineffective action
+  is absent on compact screens; responsive highlights resume on expansion unless
+  written mode was deliberately chosen. Missing/obscured controls offer an immediate
+  written fallback. Step changes reset panel scroll, completion retains a focus
+  destination, and removing/changing the same-page guide fragment closes the guide.
+  Cross-page pause remains supported. Guide exit restores an available same-page
+  launcher after the floating dock becomes visible again.
+- Practice search/review results are focused and revealed. Existing local-only inputs,
+  explicit sample replacement, errors, choices, reset and exit boundaries remain.
+
+No backend content definition, semantic target, business rule, permission, feature
+flag, transaction or database change. Reviewed catalogue and eligibility remain
+server-owned. Generative AI remains off. No actual support or account write.
+
+Browser plugin unavailable; existing Playwright/Edge and dependencies reused.
+Fifteen focused learning units pass, scoped lint and TypeScript pass. New ten-case
+browser suite exercises search/empty recovery/disclosures at 320/390/768/1440px,
+Allie repeated questions/alternatives/context/intents/keyboard close, delayed access
+geometry/focus, denial/retry/identity changes, responsive guide pause/resume/restart/
+completion/hash/error recovery, and practice errors/replacement/review/reset/return.
+The first delayed-focus run exposed a React commit timing race; restoration moved
+from a requestAnimationFrame into the post-commit effect and both focused cases
+passed. Final combined regression and exact-source CI/hosted acceptance are pending.
+Evidence remains in %TEMP%/aat-learning-* and the maintained e2e/unit tests.
+
+Disk preflight initially passed at 26.74 GiB free with a 1 GiB budget. A later
+measurement fell to 19.15 GiB; task-owned dev/browser/test processes were stopped.
+Read-only inventory preserved all source, caches, dependencies, other tasks and
+Docker/data resources. Free space subsequently returned to 25.74 GiB without any
+agent deletion. A fresh preflight is required before resuming substantial writes;
+this records point-in-time measurements, not a machine-wide quota guarantee.
+
+Acceptance limits: intercepted data is synthetic, not real authenticated-role
+acceptance. Physical Safari/Android phones, mobile OS keyboards, full screen-reader
+acceptance and inaccessible private guides remain unverified. No claim of complete
+WCAG conformance or absence of every possible site defect.
+
 ## 28 October 2026: Stable navbar through Help to Learn navigation
 
 Reproduced the owner's exact anonymous journey on deployed source `09efa694`:

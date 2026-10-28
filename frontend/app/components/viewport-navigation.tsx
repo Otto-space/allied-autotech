@@ -173,6 +173,8 @@ export function ViewportNavigation() {
     observeInsets();
 
     function controlledTarget(control: HTMLElement) {
+      // Text entry can describe a result without navigating to it on blur.
+      if (control.hasAttribute("data-scroll-on-submit")) return null;
       if (
         control instanceof HTMLInputElement &&
         ["checkbox", "radio"].includes(control.type) &&
