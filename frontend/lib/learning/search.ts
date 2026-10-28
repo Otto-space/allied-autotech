@@ -2,6 +2,8 @@ import type { LearningArticle, LearningCatalogue } from "./contracts";
 
 export type LearningMode = "answer" | "guide" | "practice";
 export const learningModes = ["answer", "guide", "practice"] as const;
+export const learningViews = ["all", ...learningModes] as const;
+export type LearningView = (typeof learningViews)[number];
 export const assistantName = "Allie"; // Working name; no brand name in contracts/storage.
 export const ASSISTANT_VISIBILITY = "aat:learning-visibility";
 export const ASSISTANT_HIDDEN_KEY = "aat:learning-hidden:v1";
@@ -117,7 +119,7 @@ export function learningReturn(
   const q = (params.get("q") ?? "").slice(0, 120);
   const selected = mode ?? params.get("mode");
   if (q) p.set("q", q);
-  if (learningModes.includes(selected as LearningMode)) p.set("mode", selected!);
+  if (learningViews.includes(selected as LearningView)) p.set("mode", selected!);
   return "/learn" + (p.size ? "?" + p : "");
 }
 export function assistantArticles(
@@ -128,6 +130,7 @@ export function assistantArticles(
   if (!words.length) return [];
   return data.articles
     .map((article, index) => {
+      const titleWords = learningWords(article.title);
       const title = learningWords(article.title + " " + article.keywords).join(" ");
       const body = learningWords(article.summary + " " + article.steps.join(" ")).join(
         " ",
@@ -136,13 +139,16 @@ export function assistantArticles(
       return {
         article,
         index,
+        coverage: matched.length / words.length,
         score:
           matched.length / words.length +
-          matched.filter((w) => title.includes(w)).length * 0.1,
+          matched.filter((w) => title.includes(w)).length * 0.1 +
+          // A focused task title outranks a broad overview mentioning the same topic.
+          words.filter((w) => titleWords.includes(w)).length * 0.2,
         count: matched.length,
       };
     })
-    .filter((r) => r.count > 0 && r.score >= 0.5)
+    .filter((r) => r.count > 0 && r.coverage >= 0.5)
     .sort((a, b) => b.score - a.score || a.index - b.index)
     .slice(0, 3)
     .map((r) => r.article);

@@ -18,10 +18,11 @@ import {
 } from "lucide-react";
 import type { LearningArticle, LearningGuide } from "@/lib/learning/contracts";
 import {
-  learningModes,
+  learningViews,
   learningResults,
   learningReturn,
   type LearningMode,
+  type LearningView,
 } from "@/lib/learning/search";
 import { useLearningCatalogue } from "@/lib/learning/read";
 
@@ -72,6 +73,12 @@ export function WrittenGuide({ guide }: { guide: LearningGuide }) {
 }
 const modes = [
   {
+    id: "all",
+    title: "All help",
+    text: "Browse answers, walkthroughs and practice.",
+    Icon: Search,
+  },
+  {
     id: "answer",
     title: "Find an answer",
     text: "Get a clear answer to a common question.",
@@ -96,13 +103,16 @@ function taskIcon(page: string, articleId: string) {
   return BookOpen;
 }
 export function LearningPanel() {
+  const contentRef = useRef<HTMLDivElement>(null);
   const uid = useId(),
     params = useSearchParams(),
-    resource = useLearningCatalogue();
+    resource = useLearningCatalogue(true, contentRef);
   const query = (params.get("q") ?? "").slice(0, 120);
-  const selectedMode = learningModes.includes(params.get("mode") as LearningMode)
-    ? (params.get("mode") as LearningMode)
-    : "answer";
+  const selectedMode = learningViews.includes(params.get("mode") as LearningView)
+    ? (params.get("mode") as LearningView)
+    : query.trim()
+      ? "all"
+      : "answer";
   const requested = params.get("article"),
     requestedGuide = params.get("guide"),
     data = resource.data;
@@ -112,6 +122,8 @@ export function LearningPanel() {
       : undefined;
   const returnHref = learningReturn(params);
   const resultFocus = useRef<HTMLDivElement>(null);
+  const searchInput = useRef<HTMLInputElement>(null);
+  const resultsPanel = useRef<HTMLElement>(null);
   const revealed = useRef<string | null>(null);
   useEffect(() => {
     const key = requested || requestedGuide;
@@ -128,10 +140,8 @@ export function LearningPanel() {
     }
   }, [requested, requestedGuide, data, resource.loading]);
   const results = data ? learningResults(data, query) : [];
-  const shown = results.filter((r) =>
-    query && !params.has("mode") ? true : r.kind === selectedMode,
-  );
-  function update(value: string, mode?: LearningMode | null) {
+  const shown = results.filter((r) => selectedMode === "all" || r.kind === selectedMode);
+  function update(value: string, mode?: LearningView | null) {
     const p = new URLSearchParams(params.toString());
     p.delete("article");
     p.delete("guide");
@@ -151,7 +161,11 @@ export function LearningPanel() {
   }
   return (
     <div className="learning-content">
-      {resource.loading && <p role="status">Checking available learning…</p>}
+      {resource.loading && (
+        <p className={data ? "learning-check-status" : undefined} role="status">
+          Checking available learning…
+        </p>
+      )}
       {resource.error && (
         <div className="learning-load-error" role="alert">
           <p>{resource.error}</p>
@@ -161,7 +175,13 @@ export function LearningPanel() {
         </div>
       )}
       {data && (
-        <div hidden={resource.loading} inert={resource.loading}>
+        <div
+          ref={contentRef}
+          className="learning-access-content"
+          aria-busy={resource.loading}
+          aria-hidden={resource.loading || undefined}
+          inert={resource.loading}
+        >
           {requested || requestedGuide ? (
             <div
               ref={resultFocus}
@@ -232,11 +252,23 @@ export function LearningPanel() {
                     ? "For your account"
                     : "Start with the help you need"}
               </p>
-              <form data-no-draft role="search" onSubmit={(e) => e.preventDefault()}>
+              <form
+                data-no-draft
+                role="search"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  resultsPanel.current?.focus({ preventScroll: true });
+                  resultsPanel.current?.scrollIntoView({
+                    block: "start",
+                    behavior: "instant",
+                  });
+                }}
+              >
                 <label htmlFor={uid + "-search"}>What would you like to do?</label>
                 <div className="learning-search">
                   <Search size={20} aria-hidden="true" />
                   <input
+                    ref={searchInput}
                     id={uid + "-search"}
                     type="search"
                     value={query}
@@ -244,12 +276,19 @@ export function LearningPanel() {
                     onChange={(e) => update(e.target.value)}
                     placeholder="Search for a question, task or topic…"
                     aria-controls={uid + "-results"}
+                    data-scroll-on-submit
                   />
+                  <button className="button" aria-controls={uid + "-results"}>
+                    Search
+                  </button>
                   {query && (
                     <button
                       type="button"
                       className="learning-text-button"
-                      onClick={() => update("")}
+                      onClick={() => {
+                        update("");
+                        searchInput.current?.focus({ preventScroll: true });
+                      }}
                     >
                       Clear search
                     </button>
@@ -272,10 +311,11 @@ export function LearningPanel() {
                     onClick={() => update(query, id)}
                     onKeyDown={(e) => {
                       let next: number | undefined;
-                      if (e.key === "ArrowRight") next = (index + 1) % 3;
-                      if (e.key === "ArrowLeft") next = (index + 2) % 3;
+                      if (e.key === "ArrowRight") next = (index + 1) % modes.length;
+                      if (e.key === "ArrowLeft")
+                        next = (index + modes.length - 1) % modes.length;
                       if (e.key === "Home") next = 0;
-                      if (e.key === "End") next = 2;
+                      if (e.key === "End") next = modes.length - 1;
                       if (next !== undefined) {
                         e.preventDefault();
                         update(query, modes[next].id);
@@ -294,6 +334,8 @@ export function LearningPanel() {
                 ))}
               </div>
               <section
+                ref={resultsPanel}
+                data-reading-focus
                 id={uid + "-results"}
                 role="tabpanel"
                 aria-labelledby={uid + "-" + selectedMode}
@@ -306,10 +348,11 @@ export function LearningPanel() {
                     {query ? " matching your search" : ""}
                   </p>
                 </div>
-                {query && params.has("mode") && (
+                {query && selectedMode !== "all" && (
                   <button
                     className="learning-text-button"
-                    onClick={() => update(query, null)}
+                    aria-controls={uid + "-results"}
+                    onClick={() => update(query, "all")}
                   >
                     Search all modes
                   </button>
