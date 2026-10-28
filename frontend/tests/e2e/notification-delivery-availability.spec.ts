@@ -140,9 +140,7 @@ test("missing availability is unknown; failed refresh invalidates previously kno
     .click();
   await expect(settings.getByText("Service enabled", { exact: true })).toHaveCount(1);
   state.failPreferences = true;
-  await settings
-    .getByRole("button", { name: "Refresh preferences", exact: true })
-    .click();
+  await page.evaluate(() => window.dispatchEvent(new Event("online")));
   await expect(settings.getByRole("alert")).toContainText(
     "Saved preferences may be out of date",
   );
@@ -152,6 +150,14 @@ test("missing availability is unknown; failed refresh invalidates previously kno
   await expect(settings.getByText("Service enabled", { exact: true })).toHaveCount(0);
   for (const toggle of await settings.getByRole("switch").all())
     await expect(toggle).toBeDisabled();
+  await settings
+    .getByRole("button", { name: "Refresh preferences", exact: true })
+    .click();
+  await expect(settings.getByRole("alert")).toContainText(
+    "The request could not be completed",
+  );
+  await expect(settings.getByRole("switch")).toHaveCount(0);
+  await expect(settings.getByText("Service enabled", { exact: true })).toHaveCount(0);
   state.failPreferences = false;
   await settings
     .getByRole("button", { name: "Refresh preferences", exact: true })
