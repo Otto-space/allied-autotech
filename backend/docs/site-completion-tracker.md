@@ -1844,4 +1844,6 @@ A session revoked before that transaction recheck cannot receive a newly signed
 private evidence URL. Two focused unit cases cover revoked and authorized paths;
 the adjacent manual-review session cases, TypeScript, scoped lint and formatting
 passed locally. No payment/provider/schema/production write was made. Exact-source
-CI and the existing production recovery/migration/real-role gates remain.
+CI passed for runtime commit 7b1c552b: backend database safety 40685222582
+and redacted secret guard 40685222451 both completed successfully. The
+production recovery/migration/real-role gates remain.
