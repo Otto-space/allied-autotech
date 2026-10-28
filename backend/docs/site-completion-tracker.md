@@ -68,6 +68,15 @@ or deployment; never deploy the older checkout merely because it is the cwd.
   its image was not promoted after the concurrent deployment changed the
   production source. Authenticated production staff-filter acceptance remains
   open; local isolated integration tests and live anonymous boundary passed.
+
+
+### Historical merged-branch checkpoint
+
+The following dated observation is retained from origin/fix/staff-vehicle-filters-20261024; it is not a claim of current production identity.
+
+- Current stock-query audit worktree: `C:/Users/PC/.codex/worktrees/allied-staff-vehicle-filters-20261024`,
+  branch `fix/staff-vehicle-filters-20261024`, based on `c3f4076f`. Its backend
+  changes are local until release checks and a matching backend rollout complete.
 - Full release evidence: `backend/docs/discovery-fitment-release-review.md` in this
   worktree. Earlier release pointers/checkpoints below describe their historical state.
 
@@ -3261,3 +3270,14 @@ checks passed. The browser sent no POST; local API results were fixtures. No
 Docker resource or production deployment/database/provider action. The original
 vehicle-payment API-first release and live role checks remain open, along with
 wider public-form/physical-device acceptance. See the frontend quality register.
+
+
+### Historical merged-branch checkpoint
+
+The following dated observation is retained from origin/fix/staff-vehicle-filters-20261024; it is not a claim of current production identity.
+
+`aat_stock_*_test` PostgreSQL database. The disposable database container was
+removed. No application database or production backend was written. Backend
+promotion still requires the current target's read-only database check,
+backup/restore evidence and deployment verification. Item 6 remains open for
+real catalogue publication and authenticated staff acceptance.
