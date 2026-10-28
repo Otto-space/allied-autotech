@@ -31,9 +31,13 @@ Commerce, provider AI and live-human-chat flags are unchanged.
 
 Retirement removed 62 completed local branch references, preserving source folders,
 clean detached checkouts, dirty/active worktrees and missing-worktree recovery
-metadata. GitHub's existing Protect ruleset blocks all remote deletion with no
-bypass. The 42 reviewed remote deletions remain pending the owner's specific
-decision on a temporary exact-branch exception; no protection was weakened.
+metadata. After the owner's exact temporary-exception approval, 42 reviewed remote
+heads were deleted atomically with expected-SHA leases. The 11 retained heads,
+including master and the provider-connected branch, remain. A temporary deletion
+rule protected every retained branch before the original rule was adjusted;
+all-branch force-push protection stayed active. Original Protect deletion and
+non-fast-forward rules were restored before the temporary rule was removed.
+Dirty human-chat foundation edits were hashed before/after and preserved.
 Twenty-four superseded task build images/32 tags were removed natively. Containers,
 volumes, current/rollback images and useful caches were retained. Docker logical
 image usage changed 11.48 to 11.36 GB; host free space measured about 29.34 GiB

@@ -75,11 +75,22 @@ local branch references were removed after master ancestry checks; source folder
 dependencies and recovery metadata were retained. Clean inactive checkouts were
 detached at their existing heads, without resetting source.
 
-Forty-two reviewed remote branch deletions were rejected by GitHub's active
-Protect ruleset (23964845): deletion and non-fast-forward protection on all
-branches, no bypass actors. No rule was weakened. A specific owner decision on the
-prepared exact-branch temporary deletion exception remains pending. The local
-refs/remotes/origin/HEAD symbolic ref is preserved.
+The owner subsequently approved the exact temporary exception for 42 reviewed
+remote branches. Fresh checks proved every head matched the proposal and was an
+ancestor of the published runtime. Both domain deployments, the active backend and
+the provider-connected branch were checked again. One atomic push deleted the
+exact 42 references using expected-old-SHA leases; 11 remote heads remain.
+
+Temporary deletion protection covered every retained branch before Protect
+(23964845) was changed to force-push protection only. Force-push protection stayed
+active for all branches throughout. Original all-branch deletion and
+non-fast-forward protection was restored before removing the temporary rule, with
+no bypass actors added. GitHub returned the restored rules in a different order;
+semantic verification confirmed both rules and completed temporary-rule removal.
+Final checks verified the retained heads and effective original protections.
+Tracked diffs and untracked source hashes prove the in-progress human-chat edits
+were preserved. No source folder, recovery metadata or release was deleted.
+The local refs/remotes/origin/HEAD symbolic ref is preserved.
 
 Twenty-four superseded task-created held-build images (32 tags) were removed using
 native exact-reference Docker removal without force. Current/pending/rollback and
@@ -103,6 +114,8 @@ receipts. Browser receipts/screenshots remain outside Git:
 - %TEMP%/allied-local-branch-retirement-result-a51a-20261028.json and
   allied-local-branch-retirement-resume-a51a-20261028.json.
 - %TEMP%/allied-superseded-task-images-result-a51a-20261028.json.
+- %TEMP%/allied-approved-remote-branch-retirement-20261028.json: approved exact
+  exception, atomic deletion, restored protections and source-preservation hashes.
 
 Real private-account acceptance, physical mobile browsers, OS push delivery and
 full screen-reader acceptance were not established by these fixtures. The complete
