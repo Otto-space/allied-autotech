@@ -741,6 +741,78 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
             }),
           ).toBe(1);
       });
+    it("pages only the customer's selected vehicle payments and rejects an unrelated cursor", async () => {
+      const f = await fixture("VEHICLE_TRANSACTION");
+      const [first, second] = await Promise.all([f.legacy(), f.legacy()]);
+      const otherCustomer = await fixture("VEHICLE_TRANSACTION");
+      const foreign = await otherCustomer.legacy();
+      const customerId = (
+        await prisma.customerProfile.findUniqueOrThrow({
+          where: { userId: f.actor.userId },
+        })
+      ).id;
+      const branchId = (
+        await prisma.vehicleTransaction.findUniqueOrThrow({
+          where: { id: f.input.targetId },
+          select: { vehicleListing: { select: { branchId: true } } },
+        })
+      ).vehicleListing.branchId;
+      const order = await prisma.order.create({
+        data: {
+          customerId,
+          branchId,
+          orderNumber: `TC-${randomUUID()}`,
+          subtotalKobo: 10000n,
+          totalKobo: 10000n,
+          customerName: "Isolated Target",
+          customerEmail: f.actor.email,
+          customerPhone: "+2348000000000",
+          paymentDueAt: new Date(Date.now() + 3600000),
+        },
+      });
+      const unrelated = await prisma.payment.create({
+        data: {
+          customerId,
+          orderId: order.id,
+          paymentNumber: `TC-${randomUUID()}`,
+          idempotencyKeyHash: randomUUID().replaceAll("-", "").padEnd(64, "0"),
+          purpose: "ORDER_PAYMENT",
+          amountKobo: 10000n,
+        },
+      });
+      const query = { vehicleTransactionId: f.input.targetId, limit: 1 };
+      const firstPage = (await f.service.customerList(f.actor, query)) as {
+        items: { id: string; vehicleTransactionId: string | null }[];
+        nextCursor?: string;
+      };
+      expect(firstPage.items).toHaveLength(1);
+      expect(firstPage.nextCursor).toBe(firstPage.items[0]!.id);
+      const nextPage = (await f.service.customerList(f.actor, {
+        ...query,
+        cursor: firstPage.nextCursor,
+      })) as typeof firstPage;
+      expect(new Set([...firstPage.items, ...nextPage.items].map((p) => p.id))).toEqual(
+        new Set([first.id, second.id]),
+      );
+      expect(
+        [...firstPage.items, ...nextPage.items].every(
+          (p) => p.vehicleTransactionId === f.input.targetId,
+        ),
+      ).toBe(true);
+      expect(nextPage.nextCursor).toBeUndefined();
+      expect(
+        (await f.service.customerList(f.actor, {
+          ...query,
+          vehicleTransactionId: otherCustomer.input.targetId,
+        })) as typeof firstPage,
+      ).toMatchObject({ items: [] });
+      for (const cursor of [foreign.id, unrelated.id])
+        await expect(
+          f.service.customerList(f.actor, { ...query, cursor }),
+        ).rejects.toMatchObject({
+          statusCode: 404,
+        });
+    });
   },
 );
 import { testReservationAcceptance } from "../helpers/reservation-terms.js";

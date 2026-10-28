@@ -98430,8 +98430,8 @@
         "tags": [
           "Payments"
         ],
-        "summary": "List own payments",
-        "description": "Requires the customer account that owns the payment; server verification remains authoritative. List own payments. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.",
+        "summary": "List own payments, optionally for one vehicle purchase",
+        "description": "Requires the customer account that owns the payment; server verification remains authoritative. Optional vehicleTransactionId filters within the authenticated customer's payments before pagination. A cursor for another customer, target or selected status is rejected. An empty result does not reveal whether a different customer owns the target. List own payments, optionally for one vehicle purchase. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.",
         "security": [
           {
             "sessionCookie": []
@@ -98467,6 +98467,18 @@
           {
             "schema": {
               "type": "string",
+              "format": "uuid",
+              "description": "Identifier of the vehicle transaction resource; ownership is resolved server-side."
+            },
+            "required": false,
+            "name": "vehicleTransactionId",
+            "in": "query",
+            "description": "Vehicle Transaction Id used to constrain this request.",
+            "example": "00000000-0000-4000-8000-000000000001"
+          },
+          {
+            "schema": {
+              "type": "string",
               "enum": [
                 "REQUIRES_PAYMENT",
                 "PROCESSING",
@@ -98486,7 +98498,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Success: List own payments.",
+            "description": "Success: List own payments, optionally for one vehicle purchase.",
             "content": {
               "application/json": {
                 "schema": {
@@ -98502,14 +98514,14 @@
                     },
                     "data": {
                       "type": "object",
-                      "description": "Cursor-paginated result for: List own payments.",
+                      "description": "Cursor-paginated result for: List own payments, optionally for one vehicle purchase.",
                       "properties": {
                         "items": {
                           "type": "array",
                           "description": "Authorized resource projections for this page.",
                           "items": {
                             "type": "object",
-                            "description": "Safe item projection returned by List own payments.",
+                            "description": "Safe item projection returned by List own payments, optionally for one vehicle purchase.",
                             "properties": {
                               "id": {
                                 "type": "string",
@@ -98561,7 +98573,7 @@
                 },
                 "example": {
                   "success": true,
-                  "message": "List own payments",
+                  "message": "List own payments, optionally for one vehicle purchase",
                   "data": {
                     "items": [
                       {

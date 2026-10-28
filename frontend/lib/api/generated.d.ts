@@ -4580,8 +4580,8 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * List own payments
-         * @description Requires the customer account that owns the payment; server verification remains authoritative. List own payments. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+         * List own payments, optionally for one vehicle purchase
+         * @description Requires the customer account that owns the payment; server verification remains authoritative. Optional vehicleTransactionId filters within the authenticated customer's payments before pagination. A cursor for another customer, target or selected status is rejected. An empty result does not reveal whether a different customer owns the target. List own payments, optionally for one vehicle purchase. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
          */
         get: operations["getCustomersPayments"];
         put?: never;
@@ -78722,6 +78722,11 @@ export interface operations {
                  */
                 limit?: number;
                 /**
+                 * @description Vehicle Transaction Id used to constrain this request.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                vehicleTransactionId?: string;
+                /**
                  * @description Status used to constrain this request.
                  * @example REQUIRES_PAYMENT
                  */
@@ -78733,7 +78738,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Success: List own payments. */
+            /** @description Success: List own payments, optionally for one vehicle purchase. */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -78742,7 +78747,7 @@ export interface operations {
                     /**
                      * @example {
                      *       "success": true,
-                     *       "message": "List own payments",
+                     *       "message": "List own payments, optionally for one vehicle purchase",
                      *       "data": {
                      *         "items": [
                      *           {
@@ -78762,7 +78767,7 @@ export interface operations {
                         success: boolean;
                         /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
                         message: string;
-                        /** @description Cursor-paginated result for: List own payments. */
+                        /** @description Cursor-paginated result for: List own payments, optionally for one vehicle purchase. */
                         data?: {
                             /** @description Authorized resource projections for this page. */
                             items: ({

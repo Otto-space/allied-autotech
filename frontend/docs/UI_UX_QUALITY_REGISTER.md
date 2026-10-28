@@ -2253,3 +2253,40 @@ at 390/1440px passed product-detail heading, corrected copy, collection FAQ,
 product-specific Contact navigation, no horizontal overflow and no page errors.
 No customer form, payment or inventory action was submitted. Native devices,
 screen readers and authenticated-role acceptance remain outside this check.
+
+### Historical merged-branch checkpoint
+
+The following dated observation is retained from origin/fix/customer-vehicle-payment-filter-20261027; it is not a claim of current production identity.
+
+27 October 2026 - P1 vehicle-payment history on purchase detail. The verified
+customer list API candidate filters by the owned vehicle transaction before
+pagination, and the purchase panel requests that target and rejects a mismatched
+row or incomplete history. This prevents unrelated account history from exhausting
+the client scan; source payment locks and eligibility remain authoritative.
+Six focused Edge/Playwright fixture cases passed on the locally compiled page:
+later-page unresolved requests, wrong-target data, failed fetch and repeated cursor.
+The first run used a blocked Next development origin and was not counted; the
+successful run used localhost. Frontend typecheck, scoped ESLint/formatting and
+exact-lock GitHub frontend release checks passed. A fresh isolated PostgreSQL
+service test covered owner/target/cursor boundaries. This is not a full-page
+accessibility or real production-role acceptance. The backend and frontend must
+release in that order; no production deployment or financial transaction was made.
+Evidence and provider-access limit: backend/docs/customer-vehicle-payment-filter-20261027.md.
+
+27 October 2026 - Contact visit-preference validation, P1 local correction. At
+`/contact` with an anonymous service enquiry, a future date and missing time,
+the rendered form focused and marked the already completed date field. Entering
+the time left the shared error visible until another review. A 4,000-character
+message plus visit details also focused the date rather than the message. The
+shared SERVICE/VEHICLE preference validator now identifies the field that needs
+correction; the form marks it, connects its error description, focuses it and
+clears stale feedback on editing. Both visible preference fields expose their
+required state. Review still creates no booking, hold or payment. Eleven focused
+unit cases, frontend typecheck, scoped lint/format and `git diff --check` passed.
+Read-only isolated Edge/Playwright CLI interaction confirmed the before/after
+missing-time focus and correction, message-overflow focus, valid review dialog,
+and no overflow at 320px. The local API responses were fixtures; no POST was
+sent. Exact-source locked Next 16.4.3 frontend release CI 40448703220 and
+redacted secret guard 40448703167 passed for runtime c54ef088; the reused local
+Next installation is 16.3.8. Hosted acceptance, wider public forms, physical
+keyboard/screen-reader checks and full site completion remain open.

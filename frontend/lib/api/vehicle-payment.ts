@@ -53,7 +53,7 @@ export function allowedVehiclePurpose(
     );
   return true;
 }
-// The backend has no target filter. Never infer an empty purchase history from one page.
+// Confirm each filtered page and fail closed if the server or cursor contract drifts.
 export async function readVehiclePayments(transactionId: string, signal: AbortSignal) {
   const matching: PaymentRecord[] = [];
   const seenCursors = new Set<string>();
@@ -61,7 +61,7 @@ export async function readVehiclePayments(transactionId: string, signal: AbortSi
   let cursor: string | undefined;
   for (let page = 0; page < 100; page++) {
     const response = await apiRequest(
-      `/customers/payments?limit=100${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ""}`,
+      `/customers/payments?limit=100&vehicleTransactionId=${encodeURIComponent(transactionId)}${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ""}`,
       { signal },
     );
     const parsed = parsePayments(response.data);
@@ -69,7 +69,9 @@ export async function readVehiclePayments(transactionId: string, signal: AbortSi
       if (seenIds.has(payment.id))
         throw new Error("Payment history changed while paging");
       seenIds.add(payment.id);
-      if (payment.vehicleTransactionId === transactionId) matching.push(payment);
+      if (payment.vehicleTransactionId !== transactionId)
+        throw new Error("Payment history target changed");
+      matching.push(payment);
     }
     if (!parsed.nextCursor) return matching;
     if (

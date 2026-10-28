@@ -2506,6 +2506,15 @@ all106 route gates remain active; W9 provider allowance stays exhausted.
 
 27 October 2026 - Revision 4 W15 reviewed Customer Care handoff checkpoint: customer review/edit, explicit selected help sharing, canonical new/existing support persistence and encrypted session-bound recovery are implemented locally. Browser storage retains only an operation ID; uncertain results block a new operation, and cancellation preserves a case already saved. AI-off/guest/workforce boundaries and separate drafts remain intact. Accepted evidence: 116 distinct native cases across seven suites (115 broad plus the revised 11-case learning run), 84 Allie backend units, full 1,161 frontend tests in 173 files, 32 distinct browser fixtures and one actual browser/CSRF/API/restricted-CI-DB composition. That composition saved one enquiry and one complaint reply, two audits, preserved an internal note and left inventory/bookings unchanged. OpenAPI 385 paths / 450 operations plus 4 infrastructure routes, generated contracts, types/lint/secret guard and optimized build pass. See docs/help-learn/REVIEWED_HANDOFF_W15.md. No schema, provider call, real delivery or publication. Temporary native sessions revoked/cookie removed; C: measured 23.34 GiB free; useful Docker/cache resources retained. Full Revision 4 remains active: shared staffed/gated transport, operational readiness and all 106 exact-route acceptance decisions remain open. The owner authorised a reviewed committed release before the session limit; reconcile newer live frontend/backend fixes and complete the migration-73/backup/restore/exact-lock/hosted gates before publication.
 
+
+
+### Historical merged-branch checkpoint
+
+The following dated observation is retained from origin/fix/customer-vehicle-payment-filter-20261027; it is not a claim of current production identity.
+
+Details and limits: frontend/docs/BRAND_ASSETS_R2_REPORT.md. Physical devices,
+actual zoom, screen reader, authenticated role acceptance and broader Item 6
+remain open. Docker resources retained; C: postflight 27.08 GiB free.
 26 October 2026 - payment-source expiry correction released from runtime
 `2033b159`. DigitalOcean deployment `3cb61958-e460-494b-ae29-1ce826ac22b9`
 is ACTIVE with no in-progress rollout; all four component digests match the
@@ -3216,3 +3225,39 @@ the product detail, collection FAQ and exact-product Contact navigation with no
 horizontal overflow or page exception. No form, inventory, provider, payment,
 database or backend change was made. Physical devices, screen readers and
 authenticated-role acceptance remain open; P0 backend release gates are unchanged.
+
+
+### Historical merged-branch checkpoint
+
+The following dated observation is retained from origin/fix/customer-vehicle-payment-filter-20261027; it is not a claim of current production identity.
+
+27 October 2026 - P1 vehicle-payment history filter local checkpoint on a
+merged current-release source (frontend 8fa386cb plus backend 3bb51d21).
+Customer payment list applies optional vehicleTransactionId within the owned
+profile before cursor pagination; foreign/other-target filtered cursors fail.
+The purchase panel uses that filter and rejects mismatched rows or incomplete
+history before offering a new payment request. A fresh isolated PostgreSQL 18
+_ci target replayed 72 migrations, passed schema diff/db:check and the focused
+real-service ownership/pagination integration. Six focused Edge fixture cases,
+backend/frontend types, scoped lint and OpenAPI validation passed. The task
+database was stopped/removed; no production financial/provider write. Exact-lock
+CI, API-first deployment, both frontend aliases and authorized live-role
+acceptance remain open. See backend/docs/customer-vehicle-payment-filter-20261027.md.
+P0 reconciliation recovery remains on its separate unreleased branch, and full
+Item 6/Revision 4 remain active.
+The exact candidate 54e83b3f passed frontend 40445007425, backend 40445007397
+and secret 40445007545 GitHub runs. Provider promotion did not run: local doctl
+returns access-token-required, no Vercel CLI is installed, and browser automation
+surfaces are unavailable. Recheck live source/access before release; no image or
+production app/database change was made for this candidate.
+
+27 October 2026 - P1 Contact visit-preference correction on the same candidate
+branch. Source c54ef088 makes missing date/time and overlong visit messages
+focus/mark the actual field, announce its error and clear stale feedback when
+edited; it does not change request-only visit policy. Eleven focused unit cases,
+frontend types/lint/format, local isolated Edge interaction at desktop and 320px,
+and exact-source locked frontend 40448703220 plus secret 40448703167 GitHub
+checks passed. The browser sent no POST; local API results were fixtures. No
+Docker resource or production deployment/database/provider action. The original
+vehicle-payment API-first release and live role checks remain open, along with
+wider public-form/physical-device acceptance. See the frontend quality register.
