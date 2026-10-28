@@ -6,13 +6,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight, ChevronDown, ChevronRight } from "lucide-react";
 import { business } from "@/lib/business";
-import { operatingPrinciples } from "@/lib/brand-content";
+import { browseEnquiriesOnly } from "@/lib/public-launch";
 import { ServiceJourney } from "../components/brand-editorial";
 import { serviceApiPath } from "@/lib/service-discovery";
 import { SiteHeader } from "../components/site-header";
 import { SiteFooter } from "../components/site-footer";
 import { ServicesCatalogue } from "../components/services-catalogue";
-import { CampaignArtwork } from "../components/campaign-artwork";
 import "./services.css";
 
 async function listingPath(searchParams: SearchParameters) {
@@ -30,7 +29,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const metadata = await publicPageMetadata(
     "Vehicle services",
-    "Explore Allied AutoTech vehicle services in Port Harcourt. Review fixed-price appointments or request a quotation for your vehicle.",
+    "Explore Allied AutoTech vehicle services in Port Harcourt. Review published services or ask about your vehicle.",
     "/services",
     searchParams,
   );
@@ -67,14 +66,10 @@ export default async function ServicesPage({
         <section className="services-hero" aria-labelledby="services-title">
           <div className="public-wrap services-hero-inner">
             <div className="services-hero-copy">
-              <h1 id="services-title">
-                Care for every
-                <br />
-                next kilometre.
-              </h1>
+              <h1 id="services-title">Find the service your vehicle needs</h1>
               <p>
-                Explore our services. Review fixed prices or discuss a quotation for your
-                vehicle.
+                Browse published services or tell the team what you have noticed about
+                your vehicle.
               </p>
             </div>
             <div className="services-hero-media">
@@ -95,48 +90,11 @@ export default async function ServicesPage({
         >
           <ServicesCatalogue initial={initial} />
         </section>
-        <section
-          className="services-principles"
-          aria-labelledby="services-principles-title"
-        >
-          <div className="public-wrap services-principles-inner">
-            <div className="services-principles-media">
-              <CampaignArtwork
-                artwork="right-work"
-                alt="Allied AutoTech No Guesswork campaign showing mechanical work"
-                sizes="(max-width: 440px) calc(100vw - 40px), 400px"
-              />
-            </div>
-            <div>
-              <h2 id="services-principles-title">No guesswork. Just the right work.</h2>
-              <p>
-                Share what you have noticed. Discuss the findings and proposed work with
-                our team before you decide on the next step.
-              </p>
-              <ul>
-                {[
-                  operatingPrinciples[0],
-                  operatingPrinciples[2],
-                  operatingPrinciples[5],
-                ].map(([title, copy]) => (
-                  <li key={title}>
-                    <h3>{title}</h3>
-                    <p>{copy}</p>
-                  </li>
-                ))}
-              </ul>
-              <Link className="text-link" href="/about">
-                Our approach to vehicle care <ArrowUpRight size={16} aria-hidden="true" />
-              </Link>
-            </div>
-          </div>
-        </section>
         <ServiceJourney showStartLink={false} />
         <section className="services-faq" aria-labelledby="services-faq-title">
           <div className="public-wrap services-faq-inner">
             <div>
-              <h2 id="services-faq-title">Before you book.</h2>
-              <p>A few useful details before your next step.</p>
+              <h2 id="services-faq-title">Before you enquire</h2>
             </div>
             <div className="services-faq-list">
               {[
@@ -145,8 +103,12 @@ export default async function ServicesPage({
                   "A fixed-price service has a listed price. For a service marked quotation required, share your vehicle details and the work you need so the team can review the scope. Open the service page to see the available next steps.",
                 ],
                 [
-                  "Is a booking request a confirmed appointment?",
-                  "A booking request is sent for workshop review. Check your account for the confirmed appointment and updates. The duration shown in the catalogue is the listed service duration, not a guaranteed collection time.",
+                  browseEnquiriesOnly()
+                    ? "Does an enquiry confirm a visit?"
+                    : "Is a booking request a confirmed appointment?",
+                  browseEnquiriesOnly()
+                    ? "An enquiry does not confirm an appointment. Agree visit arrangements with the team. The listed service duration is not a guaranteed collection time."
+                    : "A booking request is sent for workshop review. Check your account for the confirmed appointment and updates. The duration shown in the catalogue is the listed service duration, not a guaranteed collection time.",
                 ],
                 [
                   "What should I include when asking about a service?",
@@ -174,7 +136,7 @@ export default async function ServicesPage({
               </p>
             </div>
             <div className="actions">
-              <Link href="/contact" className="button">
+              <Link href="/contact#enquiry" className="button">
                 Ask about a service <ArrowUpRight size={16} aria-hidden="true" />
               </Link>
               <a href={business.whatsapp} className="button secondary">

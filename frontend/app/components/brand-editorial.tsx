@@ -2,7 +2,11 @@ import { browseEnquiriesOnly } from "@/lib/public-launch";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
-import { operatingPrinciples, serviceJourney } from "@/lib/brand-content";
+import {
+  operatingPrinciples,
+  serviceJourney,
+  serviceEnquiryJourney,
+} from "@/lib/brand-content";
 import { business } from "@/lib/business";
 import "./service-journey.css";
 
@@ -39,6 +43,7 @@ export function EditorialBanner({
 }
 
 export function ServiceJourney({ showStartLink = true }: { showStartLink?: boolean }) {
+  const enquiriesOnly = browseEnquiriesOnly();
   return (
     <section
       className="services-journey journey-section"
@@ -46,17 +51,22 @@ export function ServiceJourney({ showStartLink = true }: { showStartLink?: boole
     >
       <div className="public-wrap">
         <div className="services-journey-heading">
-          <h2 id="services-journey-title">A clear path to better vehicle care.</h2>
-          <p>From the first conversation to collection, know what comes next.</p>
+          <h2 id="services-journey-title">
+            {enquiriesOnly
+              ? "What happens after you enquire?"
+              : "What happens during a service?"}
+          </h2>
         </div>
         <ol>
-          {serviceJourney.map(([title, copy], index) => (
-            <li key={title}>
-              <span aria-hidden="true">0{index + 1}</span>
-              <h3>{title}</h3>
-              <p>{copy}</p>
-            </li>
-          ))}
+          {(enquiriesOnly ? serviceEnquiryJourney : serviceJourney).map(
+            ([title, copy], index) => (
+              <li key={title}>
+                <span aria-hidden="true">0{index + 1}</span>
+                <h3>{title}</h3>
+                <p>{copy}</p>
+              </li>
+            ),
+          )}
         </ol>
         {showStartLink && (
           <Link className="text-link journey-start" href="/services">
@@ -155,16 +165,31 @@ export function ContactInvitation() {
     <section className="public-section contact-invitation">
       <div className="public-wrap contact-band">
         <div>
-          <h2>Let’s take care of your next move.</h2>
-          <p>Visit Allied AutoTech at {business.address}.</p>
+          <h2>Visit Allied AutoTech in Port Harcourt</h2>
+          <p>{business.address}</p>
+          <p>
+            <strong>Customer Care hours:</strong> {business.customerCareHours}
+          </p>
         </div>
         <div className="actions">
-          <Link href="/services" className="button">
-            {browseEnquiriesOnly() ? "Explore services" : "Book a Service"}{" "}
-            <ArrowUpRight size={17} aria-hidden="true" />
+          <a
+            href={business.directions}
+            className="button"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Get directions <ArrowUpRight size={17} aria-hidden="true" />
+          </a>
+          <Link href="/contact#enquiry" className="button secondary">
+            Contact the team
           </Link>
-          <a href={business.whatsapp} className="button secondary">
-            Speak with us
+          <a
+            href={business.whatsapp}
+            className="button secondary"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Whatsapp
           </a>
         </div>
       </div>

@@ -63,3 +63,19 @@ export const serviceJourney = [
     "Collect your vehicle and speak with us about after-service care.",
   ],
 ] as const;
+
+// Enquiry guidance for limited public releases; no appointment or stock reservation.
+export const serviceEnquiryJourney = [
+  [
+    "Tell us what you need",
+    "Share the vehicle details and the issue, service or part you need help with.",
+  ],
+  [
+    "Discuss the findings and scope",
+    "Review the proposed work and quotation with our team before approval.",
+  ],
+  [
+    "Confirm your visit or collection",
+    "Agree arrangements with the team. An enquiry alone does not confirm an appointment or reserve stock.",
+  ],
+] as const;

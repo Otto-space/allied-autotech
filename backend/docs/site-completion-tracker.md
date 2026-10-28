@@ -1,5 +1,25 @@
 # Allied AutoTech completion tracker
 
+## 28 October 2026 current public copy and imagery cycle
+
+Owner invoked instruction 7 of the 27 October content/imagery brief. Active source
+is `allied-contact-validation-20261027`, branch `feat/public-copy-imagery-20261028`.
+Verified initial apex/www a51a58b8, then incorporated live 2725efea before release.
+Scope is Home, Services, Shop, Vehicles, About and public footer. Static hero,
+consolidated sections, truthful sparse states, real equipment placement and a
+separate neutral showroom derivative replace repeated promotional blocks.
+Mission/principles, source catalogue copy, auth, Allie and launch flags remain.
+No backend/database/stock/review/message/transaction writes. Source-authored
+Tyre Change wording and missing product photography are explicit editorial
+dependencies in `frontend/docs/PUBLIC_COPY_IMAGERY_20261028.md`.
+
+Local typecheck, lint and focused 22-case state/regression checks pass. Home
+responsive fixtures passed ten widths; recovery, reviews, image failure, doubled
+text, keyboard/menu and mobile/desktop accessibility checks passed after fixing
+mobile hero contrast. Real public-data layout and release gates are in progress.
+No full-site, real-role, physical-device or screen-reader acceptance is claimed.
+
+
 ## 28 October 2026 consolidated production release
 
 Runtime master a51a58b856e12c0187c1d5753f2f30ef4382a894 is now published:

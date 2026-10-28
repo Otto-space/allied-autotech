@@ -28,36 +28,24 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-it("keeps service, vehicle and Shop journeys with keyboard wraparound and reduced motion", () => {
+it("keeps one stable offer and the two distinct hero destinations", () => {
   render(<HomeHero />);
-  expect(screen.getAllByRole("button", { name: /Show slide/ })).toHaveLength(3);
-  expect(screen.getByText("01 / 03")).toBeTruthy();
-  expect(screen.queryByRole("button", { name: "Pause slideshow" })).toBeNull();
-  const region = screen.getByRole("region", { name: "Explore Allied AutoTech" });
-  fireEvent.keyDown(region, { key: "ArrowRight" });
-  expect(
-    screen.getByRole("link", { name: "Explore vehicles" }).getAttribute("href"),
-  ).toBe("/vehicles");
-  expect(
-    screen.getByText(/Availability and inspection arrangements are confirmed/),
-  ).toBeTruthy();
-  fireEvent.keyDown(region, { key: "ArrowRight" });
-  expect(screen.getByRole("link", { name: "Visit the Shop" }).getAttribute("href")).toBe(
-    "/parts",
+  expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
+  expect(screen.getByRole("heading", { level: 1 }).textContent).toBe(
+    "Diagnostics, repairs and automotive essentials.",
   );
-  expect(screen.getByText("03 / 03")).toBeTruthy();
-  fireEvent.keyDown(region, { key: "ArrowRight" });
-  expect(screen.getByRole("heading", { level: 1 }).textContent).toContain(
-    "Built on trust",
-  );
+  expect(
+    screen.getByRole("link", { name: "Explore services" }).getAttribute("href"),
+  ).toBe("/services");
+  expect(
+    screen.getByRole("link", { name: "Contact the team" }).getAttribute("href"),
+  ).toBe("/contact#enquiry");
+  expect(screen.queryByRole("button")).toBeNull();
 });
 
-it("offers a compact review invitation only after a successful empty response", () => {
+it("omits verified empty reviews but exposes a failed refresh and recovery action", () => {
   const view = render(<HomeReviewsPreview initial={{ data: { items: [] } }} />);
-  expect(screen.getByRole("heading", { name: "Your experience matters." })).toBeTruthy();
-  expect(
-    screen.getByRole("link", { name: "About customer reviews" }).getAttribute("href"),
-  ).toBe("/reviews");
+  expect(view.container.innerHTML).toBe("");
   resource.refreshError = "Unable to refresh customer feedback.";
   view.rerender(<HomeReviewsPreview initial={{ data: { items: [] } }} />);
   expect(screen.getByText("Unable to refresh customer feedback.")).toBeTruthy();
