@@ -11,11 +11,22 @@ fragment cleanup and unrevealed practice feedback. Prior permissions, eligibilit
 content versions, target contracts and local simulation boundaries remain intact.
 
 A concurrent frontend favourites release ef06efb7 / dpl_FAJ8oVhecCNTGac2XAyufAgg7hvv
-was observed and will be integrated before rollout. Backend 8fd37e1c remains ACTIVE
-with no pending release. Focused units pass; final combined browser tests, locked
-CI and actual public-content acceptance are pending. Full scope, evidence and
-physical-device/private-role limits are in the matching quality-register entry.
-No backend/schema/provider write or real support/account operation initiated.
+was observed and merged before rollout. Backend 8fd37e1c remains ACTIVE
+with no pending release. Focused units and ten local interaction cases passed
+before the final recovery-link assertion; the combined local run reached 23
+passes before a renewed disk-reserve stop. Final runtime 072e0509 /
+dpl_Bov9FbKyy4yPMRqWnJG3CpX6MMQz is promoted on both domains after exact-source
+frontend 40710727313, secret guard 40710727576 and isolated database safety
+40711362859 passed. All 39 deployed browser cases passed. Separate real public
+390/1440 article/Allie/guide/practice checks, three compact viewport checks and
+www-domain refresh/hide/reopen/recovery checks passed without page errors or API
+writes. A final real action-link sweep also confirmed every article destination,
+Allie-to-article focus, practice entry/exit and input clearing on leave/Back. Final
+disk postflight measured 27.9 GiB free; task dev/browser processes are stopped.
+Full scope, evidence and physical-device/private-role limits are in the matching quality-register entry.
+No backend/schema write or real support/account operation initiated. Frontend
+promotion followed the owner's standing authorization and preserved the prior
+favourites release as rollback. The guard receipt is %TEMP%/aat-learning-promotion.json.
 
 ## 28 October 2026 current navbar stability follow-up
 
