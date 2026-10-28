@@ -21,8 +21,13 @@ backend, schema or provider was changed. Exact-source CI, staged deployment and
 hosted acceptance remain before publication; physical-device and full
 screen-reader acceptance remain open. During release preparation, both domains
 advanced to navbar runtime `4aafaebb` / `dpl_F5XnU2aiSxhtK78P8dnbvrffYCR5`.
-That independently verified source was merged before staging this candidate;
-the integrated frontend/browser checks and exact-source CI must be repeated.
+Both domains then advanced to favourites runtime `ef06efb7` /
+`dpl_FAJ8oVhecCNTGac2XAyufAgg7hvv`. Both published sources are merged into
+the notification branch. On that source, 36/37 integrated header and
+notification browser cases passed with Help & Learn enabled. The remaining
+historical-commerce case passed after setting the local launch mode to the
+production `browse_enquiries` value; the default `full` fixture had exposed a
+test-environment mismatch. Exact-source CI and staged hosted checks remain.
 
 ## 28 October 2026: Stable navbar through Help to Learn navigation
 

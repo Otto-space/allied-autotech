@@ -15,8 +15,13 @@ limits. Exact-source CI, staged frontend promotion and hosted acceptance are
 pending. No notification read, message, payment or production data write was
 made; live authenticated-role and physical-device checks remain open. During
 release preparation, both domains advanced to navbar runtime `4aafaebb` /
-`dpl_F5XnU2aiSxhtK78P8dnbvrffYCR5`. Its reviewed source was merged before
-staging this candidate; integrated tests and exact-source CI are required.
+`dpl_F5XnU2aiSxhtK78P8dnbvrffYCR5`. Both domains then advanced to the
+favourites runtime `ef06efb7` / `dpl_FAJ8oVhecCNTGac2XAyufAgg7hvv`.
+Both released sources are ancestors of this candidate. On the merged source,
+36/37 header and notification browser cases passed with Help & Learn enabled;
+the remaining historical-commerce case passed when the local launch mode was
+set to production's `browse_enquiries`. No application defect was found in that
+fixture mismatch. Exact-source CI and staged hosted checks remain pending.
 
 ## 28 October 2026 current navbar stability follow-up
 
