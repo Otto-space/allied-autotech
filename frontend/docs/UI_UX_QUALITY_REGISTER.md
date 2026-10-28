@@ -2290,3 +2290,19 @@ sent. Exact-source locked Next 16.4.3 frontend release CI 40448703220 and
 redacted secret guard 40448703167 passed for runtime c54ef088; the reused local
 Next installation is 16.3.8. Hosted acceptance, wider public forms, physical
 keyboard/screen-reader checks and full site completion remain open.
+
+### Historical merged-branch checkpoint
+
+The following dated observation is retained from origin/fix/parts-enquiry-copy-20261027; it is not a claim of current production identity.
+
+27 October 2026 - P1 public Parts detail enquiry copy. On the live 390px page,
+the only listed oil filter had no branch availability, yet the detail said to
+arrange collection from a listed branch and repeatedly described ordering.
+The bounded candidate, rebased onto exact live frontend source a1b8ce45,
+uses the existing launch-mode gate to ask visitors to confirm stock and
+collection arrangements before visiting. Full-commerce wording remains separate.
+The product's price, availability, fitment and enquiry destination are unchanged.
+An optimized Next 16.4.3 build and scoped lint passed; a rendered 390px detail
+showed the revised wording, exact product enquiry link, no overflow and no page
+exception. Desktop optimized/hosted acceptance and release verification remain
+pending. No customer form or financial action was submitted.
