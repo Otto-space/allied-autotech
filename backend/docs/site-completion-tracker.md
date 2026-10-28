@@ -1,5 +1,31 @@
 # Allied AutoTech completion tracker
 
+## 28 October 2026 current catalogue fitment-guidance cycle
+
+Initial production baseline: frontend `dpl_DfQ8TmtFujaCL215HnWRuaTRuRZr` on both
+domains; backend `3ee6748f-ed72-4c89-b9a1-f1963e891190` ACTIVE. The public
+fitment-make API currently has no choices. The Parts finder therefore offers
+an enquiry, while the published product card still told customers to choose
+a vehicle. Live Parts search, empty results, Back navigation and filter Escape
+worked at 390/1440px; the discrepancy is limited to card guidance. The mobile
+support dock briefly overlaps the enquiry action at 390x700 while scrolling,
+but another short scroll exposes it; no shared dock change is justified here.
+
+The separate `fix/catalogue-fitment-availability-20261028` branch reuses the
+fitment worktree and makes card guidance follow confirmed vehicle-choice
+availability. It preserves product data, fitment decisions, enquiry links and
+the prior product-detail release. Four isolated rendered cases passed locally
+at 390/1440px: positive, empty and failed make lookups on the catalogue,
+plus the existing product-detail enquiry, keyboard and recovery journey.
+Catalogue SSR reads the one real published product; browser identity and all
+mutations are intercepted. Type, lint, exact-source CI, hosted acceptance and
+release identity are being checked before publication. No production write
+or real enquiry was made by the browser tests. The wider goal and real-role,
+physical-device and full screen-reader acceptance remain open. During local
+validation, the public-copy release advanced production to
+`dpl_Akw8ic1B6NQFGgL7tDDrm3pskZZ3`; its runtime is integrated in this
+candidate alongside the newer garage/privacy master changes.
+
 ## 28 October 2026 current public copy and imagery cycle
 
 Owner invoked instruction 7 of the 27 October content/imagery brief. Active source
@@ -18,12 +44,19 @@ responsive fixtures passed ten widths; recovery, reviews, image failure, doubled
 text, keyboard/menu and mobile/desktop accessibility checks passed after fixing
 mobile hero contrast. Real public-data layout checks cover five routes at 320/430/768/1280/1536px.
 Enquiry and anchor journeys pass at 430/1536px; the native comparison is 1774px.
-The production build and full frontend tests passed; the first final gate found
-only merged register formatting, now corrected. Exact-source release gates are
-being rerun before promotion.
+The production build, full frontend tests, formatting, database safety and secret
+checks passed for bee7ed8f. READY dpl_Akw8ic1B6NQFGgL7tDDrm3pskZZ3 is published
+on apex/www; ancestry guards preserved live notification and fitment releases.
+Hosted acceptance passed 12 checks at 390/1440px, including refresh scrolling,
+Allie launcher focus, enquiry context and equipment anchor. Final current-tree
+fixtures passed six responsive/state/Axe cases; count/pricing fixtures also pass.
+Backend remains 3ee6748f ACTIVE; managed backup and existing separate logical
+restore receipts were rechecked. No backend or database rollout was performed.
+See the handoff for exact CI links, evidence, editorial dependencies and limits.
 No full-site, real-role, physical-device or screen-reader acceptance is claimed.
-
-
+Local preview stopped; existing dependencies, generated evidence and Docker
+resources retained. C: postflight 29.31 GiB free at measurement, above the 20 GiB
+reserve; this is a point-in-time check, not an OS quota.
 
 ## 28 October 2026 current product-fitment availability cycle
 
@@ -44,9 +77,19 @@ The isolated `allied-product-fitment-20261028` worktree is based on the current
 clean master commit, preserving dirty human-chat work in the master checkout.
 TypeScript, scoped lint and two rendered product-detail tests at 390/1440px
 pass. These tests use the one published product for read-only catalogue/SSR
-data and intercept identity and all mutations. Exact-source CI, deployment
-and hosted post-release acceptance remain pending. No payment, enquiry,
-customer or database write was made.
+data and intercept identity and all mutations. The candidate merged the
+subsequent notification-availability runtime `2725efea` before release.
+Exact runtime `8d2dfd69` passed frontend CI `40770274274`, backend safety
+`40770274308` and secret guard `40770274264`. Vercel built
+`dpl_DfQ8TmtFujaCL215HnWRuaTRuRZr` from that SHA with production settings;
+its protected product detail and contact pages returned 200. It was promoted
+after both aliases and disk reserve were rechecked. Both custom domains then
+resolved to this READY deployment. Post-promotion hosted product audit passed
+2/2 at 390/1440px. Backend readiness remains independently monitored;
+no payment, enquiry, customer or database write was made. Real customer,
+physical-device and
+full screen-reader acceptance remain open. Prior frontend
+`dpl_Ch3kcHTq565fAMKne6hFT8NPKw7R` is retained for rollback.
 
 ## 28 October 2026 consolidated production release
 

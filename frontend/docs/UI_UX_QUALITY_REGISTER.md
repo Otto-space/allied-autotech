@@ -1,5 +1,31 @@
 # UI and UX quality register
 
+## 28 October 2026: catalogue cards reflect vehicle-choice availability
+
+The released Parts catalogue at 390/1440px had one published Engine Oil Filter.
+The public fitment-make lookup returned no choices and the finder directed the
+customer to ask the team, while the product card still said to choose a
+vehicle. Search for `oil`, no-match search, Back restoration, filter Escape and
+focus return passed on the live domain. A separate 390x700 measurement found
+brief support-dock overlap as the product-detail enquiry action entered the
+viewport; scrolling exposed the whole action and the link had already passed
+the actual handoff test. No global dock change is included.
+
+Product cards now invite vehicle selection only after a successful nonempty
+make lookup. Empty, loading and failed lookups direct customers to the team;
+any listed application still requires fitment confirmation. Product records,
+availability, price, fitment decisions, navigation and enquiry submission are
+unchanged. The local rendered catalogue cases passed at 390/1440px with
+positive, empty and failed makes, the working finder choice, no page errors or
+horizontal overflow. The existing product-detail audit passed 2/2 at both
+widths, including enquiry handoff and scoped accessibility. Public catalogue
+GETs used the real published item; identity and writes were isolated. Browser
+plugin was unavailable, so existing Edge/Playwright checks were used. Exact
+source checks and hosted release acceptance are pending. Real account,
+physical-device and full screen-reader acceptance remain open. A concurrent
+public-copy release and garage/privacy master update are integrated before
+this catalogue change is published.
+
 ## 28 October 2026: bounded public content and imagery improvement
 
 Current cycle: owner's content brief, instruction 7. Home now has a stable offer,
@@ -17,7 +43,13 @@ Evidence: local types/lint; 23 focused state/regression cases; Home fixtures at
 published reviews, broken/long media, doubled text, menu/keyboard, and scoped
 Axe at 390/1440px. First failures included stale fixture stock/refresh assumptions,
 missing fixture detail data and a mobile hero contrast regression, corrected.
-Read-only public-data layout/interaction coverage and publication remain pending.
+Read-only public-data layout/interaction coverage passed all five pages at five
+widths. Published bee7ed8f / dpl_Akw8ic1B6NQFGgL7tDDrm3pskZZ3 on both domains
+with all three exact-source CI gates successful. Hosted acceptance passed 12
+recorded checks at 390/1440px, including www refresh/scroll, Allie launcher/focus,
+contextual vehicle enquiry and equipment anchor. Final current-tree fixture
+recheck passed six responsive/state/Axe cases; counts 0/1/3 and pricing selection
+also passed isolated browser fixtures. See the linked handoff for evidence/limits.
 No real stock/reviews, backend, permissions or commerce/AI/chat flags changed.
 Outstanding editorial copy/photo/reviewer dependencies are recorded separately;
 physical devices, full screen-reader and signed-in journeys are outside this cycle.
@@ -51,8 +83,17 @@ the fixture now passes only public catalogue GETs to the same read-only
 backend that supplies the server-rendered page. Other API writes stay
 intercepted. Live before evidence: `%TEMP%/aat-live-product-detail-390.png`
 and `aat-live-product-detail-1440.png`; local after evidence is in the
-product-audit Playwright output. Exact-source CI, hosted post-release check,
-real-customer and physical-device acceptance remain open.
+product-audit Playwright output. The candidate integrated the published
+notification-availability release before rollout. Exact runtime `8d2dfd69`
+passed frontend CI `40770274274`, backend safety `40770274308` and secret
+guard `40770274264`; Vercel staged READY deployment
+`dpl_DfQ8TmtFujaCL215HnWRuaTRuRZr` from the same SHA. Protected product and
+contact reads returned 200 before promotion. Both custom domains then
+resolved to this READY deployment. Post-promotion hosted product audit passed
+2/2 at 390/1440px, with public catalogue GETs allowed and all
+mutation/identity behaviour isolated. Real-customer, physical-device and
+full screen-reader acceptance remain open. The previous
+`dpl_Ch3kcHTq565fAMKne6hFT8NPKw7R` is retained for rollback.
 
 ## 28 October 2026: combined Allie integration regression correction
 
