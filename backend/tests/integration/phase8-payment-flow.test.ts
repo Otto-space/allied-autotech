@@ -272,11 +272,20 @@ describe.skipIf(!runDatabaseTests)("Phase 8 payment flow", () => {
       },
     });
     const [operator, checker] = await Promise.all([user("ADMIN"), user("ADMIN")]);
+    const [operatorSession, checkerSession] = await Promise.all([
+      session(operator.id, "ADMIN"),
+      session(checker.id, "ADMIN"),
+    ]);
     const actorFor = (id: string): AuthenticatedActor => ({
       userId: id,
       role: "ADMIN",
       email: "synthetic@example.test",
-      sessionId: randomUUID(),
+      sessionId:
+        id === operator.id
+          ? operatorSession.id
+          : id === checker.id
+            ? checkerSession.id
+            : adminSession.id,
       mfaRequired: true,
       mfaVerifiedAt: new Date(),
     });
