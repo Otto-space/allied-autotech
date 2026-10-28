@@ -117,6 +117,10 @@ it("changes the vehicle enquiry panel only on verified successful empty data", (
   expect(
     screen.getByRole("link", { name: "Discuss a vehicle" }).getAttribute("href"),
   ).toBe("/contact?vehicle=1#enquiry");
+  state.refreshError = "Vehicle refresh temporarily unavailable";
+  view.rerender(<HomeVehiclesPreview />);
+  expect(screen.queryByText(/no published listings yet/)).toBeNull();
+  state.refreshError = undefined;
   state.error = "Vehicles temporarily unavailable";
   view.rerender(<HomeVehiclesPreview />);
   expect(screen.queryByText(/no published listings yet/)).toBeNull();
@@ -167,4 +171,14 @@ it("does not render an empty review stage while retaining a real published revie
   };
   view.rerender(<HomeReviewsPreview initial={{ data: { items: [] } }} />);
   expect(screen.getByText("Published fixture review")).toBeTruthy();
+});
+
+it("shows one eligible product without borrowing media from a missing-photo record", () => {
+  state.data = {
+    items: [photographed, { ...product, id: id(99), name: "No photograph" }],
+  };
+  const view = render(<HomePartsPreview />);
+  expect(view.container.querySelectorAll(".home-product-card")).toHaveLength(1);
+  expect(screen.getByRole("heading", { name: product.name })).toBeTruthy();
+  expect(screen.queryByRole("heading", { name: "No photograph" })).toBeNull();
 });

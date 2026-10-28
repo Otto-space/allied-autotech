@@ -107,14 +107,17 @@ export function HomePartsPreview({
             Find published products and their available details in the Shop.
           </p>
         )}
-      {!parts.loading && !parts.error && parts.data?.items.length === 0 && (
-        <div className="home-preview-empty">
-          <p>No products are published yet. Contact the team with what you need.</p>
-          <Link className="text-link" href="/contact?parts=1#enquiry">
-            Ask about a product <ArrowUpRight size={16} aria-hidden="true" />
-          </Link>
-        </div>
-      )}
+      {!parts.loading &&
+        !parts.error &&
+        !parts.refreshError &&
+        parts.data?.items.length === 0 && (
+          <div className="home-preview-empty">
+            <p>No products are published yet. Contact the team with what you need.</p>
+            <Link className="text-link" href="/contact?parts=1#enquiry">
+              Ask about a product <ArrowUpRight size={16} aria-hidden="true" />
+            </Link>
+          </div>
+        )}
     </div>
   );
 }
@@ -128,7 +131,11 @@ export function HomeVehiclesPreview({
     initialError: initial?.error,
     revalidateOnMount: false,
   });
-  const empty = !listings.loading && !listings.error && listings.data?.items.length === 0;
+  const empty =
+    !listings.loading &&
+    !listings.error &&
+    !listings.refreshError &&
+    listings.data?.items.length === 0;
   const hasListings = !!listings.data?.items.length && !listings.error;
   return (
     <section
@@ -152,13 +159,17 @@ export function HomeVehiclesPreview({
                   ? "Our online catalogue has no published listings yet. Tell us what you are looking for."
                   : "Compare published details or share your requirements with our team."}
               </p>
+              {hasListings && (
+                <Link className="text-link" href="/vehicles">
+                  Explore vehicles <ArrowUpRight size={16} aria-hidden="true" />
+                </Link>
+              )}
             </div>
             <Link
               className="button secondary"
-              href={empty ? vehicleEnquiryHref(new URLSearchParams()) : "/vehicles"}
+              href={vehicleEnquiryHref(new URLSearchParams())}
             >
-              {empty ? "Discuss a vehicle" : "Explore vehicles"}{" "}
-              <ArrowUpRight size={17} aria-hidden="true" />
+              Discuss a vehicle <ArrowUpRight size={17} aria-hidden="true" />
             </Link>
           </div>
           <div className="home-catalogue-preview" aria-busy={listings.loading}>
