@@ -22,6 +22,7 @@ the test. Corrected rendered acceptance and publication remain pending.
 ### Historical merged-branch checkpoint
 
 The following dated observation is retained from origin/feat/visual-identity-audit-20261027; it is not a claim of current production identity.
+
 ## 28 October 2026: Notification bell preview prioritizes unread updates
 
 The initial live frontend `09efa694` / `dpl_9us8TLTvZJxzA8KNvdKNqFMqjg8F`
