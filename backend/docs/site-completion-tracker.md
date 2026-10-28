@@ -3150,3 +3150,45 @@ legacy RUNNING/held rows, provider sandbox and real-role acceptance remain relea
 gates. Read-only SQL probes are recorded in
 backend/docs/payment-reconciliation-recovery-20261027.md; they have not been run
 on production. Recheck actual deployment and backup state before any rollout.
+
+
+### Historical merged-branch checkpoint
+
+The following dated observation is retained from origin/fix/compatibility-release-20261025; it is not a claim of current production identity.
+
+Production release, 25 October 2026: source `313c4f9ccddc5bed89ab6a3fbd8e8fbac4308a96`
+on `fix/compatibility-release-20261025` passed exact-source frontend CI
+`40225020885`, backend database safety CI `40225020883` and secret guard
+`40225020879`. The API-only image was pushed with registry digest
+`sha256:bf2d62febe09d0c0800214b53830c016ea29c205286a83d3901d807746067ac8`.
+DigitalOcean deployment `634b9110-8ad0-455e-ad7d-48cd9ee35681` is ACTIVE,
+with all build/deploy component steps successful. The two worker digests and
+read-only predeploy `db:check` migration-job digest/command remained unchanged.
+No production migration, application database DML, grant change or reset ran.
+API readiness and public products return 200; anonymous administrator catalogue
+access returns 401.
+
+Production-configured Vercel candidate `dpl_GDqL1pgfFbWtb7avvNGGW8Zu3bNH`
+was READY before promotion and now serves both main and www aliases. The first
+unaliased candidate failed because the CLI was run inside `frontend` while the
+project already configured `frontend` as its root; deploying from the repository
+root succeeded, with no public-domain change during the failed attempt. Protected
+candidate Home/Help/Parts/admin requests returned 200. After promotion, the
+browser-isolated hosted editor scenarios passed 3/3 on alliedautotech.com with
+all API writes intercepted: mobile stale-write conflict, safe failed-read retry,
+and mobile layout/automated accessibility. Real authenticated admin acceptance
+remains untested without an authorised QA session. Public Home/Help/Parts return
+200, www Parts resolves to main, `/shop` reaches `/parts`, and `/demo` remains 404.
+
+Read-only rollout review confirmed today's 05:22:10 UTC managed off-device backup
+and reused the earlier 25 October separate 89-table logical restore rehearsal and
+documented encryption/retention/PITR; no new physical PITR rehearsal is claimed.
+Local disk stayed above the mandated reserve, 28.79 GiB free at the last check.
+The task's two disposable PostgreSQL containers were removed by `--rm`; 14 existing
+volumes, current/rollback/other-task images and useful build caches were retained.
+Docker totals observed 46 to 55 images and 103 to 120 cache entries during
+concurrent work; those aggregate changes are not all attributable to this task.
+The current API image is retained for production/rollback. An automatic policy
+review blocked removal of the task-created ignored Vercel `.env.local` token file;
+it remains local and untracked. No alternative deletion path was attempted.
+Item 6 and the full site-completion goal remain open.

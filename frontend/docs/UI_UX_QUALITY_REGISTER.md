@@ -2217,3 +2217,19 @@ Backend 79d7a0ac unchanged, ACTIVE/readiness200. No local/shared DB test or writ
 V20 initial mobile spacing and V23 wider vocabulary remain partial; full V01-V55
 goal remains active. Evidence/limitations/rollback and disk-preflight incident:
 backend/docs/shop-audit-production-20261028.md. Other tasks/dirty work preserved.
+
+### Historical merged-branch checkpoint
+
+The following dated observation is retained from origin/fix/compatibility-release-20261025; it is not a claim of current production identity.
+
+Release source `313c4f9c` passed exact-source frontend CI. Production-configured
+Vercel `dpl_GDqL1pgfFbWtb7avvNGGW8Zu3bNH` is READY on both main and www aliases,
+after the matching API became ACTIVE on `634b9110-8ad0-455e-ad7d-48cd9ee35681`.
+Protected candidate Home, Help, Parts and admin routes responded successfully.
+The final three browser-isolated editor cases passed on the actual main domain:
+320px write-time conflict/draft reload, safe failed-read retry, and mobile
+layout/automated accessibility. All requests that could write were intercepted
+inside the browser; this does not claim an authenticated operator test or
+production data change. Public Home/Help/Parts responded 200 after promotion,
+`/shop` resolved to `/parts`, and `/demo` remained 404. Wider role/device and
+manual screen-reader acceptance remain in the prioritized backlog.
