@@ -18,13 +18,26 @@ the prior product-detail release. Four isolated rendered cases passed locally
 at 390/1440px: positive, empty and failed make lookups on the catalogue,
 plus the existing product-detail enquiry, keyboard and recovery journey.
 Catalogue SSR reads the one real published product; browser identity and all
-mutations are intercepted. Type, lint, exact-source CI, hosted acceptance and
-release identity are being checked before publication. No production write
-or real enquiry was made by the browser tests. The wider goal and real-role,
-physical-device and full screen-reader acceptance remain open. During local
-validation, the public-copy release advanced production to
-`dpl_Akw8ic1B6NQFGgL7tDDrm3pskZZ3`; its runtime is integrated in this
-candidate alongside the newer garage/privacy master changes.
+mutations are intercepted. During local validation, the public-copy release
+advanced production to `dpl_Akw8ic1B6NQFGgL7tDDrm3pskZZ3`, then the
+garage/privacy runtime `55714afd` advanced it to
+`dpl_6b35E89UpjSP9heFX88nWWB6BFdA`. Both are ancestors of the released
+candidate. The first merged product-detail run hit a 60-second test timeout
+while the public product API took about 34 seconds for a direct read; both
+detail cases passed with a 180-second allowance and no code change.
+
+Exact runtime `094ed047` passed frontend CI `40782107034`, backend safety
+`40782106990` and secret guard `40782107031`. Vercel built READY
+`dpl_6fhYRQMnYyxcNhCmnHbhJQTFbGdU` from that SHA with production settings;
+its protected Parts page returned 200. Both custom domains were still on the
+ancestral garage/privacy deployment before promotion. The new deployment was
+promoted and both aliases resolved to it. Hosted catalogue and product-detail
+checks passed 4/4 at 390/1440px, with public catalogue reads and intercepted
+identity and mutations. A separate hosted screenshot/console probe confirmed
+the real card text and no page exceptions at both widths. Backend readiness
+returned 200. No production data write or real enquiry was made. Prior frontend
+`dpl_6b35E89UpjSP9heFX88nWWB6BFdA` is retained for rollback. The wider goal
+and real-role, physical-device and full screen-reader acceptance remain open.
 
 ## 28 October 2026 current public copy and imagery cycle
 

@@ -20,11 +20,19 @@ positive, empty and failed makes, the working finder choice, no page errors or
 horizontal overflow. The existing product-detail audit passed 2/2 at both
 widths, including enquiry handoff and scoped accessibility. Public catalogue
 GETs used the real published item; identity and writes were isolated. Browser
-plugin was unavailable, so existing Edge/Playwright checks were used. Exact
-source checks and hosted release acceptance are pending. Real account,
-physical-device and full screen-reader acceptance remain open. A concurrent
-public-copy release and garage/privacy master update are integrated before
-this catalogue change is published.
+plugin was unavailable, so existing Edge/Playwright checks were used. A
+concurrent public-copy release and garage/privacy runtime were integrated
+without changing the card logic. The first merged product-detail check timed
+out while the public product API was slow; both cases passed with an extended
+test allowance and no code change. Exact runtime `094ed047` passed frontend
+CI `40782107034`, backend safety `40782106990` and secret guard `40782107031`.
+Production `dpl_6fhYRQMnYyxcNhCmnHbhJQTFbGdU` is READY on apex and www;
+hosted catalogue and detail checks passed 4/4 at 390/1440px. The live card
+was visually checked with screenshots in `%TEMP%/aat-catalogue-fitment-hosted-390.png`
+and `aat-catalogue-fitment-hosted-1440.png`; page title, HTTP 200, true product
+text and no page exceptions were confirmed. Backend readiness returned 200.
+No real account, transaction or enquiry was changed. Physical-device, real
+account and full screen-reader acceptance remain open.
 
 ## 28 October 2026: bounded public content and imagery improvement
 
@@ -2936,3 +2944,5 @@ Garage entry now keeps basic make/model/year entry separate from a native option
 Privacy guidance now explains request, authorised review and the separate execution boundary, with a real Customer Care follow-up destination. Approved-pending-policy records state that no data change is scheduled. Source authority: PrivacyRouter review/holds checks, retention-and-privacy.md, retention-policy-workspace.md and the disabled retention worker. An execution procedure is not currently implemented or authorised by this batch; no automatic deletion, deadline, new permission or operational policy is invented. Existing learning content already states the same boundary; no guide target or workflow contract changes.
 
 Two isolated live 390px baselines failed at the expected previous interface and retained screenshots. Local TypeScript noEmit, scoped lint and formatting passed. Six new rendered acceptance cases and existing garage/fitment/privacy regressions are prepared; hosted checks, exact master CI and promotion are pending. Current published fitment source 8d2dfd69 has been incorporated. The active public-copy worktree and all unrelated edits remain preserved. Full V01-V55 scope remains active.
+
+28 October 2026 - V53/V55 guidance released on master runtime 55714afd, Vercel dpl_6b35E89UpjSP9heFX88nWWB6BFdA verified on apex/www. Garage optional search setup preserves basic entry and drafts; privacy review/execution guidance remains visible on mobile and links to Customer Care. Final combined CI passed 1225 tests (12 optional skipped), lint/types/format/build and zero production audit findings; frontend 40780036790, secret guard 40780036778 and isolated backend safety 40780036897/40780112964 passed. All 41 final hosted cases plus 18 candidate and 18 production public checks passed. Screenshot inspection caught and fixed the old mobile rule hiding privacy steps. Published public-copy source bee7ed8f is preserved; initial promotion correctly stopped for that concurrent release. Backend 3ee6748f remains ACTIVE/readiness200, unchanged by this batch. Other source/contract hashes and both tracker sections were preserved. No shared DB/customer writes. Evidence, initial harness corrections, limits and rollback: backend/docs/garage-privacy-guidance-production-20261028.md. Full V01-V55 remains active; next reconcile published public-page work and continue the service-enquiry/remaining clarity ledger.
