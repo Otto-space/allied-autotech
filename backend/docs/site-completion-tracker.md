@@ -1,5 +1,26 @@
 # Allied AutoTech completion tracker
 
+## 29 October 2026 current header/session verification cycle
+
+The released frontend remains `dpl_6fhYRQMnYyxcNhCmnHbhJQTFbGdU` on apex and
+www. Read-only samples of backend readiness, a published product and the hosted
+product page did not reproduce the earlier transient slow public-product read.
+The recorded QA-011 header/session acceptance gap was reproduced against the
+current source in the reused product-fitment worktree. Cold local Next compiles
+outlasted a toast display window or a 15-second navigation assertion. Help's
+header and audience session reads are replayed in development Strict Mode, and
+the current learning-enabled release uses Allie in place of Quick help. The
+isolated browser fixture now checks the toast when issued, allows bounded
+session probes, tests an Allie question draft during a delayed anonymous 401,
+and gives cold navigation a realistic deadline. Edge/Playwright passed 19/19
+header-session cases in one final run, covering customer, staff, admin and super
+admin sign-in, MFA, Help account links at 390/1440px, cross-tab role changes,
+anonymous draft retention and stale responses. This is a test-only change;
+there is no runtime deployment, real-role sign-in, physical-device or full
+screen-reader acceptance in this cycle. The next UI priority is customer
+workspace navigation and failed/expired session recovery; backend and provider
+gates remain independently tracked.
+
 ## 28 October 2026 current catalogue fitment-guidance cycle
 
 Initial production baseline: frontend `dpl_DfQ8TmtFujaCL215HnWRuaTRuRZr` on both

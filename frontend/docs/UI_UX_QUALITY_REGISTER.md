@@ -1,5 +1,20 @@
 # UI and UX quality register
 
+## 29 October 2026: current header and session acceptance
+
+The prior QA-011 browser fixture was updated for the learning-enabled Help
+release and current dashboard. A cold local compile had consumed the customer's
+eight-second success toast before the assertion; the test now observes it at
+issuance. Development Strict Mode replays the two session-reading effects,
+yielding four bounded initial Help probes. The fixture checks that search does
+not start a probe loop, and replaces the obsolete Quick help control with an
+Allie question draft held across an anonymous 401. The final current-source
+Edge/Playwright run passed 19/19 cases, including role-specific sign-in/MFA,
+390/1440px account links, cross-tab changes and stale-response protection.
+No runtime UI change or real authenticated production acceptance occurred.
+The next finite review remains customer workspace navigation and expired/failed
+session recovery with synthetic states, then authorized real-role acceptance.
+
 ## 28 October 2026: catalogue cards reflect vehicle-choice availability
 
 The released Parts catalogue at 390/1440px had one published Engine Oil Filter.
