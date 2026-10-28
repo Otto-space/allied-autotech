@@ -1,5 +1,28 @@
 # Revision 4 implementation checkpoint
 
+## Current publication checkpoint - 28 October 2026
+
+Committed W1-W15 foundations are now included in production runtime
+`a51a58b856e12c0187c1d5753f2f30ef4382a894`, backend
+`3ee6748f-ed72-4c89-b9a1-f1963e891190` and frontend
+`dpl_5LscxLnZGRXNBorSWq3GFgfUBcGq` on both domains, with 76 forward
+migrations. Exact-source GitHub gates, 41 packaged image/spec cases, 47 corrected
+hosted Allie/handoff/access/learning cases and 23 public checks per domain passed.
+The complete evidence and limits are in
+[the consolidated release](../../backend/docs/master-consolidation-release-20261028.md).
+
+Code publication does not enable conversational AI or live human chat. Those flags
+remain off; queued reviewed Customer Care is supported. Full Revision 4 remains
+incomplete: shared gated live transport/availability/takeover, all 106 exact-route
+learning decisions, final bounded real-provider re-evaluation and real-role,
+physical-device and full screen-reader acceptance remain. Prior evaluation
+allowance remains exhausted (117 actual calls, 120 reservations); no ledger was
+reset and no new provider call was made for this release.
+
+The older local-only, pending-publication and migration-72 checkpoints below are
+historical evidence of their individual implementation stages. They do not replace
+this current publication record or establish acceptance of the remaining scope.
+
 Canonical brief: [Revision 4](REVISION_4_BRIEF.md), read completely on 26 October 2026.
 It supersedes the earlier optional-AI completion criterion. The active goal includes
 the entire brief, not just the first batch. The owner subsequently authorised deployment of committed W1?W3 batches; unfinished work is not published.
