@@ -17,8 +17,7 @@ customer, staff, admin and super-admin journeys at 390/1440px (9/9); the first
 browser attempt used `127.0.0.1` and Next blocked its development resources,
 then the same test passed on the server's `localhost` origin. Fixtures do not
 prove live authenticated-role behavior. No customer record, read state, message,
-backend, schema or provider was changed. Exact-source CI, staged deployment and
-hosted acceptance remain before publication; physical-device and full
+backend, schema or provider was changed. Physical-device and full
 screen-reader acceptance remain open. During release preparation, both domains
 advanced to navbar runtime `4aafaebb` / `dpl_F5XnU2aiSxhtK78P8dnbvrffYCR5`.
 Both domains then advanced to favourites runtime `ef06efb7` /
@@ -29,11 +28,25 @@ historical-commerce case passed after setting the local launch mode to the
 production `browse_enquiries` value; the default `full` fixture had exposed a
 test-environment mismatch. Exact-source GitHub frontend, secret and backend
 safety checks passed on `ddfab325`. Production then advanced to Learn/Allie
-runtime `072e0509` / `dpl_Bov9FbKyy4yPMRqWnJG3CpX6MMQz`; that source is being
-merged before staging, so fresh checks remain. A local full check was stopped
+runtime `072e0509` / `dpl_Bov9FbKyy4yPMRqWnJG3CpX6MMQz`; that source was
+merged. A local full check was stopped
 after the disk preflight fell below the owner's 20 GiB reserve; the shortfall
 later cleared without any cleanup. The product-favourite browser fixture
 requires server-side product data and cannot run on this standalone server.
+
+Final runtime `1a33815c` passed frontend release CI `40713279695`, secret
+guard `40713279399` and backend safety `40713279822`. Vercel built
+`dpl_71G8rw7VmXo7WZZCDJpvTb5eCMib` from that exact SHA with production
+settings; protected hosted reads of Home, Help, Learn, Parts and Notifications
+returned 200. Promotion succeeded and both custom domains independently
+resolved to the same READY deployment. Post-promotion Playwright passed the
+mixed unread preview plus eight customer, staff, admin and super-admin
+journeys at 390/1440px with synthetic API data. No production notification
+was marked read and no real account write occurred. The previous
+`dpl_Bov9FbKyy4yPMRqWnJG3CpX6MMQz` release remains available for rollback.
+Real authenticated-role, physical-device and full screen-reader acceptance
+remain open. Disk reserve was rechecked after promotion and no Docker resource
+or database was modified.
 
 ## 28 October 2026: Learn, Allie and walkthrough interaction audit
 
