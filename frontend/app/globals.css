@@ -2583,19 +2583,23 @@ address {
 @media (max-width: 850px),
   (max-width: 1023px) and (max-height: 500px) and (pointer: coarse) {
   .support-controls {
-    position: static;
-    width: 100%;
-    z-index: auto;
+    position: fixed;
+    inset-inline: 12px;
+    bottom: max(12px, env(safe-area-inset-bottom));
+    width: auto;
+    z-index: 40;
     flex-direction: row;
     justify-content: center;
-    padding: 14px 16px calc(14px + env(safe-area-inset-bottom));
+    padding: 8px;
     background: var(--white);
-    border-top: 1px solid var(--line);
-    box-shadow: none;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px #0714221f;
   }
   .support-controls :is(.support-trigger, .whatsapp-control) {
     width: auto;
     min-width: 112px;
+    flex: 1 1 0;
     gap: 8px;
     padding-inline: 14px;
     border-radius: 4px;
@@ -2604,6 +2608,18 @@ address {
   }
   .support-control-label {
     display: inline;
+  }
+}
+
+html {
+  scroll-padding-top: var(--viewport-header-offset, 96px);
+  scroll-padding-bottom: var(--viewport-support-offset, 24px);
+}
+
+@media (max-width: 850px),
+  (max-width: 1023px) and (max-height: 500px) and (pointer: coarse) {
+  body {
+    padding-bottom: var(--viewport-support-offset, 0px);
   }
 }
 
