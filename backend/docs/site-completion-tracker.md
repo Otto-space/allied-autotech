@@ -1787,3 +1787,22 @@ The subsequent owner request is now in progress in the same frontend worktree:
 fixed mobile support dock, Allie scrollbar treatment, breadcrumb/anchor page
 entry and linked selection targets. This is a separate finite shared-UX cycle;
 no claim of exhaustive role/device acceptance.
+
+28 October 2026 - P1 public Parts detail enquiry guidance released. The live
+unavailable oil filter had no branch listed, but its page instructed visitors to
+collect from a listed branch and described ordering in enquiry-only mode.
+Frontend runtime 9f9311cf builds on exact prior live fbb6565a, keeps its shared
+support/navigation changes, and asks visitors to confirm stock and collection
+arrangements with staff before travelling. The full-commerce copy stays gated;
+no product, fitment, price or enquiry destination data changed. Frontend CI
+40668317540 and secret guard 40668317916 passed on the exact commit. A normal
+preview built but its dynamic product route returned 503 because preview lacks
+BACKEND_ORIGIN. A production-configured deployment was built with domain
+assignment disabled; its protected product page rendered the corrected copy,
+then dpl_68bNV74wNajB9vW1Ly85nzmmdEvU was promoted. Both apex and www expose
+the exact ID; the previous dpl_J5k6BjFUZVTFgeGJSrH4WHhiFxcq is the immediate
+rollback. API readiness returned 200. Live read-only Edge at 390/1440px passed
+the product detail, collection FAQ and exact-product Contact navigation with no
+horizontal overflow or page exception. No form, inventory, provider, payment,
+database or backend change was made. Physical devices, screen readers and
+authenticated-role acceptance remain open; P0 backend release gates are unchanged.

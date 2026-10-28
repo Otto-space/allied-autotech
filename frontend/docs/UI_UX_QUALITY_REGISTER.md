@@ -1960,17 +1960,18 @@ overflow or page errors were observed. Screenshots: %TEMP%/allied-allie-viewport
 390.png and matching 1440.png. Native keyboard, physical devices, screen readers
 and exhaustive authenticated-role combinations remain unverified.
 
-27 October 2026 - P1 public Parts detail enquiry copy. On the live 390px page,
-the only listed oil filter had no branch availability, yet the detail said to
-arrange collection from a listed branch and repeatedly described ordering.
-The candidate is based on the current fbb6565a frontend release and uses the
-existing launch-mode gate to require staff confirmation of stock and collection
-arrangements before visiting. Full-commerce wording remains separate. Price,
-availability, fitment and the product-specific enquiry destination are unchanged.
-An optimized Next 16.4.3 build, scoped lint and hosted CI passed before this
-rebase; a rendered 390px detail showed the revised wording, product enquiry link, no
-overflow and no page exception. A protected preview built, but its dynamic
-product route returned 503 because the preview environment lacks BACKEND_ORIGIN;
-that is a preview configuration gap, not hosted journey acceptance. Desktop and
-exact-source CI and production verification remain pending. No customer form or financial action was
-submitted.
+28 October 2026 - P1 public Parts detail enquiry copy released. The only live
+oil filter had no branch availability, yet its detail told visitors to arrange
+collection from a listed branch and repeatedly described ordering. Runtime
+9f9311cf builds on fbb6565a and uses the existing launch-mode gate to require
+staff confirmation of stock and collection arrangements before visiting.
+Full-commerce wording remains separate. Price, availability, fitment and the
+product-specific enquiry destination are unchanged. Exact-source frontend CI
+40668317540 and secret guard 40668317916 passed. A preview without
+BACKEND_ORIGIN returned 503 on dynamic detail; the protected production-target
+deployment returned the corrected page, then was promoted as
+dpl_68bNV74wNajB9vW1Ly85nzmmdEvU. Both apex and www serve that ID. Live Edge
+at 390/1440px passed product-detail heading, corrected copy, collection FAQ,
+product-specific Contact navigation, no horizontal overflow and no page errors.
+No customer form, payment or inventory action was submitted. Native devices,
+screen readers and authenticated-role acceptance remain outside this check.
