@@ -1063,3 +1063,19 @@
   margin: 0;
   overflow-wrap: anywhere;
 }
+
+/* An absent catalogue photograph should not dominate product information. */
+.pd-gallery > div:first-child .pd-photo.pd-photo-missing {
+  aspect-ratio: auto;
+  height: 180px;
+  min-height: 180px;
+}
+.pd-actions .actions > a.secondary {
+  background: transparent;
+  border-color: transparent;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.pd-actions .actions > a.secondary:hover {
+  background: var(--surface-soft, #f4f4f5);
+}

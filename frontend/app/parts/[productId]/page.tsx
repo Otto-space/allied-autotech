@@ -6,7 +6,7 @@ import {
   fitmentQualifierKeys,
 } from "@/lib/parts-fitment";
 import { ProductFitmentCheck } from "../../components/product-fitment-check";
-import { packVolumeLabel } from "@/lib/product-family";
+import { packVolumeLabel, productTypeLabel } from "@/lib/product-family";
 import { browseEnquiriesOnly } from "@/lib/public-launch";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -19,7 +19,6 @@ import {
   ChevronDown,
   ChevronRight,
   MapPin,
-  MessageCircle,
   Package,
 } from "lucide-react";
 import { notFound, unstable_rethrow } from "next/navigation";
@@ -211,7 +210,7 @@ export default async function ProductPage({
   const specs = {
     ...(product.family === "ENGINE_OIL"
       ? {
-          "Recorded viscosity grade": product.oilViscosityGrade || "Not recorded",
+          "Viscosity grade": product.oilViscosityGrade || "Not recorded",
           "Pack volume": product.packVolumeMl
             ? packVolumeLabel(product.packVolumeMl)
             : "Not recorded",
@@ -232,7 +231,9 @@ export default async function ProductPage({
                 ? "Aftermarket"
                 : "Not recorded",
         }),
-    "Product type": product.productType?.replaceAll("_", " ") || "Not recorded",
+    "Product type": product.productType
+      ? productTypeLabel(product.productType)
+      : "Not listed",
     Brand: product.brand || "Not listed",
     Category: product.category.name,
     SKU: product.sku,
@@ -257,7 +258,7 @@ export default async function ProductPage({
               </li>
               <li>
                 <ChevronRight size={14} aria-hidden="true" />
-                <Link href="/parts">Parts</Link>
+                <Link href="/parts">Shop</Link>
               </li>
               <li>
                 <ChevronRight size={14} aria-hidden="true" />
@@ -288,7 +289,7 @@ export default async function ProductPage({
             <a href="#product-overview">Overview</a>
             <a href="#product-information">Product information</a>
             <a href="#product-compatibility">Compatibility</a>
-            <a href="#product-delivery">Delivery</a>
+            <a href="#product-delivery">Collection</a>
           </nav>
           <div className="pd-top-grid">
             <div className="pd-gallery-frame" id="product-overview">
@@ -361,17 +362,6 @@ export default async function ProductPage({
               />
             </section>
           </div>
-          <aside className="pd-assistance">
-            <MessageCircle size={28} aria-hidden="true" />
-            <h2>Need help choosing the right part?</h2>
-            <p>
-              Check the part number and compatibility before{" "}
-              {enquiriesOnly ? "requesting this part" : "ordering"}.
-            </p>
-            <Link href="/contact#enquiry">
-              Ask our team <ArrowRight size={17} aria-hidden="true" />
-            </Link>
-          </aside>
           <div className="pd-details-grid">
             <section id="product-information" aria-labelledby="pd-info-title">
               <h2 id="pd-info-title">Product information</h2>
@@ -398,9 +388,8 @@ export default async function ProductPage({
                 <ProductFitmentCheck productId={product.id} />
               </Suspense>
               <p>
-                Reviewed application ranges identify possible matches. Confirm the
-                required engine, market, position and hardware details{" "}
-                {enquiriesOnly ? "with our team" : "before ordering"}.
+                Check the vehicle and product details below. Our team can help confirm
+                suitability for your vehicle.
               </p>
               {product.compatibilities.length ? (
                 <ul>
@@ -454,9 +443,6 @@ export default async function ProductPage({
                   {enquiriesOnly ? "requesting it" : "ordering"}.
                 </p>
               )}
-              <Link className="pd-link" href="/contact#enquiry">
-                Ask about compatibility <ArrowRight size={17} aria-hidden="true" />
-              </Link>
             </section>
           </div>
           <section
@@ -530,7 +516,10 @@ export default async function ProductPage({
                     ? "We currently offer workshop collection only. Confirm availability with our team before visiting."
                     : "Orders are collection only. We do not offer delivery."}
                 </p>
-                <Link className="pd-link" href="/contact#enquiry">
+                <Link
+                  className="pd-link"
+                  href={partsEnquiryHref(selectedQuery, product.id)}
+                >
                   Ask about collection <ArrowRight size={17} aria-hidden="true" />
                 </Link>
               </details>

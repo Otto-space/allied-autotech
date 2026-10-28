@@ -21,3 +21,10 @@ export function validOilGrade(value: string) {
 export function packVolumeLabel(value: number) {
   return value % 1000 === 0 ? `${value / 1000} L` : `${value} ml`;
 }
+
+/** Format machine-style types for display without changing their query values. */
+export function productTypeLabel(value: string) {
+  if (!/^[A-Z0-9]+(?:_[A-Z0-9]+)+$/.test(value)) return value;
+  const words = value.toLowerCase().replaceAll("_", " ");
+  return words[0].toUpperCase() + words.slice(1);
+}

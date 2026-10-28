@@ -2087,6 +2087,20 @@ Full Next journeys, exact-lock CI, remaining audit findings and actual-role/devi
 acceptance remain open. Candidate is not yet published. See checkpoint for precise
 evidence, dependencies, local-preview restriction and preserved unrelated work.
 
+27 October 2026 - visual-audit frontend batch released. Runtime a1b8ce45 preserves
+concurrent Contact/location source 42855c0d and publishes customer clarity and sparse
+Home fixes. Vercel dpl_GKfQv1k4cD5qTKZj3c6LaP8Y4iqz READY on both domains.
+Exact locked frontend CI 40478325501: 1072 units, lint/types/format/build and zero
+production audit vulnerabilities; secret guard 40478325469 passed. Same backend
+source at e925ecec passed isolated safety CI 40476605252. Hosted fixture acceptance
+7 new plus 35 regressions passed; 14 candidate and 14 production public read-only
+checks passed at 390/1440 with zero mutations/page exceptions. Backend remains
+79d7a0ac-4e83-4b73-ae46-40af4731a604 ACTIVE/readiness200. No DB/worker/provider write.
+Session-label and new homepage-help backend changes remain committed, not released.
+Full V01-V55 goal remains active; next Shop discovery/detail and empty overview.
+Evidence/rollback: backend/docs/visual-audit-frontend-production-20261027.md and
+frontend/docs/VISUAL_IDENTITY_AUDIT_CHECKPOINT.md. Existing other-task edits preserved.
+
 27 October 2026 - Contact visit-preference validation, P1. The released
 `8fa386cb` source sent every visit-preference error to the date field and marked
 both date and time invalid, even when time or the message needed correction.

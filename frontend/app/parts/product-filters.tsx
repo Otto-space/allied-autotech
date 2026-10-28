@@ -97,7 +97,7 @@ export function ProductSearch({
 
 const labels: Record<string, string> = {
   family: "Product family",
-  oilViscosityGrade: "Recorded viscosity grade",
+  oilViscosityGrade: "Viscosity grade",
   packVolumeMl: "Pack volume",
   brand: "Brand",
   make: "Vehicle make (exact name)",

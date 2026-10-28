@@ -24,7 +24,7 @@ export function ProductState({
               </li>
               <li>
                 <ChevronRight size={14} aria-hidden="true" />
-                <Link href="/parts">Parts</Link>
+                <Link href="/parts">Shop</Link>
               </li>
               <li>
                 <ChevronRight size={14} aria-hidden="true" />
