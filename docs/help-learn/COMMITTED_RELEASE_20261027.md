@@ -1,5 +1,59 @@
 # Reviewed committed workforce and Allie release (in preparation)
 
+## Current consolidation checkpoint: 28 October 2026
+
+The owner approved completing integration through `master`, exact-source GitHub
+checks, guarded production publication and retirement of finished branches. See
+`backend/docs/integration-release-workflow.md`. All remote heads observed during
+the review and the unique local feature/release histories have been reconciled;
+the old UI prototype and schema-72 frontend rollback are preserved in history
+without downgrading the approved current experience. Active or dirty worktrees
+remain separate. The owner confirmed that three missing worktree folders were
+deleted in their entirety; their Git metadata remains protected for review.
+
+This combined candidate retains the published `552ee418` Shop changes, subsequent
+refresh/Help fixes, compact customer history, customer vehicle payment filtering,
+legacy compatibility concurrency, missing-page recovery and P0 reconciliation/
+payment-session safeguards. Contracts were regenerated from the merged source.
+The current backend was re-read as ACTIVE
+`79d7a0ac-4e83-4b73-ae46-40af4731a604`; no pending deployment was observed.
+
+There are now **76** source migrations and **72** on that production backend.
+Four forward migrations are pending: reconciliation attempts, observation index,
+assistant transient state and the reconciliation due projection. A newly created
+isolated database replayed all 76 with no schema difference and passed `db:check`.
+Backend source/script types and lint passed. Further composition regressions,
+exact-source CI, packaging, a fresh separate populated restore/forward rehearsal,
+guarded migration and both runtime promotions are still required. Earlier
+73-migration candidate checks and held previews below remain historical evidence,
+not acceptance of this larger composition or proof it is deployed.
+
+The production backup inspection verified the migration role owns the four
+existing financial objects required by the forward changes and that no
+reconciliation run is active. Runtime default DML rights were verified without
+changing grants. Existing launch, payment, AI and live-support settings remain
+unchanged. Full Revision 4 and all 106 route decisions are still incomplete.
+
+The fresh 28 October production archive was restored into a newly created,
+loopback-only isolated `_ci` database. The guarded runner made its own verified
+target backup, applied all four pending migrations and passed `db:check` with 76
+applied migrations. Every original table's row count and hash over its captured
+original column list remained equal; new reconciliation defaults/checks and the
+due projection were verified against preserved source history. The three assistant
+tables were empty. The original app-only firewall was restored and independently
+checked. This is a logical restore/forward rehearsal, not a physical managed PITR
+exercise or a production migration. Real financial-history fixture coverage is
+separate from the production snapshot's actual contents.
+
+Local cleanup removed 50 reviewed superseded Docker images; reported image usage
+fell from 13.24 GB to 11.33 GB. Containers, volumes, databases, backups, useful
+caches and rollback images were preserved. Host free space barely changed at
+that cleanup; it must not be reported as equivalent reclaimed Windows disk space.
+A later preflight measured 28.2 GiB free. Narrow cache pruning reclaimed nothing.
+
+The dated observations below describe earlier candidates and must not override
+the current combined-source checkpoint.
+
 The owner's later instruction authorises production publication of verified
 committed changes before the session limit. This record is a release checkpoint,
 not a claim of deployment or complete Revision 4 acceptance.

@@ -53,6 +53,18 @@ are separate; a configuration flag or passing build alone does not prove complet
 
 ## Source locations and release context
 
+### 28 October 2026 consolidation in progress
+
+The current release review uses `release/allie-workforce-reviewed-20261027` in
+`C:/Users/PC/.codex/worktrees/allied-home-restoration-20261025`. The owner has
+approved the remaining Revision 4 phases and the master/checks/production/finished
+branch workflow. Follow `integration-release-workflow.md` and
+`../../docs/help-learn/COMMITTED_RELEASE_20261027.md` for the current candidate,
+76-migration composition, evidence and remaining gates. All older source and
+provider identities below are dated historical checkpoints; re-read provider
+state before publication. No production migration or promotion of this combined
+candidate has occurred at this checkpoint. Preserve active/dirty worktrees.
+
 This tracker lives in the user's main checkout. That checkout is not the latest
 public-release source. Inspect current live state and Git history before any edit
 or deployment; never deploy the older checkout merely because it is the cwd.

@@ -2,6 +2,16 @@
 
 Make every change professional, complete and reviewable.
 
+## Owner-approved integration and release workflow
+
+The owner approved this standing workflow on 28 October 2026. Finish changes in
+bounded, verified batches; reconcile them with current production and merge to
+`master` without losing other work. Required GitHub checks must pass for the exact
+`master` commit before production publication. Follow
+`backend/docs/integration-release-workflow.md` for release and branch retirement.
+Preserve database, permission, business-policy and disk safeguards. A release
+request does not authorise unverified migrations or enabling gated capabilities.
+
 ## Owner's local disk reserve
 
 Keep at least 20 GiB free on C:. Before a build, dependency install, Docker

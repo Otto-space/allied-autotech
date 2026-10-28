@@ -2396,7 +2396,6 @@ showed the revised wording, exact product enquiry link, no overflow and no page
 exception. Desktop optimized/hosted acceptance and release verification remain
 pending. No customer form or financial action was submitted.
 
-
 ### Historical merged-branch checkpoint
 
 The following dated observation is retained from origin/feat/visual-identity-audit-20261027; it is not a claim of current production identity.
@@ -2408,7 +2407,6 @@ V41/V42: current care and load/retry status remain first. Customer-only Activity
 V52: a successfully loaded empty collection has one browse action. Loading/error states retain navigation and retry; populated collections retain the toolbar action. Labels say Favourite products/Browse Shop without changing API values, saved IDs or mutation contracts.
 
 Acceptance: 12 focused units pass (including empty vs historical data, date draft retention, staff preservation and refresh/session behavior); types and scoped lint pass. Six hosted desktop/mobile history/Saved fixtures added for native keyboard disclosure/tabs, date changes, error recovery, one action, overflow and sampled Axe. These browser checks and exact-source cloud CI are pending; this candidate is not deployed. Existing dirty tracker/asset files and other worktrees remain untouched.
-
 
 ### Historical merged-branch checkpoint
 

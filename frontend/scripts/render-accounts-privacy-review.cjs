@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-require-imports -- This standalone script uses CommonJS for its sandboxed renderer. */
 // Render the exact proposed non-catalogue notice without application providers or secrets.
 const fs = require("node:fs");
 const path = require("node:path");
