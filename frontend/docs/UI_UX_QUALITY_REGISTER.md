@@ -1,5 +1,26 @@
 # UI and UX quality register
 
+## 28 October 2026: Notification bell preview prioritizes unread updates
+
+Current live frontend `09efa694` / `dpl_9us8TLTvZJxzA8KNvdKNqFMqjg8F`
+shows an unread badge, but its five-row bell preview requested the newest rows
+without an unread filter. A newer read item could displace an older unread item
+from that preview. The shared customer and workforce bell now fetches up to five
+unread rows when the opening count is positive. If another tab has already read
+those rows, it fetches recent history instead of showing a misleading empty
+preview. Opening the bell does not change read state; row links still route
+through the currently authorized notification target.
+
+The focused four-case jsdom suite passed. TypeScript and scoped lint passed.
+Rendered Playwright/Edge fixtures passed the mixed read/unread case and all eight
+customer, staff, admin and super-admin journeys at 390/1440px (9/9); the first
+browser attempt used `127.0.0.1` and Next blocked its development resources,
+then the same test passed on the server's `localhost` origin. Fixtures do not
+prove live authenticated-role behavior. No customer record, read state, message,
+backend, schema or provider was changed. Exact-source CI, staged deployment and
+hosted acceptance remain before publication; physical-device and full
+screen-reader acceptance remain open.
+
 ## 28 October 2026: All automatically focused containers
 
 The owner confirmed that the dark automatic-focus border must be removed from all

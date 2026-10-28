@@ -1,5 +1,20 @@
 # Allied AutoTech completion tracker
 
+## 28 October 2026 current notification-preview cycle
+
+The exact live frontend before this cycle is `09efa694` /
+`dpl_9us8TLTvZJxzA8KNvdKNqFMqjg8F` on both domains. The bell's mixed
+read/unread preview could hide an older unread update behind newer read rows.
+The shared preview now prefers unread rows when its opening badge is positive,
+with recent-history fallback if another tab already read them. The separate
+`allied-notification-preview-20261028` worktree preserves that live source;
+the P0 backend candidate and unrelated dirty worktrees remain untouched.
+Focused four-case unit, type, scoped lint and nine rendered role/viewport
+fixtures pass. See `frontend/docs/UI_UX_QUALITY_REGISTER.md` for evidence and
+limits. Exact-source CI, staged frontend promotion and hosted acceptance are
+pending. No notification read, message, payment or production data write was
+made; live authenticated-role and physical-device checks remain open.
+
 ## 28 October 2026 current automatic container-focus follow-up
 
 The owner's follow-up applies to all automatically focused containers, beyond

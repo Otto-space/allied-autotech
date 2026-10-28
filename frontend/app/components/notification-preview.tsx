@@ -24,6 +24,7 @@ export function NotificationPreview({
 }) {
   const [open, setOpen] = useState(false);
   const [retry, setRetry] = useState(0);
+  const [unreadAtOpen, setUnreadAtOpen] = useState(false);
   const [state, setState] = useState<{ items?: InboxNotification[]; error?: boolean }>(
     {},
   );
@@ -45,18 +46,28 @@ export function NotificationPreview({
     const controller = new AbortController();
     // Freeze this preview until explicitly refreshed/reopened: incoming updates
     // must not reorder a row under the pointer or keyboard focus.
-    void apiRequest(`/${customer ? "customers" : "staff"}/notifications?limit=5`, {
+    const base = `/${customer ? "customers" : "staff"}/notifications?limit=5`;
+    void apiRequest(unreadAtOpen ? `${base}&unreadOnly=true` : base, {
       signal: controller.signal,
     })
-      .then((r) => {
+      .then(async (r) => {
         const data = parseNotifications(r.data);
-        if (!controller.signal.aborted) setState({ items: data.items });
+        // A read in another tab can make the opening count stale. In that case,
+        // show recent updates instead of an empty preview beside a numbered bell.
+        if (unreadAtOpen && !data.items.length) {
+          const recent = await apiRequest(base, { signal: controller.signal });
+          return parseNotifications(recent.data).items;
+        }
+        return data.items;
+      })
+      .then((items) => {
+        if (!controller.signal.aborted) setState({ items });
       })
       .catch(() => {
         if (!controller.signal.aborted) setState({ error: true });
       });
     return () => controller.abort();
-  }, [open, customer, retry]);
+  }, [open, customer, retry, unreadAtOpen]);
   const close = () => setOpen(false);
   return (
     <div className="notification-preview">
@@ -76,6 +87,7 @@ export function NotificationPreview({
         }
         onClick={() => {
           setState({});
+          setUnreadAtOpen(!pending && !unavailable && count > 0);
           setOpen(true);
         }}
       >

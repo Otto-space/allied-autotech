@@ -12,6 +12,25 @@ const enquiry = (n = 1) => ({
   resourceType: "ENQUIRY",
 });
 
+test("bell preview shows unread updates ahead of newer read history", async ({
+  page,
+}) => {
+  const state = await notificationsFixture(page);
+  state.items = [
+    {
+      ...enquiry(1),
+      title: "Recently read enquiry",
+      readAt: "2026-10-28T10:00:00Z",
+    },
+    { ...enquiry(2), title: "Older unread enquiry" },
+  ];
+  await page.goto(route);
+  await page.getByRole("button", { name: "Open notifications, 1 unread" }).click();
+  const preview = page.getByRole("dialog", { name: "Notifications" });
+  await expect(preview.getByText("Older unread enquiry")).toBeVisible();
+  await expect(preview.getByText("Recently read enquiry")).toHaveCount(0);
+});
+
 for (const width of [430, 1440])
   test(`bell and sidebar reflect read state at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 1000 });
