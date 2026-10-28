@@ -73,6 +73,8 @@ export function PartsCatalogue({
     !makes.error &&
     !makes.refreshError &&
     makes.data?.items.length === 0;
+  const vehicleChoicesAvailable =
+    !makes.loading && !makes.error && !makes.refreshError && !!makes.data?.items.length;
   const selected = [...new Set(productFilterKeys)].filter(
     (key) =>
       params.has(key) &&
@@ -457,7 +459,12 @@ export function PartsCatalogue({
         ) : products.data?.items.length ? (
           <div className="product-results-grid">
             {products.data.items.map((product) => (
-              <PartCard key={product.id} product={product} params={params} />
+              <PartCard
+                key={product.id}
+                product={product}
+                params={params}
+                vehicleChoicesAvailable={vehicleChoicesAvailable}
+              />
             ))}
           </div>
         ) : (

@@ -1,5 +1,28 @@
 # Allied AutoTech completion tracker
 
+## 28 October 2026 current catalogue fitment-guidance cycle
+
+Production baseline: frontend `dpl_DfQ8TmtFujaCL215HnWRuaTRuRZr` on both
+domains; backend `3ee6748f-ed72-4c89-b9a1-f1963e891190` ACTIVE. The public
+fitment-make API currently has no choices. The Parts finder therefore offers
+an enquiry, while the published product card still told customers to choose
+a vehicle. Live Parts search, empty results, Back navigation and filter Escape
+worked at 390/1440px; the discrepancy is limited to card guidance. The mobile
+support dock briefly overlaps the enquiry action at 390x700 while scrolling,
+but another short scroll exposes it; no shared dock change is justified here.
+
+The separate `fix/catalogue-fitment-availability-20261028` branch reuses the
+fitment worktree and makes card guidance follow confirmed vehicle-choice
+availability. It preserves product data, fitment decisions, enquiry links and
+the prior product-detail release. Four isolated rendered cases passed locally
+at 390/1440px: positive, empty and failed make lookups on the catalogue,
+plus the existing product-detail enquiry, keyboard and recovery journey.
+Catalogue SSR reads the one real published product; browser identity and all
+mutations are intercepted. Type, lint, exact-source CI, hosted acceptance and
+release identity are being checked before publication. No production write
+or real enquiry was made by the browser tests. The wider goal and real-role,
+physical-device and full screen-reader acceptance remain open.
+
 ## 28 October 2026 current product-fitment availability cycle
 
 Current production baseline was frontend `dpl_5LscxLnZGRXNBorSWq3GFgfUBcGq`

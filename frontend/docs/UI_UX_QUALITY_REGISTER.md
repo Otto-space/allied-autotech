@@ -1,5 +1,29 @@
 # UI and UX quality register
 
+## 28 October 2026: catalogue cards reflect vehicle-choice availability
+
+The released Parts catalogue at 390/1440px had one published Engine Oil Filter.
+The public fitment-make lookup returned no choices and the finder directed the
+customer to ask the team, while the product card still said to choose a
+vehicle. Search for `oil`, no-match search, Back restoration, filter Escape and
+focus return passed on the live domain. A separate 390x700 measurement found
+brief support-dock overlap as the product-detail enquiry action entered the
+viewport; scrolling exposed the whole action and the link had already passed
+the actual handoff test. No global dock change is included.
+
+Product cards now invite vehicle selection only after a successful nonempty
+make lookup. Empty, loading and failed lookups direct customers to the team;
+any listed application still requires fitment confirmation. Product records,
+availability, price, fitment decisions, navigation and enquiry submission are
+unchanged. The local rendered catalogue cases passed at 390/1440px with
+positive, empty and failed makes, the working finder choice, no page errors or
+horizontal overflow. The existing product-detail audit passed 2/2 at both
+widths, including enquiry handoff and scoped accessibility. Public catalogue
+GETs used the real published item; identity and writes were isolated. Browser
+plugin was unavailable, so existing Edge/Playwright checks were used. Exact
+source checks and hosted release acceptance are pending. Real account,
+physical-device and full screen-reader acceptance remain open.
+
 ## 28 October 2026: product detail fitment availability and retry
 
 Route `/parts/89fd9258-c580-43e9-9040-c7e52623e82d`, anonymous at 390/1440px.
