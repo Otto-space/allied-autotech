@@ -22,7 +22,6 @@ No real stock/reviews, backend, permissions or commerce/AI/chat flags changed.
 Outstanding editorial copy/photo/reviewer dependencies are recorded separately;
 physical devices, full screen-reader and signed-in journeys are outside this cycle.
 
-
 ## 28 October 2026: product detail fitment availability and retry
 
 Route `/parts/89fd9258-c580-43e9-9040-c7e52623e82d`, anonymous at 390/1440px.

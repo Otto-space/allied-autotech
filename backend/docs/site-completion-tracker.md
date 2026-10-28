@@ -16,7 +16,11 @@ dependencies in `frontend/docs/PUBLIC_COPY_IMAGERY_20261028.md`.
 Local typecheck, lint and focused 23-case state/regression checks pass. Home
 responsive fixtures passed ten widths; recovery, reviews, image failure, doubled
 text, keyboard/menu and mobile/desktop accessibility checks passed after fixing
-mobile hero contrast. Real public-data layout and release gates are in progress.
+mobile hero contrast. Real public-data layout checks cover five routes at 320/430/768/1280/1536px.
+Enquiry and anchor journeys pass at 430/1536px; the native comparison is 1774px.
+The production build and full frontend tests passed; the first final gate found
+only merged register formatting, now corrected. Exact-source release gates are
+being rerun before promotion.
 No full-site, real-role, physical-device or screen-reader acceptance is claimed.
 
 
