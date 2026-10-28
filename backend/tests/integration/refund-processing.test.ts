@@ -9,6 +9,8 @@ import {
   hashToken,
 } from "../../src/common/security/session-tokens.js";
 import { objectStorage } from "../../src/providers/storage/s3-object-storage.adapter.js";
+import { ManualRefundsService } from "../../src/modules/payments/manual-refunds.service.js";
+import { issuePaymentEvidenceTicket } from "../../src/common/security/payment-evidence-tickets.js";
 import {
   refundQueueRecordSchema,
   refundCurrentRecordSchema,
@@ -40,7 +42,7 @@ async function account(role: "CUSTOMER" | "STAFF" | "ADMIN" = "STAFF", assured =
   });
   const token = generateOpaqueToken(),
     csrf = generateOpaqueToken();
-  await prisma.session.create({
+  const session = await prisma.session.create({
     data: {
       userId: user.id,
       createdAt: new Date(Date.now() - 1000),
@@ -53,6 +55,7 @@ async function account(role: "CUSTOMER" | "STAFF" | "ADMIN" = "STAFF", assured =
   });
   return {
     user,
+    sessionId: session.id,
     headers: {
       Cookie: `${sessionCookieName}=${token}`,
       Origin: "http://localhost:3000",
@@ -133,6 +136,62 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
   () => {
     afterEach(() => vi.restoreAllMocks());
     afterAll(() => prisma.$disconnect());
+    it("rejects transfer and check if the operator session was revoked after the request began", async () => {
+      const f = await fixture(),
+        transfer = await account(),
+        checker = await account();
+      await testCapability(transfer.user.id, "REFUND_TRANSFER");
+      await testCapability(checker.user.id, "REFUND_CHECK");
+      await prisma.session.updateMany({
+        where: { id: { in: [transfer.sessionId, checker.sessionId] } },
+        data: { revokedAt: new Date() },
+      });
+      vi.spyOn(objectStorage, "verifyObject").mockResolvedValue(true);
+      const actor = (account: typeof transfer) => ({
+        userId: account.user.id,
+        sessionId: account.sessionId,
+        role: account.user.role,
+        email: account.user.email,
+        mfaRequired: true,
+        mfaVerifiedAt: new Date(),
+      });
+      const context = { requestId: randomUUID(), ipAddress: null, userAgent: null };
+      const ticket = issuePaymentEvidenceTicket({
+        actorUserId: transfer.user.id,
+        paymentId: f.refund.id,
+        mimeType: "application/pdf",
+        sizeBytes: 1,
+        checksumSha256: "a".repeat(64),
+      });
+      const service = new ManualRefundsService();
+      await expect(
+        service.recordTransfer(
+          actor(transfer),
+          f.refund.id,
+          {
+            bankReference: "synthetic-reference",
+            transferredAt: new Date().toISOString(),
+            evidenceToken: ticket.ticket,
+            beneficiary: {
+              bankName: "Synthetic bank",
+              accountName: "Synthetic recipient",
+              accountNumber: "0000000000",
+            },
+          },
+          context,
+        ),
+      ).rejects.toMatchObject({ code: "FORBIDDEN" });
+      await expect(
+        service.check(actor(checker), f.refund.id, true, "Synthetic check", context),
+      ).rejects.toMatchObject({ code: "FORBIDDEN" });
+      expect(
+        await prisma.refund.findUniqueOrThrow({ where: { id: f.refund.id } }),
+      ).toMatchObject({
+        status: "REQUESTED",
+        transferredByUserId: null,
+        checkedByUserId: null,
+      });
+    });
     it(
       "limits queue discovery by active grant and stage, validates paging, and excludes private evidence",
       { timeout: 30000 },

@@ -15,6 +15,7 @@ import type { Prisma, PrismaClient } from "../../generated/prisma/client.js";
 import { objectStorage } from "../../providers/storage/s3-object-storage.adapter.js";
 import type { ObjectStoragePort } from "../../providers/storage/object-storage.port.js";
 import { appendAuditEvent } from "../audit/audit.service.js";
+import { lockAccessActor } from "../organization/team-access-security.js";
 import { assertCapability } from "../policies/policies.service.js";
 import { paymentConflict, paymentNotFound, paymentForbidden } from "./payments.errors.js";
 import type { PaymentEvidenceUploadInput } from "./payments.schemas.js";
@@ -229,6 +230,7 @@ export class ManualRefundsService {
     if (!Number.isFinite(transferredAt.getTime()) || transferredAt > new Date())
       throw paymentConflict("Transfer date must not be in the future");
     return this.database.$transaction(async (tx) => {
+      await lockAccessActor(tx, actor);
       await assertCapability(tx, actor, "REFUND_TRANSFER");
       await tx.$queryRaw`SELECT "id" FROM "Refund" WHERE "id" = ${id}::uuid FOR UPDATE`;
       const refund = await tx.refund.findUnique({
@@ -358,6 +360,7 @@ export class ManualRefundsService {
   ) {
     await assertCapability(this.database, actor, "REFUND_CHECK");
     return this.database.$transaction(async (tx) => {
+      await lockAccessActor(tx, actor);
       await assertCapability(tx, actor, "REFUND_CHECK");
       await tx.$queryRaw`SELECT "id" FROM "Refund" WHERE "id" = ${id}::uuid FOR UPDATE`;
       const refund = await tx.refund.findUnique({ where: { id } });
