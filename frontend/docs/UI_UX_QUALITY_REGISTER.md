@@ -2,8 +2,8 @@
 
 ## 28 October 2026: Notification bell preview prioritizes unread updates
 
-Current live frontend `09efa694` / `dpl_9us8TLTvZJxzA8KNvdKNqFMqjg8F`
-shows an unread badge, but its five-row bell preview requested the newest rows
+The initial live frontend `09efa694` / `dpl_9us8TLTvZJxzA8KNvdKNqFMqjg8F`
+showed an unread badge, but its five-row bell preview requested the newest rows
 without an unread filter. A newer read item could displace an older unread item
 from that preview. The shared customer and workforce bell now fetches up to five
 unread rows when the opening count is positive. If another tab has already read
@@ -19,7 +19,77 @@ then the same test passed on the server's `localhost` origin. Fixtures do not
 prove live authenticated-role behavior. No customer record, read state, message,
 backend, schema or provider was changed. Exact-source CI, staged deployment and
 hosted acceptance remain before publication; physical-device and full
-screen-reader acceptance remain open.
+screen-reader acceptance remain open. During release preparation, both domains
+advanced to navbar runtime `4aafaebb` / `dpl_F5XnU2aiSxhtK78P8dnbvrffYCR5`.
+That independently verified source was merged before staging this candidate;
+the integrated frontend/browser checks and exact-source CI must be repeated.
+
+## 28 October 2026: Stable navbar through Help to Learn navigation
+
+Reproduced the owner's exact anonymous journey on deployed source `09efa694`:
+Help → Explore Help & Learn. Desktop frame samples repeatedly alternated header
+height 78px/68px and scrollY 20px/10px. The brand stylesheet shortened the sticky
+header when scrollY exceeded 12px; browser scroll anchoring then crossed that same
+threshold in the opposite direction, creating a continuous feedback loop. Mobile
+390px retained its 68px header and did not exhibit that height loop in this probe.
+Before receipts: `%TEMP%/aat-navshake-before-390.json` and
+`aat-navshake-before-1440.json`.
+
+Removed the scrolled-state height override. Header geometry now remains stable at
+its existing responsive height: 78px above 700px and 68px at/below 700px. Existing
+scroll elevation/background treatment and navigation behavior remain. The source
+change is limited to the brand stylesheet; the preceding focus, Help, customer
+history and saved-item releases are preserved. No permissions, data, flags or
+backend changes.
+
+Browser plugin unavailable; reused Playwright/Edge. All seven pre-publication
+regression cases passed at 390, 700, 701, 768, 1024, 1280 and 1440 pixels, using the
+real optimized production stylesheet with only the offending height declaration
+removed in intercepted asset responses. Checks sample header/brand geometry during
+the actual link transition and loading/results states, verify settled scroll
+position, visible destination breadcrumbs, scroll positions 0/10/13/20/35/200,
+retained scrolled shadow, and Back/Forward navigation. APIs were intercepted
+read-only synthetic responses; no real writes. Receipt:
+`%TEMP%/aat-navbar-prepublication`; screenshots `aat-navbar-stable-390.png` and
+`aat-navbar-stable-1440.png`. These are pre-publication probes; exact deployed-CSS
+acceptance is recorded below after release. Real signed-in account changes,
+physical-device browser behavior and other inaccessible states are not claimed.
+
+### Navbar production release and hosted acceptance
+
+Runtime `4aafaebb5ab3f42bf8fd6c99c0e4fa7bdb0df42e` was built READY and promoted
+as `dpl_F5XnU2aiSxhtK78P8dnbvrffYCR5`, confirmed on apex/www after acceptance.
+The guard verified project/source, green exact-source checks and inclusion of both
+previous alias sources. Prior `dpl_9us8TLTvZJxzA8KNvdKNqFMqjg8F` is retained for
+rollback. No backend deployment or application data write was initiated by this
+task. A concurrent backend release was observed ACTIVE as
+`8fd37e1c-d2e2-4e2f-bbe4-3e9acb8c5650`; it was preserved and the real public
+journey was verified against it.
+
+Exact-source [frontend release checks](https://github.com/Otto-space/allied-autotech/actions/runs/40702876484),
+[secret guard](https://github.com/Otto-space/allied-autotech/actions/runs/40702876575)
+and [database safety CI](https://github.com/Otto-space/allied-autotech/actions/runs/40702876589)
+passed. Frontend checks include locked install/runtime audit, lint, typecheck, full
+unit suite, optimized production build and formatting. The only runtime diff from
+the prior release is the four-line brand stylesheet change.
+
+All seven browser regression cases passed against actual deployed CSS with the
+asset override disabled: `%TEMP%/aat-navbar-live-tests`. These use intercepted
+read-only API fixtures. Separately, the exact Help → Explore Help & Learn → open
+an answer journey passed against real public content at 390 and 1440px, with
+Playwright's scrollbar hiding disabled. Header/brand geometry remained stable
+through 183 mobile and 174 desktop frame samples; heights stayed 68px and 78px,
+and settled scrollY stayed 8px and 20px. No page errors; the article focus outline
+and shadow remained absent. Receipt `%TEMP%/aat-navbar-live-acceptance.json`, frame
+traces `aat-navbar-after-390.json` / `aat-navbar-after-1440.json`. Screenshots
+`aat-navbar-live-390.png` / `aat-navbar-live-1440.png` were inspected. The separate
+pre-publication classic-scrollbar/loading probe also kept desktop header width
+1425px and brand x=52.5px across the transition.
+
+Private signed-in account-state changes and physical Safari/Android devices remain
+unverified. No dependency installation, duplicate local build, new worktree or
+Docker resources were required. Final disk preflight passed at 26.53 GiB free;
+this is a point-in-time check. Unrelated main checkout changes were preserved.
 
 ## 28 October 2026: All automatically focused containers
 
