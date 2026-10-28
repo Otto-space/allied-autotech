@@ -195,3 +195,83 @@ not prove a populated financial backfill or a fresh pre-rollout recovery point.
 Recheck current production backups/PITR and rehearse the latest representative
 snapshot before a guarded live migration. Runtime-role DML on the new projection,
 legacy running/held work, provider sandbox and exact-source rollout remain open.
+
+## Production-compatible candidate and read-only rollout probes - 28 October
+
+The unreleased branch now includes the current production backend commit
+`0fd68980` by ancestry (merge `7d4bd735`). The inventory replay implementation
+remained equivalent, and the workshop address/WhatsApp release was preserved.
+Exact source `6cab3669` passed backend database-safety CI `40673070983`,
+including all 75 migrations, the manual refund database cases and the added
+reconciliation integration suite. Secret guard `40673070788` passed. These are
+new isolated `_ci` results; they do not establish live financial correctness.
+No production migration or provider action was performed. The local C: reserve
+preflight fell below its required threshold, so no local build or database test
+was started for this merge.
+
+Before a guarded migration, connect with the **verified production migration
+role** and run these read-only checks. Record the actual server address, port,
+database and deployment environment privately. Do not print credentials or
+financial rows. Stop if the database is not `allied_autotech_production`, any
+object is missing, or any ownership/privilege check is false; review the role
+and existing object ownership before changing grants.
+
+```sql
+SELECT current_database() AS database_name,
+       inet_server_addr() AS server_address,
+       inet_server_port() AS server_port,
+       current_user AS migration_role,
+       has_schema_privilege(current_user, 'public', 'CREATE') AS can_create_in_public;
+
+SELECT c.relname AS object_name,
+       pg_get_userbyid(c.relowner) = current_user AS owned_by_migration_role
+FROM pg_class AS c
+JOIN pg_namespace AS n ON n.oid = c.relnamespace
+WHERE n.nspname = 'public'
+  AND c.relname IN (
+    'PaymentReconciliationRun',
+    'PaymentReconciliationItem',
+    'PaymentAttempt',
+    'PaymentReconciliationRun_provider_periodStart_periodEnd_key'
+  )
+ORDER BY c.relname;
+```
+
+The four object rows must be present. Migration 73 alters the run table,
+replaces the existing unique index and adds an index on attempts; migration 74
+indexes items; migration 75 creates a trigger on attempts. The provisioning
+script deliberately gives no owner-role membership, so the migrator needs
+direct ownership of these existing objects. A successful isolated replay as
+the test database owner does not prove this on production.
+
+After the reviewed migrations, connect as the **actual runtime role** and
+verify the new projection's DML rights without writing a financial row:
+
+```sql
+SELECT current_database() = 'allied_autotech_production' AS correct_database,
+       has_table_privilege(current_user, 'public."PaymentReconciliationDue"', 'SELECT')
+         AND has_table_privilege(current_user, 'public."PaymentReconciliationDue"', 'INSERT')
+         AND has_table_privilege(current_user, 'public."PaymentReconciliationDue"', 'UPDATE')
+         AND has_table_privilege(current_user, 'public."PaymentReconciliationDue"', 'DELETE')
+         AS due_dml,
+       NOT has_schema_privilege(current_user, 'public', 'CREATE') AS no_schema_create,
+       NOT has_table_privilege(current_user, 'public."PaymentReconciliationDue"', 'TRUNCATE')
+         AS no_due_truncate,
+       NOT has_table_privilege(current_user, 'public._prisma_migrations', 'UPDATE')
+         AS no_migration_ledger_update;
+
+SELECT (SELECT count(*) FROM "PaymentAttempt") AS attempt_count,
+       (SELECT count(*) FROM "PaymentReconciliationDue") AS projection_count;
+
+SELECT count(*) FILTER (WHERE "status" = 'RUNNING') AS running_count,
+       count(*) FILTER (WHERE "status" = 'RUNNING' AND "leaseToken" IS NULL)
+         AS legacy_running_count
+FROM "PaymentReconciliationRun";
+```
+
+All permission booleans must be true and projection count must equal attempt
+count. Inspect any legacy `RUNNING` or held rows and resolve them through the
+reviewed operational path. These probes supplement, rather than replace, a
+fresh encrypted off-device backup, a separate populated restore rehearsal,
+the guarded migrator and `npm run db:check`. Provider sandbox and real-role
+acceptance still gate enabled payments.

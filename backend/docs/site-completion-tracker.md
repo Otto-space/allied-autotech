@@ -1791,3 +1791,23 @@ business write or frontend release. Real authenticated role, device and genuine
 WebAuthn browser acceptance remain open. Previous backend 96ffc790 is the
 immediate rollback candidate subject to compatibility review. Detail:
 backend/docs/mfa-challenge-atomicity-20261026.md.
+
+28 October 2026 - P0 reconciliation production-compatibility candidate.
+The unreleased payment/refund source was merged with actual production backend
+source 0fd68980 without conflicts; merge 7d4bd735 preserves the inventory
+replay fix and the workshop contact release. Exact candidate 6cab3669 adds the
+27-case reconciliation integration suite to the isolated `_ci` safety workflow.
+Backend safety CI 40673070983 passed migration replay, refund database cases and
+the new reconciliation step; secret guard 40673070788 passed. The last
+independently recorded production backend deployment was
+79d7a0ac-4e83-4b73-ae46-40af4731a604, with providers disabled and no
+reconciliation recovery migration applied. Recheck that state before rollout.
+No production database, provider, financial record or deployment was changed by
+this work.
+The local disk preflight dipped below its 20 GiB reserve, so no local build or
+database test was started. Fresh managed recovery evidence, production migration
+role ownership, new projection runtime DML, populated financial backfill,
+legacy RUNNING/held rows, provider sandbox and real-role acceptance remain release
+gates. Read-only SQL probes are recorded in
+backend/docs/payment-reconciliation-recovery-20261027.md; they have not been run
+on production. Recheck actual deployment and backup state before any rollout.
