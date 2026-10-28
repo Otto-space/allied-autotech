@@ -2452,3 +2452,9 @@ editor session. Real device and screen-reader speech remain untested. The curren
 `browse_enquiries` restriction and genuine catalogue content requirements remain.
 The next review should verify an authorised admin QA session on the matching
 release and continue the per-page operations backlog.
+
+### Historical merged-branch checkpoint
+
+The following dated observation is retained from origin/feat/visual-identity-audit-20261027; it is not a claim of current production identity.
+
+28 October 2026 - Customer history and Saved items released. Runtime 0b5a9b76, Vercel dpl_GWDKwqj3Gs7uT8o1qNt4ce2jdLno READY on both domains after 14 public checks. Preserves published Help/Allie/navigation 0d4dd992 and Shop 552ee418. Exact frontend CI 40680419648 passed 1074 units, lint/types/format/build and production audit; secret guard 40680419233 and isolated backend safety 40680419675 passed. Eighteen final hosted journeys plus two native keyboard/focus/hover cases passed. Backend 79d7a0ac unchanged, ACTIVE/readiness200; no local/shared database write. V42/V52 released with sampled evidence; V41 remains partial for current-care empty cards. Full V01-V55 goal stays active. Evidence, recovery, harness failure and limitations: backend/docs/customer-history-production-20261028.md. Other tasks and dirty files preserved.
