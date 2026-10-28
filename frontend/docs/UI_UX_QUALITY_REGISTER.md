@@ -1,5 +1,31 @@
 # UI and UX quality register
 
+## 28 October 2026: catalogue cards reflect vehicle-choice availability
+
+The released Parts catalogue at 390/1440px had one published Engine Oil Filter.
+The public fitment-make lookup returned no choices and the finder directed the
+customer to ask the team, while the product card still said to choose a
+vehicle. Search for `oil`, no-match search, Back restoration, filter Escape and
+focus return passed on the live domain. A separate 390x700 measurement found
+brief support-dock overlap as the product-detail enquiry action entered the
+viewport; scrolling exposed the whole action and the link had already passed
+the actual handoff test. No global dock change is included.
+
+Product cards now invite vehicle selection only after a successful nonempty
+make lookup. Empty, loading and failed lookups direct customers to the team;
+any listed application still requires fitment confirmation. Product records,
+availability, price, fitment decisions, navigation and enquiry submission are
+unchanged. The local rendered catalogue cases passed at 390/1440px with
+positive, empty and failed makes, the working finder choice, no page errors or
+horizontal overflow. The existing product-detail audit passed 2/2 at both
+widths, including enquiry handoff and scoped accessibility. Public catalogue
+GETs used the real published item; identity and writes were isolated. Browser
+plugin was unavailable, so existing Edge/Playwright checks were used. Exact
+source checks and hosted release acceptance are pending. Real account,
+physical-device and full screen-reader acceptance remain open. A concurrent
+public-copy release and garage/privacy master update are integrated before
+this catalogue change is published.
+
 ## 28 October 2026: bounded public content and imagery improvement
 
 Current cycle: owner's content brief, instruction 7. Home now has a stable offer,
@@ -57,8 +83,17 @@ the fixture now passes only public catalogue GETs to the same read-only
 backend that supplies the server-rendered page. Other API writes stay
 intercepted. Live before evidence: `%TEMP%/aat-live-product-detail-390.png`
 and `aat-live-product-detail-1440.png`; local after evidence is in the
-product-audit Playwright output. Exact-source CI, hosted post-release check,
-real-customer and physical-device acceptance remain open.
+product-audit Playwright output. The candidate integrated the published
+notification-availability release before rollout. Exact runtime `8d2dfd69`
+passed frontend CI `40770274274`, backend safety `40770274308` and secret
+guard `40770274264`; Vercel staged READY deployment
+`dpl_DfQ8TmtFujaCL215HnWRuaTRuRZr` from the same SHA. Protected product and
+contact reads returned 200 before promotion. Both custom domains then
+resolved to this READY deployment. Post-promotion hosted product audit passed
+2/2 at 390/1440px, with public catalogue GETs allowed and all
+mutation/identity behaviour isolated. Real-customer, physical-device and
+full screen-reader acceptance remain open. The previous
+`dpl_Ch3kcHTq565fAMKne6hFT8NPKw7R` is retained for rollback.
 
 ## 28 October 2026: combined Allie integration regression correction
 
@@ -2919,3 +2954,5 @@ Two isolated live 390px baselines failed at the expected previous interface and 
   `backend/docs/vehicle-marketplace-implementation-20261028.md`.
 - Real-role, physical-device and independent vehicle-condition acceptance remain
   unverified. Public VIN search remains a privacy/business decision.
+
+28 October 2026 - V53/V55 guidance released on master runtime 55714afd, Vercel dpl_6b35E89UpjSP9heFX88nWWB6BFdA verified on apex/www. Garage optional search setup preserves basic entry and drafts; privacy review/execution guidance remains visible on mobile and links to Customer Care. Final combined CI passed 1225 tests (12 optional skipped), lint/types/format/build and zero production audit findings; frontend 40780036790, secret guard 40780036778 and isolated backend safety 40780036897/40780112964 passed. All 41 final hosted cases plus 18 candidate and 18 production public checks passed. Screenshot inspection caught and fixed the old mobile rule hiding privacy steps. Published public-copy source bee7ed8f is preserved; initial promotion correctly stopped for that concurrent release. Backend 3ee6748f remains ACTIVE/readiness200, unchanged by this batch. Other source/contract hashes and both tracker sections were preserved. No shared DB/customer writes. Evidence, initial harness corrections, limits and rollback: backend/docs/garage-privacy-guidance-production-20261028.md. Full V01-V55 remains active; next reconcile published public-page work and continue the service-enquiry/remaining clarity ledger.

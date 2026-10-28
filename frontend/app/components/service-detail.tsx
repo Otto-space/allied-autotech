@@ -388,7 +388,7 @@ export function ServiceDetail({
   }
 
   const locked = busy || uncertain;
-  let formTitle = "Tell us what you need.";
+  let formTitle = "Service enquiry";
   if (fixed) {
     if (booking) formTitle = "Your booking request";
     else if (review) formTitle = "Review your booking request";
@@ -594,6 +594,7 @@ export function ServiceDetail({
                   </ol>
                 )}
                 <h2
+                  id="service-request-title"
                   ref={formHeading}
                   tabIndex={-1}
                   className={booking ? "sr-only" : "sd-form-title"}
@@ -603,8 +604,8 @@ export function ServiceDetail({
                 {!fixed ? (
                   <>
                     <p className="sd-muted">
-                      Send an enquiry about {current.name}. Our team can discuss your
-                      requirements before preparing a quotation.
+                      Share your vehicle details and what you need. An enquiry does not
+                      confirm an appointment.
                     </p>
                     <div className="contact-form-panel">
                       <PublicEnquiryForm
@@ -613,6 +614,7 @@ export function ServiceDetail({
                         submissionLocked={quotationUncertain}
                         onSubmissionUncertain={() => setQuotationUncertain(true)}
                         presentation="contact"
+                        labelledBy="service-request-title"
                       />
                     </div>
                   </>

@@ -119,7 +119,7 @@ export async function generateMetadata({
       (
         service.shortDescription ??
         service.description ??
-        `${service.name} at Allied AutoTech in Port Harcourt. View service details and available appointments.`
+        `${service.name} at Allied AutoTech in Port Harcourt. View service details and available next steps.`
       ).slice(0, 160),
       `/services/${service.id}`,
       searchParams,

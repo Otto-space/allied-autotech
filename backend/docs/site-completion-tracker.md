@@ -16,6 +16,32 @@ missing. No production stock, enquiry, availability or transaction write. See
 vehicle-marketplace-implementation-20261028.md for matrix, photo review and gates.
 Release must integrate to exact checked master and deploy compatible backend first.
 
+## 28 October 2026 current catalogue fitment-guidance cycle
+
+Initial production baseline: frontend `dpl_DfQ8TmtFujaCL215HnWRuaTRuRZr` on both
+domains; backend `3ee6748f-ed72-4c89-b9a1-f1963e891190` ACTIVE. The public
+fitment-make API currently has no choices. The Parts finder therefore offers
+an enquiry, while the published product card still told customers to choose
+a vehicle. Live Parts search, empty results, Back navigation and filter Escape
+worked at 390/1440px; the discrepancy is limited to card guidance. The mobile
+support dock briefly overlaps the enquiry action at 390x700 while scrolling,
+but another short scroll exposes it; no shared dock change is justified here.
+
+The separate `fix/catalogue-fitment-availability-20261028` branch reuses the
+fitment worktree and makes card guidance follow confirmed vehicle-choice
+availability. It preserves product data, fitment decisions, enquiry links and
+the prior product-detail release. Four isolated rendered cases passed locally
+at 390/1440px: positive, empty and failed make lookups on the catalogue,
+plus the existing product-detail enquiry, keyboard and recovery journey.
+Catalogue SSR reads the one real published product; browser identity and all
+mutations are intercepted. Type, lint, exact-source CI, hosted acceptance and
+release identity are being checked before publication. No production write
+or real enquiry was made by the browser tests. The wider goal and real-role,
+physical-device and full screen-reader acceptance remain open. During local
+validation, the public-copy release advanced production to
+`dpl_Akw8ic1B6NQFGgL7tDDrm3pskZZ3`; its runtime is integrated in this
+candidate alongside the newer garage/privacy master changes.
+
 ## 28 October 2026 current public copy and imagery cycle
 
 Owner invoked instruction 7 of the 27 October content/imagery brief. Active source
@@ -48,9 +74,6 @@ Local preview stopped; existing dependencies, generated evidence and Docker
 resources retained. C: postflight 29.31 GiB free at measurement, above the 20 GiB
 reserve; this is a point-in-time check, not an OS quota.
 
-
-
-
 ## 28 October 2026 current product-fitment availability cycle
 
 Current production baseline was frontend `dpl_5LscxLnZGRXNBorSWq3GFgfUBcGq`
@@ -70,9 +93,19 @@ The isolated `allied-product-fitment-20261028` worktree is based on the current
 clean master commit, preserving dirty human-chat work in the master checkout.
 TypeScript, scoped lint and two rendered product-detail tests at 390/1440px
 pass. These tests use the one published product for read-only catalogue/SSR
-data and intercept identity and all mutations. Exact-source CI, deployment
-and hosted post-release acceptance remain pending. No payment, enquiry,
-customer or database write was made.
+data and intercept identity and all mutations. The candidate merged the
+subsequent notification-availability runtime `2725efea` before release.
+Exact runtime `8d2dfd69` passed frontend CI `40770274274`, backend safety
+`40770274308` and secret guard `40770274264`. Vercel built
+`dpl_DfQ8TmtFujaCL215HnWRuaTRuRZr` from that SHA with production settings;
+its protected product detail and contact pages returned 200. It was promoted
+after both aliases and disk reserve were rechecked. Both custom domains then
+resolved to this READY deployment. Post-promotion hosted product audit passed
+2/2 at 390/1440px. Backend readiness remains independently monitored;
+no payment, enquiry, customer or database write was made. Real customer,
+physical-device and
+full screen-reader acceptance remain open. Prior frontend
+`dpl_Ch3kcHTq565fAMKne6hFT8NPKw7R` is retained for rollback.
 
 ## 28 October 2026 consolidated production release
 

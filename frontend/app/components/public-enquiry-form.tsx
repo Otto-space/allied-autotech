@@ -8,8 +8,11 @@ import { PublicEnquiryActions } from "./public-enquiry-actions";
 export function PublicEnquiryForm(props: Parameters<typeof EnabledPublicEnquiryForm>[0]) {
   if (catalogueOnly())
     return (
-      <section aria-label="Contact our team">
-        <h3>Speak with our team</h3>
+      <section
+        aria-labelledby={props.labelledBy}
+        aria-label={props.labelledBy ? undefined : "Contact our team"}
+      >
+        {!props.labelledBy && <h3>Speak with our team</h3>}
         <p>
           Contact us by email or WhatsApp to discuss your vehicle, a service or a product.
         </p>
@@ -31,6 +34,7 @@ function EnabledPublicEnquiryForm({
   submissionLocked = false,
   onSubmissionUncertain,
   presentation,
+  labelledBy,
   productId,
   productName,
   initialSubject,
@@ -55,6 +59,7 @@ function EnabledPublicEnquiryForm({
   submissionLocked?: boolean;
   onSubmissionUncertain?: () => void;
   presentation?: "contact";
+  labelledBy?: string;
 }) {
   const [kind, setKind] = useState<SupportKind>("enquiries");
   const [locked, setLocked] = useState<SupportKind[]>([]);
@@ -115,6 +120,7 @@ function EnabledPublicEnquiryForm({
         serviceId={serviceId}
         serviceName={serviceName}
         presentation={presentation}
+        labelledBy={labelledBy}
         productId={productId}
         productName={productName}
         initialSubject={initialSubject}

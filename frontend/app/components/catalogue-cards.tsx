@@ -27,10 +27,12 @@ export function PartCard({
   product,
   params = new URLSearchParams(),
   href,
+  vehicleChoicesAvailable = false,
 }: {
   product: Product;
   params?: URLSearchParams;
   href?: string;
+  vehicleChoicesAvailable?: boolean;
 }) {
   const photo = product.images.find((image) => image.isPrimary) ?? product.images[0];
   const availability = productAvailability(product.availability);
@@ -108,13 +110,19 @@ export function PartCard({
                     {fitment.model ? ` ${fitment.model}` : ""}
                   </p>
                   <span>
-                    Select your vehicle and technical details to confirm fitment.
+                    {vehicleChoicesAvailable
+                      ? "Select your vehicle and technical details to confirm fitment."
+                      : "Ask our team to confirm fitment for your vehicle and technical details."}
                   </span>
                 </>
               ) : (
                 <>
                   <p>Fitment unknown</p>
-                  <span>Choose your vehicle or ask our team to verify suitability.</span>
+                  <span>
+                    {vehicleChoicesAvailable
+                      ? "Choose your vehicle or ask our team to verify suitability."
+                      : "Ask our team to verify suitability for your vehicle."}
+                  </span>
                 </>
               )}
             </div>

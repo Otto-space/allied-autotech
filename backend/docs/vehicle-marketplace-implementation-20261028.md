@@ -13,7 +13,9 @@ The 14 JPEGs in `Images.zip` were path/resource/signature/dimension checked and
 visually inspected individually. No software from either attachment was executed.
 
 Source starts at the verified production copy/imagery release and incorporates
-`origin/master` cfd3fadd, preserving current garage/privacy work. The dirty master
+`origin/master` cfd3fadd, preserving current garage/privacy work. Current master c0790beb service-enquiry and fitment corrections were also
+incorporated, including the catalogue-card change. Both continuity records were
+retained when resolving append-only documentation conflicts. The dirty master
 checkout and its unrelated live-support work are untouched. No production BMW,
 enquiry, appointment, availability or transaction has been created for testing.
 
