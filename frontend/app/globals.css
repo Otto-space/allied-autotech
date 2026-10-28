@@ -3536,9 +3536,30 @@ html {
   box-shadow: var(--focus-shadow);
 }
 
-/* Reading destinations are announced without painting a page-sized focus border.
-   Interactive controls retain their normal keyboard focus indicators. */
-[data-reading-focus]:focus {
+/* Containers receive focus to announce navigation, results, errors or completion.
+   They must not acquire a page/panel-sized focus ring. The extra specificity is
+   intentional: this policy must win over scoped focus rules in production chunks.
+   Native controls and composite widgets (including roving tabindex=-1 options)
+   keep their keyboard focus indicators. Normal borders and error styling remain. */
+:root
+  :is(
+    [data-reading-focus],
+    dialog[open],
+    [tabindex="-1"]:not([role], [contenteditable], a, button, input, select, textarea),
+    [tabindex="-1"]:is(
+      [role="alert"],
+      [role="status"],
+      [role="region"],
+      [role="group"],
+      [role="tabpanel"],
+      [role="dialog"],
+      [role="alertdialog"],
+      [role="heading"],
+      [role="document"],
+      [role="note"],
+      [role="log"]
+    )
+  ):focus {
   outline: none;
   box-shadow: none;
 }

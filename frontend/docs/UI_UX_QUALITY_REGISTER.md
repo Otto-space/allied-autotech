@@ -1,5 +1,42 @@
 # UI and UX quality register
 
+## 28 October 2026: All automatically focused containers
+
+The owner confirmed that the dark automatic-focus border must be removed from all
+containers, including completion headings, dialogs, confirmation/status/error
+panels and grouped sections. Interactive keyboard controls retain their focus
+indicators. Reproduced the reported direct refresh at
+`/learn?article=parts-fitment` on production source `0b5a9b76` /
+`dpl_GWDKwqj3Gs7uT8o1qNt4ce2jdLno`: the focused answer had a 3px dark outline
+and white focus shadow despite its existing exception. The optimized stylesheet
+loaded a scoped learning rule after an equal-specificity global exception. About,
+workforce and payment styles also have container focus selectors.
+
+The root policy now covers programmatically focused non-interactive negative-tabindex
+containers, dialogs and static ARIA panels as well as the existing destination
+marker. Its explicit specificity exceeds the scoped container rules regardless of
+chunk order. Native controls, editable fields and composite widgets (including
+negative-tabindex options) are excluded. Normal dialog borders, error borders,
+focus ownership, announcements, scrolling, keyboard behavior and permissions are
+preserved. No component rewrite, backend/schema, content definition or flag change.
+The newer customer-history/saved-item release is the base and remains included.
+
+Browser plugin unavailable; reused installed Playwright/Edge. Pre-publication
+checks used the exact source policy prepended to real optimized stylesheet
+responses, with CSP enabled. Five regression cases passed: direct article refresh
+three times at 390/1440 pixels; Allie response focus at both widths; automatic
+heading/section/panel/fieldset/status/error/dialog focus, retained error/dialog
+borders and retained keyboard field/button/roving-option focus. An additional
+anonymous browser audit passed 19 public routes and their rendered static focus
+targets (Home, About, Contact, Help/article, Learn/article/unavailable guide,
+authentication pages, Services, Shop, Vehicles, Reviews, Privacy). These are
+asset-patched pre-publication checks, not yet exact deployed-source acceptance.
+Receipts: `%TEMP%/aat-container-focus-patched-final`,
+`aat-container-surface-patch.json`; before image `aat-reading-border-before.png`.
+Protected-role completion/error states have source/policy coverage plus
+representative synthetic panels; no real private records or transactions were used.
+Physical Safari/Android and actual staff-account acceptance remain unverified.
+
 ## 28 October 2026: Refresh scrolling, reading focus and Help & Learn
 
 Owner-reported cross-phone homepage jumps were reproduced on production
