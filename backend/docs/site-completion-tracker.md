@@ -19,9 +19,19 @@ The isolated `allied-product-fitment-20261028` worktree is based on the current
 clean master commit, preserving dirty human-chat work in the master checkout.
 TypeScript, scoped lint and two rendered product-detail tests at 390/1440px
 pass. These tests use the one published product for read-only catalogue/SSR
-data and intercept identity and all mutations. Exact-source CI, deployment
-and hosted post-release acceptance remain pending. No payment, enquiry,
-customer or database write was made.
+data and intercept identity and all mutations. The candidate merged the
+subsequent notification-availability runtime `2725efea` before release.
+Exact runtime `8d2dfd69` passed frontend CI `40770274274`, backend safety
+`40770274308` and secret guard `40770274264`. Vercel built
+`dpl_DfQ8TmtFujaCL215HnWRuaTRuRZr` from that SHA with production settings;
+its protected product detail and contact pages returned 200. It was promoted
+after both aliases and disk reserve were rechecked. Both custom domains then
+resolved to this READY deployment. Post-promotion hosted product audit passed
+2/2 at 390/1440px. Backend readiness remains independently monitored;
+no payment, enquiry, customer or database write was made. Real customer,
+physical-device and
+full screen-reader acceptance remain open. Prior frontend
+`dpl_Ch3kcHTq565fAMKne6hFT8NPKw7R` is retained for rollback.
 
 ## 28 October 2026 consolidated production release
 

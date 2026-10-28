@@ -29,8 +29,17 @@ the fixture now passes only public catalogue GETs to the same read-only
 backend that supplies the server-rendered page. Other API writes stay
 intercepted. Live before evidence: `%TEMP%/aat-live-product-detail-390.png`
 and `aat-live-product-detail-1440.png`; local after evidence is in the
-product-audit Playwright output. Exact-source CI, hosted post-release check,
-real-customer and physical-device acceptance remain open.
+product-audit Playwright output. The candidate integrated the published
+notification-availability release before rollout. Exact runtime `8d2dfd69`
+passed frontend CI `40770274274`, backend safety `40770274308` and secret
+guard `40770274264`; Vercel staged READY deployment
+`dpl_DfQ8TmtFujaCL215HnWRuaTRuRZr` from the same SHA. Protected product and
+contact reads returned 200 before promotion. Both custom domains then
+resolved to this READY deployment. Post-promotion hosted product audit passed
+2/2 at 390/1440px, with public catalogue GETs allowed and all
+mutation/identity behaviour isolated. Real-customer, physical-device and
+full screen-reader acceptance remain open. The previous
+`dpl_Ch3kcHTq565fAMKne6hFT8NPKw7R` is retained for rollback.
 
 ## 28 October 2026: combined Allie integration regression correction
 
