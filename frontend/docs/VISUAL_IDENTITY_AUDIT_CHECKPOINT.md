@@ -148,3 +148,11 @@ goal remains active. Evidence/limitations/rollback and disk-preflight incident:
 backend/docs/shop-audit-production-20261028.md. Other tasks/dirty work preserved.
 
 V20 evidence: after the real empty make response, the first card starts at y=818.36 in a 390x936 viewport; its details remain low behind the fixed support dock. Further compact orientation is needed. V23 still covers wider shared fitment vocabulary. Actual product media/catalogue choices remain business dependencies. Backend V54/homepage help remains source-only. Automatic approval rejected cache cleanup and later provider-cookie cleanup; no deletion or bypass was used. The task cookie remains in the ignored .private folder.
+
+## Customer history and Saved items - bounded candidate, 28 October 2026
+
+V41/V42: current care and load/retry status remain first. Customer-only Activity history uses a native keyboard-operable disclosure; date drafts remain mounted across closing/opening. Verified all-zero periods use one message instead of five metrics, a flat chart and repeated empty record panels. Existing records, date filtering, permissions and staff analytics remain available. The launch limitation is shorter and placed with historical records. Remaining current-care empty cards are outside this batch.
+
+V52: a successfully loaded empty collection has one browse action. Loading/error states retain navigation and retry; populated collections retain the toolbar action. Labels say Favourite products/Browse Shop without changing API values, saved IDs or mutation contracts.
+
+Acceptance: 12 focused units pass (including empty vs historical data, date draft retention, staff preservation and refresh/session behavior); types and scoped lint pass. Six hosted desktop/mobile history/Saved fixtures added for native keyboard disclosure/tabs, date changes, error recovery, one action, overflow and sampled Axe. These browser checks and exact-source cloud CI are pending; this candidate is not deployed. Existing dirty tracker/asset files and other worktrees remain untouched.

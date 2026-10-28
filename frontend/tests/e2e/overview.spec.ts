@@ -14,6 +14,7 @@ for (const role of ["CUSTOMER", "STAFF", "ADMIN", "SUPER_ADMIN"])
     await page.setViewportSize({ width: 1440, height: 1100 });
     await page.goto(role === "CUSTOMER" ? "/dashboard" : "/admin");
     await expect(page).toHaveTitle(/Allied AutoTech/);
+    if (role === "CUSTOMER") await page.locator(".customer-history > summary").click();
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     await expect(page.locator(".overview-metric")).toHaveCount(5);
     await expect(

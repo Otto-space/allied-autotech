@@ -1999,3 +1999,11 @@ Backend 79d7a0ac unchanged, ACTIVE/readiness200. No local/shared DB test or writ
 V20 initial mobile spacing and V23 wider vocabulary remain partial; full V01-V55
 goal remains active. Evidence/limitations/rollback and disk-preflight incident:
 backend/docs/shop-audit-production-20261028.md. Other tasks/dirty work preserved.
+
+## Customer history and Saved items - bounded candidate, 28 October 2026
+
+V41/V42: current care and load/retry status remain first. Customer-only Activity history uses a native keyboard-operable disclosure; date drafts remain mounted across closing/opening. Verified all-zero periods use one message instead of five metrics, a flat chart and repeated empty record panels. Existing records, date filtering, permissions and staff analytics remain available. The launch limitation is shorter and placed with historical records. Remaining current-care empty cards are outside this batch.
+
+V52: a successfully loaded empty collection has one browse action. Loading/error states retain navigation and retry; populated collections retain the toolbar action. Labels say Favourite products/Browse Shop without changing API values, saved IDs or mutation contracts.
+
+Acceptance: 12 focused units pass (including empty vs historical data, date draft retention, staff preservation and refresh/session behavior); types and scoped lint pass. Six hosted desktop/mobile history/Saved fixtures added for native keyboard disclosure/tabs, date changes, error recovery, one action, overflow and sampled Axe. These browser checks and exact-source cloud CI are pending; this candidate is not deployed. Existing dirty tracker/asset files and other worktrees remain untouched.

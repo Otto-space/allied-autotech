@@ -156,12 +156,13 @@ for (const width of [360, 390, 768, 1024, 1440]) {
       page.getByRole("link", { name: "Request a service visit", exact: true }),
     ).toHaveAttribute("href", "/services");
     await expect(page.locator(".overview-release-note")).toContainText(
-      "payment collection are unavailable",
+      "checkout and payment are unavailable",
     );
     await expect(page.locator(".care-service")).toContainText(
       state.care!.currentBooking!.serviceName,
     );
     await expect(page.locator(".care-review")).toContainText("NGN 85,000.00");
+    await page.locator(".customer-history > summary").click();
     await expect(page.locator("#overview-preset")).toHaveValue("30");
     for (const href of await page
       .locator(".customer-overview a")
