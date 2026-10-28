@@ -65,7 +65,7 @@ Finite cycle covers anonymous public journeys, synthetic delayed/error/access ch
 keyboard controls and narrow/desktop layouts. Reused the contact-validation worktree
 on fix/learning-interaction-audit-20261028, initially from dfd79d91 (same runtime
 as published 4aafaebb). A later favourites release ef06efb7 was observed during
-verification and must be included before publication. Other dirty work is preserved.
+verification and was merged before publication. Other dirty work is preserved.
 
 Verified P1/P2 issues and fixes:
 
@@ -86,8 +86,10 @@ Verified P1/P2 issues and fixes:
   written mode was deliberately chosen. Missing/obscured controls offer an immediate
   written fallback. Step changes reset panel scroll, completion retains a focus
   destination, and removing/changing the same-page guide fragment closes the guide.
-  Cross-page pause remains supported. Guide exit restores an available same-page
-  launcher after the floating dock becomes visible again.
+  Cross-page pause remains supported. A final real-content probe also found that an
+  unavailable guide stayed over Learn after Available learning; that navigation now
+  explicitly closes its guide, with a regression assertion. Guide exit restores an
+  available same-page launcher after the floating dock becomes visible again.
 - Practice search/review results are focused and revealed. Existing local-only inputs,
   explicit sample replacement, errors, choices, reset and exit boundaries remain.
 
@@ -103,20 +105,77 @@ geometry/focus, denial/retry/identity changes, responsive guide pause/resume/res
 completion/hash/error recovery, and practice errors/replacement/review/reset/return.
 The first delayed-focus run exposed a React commit timing race; restoration moved
 from a requestAnimationFrame into the post-commit effect and both focused cases
-passed. Final combined regression and exact-source CI/hosted acceptance are pending.
+passed. Ten interaction cases passed locally before the last recovery-link
+assertion was added; the combined local run reached 23 passes before a renewed
+disk-reserve stop. Final exact-source hosted regression is recorded below.
 Evidence remains in %TEMP%/aat-learning-* and the maintained e2e/unit tests.
 
 Disk preflight initially passed at 26.74 GiB free with a 1 GiB budget. A later
 measurement fell to 19.15 GiB; task-owned dev/browser/test processes were stopped.
 Read-only inventory preserved all source, caches, dependencies, other tasks and
 Docker/data resources. Free space subsequently returned to 25.74 GiB without any
-agent deletion. A fresh preflight is required before resuming substantial writes;
-this records point-in-time measurements, not a machine-wide quota guarantee.
+agent deletion. A subsequent check again fell below reserve. Native npm cache
+verification
+reclaimed 185 unreferenced blobs (101,752,433 logical bytes). Automatic approval
+review rejected the combined generated-cache/duplicate-CLI removal command with
+"blocked by policy"; no alternate agent deletion was attempted. At the owner's
+request, exact manual PowerShell/native npm instructions were supplied. The two
+generated directories were subsequently absent and a fresh preflight passed at
+20.45 GiB free before hosted testing. These are point-in-time measurements, not a
+machine-wide quota guarantee.
 
 Acceptance limits: intercepted data is synthetic, not real authenticated-role
 acceptance. Physical Safari/Android phones, mobile OS keyboards, full screen-reader
 acceptance and inaccessible private guides remain unverified. No claim of complete
 WCAG conformance or absence of every possible site defect.
+
+### Learning audit production release
+
+Final runtime `072e0509683df08c8635c495a76245ea1cc60379`, Vercel
+`dpl_Bov9FbKyy4yPMRqWnJG3CpX6MMQz`, is READY and promoted on apex/www.
+The promotion guard verified project, runtime, both previous alias ancestries and
+all three green exact-source workflows. Preserved prior favourites deployment
+`dpl_FAJ8oVhecCNTGac2XAyufAgg7hvv` / `ef06efb7` for rollback. The first build
+`dpl_2yoSNBWLTchrnmzy49kGXgUjKMtt` was superseded by the final recovery-link repair
+before public alias promotion.
+
+[Frontend release CI](https://github.com/Otto-space/allied-autotech/actions/runs/40710727313),
+[secret guard](https://github.com/Otto-space/allied-autotech/actions/runs/40710727576)
+and [isolated database safety CI](https://github.com/Otto-space/allied-autotech/actions/runs/40711362859)
+passed. Frontend gates include locked dependencies, zero reported production audit
+vulnerabilities, lint, types, complete units, Next 16.4.3 optimized build and format.
+The last frontend-only commit did not trigger the path-filtered database workflow;
+it was explicitly dispatched at the same frozen commit and passed against isolated
+CI PostgreSQL. No application database test/write or backend release occurred.
+Backend `8fd37e1c-d2e2-4e2f-bbe4-3e9acb8c5650` remains ACTIVE without pending
+release. Provider backup inventory showed eight backups, newest 2026-10-28T05:22:10Z;
+existing separate restore receipt passed with equal original row hashes on
+2026-10-26T19:53:05Z. No new shared restore or database safety override.
+
+Hosted acceptance passed all 39 cases on actual deployed CSS with no asset patch:
+%TEMP%/aat-learning-hosted-regression. This includes ten new interaction cases,
+seven refresh/Help/authentication-focus cases, ten dock/navigation/selection cases,
+five container/control-focus cases and seven navbar cases. APIs are intercepted
+synthetic GET/auth fixtures; these do not count as real signed-in acceptance.
+
+Separately, real public-content interaction passed at 390 and 1440px: all six
+available articles and both disclosures, search/modes/clear/empty recovery, Allie
+relevance/repeat/alternatives/context/guide/practice controls, guide entry, page
+highlight, written reference, pause/resume/restart/completion/exit, same-page Allie
+guide start, and the actual Corolla practice's sample fields, fictional search,
+each evidence disclosure, each choice/review, reset and return. Additional real
+320x568, 701x900 and 844x390 checks passed for overflow, modal fit and close access.
+Scoped automated Axe scans passed for hub/Allie. There were no page exceptions or
+API writes in this public audit. Receipt: %TEMP%/aat-learning-live-acceptance.json.
+Screenshots aat-learning-final-hub-320.png, aat-learning-final-hub-1440.png and
+aat-learning-final-allie-390.png were visually inspected; files remain in %TEMP%.
+
+Real www-domain 390/1440 checks also passed repeated article refresh without the
+dark focus border, specific Allie relevance, hide-floating-help/Help-card reopen,
+keyboard focus return, retained Whatsapp access and unavailable-guide navigation
+cleanup. Receipt: %TEMP%/aat-learning-www-acceptance.json. Both provider aliases
+were rechecked against the same final runtime/deployment. Physical-device, real
+private-account and full screen-reader acceptance remain open.
 
 ## 28 October 2026: Stable navbar through Help to Learn navigation
 
