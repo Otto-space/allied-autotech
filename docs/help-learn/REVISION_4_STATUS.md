@@ -1,5 +1,11 @@
 # Revision 4 implementation checkpoint
 
+W16 source checkpoint `c098a484` is committed. Remote vehicle-disclosure changes were
+then reviewed and merged without losing the Care implementation; combined source
+has 78 migrations. A new isolated replay/native run and exact-source CI are pending.
+The CI workflow now includes explicit W16 native acceptance. Earlier 77-migration
+evidence below is preserved separately and does not prove that merged release.
+
 ## Current W16C local continuation — 28–29 October 2026
 
 Scoped queue/candidate discovery, signed cursors, body-free saved-operation recovery,

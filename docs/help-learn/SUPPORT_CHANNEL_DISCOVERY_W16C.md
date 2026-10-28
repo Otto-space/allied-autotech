@@ -1,5 +1,19 @@
 # W16C shared Care discovery, recovery and quiet reconciliation
 
+## Post-commit integration — 29 October 2026
+
+W16 source is committed as `c098a48447f2f80d8a6f152231c077fa0e04fcc5`.
+Before pushing, remote master advanced with the separate vehicle-disclosure work.
+Merge `6ed94fdb` preserved both implementations without conflicts; subsequent
+service-intake guidance was also preserved. The combined source now has 78 forward
+migrations, including the unchanged W16 migration and the later vehicle migration.
+A fresh, separate 78-migration native target is being verified before publication;
+the earlier 77-migration receipts below are historical evidence, not that combined
+gate. The backend GitHub workflow now explicitly runs all three W16 native suites
+and their availability/help units inside its disposable loopback DB namespace.
+Actual target checks, disabled external delivery and injected provider replies stay
+intact. No production migration or live enablement is claimed at this checkpoint.
+
 Local continuation of [W16B](SUPPORT_CHANNEL_LIFECYCLE_W16B.md), in the existing
 `allied-home-restoration-20261025` worktree. This is not production publication or
 staffed live-chat acceptance. Migration 77 remains additive and unchanged from

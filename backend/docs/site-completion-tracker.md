@@ -98,6 +98,13 @@ Exact-source CI/publication, managed Care views, coverage editing and hosted
 acceptance remain open. Passive polling now preserves typing focus; explicit update
 selection focuses its timeline entry without marking notifications as read.
 Live mode stays off; the local task preview on 3171 is stopped.
+W16 source is committed as `c098a484`. Reviewed and merged the concurrently pushed
+vehicle-disclosure work in `6ed94fdb`, preserving later service-intake changes too.
+Combined source now has 78 migrations; a newly created separate isolated target is
+running its combined replay and native cases. Earlier 77-migration receipts remain
+historical. An explicit W16 native step was added to the existing backend CI job;
+it retains strict loopback target checks, delivery off and injected provider replies.
+Exact-source release checks and production migration/publication remain pending.
 See ../../docs/help-learn/SUPPORT_CHANNEL_DISCOVERY_W16C.md. Full Revision 4 and the
 106 exact-route acceptance decisions remain active, with provider allowance unchanged.
 
