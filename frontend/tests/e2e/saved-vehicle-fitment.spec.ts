@@ -97,12 +97,12 @@ for (const width of [1440, 390])
       .check();
     await expect(
       page.getByRole("checkbox", {
-        name: "Link a catalogue make and model",
+        name: "Set up this vehicle for Shop searches",
         exact: true,
       }),
     ).toBeChecked();
     await page
-      .getByText("Vehicle specifications for fitment checks", { exact: true })
+      .getByText("More details to help check a part (optional)", { exact: true })
       .click();
     await page.getByLabel("Engine code (optional)", { exact: true }).fill("2ZR-FE");
     expect(
@@ -184,7 +184,9 @@ test("default is available beyond page one and a failed fresh owned read never a
     return ok(route, { vehicles: [state.records[1]], nextCursor: garageId(2) });
   });
   await page.goto("/parts");
-  await page.getByRole("button", { name: "Find parts for my car", exact: true }).click();
+  await page
+    .getByRole("radio", { name: "Find products for my vehicle", exact: true })
+    .check();
   await expect(
     page.getByLabel("Your vehicle configurations", { exact: true }),
   ).toHaveValue(garageId(1));
@@ -207,11 +209,15 @@ test("an unlinked garage car can choose a real catalogue model without inventing
   await page.goto("/dashboard/vehicles");
   await page.getByRole("button", { name: "Set up parts search", exact: true }).click();
   await page
-    .getByRole("checkbox", { name: "Link a catalogue make and model", exact: true })
+    .getByRole("checkbox", { name: "Set up this vehicle for Shop searches", exact: true })
     .check();
-  await page.getByRole("combobox", { name: "Catalogue make", exact: true }).click();
+  await page
+    .getByRole("combobox", { name: "Make for Shop searches", exact: true })
+    .click();
   await page.getByRole("option", { name: "Toyota", exact: true }).click();
-  await page.getByRole("combobox", { name: "Catalogue model", exact: true }).click();
+  await page
+    .getByRole("combobox", { name: "Model for Shop searches", exact: true })
+    .click();
   await page.getByRole("option", { name: "Corolla", exact: true }).click();
   await page.getByLabel("Year (required)", { exact: true }).fill("2018");
   await page.getByRole("button", { name: "Save vehicle", exact: true }).click();
@@ -248,7 +254,9 @@ test("session changes discard owned vehicle choices and suppress a late prefligh
         }),
   );
   await page.goto("/parts");
-  await page.getByRole("button", { name: "Find parts for my car", exact: true }).click();
+  await page
+    .getByRole("radio", { name: "Find products for my vehicle", exact: true })
+    .check();
   await expect(
     page.getByLabel("Your vehicle configurations", { exact: true }),
   ).toHaveValue(garageId(1));
@@ -292,7 +300,9 @@ test("a late saved-vehicle read cannot overwrite a newer parts search", async ({
     await ok(route, state.records[0]);
   });
   await page.goto("/parts");
-  await page.getByRole("button", { name: "Find parts for my car", exact: true }).click();
+  await page
+    .getByRole("radio", { name: "Find products for my vehicle", exact: true })
+    .check();
   await page.getByRole("button", { name: "Use this vehicle", exact: true }).click();
   await expect.poll(() => started).toBe(true);
   await page

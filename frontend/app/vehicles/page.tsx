@@ -31,7 +31,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const metadata = await publicPageMetadata(
     "Browse vehicles",
-    "Browse current Allied AutoTech vehicle listings in Port Harcourt, compare details and request an inspection.",
+    "Browse current Allied AutoTech vehicle listings in Port Harcourt, compare published details or discuss your requirements.",
     "/vehicles",
     searchParams,
   );
@@ -51,6 +51,11 @@ export default async function VehiclesPage({
     new URLSearchParams(cataloguePath.split("?")[1] ?? ""),
   );
   const initial = await loadPublicSeed(cataloguePath, parseVehicleDiscovery);
+  const catalogueQuery = new URLSearchParams(cataloguePath.split("?")[1] ?? "");
+  const unfiltered = [...catalogueQuery.keys()].every(
+    (key) => key === "limit" || key === "sort",
+  );
+  const emptyCatalogue = unfiltered && !initial.error && initial.data?.totalMatches === 0;
   return (
     <>
       <SiteHeader />
@@ -69,21 +74,26 @@ export default async function VehiclesPage({
         <section className="vehicle-hero" aria-labelledby="vehicle-title">
           <div className="public-wrap vehicle-hero-inner">
             <div className="vehicle-hero-copy">
-              <h1 id="vehicle-title">Find the car that fits your life.</h1>
+              <h1 id="vehicle-title">
+                {emptyCatalogue
+                  ? "Tell us what you’re looking for"
+                  : "Explore vehicle listings"}
+              </h1>
               <p>
-                Browse current vehicle listings, explore the details and arrange a closer
-                look.
+                {emptyCatalogue
+                  ? "Share your budget, preferred make and requirements. Our team can discuss your options."
+                  : "Compare published specifications and contact our team about a vehicle."}
               </p>
             </div>
             <div className="vehicle-hero-media">
               <Image
-                src="/images/allied-autotech/showroom-editorial.webp"
+                src="/images/allied-autotech/showroom-neutral-editorial.webp"
                 alt=""
                 fill
                 sizes="(max-width: 767px) 100vw, 55vw"
                 preload
               />
-              <span>Showroom inspiration. See listings for availability.</span>
+              <span>Editorial showroom illustration. See listings for availability.</span>
             </div>
           </div>
         </section>
@@ -94,60 +104,26 @@ export default async function VehiclesPage({
         >
           <VehicleCatalogue initial={initial} />
         </section>
-        <section className="vehicle-buying-guide" aria-labelledby="vehicle-guide-title">
-          <div className="public-wrap">
-            <div>
-              <h2 id="vehicle-guide-title">A closer look before your next move.</h2>
-              <p>
-                Use the listing to compare the details, then speak with our team about the
-                vehicle you have in mind.
-              </p>
-              <Link href={enquiryHref} className="text-link">
-                Ask our team <ArrowUpRight size={16} aria-hidden="true" />
-              </Link>
-            </div>
-            <ol>
-              {[
-                [
-                  "Compare the details",
-                  "Review the price, specifications and any published condition report.",
-                ],
-                [
-                  "Request a closer look",
-                  "Open a vehicle to send an enquiry or choose a preferred inspection time with your customer account.",
-                ],
-                [
-                  "Confirm with our team",
-                  "An inspection request is not a confirmed appointment. Check your account for the agreed time.",
-                ],
-              ].map(([title, copy], index) => (
-                <li key={title}>
-                  <span aria-hidden="true">0{index + 1}</span>
-                  <div>
-                    <h3>{title}</h3>
-                    <p>{copy}</p>
-                  </div>
-                </li>
-              ))}
-            </ol>
-          </div>
-        </section>
         <section className="vehicle-contact">
           <div className="public-wrap">
             <div>
-              <h2>Let’s talk about your next car.</h2>
-              <p>Our team can help you explore the details and arrange a closer look.</p>
+              <h2>Discuss a vehicle</h2>
+              <p>
+                Share your budget, preferred make and requirements, or ask about published
+                vehicle details. An enquiry does not reserve a vehicle or confirm a
+                viewing.
+              </p>
             </div>
             <div className="actions">
               <Suspense
                 fallback={
                   <Link href={enquiryHref} className="button">
-                    Contact our team
+                    Discuss a vehicle
                   </Link>
                 }
               >
                 <CatalogueEnquiryLink kind="vehicle" className="button">
-                  Contact our team
+                  Discuss a vehicle
                   <ArrowUpRight size={16} aria-hidden="true" />
                 </CatalogueEnquiryLink>
               </Suspense>

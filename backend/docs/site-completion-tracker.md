@@ -2,7 +2,7 @@
 
 ## 28 October 2026 current catalogue fitment-guidance cycle
 
-Production baseline: frontend `dpl_DfQ8TmtFujaCL215HnWRuaTRuRZr` on both
+Initial production baseline: frontend `dpl_DfQ8TmtFujaCL215HnWRuaTRuRZr` on both
 domains; backend `3ee6748f-ed72-4c89-b9a1-f1963e891190` ACTIVE. The public
 fitment-make API currently has no choices. The Parts finder therefore offers
 an enquiry, while the published product card still told customers to choose
@@ -21,8 +21,33 @@ Catalogue SSR reads the one real published product; browser identity and all
 mutations are intercepted. Type, lint, exact-source CI, hosted acceptance and
 release identity are being checked before publication. No production write
 or real enquiry was made by the browser tests. The wider goal and real-role,
-physical-device and full screen-reader acceptance remain open.
+physical-device and full screen-reader acceptance remain open. During local
+validation, the public-copy release advanced production to
+`dpl_Akw8ic1B6NQFGgL7tDDrm3pskZZ3`; its runtime is integrated in this
+candidate alongside the newer garage/privacy master changes.
 
+## 28 October 2026 current public copy and imagery cycle
+
+Owner invoked instruction 7 of the 27 October content/imagery brief. Active source
+is `allied-contact-validation-20261027`, branch `feat/public-copy-imagery-20261028`.
+Verified initial apex/www a51a58b8, then incorporated live 2725efea before release.
+Scope is Home, Services, Shop, Vehicles, About and public footer. Static hero,
+consolidated sections, truthful sparse states, real equipment placement and a
+separate neutral showroom derivative replace repeated promotional blocks.
+Mission/principles, source catalogue copy, auth, Allie and launch flags remain.
+No backend/database/stock/review/message/transaction writes. Source-authored
+Tyre Change wording and missing product photography are explicit editorial
+dependencies in `frontend/docs/PUBLIC_COPY_IMAGERY_20261028.md`.
+
+Local typecheck, lint and focused 23-case state/regression checks pass. Home
+responsive fixtures passed ten widths; recovery, reviews, image failure, doubled
+text, keyboard/menu and mobile/desktop accessibility checks passed after fixing
+mobile hero contrast. Real public-data layout checks cover five routes at 320/430/768/1280/1536px.
+Enquiry and anchor journeys pass at 430/1536px; the native comparison is 1774px.
+The production build and full frontend tests passed; the first final gate found
+only merged register formatting, now corrected. Exact-source release gates are
+being rerun before promotion.
+No full-site, real-role, physical-device or screen-reader acceptance is claimed.
 ## 28 October 2026 current product-fitment availability cycle
 
 Current production baseline was frontend `dpl_5LscxLnZGRXNBorSWq3GFgfUBcGq`

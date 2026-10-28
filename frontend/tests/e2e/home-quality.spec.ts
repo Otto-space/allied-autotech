@@ -1,4 +1,4 @@
-﻿import { test, expect, type Page } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 import { createServer, type Server } from "node:http";
 import path from "node:path";
 import os from "node:os";
@@ -28,14 +28,20 @@ const media = {
   altText: "Synthetic catalogue photograph",
   isPrimary: true,
 };
+const photographedProduct = {
+  ...product,
+  images: [{ ...media, url: `/api/v1/public/catalog/products/images/${media.id}` }],
+};
 function records(endpoint: string) {
+  if (endpoint === `/public/catalog/products/${product.id}`)
+    return { ...photographedProduct, name: "Engine air filter", priceKobo: "1250050" };
   if (mode === "empty") return { items: [] };
   const long = mode === "long" ? "LongCatalogueName".repeat(15) : undefined;
   if (endpoint === "/public/catalog/products")
     return {
       items: [
         {
-          ...product,
+          ...photographedProduct,
           name: long ?? "Engine air filter",
           priceKobo: "1250050",
           images: [
@@ -43,14 +49,14 @@ function records(endpoint: string) {
           ],
         },
         {
-          ...product,
+          ...photographedProduct,
           id: id(101),
           name: "Brake pad set",
           priceKobo: "2800000",
           availability: [{ ...product.availability[0], inStock: false }],
         },
-        { ...product, id: id(102), name: "Engine oil", priceKobo: "4600000" },
-        { ...product, id: id(103), name: "Spark plug", priceKobo: "0" },
+        { ...photographedProduct, id: id(102), name: "Engine oil", priceKobo: "4600000" },
+        { ...photographedProduct, id: id(103), name: "Spark plug", priceKobo: "0" },
       ],
     };
   if (endpoint === "/public/vehicles")
@@ -181,7 +187,9 @@ async function fixture(page: Page) {
 }
 async function ready(page: Page) {
   await page.goto("/");
-  await expect(page.locator("main h1")).toContainText("Built on trust");
+  await expect(page.locator("main h1")).toContainText(
+    "Diagnostics, repairs and automotive essentials.",
+  );
   await page.evaluate(() => document.fonts.ready);
 }
 async function noOverflow(page: Page) {
@@ -214,7 +222,7 @@ for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536]) {
       .toBeGreaterThan(0);
     await expect(page.locator(".home-product-card").first()).toContainText("₦12,500.50");
     await expect(page.locator(".home-product-card").nth(1)).toContainText(
-      "Currently out of stock",
+      "Unavailable at listed branches",
     );
     await expect(page.locator(".home-product-card").last()).toContainText("₦0.00");
     await expect(page.locator(".home-vehicle-card").first()).toContainText("0 km");
@@ -226,7 +234,6 @@ for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536]) {
       ".partner-layout",
       ".home-vehicles",
       ".home-shop",
-      ".services-journey",
       ".home-faq",
     ]) {
       await page.locator(selector).scrollIntoViewIfNeeded();
@@ -252,7 +259,18 @@ for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536]) {
     expect(errors).toEqual([]);
     expect(
       state.reads.filter((p) => p.startsWith("/public/") && !p.includes("/images/")),
-    ).toEqual([]);
+    ).toEqual(
+      expect.arrayContaining([
+        "/public/services",
+        "/public/catalog/products",
+        "/public/vehicles",
+        "/public/support/reviews",
+      ]),
+    );
+    // The current shared session completion invalidates public reads once.
+    expect(
+      state.reads.filter((p) => p.startsWith("/public/") && !p.includes("/images/")),
+    ).toHaveLength(4);
     for (const seed of [
       "/public/catalog/products?limit=4",
       "/public/vehicles?limit=2",
@@ -262,24 +280,22 @@ for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536]) {
       expect(serverReads.filter((read) => read === `/api/v1${seed}`)).toHaveLength(1);
   });
 }
-test("carousel, keyboard, FAQ and navigation perform their advertised actions", async ({
+test("stable hero, keyboard, FAQ and navigation perform their advertised actions", async ({
   page,
 }) => {
   await fixture(page);
   await page.emulateMedia({ reducedMotion: "reduce" });
   await ready(page);
-  await expect(page.getByRole("button", { name: "Pause slideshow" })).toHaveCount(0);
-  await page.getByRole("button", { name: "Next slide", exact: true }).click();
-  await expect(page.locator("main h1")).toContainText("Find the car");
-  await page.getByRole("button", { name: "Next slide", exact: true }).press("ArrowRight");
-  await expect(page.locator("main h1")).toContainText("Quality parts.");
-  await page.getByRole("button", { name: "Show slide 3: Visit the Shop" }).click();
-  await expect(page.locator(".hero-copy .button").first()).toHaveAttribute(
-    "href",
-    "/parts",
-  );
-  await page.getByRole("button", { name: "Next slide", exact: true }).click();
-  await expect(page.locator("main h1")).toContainText("Built on trust");
+  await expect(page.locator(".hero-controls, .service-marquee")).toHaveCount(0);
+  await expect(
+    page.locator(".hero-copy").getByRole("link", { name: "Explore services" }),
+  ).toHaveAttribute("href", "/services");
+  const contact = page
+    .locator(".hero-copy")
+    .getByRole("link", { name: "Contact the team" });
+  await contact.focus();
+  await expect(contact).toBeFocused();
+  await expect(contact).toHaveAttribute("href", "/contact#enquiry");
   await page
     .locator("main")
     .getByText("Where is Allied AutoTech?", { exact: true })
@@ -301,13 +317,14 @@ test("empty collections retain useful contact and browsing paths", async ({ page
   await fixture(page);
   await ready(page);
   await expect(page.locator(".partner-links a")).toHaveCount(3);
-  await expect(page.locator(".home-feedback")).toBeVisible();
+  await expect(page.locator(".home-feedback")).toHaveCount(0);
+  await expect(page.locator(".home-vehicles")).toHaveAttribute("data-state", "empty");
   await expect(
-    page.getByRole("link", { name: "About customer reviews" }),
+    page.locator(".home-vehicles").getByRole("link", { name: "Discuss a vehicle" }),
+  ).toHaveAttribute("href", "/contact?vehicle=1#enquiry");
+  await expect(
+    page.getByRole("link", { name: "Customer reviews", exact: true }),
   ).toHaveAttribute("href", "/reviews");
-  await expect(
-    page.getByText(/No customer reviews have been published yet/),
-  ).toBeVisible();
   await expect(
     page.locator(".home-product-card, .home-vehicle-card, .review-card"),
   ).toHaveCount(0);
@@ -324,7 +341,7 @@ test("four independent seed failures recover through their actual public APIs", 
         state.reads.filter((p) => p.startsWith("/public/") && !p.includes("/images/"))
           .length,
     )
-    .toBe(4);
+    .toBe(8);
   await expect(
     page.getByRole("button", { name: "Retry services", exact: true }),
   ).toBeVisible();
@@ -347,7 +364,7 @@ test("four independent seed failures recover through their actual public APIs", 
   await expect(page.locator(".service-discovery__item")).toHaveCount(3);
   expect(
     state.reads.filter((p) => p.startsWith("/public/") && !p.includes("/images/")),
-  ).toHaveLength(8);
+  ).toHaveLength(12);
 });
 test("published reviews refresh with a busy state and retain their real ratings", async ({
   page,
@@ -387,16 +404,21 @@ test("broken media and long API content remain usable at 320px", async ({ page }
   await page.locator(".home-services").scrollIntoViewIfNeeded();
   await noOverflow(page);
 });
-test("Home passes the scoped automated accessibility check", async ({ page }) => {
-  await fixture(page);
-  await page.emulateMedia({ reducedMotion: "reduce" });
-  await ready(page);
-  const report = await new AxeBuilder({ page })
-    .include("main")
-    .withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"])
-    .analyze();
-  expect(report.violations).toEqual([]);
-});
+for (const width of [390, 1440]) {
+  test(`Home passes the scoped automated accessibility check at ${width}px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await fixture(page);
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await ready(page);
+    const report = await new AxeBuilder({ page })
+      .include("main")
+      .withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"])
+      .analyze();
+    expect(report.violations).toEqual([]);
+  });
+}
 
 test("homepage sections reflow when text is doubled on a narrow screen", async ({
   page,
@@ -418,45 +440,21 @@ test("homepage sections reflow when text is doubled on a narrow screen", async (
       element.style.lineHeight = "1.5";
     }
   });
-  for (const selector of [
-    ".home-shop",
-    ".equipment-story",
-    ".home-feedback",
-    ".home-faq",
-  ]) {
+  for (const selector of [".home-shop", ".equipment-story", ".home-faq"]) {
     await page.locator(selector).scrollIntoViewIfNeeded();
     await noOverflow(page);
   }
 });
 
-test("mobile menu, touch carousel and paused autoplay remain usable", async ({
-  page,
-}) => {
+test("mobile hero remains stable while the menu opens and closes", async ({ page }) => {
   await fixture(page);
   await page.setViewportSize({ width: 390, height: 900 });
   await page.emulateMedia({ reducedMotion: "no-preference" });
   await ready(page);
-  await page.getByRole("button", { name: "Pause slideshow", exact: true }).click();
-  await page.mouse.move(1, 1);
-  await page.waitForTimeout(7200);
-  await expect(page.locator("main h1")).toContainText("Built on trust");
-  const hero = page.locator(".home-hero");
-  await hero.dispatchEvent("pointerdown", {
-    pointerType: "touch",
-    clientX: 300,
-    clientY: 400,
-  });
-  await hero.dispatchEvent("pointerup", {
-    pointerType: "touch",
-    clientX: 90,
-    clientY: 410,
-  });
-  await expect(page.locator("main h1")).toContainText("Find the car");
-  await page.getByRole("button", { name: "Play slideshow", exact: true }).click();
-  await page.mouse.move(1, 1);
-  await expect(page.locator("main h1")).toContainText("Built for every", {
-    timeout: 10000,
-  });
+  await page.waitForTimeout(7500);
+  await expect(page.locator("main h1")).toHaveText(
+    "Diagnostics, repairs and automotive essentials.",
+  );
   await page.getByRole("button", { name: "Open navigation", exact: true }).click();
   await expect(
     page

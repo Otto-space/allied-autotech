@@ -100,33 +100,16 @@ describe.skipIf(process.env.RUN_VISUAL_AUDIT_COMPONENTS !== "true")(
             @font-face {font-family:Nippo;src:url(data:font/woff2;base64,${displayFont});font-weight:200 700;}
             :root{--font-quicksand:Quicksand;--font-nippo:Nippo;} ${styles}</style></head><body>${html}</body></html>`);
           await page.evaluate(() => document.fonts.ready);
-          const poster = page.locator(".home-services__image img");
-          await poster.scrollIntoViewIfNeeded();
-          await expect(poster).toBeVisible();
-          await expect
-            .poll(() =>
-              poster.evaluate((node) => (node as HTMLImageElement).naturalWidth),
-            )
-            .toBeGreaterThan(0);
-          const size = await poster.boundingBox();
-          expect(size!.height).toBeLessThanOrEqual(401);
-          expect(size!.width / size!.height).toBeCloseTo(0.8, 1);
-          const card = page.locator(".home-product-card");
-          await expect(card).toHaveCount(1);
-          await expect(card).toContainText("Availability not listed");
-          await expect(card).toContainText("Image unavailable");
-          expect((await card.boundingBox())!.height).toBeLessThan(330);
-          const invitation = page.locator(".home-feedback--empty");
-          await expect(invitation).toContainText(
-            "No customer reviews have been published yet",
-          );
-          expect((await invitation.boundingBox())!.height).toBeLessThan(300);
+          await expect(page.locator(".home-services__image")).toHaveCount(0);
+          await expect(page.locator(".service-discovery__item")).toHaveCount(1);
+          await expect(page.locator(".home-product-card")).toHaveCount(0);
+          await expect(page.locator(".home-product-note")).toBeVisible();
+          await expect(page.locator(".home-feedback")).toHaveCount(0);
           const vehicleBand = page.locator(".home-vehicles");
-          await expect(vehicleBand).toHaveCSS("background-image", /linear-gradient/);
-          expect(
-            await vehicleBand.evaluate((node) => getComputedStyle(node).backgroundImage),
-          ).not.toContain("16, 44, 71");
-          const link = card.getByRole("link", { name: "View product: Synthetic part" });
+          await expect(vehicleBand).toHaveAttribute("data-state", "empty");
+          await expect(vehicleBand).toHaveCSS("background-image", "none");
+          const link = vehicleBand.getByRole("link", { name: "Discuss a vehicle" });
+          await expect(link).toHaveAttribute("href", "/contact?vehicle=1#enquiry");
           await link.focus();
           await expect(link).toBeFocused();
           expect(
@@ -134,8 +117,6 @@ describe.skipIf(process.env.RUN_VISUAL_AUDIT_COMPONENTS !== "true")(
               parseFloat(getComputedStyle(node).outlineWidth),
             ),
           ).toBeGreaterThanOrEqual(2);
-          await link.hover();
-          await expect(link).toBeFocused();
           const overflow = await page.evaluate(() => ({
             width: innerWidth,
             document: document.documentElement.scrollWidth,
@@ -159,8 +140,8 @@ describe.skipIf(process.env.RUN_VISUAL_AUDIT_COMPONENTS !== "true")(
           await page
             .locator(".home-shop")
             .screenshot({ path: path.join(evidence, `home-shop-${width}.png`) });
-          await invitation.screenshot({
-            path: path.join(evidence, `home-reviews-empty-${width}.png`),
+          await vehicleBand.screenshot({
+            path: path.join(evidence, `home-vehicles-empty-${width}.png`),
           });
         } finally {
           await page.close();

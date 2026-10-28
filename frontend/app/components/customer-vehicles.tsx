@@ -27,7 +27,7 @@ import { GaragePhotoCarousel } from "./garage-photo-carousel";
 import { Feedback } from "./feedback";
 
 type Dialog =
-  | { mode: "edit"; vehicle: CustomerVehicle | null }
+  | { mode: "edit"; vehicle: CustomerVehicle | null; showSearchSetup?: boolean }
   | { mode: "remove"; vehicle: CustomerVehicle };
 export function CustomerVehicles() {
   const search = useSearchParams();
@@ -269,7 +269,7 @@ export function CustomerVehicles() {
                   <button
                     className="garage-text-action"
                     disabled={blocked}
-                    onClick={() => open({ mode: "edit", vehicle })}
+                    onClick={() => open({ mode: "edit", vehicle, showSearchSetup: true })}
                   >
                     Set up parts search
                   </button>
@@ -354,6 +354,7 @@ export function CustomerVehicles() {
       {dialog?.mode === "edit" && (
         <GarageVehicleEditor
           vehicle={dialog.vehicle}
+          showSearchSetup={dialog.showSearchSetup}
           onClose={close}
           onSaved={() => saved()}
           onUncertain={() => setUncertain(true)}

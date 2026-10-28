@@ -11,9 +11,7 @@ export function SiteFooter() {
         <div>
           <Brand inverse />
           <p className="brand-signature text-white/90 mb-6">
-            Built on trust
-            <br />
-            driven by quality
+            Built on trust. Driven by quality.
           </p>
           <p className="text-white/80 max-w-xs">{business.address}</p>
           <p className="text-white/80 mt-6">

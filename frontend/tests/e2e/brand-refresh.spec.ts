@@ -218,48 +218,34 @@ for (const width of [360, 390, 430, 768, 1024, 1280, 1440, 1920]) {
     expect(errors).toEqual([]);
   });
 }
-test("hero keyboard, slide links, optional playback and marquee pause work", async ({
-  page,
-}) => {
+test("stable hero preserves catalogue and enquiry destinations", async ({ page }) => {
   await intercept(page);
   await page.goto("/");
-  const hero = page.getByRole("region", { name: "Explore Allied AutoTech" });
+  const hero = page.locator(".home-hero");
   await expect(hero.getByRole("heading", { level: 1 })).toHaveText(
-    "Built on trust driven by quality",
+    "Diagnostics, repairs and automotive essentials.",
   );
-  await hero.getByRole("button", { name: "Next slide", exact: true }).click();
-  await expect(hero.getByRole("link", { name: "Explore vehicles" })).toHaveAttribute(
+  await expect(hero.getByRole("link", { name: "Explore services" })).toHaveAttribute(
     "href",
-    "/vehicles",
+    "/services",
   );
-  await page.keyboard.press("ArrowRight");
-  await expect(hero.getByRole("link", { name: "Visit the Shop" })).toHaveAttribute(
+  await expect(hero.getByRole("link", { name: "Contact the team" })).toHaveAttribute(
     "href",
-    "/vehicles",
+    "/contact#enquiry",
   );
-  await hero.getByRole("button", { name: "Show slide 3: Visit the Shop" }).click();
-  await expect(hero.getByRole("link", { name: "Visit the Shop" })).toHaveAttribute(
-    "href",
-    "/parts",
-  );
-  await hero.getByRole("button", { name: "Play slideshow" }).click();
-  await expect(hero.getByRole("button", { name: "Pause slideshow" })).toBeVisible();
-  await hero.getByRole("button", { name: "Next slide", exact: true }).focus();
-  await expect(hero.getByRole("button", { name: "Play slideshow" })).toBeVisible();
-  await page.getByRole("button", { name: "Resume service marquee" }).click();
-  await page.getByRole("button", { name: "Pause service marquee" }).click();
-  await expect(page.locator(".marquee-track")).toHaveCSS(
-    "animation-play-state",
-    "paused",
-  );
+  await expect(page.locator(".service-marquee, .hero-controls")).toHaveCount(0);
 });
-test("reduced motion disables automatic movement", async ({ page }) => {
+
+test("reduced motion leaves the offer static", async ({ page }) => {
   await intercept(page);
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
-  await expect(page.locator(".marquee-track")).toHaveCSS("animation-name", "none");
-  await expect(page.getByRole("button", { name: "Play slideshow" })).toHaveCount(0);
-  await expect(page.getByRole("button", { name: "Pause service marquee" })).toBeHidden();
+  await expect(page.locator("main h1")).toHaveText(
+    "Diagnostics, repairs and automotive essentials.",
+  );
+  await expect(
+    page.getByRole("button", { name: /slideshow|service marquee/ }),
+  ).toHaveCount(0);
 });
 
 for (const destination of [`/parts/${product.id}`, `/vehicles/${listing.id}`]) {

@@ -41,11 +41,7 @@ export default function AboutPage() {
             </nav>
             <div className="about-hero-grid">
               <div className="about-hero-copy">
-                <h1 id="about-title">
-                  Precision Autocare
-                  <br />
-                  You Can Trust.
-                </h1>
+                <h1 id="about-title">Automotive care in Port Harcourt</h1>
                 <p className="about-lead">
                   Allied AutoTech is a modern automotive service brand in Port Harcourt,
                   committed to dependable, professional and technology-driven vehicle
@@ -73,7 +69,6 @@ export default function AboutPage() {
                     priority
                   />
                 </div>
-                <figcaption>Precision Autocare You Can Trust.</figcaption>
               </figure>
             </div>
           </div>
@@ -128,7 +123,7 @@ export default function AboutPage() {
             <div className="about-brand">
               <Brand monochrome />
             </div>
-            <h2 id="about-principles-title">Built on trust driven by quality</h2>
+            <h2 id="about-principles-title">How we work</h2>
             <p>
               Inspect carefully. Diagnose the issue. Explain the next step. Our approach
               keeps practical expertise and clear communication at the centre of vehicle

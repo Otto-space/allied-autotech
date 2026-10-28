@@ -22,7 +22,31 @@ widths, including enquiry handoff and scoped accessibility. Public catalogue
 GETs used the real published item; identity and writes were isolated. Browser
 plugin was unavailable, so existing Edge/Playwright checks were used. Exact
 source checks and hosted release acceptance are pending. Real account,
-physical-device and full screen-reader acceptance remain open.
+physical-device and full screen-reader acceptance remain open. A concurrent
+public-copy release and garage/privacy master update are integrated before
+this catalogue change is published.
+
+## 28 October 2026: bounded public content and imagery improvement
+
+Current cycle: owner's content brief, instruction 7. Home now has a stable offer,
+three distinct tasks, sparse published services, real equipment, compact Shop and
+vehicle preview, conditional real feedback and practical visit/help information.
+Repeated motto/campaign/principle/process blocks are removed from Home/Services;
+About retains the approved mission and all principles. Vehicles uses a separate
+neutral editorial derivative and charcoal caption; originals and factual colours
+are preserved. Missing product photos are excluded from Home eligibility, while
+catalogue fallbacks and authoritative stock states remain. See
+[copy, imagery and acceptance handoff](PUBLIC_COPY_IMAGERY_20261028.md).
+
+Evidence: local types/lint; 23 focused state/regression cases; Home fixtures at
+320/360/375/390/430/768/1024/1280/1440/1536px; synthetic empty/error/retry,
+published reviews, broken/long media, doubled text, menu/keyboard, and scoped
+Axe at 390/1440px. First failures included stale fixture stock/refresh assumptions,
+missing fixture detail data and a mobile hero contrast regression, corrected.
+Read-only public-data layout/interaction coverage and publication remain pending.
+No real stock/reviews, backend, permissions or commerce/AI/chat flags changed.
+Outstanding editorial copy/photo/reviewer dependencies are recorded separately;
+physical devices, full screen-reader and signed-in journeys are outside this cycle.
 
 ## 28 October 2026: product detail fitment availability and retry
 
@@ -2898,3 +2922,11 @@ Reproduced the live 390px SMS row showing a prominent On state beside unavailabl
 12 new contract/render cases plus 29 adjacent notification/recovery cases passed (41 total). TypeScript noEmit and scoped lint passed. Nine hosted role/viewport/state cases were added; the initial live baseline failed at the expected old label and retained its screenshot. An initial harness configuration error (string grep) was corrected to RegExp before that baseline ran. Actual candidate browser checks, exact master CI and production promotion remain pending. Current published source a51a58b8 and later master release records are integrated. Existing dirty tracker/asset records and the active master backend work are preserved. No learning target, permission, backend API, schema or approved delivery policy changed; no learning definition needs a new version for this presentation-only batch. Full V01-V55 scope remains active.
 
 28 October 2026 - V48 delivery preference availability released on master runtime 2725efea, Vercel dpl_Ch3kcHTq565fAMKne6hFT8NPKw7R verified on both domains. Default/saved choices, unavailable delivery and unknown/stale availability are distinct. Final exact CI: 1216 tests passed, 12 optional cases skipped, production audit zero vulnerabilities; frontend 40768336402, isolated backend safety 40768406734 and secret guard 40768336321 all passed. Thirty final hosted notification/permission/recovery cases and 14 candidate plus 14 production public checks passed. An initial refresh test assumption was corrected to verify explicit and background refresh separately; runtime code was unchanged. Published consolidated a51a58b8 and all prior favourites/care/learning improvements are preserved. Backend 3ee6748f remains ACTIVE/readiness200 and unchanged by this task. Master integrations preserved all concurrent source and generated-contract hashes. No shared DB/customer/message writes; actual delivery and private-account/device acceptance remain unverified. Evidence and limitations: backend/docs/notification-preference-availability-production-20261028.md. Full V01-V55 goal remains active; continue the remaining visual, typography and navigation ledger items.
+
+## 28 October 2026 - V53/V55 customer guidance candidate
+
+Garage entry now keeps basic make/model/year entry separate from a native optional Shop-search disclosure. Existing linked vehicles and the dedicated Set up parts search action open the setup directly. Selection labels explain that available search choices update the basic names but do not prove fitment; missing choices can be skipped. Validation reopens the disclosure before focusing its missing field. Turning setup off and back on preserves its specification draft; saving with it off still explicitly removes the link under the existing payload contract.
+
+Privacy guidance now explains request, authorised review and the separate execution boundary, with a real Customer Care follow-up destination. Approved-pending-policy records state that no data change is scheduled. Source authority: PrivacyRouter review/holds checks, retention-and-privacy.md, retention-policy-workspace.md and the disabled retention worker. An execution procedure is not currently implemented or authorised by this batch; no automatic deletion, deadline, new permission or operational policy is invented. Existing learning content already states the same boundary; no guide target or workflow contract changes.
+
+Two isolated live 390px baselines failed at the expected previous interface and retained screenshots. Local TypeScript noEmit, scoped lint and formatting passed. Six new rendered acceptance cases and existing garage/fitment/privacy regressions are prepared; hosted checks, exact master CI and promotion are pending. Current published fitment source 8d2dfd69 has been incorporated. The active public-copy worktree and all unrelated edits remain preserved. Full V01-V55 scope remains active.

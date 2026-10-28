@@ -34,8 +34,10 @@ function RequestRecord({ record }: { record: PrivacyRequest }) {
       <p className="preserve-lines">{record.reason}</p>
       {record.status === "APPROVED_PENDING_POLICY" && (
         <p className="cpv-policy">
-          Your request has been approved for review purposes. Your information has not
-          been deleted or anonymized.
+          The reviewer has approved your request pending policy. Your information has not
+          been deleted or anonymized. This decision does not schedule a data change;
+          execution needs a separate approved process.{" "}
+          <Link href="/dashboard/support">Ask Customer Care about the next step</Link>.
         </p>
       )}
       {(record.reviewedAt || record.reviewNote) && (
@@ -183,16 +185,33 @@ function CustomerRequests({ userId }: { userId: string }) {
       <div className="cpv-compose">
         <aside className="cpv-guidance" aria-labelledby="privacy-guide-title">
           <ShieldCheck size={28} strokeWidth={1.6} aria-hidden="true" />
-          <h2 id="privacy-guide-title">A request for review</h2>
-          <p>
-            Submitting a request does not delete or anonymize your information, even after
-            approval.
-          </p>
+          <h2 id="privacy-guide-title">What happens to your request</h2>
+          <p>Requests are reviewed here. Removing information is a separate step.</p>
           <ol>
-            <li>Choose a request</li>
-            <li>Explain what it concerns</li>
-            <li>Review before sending</li>
+            <li>
+              <span>
+                <strong>Send your request.</strong> Explain what you want reviewed and
+                check it before sending.
+              </span>
+            </li>
+            <li>
+              <span>
+                <strong>Review.</strong> An authorised privacy reviewer checks your
+                request, holds and unresolved disputes. Their response appears below.
+              </span>
+            </li>
+            <li>
+              <span>
+                <strong>After approval.</strong> Deletion or anonymisation needs a
+                separate approved process. This website does not currently perform or
+                schedule it.
+              </span>
+            </li>
           </ol>
+          <Link href="/dashboard/support">
+            Ask Customer Care about your request{" "}
+            <ArrowRight size={16} aria-hidden="true" />
+          </Link>
           <Link href="/dashboard/profile">
             Manage your profile <ArrowRight size={16} aria-hidden="true" />
           </Link>

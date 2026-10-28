@@ -520,7 +520,7 @@ test("native concept dimensions and complete section captures", async ({ page })
   await page.setViewportSize({ width: 1536, height: 1024 });
   await fixture(page);
   await page.evaluate(() => document.fonts.ready);
-  await page.getByRole("heading", { name: "Find the car that fits your life." }).click();
+  await page.getByRole("heading", { name: "Explore vehicle listings" }).click();
   await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
   await page.screenshot({
     path: path.join(os.tmpdir(), "vehicles-quality-native-introduction.png"),
