@@ -1,5 +1,31 @@
 # Allied AutoTech completion tracker
 
+## 28 October 2026 current notification-preview cycle
+
+The exact live frontend before this cycle is `09efa694` /
+`dpl_9us8TLTvZJxzA8KNvdKNqFMqjg8F` on both domains. The bell's mixed
+read/unread preview could hide an older unread update behind newer read rows.
+The shared preview now prefers unread rows when its opening badge is positive,
+with recent-history fallback if another tab already read them. The separate
+`allied-notification-preview-20261028` worktree preserves that live source;
+the P0 backend candidate and unrelated dirty worktrees remain untouched.
+Focused four-case unit, type, scoped lint and nine rendered role/viewport
+fixtures pass. See `frontend/docs/UI_UX_QUALITY_REGISTER.md` for evidence and
+limits. Exact-source CI, staged frontend promotion and hosted acceptance are
+pending. No notification read, message, payment or production data write was
+made; live authenticated-role and physical-device checks remain open. During
+release preparation, both domains advanced to navbar runtime `4aafaebb` /
+`dpl_F5XnU2aiSxhtK78P8dnbvrffYCR5`. Both domains then advanced to the
+favourites runtime `ef06efb7` / `dpl_FAJ8oVhecCNTGac2XAyufAgg7hvv`.
+Both released sources are ancestors of this candidate. On the merged source,
+36/37 header and notification browser cases passed with Help & Learn enabled;
+the remaining historical-commerce case passed when the local launch mode was
+set to production's `browse_enquiries`. No application defect was found in that
+fixture mismatch. Exact-source CI passed on `ddfab325`. Production then
+advanced to Learn/Allie runtime `072e0509` / `dpl_Bov9FbKyy4yPMRqWnJG3CpX6MMQz`,
+which is being merged before notification staging. A fresh exact-source check
+and disk preflight are required.
+
 ## 28 October 2026 current Learn, Allie and guide audit
 
 Owner requested interaction of every Learn/Allie/walkthrough control and repairs.

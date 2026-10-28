@@ -1,5 +1,40 @@
 # UI and UX quality register
 
+## 28 October 2026: Notification bell preview prioritizes unread updates
+
+The initial live frontend `09efa694` / `dpl_9us8TLTvZJxzA8KNvdKNqFMqjg8F`
+showed an unread badge, but its five-row bell preview requested the newest rows
+without an unread filter. A newer read item could displace an older unread item
+from that preview. The shared customer and workforce bell now fetches up to five
+unread rows when the opening count is positive. If another tab has already read
+those rows, it fetches recent history instead of showing a misleading empty
+preview. Opening the bell does not change read state; row links still route
+through the currently authorized notification target.
+
+The focused four-case jsdom suite passed. TypeScript and scoped lint passed.
+Rendered Playwright/Edge fixtures passed the mixed read/unread case and all eight
+customer, staff, admin and super-admin journeys at 390/1440px (9/9); the first
+browser attempt used `127.0.0.1` and Next blocked its development resources,
+then the same test passed on the server's `localhost` origin. Fixtures do not
+prove live authenticated-role behavior. No customer record, read state, message,
+backend, schema or provider was changed. Exact-source CI, staged deployment and
+hosted acceptance remain before publication; physical-device and full
+screen-reader acceptance remain open. During release preparation, both domains
+advanced to navbar runtime `4aafaebb` / `dpl_F5XnU2aiSxhtK78P8dnbvrffYCR5`.
+Both domains then advanced to favourites runtime `ef06efb7` /
+`dpl_FAJ8oVhecCNTGac2XAyufAgg7hvv`. Both published sources are merged into
+the notification branch. On that source, 36/37 integrated header and
+notification browser cases passed with Help & Learn enabled. The remaining
+historical-commerce case passed after setting the local launch mode to the
+production `browse_enquiries` value; the default `full` fixture had exposed a
+test-environment mismatch. Exact-source GitHub frontend, secret and backend
+safety checks passed on `ddfab325`. Production then advanced to Learn/Allie
+runtime `072e0509` / `dpl_Bov9FbKyy4yPMRqWnJG3CpX6MMQz`; that source is being
+merged before staging, so fresh checks remain. A local full check was stopped
+after the disk preflight fell below the owner's 20 GiB reserve; the shortfall
+later cleared without any cleanup. The product-favourite browser fixture
+requires server-side product data and cannot run on this standalone server.
+
 ## 28 October 2026: Learn, Allie and walkthrough interaction audit
 
 Owner requested exhaustive interaction of /learn, Allie and optional walkthroughs.

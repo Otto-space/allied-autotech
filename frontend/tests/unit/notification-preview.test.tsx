@@ -48,9 +48,36 @@ describe("notification bell preview", () => {
       screen.getByRole("link", { name: "View all notifications" }).getAttribute("href"),
     ).toBe("/admin/notifications");
     expect(apiRequest).toHaveBeenCalledTimes(1);
-    expect(vi.mocked(apiRequest).mock.calls[0][0]).toBe("/staff/notifications?limit=5");
+    expect(vi.mocked(apiRequest).mock.calls[0][0]).toBe(
+      "/staff/notifications?limit=5&unreadOnly=true",
+    );
     fireEvent.click(screen.getByRole("button", { name: "Close notification preview" }));
     await waitFor(() => expect(document.activeElement).toBe(bell));
+  });
+  it("falls back to recent updates when another tab already read the opening unread items", async () => {
+    vi.mocked(apiRequest)
+      .mockResolvedValueOnce({
+        success: true,
+        message: "Fixture",
+        meta: { requestId: "fixture" },
+        data: { items: [] },
+      })
+      .mockResolvedValueOnce({
+        success: true,
+        message: "Fixture",
+        meta: { requestId: "fixture" },
+        data: { items: [{ ...item, readAt: "2026-10-25T10:05:00Z" }] },
+      });
+    render(<NotificationPreview customer count={1} />);
+    fireEvent.click(screen.getByRole("button", { name: "Open notifications, 1 unread" }));
+    expect(await screen.findByText(item.title)).toBeTruthy();
+    expect(
+      screen.getByRole("link", { name: /Read.*Your password changed/ }),
+    ).toBeTruthy();
+    expect(vi.mocked(apiRequest).mock.calls.map(([url]) => url)).toEqual([
+      "/customers/notifications?limit=5&unreadOnly=true",
+      "/customers/notifications?limit=5",
+    ]);
   });
   it("offers recovery from a failed request and distinguishes empty from failure", async () => {
     vi.mocked(apiRequest)
