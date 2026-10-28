@@ -19,17 +19,20 @@ import { GarageDialog } from "./garage-dialog";
 
 export function GarageVehicleEditor({
   vehicle,
+  showSearchSetup = false,
   onClose,
   onSaved,
   onUncertain,
 }: {
   vehicle: CustomerVehicle | null;
+  showSearchSetup?: boolean;
   onClose: () => void;
   onSaved: () => void;
   onUncertain: () => void;
 }) {
   const active = useRef(true),
     sending = useRef(false);
+  const searchSetup = useRef<HTMLDetailsElement>(null);
   const [busy, setBusy] = useState(false),
     [uncertain, setUncertain] = useState(false);
   const [error, setError] = useState<string>();
@@ -81,8 +84,9 @@ export function GarageVehicleEditor({
         Number(values.year) > model.yearTo!)
     ) {
       setError(
-        "Choose a matching catalogue make, model and supported year before saving.",
+        "Choose a make and model from the search lists and check the year, or turn off Shop search setup to save just your vehicle details.",
       );
+      if (searchSetup.current) searchSetup.current.open = true;
       document
         .getElementById(
           !make
@@ -259,7 +263,7 @@ export function GarageVehicleEditor({
             </div>
           </fieldset>
           <fieldset disabled={busy || uncertain} className="garage-fields">
-            <legend>Your saved configuration</legend>
+            <legend>Personalise your saved vehicle</legend>
             <div className="garage-field">
               <label htmlFor="garage-nickname">Nickname (optional)</label>
               <p id="garage-nickname-hint" className="garage-hint">
@@ -285,98 +289,119 @@ export function GarageVehicleEditor({
               Use as my default vehicle for parts searches
             </label>
           </fieldset>
-          <fieldset disabled={busy || uncertain} className="garage-fields">
-            <legend>Parts search configuration (optional)</legend>
+          <details
+            ref={searchSetup}
+            className="garage-search-setup"
+            open={showSearchSetup || !!vehicle?.vehicleModelId}
+          >
+            <summary>Use this vehicle in Shop searches (optional)</summary>
             <p>
-              A catalogue model lets you reuse this car in parts searches. This records
-              your vehicle details; fitment still needs approved technical evidence.
+              The details above are enough to save your vehicle. To reuse it in Shop
+              searches, choose the matching make and model from our available search
+              lists. You can skip this if your vehicle is not listed.
             </p>
-            <label className="garage-default-choice">
-              <input
-                type="checkbox"
-                name="catalogueLinked"
-                checked={linked}
-                onChange={(event) => {
-                  setLinked(event.target.checked);
-                  if (!event.target.checked) setSpecifications({});
-                }}
-              />
-              Link a catalogue make and model
-            </label>
-            {linked && (
-              <>
-                <div className="garage-field-grid">
-                  <div className="garage-field">
-                    <label htmlFor="garage-catalogue-make">Catalogue make</label>
-                    <FitmentCataloguePicker
-                      id="garage-catalogue-make"
-                      kind="make"
-                      value={make?.id || ""}
-                      selected={make}
-                      onChange={(value) => {
-                        setMake(value);
-                        setModel(undefined);
-                        setSpecifications({});
-                        form.setValue("make", value?.name || "");
-                        form.setValue("model", "");
-                      }}
-                    />
-                  </div>
-                  <div className="garage-field">
-                    <label htmlFor="garage-catalogue-model">Catalogue model</label>
-                    <FitmentCataloguePicker
-                      key={make?.id || "unselected"}
-                      id="garage-catalogue-model"
-                      kind="model"
-                      makeId={make?.id}
-                      value={model?.id || ""}
-                      selected={model}
-                      disabled={!make}
-                      onChange={(value) => {
-                        setModel(value);
-                        setSpecifications({});
-                        form.setValue("model", value?.name || "");
-                      }}
-                    />
-                  </div>
-                </div>
-                {model && (
+            <fieldset disabled={busy || uncertain} className="garage-fields">
+              <legend className="sr-only">Optional Shop search setup</legend>
+              <label className="garage-default-choice">
+                <input
+                  type="checkbox"
+                  name="catalogueLinked"
+                  checked={linked}
+                  onChange={(event) => {
+                    setLinked(event.target.checked);
+                  }}
+                />
+                Set up this vehicle for Shop searches
+              </label>
+              {linked && (
+                <>
                   <p className="garage-hint">
-                    Supported model years: {model.yearFrom}–{model.yearTo}. Update Year
-                    above if needed.
-                  </p>
-                )}
-                <details>
-                  <summary>Vehicle specifications for fitment checks</summary>
-                  <p>
-                    Leave unknown details blank. Axle or position is chosen for the part
-                    you need.
+                    Selecting from these lists updates Make and Model above. This helps
+                    narrow a search; it does not confirm that a part fits your vehicle.
                   </p>
                   <div className="garage-field-grid">
-                    {savedVehicleQualifierKeys.map((key) => (
-                      <div className="garage-field" key={key}>
-                        <label htmlFor={`garage-spec-${key}`}>
-                          {fitmentLabels[key]} (optional)
-                        </label>
-                        <input
-                          id={`garage-spec-${key}`}
-                          name={key}
-                          maxLength={100}
-                          value={specifications[key] || ""}
-                          onChange={(event) =>
-                            setSpecifications((previous) => ({
-                              ...previous,
-                              [key]: event.target.value,
-                            }))
-                          }
-                        />
-                      </div>
-                    ))}
+                    <div className="garage-field">
+                      <label htmlFor="garage-catalogue-make">
+                        Make for Shop searches
+                      </label>
+                      <FitmentCataloguePicker
+                        id="garage-catalogue-make"
+                        kind="make"
+                        value={make?.id || ""}
+                        selected={make}
+                        onChange={(value) => {
+                          setMake(value);
+                          setModel(undefined);
+                          setSpecifications({});
+                          form.setValue("make", value?.name || "");
+                          form.setValue("model", "");
+                        }}
+                      />
+                    </div>
+                    <div className="garage-field">
+                      <label htmlFor="garage-catalogue-model">
+                        Model for Shop searches
+                      </label>
+                      <FitmentCataloguePicker
+                        key={make?.id || "unselected"}
+                        id="garage-catalogue-model"
+                        kind="model"
+                        makeId={make?.id}
+                        value={model?.id || ""}
+                        selected={model}
+                        disabled={!make}
+                        onChange={(value) => {
+                          setModel(value);
+                          setSpecifications({});
+                          form.setValue("model", value?.name || "");
+                        }}
+                      />
+                    </div>
                   </div>
-                </details>
-              </>
-            )}
-          </fieldset>
+                  {model && (
+                    <p className="garage-hint">
+                      Supported model years: {model.yearFrom}–{model.yearTo}. Update Year
+                      above if needed.
+                    </p>
+                  )}
+                  <details>
+                    <summary>More details to help check a part (optional)</summary>
+                    <p>
+                      Leave unknown details blank. Axle or position is chosen for the part
+                      you need.
+                    </p>
+                    <div className="garage-field-grid">
+                      {savedVehicleQualifierKeys.map((key) => (
+                        <div className="garage-field" key={key}>
+                          <label htmlFor={`garage-spec-${key}`}>
+                            {fitmentLabels[key]} (optional)
+                          </label>
+                          <input
+                            id={`garage-spec-${key}`}
+                            name={key}
+                            maxLength={100}
+                            value={specifications[key] || ""}
+                            onChange={(event) =>
+                              setSpecifications((previous) => ({
+                                ...previous,
+                                [key]: event.target.value,
+                              }))
+                            }
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </details>
+                </>
+              )}
+              {!linked && vehicle?.vehicleModelId && (
+                <p className="garage-hint">
+                  Saving with this turned off removes the Shop search link and its extra
+                  specifications. Your basic vehicle details stay saved.
+                </p>
+              )}
+            </fieldset>
+          </details>
           <fieldset disabled={busy || uncertain} className="garage-fields">
             <legend>Additional details</legend>
             <p>These details are optional and help our workshop identify your vehicle.</p>

@@ -558,6 +558,25 @@
   min-height: 44px;
   padding-block: 12px;
 }
+.garage-search-setup {
+  margin-top: 24px;
+  padding: 0 16px 12px;
+  border: 1px solid var(--border-control);
+  border-radius: 6px;
+  background: #fff;
+}
+.garage-search-setup > summary {
+  font-weight: 650;
+  color: var(--link);
+}
+.garage-search-setup > summary:hover {
+  color: var(--link-hover);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.garage-search-setup > .garage-fields {
+  margin-top: 12px;
+}
 .garage-dialog .fitment-picker > input {
   width: 100%;
   min-height: 44px;
