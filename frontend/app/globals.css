@@ -56,7 +56,8 @@ body {
 }
 
 html {
-  scroll-behavior: smooth;
+  /* Native navigation and scroll restoration must settle before touch scrolling. */
+  scroll-behavior: auto;
 }
 
 .public-display-title {
@@ -3533,4 +3534,11 @@ html {
   outline: 3px solid var(--focus-ring);
   outline-offset: 3px;
   box-shadow: var(--focus-shadow);
+}
+
+/* Reading destinations are announced without painting a page-sized focus border.
+   Interactive controls retain their normal keyboard focus indicators. */
+[data-reading-focus]:focus {
+  outline: none;
+  box-shadow: none;
 }

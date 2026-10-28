@@ -1,5 +1,16 @@
 # Implementation checkpoint
 
+## 28 October 2026 interaction audit
+
+Refresh/scroll and focus recovery, Help result targeting, loaded-answer focus,
+Allie topic/search/navigation recovery and guide presentation were improved in the
+existing components. See `frontend/docs/UI_UX_QUALITY_REGISTER.md` for exact scope,
+verification and release receipts. Existing article/guide definitions, their
+versions and semantic targets are unchanged; this cycle changes no policy,
+eligibility, permission or task prerequisite. Existing production flags remain
+unchanged. The separate Revision 4 scope is still incomplete. No AI capability or
+live action was added.
+
 26 October 2026. BUILD NOW, Phases 0-3. Subsequently deployed to production under
 the owner's explicit deployment instruction. Current release evidence and remaining
 acceptance limits: [PRODUCTION_RELEASE.md](PRODUCTION_RELEASE.md).

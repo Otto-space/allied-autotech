@@ -1,5 +1,5 @@
 "use client";
-import { useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ArrowRight, Search } from "lucide-react";
@@ -65,6 +65,13 @@ function Answers({
   const [intent, setIntent] = useState<
     "answer" | "guide" | "practice" | "context" | null
   >(null);
+  const response = useRef<HTMLDivElement>(null);
+  const questionInput = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (!intent) return;
+    response.current?.focus({ preventScroll: true });
+    response.current?.scrollIntoView({ block: "nearest", behavior: "instant" });
+  }, [intent, asked, selected]);
   const matches = asked ? assistantArticles(data, asked) : [];
   const article =
     data.articles.find((a) => a.id === selected) ??
@@ -100,6 +107,10 @@ function Answers({
         data-no-draft
         onSubmit={(e) => {
           e.preventDefault();
+          if (!question.trim()) {
+            questionInput.current?.focus();
+            return;
+          }
           setAsked(question.trim());
           setSelected(null);
           setIntent("answer");
@@ -108,6 +119,7 @@ function Answers({
         <label htmlFor={uid + "-question"}>What do you need help with?</label>
         <div className="allie-question">
           <input
+            ref={questionInput}
             id={uid + "-question"}
             value={question}
             maxLength={120}
@@ -124,7 +136,7 @@ function Answers({
           </button>
         </div>
       </form>
-      <div className="allie-prompts" aria-label="Suggested help">
+      <div className="allie-prompts" role="group" aria-label="Suggested help">
         {(path === "/learn" || relevant.length > 0) && (
           <button
             aria-controls={uid + "-response"}
@@ -133,15 +145,19 @@ function Answers({
             Explain this page
           </button>
         )}
-        <button aria-controls={uid + "-response"} onClick={() => selectIntent("guide")}>
-          Show me the steps
-        </button>
-        <button
-          aria-controls={uid + "-response"}
-          onClick={() => selectIntent("practice")}
-        >
-          Let me practise
-        </button>
+        {guides.length > 0 && (
+          <button aria-controls={uid + "-response"} onClick={() => selectIntent("guide")}>
+            Show me the steps
+          </button>
+        )}
+        {scenarios.length > 0 && (
+          <button
+            aria-controls={uid + "-response"}
+            onClick={() => selectIntent("practice")}
+          >
+            Let me practise
+          </button>
+        )}
       </div>
       {!intent && (
         <p className="allie-welcome">
@@ -149,17 +165,67 @@ function Answers({
           starting point.
         </p>
       )}
+      {!intent && (
+        <div role="group" aria-label="Popular help topics">
+          {(relevant.length ? relevant : data.articles).slice(0, 3).map((a) => (
+            <button
+              className="allie-topic"
+              key={a.id}
+              onClick={() => {
+                setSelected(a.id);
+                setIntent("answer");
+              }}
+            >
+              {a.title}
+              <ArrowRight size={16} aria-hidden="true" />
+            </button>
+          ))}
+        </div>
+      )}
+      {intent && (
+        <button
+          className="learning-text-button"
+          onClick={() => {
+            setIntent(null);
+            setSelected(null);
+            setAsked("");
+            setQuestion("");
+            questionInput.current?.focus({ preventScroll: true });
+            questionInput.current?.scrollIntoView({
+              block: "nearest",
+              behavior: "instant",
+            });
+          }}
+        >
+          Ask another question
+        </button>
+      )}
       <div
+        ref={response}
+        tabIndex={-1}
+        data-reading-focus
         id={uid + "-response"}
         className="allie-response"
         aria-live="polite"
         aria-atomic="false"
       >
         {intent === "answer" && !article && (
-          <p>
-            I couldn’t find a reviewed answer for that. Try a task such as parts, support
-            or account access, or contact the team.
-          </p>
+          <div>
+            <h3>Try a related help topic</h3>
+            <p>
+              I couldn&apos;t find a reviewed answer for that. Try a shorter task, choose
+              a topic below, or contact the team.
+            </p>
+            {data.articles.slice(0, 3).map((a) => (
+              <button
+                className="allie-topic"
+                key={a.id}
+                onClick={() => setSelected(a.id)}
+              >
+                {a.title}
+              </button>
+            ))}
+          </div>
         )}
         {intent === "context" && (
           <>

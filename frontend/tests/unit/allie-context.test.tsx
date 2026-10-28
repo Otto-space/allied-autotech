@@ -39,6 +39,7 @@ vi.mock("@/lib/learning/read", () => ({
 }));
 import { AlliePanel } from "@/app/components/learning/allie-panel";
 beforeEach(() => {
+  HTMLElement.prototype.scrollIntoView = vi.fn();
   fixture.path = "/";
   fixture.hasHome = true;
 });

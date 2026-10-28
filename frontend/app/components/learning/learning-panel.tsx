@@ -49,7 +49,7 @@ export function ArticleBody({ article }: { article: LearningArticle }) {
         <p>{article.recovery}</p>
       </details>
       <details className="learning-source">
-        <summary>Reviewed source ? version {article.version}</summary>
+        <summary>Reviewed source · version {article.version}</summary>
         <p>
           {article.source}. Reviewed {article.reviewedAt}.
         </p>
@@ -60,7 +60,7 @@ export function ArticleBody({ article }: { article: LearningArticle }) {
 export function WrittenGuide({ guide }: { guide: LearningGuide }) {
   return (
     <section className="learning-written">
-      <h3>{guide.title} ? written steps</h3>
+      <h3>{guide.title} · written steps</h3>
       <p>Read at your own pace. You choose when to use the page controls.</p>
       <ol>
         {guide.steps.map((step) => (
@@ -107,12 +107,26 @@ export function LearningPanel() {
     requestedGuide = params.get("guide"),
     data = resource.data;
   const article = data?.articles.find((a) => a.id === requested),
-    guide = data?.guides.find((g) => g.id === requestedGuide);
+    guide = data?.flags.guides
+      ? data.guides.find((g) => g.id === requestedGuide)
+      : undefined;
   const returnHref = learningReturn(params);
   const resultFocus = useRef<HTMLDivElement>(null);
+  const revealed = useRef<string | null>(null);
   useEffect(() => {
-    if (requested || requestedGuide) resultFocus.current?.focus({ preventScroll: true });
-  }, [requested, requestedGuide]);
+    const key = requested || requestedGuide;
+    if (!key) {
+      revealed.current = null;
+      return;
+    }
+    if (!data || resource.loading || revealed.current === key) return;
+    const target = resultFocus.current;
+    if (target) {
+      revealed.current = key;
+      target.focus({ preventScroll: true });
+      target.scrollIntoView({ block: "start", behavior: "instant" });
+    }
+  }, [requested, requestedGuide, data, resource.loading]);
   const results = data ? learningResults(data, query) : [];
   const shown = results.filter((r) =>
     query && !params.has("mode") ? true : r.kind === selectedMode,
@@ -137,7 +151,7 @@ export function LearningPanel() {
   }
   return (
     <div className="learning-content">
-      {resource.loading && <p role="status">Checking available learning?</p>}
+      {resource.loading && <p role="status">Checking available learning…</p>}
       {resource.error && (
         <div className="learning-load-error" role="alert">
           <p>{resource.error}</p>
@@ -149,7 +163,12 @@ export function LearningPanel() {
       {data && (
         <div hidden={resource.loading} inert={resource.loading}>
           {requested || requestedGuide ? (
-            <div ref={resultFocus} tabIndex={-1} className="learning-detail">
+            <div
+              ref={resultFocus}
+              tabIndex={-1}
+              data-reading-focus
+              className="learning-detail"
+            >
               <Link href={returnHref} className="learning-back">
                 <ArrowLeft size={17} aria-hidden="true" /> Back to results
               </Link>
@@ -161,7 +180,7 @@ export function LearningPanel() {
                       Open the relevant page <ArrowRight size={16} aria-hidden="true" />
                     </Link>
                     {data.guides
-                      .filter((g) => g.articleId === article.id)
+                      .filter((g) => data.flags.guides && g.articleId === article.id)
                       .map((g) => (
                         <Link
                           key={g.id}
@@ -172,7 +191,7 @@ export function LearningPanel() {
                         </Link>
                       ))}
                     {data.scenarios
-                      .filter((s) => s.articleId === article.id)
+                      .filter((s) => data.flags.practice && s.articleId === article.id)
                       .slice(0, 1)
                       .map((s) => (
                         <Link
@@ -223,7 +242,7 @@ export function LearningPanel() {
                     value={query}
                     maxLength={120}
                     onChange={(e) => update(e.target.value)}
-                    placeholder="Search for a question, task or topic?"
+                    placeholder="Search for a question, task or topic…"
                     aria-controls={uid + "-results"}
                   />
                   {query && (
@@ -303,9 +322,18 @@ export function LearningPanel() {
                     <p>
                       {query
                         ? "Try parts, support, access or a shorter phrase. You can also search all modes or contact the team."
-                        : "Choose another mode or use the Help Centre for more answers."}
+                        : "Written answers are available now. Walkthroughs and practice appear here when available for your access."}
                     </p>
-                    <Link href="/contact">Contact the team</Link>
+                    <div className="learning-actions">
+                      <button
+                        className="button secondary"
+                        onClick={() => update("", "answer")}
+                      >
+                        Browse written answers
+                      </button>
+                      <Link href="/help">Help Centre FAQs</Link>
+                      <Link href="/contact">Contact the team</Link>
+                    </div>
                   </div>
                 )}
                 <ul className="learning-topics">
@@ -329,8 +357,8 @@ export function LearningPanel() {
                           {item.kind === "answer"
                             ? "Article"
                             : item.kind === "guide"
-                              ? "Walkthrough ? " + item.count + " steps"
-                              : "Practice ? Sample data"}
+                              ? "Walkthrough · " + item.count + " steps"
+                              : "Practice · Sample data"}
                         </small>
                         <Link
                           href={itemHref(item.kind, item.id)}

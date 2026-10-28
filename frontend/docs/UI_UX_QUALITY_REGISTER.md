@@ -1,5 +1,57 @@
 # UI and UX quality register
 
+## 28 October 2026: Refresh scrolling, reading focus and Help & Learn
+
+Owner-reported cross-phone homepage jumps were reproduced on production
+`552ee418` / `dpl_79uCiatbRsCvM2jtPJkwsx53efpP`. Two of three immediate-scroll
+refreshes returned to zero after delayed focus of `main`; the global pointer-end
+and visual-viewport handlers could also re-reveal an old focused destination.
+Receipt: `%TEMP%/aat-refresh-baseline.json`.
+
+The shared coordinator now leaves initial document positioning and history
+restoration to the browser, adjusts genuine route entries/fragments, cancels queued
+adjustments on new touch/wheel intent and reveals controls after a tap rather than
+a scrolling/cancelled touch. Address-bar resizing does not re-focus old page
+content. Native navigation is immediate. Reading destinations (breadcrumbs,
+answers, Help results and MFA completion) receive semantic focus without a large
+outline/shadow; keyboard controls retain their visible focus styling.
+
+Help category selections reveal their results; search and clear retain useful
+focus. The learning hub has breadcrumbs, waits for an answer to load before
+revealing it, and offers written-answer recovery for empty modes. Corrected visible
+question-mark separators. Allie offers eligible topic shortcuts, directs focus to
+answers, supports another question and useful unmatched-search recovery, avoids
+empty guide/practice actions and queues the first launcher click across hydration.
+Navigation out of Allie no longer restores focus onto its old launcher. Modal
+content remains internally scrollable without a visible scrollbar, with a fixed
+close header. Guides add progress, retry, a deliberate show-control action and
+compact mobile written steps with an expandable full reference.
+
+Scope: existing public Help, Learn, Allie, optional guides and shared viewport
+behavior, plus mocked login/MFA completion. Backend definitions, semantic targets,
+permissions, feature flags and business policy are unchanged. Restricted learning
+continues to be served and revalidated by the backend. Practice remains local.
+This is a presentation/interaction cycle, not completion of the separate Revision 4
+AI/workforce brief.
+
+Verification: Browser plugin unavailable; reused Playwright and installed Edge.
+Local evidence distinguishes browser-driven touch gestures, intercepted API
+fixtures, automated axe checks and hosted anonymous acceptance. Focused browser
+coverage includes refresh/immediate scroll and real CDP touch dispatch at 390/1440,
+login redirect/MFA completion using synthetic responses, guide pause/resume/restart/
+completion, Help category/search/clear/history, route breadcrumbs/repeated anchors,
+linked form selections and fixed support/modal behavior from 320x568 to 1440x900.
+Screenshots: `%TEMP%/aat-help-after-390.png`, `aat-help-after-1440.png` and
+`allied-allie-viewport-390.png`. Local results: 20 distinct browser cases passed across the final focused runs,
+including six dock/modal viewport cases, four navigation/selection cases, seven
+refresh/learning/auth cases and three Help search/history cases. Four focused unit
+files passed (14 tests); lint, typecheck, formatting and diff checks passed. The
+old Help tests' two payment-label expectations were aligned with the tested launch
+mode. A cold development auth navigation exceeded 15 seconds once; its focused
+recheck passed, and the route wait allows development compilation. Production
+checks and hosted receipts are appended below when complete. Physical iPhone/Safari/Android and real authenticated roles
+remain untested; browser emulation is not their acceptance.
+
 ## 27 October 2026: Workshop address and Whatsapp labels
 
 Updated the public address to "133 Stadium Road, beside Kilimanjaro Pizza Jungle

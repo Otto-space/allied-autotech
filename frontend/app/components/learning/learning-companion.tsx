@@ -5,7 +5,11 @@ import { containDialogFocus } from "@/lib/dialog-focus";
 import { learningEnabled } from "@/lib/learning/contracts";
 import { clearLearningProgress } from "@/lib/learning/progress";
 import { LEARNING_SESSION_CHANGED } from "@/lib/learning/read";
-import { OPEN_LEARNING, START_LEARNING_GUIDE } from "./learning-entry";
+import {
+  consumeLearningOpen,
+  OPEN_LEARNING,
+  START_LEARNING_GUIDE,
+} from "./learning-entry";
 import {
   assistantName,
   ASSISTANT_HIDDEN_KEY,
@@ -26,15 +30,30 @@ export function LearningCompanion() {
     launcher = useRef<HTMLElement | null>(null);
   const [open, setOpen] = useState(false),
     [guide, setGuide] = useState<string | null>(null);
-  function close() {
+  const restoreFocus = useRef(true);
+  const openedOn = useRef(path);
+  function close(restore = true) {
+    restoreFocus.current = restore;
     dialog.current?.close();
     setOpen(false);
-    if (launcher.current?.isConnected) launcher.current.focus({ preventScroll: true });
+  }
+  function closed() {
+    setOpen(false);
+    if (
+      restoreFocus.current &&
+      openedOn.current === location.pathname &&
+      launcher.current?.isConnected
+    )
+      launcher.current.focus({ preventScroll: true });
+    restoreFocus.current = true;
   }
   useEffect(() => {
     if (!learningEnabled()) return;
     function show() {
+      consumeLearningOpen();
       launcher.current = document.activeElement as HTMLElement;
+      openedOn.current = location.pathname;
+      restoreFocus.current = true;
       try {
         sessionStorage.removeItem(ASSISTANT_HIDDEN_KEY);
       } catch {
@@ -46,8 +65,7 @@ export function LearningCompanion() {
     function start(event: Event) {
       const id = (event as CustomEvent<unknown>).detail;
       if (typeof id === "string" && /^[a-z][a-z0-9-]{0,63}$/.test(id)) {
-        dialog.current?.close();
-        setOpen(false);
+        close(false);
         setGuide(id);
       }
     }
@@ -57,8 +75,7 @@ export function LearningCompanion() {
     }
     function invalidate() {
       clearLearningProgress();
-      dialog.current?.close();
-      setOpen(false);
+      close(false);
       setGuide(null);
     }
     function escape(event: KeyboardEvent) {
@@ -71,6 +88,8 @@ export function LearningCompanion() {
     }
     hash();
     window.addEventListener(OPEN_LEARNING, show);
+    // A launcher may hydrate before this listener; honour its first activation.
+    if (consumeLearningOpen()) show();
     window.addEventListener(START_LEARNING_GUIDE, start);
     window.addEventListener("hashchange", hash);
     window.addEventListener(LEARNING_SESSION_CHANGED, invalidate);
@@ -94,7 +113,7 @@ export function LearningCompanion() {
         ref={dialog}
         aria-labelledby="learning-dialog-title"
         onKeyDown={containDialogFocus}
-        onClose={close}
+        onClose={closed}
       >
         <header className="learning-dialog-head">
           <AllieAvatar state={open ? "helpful" : "idle"} />
@@ -102,14 +121,18 @@ export function LearningCompanion() {
             <h2 id="learning-dialog-title">{assistantName}</h2>
             <p>Your website guide</p>
           </div>
-          <button className="learning-close" aria-label="Close help" onClick={close}>
+          <button
+            className="learning-close"
+            aria-label="Close help"
+            onClick={() => close()}
+          >
             <X size={20} aria-hidden="true" />
           </button>
         </header>
         <div className="allie-dialog-body">
           {open && (
             <Suspense fallback={<p role="status">Loading help…</p>}>
-              <Panel onNavigate={close} />
+              <Panel onNavigate={() => close(false)} />
             </Suspense>
           )}
           <button
