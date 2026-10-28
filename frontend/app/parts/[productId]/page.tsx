@@ -151,6 +151,7 @@ export default async function ProductPage({
     ),
   ).params;
   const available = product.availability.some((item) => item.inStock);
+  const enquiriesOnly = browseEnquiriesOnly();
   const compare =
     product.compareAtPriceKobo &&
     BigInt(product.compareAtPriceKobo) > BigInt(product.priceKobo)
@@ -310,7 +311,7 @@ export default async function ProductPage({
                 ))}
               </dl>
             </div>
-            <section className="pd-purchase" aria-label="Price and ordering">
+            <section className="pd-purchase" aria-label="Price and availability">
               <div className="pd-price-row">
                 <strong>{formatKobo(product.priceKobo)}</strong>
                 {compare && (
@@ -388,7 +389,7 @@ export default async function ProductPage({
               </Suspense>
               <p>
                 Check the vehicle and product details below. Our team can help confirm
-                suitability before you order.
+                suitability for your vehicle.
               </p>
               {product.compatibilities.length ? (
                 <ul>
@@ -438,7 +439,8 @@ export default async function ProductPage({
               ) : (
                 <p className="pd-empty">
                   Compatibility has not been listed. Confirm the product is suitable for
-                  your vehicle with our team before ordering.
+                  your vehicle with our team before{" "}
+                  {enquiriesOnly ? "requesting it" : "ordering"}.
                 </p>
               )}
             </section>
@@ -449,25 +451,25 @@ export default async function ProductPage({
             aria-labelledby="pd-ordering-title"
           >
             <div>
-              <h2 id="pd-ordering-title">Collection and ordering</h2>
+              <h2 id="pd-ordering-title">
+                {enquiriesOnly ? "Enquire and collect" : "Collection and ordering"}
+              </h2>
               <ol className="pd-ordering-steps">
                 <li>
                   <span aria-hidden="true">01</span>
                   <div>
                     <h3>Check the fit</h3>
-                    <p>Match the part number and your vehicle before ordering.</p>
+                    <p>Match the part number and your vehicle before proceeding.</p>
                   </div>
                 </li>
                 <li>
                   <span aria-hidden="true">02</span>
                   <div>
                     <h3>
-                      {browseEnquiriesOnly()
-                        ? "Ask about availability"
-                        : "Review your cart"}
+                      {enquiriesOnly ? "Ask about availability" : "Review your cart"}
                     </h3>
                     <p>
-                      {browseEnquiriesOnly()
+                      {enquiriesOnly
                         ? "Tell our team which part and quantity you need."
                         : "Save the total quantity you need. Cart items do not reserve stock."}
                     </p>
@@ -476,24 +478,30 @@ export default async function ProductPage({
                 <li>
                   <span aria-hidden="true">03</span>
                   <div>
-                    <h3>Confirm collection</h3>
+                    <h3>
+                      {enquiriesOnly ? "Agree collection details" : "Confirm collection"}
+                    </h3>
                     <p>
-                      Arrange collection from the listed branch. Delivery is unavailable.
+                      {enquiriesOnly
+                        ? "Visit only after our team confirms availability and collection arrangements. Delivery is unavailable."
+                        : "Follow the collection details confirmed with your order. Delivery is unavailable."}
                     </p>
                   </div>
                 </li>
               </ol>
             </div>
             <div className="pd-ordering-faq">
-              <h3>Before you order</h3>
+              <h3>{enquiriesOnly ? "Before you visit" : "Before you order"}</h3>
               <details>
                 <summary>
-                  Where can I collect my order?
+                  {enquiriesOnly
+                    ? "Where can I collect this product?"
+                    : "Where can I collect my order?"}
                   <ChevronDown size={18} aria-hidden="true" />
                 </summary>
                 <p>
                   {business.address}.{" "}
-                  {browseEnquiriesOnly()
+                  {enquiriesOnly
                     ? "Contact our team before visiting to confirm availability and collection arrangements."
                     : "Follow the collection instructions in your order before visiting."}
                 </p>
@@ -503,7 +511,11 @@ export default async function ProductPage({
                   Can this product be delivered?
                   <ChevronDown size={18} aria-hidden="true" />
                 </summary>
-                <p>Orders are collection only. We do not offer delivery.</p>
+                <p>
+                  {enquiriesOnly
+                    ? "We currently offer workshop collection only. Confirm availability with our team before visiting."
+                    : "Orders are collection only. We do not offer delivery."}
+                </p>
                 <Link
                   className="pd-link"
                   href={partsEnquiryHref(selectedQuery, product.id)}

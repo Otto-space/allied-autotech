@@ -107,7 +107,23 @@ for (const width of [390, 1440]) {
     await section.getByRole("link", { name: "Collection", exact: true }).click();
     await expect(page).toHaveURL(/#product-delivery$/);
     await expect(
-      page.getByRole("heading", { name: "Collection and ordering" }),
+      page.getByText(
+        "Visit only after our team confirms availability and collection arrangements. Delivery is unavailable.",
+        { exact: true },
+      ),
+    ).toBeVisible();
+    await page.getByText("Can this product be delivered?", { exact: true }).click();
+    await expect(
+      page.getByText(
+        "We currently offer workshop collection only. Confirm availability with our team before visiting.",
+        { exact: true },
+      ),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: "Ask about collection", exact: true }),
+    ).toHaveAttribute("href", /productId=/);
+    await expect(
+      page.getByRole("heading", { name: "Enquire and collect" }),
     ).toBeInViewport();
     await page.getByRole("link", { name: "Overview", exact: true }).click();
     await enquiry.focus();
