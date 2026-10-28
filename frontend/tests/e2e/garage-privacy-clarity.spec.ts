@@ -158,7 +158,7 @@ test("an existing linked vehicle opens search setup and toggling preserves its s
   page,
 }) => {
   const state = await garageFixture(page);
-  const make = { id: garageId(50), name: "Toyota" };
+  const make = { id: garageId(50), name: "Toyota", isActive: true };
   const model = {
     id: garageId(51),
     name: "Camry",
@@ -166,6 +166,7 @@ test("an existing linked vehicle opens search setup and toggling preserves its s
     make,
     yearFrom: 2016,
     yearTo: 2022,
+    isActive: true,
   };
   Object.assign(state.records[0], {
     vehicleModelId: model.id,
