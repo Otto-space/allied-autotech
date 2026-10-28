@@ -1,0 +1,8 @@
+.link {
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.link:hover {
+  text-decoration-thickness: 2px;
+}

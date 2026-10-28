@@ -216,3 +216,11 @@ image errors, keyboard heading focus, scoped axe and 360/390/768/1440 layouts.
 Hosted checks and exact-source publication gates remain pending. Published
 fitment source 094ed047 is merged; preceding release receipts remain preserved.
 No backend/database, permissions, transactions or authored service record changed.
+
+Hosted follow-up: 12 of 14 fixture cases passed after correcting the public-photo
+allowlist, branch fixture, native-link selector and safe validation message. The
+two remaining cases exposed a real shared privacy-link accessibility defect: its
+colour alone did not distinguish it from surrounding text. IntakePrivacyNote now
+uses an underlined inline link, including hover, without button-sized layout.
+Service keyboard/hover and shared Contact/registration regressions will verify it.
+Initial failures and receipts are retained in the task evidence folder.
