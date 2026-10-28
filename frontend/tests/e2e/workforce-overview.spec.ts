@@ -151,10 +151,10 @@ test("no active responsibilities gives useful personal access without operationa
   await expect(work(page).locator("a")).toHaveCount(0);
   await page
     .getByRole("navigation", { name: "Personal account tools" })
-    .getByRole("link", { name: "My notifications", exact: true })
+    .getByRole("link", { name: /^Notifications(?:, \d+ unread updates)?$/ })
     .click();
   await expect(
-    page.getByRole("heading", { name: "My notifications", exact: true }),
+    page.getByRole("heading", { name: "Notifications", exact: true }),
   ).toBeVisible();
 });
 test("another account or a changed access version never renders operational details", async ({

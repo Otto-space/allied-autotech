@@ -2,10 +2,15 @@ import { randomUUID } from "node:crypto";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { prisma } from "../../src/config/database.js";
 import type { AuthenticatedActor } from "../../src/common/contracts/actor.js";
+import { BillingService } from "../../src/modules/billing/billing.service.js";
+import { BillingRepository } from "../../src/modules/billing/billing.repository.js";
 import type { PaymentCreateInput } from "../../src/modules/payments/payments.schemas.js";
 import { PaymentsService } from "../../src/modules/payments/payments.service.js";
+import { VehicleSalesService } from "../../src/modules/vehicle-sales/vehicle-sales.service.js";
+import { VehicleSalesRepository } from "../../src/modules/vehicle-sales/vehicle-sales.repository.js";
 import { PaymentProviderRegistry } from "../../src/providers/payments/payment-provider.registry.js";
 import type { PaymentProviderPort } from "../../src/providers/payments/payment-provider.port.js";
+import { paymentTestSession } from "../helpers/payment-session.js";
 
 const context = () => ({ requestId: randomUUID(), ipAddress: null, userAgent: null });
 const manual = () => ({
@@ -13,6 +18,47 @@ const manual = () => ({
   payerName: "Isolated Target",
   transferredAt: new Date().toISOString(),
 });
+function gate() {
+  let release!: () => void;
+  const promise = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  return { promise, release };
+}
+async function administrator(): Promise<AuthenticatedActor> {
+  const user = await prisma.user.create({
+    data: {
+      email: `${randomUUID()}@example.test`,
+      passwordHash: "unusable-synthetic-only",
+      role: "ADMIN",
+      emailVerifiedAt: new Date(),
+    },
+  });
+  return {
+    userId: user.id,
+    email: user.email,
+    role: "ADMIN",
+    sessionId: await paymentTestSession(user.id, "ADMIN"),
+    mfaRequired: true,
+    mfaVerifiedAt: new Date(),
+  };
+}
+async function expectSourceWait(kind: "INVOICE" | "VEHICLE_TRANSACTION") {
+  await expect
+    .poll(
+      async () => {
+        const rows = await prisma.$queryRaw<{ blocked: boolean }[]>`SELECT EXISTS (
+          SELECT 1 FROM pg_stat_activity WHERE datname = current_database()
+          AND cardinality(pg_blocking_pids(pid)) > 0
+          AND query LIKE '%FOR UPDATE%'
+          AND query LIKE ${`%"${kind === "INVOICE" ? "Invoice" : "VehicleTransaction"}"%`}
+        ) AS blocked`;
+        return rows[0]?.blocked;
+      },
+      { timeout: 3000, interval: 20 },
+    )
+    .toBe(true);
+}
 async function fixture(kind: PaymentCreateInput["targetType"] = "ORDER") {
   const user = await prisma.user.create({
     data: {
@@ -29,7 +75,7 @@ async function fixture(kind: PaymentCreateInput["targetType"] = "ORDER") {
     userId: user.id,
     email: user.email,
     role: "CUSTOMER",
-    sessionId: randomUUID(),
+    sessionId: await paymentTestSession(user.id),
     mfaRequired: false,
     mfaVerifiedAt: null,
   };
@@ -268,6 +314,231 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         expect(await f.create(keys[winner]!)).toMatchObject({ replayed: true });
         expect(await f.payments()).toHaveLength(1);
       });
+    for (const kind of ["INVOICE", "VEHICLE_TRANSACTION"] as const)
+      for (const operation of ["intent", "online", "manual"] as const)
+        it(`${operation} rejects a ${kind} source transition committed while its row is locked`, async () => {
+          const f = await fixture(kind);
+          const existing = operation === "intent" ? null : (await f.create()).payment.id;
+          const held = gate();
+          const resume = gate();
+          const transition = prisma
+            .$transaction(async (tx) => {
+              try {
+                if (kind === "INVOICE") {
+                  await tx.$queryRaw`SELECT "id" FROM "Invoice" WHERE "id" = ${f.input.targetId}::uuid FOR UPDATE`;
+                  await tx.invoice.update({
+                    where: { id: f.input.targetId },
+                    data: {
+                      status: "VOID",
+                      voidedAt: new Date(),
+                      version: { increment: 1 },
+                    },
+                  });
+                } else {
+                  await tx.$queryRaw`SELECT "id" FROM "VehicleTransaction" WHERE "id" = ${f.input.targetId}::uuid FOR UPDATE`;
+                  await tx.vehicleTransaction.update({
+                    where: { id: f.input.targetId },
+                    data: {
+                      status: "CANCELLED",
+                      cancelledAt: new Date(),
+                      cancellationReason: "SYNTHETIC_SOURCE_TRANSITION",
+                      version: { increment: 1 },
+                    },
+                  });
+                }
+                held.release();
+                await resume.promise;
+              } finally {
+                held.release();
+              }
+            })
+            .then(
+              () => null,
+              (error: unknown) => error,
+            );
+          await held.promise;
+          const changing = (
+            operation === "intent"
+              ? f.create()
+              : operation === "online"
+                ? f.service.initializePaystack(
+                    f.actor,
+                    existing!,
+                    randomUUID(),
+                    context(),
+                  )
+                : f.service.submitManual(
+                    f.actor,
+                    existing!,
+                    manual(),
+                    randomUUID(),
+                    context(),
+                  )
+          ).then(
+            (result) => ({ result }),
+            (error: unknown) => ({ error }),
+          );
+          let pollError: unknown = null;
+          try {
+            await expectSourceWait(kind);
+          } catch (error) {
+            pollError = error;
+          } finally {
+            resume.release();
+          }
+          const transitionError = await transition;
+          if (transitionError) throw transitionError;
+          if (pollError) throw pollError;
+          expect(await changing).toMatchObject({ error: { statusCode: 404 } });
+          expect(await f.payments()).toHaveLength(operation === "intent" ? 0 : 1);
+          expect(
+            await prisma.paymentAttempt.count({
+              where: {
+                payment:
+                  kind === "INVOICE"
+                    ? { invoiceId: f.input.targetId }
+                    : { vehicleTransactionId: f.input.targetId },
+              },
+            }),
+          ).toBe(0);
+          expect(f.initialize).not.toHaveBeenCalled();
+        });
+    for (const kind of ["INVOICE", "VEHICLE_TRANSACTION"] as const)
+      for (const operation of ["intent", "online", "manual"] as const)
+        it(`serializes actual ${kind} operator cancellation before ${operation} payment entry`, async () => {
+          const f = await fixture(kind);
+          const existing = operation === "intent" ? null : (await f.create()).payment.id;
+          const actor = await administrator();
+          const held = gate();
+          const resume = gate();
+          const operator =
+            kind === "INVOICE"
+              ? (() => {
+                  const original = BillingRepository.prototype.transition;
+                  const spy = vi
+                    .spyOn(BillingRepository.prototype, "transition")
+                    .mockImplementationOnce(async function (
+                      this: BillingRepository,
+                      ...args
+                    ) {
+                      held.release();
+                      await resume.promise;
+                      return original.apply(this, args);
+                    });
+                  return {
+                    promise: new BillingService(prisma).void(
+                      actor,
+                      f.input.targetId,
+                      { expectedVersion: 0 },
+                      context(),
+                    ),
+                    restore: () => spy.mockRestore(),
+                  };
+                })()
+              : (() => {
+                  const original = VehicleSalesRepository.prototype.updateTransaction;
+                  const spy = vi
+                    .spyOn(VehicleSalesRepository.prototype, "updateTransaction")
+                    .mockImplementationOnce(async function (
+                      this: VehicleSalesRepository,
+                      ...args
+                    ) {
+                      held.release();
+                      await resume.promise;
+                      return original.apply(this, args);
+                    });
+                  return {
+                    promise: new VehicleSalesService(prisma).transition(
+                      actor,
+                      f.input.targetId,
+                      {
+                        expectedVersion: 0,
+                        status: "CANCELLED",
+                        reason: "Synthetic test",
+                      },
+                      context(),
+                    ),
+                    restore: () => spy.mockRestore(),
+                  };
+                })();
+          const operatorOutcome = operator.promise.then(
+            (result) => ({ result }),
+            (error: unknown) => ({ error }),
+          );
+          try {
+            await Promise.race([
+              held.promise,
+              operatorOutcome.then(({ error }) => {
+                if (error) throw error;
+                throw new Error("Operator completed before the source lock checkpoint");
+              }),
+            ]);
+            const changing = (
+              operation === "intent"
+                ? f.create()
+                : operation === "online"
+                  ? f.service.initializePaystack(
+                      f.actor,
+                      existing!,
+                      randomUUID(),
+                      context(),
+                    )
+                  : f.service.submitManual(
+                      f.actor,
+                      existing!,
+                      manual(),
+                      randomUUID(),
+                      context(),
+                    )
+            ).then(
+              (result) => ({ result }),
+              (error: unknown) => ({ error }),
+            );
+            try {
+              await expectSourceWait(kind);
+            } finally {
+              resume.release();
+            }
+            expect(await operatorOutcome).not.toHaveProperty("error");
+            expect(await changing).toMatchObject({ error: { statusCode: 404 } });
+            expect(await f.payments()).toHaveLength(operation === "intent" ? 0 : 1);
+            expect(
+              await prisma.paymentAttempt.count({
+                where: {
+                  payment:
+                    kind === "INVOICE"
+                      ? { invoiceId: f.input.targetId }
+                      : { vehicleTransactionId: f.input.targetId },
+                },
+              }),
+            ).toBe(0);
+            expect(f.initialize).not.toHaveBeenCalled();
+            if (kind === "INVOICE")
+              expect(
+                await prisma.invoice.findUniqueOrThrow({
+                  where: { id: f.input.targetId },
+                }),
+              ).toMatchObject({ status: "VOID", version: 1 });
+            else {
+              expect(
+                await prisma.vehicleTransaction.findUniqueOrThrow({
+                  where: { id: f.input.targetId },
+                }),
+              ).toMatchObject({ status: "CANCELLED", version: 1 });
+              expect(
+                await prisma.vehicleTransactionStatusHistory.count({
+                  where: {
+                    vehicleTransactionId: f.input.targetId,
+                    toStatus: "CANCELLED",
+                  },
+                }),
+              ).toBe(1);
+            }
+          } finally {
+            resume.release();
+            operator.restore();
+          }
+        }, 15000);
     it("blocks another vehicle purpose while a full payment request exists", async () => {
       const f = await fixture("VEHICLE_TRANSACTION");
       await f.create();
@@ -471,6 +742,78 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
             }),
           ).toBe(1);
       });
+    it("pages only the customer's selected vehicle payments and rejects an unrelated cursor", async () => {
+      const f = await fixture("VEHICLE_TRANSACTION");
+      const [first, second] = await Promise.all([f.legacy(), f.legacy()]);
+      const otherCustomer = await fixture("VEHICLE_TRANSACTION");
+      const foreign = await otherCustomer.legacy();
+      const customerId = (
+        await prisma.customerProfile.findUniqueOrThrow({
+          where: { userId: f.actor.userId },
+        })
+      ).id;
+      const branchId = (
+        await prisma.vehicleTransaction.findUniqueOrThrow({
+          where: { id: f.input.targetId },
+          select: { vehicleListing: { select: { branchId: true } } },
+        })
+      ).vehicleListing.branchId;
+      const order = await prisma.order.create({
+        data: {
+          customerId,
+          branchId,
+          orderNumber: `TC-${randomUUID()}`,
+          subtotalKobo: 10000n,
+          totalKobo: 10000n,
+          customerName: "Isolated Target",
+          customerEmail: f.actor.email,
+          customerPhone: "+2348000000000",
+          paymentDueAt: new Date(Date.now() + 3600000),
+        },
+      });
+      const unrelated = await prisma.payment.create({
+        data: {
+          customerId,
+          orderId: order.id,
+          paymentNumber: `TC-${randomUUID()}`,
+          idempotencyKeyHash: randomUUID().replaceAll("-", "").padEnd(64, "0"),
+          purpose: "ORDER_PAYMENT",
+          amountKobo: 10000n,
+        },
+      });
+      const query = { vehicleTransactionId: f.input.targetId, limit: 1 };
+      const firstPage = (await f.service.customerList(f.actor, query)) as {
+        items: { id: string; vehicleTransactionId: string | null }[];
+        nextCursor?: string;
+      };
+      expect(firstPage.items).toHaveLength(1);
+      expect(firstPage.nextCursor).toBe(firstPage.items[0]!.id);
+      const nextPage = (await f.service.customerList(f.actor, {
+        ...query,
+        cursor: firstPage.nextCursor,
+      })) as typeof firstPage;
+      expect(new Set([...firstPage.items, ...nextPage.items].map((p) => p.id))).toEqual(
+        new Set([first.id, second.id]),
+      );
+      expect(
+        [...firstPage.items, ...nextPage.items].every(
+          (p) => p.vehicleTransactionId === f.input.targetId,
+        ),
+      ).toBe(true);
+      expect(nextPage.nextCursor).toBeUndefined();
+      expect(
+        (await f.service.customerList(f.actor, {
+          ...query,
+          vehicleTransactionId: otherCustomer.input.targetId,
+        })) as typeof firstPage,
+      ).toMatchObject({ items: [] });
+      for (const cursor of [foreign.id, unrelated.id])
+        await expect(
+          f.service.customerList(f.actor, { ...query, cursor }),
+        ).rejects.toMatchObject({
+          statusCode: 404,
+        });
+    });
   },
 );
 import { testReservationAcceptance } from "../helpers/reservation-terms.js";

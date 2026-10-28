@@ -1,3 +1,4 @@
+import { countryCodes } from "@/lib/reference/countries";
 import { z } from "zod";
 import type { RequestBody } from "@/lib/api/contracts";
 import { vehicleEnums, type StaffVehicle } from "@/lib/api/staff-vehicle-schemas";
@@ -43,6 +44,25 @@ export const recordSchema = z.object({
   fuelType: z.enum(["", ...vehicleEnums.fuelType]),
   bodyType: z.enum(["", ...vehicleEnums.bodyType]),
   driveType: z.enum(["", ...vehicleEnums.driveType]),
+  manufactureCountryCode: z
+    .string()
+    .refine(
+      (v) => !v || countryCodes.has(v),
+      "Choose a country from the suggestions or clear this field.",
+    ),
+  powertrain: z.enum(["", ...vehicleEnums.powertrain]),
+  engineCapacityCc: optionalInteger(1, 30000),
+  features: text(3239).refine((v) => {
+    const a = v
+      .split(",")
+      .map((f) => f.trim())
+      .filter(Boolean);
+    return (
+      a.length <= 40 &&
+      a.every((f) => f.length <= 80) &&
+      new Set(a.map((f) => f.toLowerCase())).size === a.length
+    );
+  }, "Use up to 40 distinct features, each up to 80 characters, separated by commas."),
   engineSize: text(40),
   color: text(40),
   doors: optionalInteger(1, 20),
@@ -91,6 +111,13 @@ export function vehicleRecordBody(
     fuelType: value.fuelType || null,
     bodyType: value.bodyType || null,
     driveType: value.driveType || null,
+    manufactureCountryCode: value.manufactureCountryCode || null,
+    powertrain: value.powertrain || null,
+    engineCapacityCc: nullableNumber(value.engineCapacityCc),
+    features: value.features
+      .split(",")
+      .map((v) => v.trim())
+      .filter(Boolean),
     engineSize: value.engineSize || null,
     color: value.color || null,
     doors: nullableNumber(value.doors),
@@ -141,6 +168,10 @@ export function vehicleDefaults(
     fuelType: vehicle?.fuelType ?? "",
     bodyType: vehicle?.bodyType ?? "",
     driveType: vehicle?.driveType ?? "",
+    manufactureCountryCode: vehicle?.manufactureCountryCode ?? "",
+    powertrain: vehicle?.powertrain ?? "",
+    engineCapacityCc: vehicle?.engineCapacityCc?.toString() ?? "",
+    features: vehicle?.features?.join(", ") ?? "",
     engineSize: vehicle?.engineSize ?? "",
     color: vehicle?.color ?? "",
     doors: vehicle?.doors?.toString() ?? "",

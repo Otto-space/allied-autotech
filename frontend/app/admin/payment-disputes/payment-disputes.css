@@ -1,7 +1,7 @@
 .work-disputes {
   --wd-border: #d8e1e8;
   --wd-muted: #516675;
-  color: #01121a;
+  color: var(--ink);
   font-size: 14px;
   line-height: 1.65;
   max-width: 1440px;
@@ -115,17 +115,18 @@
 .work-disputes select {
   width: 100%;
   min-height: 44px;
-  border: 1px solid #a7b9c7;
+  border: 1px solid var(--border-control);
   border-radius: 6px;
   padding: 10px 12px;
-  color: #01121a;
+  color: var(--ink);
   background: #fff;
   box-shadow: 0 1px 2px #01121a06;
 }
 .work-disputes select:focus-visible {
-  outline: 3px solid #e6030126;
-  outline-offset: 2px;
   border-color: #a22b2a;
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .wd-filter-actions {
   display: flex;
@@ -180,7 +181,7 @@
 }
 .wd-column-labels {
   padding: 13px 20px;
-  background: #01121a;
+  background: var(--ink);
   color: #e0eaf0;
   font-size: 11px;
   font-weight: 600;

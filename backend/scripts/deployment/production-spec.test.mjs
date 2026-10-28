@@ -41,6 +41,7 @@ function fixture() {
     OBJECT_STORAGE_ACCESS_KEY_ID: "synthetic-access",
     OBJECT_STORAGE_SECRET_ACCESS_KEY: "synthetic-secret",
     RESEND_API_KEY: "re_synthetic",
+    RESEND_WEBHOOK_SECRET: `whsec_${randomBytes(32).toString("base64")}`,
     PRIVATE_TESTING_PASSWORD: "f".repeat(64),
   };
   const keys = Object.fromEntries(

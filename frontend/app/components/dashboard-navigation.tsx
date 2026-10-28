@@ -13,6 +13,7 @@ export function DashboardNavigation({
   collapsed = false,
   onExpand,
   unreadCounts = {},
+  unreadLinks = {},
 }: {
   groups: DashboardGroup[];
   pathname: string;
@@ -21,6 +22,7 @@ export function DashboardNavigation({
   collapsed?: boolean;
   onExpand?: () => void;
   unreadCounts?: Readonly<Record<string, number>>;
+  unreadLinks?: Readonly<Record<string, string>>;
 }) {
   const pendingGroup = useRef<string | null>(null);
   const navigation = useRef<HTMLElement>(null);
@@ -50,7 +52,7 @@ export function DashboardNavigation({
           return (
             <Link
               key={group.id}
-              href={destination.href}
+              href={unreadLinks[destination.href] ?? destination.href}
               prefetch={false}
               aria-current={active ? "page" : undefined}
               aria-label={
@@ -105,7 +107,7 @@ export function DashboardNavigation({
             <div className="dashboard-nav-children">
               {group.links.map((link) => (
                 <Link
-                  href={link.href}
+                  href={unreadLinks[link.href] ?? link.href}
                   key={link.href}
                   prefetch={false}
                   aria-current={link.href === activeHref ? "page" : undefined}
@@ -163,7 +165,9 @@ export function DashboardPageSearch({ groups }: { groups: DashboardGroup[] }) {
       {term && focused && (
         <div className="dashboard-search-results">
           <p role="status">
-            {matches.length ? `${matches.length} matching pages` : "No matching pages"}
+            {matches.length
+              ? `${matches.length} matching ${matches.length === 1 ? "page" : "pages"}`
+              : "No matching pages"}
           </p>
           {matches.map((link) => (
             <Link

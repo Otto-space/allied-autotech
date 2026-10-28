@@ -11,7 +11,11 @@ import { OrganizationService } from "../../src/modules/organization/organization
 import type { AuthenticatedActor } from "../../src/common/contracts/actor.js";
 
 const app = createApp({ checkReadiness: async () => undefined });
-describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
+const provisionedWorkspaceAcceptanceChecksEnabled =
+  process.env.RUN_DATABASE_TESTS === "true" &&
+  process.env.RUN_PROVISIONED_WORKSPACE_TESTS === "true";
+
+describe.skipIf(!provisionedWorkspaceAcceptanceChecksEnabled)(
   "branch administration contracts",
   () => {
     let tag = randomUUID().slice(0, 8).toUpperCase();

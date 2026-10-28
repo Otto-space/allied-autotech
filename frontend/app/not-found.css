@@ -1,0 +1,73 @@
+.missing-page {
+  display: grid;
+  min-height: min(680px, calc(100svh - 80px));
+  padding: clamp(64px, 9vw, 112px) 20px;
+  place-items: center;
+  background: radial-gradient(circle at 80% 22%, #e0192410, transparent 36%), #fff;
+}
+
+.missing-page__inner {
+  width: min(100%, 760px);
+  margin-inline: auto;
+}
+
+.missing-page__mark {
+  width: 76px;
+  aspect-ratio: 367 / 317;
+  margin-bottom: 32px;
+  background: url("/brand/allied-mark-red.png") center / contain no-repeat;
+}
+
+.missing-page h1 {
+  max-width: 720px;
+  margin: 18px 0;
+  color: #06181f;
+  font-family: var(--font-nippo), var(--font-quicksand), sans-serif;
+  font-size: clamp(36px, 5.5vw, 64px);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.045em;
+}
+
+.missing-page__description {
+  max-width: 570px;
+  color: #4c5c66;
+  font-size: clamp(16px, 1.6vw, 19px);
+  line-height: 1.6;
+}
+
+.missing-page__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 32px;
+}
+
+.missing-page .missing-page__help {
+  margin: 28px 0 0;
+  color: #4c5c66;
+  font-size: 14px;
+}
+
+.missing-page__help a {
+  color: #b80814;
+  font-weight: 700;
+  text-underline-offset: 3px;
+}
+
+@media (max-width: 480px) {
+  .missing-page {
+    min-height: 560px;
+    padding-inline: 18px;
+  }
+
+  .missing-page__mark {
+    width: 58px;
+    margin-bottom: 26px;
+  }
+
+  .missing-page__actions .button {
+    width: 100%;
+    justify-content: center;
+  }
+}

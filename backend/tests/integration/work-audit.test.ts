@@ -11,7 +11,11 @@ import { auditPageResponseSchema } from "../../src/modules/audit/audit-response.
 import { AuditOperationsService } from "../../src/modules/audit/audit.service.js";
 import type { AuthenticatedActor } from "../../src/common/contracts/actor.js";
 const app = createApp({ checkReadiness: async () => undefined });
-describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
+const provisionedWorkspaceAcceptanceChecksEnabled =
+  process.env.RUN_DATABASE_TESTS === "true" &&
+  process.env.RUN_PROVISIONED_WORKSPACE_TESTS === "true";
+
+describe.skipIf(!provisionedWorkspaceAcceptanceChecksEnabled)(
   "current authorized audit inspection",
   () => {
     const sessions: string[] = [],

@@ -11,6 +11,8 @@ import {
   type Template,
 } from "../../src/modules/organization/workforce.policy.js";
 import { testOwner } from "../helpers/owner.js";
+import { workforceTemplateVersions } from "../../src/modules/organization/workforce-catalogue.js";
+import { workforcePositions } from "../../src/modules/organization/workforce-positions.js";
 
 export const fixturePassword = "Synthetic workforce proof passphrase 2026!";
 export async function workforceFixture() {
@@ -94,7 +96,13 @@ export async function workforceFixture() {
     });
     if (template) {
       await prisma.workforceAccess.create({
-        data: { userId: user.id, position: template, updatedByUserId: owner.id },
+        data: {
+          userId: user.id,
+          position: Object.hasOwn(workforcePositions, template)
+            ? template
+            : "CUSTOMER_SERVICE",
+          updatedByUserId: owner.id,
+        },
       });
       await assignment(user.id, template, false, branchId);
     }
@@ -111,6 +119,7 @@ export async function workforceFixture() {
       data: {
         userId,
         template,
+        templateVersion: Object.hasOwn(workforceTemplateVersions[1], template) ? 1 : 2,
         branchId,
         scope: workforceTemplates[template].scope,
         temporary,

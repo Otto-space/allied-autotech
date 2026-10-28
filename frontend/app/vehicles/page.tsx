@@ -6,12 +6,15 @@ import Image from "next/image";
 import Link from "next/link";
 import { ChevronRight, ArrowUpRight } from "lucide-react";
 import { business } from "@/lib/business";
+import { Suspense } from "react";
+import { CatalogueEnquiryLink } from "../components/catalogue-enquiry-link";
 import { vehicleApiPath } from "@/lib/vehicle-discovery";
+import { vehicleEnquiryHref } from "@/lib/catalogue-enquiry";
 import { SiteHeader } from "../components/site-header";
 import { SiteFooter } from "../components/site-footer";
 import { VehicleCatalogue } from "../components/vehicle-catalogue";
-import { LifestyleDiscovery } from "../components/brand-editorial";
 import "./vehicles.css";
+import "../components/catalogue-discovery.css";
 
 async function listingPath(searchParams: SearchParameters) {
   const query = new URLSearchParams();
@@ -43,10 +46,11 @@ export default async function VehiclesPage({
 }: {
   searchParams: SearchParameters;
 }) {
-  const initial = await loadPublicSeed(
-    await listingPath(searchParams),
-    parseVehicleDiscovery,
+  const cataloguePath = await listingPath(searchParams);
+  const enquiryHref = vehicleEnquiryHref(
+    new URLSearchParams(cataloguePath.split("?")[1] ?? ""),
   );
+  const initial = await loadPublicSeed(cataloguePath, parseVehicleDiscovery);
   return (
     <>
       <SiteHeader />
@@ -98,7 +102,7 @@ export default async function VehiclesPage({
                 Use the listing to compare the details, then speak with our team about the
                 vehicle you have in mind.
               </p>
-              <Link href="/contact" className="text-link">
+              <Link href={enquiryHref} className="text-link">
                 Ask our team <ArrowUpRight size={16} aria-hidden="true" />
               </Link>
             </div>
@@ -128,7 +132,6 @@ export default async function VehiclesPage({
             </ol>
           </div>
         </section>
-        <LifestyleDiscovery />
         <section className="vehicle-contact">
           <div className="public-wrap">
             <div>
@@ -136,13 +139,33 @@ export default async function VehiclesPage({
               <p>Our team can help you explore the details and arrange a closer look.</p>
             </div>
             <div className="actions">
-              <Link href="/contact" className="button">
-                Contact our team
-                <ArrowUpRight size={16} aria-hidden="true" />
-              </Link>
-              <a href={business.whatsapp} className="button secondary">
-                Chat on WhatsApp
-              </a>
+              <Suspense
+                fallback={
+                  <Link href={enquiryHref} className="button">
+                    Contact our team
+                  </Link>
+                }
+              >
+                <CatalogueEnquiryLink kind="vehicle" className="button">
+                  Contact our team
+                  <ArrowUpRight size={16} aria-hidden="true" />
+                </CatalogueEnquiryLink>
+              </Suspense>
+              <Suspense
+                fallback={
+                  <a href={business.whatsapp} className="button secondary">
+                    Whatsapp
+                  </a>
+                }
+              >
+                <CatalogueEnquiryLink
+                  kind="vehicle"
+                  channel="whatsapp"
+                  className="button secondary"
+                >
+                  Whatsapp
+                </CatalogueEnquiryLink>
+              </Suspense>
             </div>
           </div>
         </section>

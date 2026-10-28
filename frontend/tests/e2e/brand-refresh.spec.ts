@@ -175,8 +175,20 @@ for (const width of [360, 390, 430, 768, 1024, 1280, 1440, 1920]) {
             `allied-brand-${route === "/" ? "home" : "about"}-${width}-viewport.png`,
           ),
         });
-        if (route === "/about")
-          await page.getByText("From our workshop walls", { exact: true }).click();
+        if (route === "/about") {
+          await expect(
+            page.getByText("From our workshop walls", { exact: true }),
+          ).toHaveCount(0);
+          // Closed equipment sections intentionally defer their images.
+          for (const summary of await page
+            .locator(".equipment-disclosure > summary")
+            .all()) {
+            if (
+              await summary.evaluate((node) => !node.parentElement?.hasAttribute("open"))
+            )
+              await summary.click();
+          }
+        }
         // Load below-the-fold images before capturing the full layout.
         for (const picture of await page.locator("main img").all()) {
           await picture.scrollIntoViewIfNeeded();
@@ -213,19 +225,19 @@ test("hero keyboard, slide links, optional playback and marquee pause work", asy
   await page.goto("/");
   const hero = page.getByRole("region", { name: "Explore Allied AutoTech" });
   await expect(hero.getByRole("heading", { level: 1 })).toHaveText(
-    "Built on Trust,Driven by Quality.",
+    "Built on trust driven by quality",
   );
   await hero.getByRole("button", { name: "Next slide", exact: true }).click();
-  await expect(hero.getByRole("link", { name: "Explore Vehicles" })).toHaveAttribute(
+  await expect(hero.getByRole("link", { name: "Explore vehicles" })).toHaveAttribute(
     "href",
     "/vehicles",
   );
   await page.keyboard.press("ArrowRight");
-  await expect(hero.getByRole("link", { name: "Discover Vehicles" })).toHaveAttribute(
+  await expect(hero.getByRole("link", { name: "Visit the Shop" })).toHaveAttribute(
     "href",
     "/vehicles",
   );
-  await hero.getByRole("button", { name: "Show slide 4: Visit the Shop" }).click();
+  await hero.getByRole("button", { name: "Show slide 3: Visit the Shop" }).click();
   await expect(hero.getByRole("link", { name: "Visit the Shop" })).toHaveAttribute(
     "href",
     "/parts",
@@ -234,6 +246,7 @@ test("hero keyboard, slide links, optional playback and marquee pause work", asy
   await expect(hero.getByRole("button", { name: "Pause slideshow" })).toBeVisible();
   await hero.getByRole("button", { name: "Next slide", exact: true }).focus();
   await expect(hero.getByRole("button", { name: "Play slideshow" })).toBeVisible();
+  await page.getByRole("button", { name: "Resume service marquee" }).click();
   await page.getByRole("button", { name: "Pause service marquee" }).click();
   await expect(page.locator(".marquee-track")).toHaveCSS(
     "animation-play-state",
@@ -321,6 +334,11 @@ test("all fifteen supplied equipment images load in their grouped gallery", asyn
 }) => {
   await intercept(page);
   await page.goto("/about");
+  // Lazy images inside closed equipment groups load after their real disclosure opens.
+  for (const summary of await page.locator(".equipment-disclosure > summary").all()) {
+    if (await summary.evaluate((node) => !node.parentElement?.hasAttribute("open")))
+      await summary.click();
+  }
   const images = page.locator("#equipment img");
   await expect(images).toHaveCount(15);
   for (const image of await images.all()) {

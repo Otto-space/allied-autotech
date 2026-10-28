@@ -1,4 +1,6 @@
 import type { Prisma, PrismaClient } from "../../generated/prisma/client.js";
+import { vehicleSearchWhere } from "../../common/security/catalogue-search.js";
+import { europeanCountryCodes } from "../../common/reference/countries.js";
 import { prisma } from "../../config/database.js";
 import type {
   ConditionReportInput,
@@ -23,6 +25,10 @@ const publicVehicleSelect = {
   transmission: true,
   fuelType: true,
   condition: true,
+  manufactureCountryCode: true,
+  powertrain: true,
+  engineCapacityCc: true,
+  features: true,
   bodyType: true,
   engineSize: true,
   driveType: true,
@@ -128,10 +134,10 @@ function vehicleSelect(includeAcquisition: boolean) {
 }
 
 const literalPattern = (value: string) => value.replace(/[\\%_]/g, "\\$&");
-export function publicWhere(
-  query: Omit<PublicVehicleListQuery, "cursor">,
-): Prisma.VehicleListingWhereInput {
-  const vehicle: Prisma.VehicleWhereInput = {
+export function vehicleAttributeWhere(
+  query: Omit<PublicVehicleListQuery, "cursor" | "sort">,
+): Prisma.VehicleWhereInput {
+  return {
     ...(query.make === undefined
       ? {}
       : { make: { equals: literalPattern(query.make), mode: "insensitive" } }),
@@ -139,10 +145,72 @@ export function publicWhere(
       ? {}
       : { model: { equals: literalPattern(query.model), mode: "insensitive" } }),
     ...(query.year === undefined ? {} : { year: query.year }),
+    ...(query.trim === undefined
+      ? {}
+      : { trim: { equals: literalPattern(query.trim), mode: "insensitive" } }),
+    ...(query.conditions
+      ? { condition: { in: query.conditions } }
+      : query.condition === undefined
+        ? {}
+        : { condition: query.condition }),
+    ...(query.manufactureCountryCode
+      ? { manufactureCountryCode: query.manufactureCountryCode }
+      : query.manufactureRegion
+        ? { manufactureCountryCode: { in: [...europeanCountryCodes] } }
+        : {}),
+    ...(query.powertrains
+      ? { powertrain: { in: query.powertrains } }
+      : query.powertrain === undefined
+        ? {}
+        : { powertrain: query.powertrain }),
+    ...(query.driveType === undefined ? {} : { driveType: query.driveType }),
+    ...(query.minYear === undefined && query.maxYear === undefined
+      ? {}
+      : {
+          year: {
+            ...(query.minYear === undefined ? {} : { gte: query.minYear }),
+            ...(query.maxYear === undefined ? {} : { lte: query.maxYear }),
+            ...(query.year === undefined ? {} : { equals: query.year }),
+          },
+        }),
+    ...(query.minMileageKm === undefined && query.maxMileageKm === undefined
+      ? {}
+      : {
+          mileageKm: {
+            ...(query.minMileageKm === undefined ? {} : { gte: query.minMileageKm }),
+            ...(query.maxMileageKm === undefined ? {} : { lte: query.maxMileageKm }),
+          },
+        }),
+    ...(query.minEngineCapacityCc === undefined && query.maxEngineCapacityCc === undefined
+      ? {}
+      : {
+          engineCapacityCc: {
+            ...(query.minEngineCapacityCc === undefined
+              ? {}
+              : { gte: query.minEngineCapacityCc }),
+            ...(query.maxEngineCapacityCc === undefined
+              ? {}
+              : { lte: query.maxEngineCapacityCc }),
+          },
+        }),
+    ...(query.seats === undefined ? {} : { seats: query.seats }),
+    ...(query.color === undefined
+      ? {}
+      : { color: { equals: literalPattern(query.color), mode: "insensitive" } }),
+    ...(query.feature === undefined ? {} : { features: { has: query.feature } }),
+    ...(query.inspected === undefined
+      ? {}
+      : { conditionReports: query.inspected ? { some: {} } : { none: {} } }),
     ...(query.bodyType === undefined ? {} : { bodyType: query.bodyType }),
     ...(query.transmission === undefined ? {} : { transmission: query.transmission }),
     ...(query.fuelType === undefined ? {} : { fuelType: query.fuelType }),
   };
+}
+export function publicWhere(
+  query: Omit<PublicVehicleListQuery, "cursor" | "sort">,
+  wordSearch = false,
+): Prisma.VehicleListingWhereInput {
+  const vehicle = vehicleAttributeWhere(query);
   return {
     status: "AVAILABLE",
     branch: { isActive: true },
@@ -162,29 +230,44 @@ export function publicWhere(
         }),
     ...(query.search === undefined
       ? {}
-      : {
-          OR: [
-            { title: { contains: literalPattern(query.search), mode: "insensitive" } },
-            {
-              vehicle: {
-                make: { contains: literalPattern(query.search), mode: "insensitive" },
+      : wordSearch
+        ? vehicleSearchWhere(query.search)
+        : {
+            OR: [
+              { title: { contains: literalPattern(query.search), mode: "insensitive" } },
+              {
+                vehicle: {
+                  make: { contains: literalPattern(query.search), mode: "insensitive" },
+                },
               },
-            },
-            {
-              vehicle: {
-                model: { contains: literalPattern(query.search), mode: "insensitive" },
+              {
+                vehicle: {
+                  model: { contains: literalPattern(query.search), mode: "insensitive" },
+                },
               },
-            },
-          ],
-        }),
+            ],
+          }),
   };
 }
 export function publicOrder(
-  sort: PublicVehicleListQuery["sort"],
+  sort: PublicVehicleListQuery["sort"] | "best_match",
 ): Prisma.VehicleListingOrderByWithRelationInput[] {
   if (sort === "price_asc") return [{ priceKobo: "asc" }, { id: "asc" }];
   if (sort === "price_desc") return [{ priceKobo: "desc" }, { id: "desc" }];
-  if (sort === "year_desc") return [{ vehicle: { year: "desc" } }, { id: "desc" }];
+  if (sort === "year_desc" || sort === "year_asc")
+    return [
+      { vehicle: { year: sort === "year_asc" ? "asc" : "desc" } },
+      { id: sort === "year_asc" ? "asc" : "desc" },
+    ];
+  if (sort === "mileage_asc" || sort === "mileage_desc")
+    return [
+      {
+        vehicle: {
+          mileageKm: { sort: sort === "mileage_asc" ? "asc" : "desc", nulls: "last" },
+        },
+      },
+      { id: sort === "mileage_asc" ? "asc" : "desc" },
+    ];
   return [{ createdAt: "desc" }, { id: "desc" }];
 }
 
@@ -222,6 +305,32 @@ export class VehiclesRepository {
     branchId: string | null,
     includeAcquisition = false,
   ) {
+    const listingWhere: Prisma.VehicleListingWhereInput = {
+      ...(query.status === undefined ? {} : { status: query.status }),
+      ...(query.featured === undefined ? {} : { featured: query.featured }),
+      ...(query.minPriceKobo === undefined && query.maxPriceKobo === undefined
+        ? {}
+        : {
+            priceKobo: {
+              ...(query.minPriceKobo === undefined
+                ? {}
+                : { gte: BigInt(query.minPriceKobo) }),
+              ...(query.maxPriceKobo === undefined
+                ? {}
+                : { lte: BigInt(query.maxPriceKobo) }),
+            },
+          }),
+    };
+    const orderBy: Record<
+      StaffVehicleListQuery["sort"],
+      Prisma.VehicleOrderByWithRelationInput[]
+    > = {
+      newest: [{ createdAt: "desc" }, { id: "desc" }],
+      year_desc: [{ year: "desc" }, { id: "desc" }],
+      year_asc: [{ year: "asc" }, { id: "desc" }],
+      mileage_asc: [{ mileageKm: { sort: "asc", nulls: "last" } }, { id: "desc" }],
+      mileage_desc: [{ mileageKm: { sort: "desc", nulls: "last" } }, { id: "desc" }],
+    };
     return this.database.vehicle.findMany({
       where: {
         ...(branchId === null
@@ -229,20 +338,12 @@ export class VehiclesRepository {
             ? {}
             : { branchId: query.branchId }
           : { branchId }),
-        ...(query.make === undefined
-          ? {}
-          : { make: { equals: literalPattern(query.make), mode: "insensitive" } }),
-        ...(query.model === undefined
-          ? {}
-          : { model: { equals: literalPattern(query.model), mode: "insensitive" } }),
-        ...(query.year === undefined ? {} : { year: query.year }),
+        ...vehicleAttributeWhere(query),
         ...(query.listed === false
           ? { listings: { none: {} } }
-          : query.status !== undefined
-            ? { listings: { some: { status: query.status } } }
-            : query.listed === true
-              ? { listings: { some: {} } }
-              : {}),
+          : query.listed === true || Object.keys(listingWhere).length > 0
+            ? { listings: { some: listingWhere } }
+            : {}),
         ...(query.search === undefined
           ? {}
           : {
@@ -262,7 +363,7 @@ export class VehiclesRepository {
             }),
       },
       select: vehicleSelect(includeAcquisition),
-      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+      orderBy: orderBy[query.sort],
       take: query.limit + 1,
       ...(query.cursor === undefined ? {} : { cursor: { id: query.cursor }, skip: 1 }),
     });

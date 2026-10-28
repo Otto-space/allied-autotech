@@ -12,6 +12,7 @@ import {
 import { registrationFields, type RegistrationField } from "@/lib/auth/registration";
 import { Feedback } from "./feedback";
 import { notify } from "@/lib/notifications";
+import { IntakePrivacyNote } from "./intake-privacy-note";
 const subscribe = () => () => {};
 const clientReady = () => true;
 const serverReady = () => false;
@@ -159,11 +160,11 @@ export function RegisterForm() {
       </h1>
       <p className="login-intro">Create your Allied AutoTech customer account.</p>
       <Feedback message={error} toast="Please review the message on this page." />
-      {!ready && (
+      <noscript hidden={ready}>
         <p>
           Enable JavaScript to create an account. You can still browse our Help Centre.
         </p>
-      )}
+      </noscript>
       {accepted && (
         <section className="register-accepted" aria-label="Registration next step">
           <Mail size={36} aria-hidden="true" />
@@ -267,6 +268,7 @@ export function RegisterForm() {
             </p>
           )}
         </div>
+        <IntakePrivacyNote account />
         <button className="button login-submit" disabled={busy} type="submit">
           {busy ? (
             <>

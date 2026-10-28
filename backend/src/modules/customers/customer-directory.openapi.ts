@@ -5,6 +5,7 @@ import {
 import { z } from "zod";
 import {
   directoryCollections,
+  customerAccountStatusSchema,
   directoryDetailSchema,
   directoryListQuerySchema,
   directoryPageSchema,
@@ -19,6 +20,47 @@ export function registerCustomerDirectoryOpenApi(registry: OpenAPIRegistry) {
   registry.register("CustomerDirectoryDetail", directoryDetailSchema);
   registry.register("CustomerDirectoryPage", directoryPageSchema);
   registry.register("CustomerRelatedPage", directoryRelatedPageSchema);
+  registry.registerPath({
+    method: "post",
+    path: "/admin/customers/{customerId}/account-status",
+    tags: ["Customers"],
+    summary: "Suspend or reactivate a current customer account",
+    description:
+      "MFA-verified administrator, current actor/session/target role revalidated transactionally. CSRF required. Expected status guards stale/concurrent changes; DEACTIVATED and non-customer targets are excluded. Suspension revokes sessions and unused reset/verification tokens. Reactivation never revives revoked credentials. Actor, target, reason, time and transition audited. No financial/history or outbound email side effects.",
+    security: [{ sessionCookie: [] }],
+    request: {
+      params: directoryParamsSchema,
+      query: z.object({}).strict(),
+      headers: z.object({ "x-csrf-token": z.string().min(32) }),
+      body: {
+        required: true,
+        content: { "application/json": { schema: customerAccountStatusSchema } },
+      },
+    },
+    responses: {
+      200: {
+        description: "Account state changed",
+        content: {
+          "application/json": {
+            schema: z.object({
+              success: z.literal(true),
+              message: z.string(),
+              data: z.object({
+                customerId: z.uuid(),
+                status: z.enum(["ACTIVE", "SUSPENDED"]),
+                revokedSessions: z.number().int().nonnegative(),
+              }),
+              meta: z.object({ requestId: z.string(), serverTime: z.iso.datetime() }),
+            }),
+          },
+        },
+      },
+      403: { description: "Not authorised" },
+      404: { description: "Current customer unavailable" },
+      409: { description: "Account state changed" },
+      422: { description: "Invalid fields" },
+    },
+  });
   const routes = [
     {
       path: "/admin/customers",

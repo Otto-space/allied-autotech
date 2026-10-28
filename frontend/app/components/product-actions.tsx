@@ -1,5 +1,5 @@
 ﻿"use client";
-import { browseEnquiriesOnly } from "@/lib/public-launch";
+import { browseEnquiriesOnly, catalogueOnly } from "@/lib/public-launch";
 import { PublicEnquiryActions } from "./public-enquiry-actions";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -33,20 +33,33 @@ export function ProductActions(props: {
   productId: string;
   available: boolean;
   productName?: string;
+  enquiryHref?: string;
+  returnHref?: string;
 }) {
-  return browseEnquiriesOnly() ? (
-    <PublicEnquiryActions subject={props.productName ?? "this product"} />
+  return catalogueOnly() ? (
+    <PublicEnquiryActions
+      subject={props.productName ?? "this product"}
+      enquiryHref={props.enquiryHref}
+    />
   ) : (
-    <ProductPurchaseActions {...props} />
+    <ProductPurchaseActions {...props} enquiriesOnly={browseEnquiriesOnly()} />
   );
 }
 
 function ProductPurchaseActions({
   productId,
   available,
+  productName,
+  enquiriesOnly,
+  enquiryHref,
+  returnHref,
 }: {
   productId: string;
   available: boolean;
+  productName?: string;
+  enquiriesOnly: boolean;
+  enquiryHref?: string;
+  returnHref?: string;
 }) {
   const form = useForm<{ quantity: number }>({
     defaultValues: { quantity: 1 },
@@ -107,7 +120,7 @@ function ProductPurchaseActions({
   }, [reset]);
   const operation = useAccountMutation(discard);
   const { busy } = operation;
-  const loginHref = `/login?next=${encodeURIComponent(`/parts/${productId}`)}`;
+  const loginHref = `/login?next=${encodeURIComponent(returnHref ?? `/parts/${productId}`)}`;
   useEffect(() => {
     if (result?.cart) return;
     if (result && getFieldState("quantity").error) {
@@ -129,7 +142,7 @@ function ProductPurchaseActions({
   }, [result, operation.sessionChanged, getFieldState, setFocus]);
   async function mutate(action: Action, quantity = 1) {
     if (access !== "customer") return;
-    if (action === "cart" && !available) return;
+    if (action === "cart" && (enquiriesOnly || !available)) return;
     const controller = operation.begin();
     if (!controller) return;
     setResult(undefined);
@@ -234,6 +247,12 @@ function ProductPurchaseActions({
   }
   return (
     <div className="pd-actions">
+      {enquiriesOnly && (
+        <PublicEnquiryActions
+          subject={productName ?? "this product"}
+          enquiryHref={enquiryHref}
+        />
+      )}
       {operation.sessionChanged && (
         <div ref={notice} tabIndex={-1}>
           <AccountChangeNotice visible />
@@ -268,14 +287,17 @@ function ProductPurchaseActions({
             {access === "checking"
               ? "Checking your account…"
               : access === "anonymous"
-                ? "A customer account is required to use the cart and favourites."
+                ? enquiriesOnly
+                  ? "Sign in to a customer account to save favourites."
+                  : "A customer account is required to use the cart and favourites."
                 : access === "restricted"
-                  ? "Shopping actions are available to customer accounts. Contact our team for help."
+                  ? "Saving favourites is available to customer accounts. Contact our team for help."
                   : "We could not check your account. Please try again."}
           </p>
           {access === "anonymous" && (
-            <Link className="button" href={loginHref}>
-              Sign in to continue <ArrowRight size={17} aria-hidden="true" />
+            <Link className={enquiriesOnly ? "pd-link" : "button"} href={loginHref}>
+              {enquiriesOnly ? "Sign in to save this product" : "Sign in to continue"}{" "}
+              <ArrowRight size={17} aria-hidden="true" />
             </Link>
           )}
           {access === "restricted" && (
@@ -295,83 +317,93 @@ function ProductPurchaseActions({
               Retry account check
             </button>
           )}
-          <Link className="pd-link" href="/contact#enquiry">
-            Ask our team <ArrowRight size={17} aria-hidden="true" />
-          </Link>
+          {!enquiriesOnly && (
+            <Link className="pd-link" href={enquiryHref ?? "/contact#enquiry"}>
+              Ask our team <ArrowRight size={17} aria-hidden="true" />
+            </Link>
+          )}
         </div>
       )}
       {access === "customer" && (
         <>
-          <form
-            ref={purchaseForm}
-            noValidate
-            data-draft-key={JSON.stringify(["product-actions:1", productId])}
-            onSubmit={(event) => {
-              void form.handleSubmit((values) => mutate("cart", values.quantity))(event);
-            }}
-            aria-busy={busy}
-          >
-            <label htmlFor="product-quantity">Quantity</label>
-            <div className="pd-cart-row">
-              <input
-                id="product-quantity"
-                type="number"
-                inputMode="numeric"
-                min={1}
-                max={1000}
-                step={1}
-                disabled={busy || !available}
-                aria-invalid={!!form.formState.errors.quantity}
-                aria-describedby={`quantity-hint${form.formState.errors.quantity ? " quantity-error" : ""}`}
-                {...form.register("quantity", {
-                  valueAsNumber: true,
-                  required: "Enter a quantity.",
-                  min: { value: 1, message: "Choose at least one." },
-                  max: { value: 1000, message: "Choose up to 1,000." },
-                  validate: (value) => Number.isInteger(value) || "Enter a whole number.",
-                })}
-              />
-              <button ref={cartButton} className="button" disabled={busy || !available}>
-                <ShoppingBag size={17} aria-hidden="true" />
-                {active === "cart" ? "Saving…" : "Save quantity to cart"}
-              </button>
-            </div>
-            {form.formState.errors.quantity && (
-              <p id="quantity-error" className="pd-field-error" role="alert">
-                {form.formState.errors.quantity.message}
-              </p>
-            )}
-            <p id="quantity-hint" className="pd-hint">
-              This saves the total quantity of this product in your cart.
-            </p>
-            <button
-              type="button"
-              className="button secondary pd-favourite"
-              disabled={busy || saved}
-              onClick={() => void mutate("favourite")}
+          {!enquiriesOnly && (
+            <form
+              ref={purchaseForm}
+              noValidate
+              data-draft-key={JSON.stringify(["product-actions:1", productId])}
+              onSubmit={(event) => {
+                void form.handleSubmit((values) => mutate("cart", values.quantity))(
+                  event,
+                );
+              }}
+              aria-busy={busy}
             >
-              {saved ? (
-                <Check size={18} aria-hidden="true" />
-              ) : (
-                <Heart size={18} aria-hidden="true" />
+              <label htmlFor="product-quantity">Quantity</label>
+              <div className="pd-cart-row">
+                <input
+                  id="product-quantity"
+                  type="number"
+                  inputMode="numeric"
+                  min={1}
+                  max={1000}
+                  step={1}
+                  disabled={busy || !available}
+                  aria-invalid={!!form.formState.errors.quantity}
+                  aria-describedby={`quantity-hint${form.formState.errors.quantity ? " quantity-error" : ""}`}
+                  {...form.register("quantity", {
+                    valueAsNumber: true,
+                    required: "Enter a quantity.",
+                    min: { value: 1, message: "Choose at least one." },
+                    max: { value: 1000, message: "Choose up to 1,000." },
+                    validate: (value) =>
+                      Number.isInteger(value) || "Enter a whole number.",
+                  })}
+                />
+                <button ref={cartButton} className="button" disabled={busy || !available}>
+                  <ShoppingBag size={17} aria-hidden="true" />
+                  {active === "cart" ? "Saving…" : "Save quantity to cart"}
+                </button>
+              </div>
+              {form.formState.errors.quantity && (
+                <p id="quantity-error" className="pd-field-error" role="alert">
+                  {form.formState.errors.quantity.message}
+                </p>
               )}
-              {active === "favourite"
-                ? "Saving…"
-                : saved
-                  ? "Saved to favourites"
-                  : "Save to favourites"}
-            </button>
-          </form>
-          <Link className="pd-link" href="/dashboard/cart">
-            View cart <ArrowRight size={17} aria-hidden="true" />
-          </Link>
+              <p id="quantity-hint" className="pd-hint">
+                This saves the total quantity of this product in your cart.
+              </p>
+            </form>
+          )}
+          <button
+            type="button"
+            className="button secondary pd-favourite"
+            disabled={busy || saved}
+            onClick={() => void mutate("favourite")}
+          >
+            {saved ? (
+              <Check size={18} aria-hidden="true" />
+            ) : (
+              <Heart size={18} aria-hidden="true" />
+            )}
+            {active === "favourite"
+              ? "Saving…"
+              : saved
+                ? "Saved to favourites"
+                : "Save to favourites"}
+          </button>
+          {!enquiriesOnly && (
+            <Link className="pd-link" href="/dashboard/cart">
+              View cart <ArrowRight size={17} aria-hidden="true" />
+            </Link>
+          )}
         </>
       )}
       <p className="pd-account-note">
-        Availability is checked again at checkout. Adding a product to your cart does not
-        reserve it.
+        {enquiriesOnly
+          ? "Saving a product does not reserve stock or place an order."
+          : "Availability is checked again at checkout. Adding a product to your cart does not reserve it."}
       </p>
-      {drawerOpen && result?.cart && (
+      {!enquiriesOnly && drawerOpen && result?.cart && (
         <CartUpdateDrawer
           cart={result.cart}
           productId={productId}

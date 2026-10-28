@@ -1,0 +1,28 @@
+.summary strong {
+  display: inline-block;
+  font-size: 12px;
+  line-height: 1.5;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: #edf1f4;
+  color: #293f4c;
+}
+.VERIFIED_FIT strong {
+  color: #25533e;
+  background: #edf6f1;
+}
+.NEEDS_VERIFICATION strong {
+  color: #705024;
+  background: #fff5e7;
+}
+.NOT_COMPATIBLE strong {
+  color: #a71520;
+  background: #fff0f0;
+}
+.summary p,
+.summary small {
+  font-size: 12px;
+  line-height: 1.7;
+  color: #53666f;
+  overflow-wrap: anywhere;
+}

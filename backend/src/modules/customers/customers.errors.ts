@@ -17,3 +17,11 @@ export function customerResourceNotFound(): AppError {
     statusCode: 404,
   });
 }
+
+export function staleCustomerVehicle(): AppError {
+  return new AppError({
+    code: errorCodes.staleVersion,
+    message: "This vehicle changed. Reload its saved details before editing it.",
+    statusCode: 409,
+  });
+}

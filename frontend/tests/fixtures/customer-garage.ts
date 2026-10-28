@@ -12,6 +12,9 @@ export function garageRecord(n = 1): CustomerVehicle {
     color: n === 3 ? null : n === 2 ? "Black" : "Silver",
     vin: n === 1 ? "JTDBR32E720012345" : null,
     mileageKm: n === 3 ? null : n === 2 ? 32500 : 48200,
+    createdAt: "2026-10-23T00:00:00.000Z",
+    updatedAt: "2026-10-23T00:00:00.000Z",
+    images: [],
   };
 }
 export async function garageFixture(page: Page, role = "CUSTOMER") {
@@ -105,7 +108,6 @@ export async function garageFixture(page: Page, role = "CUSTOMER") {
       data = {
         ...(state.records.find((v) => v.id === endpoint.split("/")[3]) ?? garageRecord()),
         mediaVersion: 0,
-        images: [],
       };
     return route.fulfill({
       json: {

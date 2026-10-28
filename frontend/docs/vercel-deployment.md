@@ -43,6 +43,124 @@ bootstrapped through the reviewed bootstrap script. Email delivery remains
 disabled; registration verification and password-reset delivery are not ready.
 Do not mark accounts verified manually or bypass normal authentication to test.
 
+## Production rollback guard - 27 October 2026
+
+This section is an operational recovery procedure, not authorization to change
+production. The pinned frontend deployment is
+`dpl_J5k6BjFUZVTFgeGJSrH4WHhiFxcq`, project `allied-autotech`
+(`prj_LbuHFZ0EY8fBQL2pcOP1L3YHK2cb`), scope
+`michael-enochs-projects-3da06943`, source branch
+`fix/mobile-navigation-current-20261027`, verified source commit
+`fbb6565a57e484f802e1317d82f6631c55b34b03`. The site-completion release
+record says this deployment reached `READY` and was verified on the apex and
+`www` production domains. That record is the last known verification, not a
+live-state guarantee. The rollback helper checks project, deployment, source,
+readiness and recent production deployment state before presenting a plan.
+
+**Rollback is conditional on Vercel still retaining this deployment and the
+Vercel service/API being available.** The helper does not pin or extend
+retention, recreate deleted deployments, or guarantee that Vercel will accept
+a rollback. Verify the current team plan permits a rollback to this specific
+older deployment. A frontend rollback changes routing only; it does not
+restore application data, backend code, APIs, environment variables, or
+database state.
+
+### Before an incident action
+
+1. Confirm this is a frontend release regression and record the incident,
+   affected routes, current production deployment and time. Check production
+   logs and determine whether Vercel or a dependent backend is unavailable.
+2. Obtain explicit owner authorization for this incident and this exact
+   deployment. Confirm the Vercel CLI is already authenticated to the intended
+   account using the existing secure local session; never print, copy, request,
+   or place tokens in commands or logs.
+3. In the Vercel dashboard, verify the project name and team scope above, the
+   pinned ID and full source commit, `READY` state, production environment,
+   and that the deployment still exists and is selectable. Verify the apex and
+   `www` domains still belong to this project.
+4. Check for an active/pending rollback and any `QUEUED`, `INITIALIZING`,
+   `BUILDING`, or `BLOCKED` production deployment. Stop if anything is pending,
+   unknown, or changes during the procedure. Do not cancel or promote anything
+   to clear the way. Review Vercel's deployment activity and coordinate a
+   brief freeze with the release owner; repeat the checks immediately before
+   action. The checks reduce but cannot eliminate a race with automatic
+   deployment or a concurrent operator.
+5. From `frontend/`, run the helper without switches first:
+
+   ```powershell
+   .\ops\rollback-production.ps1
+   ```
+
+   This is a read-only preflight/plan; it makes scoped Vercel API GET requests
+   and checks `vercel rollback status`. It exhaustively follows the
+   production deployment-list pagination; it fails closed on active/unknown
+   rollback state, missing or malformed pages, invalid cursors, or an
+   incomplete list. It is not a live health check. Stop if CLI authentication,
+   scope, project, source SHA, target readiness, response shape,
+   rollback-status, or pending-deployment checks fail. Do not work around a
+   failed guard or change its pinned constants.
+
+### Explicitly approved rollback
+
+Only after the owner approves the exact action and the incident operator has
+repeated all checks above, request the explicit guarded action:
+
+```powershell
+.\ops\rollback-production.ps1 -ExecuteRollback -Confirm
+```
+
+PowerShell confirmation and an exact typed deployment ID are required. The
+Vercel CLI may request an additional confirmation. Do not use `-Force`,
+`-WhatIf` as evidence of completion, or an alternate target. This helper
+invokes `vercel rollback` only for the pinned deployment and explicit scope;
+its checks cannot make a production action race-free. If the command errors,
+times out, or its result is ambiguous, do not repeat it blindly. Check
+`vercel rollback status allied-autotech --scope michael-enochs-projects-3da06943`
+and the Vercel dashboard first.
+
+### Verify alias identity and service health separately
+
+An accepted rollback command or a `READY` deployment alone does not establish
+recovery. Verify these separately and capture timestamps/results in the
+incident record:
+
+1. Wait for `vercel rollback status allied-autotech --scope
+michael-enochs-projects-3da06943` to show completion with no pending rollback.
+2. Inspect the pinned deployment using the Vercel CLI/dashboard. Confirm its
+   exact ID, project, source SHA and `READY` state. Confirm the deployment API
+   reports `aliasAssigned` true and lists both `alliedautotech.com` and
+   `www.alliedautotech.com` on this deployment. If alias state is absent,
+   contradictory, or still points elsewhere, stop and escalate.
+3. From an external browser/network, request `https://alliedautotech.com/`
+   and `https://www.alliedautotech.com/`. Confirm redirects terminate on the
+   approved canonical host, HTTPS is valid, and the response is served by the
+   deployment just inspected (correlate with Vercel's request/deployment
+   information; a healthy status code alone does not identify a deployment).
+4. Check the agreed public application routes `/`, `/shop`, `/help`, and
+   `/login` on the canonical production host. Verify expected page content,
+   assets, redirects and absence of unexpected 5xx/errors; check the same
+   behavior for any additional incident-affected public routes. Do not submit
+   forms, authenticate as a customer, or trigger writes as part of this health
+   check. Correlate requests with Vercel logs after the alias change.
+5. Check recent production 5xx/runtime errors and the dependent backend's
+   readiness independently. Record outcomes by route and domain. If alias
+   assignment succeeded but route, asset, backend, or request-identity checks
+   fail, report **routing rollback complete; service recovery unverified** and
+   escalate. Do not describe a rollback as healthy until both identity and
+   route checks pass.
+
+### Pending `master` automatic-deployment control - approval required
+
+No automatic-deployment or Vercel setting is changed by this runbook or helper.
+The proposed control is to add `"master": false` under
+`git.deploymentEnabled` in `frontend/vercel.json` (alongside the existing
+release-branch entry), preventing Vercel's automatic Git deployment for
+`master`. **This is pending explicit owner approval only**: it has not been
+applied, and may affect expected release workflows. Until approval and a
+separately reviewed change, leave the current Git deployment setting unchanged.
+Do not merge branches, change GitHub/master, or use this proposal as a substitute
+for the incident-time pending-deployment checks.
+
 ### Saved Preview settings
 
 All seven values are saved only for Preview and Git branch

@@ -21,9 +21,10 @@ for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536])
     await expect(
       page.getByRole("button", { name: "Create account", exact: true }),
     ).toBeInViewport();
-    await expect(
-      page.getByRole("link", { name: "Need help with your account?" }),
-    ).toBeInViewport();
+    const help = page.getByRole("link", { name: "Need help with your account?" });
+    // The stable auth shell permits vertical reflow; secondary help remains reachable.
+    await help.scrollIntoViewIfNeeded();
+    await expect(help).toBeInViewport();
     for (const control of await page
       .locator(".login-content input,.login-content button,.login-content a")
       .all())
@@ -245,9 +246,10 @@ test("without JavaScript registration remains explanatory and cannot leak a quer
       (process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3000") + "/register",
     );
     await expect(
-      p.getByText(
-        "Enable JavaScript to create an account. You can still browse our Help Centre.",
-      ),
+      p.locator("noscript p").filter({
+        hasText:
+          "Enable JavaScript to create an account. You can still browse our Help Centre.",
+      }),
     ).toBeVisible();
     await expect(
       p.getByRole("button", { name: "Create account", exact: true }),

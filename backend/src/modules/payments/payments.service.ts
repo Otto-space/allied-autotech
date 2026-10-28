@@ -41,6 +41,7 @@ import type { MonnifyWebhookEvent } from "../../providers/payments/monnify-webho
 import type { ObjectStoragePort } from "../../providers/storage/object-storage.port.js";
 import { objectStorage } from "../../providers/storage/s3-object-storage.adapter.js";
 import { appendAuditEvent } from "../audit/audit.service.js";
+import { lockAccessActor } from "../organization/team-access-security.js";
 import { enqueueNotification } from "../notifications/notifications.service.js";
 import {
   paymentConflict,
@@ -52,6 +53,7 @@ import {
 import {
   assertPaymentApprover,
   assertPaymentCustomer,
+  lockCurrentPaymentCustomer,
   assertPaymentOperator,
 } from "./payments.policy.js";
 import { PaymentsRepository, staffPaymentView } from "./payments.repository.js";
@@ -148,6 +150,17 @@ export class PaymentsService {
     assertPaymentCustomer(actor);
     const profile = await this.repository.customerProfile(actor.userId);
     if (!profile) throw paymentNotFound();
+    if (
+      query.vehicleTransactionId &&
+      query.cursor &&
+      !(await this.repository.customerCursor(
+        profile.id,
+        query.cursor,
+        query.vehicleTransactionId,
+        query.status,
+      ))
+    )
+      throw paymentNotFound();
     return paymentJsonSafe(
       paymentPage(await this.repository.listCustomer(profile.id, query), query.limit),
     );
@@ -219,6 +232,7 @@ export class PaymentsService {
     const keyHash = hashToken("payment-intent-idempotency", `${actor.userId}:${rawKey}`);
     const fingerprint = paymentFingerprint(input);
     return withTransactionRetry(this.database, async (tx) => {
+      await lockCurrentPaymentCustomer(tx, actor);
       await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`payment:${keyHash}`}, 0))`;
       const profile = await this.repository.customerProfile(actor.userId, tx);
       if (!profile) throw paymentNotFound();
@@ -311,6 +325,7 @@ export class PaymentsService {
     );
     const reference = `AAT-${provider}-${attemptKey.slice(0, 32)}`;
     const prepared = await withTransactionRetry(this.database, async (tx) => {
+      await lockCurrentPaymentCustomer(tx, actor);
       await lockStoredTarget(tx, id);
       const payment = await this.repository.lockPayment(id, tx);
       if (!payment || payment.customerId !== profile.id) throw paymentNotFound();
@@ -415,6 +430,7 @@ export class PaymentsService {
     if (authorizationExpiresAt <= new Date())
       throw paymentConflict("The payable expired during checkout initialization");
     await withTransactionRetry(this.database, async (tx) => {
+      await lockCurrentPaymentCustomer(tx, actor);
       await tx.$queryRaw`SELECT "id" FROM "PaymentAttempt" WHERE "id" = ${prepared.existing.id}::uuid FOR UPDATE`;
       await lockStoredTarget(tx, id);
       const current = await tx.paymentAttempt.findUnique({
@@ -530,7 +546,10 @@ export class PaymentsService {
       reference,
       requestFingerprint,
     );
-    if (replay) return replay;
+    if (replay) {
+      await this.database.$transaction((tx) => lockCurrentPaymentCustomer(tx, actor));
+      return replay;
+    }
     const evidence = input.evidenceToken
       ? this.readEvidence(input.evidenceToken, actor.userId, id)
       : null;
@@ -545,6 +564,7 @@ export class PaymentsService {
     )
       throw paymentConflict("Payment evidence could not be verified");
     return withTransactionRetry(this.database, async (tx) => {
+      await lockCurrentPaymentCustomer(tx, actor);
       await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`manual-payment:${reference}`}, 0))`;
       await lockStoredTarget(tx, id);
       const payment = await this.repository.lockPayment(id, tx);
@@ -649,6 +669,7 @@ export class PaymentsService {
   ) {
     assertPaymentApprover(actor);
     return withTransactionRetry(this.database, async (tx) => {
+      await lockAccessActor(tx, actor);
       const attempt = await tx.paymentAttempt.findUnique({
         where: { id: attemptId },
         include: { manualReview: true, payment: true },
@@ -756,6 +777,7 @@ export class PaymentsService {
       `${input.paymentAttemptId}:${rawKey}`,
     );
     return withTransactionRetry(this.database, async (tx) => {
+      await lockAccessActor(tx, actor);
       await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`refund:${keyHash}`}, 0))`;
       const existing = await tx.refund.findUnique({
         where: { idempotencyKeyHash: keyHash },
@@ -879,7 +901,8 @@ export class PaymentsService {
     context: RequestSecurityContext,
   ) {
     await assertCapability(this.database, actor, "REFUND_APPROVE");
-    const approved = await withTransactionRetry(this.database, async (tx) => {
+    await withTransactionRetry(this.database, async (tx) => {
+      await lockAccessActor(tx, actor);
       await assertCapability(tx, actor, "REFUND_APPROVE");
       const rows = await tx.$queryRaw<
         Array<{ id: string }>
@@ -905,11 +928,22 @@ export class PaymentsService {
           );
       }
       const now = new Date();
-      const updated = await tx.refund.update({
+      const requiresOfflineProcessing =
+        input.decision === "APPROVED" &&
+        (refund.paymentAttempt.provider === "MANUAL" ||
+          !refund.paymentAttempt.gatewayTransactionId);
+      await tx.refund.update({
         where: { id },
         data:
           input.decision === "APPROVED"
-            ? { status: "APPROVED", approvedByUserId: actor.userId, approvedAt: now }
+            ? {
+                status: requiresOfflineProcessing ? "NEEDS_ATTENTION" : "APPROVED",
+                approvedByUserId: actor.userId,
+                approvedAt: now,
+                ...(requiresOfflineProcessing
+                  ? { providerStatus: "OFFLINE_PROCESSING_REQUIRED" }
+                  : {}),
+              }
             : {
                 status: "CANCELLED",
                 cancelledAt: now,
@@ -928,19 +962,7 @@ export class PaymentsService {
         context,
       });
       await snapshotRefundClock(tx, id);
-      return { refund: updated, attempt: refund.paymentAttempt };
     });
-    if (
-      input.decision === "APPROVED" &&
-      (approved.attempt.provider === "MANUAL" || !approved.attempt.gatewayTransactionId)
-    )
-      await this.database.refund.update({
-        where: { id },
-        data: {
-          status: "NEEDS_ATTENTION",
-          providerStatus: "OFFLINE_PROCESSING_REQUIRED",
-        },
-      });
     // Dispatch is durable and owned by RefundWorker, including crash recovery.
     return paymentJsonSafe(
       refundCurrentRecord(
@@ -2542,6 +2564,10 @@ export class PaymentsService {
     tx: Prisma.TransactionClient,
   ): Promise<{ amountKobo: bigint; expiresAt: Date | null }> {
     if (input.targetType === "ORDER") {
+      // Expiry and cancellation lock the source row. Read its payable state only
+      // after taking the same lock, so a concurrent cancellation cannot commit
+      // between source validation and intent/attempt creation.
+      await tx.$queryRaw`SELECT "id" FROM "Order" WHERE "id" = ${input.targetId}::uuid AND "customerId" = ${customerId}::uuid FOR UPDATE`;
       const source = await this.repository.order(input.targetId, customerId, tx);
       if (
         !source ||
@@ -2553,6 +2579,7 @@ export class PaymentsService {
       return { amountKobo: source.totalKobo, expiresAt: source.paymentDueAt };
     }
     if (input.targetType === "INVOICE") {
+      await tx.$queryRaw`SELECT "id" FROM "Invoice" WHERE "id" = ${input.targetId}::uuid AND "customerId" = ${customerId}::uuid FOR UPDATE`;
       const source = await this.repository.invoice(input.targetId, customerId, tx);
       if (
         !source ||
@@ -2563,6 +2590,7 @@ export class PaymentsService {
         throw paymentNotFound();
       return { amountKobo: source.totalKobo, expiresAt: source.dueAt };
     }
+    await tx.$queryRaw`SELECT "id" FROM "VehicleTransaction" WHERE "id" = ${input.targetId}::uuid AND "customerId" = ${customerId}::uuid FOR UPDATE`;
     const source = await this.repository.vehicleTransaction(
       input.targetId,
       customerId,

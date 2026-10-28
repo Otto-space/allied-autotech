@@ -1,4 +1,5 @@
 "use client";
+import { NotificationRecordContext } from "./notification-record-context";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -213,6 +214,8 @@ function HandlingWorkspace({
       selected.refreshing ||
       !!selectedError;
   const admin = role === "ADMIN" || role === "SUPER_ADMIN";
+  const session = useAccountSession();
+  const legacyOverview = admin && !session?.workforceManaged;
   function navigate(next: URLSearchParams) {
     if (flight.current || proposal) return;
     router.push(`${root}${next.size ? `?${next}` : ""}`, { scroll: false });
@@ -445,7 +448,7 @@ function HandlingWorkspace({
           <li>
             <Link href="/admin">Overview</Link>
           </li>
-          {admin && (
+          {legacyOverview && (
             <li>
               <ChevronRight size={14} aria-hidden="true" />
               <Link href="/admin/payment-disputes">Payment disputes</Link>
@@ -462,7 +465,7 @@ function HandlingWorkspace({
           <h1>Dispute work queue</h1>
           <p>Assign operators, preserve evidence and record provider receipts.</p>
         </div>
-        {admin && !blocked && (
+        {legacyOverview && !blocked && (
           <Link className="text-link" href="/admin/payment-disputes">
             View dispute overview
           </Link>
@@ -703,6 +706,9 @@ function HandlingWorkspace({
               </button>
             </div>
           </section>
+          {row && !selected.loading && !selected.refreshing && !selectedError && (
+            <NotificationRecordContext resourceType="DISPUTE" resourceId={row.id} />
+          )}
           {selectedId && (
             <section
               className="wh-detail"

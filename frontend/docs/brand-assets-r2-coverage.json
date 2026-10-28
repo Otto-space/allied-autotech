@@ -1,0 +1,558 @@
+{
+  "scope": "Revision 2 local isolated fixture evidence, not hosted or physical-device certification",
+  "browser": "Microsoft Edge 156.0.4314.42",
+  "baseline": "colour-browser-coverage.json retains historical 324-case evidence",
+  "run": "regression.log; full-mode development build, Help & Learn initially disabled",
+  "cases": [
+    {
+      "file": "about-quality.spec.ts",
+      "title": "About layout, complete content and keyboard disclosures at 320px",
+      "status": "passed"
+    },
+    {
+      "file": "about-quality.spec.ts",
+      "title": "About layout, complete content and keyboard disclosures at 360px",
+      "status": "passed"
+    },
+    {
+      "file": "about-quality.spec.ts",
+      "title": "About layout, complete content and keyboard disclosures at 375px",
+      "status": "passed"
+    },
+    {
+      "file": "about-quality.spec.ts",
+      "title": "About layout, complete content and keyboard disclosures at 390px",
+      "status": "passed"
+    },
+    {
+      "file": "about-quality.spec.ts",
+      "title": "About layout, complete content and keyboard disclosures at 430px",
+      "status": "passed"
+    },
+    {
+      "file": "about-quality.spec.ts",
+      "title": "About layout, complete content and keyboard disclosures at 768px",
+      "status": "passed"
+    },
+    {
+      "file": "about-quality.spec.ts",
+      "title": "About layout, complete content and keyboard disclosures at 1024px",
+      "status": "pending-optimized-recheck"
+    },
+    {
+      "file": "about-quality.spec.ts",
+      "title": "About layout, complete content and keyboard disclosures at 1280px",
+      "status": "passed"
+    },
+    {
+      "file": "about-quality.spec.ts",
+      "title": "About layout, complete content and keyboard disclosures at 1440px",
+      "status": "passed"
+    },
+    {
+      "file": "about-quality.spec.ts",
+      "title": "About layout, complete content and keyboard disclosures at 1536px",
+      "status": "passed"
+    },
+    {
+      "file": "about-quality.spec.ts",
+      "title": "section links move keyboard focus below the header on a short mobile screen",
+      "status": "passed"
+    },
+    {
+      "file": "about-quality.spec.ts",
+      "title": "every equipment item and the current campaign image have readable labels",
+      "status": "passed"
+    },
+    {
+      "file": "about-quality.spec.ts",
+      "title": "contact links use the confirmed address and safe public destinations",
+      "status": "passed"
+    },
+    {
+      "file": "about-quality.spec.ts",
+      "title": "About stays public for CUSTOMER without private data or mutation requests",
+      "status": "passed"
+    },
+    {
+      "file": "about-quality.spec.ts",
+      "title": "About stays public for STAFF without private data or mutation requests",
+      "status": "passed"
+    },
+    {
+      "file": "about-quality.spec.ts",
+      "title": "About stays public for ADMIN without private data or mutation requests",
+      "status": "passed"
+    },
+    {
+      "file": "about-quality.spec.ts",
+      "title": "About stays public for SUPER_ADMIN without private data or mutation requests",
+      "status": "passed"
+    },
+    {
+      "file": "about-quality.spec.ts",
+      "title": "About content and disclosures work with JavaScript disabled",
+      "status": "passed"
+    },
+    {
+      "file": "about-quality.spec.ts",
+      "title": "untrusted query text cannot alter the About page or contact destinations",
+      "status": "passed"
+    },
+    {
+      "file": "brand-assets-r2.spec.ts",
+      "title": "home complete artwork, white surfaces and actions at 360",
+      "status": "passed"
+    },
+    {
+      "file": "brand-assets-r2.spec.ts",
+      "title": "about complete artwork, white surfaces and actions at 360",
+      "status": "passed"
+    },
+    {
+      "file": "brand-assets-r2.spec.ts",
+      "title": "services complete artwork, white surfaces and actions at 360",
+      "status": "passed"
+    },
+    {
+      "file": "brand-assets-r2.spec.ts",
+      "title": "home complete artwork, white surfaces and actions at 390",
+      "status": "passed"
+    },
+    {
+      "file": "brand-assets-r2.spec.ts",
+      "title": "about complete artwork, white surfaces and actions at 390",
+      "status": "passed"
+    },
+    {
+      "file": "brand-assets-r2.spec.ts",
+      "title": "services complete artwork, white surfaces and actions at 390",
+      "status": "passed"
+    },
+    {
+      "file": "brand-assets-r2.spec.ts",
+      "title": "home complete artwork, white surfaces and actions at 768",
+      "status": "passed"
+    },
+    {
+      "file": "brand-assets-r2.spec.ts",
+      "title": "about complete artwork, white surfaces and actions at 768",
+      "status": "passed"
+    },
+    {
+      "file": "brand-assets-r2.spec.ts",
+      "title": "services complete artwork, white surfaces and actions at 768",
+      "status": "passed"
+    },
+    {
+      "file": "brand-assets-r2.spec.ts",
+      "title": "home complete artwork, white surfaces and actions at 1024",
+      "status": "passed"
+    },
+    {
+      "file": "brand-assets-r2.spec.ts",
+      "title": "about complete artwork, white surfaces and actions at 1024",
+      "status": "passed"
+    },
+    {
+      "file": "brand-assets-r2.spec.ts",
+      "title": "services complete artwork, white surfaces and actions at 1024",
+      "status": "passed"
+    },
+    {
+      "file": "brand-assets-r2.spec.ts",
+      "title": "home complete artwork, white surfaces and actions at 1440",
+      "status": "passed"
+    },
+    {
+      "file": "brand-assets-r2.spec.ts",
+      "title": "about complete artwork, white surfaces and actions at 1440",
+      "status": "passed"
+    },
+    {
+      "file": "brand-assets-r2.spec.ts",
+      "title": "services complete artwork, white surfaces and actions at 1440",
+      "status": "passed"
+    },
+    {
+      "file": "brand-assets-r2.spec.ts",
+      "title": "CTA keyboard focus survives hover and Enter opens the intended journey",
+      "status": "passed"
+    },
+    {
+      "file": "brand-assets-r2.spec.ts",
+      "title": "mobile navigation retains the home identity and reaches Shop search",
+      "status": "pending-optimized-recheck"
+    },
+    {
+      "file": "brand-assets-r2.spec.ts",
+      "title": "failed artwork keeps its reserved frame, explanation and working CTA",
+      "status": "passed"
+    },
+    {
+      "file": "brand-assets-r2.spec.ts",
+      "title": "slow artwork reserves space without blocking text or navigation",
+      "status": "passed"
+    },
+    {
+      "file": "cart-drawer-quality.spec.ts",
+      "title": "cart confirmation fits 320px",
+      "status": "passed"
+    },
+    {
+      "file": "cart-drawer-quality.spec.ts",
+      "title": "cart confirmation fits 360px",
+      "status": "passed"
+    },
+    {
+      "file": "cart-drawer-quality.spec.ts",
+      "title": "cart confirmation fits 375px",
+      "status": "passed"
+    },
+    {
+      "file": "cart-drawer-quality.spec.ts",
+      "title": "cart confirmation fits 390px",
+      "status": "passed"
+    },
+    {
+      "file": "cart-drawer-quality.spec.ts",
+      "title": "cart confirmation fits 430px",
+      "status": "passed"
+    },
+    {
+      "file": "cart-drawer-quality.spec.ts",
+      "title": "cart confirmation fits 768px",
+      "status": "passed"
+    },
+    {
+      "file": "cart-drawer-quality.spec.ts",
+      "title": "cart confirmation fits 1024px",
+      "status": "passed"
+    },
+    {
+      "file": "cart-drawer-quality.spec.ts",
+      "title": "cart confirmation fits 1280px",
+      "status": "passed"
+    },
+    {
+      "file": "cart-drawer-quality.spec.ts",
+      "title": "cart confirmation fits 1440px",
+      "status": "passed"
+    },
+    {
+      "file": "cart-drawer-quality.spec.ts",
+      "title": "cart confirmation fits 1536px",
+      "status": "passed"
+    },
+    {
+      "file": "cart-drawer-quality.spec.ts",
+      "title": "drawer accessibility at 390",
+      "status": "passed"
+    },
+    {
+      "file": "cart-drawer-quality.spec.ts",
+      "title": "drawer accessibility at 768",
+      "status": "passed"
+    },
+    {
+      "file": "cart-drawer-quality.spec.ts",
+      "title": "drawer accessibility at 1440",
+      "status": "passed"
+    },
+    {
+      "file": "cart-drawer-quality.spec.ts",
+      "title": "Escape restores the cart button, scrolling and quantity without another mutation",
+      "status": "passed"
+    },
+    {
+      "file": "cart-drawer-quality.spec.ts",
+      "title": "continue shopping closes; repeated save replaces rather than increments quantity",
+      "status": "passed"
+    },
+    {
+      "file": "cart-drawer-quality.spec.ts",
+      "title": "review cart opens the existing account cart and does not initiate checkout",
+      "status": "pending-optimized-recheck"
+    },
+    {
+      "file": "cart-drawer-quality.spec.ts",
+      "title": "invalid subtotal never opens a success drawer",
+      "status": "passed"
+    },
+    {
+      "file": "cart-drawer-quality.spec.ts",
+      "title": "invalid line never opens a success drawer",
+      "status": "passed"
+    },
+    {
+      "file": "cart-drawer-quality.spec.ts",
+      "title": "invalid quantity never opens a success drawer",
+      "status": "passed"
+    },
+    {
+      "file": "cart-drawer-quality.spec.ts",
+      "title": "invalid target never opens a success drawer",
+      "status": "passed"
+    },
+    {
+      "file": "cart-drawer-quality.spec.ts",
+      "title": "invalid duplicate never opens a success drawer",
+      "status": "passed"
+    },
+    {
+      "file": "cart-drawer-quality.spec.ts",
+      "title": "failed update retains an honest recovery path without a drawer",
+      "status": "passed"
+    },
+    {
+      "file": "cart-drawer-quality.spec.ts",
+      "title": "session change clears an open drawer and all cart details",
+      "status": "passed"
+    },
+    {
+      "file": "cart-drawer-quality.spec.ts",
+      "title": "late response after account change never opens the drawer",
+      "status": "passed"
+    },
+    {
+      "file": "cart-drawer-quality.spec.ts",
+      "title": "long cart stays reachable at 320 by 420",
+      "status": "passed"
+    },
+    {
+      "file": "cart-drawer-quality.spec.ts",
+      "title": "long cart stays reachable at 320 by 600",
+      "status": "passed"
+    },
+    {
+      "file": "cart-drawer-quality.spec.ts",
+      "title": "long cart stays reachable at 320 by 844",
+      "status": "passed"
+    },
+    {
+      "file": "cart-drawer-quality.spec.ts",
+      "title": "approved images render and unavailable thumbnails remain honest",
+      "status": "passed"
+    },
+    {
+      "file": "cart-drawer-quality.spec.ts",
+      "title": "reduced motion disables the entry animation",
+      "status": "passed"
+    },
+    {
+      "file": "cart-drawer-quality.spec.ts",
+      "title": "favourite toast is actionable and accessible at 320",
+      "status": "passed"
+    },
+    {
+      "file": "cart-drawer-quality.spec.ts",
+      "title": "favourite toast is actionable and accessible at 390",
+      "status": "passed"
+    },
+    {
+      "file": "cart-drawer-quality.spec.ts",
+      "title": "favourite toast is actionable and accessible at 1440",
+      "status": "passed"
+    },
+    {
+      "file": "colour-assistance.spec.ts",
+      "title": "practice keeps checked, error and feedback states isolated from live work",
+      "status": "pending-optimized-recheck"
+    },
+    {
+      "file": "colour-assistance.spec.ts",
+      "title": "Allie branded portal, failure recovery, answer and keyboard close 390",
+      "status": "pending-optimized-recheck"
+    },
+    {
+      "file": "colour-assistance.spec.ts",
+      "title": "Allie branded portal, failure recovery, answer and keyboard close 1440",
+      "status": "pending-optimized-recheck"
+    },
+    {
+      "file": "colour-states.spec.ts",
+      "title": "actions compose hover, pressed, selected, disabled and keyboard focus",
+      "status": "passed"
+    },
+    {
+      "file": "colour-states.spec.ts",
+      "title": "native selection, invalid focus, readonly and modal keyboard behaviour",
+      "status": "passed"
+    },
+    {
+      "file": "colour-states.spec.ts",
+      "title": "state gallery contrast and reflow 360",
+      "status": "passed"
+    },
+    {
+      "file": "colour-states.spec.ts",
+      "title": "state gallery contrast and reflow 390",
+      "status": "passed"
+    },
+    {
+      "file": "colour-states.spec.ts",
+      "title": "state gallery contrast and reflow 768",
+      "status": "passed"
+    },
+    {
+      "file": "colour-states.spec.ts",
+      "title": "state gallery contrast and reflow 1024",
+      "status": "passed"
+    },
+    {
+      "file": "colour-states.spec.ts",
+      "title": "state gallery contrast and reflow 1440",
+      "status": "passed"
+    },
+    {
+      "file": "colour-states.spec.ts",
+      "title": "forced colours retain system focus and reduced motion",
+      "status": "passed"
+    },
+    {
+      "file": "colour-states.spec.ts",
+      "title": "CUSTOMER actual dashboard retains light data surfaces and branded navigation",
+      "status": "passed"
+    },
+    {
+      "file": "colour-states.spec.ts",
+      "title": "ADMIN actual dashboard retains light data surfaces and branded navigation",
+      "status": "passed"
+    },
+    {
+      "file": "colour-states.spec.ts",
+      "title": "SUPER_ADMIN actual dashboard retains light data surfaces and branded navigation",
+      "status": "passed"
+    },
+    {
+      "file": "customers-care.spec.ts",
+      "title": "fixture layout evidence",
+      "status": "passed"
+    },
+    {
+      "file": "customers-care.spec.ts",
+      "title": "semantic customer table, copy and care layout at 360",
+      "status": "passed"
+    },
+    {
+      "file": "customers-care.spec.ts",
+      "title": "semantic customer table, copy and care layout at 390",
+      "status": "passed"
+    },
+    {
+      "file": "customers-care.spec.ts",
+      "title": "semantic customer table, copy and care layout at 768",
+      "status": "passed"
+    },
+    {
+      "file": "customers-care.spec.ts",
+      "title": "semantic customer table, copy and care layout at 1024",
+      "status": "passed"
+    },
+    {
+      "file": "customers-care.spec.ts",
+      "title": "semantic customer table, copy and care layout at 1440",
+      "status": "passed"
+    },
+    {
+      "file": "customers-care.spec.ts",
+      "title": "clipboard rejection keeps manual selection and never reports success",
+      "status": "passed"
+    },
+    {
+      "file": "customers-care.spec.ts",
+      "title": "ADMIN reviews authoritative suspension/reactivation without row navigation",
+      "status": "passed"
+    },
+    {
+      "file": "customers-care.spec.ts",
+      "title": "SUPER_ADMIN reviews authoritative suspension/reactivation without row navigation",
+      "status": "passed"
+    },
+    {
+      "file": "customers-care.spec.ts",
+      "title": "directory filters and paging survive explicit detail return and reload",
+      "status": "passed"
+    },
+    {
+      "file": "customers-care.spec.ts",
+      "title": "persistent delivery dismissal retains failure indicators and resurfaces changed revision",
+      "status": "passed"
+    },
+    {
+      "file": "customers-care.spec.ts",
+      "title": "customer creation is focused, drafts survive close/reopen, and staff metadata stays out",
+      "status": "passed"
+    },
+    {
+      "file": "customers-care.spec.ts",
+      "title": "managed Customer Service keeps scoped conversation and next action ahead of delivery history",
+      "status": "passed"
+    },
+    {
+      "file": "customers-care.spec.ts",
+      "title": "short desktop, long contacts and 200 percent reflow emulation retain table containment",
+      "status": "passed"
+    },
+    {
+      "file": "customers-care.spec.ts",
+      "title": "touch copy discoverability › copy and account controls are available without hovering",
+      "status": "passed"
+    },
+    {
+      "file": "work-staff-workforce.spec.ts",
+      "title": "enrollment reviews named account, clears and hides password, then applies once",
+      "status": "passed"
+    },
+    {
+      "file": "work-staff-workforce.spec.ts",
+      "title": "lost workforce result stays locked across reload without replay",
+      "status": "passed"
+    },
+    {
+      "file": "work-staff-workforce.spec.ts",
+      "title": "malformed workforce result stays locked across reload without replay",
+      "status": "passed"
+    },
+    {
+      "file": "work-staff-workforce.spec.ts",
+      "title": "assignment rejects reverse dates and records exact cover before a separate revocation",
+      "status": "passed"
+    },
+    {
+      "file": "work-staff-workforce.spec.ts",
+      "title": "delegation preserves off-page branches and reviews later-page additions",
+      "status": "passed"
+    },
+    {
+      "file": "work-staff-workforce.spec.ts",
+      "title": "expanded workforce forms are accessible at 430px",
+      "status": "passed"
+    },
+    {
+      "file": "work-staff-workforce.spec.ts",
+      "title": "expanded workforce forms are accessible at 1440px",
+      "status": "passed"
+    },
+    {
+      "file": "work-staff-workforce.spec.ts",
+      "title": "owner responsibility directory reuses verified account and hides protected actions",
+      "status": "passed"
+    },
+    {
+      "file": "work-staff-workforce.spec.ts",
+      "title": "delegated responsibility workspace assigns through scoped APIs without legacy account access",
+      "status": "passed"
+    },
+    {
+      "file": "work-staff-workforce.spec.ts",
+      "title": "changed actor identity stops responsibility submission before a write",
+      "status": "passed"
+    }
+  ],
+  "remaining": [
+    "Optimized-build replay pending local-preview approval",
+    "Firefox/WebKit unavailable",
+    "Physical device, complete screen reader, native autofill/picker and visited rendering not verified"
+  ]
+}

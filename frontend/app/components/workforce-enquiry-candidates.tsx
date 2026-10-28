@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useResource } from "@/lib/api/use-resource";
 import { sameWorkforceScope } from "@/lib/admin/workforce-overview";
 import {
@@ -8,23 +8,51 @@ import {
   type WorkforceEnquiry,
   type WorkforceEnquiryCandidate,
 } from "@/lib/admin/workforce-enquiries";
+import { parseWorkforceComplaintCandidates } from "@/lib/admin/workforce-complaints";
+import "./workforce-care-candidates.css";
 import { Feedback } from "./feedback";
 
-export function EnquiryCandidates({
+type CandidateProps = {
+  row: Pick<WorkforceEnquiry, "id" | "version" | "branchId" | "access"> & {
+    assignedStaffId?: string | null;
+  };
+  selected?: WorkforceEnquiryCandidate;
+  disabled: boolean;
+  onSelect: (value: WorkforceEnquiryCandidate) => void;
+  invalid: boolean;
+  errorId?: string;
+};
+export function EnquiryCandidates(props: CandidateProps) {
+  return <CareCandidates {...props} kind="enquiries" />;
+}
+export function ComplaintCandidates(props: CandidateProps) {
+  return <CareCandidates {...props} kind="complaints" />;
+}
+function CareCandidates({
   row,
   selected,
   disabled,
   onSelect,
   invalid,
   errorId,
-}: {
-  row: WorkforceEnquiry;
-  selected?: WorkforceEnquiryCandidate;
-  disabled: boolean;
-  onSelect: (value: WorkforceEnquiryCandidate) => void;
-  invalid: boolean;
-  errorId?: string;
-}) {
+  kind,
+}: CandidateProps & { kind: "enquiries" | "complaints" }) {
+  const prefix = kind === "enquiries" ? "wfe" : "wfc";
+  const parse = useCallback(
+    (value: unknown) => {
+      const result =
+        kind === "enquiries"
+          ? parseWorkforceEnquiryCandidates(value)
+          : parseWorkforceComplaintCandidates(value);
+      return {
+        ...result,
+        caseId: "enquiryId" in result ? result.enquiryId : result.complaintId,
+        caseVersion:
+          "enquiryVersion" in result ? result.enquiryVersion : result.complaintVersion,
+      };
+    },
+    [kind],
+  );
   const [input, setInput] = useState(""),
     [q, setQ] = useState(""),
     [cursors, setCursors] = useState<string[]>([]),
@@ -33,8 +61,8 @@ export function EnquiryCandidates({
   if (q) params.set("q", q);
   if (cursors.length) params.set("cursor", cursors.at(-1)!);
   const result = useResource(
-    `/staff/workforce/enquiries/${row.id}/assignees?${params}`,
-    parseWorkforceEnquiryCandidates,
+    `/staff/workforce/${kind}/${row.id}/assignees?${params}`,
+    parse,
     undefined,
     { refreshKey: row.version },
   );
@@ -42,13 +70,13 @@ export function EnquiryCandidates({
     failure = result.error || result.refreshError;
   const mismatch =
     !!result.data &&
-    (result.data.enquiryId !== row.id ||
-      result.data.enquiryVersion !== row.version ||
+    (result.data.caseId !== row.id ||
+      result.data.caseVersion !== row.version ||
       result.data.branchId !== row.branchId ||
       !sameWorkforceScope(row.access, result.data.access));
   const data = !busy && !failure && !mismatch ? result.data : undefined;
   return (
-    <div className="wfe-candidates">
+    <div className="wfe-candidates care-candidates">
       <form
         className="wfe-staff-search"
         aria-label="Search eligible staff"
@@ -69,9 +97,9 @@ export function EnquiryCandidates({
         }}
       >
         <div className="field">
-          <label htmlFor="wfe-staff-search">Search eligible staff</label>
+          <label htmlFor={`${prefix}-staff-search`}>Search eligible staff</label>
           <input
-            id="wfe-staff-search"
+            id={`${prefix}-staff-search`}
             type="search"
             maxLength={120}
             value={input}
@@ -79,20 +107,20 @@ export function EnquiryCandidates({
             placeholder="First or last name"
             disabled={disabled}
             aria-invalid={!!error}
-            aria-describedby={error ? "wfe-staff-search-error" : undefined}
+            aria-describedby={error ? `${prefix}-staff-search-error` : undefined}
           />
         </div>
         <button className="button secondary" disabled={disabled || busy}>
           Search staff
         </button>
       </form>
-      <div id="wfe-staff-search-error">
+      <div id={`${prefix}-staff-search-error`}>
         <Feedback
           message={
             error ||
             failure ||
             (mismatch
-              ? "Staff options changed. Refresh the enquiry before assigning."
+              ? "Staff options changed. Refresh this case before assigning."
               : undefined)
           }
         />
@@ -107,16 +135,16 @@ export function EnquiryCandidates({
           Retry staff options
         </button>
       )}
-      {busy && <p role="status">Checking eligible sales colleagues…</p>}
+      {busy && <p role="status">Checking eligible colleagues…</p>}
       <fieldset
-        id="wfe-staff"
+        id={`${prefix}-staff`}
         className="wfe-staff-options"
         tabIndex={-1}
         disabled={disabled || !data}
         aria-invalid={invalid}
         aria-describedby={invalid ? errorId : undefined}
       >
-        <legend className="sr-only">Eligible sales colleagues</legend>
+        <legend className="sr-only">Eligible colleagues</legend>
         {data && (
           <>
             <p role="status">{data.items.length} on this page</p>
@@ -125,7 +153,7 @@ export function EnquiryCandidates({
                 <label key={candidate.id}>
                   <input
                     type="radio"
-                    name="wfe-staff-choice"
+                    name={`${prefix}-staff-choice`}
                     value={candidate.id}
                     checked={selected?.id === candidate.id}
                     onChange={() => onSelect(candidate)}
@@ -141,7 +169,7 @@ export function EnquiryCandidates({
               <p>
                 {q
                   ? "No eligible staff match this search."
-                  : "No eligible sales colleagues are available in this branch."}
+                  : "No eligible colleagues are available in this branch."}
               </p>
             )}
           </>

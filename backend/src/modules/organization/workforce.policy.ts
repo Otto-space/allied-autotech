@@ -1,67 +1,41 @@
 import { z } from "zod";
+import { workforcePositions } from "./workforce-positions.js";
 import type { AuthenticatedActor } from "../../common/contracts/actor.js";
 import { AppError } from "../../common/errors/app-error.js";
+import {
+  independentEndpointCapabilities,
+  independentCapabilitySchema,
+  recognisedIndependentCapabilities,
+} from "../policies/independent-capabilities.js";
 import type { Prisma } from "../../generated/prisma/client.js";
+import {
+  workforceAccessRevision,
+  workforceCapabilityScopes,
+} from "./workforce-access-revision.js";
 
-export const workforceTemplates = {
-  OPERATIONS: {
-    label: "Operations Supervisor",
-    department: "Strategy",
-    scope: "BRANCH",
-    actions: ["BOOKINGS_READ", "ORDERS_READ", "ORDERS_PREPARE"],
-  },
-  CUSTOMER_SERVICE: {
-    label: "Customer Service Officer",
-    department: "Customer Service",
-    scope: "BRANCH",
-    actions: ["BOOKINGS_READ", "CUSTOMER_ENQUIRIES", "COMPLAINTS", "ORDERS_READ"],
-  },
-  SALES_SUPERVISOR: {
-    label: "Sales Supervisor",
-    department: "Sales",
-    scope: "BRANCH",
-    actions: ["SALES_ENQUIRIES", "ENQUIRIES_ASSIGN", "ORDERS_READ"],
-  },
-  SALES_CASHIER: {
-    label: "Sales Representative / Cashier",
-    department: "Sales",
-    scope: "ASSIGNED",
-    actions: ["SALES_ENQUIRIES"],
-  },
-  ACCOUNTANT: {
-    label: "Accountant",
-    department: "Accounts",
-    scope: "BRANCH",
-    actions: ["FINANCE_READ"],
-  },
-  WORKSHOP_LEAD: {
-    label: "Workshop / Quality Service Lead",
-    department: "Services",
-    scope: "BRANCH",
-    actions: ["JOBS_READ", "JOBS_ASSIGN", "JOBS_UPDATE", "QUALITY_APPROVE"],
-  },
-  ELECTRICAL_TECHNICIAN: {
-    label: "Electrical / Diagnostics Technician",
-    department: "Services",
-    scope: "ASSIGNED",
-    actions: ["JOBS_READ", "JOBS_UPDATE"],
-  },
-  MECHANICAL_TECHNICIAN: {
-    label: "Mechanical Technician",
-    department: "Services",
-    scope: "ASSIGNED",
-    actions: ["JOBS_READ", "JOBS_UPDATE"],
-  },
-} as const;
+export { workforceTemplates } from "./workforce-catalogue.js";
+import {
+  workforceTemplates,
+  definitionForAssignment,
+  assignmentAllows,
+  isKnownWorkforcePolicyVersion,
+  isSupportedDelegationTemplate,
+  type WorkforceAction,
+} from "./workforce-catalogue.js";
+export type { WorkforceAction } from "./workforce-catalogue.js";
+
 export const templateSchema = z.enum(
   Object.keys(workforceTemplates) as [
     keyof typeof workforceTemplates,
     ...Array<keyof typeof workforceTemplates>,
   ],
 );
-export const positionSchema = z.enum(["CEO_MD", ...templateSchema.options]);
-export type WorkforceAction =
-  (typeof workforceTemplates)[keyof typeof workforceTemplates]["actions"][number];
+export const positionSchema = z.enum(
+  Object.keys(workforcePositions) as [
+    keyof typeof workforcePositions,
+    ...Array<keyof typeof workforcePositions>,
+  ],
+);
 export type Template = z.infer<typeof templateSchema>;
 export function workforceDenied(
   message = "This action is unavailable for your current responsibilities",
@@ -90,12 +64,18 @@ export async function workforceSnapshot(
       role: true,
       emailVerifiedAt: true,
       staffProfile: { select: { id: true } },
+      owner_UserCapability_userId: {
+        where: {
+          revokedAt: null,
+          capability: { in: independentCapabilitySchema.options },
+        },
+        select: { capability: true },
+      },
       workforceAccess: {
         include: {
           assignments: {
             where: {
               revokedAt: null,
-              startsAt: { lte: now },
               OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
               branch: { isActive: true },
             },
@@ -113,39 +93,69 @@ export async function workforceSnapshot(
   )
     workforceDenied();
   const access = user.workforceAccess;
-  const assignments = (access?.assignments ?? []).filter((a) => {
-    const template = templateSchema.safeParse(a.template);
-    return template.success && a.scope === workforceTemplates[template.data].scope;
-  });
+  const eligibleAssignments = (access?.assignments ?? []).filter(
+    (a) => definitionForAssignment(a) !== undefined,
+  );
+  const assignments = eligibleAssignments.filter((a) => a.startsAt <= now);
   const permissions = [
-    ...new Set(
-      assignments.flatMap((a) => [...workforceTemplates[a.template as Template].actions]),
-    ),
+    ...new Set(assignments.flatMap((a) => [...definitionForAssignment(a)!.actions])),
   ].sort();
-  return {
+  const canManageAssignments =
+    actor.role === "SUPER_ADMIN" ||
+    (actor.role === "ADMIN" &&
+      !!access &&
+      isKnownWorkforcePolicyVersion(access.delegationPolicyVersion) &&
+      access.delegatedTemplates.some((template) =>
+        isSupportedDelegationTemplate(template, access.delegationPolicyVersion),
+      ) &&
+      access.delegatedBranchIds.length > 0);
+  const canInviteAdmins =
+    actor.role === "ADMIN" &&
+    !!access &&
+    isKnownWorkforcePolicyVersion(access.delegationPolicyVersion) &&
+    access.delegatedTemplates.includes("ADMIN_INVITE") &&
+    access.delegatedBranchIds.length > 0;
+  const nextChange = Math.min(
+    ...eligibleAssignments.flatMap((a) => [
+      ...(a.startsAt > now ? [a.startsAt.getTime()] : []),
+      ...(a.expiresAt ? [a.expiresAt.getTime()] : []),
+    ]),
+  );
+  const snapshot = {
     managed: access !== null,
     userId: actor.userId,
     staffId: user.staffProfile?.id ?? null,
     position: access?.position ?? null,
     department:
-      access?.position === "CEO_MD"
-        ? "Strategy"
-        : access && templateSchema.safeParse(access.position).success
-          ? workforceTemplates[access.position as Template].department
-          : null,
+      access && positionSchema.safeParse(access.position).success
+        ? workforcePositions[access.position as keyof typeof workforcePositions]
+            .department
+        : null,
     version: access?.version ?? 0,
     assignments,
     permissions,
-    canManageAssignments:
-      actor.role === "SUPER_ADMIN" ||
-      (actor.role === "ADMIN" &&
-        !!access?.delegatedTemplates.length &&
-        !!access.delegatedBranchIds.length),
-    canInviteAdmins:
-      actor.role === "ADMIN" &&
-      !!access?.delegatedTemplates.includes("ADMIN_INVITE") &&
-      !!access.delegatedBranchIds.length,
+    independentCapabilities: recognisedIndependentCapabilities(
+      user.owner_UserCapability_userId.map((row) => row.capability),
+    ),
+    canManageAssignments,
+    canInviteAdmins,
+    capabilityScopes: workforceCapabilityScopes(assignments),
+    nextChangeAt: Number.isFinite(nextChange) ? new Date(nextChange).toISOString() : null,
     serverTime: now.toISOString(),
+  };
+  return {
+    ...snapshot,
+    accessRevision: workforceAccessRevision({
+      ...snapshot,
+      role: actor.role,
+      delegation: access
+        ? {
+            policyVersion: access.delegationPolicyVersion,
+            templates: access.delegatedTemplates,
+            branchIds: access.delegatedBranchIds,
+          }
+        : undefined,
+    }),
   };
 }
 export type WorkforceSnapshot = Awaited<ReturnType<typeof workforceSnapshot>>;
@@ -157,11 +167,7 @@ export function branchesFor(
   return [
     ...new Set(
       snapshot.assignments
-        .filter((a) =>
-          (
-            workforceTemplates[a.template as Template].actions as readonly string[]
-          ).includes(action),
-        )
+        .filter((a) => assignmentAllows(a, action))
         .map((a) => a.branchId),
     ),
   ];
@@ -170,11 +176,7 @@ export function bookingScope(
   snapshot: WorkforceSnapshot,
   action: WorkforceAction,
 ): Prisma.BookingWhereInput {
-  const assignments = snapshot.assignments.filter((a) =>
-    (workforceTemplates[a.template as Template].actions as readonly string[]).includes(
-      action,
-    ),
-  );
+  const assignments = snapshot.assignments.filter((a) => assignmentAllows(a, action));
   if (!assignments.length) workforceDenied();
   return {
     OR: assignments.map((a) => ({
@@ -192,9 +194,16 @@ function isPersonalNotificationPath(path: string): boolean {
   return (
     path === "/api/v1/staff/notifications" ||
     path === "/api/v1/staff/notifications/summary" ||
+    path === "/api/v1/staff/notifications/attention" ||
+    path === "/api/v1/staff/notifications/context" ||
+    path === "/api/v1/staff/notifications/read-context" ||
+    path === "/api/v1/staff/notifications/push" ||
+    /^\/api\/v1\/staff\/notifications\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(
+      path,
+    ) ||
     path === "/api/v1/staff/notifications/read-all" ||
     path === "/api/v1/staff/notifications/preferences/current" ||
-    /^\/api\/v1\/staff\/notifications\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\/read$/.test(
+    /^\/api\/v1\/staff\/notifications\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\/(?:read|unread)$/.test(
       path,
     )
   );
@@ -203,9 +212,11 @@ function isPersonalNotificationPath(path: string): boolean {
 // Enrolled accounts cannot reach broad legacy APIs, even if their identity is ADMIN.
 // New operational endpoints enforce actions, scopes and fields inside their transaction.
 export async function enforceWorkforceBoundary(
-  tx: Pick<Prisma.TransactionClient, "workforceAccess">,
+  tx: Pick<Prisma.TransactionClient, "workforceAccess"> &
+    Partial<Pick<Prisma.TransactionClient, "userCapability">>,
   actor: AuthenticatedActor,
   originalUrl: string,
+  method = "GET",
 ) {
   if (actor.role === "CUSTOMER" || actor.role === "SUPER_ADMIN") return;
   const access = await tx.workforceAccess.findUnique({
@@ -222,12 +233,34 @@ export async function enforceWorkforceBoundary(
     workforceDenied();
   }
   if (
+    /^\/api\/v1\/learning\/(?:catalogue|(?:articles|guides|scenarios)\/[a-z][a-z0-9-]{0,63})$/.test(
+      path,
+    ) ||
+    /^\/api\/v1\/learning\/assistant\/conversations(?:\/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(?:\/(?:turns|cancel))?)?$/i.test(
+      path,
+    ) ||
     path.startsWith("/api/v1/auth/") ||
     path === "/api/v1/staff/profile" ||
     isPersonalNotificationPath(path) ||
     path.startsWith("/api/v1/staff/workforce/") ||
+    path.startsWith("/api/v1/staff/fitment/") ||
     path === "/api/v1/staff/workforce" ||
     path.startsWith("/api/v1/admin/workforce/")
+  )
+    return;
+  const independent = independentEndpointCapabilities(path, method);
+  if (
+    independent.length &&
+    actor.mfaVerifiedAt &&
+    tx.userCapability &&
+    (await tx.userCapability.findFirst({
+      where: {
+        userId: actor.userId,
+        capability: { in: [...independent] },
+        revokedAt: null,
+      },
+      select: { id: true },
+    }))
   )
     return;
   workforceDenied("Use the workspace permitted by your current responsibilities");

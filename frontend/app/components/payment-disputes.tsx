@@ -1,4 +1,5 @@
 "use client";
+import { NotificationRecordContext } from "./notification-record-context";
 import Link from "next/link";
 import { useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -117,8 +118,8 @@ function DisputeOverview({
               <ChevronRight size={15} aria-hidden="true" />
             </Link>
           )}
-          <Link className="text-link" href="/admin/operations">
-            Back to operations
+          <Link className="text-link" href="/admin">
+            Back to overview
           </Link>
         </div>
       </header>
@@ -259,6 +260,7 @@ function DisputeOverview({
                       key={row.id}
                       row={row}
                       expanded={expanded === row.id}
+                      fresh={!records.loading && !records.refreshing && !error}
                       onToggle={() => expand(row.id)}
                     />
                   ))}
@@ -295,10 +297,12 @@ function DisputeOverview({
   );
 }
 function DisputeOverviewRecord({
+  fresh,
   row,
   expanded,
   onToggle,
 }: {
+  fresh: boolean;
   row: OverviewDispute;
   expanded: boolean;
   onToggle: () => void;
@@ -372,6 +376,9 @@ function DisputeOverviewRecord({
           hidden={!expanded}
           aria-label={`Record details for ${row.providerDisputeId}`}
         >
+          {expanded && fresh && (
+            <NotificationRecordContext resourceType="DISPUTE" resourceId={row.id} />
+          )}
           <h4>Recorded source and provider facts</h4>
           <dl className="wd-facts">
             <DisputeProviderFacts dispute={row} />

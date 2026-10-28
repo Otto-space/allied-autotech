@@ -1,9 +1,14 @@
 import type { Page } from "@playwright/test";
 import { workSupportFixture, supportRecord, bookingId } from "./work-support";
 import type { SupportKind } from "@/lib/api/support-schemas";
+import type { SupportEmailPage } from "@/lib/api/support-email-schemas";
 export { bookingId };
 export const threadMessage = (n = 0) => ({
   id: bookingId(90000 + n),
+  kind: (n % 3 === 1 ? "INTERNAL_NOTE" : "REPLY") as
+    "INTERNAL_NOTE" | "REPLY" | "STATUS_CHANGE",
+  fromStatus: null as string | null,
+  toStatus: null as string | null,
   authorType: n % 3 === 2 ? "CUSTOMER" : "STAFF",
   visibility: n % 3 === 1 ? "INTERNAL" : "CUSTOMER",
   body: n % 3 === 1 ? `Private internal note ${n}` : `Conversation message ${n}`,
@@ -27,13 +32,7 @@ export async function workThreadFixture(
       } as MutableRecord,
       messages: [0, 1, 2].map(threadMessage),
       emailDeliveries: {
-        items: [] as {
-          id: string;
-          status: string;
-          reason: string | null;
-          createdAt: string;
-          sentAt: string | null;
-        }[],
+        items: [] as SupportEmailPage["items"],
       },
       mode: "normal",
       messagesMode: "normal",
@@ -130,6 +129,10 @@ export async function workThreadFixture(
       createMessage = (text: unknown, visibility = "CUSTOMER") => {
         const m = {
           id: bookingId(94000 + detail.writes.length),
+          kind: (visibility === "INTERNAL" ? "INTERNAL_NOTE" : "REPLY") as
+            "INTERNAL_NOTE" | "REPLY" | "STATUS_CHANGE",
+          fromStatus: null as string | null,
+          toStatus: null as string | null,
           authorType: "STAFF",
           visibility,
           body: String(text),
@@ -150,6 +153,7 @@ export async function workThreadFixture(
         messageReceipt: added ? createMessage(body.message) : null,
       };
     } else {
+      const previousStatus = detail.record.status;
       detail.record.version++;
       if (u.pathname.endsWith("/assignment")) {
         detail.record.assignedStaffId = body.assignedStaffId as string | null;
@@ -166,13 +170,24 @@ export async function workThreadFixture(
         }
         if (body.status === "CLOSED") detail.record.closedAt = stamp;
       }
-      data = {
-        ...detail.record,
-        messageReceipt:
-          body.response || body.resolution
-            ? createMessage(body.response ?? body.resolution)
-            : null,
-      };
+      const event = u.pathname.endsWith("/status")
+        ? createMessage(
+            body.response ?? body.resolution ?? "No additional explanation was provided.",
+          )
+        : null;
+      if (event) {
+        Object.assign(detail.messages.at(-1)!, {
+          kind: "STATUS_CHANGE",
+          fromStatus: previousStatus,
+          toStatus: detail.record.status,
+        });
+        Object.assign(event, {
+          kind: "STATUS_CHANGE",
+          fromStatus: previousStatus,
+          toStatus: detail.record.status,
+        });
+      }
+      data = { ...detail.record, messageReceipt: event };
     }
     if (detail.writeMode === "lost") return route.abort("failed");
     if (detail.writeMode === "malformed")

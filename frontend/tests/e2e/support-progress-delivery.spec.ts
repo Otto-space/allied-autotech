@@ -16,6 +16,10 @@ for (const width of [1440, 390])
         reason: null,
         createdAt: "2026-10-22T09:00:00Z",
         sentAt: null,
+        attempts: 0,
+        nextRetryAt: null,
+        providerStatus: null,
+        providerUpdatedAt: null,
       },
     ];
     await page.goto(`/admin/support/enquiries/${bookingId(50000)}`);
@@ -27,21 +31,21 @@ for (const width of [1440, 390])
     await page.screenshot({
       path: path.join(os.tmpdir(), `allied-workflow-stages-${width}.png`),
     });
-    await expect(page.getByText("Queued", { exact: true })).toBeVisible();
+    const delivery = page.getByRole("region", { name: "Customer email delivery" });
+    await expect(delivery.locator('[data-status="QUEUED"]').first()).toHaveText("queued");
+    await delivery.locator("summary").click();
     fixture.detail.emailDeliveries.items[0].status = "SENT";
     fixture.detail.emailDeliveries.items[0].sentAt = "2026-10-22T09:00:05Z";
     await page
       .getByRole("button", { name: "Refresh email delivery", exact: true })
       .click();
-    await expect(page.getByText("Sent", { exact: true })).toBeVisible();
-    const badge = page.locator('[data-status="SENT"]');
-    await expect(badge).toHaveCSS("color", "rgb(22, 101, 52)");
+    const badge = delivery.locator('[data-status="SENT"]').first();
+    await expect(badge).toHaveText("Provider accepted");
+    await expect(badge).toHaveCSS("color", "rgb(30, 64, 175)");
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
     ).toBe(true);
-    await page
-      .getByRole("heading", { name: "Customer email delivery", exact: true })
-      .scrollIntoViewIfNeeded();
+    await delivery.scrollIntoViewIfNeeded();
     await page.screenshot({
       path: path.join(os.tmpdir(), `allied-support-progress-${width}.png`),
     });

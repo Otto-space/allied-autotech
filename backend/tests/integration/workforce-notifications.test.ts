@@ -20,7 +20,11 @@ type Identity = {
   notificationId: string;
   headers: Record<string, string>;
 };
-describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
+const provisionedWorkspaceAcceptanceChecksEnabled =
+  process.env.RUN_DATABASE_TESTS === "true" &&
+  process.env.RUN_PROVISIONED_WORKSPACE_TESTS === "true";
+
+describe.skipIf(!provisionedWorkspaceAcceptanceChecksEnabled)(
   "managed workforce personal notifications over HTTP",
   () => {
     const sessions: string[] = [];

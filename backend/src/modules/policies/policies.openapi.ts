@@ -28,6 +28,7 @@ import {
   bookingActionBody,
 } from "../service-operations/booking-actions.routes.js";
 import { z } from "zod";
+import { independentCapabilitySchema } from "./independent-capabilities.js";
 import {
   capabilityListQuerySchema,
   publishPolicyBodySchema,
@@ -109,15 +110,7 @@ const retentionHoldRecord = z.object({
   releasedAt: z.iso.datetime().nullable(),
   releasedByUserId: z.uuid().nullable(),
 });
-const capabilities = z.enum([
-  "REFUND_APPROVE",
-  "REFUND_TRANSFER",
-  "REFUND_CHECK",
-  "FINANCE_POLICY_APPROVE",
-  "BOOKING_CONFIRM",
-  "PRIVACY_REVIEW",
-  "DISPUTE_MANAGE",
-]);
+const capabilities = independentCapabilitySchema;
 const envelope = z.object({
   success: z.boolean(),
   message: z.string(),
@@ -143,8 +136,7 @@ export function registerOwnerPolicyOpenApi(registry: OpenAPIRegistry) {
     {
       method: "get",
       path: "/public/fulfillment-options",
-      summary:
-        "Read collection details and currently effective approved delivery zones without private policy provenance",
+      summary: "Read collection-only ordering availability and collection details",
       data: publicFulfillmentOptionsSchema,
     },
     {
@@ -152,7 +144,7 @@ export function registerOwnerPolicyOpenApi(registry: OpenAPIRegistry) {
       path: "/public/capabilities",
       summary: "Read effective policy availability and server time",
       description:
-        "Informational only, not transaction authorization or a price quote. Checkout uses fulfillment-options for approved zones. Missing finance is represented by null approvalStatus and disabled checkout; private local/staging draft finance follows the existing finance gate. No private policy provenance is exposed. Refresh on use; responses are no-store.",
+        "Informational only, not transaction authorization or a price quote. New orders are collection only; delivery remains disabled even when historical delivery policies exist. Missing finance is represented by null approvalStatus and disabled checkout; private local/staging draft finance follows the existing finance gate. No private policy provenance is exposed. Refresh on use; responses are no-store.",
       data: publicCapabilitiesSchema,
     },
     {

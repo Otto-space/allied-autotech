@@ -25,6 +25,7 @@ import { mileageLabel } from "@/lib/vehicle-detail";
 import { vehicleLabel } from "@/lib/vehicle-discovery";
 import "./vehicle-detail.css";
 import { VehicleActions } from "../../components/vehicle-actions";
+import { vehicleEnquiryHref } from "@/lib/catalogue-enquiry";
 const getListing = cache(async (id: string) => {
   if (!z.uuid().safeParse(id).success) notFound();
   try {
@@ -138,6 +139,14 @@ export default async function ListingPage({
   searchParams: SearchParameters;
 }) {
   const listing = await getListing((await params).listingId);
+  const enquiryHref = vehicleEnquiryHref(
+    new URLSearchParams(
+      Object.entries(await searchParams).flatMap(([key, value]) =>
+        typeof value === "string" ? [[key, value]] : [],
+      ),
+    ),
+    listing.id,
+  );
   const vehicle = listing.vehicle;
   const label = (value: string | null | undefined) =>
     value ? vehicleLabel(value) : "Not listed";
@@ -151,6 +160,14 @@ export default async function ListingPage({
     Transmission: label(vehicle.transmission),
     "Fuel type": label(vehicle.fuelType),
     Condition: label(vehicle.condition),
+    "Final assembly country": label(vehicle.manufactureCountryCode),
+    Powertrain: label(vehicle.powertrain),
+    ...(vehicle.engineCapacityCc == null
+      ? {}
+      : { "Engine capacity": `${vehicle.engineCapacityCc.toLocaleString("en-NG")} cc` }),
+    ...(vehicle.features?.length
+      ? { "Recorded features": vehicle.features.join(", ") }
+      : {}),
     Colour: vehicle.color || "Not listed",
     ...(vehicle.engineSize ? { "Engine size": vehicle.engineSize } : {}),
     ...(vehicle.driveType
@@ -243,6 +260,7 @@ export default async function ListingPage({
             <a href="#inspection">Inspection</a>
           </nav>
           <VehicleActions
+            enquiryHref={enquiryHref}
             key={listing.id}
             listingId={listing.id}
             listingTitle={listing.title}

@@ -22,7 +22,7 @@
   grid-template-columns: 1.1fr 1fr 1fr;
   margin: 0 0 22px;
   padding: 28px 24px;
-  background: #01121a;
+  background: var(--ink);
   color: #fff;
   border-radius: 8px;
 }

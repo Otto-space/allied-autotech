@@ -31,3 +31,28 @@ Seventeen cases require separate account or operational states and are deliberat
 - Run `tests/integration/operational-scan.test.ts` with `RUN_DATABASE_TESTS=true`, `RUN_OPERATIONAL_SCAN_TESTS=true` and `TEST_DB_NAME` pointing to its own newly migrated database. Its six cases verify exact 100-row pages across four queues, restart/rescan behavior, failed writes, stale checkpoints and SQL constraints. Financial and policy fixtures roll back; no protected evidence is deleted. Run this separately from the shared suite so unrelated eligible records cannot change the expected page sizes.
 
 Keep the special flags unset for the shared suite. Report these separate results alongside the full run rather than describing intentional skips as executed cases. Local database/provider fixtures do not certify deployed storage, ingress, email delivery or provider settlement.
+
+## Provisioned workspace acceptance harnesses
+
+Historical workspace acceptance suites inspect explicitly provisioned fixture
+manifests, least-privilege roles and fixed local target identities. They now also
+require `RUN_PROVISIONED_WORKSPACE_TESTS=true`; they are not generic fresh-database
+integration tests. Without that opt-in they are reported as skipped, not passed.
+Their existing target, privilege, snapshot and authorization assertions remain.
+Several of these suites require WORK_* or WORKFORCE_* fixture/prior-evidence files.
+An absent manifest must not trigger use of application records or another target.
+
+To execute those checks, first provision a NEW isolated local test database and
+matching synthetic fixtures/runtime credentials, review the suite's exact target
+preconditions, and supply all required local manifest paths. Do not run them against
+an old populated target merely to match a historical name. Review/update target
+constants for the newly provisioned instance before opting in. The resume-only
+staff-account harness specifically requires its prior synthetic acceptance state.
+No results for those harnesses are implied by the shared suite's success.
+
+The self-contained discovery/fitment, saved garage, notification context, collection
+and permission tests do not require this flag. They create their own synthetic
+fixtures on the verified isolated target. The backend's 30-second test and 60-second
+setup limits accommodate complete PostgreSQL/cryptographic flows; their data and
+permission assertions are unchanged. The 1,000-attempt reconciliation scenario has
+its own 60-second limit.

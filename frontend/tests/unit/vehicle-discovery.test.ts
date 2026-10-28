@@ -22,11 +22,12 @@ describe("vehicle discovery contract", () => {
     ["99999999999999.99", "9999999999999999"],
     ["0001.2", "120"],
     ["", ""],
+    ["0", "0"],
   ])("converts %s without floating point rounding", (input, expected) => {
     expect(nairaToKobo(input)).toBe(expected);
     if (expected) expect(nairaToKobo(koboToInput(expected))).toBe(expected);
   });
-  it.each(["0", "-1", "1e6", "1.001", "1,000", "100000000000000", "Infinity", "NaN"])(
+  it.each(["-1", "1e6", "1.001", "1,000", "100000000000000", "Infinity", "NaN"])(
     "rejects invalid price %s",
     (value) => expect(nairaToKobo(value)).toBeUndefined(),
   );
@@ -79,5 +80,35 @@ describe("vehicle discovery contract", () => {
         new URLSearchParams(`cursor=${cursor}&_trail=start,<script>`),
       ).params.has("_trail"),
     ).toBe(false);
+  });
+});
+
+describe("multiple vehicle selections", () => {
+  it("canonicalizes selected values and preserves older single-choice links", () => {
+    const result = normalizeVehicleQuery(
+      new URLSearchParams({ conditions: "FOREIGN_USED,NEW", powertrains: "PHEV,HEV" }),
+    );
+    expect(result.invalid).toBe(false);
+    expect(result.params.get("conditions")).toBe("NEW,FOREIGN_USED");
+    expect(result.params.get("powertrains")).toBe("HEV,PHEV");
+    expect(
+      normalizeVehicleQuery(new URLSearchParams("condition=USED&powertrain=HEV")).invalid,
+    ).toBe(false);
+  });
+  it.each([
+    "conditions=NEW,NEW",
+    "conditions=NEW,UNKNOWN",
+    "powertrains=HEV,UNKNOWN",
+    "powertrains=HEV&powertrains=PHEV",
+  ])("reports malformed selections: %s", (query) => {
+    expect(normalizeVehicleQuery(new URLSearchParams(query)).invalid).toBe(true);
+  });
+  it("flags conflicting legacy selections while keeping the explicit multiple selection", () => {
+    const result = normalizeVehicleQuery(
+      new URLSearchParams("condition=NEW&conditions=USED,FOREIGN_USED"),
+    );
+    expect(result.invalid).toBe(true);
+    expect(result.params.has("condition")).toBe(false);
+    expect(result.params.get("conditions")).toBe("USED,FOREIGN_USED");
   });
 });

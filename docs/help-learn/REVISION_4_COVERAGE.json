@@ -1,0 +1,2461 @@
+{
+  "revision": 4,
+  "inventorySource": "frontend/docs/ui-quality-inventory.json",
+  "routes": {
+    "/about": {
+      "source": "app/about/page.tsx",
+      "audience": "public",
+      "accessPredicate": "public; launch mode and token conditions may restrict actions",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/admin/[resource]": {
+      "source": "app/admin/[resource]/page.tsx",
+      "audience": "work",
+      "accessPredicate": "server-enforced role and capability; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/admin/audit": {
+      "source": "app/admin/audit/page.tsx",
+      "audience": "work",
+      "accessPredicate": "server-enforced role and capability; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/admin/booking-capacity": {
+      "source": "app/admin/booking-capacity/page.tsx",
+      "audience": "work",
+      "accessPredicate": "server-enforced role and capability; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/admin/booking-slots": {
+      "source": "app/admin/booking-slots/page.tsx",
+      "audience": "work",
+      "accessPredicate": "server-enforced role and capability; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/admin/bookings/[bookingId]": {
+      "source": "app/admin/bookings/[bookingId]/page.tsx",
+      "audience": "work",
+      "accessPredicate": "server-enforced role and capability; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/admin/bookings": {
+      "source": "app/admin/bookings/page.tsx",
+      "audience": "work",
+      "accessPredicate": "server-enforced role and capability; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/admin/branches": {
+      "source": "app/admin/branches/page.tsx",
+      "audience": "work",
+      "accessPredicate": "server-enforced role and capability; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/admin/categories/[categoryId]": {
+      "source": "app/admin/categories/[categoryId]/page.tsx",
+      "audience": "work",
+      "accessPredicate": "server-enforced role and capability; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/admin/categories": {
+      "source": "app/admin/categories/page.tsx",
+      "audience": "work",
+      "accessPredicate": "server-enforced role and capability; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/admin/complaint-policy": {
+      "source": "app/admin/complaint-policy/page.tsx",
+      "audience": "work",
+      "accessPredicate": "server-enforced role and capability; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/admin/customers/[customerId]": {
+      "source": "app/admin/customers/[customerId]/page.tsx",
+      "audience": "work",
+      "accessPredicate": "server-enforced role and capability; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/admin/customers": {
+      "source": "app/admin/customers/page.tsx",
+      "audience": "work",
+      "accessPredicate": "server-enforced role and capability; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": ["customer-account-review"],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/admin/delivery-policy": {
+      "source": "app/admin/delivery-policy/page.tsx",
+      "audience": "work",
+      "accessPredicate": "server-enforced role and capability; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/admin/dispute-policy": {
+      "source": "app/admin/dispute-policy/page.tsx",
+      "audience": "work",
+      "accessPredicate": "server-enforced role and capability; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/admin/finance-policy": {
+      "source": "app/admin/finance-policy/page.tsx",
+      "audience": "work",
+      "accessPredicate": "Current verified/MFA work account plus the route-specific explicit independent grant; existing record, stage and review rules remain server-enforced.",
+      "decision": "pending",
+      "purpose": "Read current/latest/scheduled financial policy and review a version-bound approval.",
+      "contextualAnswer": "Use the current permitted workspace. Inspect current facts and review before a change. Reconcile uncertain outcomes before resubmitting; removal of the independent grant closes this page.",
+      "articleIds": ["financial-policy-work"],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "W11 isolated populated STAFF/ADMIN fixtures at 390/1440px (refunds also 768px), native current-grant/ownership/revocation checks; no real operations.",
+      "verification": "isolated",
+      "evidence": [
+        "docs/help-learn/WORKFORCE_INDEPENDENT_ACCESS_W11.md",
+        "frontend/tests/e2e/workforce-independent.spec.ts",
+        "backend/tests/integration/workforce-independent-access.test.ts"
+      ],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4.",
+        "Exact full task-state walkthrough/practice decisions, hosted/real-role acceptance and new-source real-provider evaluation remain open. W11 is bounded permission/navigation evidence."
+      ],
+      "subviews": []
+    },
+    "/admin/fitment": {
+      "source": "app/admin/fitment/page.tsx",
+      "audience": "work",
+      "accessPredicate": "server-enforced role and capability; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "source-only",
+      "evidence": [
+        "docs/help-learn/WORKFORCE_NAVIGATION_SESSIONS_W5.md",
+        "backend/tests/integration/workforce-session-policy.test.ts",
+        "frontend/tests/unit/workforce-registry.test.ts"
+      ],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4.",
+        "W5 canonical fitment predicate and real HTTP denial/allow tests passed; no new populated fitment browser acceptance in this batch."
+      ],
+      "subviews": []
+    },
+    "/admin/inspections": {
+      "source": "app/admin/inspections/page.tsx",
+      "audience": "work",
+      "accessPredicate": "server-enforced role and capability; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/admin/inventory/[inventoryId]": {
+      "source": "app/admin/inventory/[inventoryId]/page.tsx",
+      "audience": "work",
+      "accessPredicate": "server-enforced role and capability; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/admin/inventory": {
+      "source": "app/admin/inventory/page.tsx",
+      "audience": "work",
+      "accessPredicate": "server-enforced role and capability; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/admin/invoices/[invoiceId]": {
+      "source": "app/admin/invoices/[invoiceId]/page.tsx",
+      "audience": "work",
+      "accessPredicate": "server-enforced role and capability; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/admin/invoices": {
+      "source": "app/admin/invoices/page.tsx",
+      "audience": "work",
+      "accessPredicate": "server-enforced role and capability; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/admin/notifications": {
+      "source": "app/admin/notifications/page.tsx",
+      "audience": "work",
+      "accessPredicate": "server-enforced role and capability; per-route confirmation required",
+      "decision": "pending",
+      "purpose": "Read personal notifications and follow only currently permitted work destinations.",
+      "contextualAnswer": "Open a notification in your own inbox. A formerly permitted work destination is rechecked; an unavailable page returns to the current work overview.",
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "W5 intercepted managed-workforce browser fixtures, 390/1440px revocation and existing eight-template notification cases; no real messages or submissions.",
+      "verification": "isolated",
+      "evidence": [
+        "docs/help-learn/WORKFORCE_NAVIGATION_SESSIONS_W5.md",
+        "backend/tests/integration/workforce-session-policy.test.ts",
+        "frontend/tests/unit/workforce-registry.test.ts",
+        "frontend/tests/unit/workforce-invalidation.test.tsx",
+        "frontend/tests/e2e/workforce-session-revocation.spec.ts",
+        "docs/help-learn/WORKFORCE_INDEPENDENT_ACCESS_W11.md"
+      ],
+      "gaps": [
+        "Complete legacy/owner route-specific learning and walkthrough/practice decisions remain open.",
+        "Actual hosted role changes, physical devices and full screen-reader acceptance remain open.",
+        "W5 evidence covers managed-workforce boundaries; real conversational AI and staffed chat are not implemented.",
+        "W11 adds separate current owner-grant projection, page/notification guards and invalidation; scoped booking confirmation, financial aftercare and granular Care authority remain open."
+      ],
+      "subviews": []
+    },
+    "/admin/orders/[orderId]/aftercare": {
+      "source": "app/admin/orders/[orderId]/aftercare/page.tsx",
+      "audience": "work",
+      "accessPredicate": "server-enforced role and capability; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/admin/orders/[orderId]": {
+      "source": "app/admin/orders/[orderId]/page.tsx",
+      "audience": "work",
+      "accessPredicate": "server-enforced role and capability; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/admin/orders": {
+      "source": "app/admin/orders/page.tsx",
+      "audience": "work",
+      "accessPredicate": "server-enforced role and capability; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/admin": {
+      "source": "app/admin/page.tsx",
+      "audience": "work",
+      "accessPredicate": "server-enforced role and capability; per-route confirmation required",
+      "decision": "pending",
+      "purpose": "Show permitted operational work and explain current responsibility access.",
+      "contextualAnswer": "Use the remaining work links after a responsibility change. A recorded position grants no operational access. Personal security and notifications remain available.",
+      "articleIds": [
+        "work-access",
+        "product-photos",
+        "mixed-queues",
+        "oversight-scope"
+      ],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "W5 intercepted managed-workforce browser fixtures, 390/1440px revocation and existing eight-template notification cases; no real messages or submissions.",
+      "verification": "isolated",
+      "evidence": [
+        "docs/help-learn/WORKFORCE_NAVIGATION_SESSIONS_W5.md",
+        "backend/tests/integration/workforce-session-policy.test.ts",
+        "frontend/tests/unit/workforce-registry.test.ts",
+        "frontend/tests/unit/workforce-invalidation.test.tsx",
+        "frontend/tests/e2e/workforce-session-revocation.spec.ts",
+        "docs/help-learn/ALLIE_PROVIDER_CORE_W6.md",
+        "docs/help-learn/ALLIE_CONVERSATIONS_W7.md",
+        "backend/tests/integration/allie-conversations.test.ts",
+        "docs/help-learn/ALLIE_CONVERSATION_UI_W8.md",
+        "frontend/tests/e2e/allie-conversation.spec.ts"
+      ],
+      "gaps": [
+        "Complete legacy/owner route-specific learning and walkthrough/practice decisions remain open.",
+        "Actual hosted role changes, physical devices and full screen-reader acceptance remain open.",
+        "W5 evidence covers managed-workforce boundaries; real conversational AI and staffed chat are not implemented.",
+        "W8 conversation/privacy UI and W7 owned API are isolated-tested in separate browser/API and native provider-mocked layers. Real combined backend/provider journeys, >=100 reviewed evaluation, persisted handoff and staffed chat remain unfinished."
+      ],
+      "subviews": []
+    },
+    "/admin/payment-disputes": {
+      "source": "app/admin/payment-disputes/page.tsx",
+      "audience": "work",
+      "accessPredicate": "server-enforced role and capability; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/admin/payment-disputes/work": {
+      "source": "app/admin/payment-disputes/work/page.tsx",
+      "audience": "work",
+      "accessPredicate": "Current verified/MFA work account plus the route-specific explicit independent grant; existing record, stage and review rules remain server-enforced.",
+      "decision": "pending",
+      "purpose": "Handle current permitted disputes and keep assignment authority distinct from Staff handling.",
+      "contextualAnswer": "Use the current permitted workspace. Inspect current facts and review before a change. Reconcile uncertain outcomes before resubmitting; removal of the independent grant closes this page.",
+      "articleIds": ["dispute-work"],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "W11 isolated populated STAFF/ADMIN fixtures at 390/1440px (refunds also 768px), native current-grant/ownership/revocation checks; no real operations.",
+      "verification": "isolated",
+      "evidence": [
+        "docs/help-learn/WORKFORCE_INDEPENDENT_ACCESS_W11.md",
+        "frontend/tests/e2e/workforce-independent.spec.ts",
+        "backend/tests/integration/workforce-independent-access.test.ts"
+      ],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4.",
+        "Exact full task-state walkthrough/practice decisions, hosted/real-role acceptance and new-source real-provider evaluation remain open. W11 is bounded permission/navigation evidence."
+      ],
+      "subviews": []
+    },
+    "/admin/payment-exceptions": {
+      "source": "app/admin/payment-exceptions/page.tsx",
+      "audience": "work",
+      "accessPredicate": "server-enforced role and capability; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/admin/payments": {
+      "source": "app/admin/payments/page.tsx",
+      "audience": "work",
+      "accessPredicate": "server-enforced role and capability; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/admin/privacy": {
+      "source": "app/admin/privacy/page.tsx",
+      "audience": "work",
+      "accessPredicate": "Current verified/MFA work account plus the route-specific explicit independent grant; existing record, stage and review rules remain server-enforced.",
+      "decision": "pending",
+      "purpose": "Review privacy requests and holds using an explicit grant without promising destruction.",
+      "contextualAnswer": "Use the current permitted workspace. Inspect current facts and review before a change. Reconcile uncertain outcomes before resubmitting; removal of the independent grant closes this page.",
+      "articleIds": ["privacy-work"],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "W11 isolated populated STAFF/ADMIN fixtures at 390/1440px (refunds also 768px), native current-grant/ownership/revocation checks; no real operations.",
+      "verification": "isolated",
+      "evidence": [
+        "docs/help-learn/WORKFORCE_INDEPENDENT_ACCESS_W11.md",
+        "frontend/tests/e2e/workforce-independent.spec.ts",
+        "backend/tests/integration/workforce-independent-access.test.ts"
+      ],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4.",
+        "Exact full task-state walkthrough/practice decisions, hosted/real-role acceptance and new-source real-provider evaluation remain open. W11 is bounded permission/navigation evidence."
+      ],
+      "subviews": []
+    },
+    "/admin/processing-jobs": {
+      "source": "app/admin/processing-jobs/page.tsx",
+      "audience": "work",
+      "accessPredicate": "server-enforced role and capability; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/admin/products/[productId]": {
+      "source": "app/admin/products/[productId]/page.tsx",
+      "audience": "work",
+      "accessPredicate": "server-enforced role and capability; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/admin/products": {
+      "source": "app/admin/products/page.tsx",
+      "audience": "work",
+      "accessPredicate": "server-enforced role and capability; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/admin/promotions/[promotionId]": {
+      "source": "app/admin/promotions/[promotionId]/page.tsx",
+      "audience": "work",
+      "accessPredicate": "server-enforced role and capability; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/admin/promotions/new": {
+      "source": "app/admin/promotions/new/page.tsx",
+      "audience": "work",
+      "accessPredicate": "server-enforced role and capability; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/admin/promotions": {
+      "source": "app/admin/promotions/page.tsx",
+      "audience": "work",
+      "accessPredicate": "server-enforced role and capability; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/admin/refund-timing": {
+      "source": "app/admin/refund-timing/page.tsx",
+      "audience": "work",
+      "accessPredicate": "server-enforced role and capability; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/admin/refunds": {
+      "source": "app/admin/refunds/page.tsx",
+      "audience": "work",
+      "accessPredicate": "Current verified/MFA work account plus the route-specific explicit independent grant; existing record, stage and review rules remain server-enforced.",
+      "decision": "pending",
+      "purpose": "Inspect and review only the refund stages supplied by explicit grants.",
+      "contextualAnswer": "Use the current permitted workspace. Inspect current facts and review before a change. Reconcile uncertain outcomes before resubmitting; removal of the independent grant closes this page.",
+      "articleIds": ["refund-work"],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "W11 isolated populated STAFF/ADMIN fixtures at 390/1440px (refunds also 768px), native current-grant/ownership/revocation checks; no real operations.",
+      "verification": "isolated",
+      "evidence": [
+        "docs/help-learn/WORKFORCE_INDEPENDENT_ACCESS_W11.md",
+        "frontend/tests/e2e/workforce-independent.spec.ts",
+        "backend/tests/integration/workforce-independent-access.test.ts"
+      ],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4.",
+        "Exact full task-state walkthrough/practice decisions, hosted/real-role acceptance and new-source real-provider evaluation remain open. W11 is bounded permission/navigation evidence."
+      ],
+      "subviews": []
+    },
+    "/admin/reservation-terms": {
+      "source": "app/admin/reservation-terms/page.tsx",
+      "audience": "work",
+      "accessPredicate": "server-enforced role and capability; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/admin/retention-policy": {
+      "source": "app/admin/retention-policy/page.tsx",
+      "audience": "work",
+      "accessPredicate": "server-enforced role and capability; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/admin/reviews": {
+      "source": "app/admin/reviews/page.tsx",
+      "audience": "work",
+      "accessPredicate": "server-enforced role and capability; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/admin/security": {
+      "source": "app/admin/security/page.tsx",
+      "audience": "work",
+      "accessPredicate": "server-enforced role and capability; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": ["privileged-recovery"],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/admin/service-categories/[categoryId]": {
+      "source": "app/admin/service-categories/[categoryId]/page.tsx",
+      "audience": "work",
+      "accessPredicate": "server-enforced role and capability; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/admin/service-categories": {
+      "source": "app/admin/service-categories/page.tsx",
+      "audience": "work",
+      "accessPredicate": "server-enforced role and capability; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/admin/services/[serviceId]": {
+      "source": "app/admin/services/[serviceId]/page.tsx",
+      "audience": "work",
+      "accessPredicate": "server-enforced role and capability; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/admin/services": {
+      "source": "app/admin/services/page.tsx",
+      "audience": "work",
+      "accessPredicate": "server-enforced role and capability; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/admin/staff/[staffUserId]": {
+      "source": "app/admin/staff/[staffUserId]/page.tsx",
+      "audience": "work",
+      "accessPredicate": "server-enforced role and capability; per-route confirmation required",
+      "decision": "pending",
+      "purpose": "Review one authorised staff account, its tier/status, workforce grants and separately controlled financial capabilities.",
+      "contextualAnswer": "For an owner-authorised demotion, select the new active branch, supply a reason, inspect removed delegation and retained scoped duties, then confirm. If either account or workforce revision changed, refresh and review again.",
+      "articleIds": ["access-review"],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "W4 synthetic native 72-migration CI target plus intercepted owner/delegated browser fixtures; staff, invitations and responsibility regressions at 320-1920px, impact review at 390/1440px; no real submissions.",
+      "verification": "isolated",
+      "evidence": [
+        "docs/help-learn/WORKFORCE_ROLE_DEPENDENCIES_W2.md",
+        "backend/tests/integration/workforce-role-transition.test.ts",
+        "frontend/tests/unit/staff-role-review.test.tsx",
+        "docs/help-learn/WORKFORCE_EFFECTIVE_ACCESS_W4.md",
+        "backend/docs/workforce-versions-production-20261026.md",
+        "backend/tests/integration/workforce-effective-access.test.ts",
+        "frontend/tests/unit/workforce-access-preview.test.tsx",
+        "frontend/tests/e2e/work-staff-workforce.spec.ts",
+        "docs/help-learn/WORKFORCE_NAVIGATION_SESSIONS_W5.md",
+        "backend/tests/integration/workforce-session-policy.test.ts",
+        "frontend/tests/unit/workforce-registry.test.ts",
+        "frontend/tests/unit/workforce-invalidation.test.tsx",
+        "frontend/tests/e2e/workforce-session-revocation.spec.ts",
+        "docs/help-learn/WORKFORCE_HISTORY_W10.md",
+        "frontend/tests/e2e/workforce-history.spec.ts",
+        "docs/help-learn/WORKFORCE_INDEPENDENT_ACCESS_W11.md"
+      ],
+      "gaps": [
+        "Full independent-grant/baseline composition and real chat subscription authorisation remain open; W5 verifies the managed-workforce registry and HTTP/session invalidation only.",
+        "Allie conversation, complete page-context guidance, walkthrough/practice mode decisions and full Revision 4 task-state acceptance remain open.",
+        "W10: unsupported historical values and revocation receipts accepted in native/320-1440px fixtures; independent-grant/baseline and full route learning remain open.",
+        "Hosted role mutations remain unverified; W10 synthetic history does not establish production prevalence.",
+        "W11 adds separate current owner-grant projection, page/notification guards and invalidation; scoped booking confirmation, financial aftercare and granular Care authority remain open."
+      ],
+      "subviews": [
+        {
+          "pattern": "owner account-role change",
+          "task": "Atomic account/workforce dependency review and retained duties",
+          "verification": "Six isolated HTTP/DB and four DOM cases; updated browser spec not rerun; W3 hosted fixture release evidence and W4 local impact/role regression accepted; full route learning remains open"
+        }
+      ]
+    },
+    "/admin/staff/invite": {
+      "source": "app/admin/staff/invite/page.tsx",
+      "audience": "work",
+      "accessPredicate": "server-enforced role and capability; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/admin/staff": {
+      "source": "app/admin/staff/page.tsx",
+      "audience": "work",
+      "accessPredicate": "server-enforced role and capability; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/admin/support/[kind]/[supportId]": {
+      "source": "app/admin/support/[kind]/[supportId]/page.tsx",
+      "audience": "work",
+      "accessPredicate": "server-enforced role and capability; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/admin/support": {
+      "source": "app/admin/support/page.tsx",
+      "audience": "work",
+      "accessPredicate": "server-enforced role and capability; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/admin/vehicle-sales/[transactionId]": {
+      "source": "app/admin/vehicle-sales/[transactionId]/page.tsx",
+      "audience": "work",
+      "accessPredicate": "server-enforced role and capability; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/admin/vehicle-sales": {
+      "source": "app/admin/vehicle-sales/page.tsx",
+      "audience": "work",
+      "accessPredicate": "server-enforced role and capability; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/admin/vehicles/[vehicleId]": {
+      "source": "app/admin/vehicles/[vehicleId]/page.tsx",
+      "audience": "work",
+      "accessPredicate": "server-enforced role and capability; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/admin/vehicles/new": {
+      "source": "app/admin/vehicles/new/page.tsx",
+      "audience": "work",
+      "accessPredicate": "server-enforced role and capability; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/admin/vehicles": {
+      "source": "app/admin/vehicles/page.tsx",
+      "audience": "work",
+      "accessPredicate": "server-enforced role and capability; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/admin/workforce/[[...section]]": {
+      "source": "app/admin/workforce/[[...section]]/page.tsx",
+      "audience": "work",
+      "accessPredicate": "Server-current managed-workforce capability/scope for operational destinations; current account and owner-approved envelope for management. API record-state, assignment/branch and independent-review guards remain authoritative.",
+      "decision": "pending",
+      "purpose": "Use current permitted work queues and discover authorised workforce accounts without conflating position, tier and responsibility.",
+      "contextualAnswer": "Work tools follow current responsibilities. When access is removed, stale operational content and work drafts are discarded and an unavailable page returns to the permitted overview. Review fresh versions before consequential changes.",
+      "articleIds": [
+        "access-review",
+        "work-access",
+        "assigned-findings",
+        "booking-confirmation",
+        "financial-aftercare"
+      ],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [
+        "Active assignments require a registered pinned definition, valid scope, an active branch, an arrived start and no expiry/revocation.",
+        "Unsupported definition/policy versions grant no corresponding access; the owner must review ambiguity.",
+        "Unenrolled legacy baseline remains until explicit reviewed enrollment."
+      ],
+      "recovery": [
+        "Refresh the current account and workforce revisions before confirming a conflict.",
+        "Ask the owner to review an unsupported delegation or definition; authorised revocation preserves history.",
+        "A missing approved capacity/calendar is a business configuration dependency. An uncertain confirmation stays blocked until current state and earlier history are explicitly reviewed; no automatic retry."
+      ],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "W4 synthetic native 72-migration CI target plus intercepted owner/delegated browser fixtures; staff, invitations and responsibility regressions at 320-1920px, impact review at 390/1440px; no real submissions.",
+      "verification": "isolated",
+      "evidence": [
+        "docs/help-learn/WORKFORCE_DIRECTORY_W1.md",
+        "backend/tests/integration/workforce-directory.test.ts",
+        "frontend/tests/e2e/workforce-directory.spec.ts",
+        "frontend/tests/unit/workforce-directory.test.tsx",
+        "docs/help-learn/WORKFORCE_TEMPLATE_VERSIONS_W3.md",
+        "docs/help-learn/WORKFORCE_EFFECTIVE_ACCESS_W4.md",
+        "backend/docs/workforce-versions-production-20261026.md",
+        "backend/tests/integration/workforce-effective-access.test.ts",
+        "frontend/tests/unit/workforce-access-preview.test.tsx",
+        "frontend/tests/e2e/work-staff-workforce.spec.ts",
+        "docs/help-learn/WORKFORCE_NAVIGATION_SESSIONS_W5.md",
+        "backend/tests/integration/workforce-session-policy.test.ts",
+        "frontend/tests/unit/workforce-registry.test.ts",
+        "frontend/tests/unit/workforce-invalidation.test.tsx",
+        "frontend/tests/e2e/workforce-session-revocation.spec.ts",
+        "docs/help-learn/ALLIE_PROVIDER_CORE_W6.md",
+        "docs/help-learn/ALLIE_CONVERSATIONS_W7.md",
+        "backend/tests/integration/allie-conversations.test.ts",
+        "docs/help-learn/ALLIE_CONVERSATION_UI_W8.md",
+        "frontend/tests/e2e/allie-conversation.spec.ts",
+        "W9: docs/help-learn/ALLIE_EVALUATION_W9.md; real provider baseline/targeted review, actual guest/customer composition and native scope checks. This is partial evidence, not complete per-route acceptance.",
+        "docs/help-learn/WORKFORCE_HISTORY_W10.md",
+        "frontend/tests/e2e/workforce-history.spec.ts",
+        "docs/help-learn/WORKFORCE_INDEPENDENT_ACCESS_W11.md",
+        "docs/help-learn/WORKFORCE_BOOKING_W12.md",
+        "backend/tests/integration/workforce-booking-confirmation.test.ts",
+        "frontend/tests/e2e/workforce-booking-confirmation.spec.ts",
+        "frontend/tests/e2e/workforce-booking-native.spec.ts",
+        "docs/help-learn/WORKFORCE_AFTERCARE_W13.md",
+        "backend/tests/integration/workforce-aftercare.test.ts",
+        "frontend/tests/e2e/workforce-aftercare.spec.ts",
+        "frontend/tests/e2e/workforce-aftercare-native.spec.ts"
+      ],
+      "gaps": [
+        "Full independent-grant/baseline composition and real chat subscription authorisation remain open; W5 verifies the managed-workforce registry and HTTP/session invalidation only.",
+        "Allie conversation, complete page-context guidance, walkthrough/practice mode decisions and full Revision 4 task-state acceptance remain open.",
+        "W8 conversation/privacy UI and W7 owned API are isolated-tested in separate browser/API and native provider-mocked layers. Real combined backend/provider journeys, >=100 reviewed evaluation, persisted handoff and staffed chat remain unfinished.",
+        "W10: unsupported historical values and revocation receipts accepted in native/320-1440px fixtures; independent-grant/baseline and full route learning remain open.",
+        "Hosted role mutations remain unverified; W10 synthetic history does not establish production prevalence.",
+        "W11 adds separate current owner-grant projection, page/notification guards and invalidation; scoped booking confirmation, financial aftercare and granular Care authority remain open.",
+        "W12 closes scoped BOOKING_CONFIRM with bounded local acceptance; scoped financial aftercare, granular Care authority, booking guide/practice decisions and complete route acceptance remain open.",
+        "W13 closes the scoped financial-aftercare adapter locally. Granular Care authority, canonical persisted handoff/shared staffed transport and full route-specific mode decisions remain open."
+      ],
+      "subviews": [
+        {
+          "pattern": "/admin/workforce/access",
+          "task": "Scoped workforce account directory",
+          "verification": "W1: isolated HTTP, component and rendered browser checks passed; see W1 evidence; W3 hosted fixture release evidence and W4 local impact/role regression accepted; full route learning remains open; W14B reviewed v1/v2 management, separate positions,45 native regressions/final5 focused,8 final responsive fixtures and review-draft retention accepted locally. W14C operational Care adapters accepted locally; canonical handoff/live transport and full route learning/hosted/device gates remain open."
+        },
+        {
+          "pattern": "/admin/workforce/access/[userId]",
+          "task": "Existing reviewed position/responsibility editor",
+          "verification": "W1: existing editor enrollment/assignment/revocation/delegation/recovery regression passed; full effective-access foundation still pending; W3 hosted fixture release evidence and W4 local impact/role regression accepted; full route learning remains open; W14B reviewed v1/v2 management, separate positions,45 native regressions/final5 focused,8 final responsive fixtures and review-draft retention accepted locally. W14C operational Care adapters accepted locally; canonical handoff/live transport and full route learning/hosted/device gates remain open."
+        },
+        {
+          "pattern": "/admin/workforce/jobs",
+          "task": "Permitted workshop queue",
+          "verification": "W5 native policy tests and intercepted job-detail/session browser cases; remaining full learning modes open."
+        },
+        {
+          "pattern": "/admin/workforce/jobs/[jobId]",
+          "task": "Scoped technical work, assignment and independent review",
+          "verification": "W5 native policy tests and intercepted job-detail/session browser cases; remaining full learning modes open."
+        },
+        {
+          "pattern": "/admin/workforce/bookings",
+          "task": "Scoped bookings",
+          "verification": "W5 source predicate/native policy tests; full route-specific rendered states and learning modes remain open."
+        },
+        {
+          "pattern": "/admin/workforce/bookings/[bookingId]",
+          "task": "Scoped booking detail and separately granted appointment confirmation",
+          "verification": "W12 native branch/grant/current-version/business-rule/concurrency acceptance; responsive fixtures and actual browser/API/CI-DB composition. Full route learning modes, hosted/device acceptance remain open."
+        },
+        {
+          "pattern": "/admin/workforce/enquiries",
+          "task": "Scoped sales/care enquiry queue",
+          "verification": "W14C:14 native branch/action/handler/race/expiry/privacy cases,61 workforce/session/learning regressions,36 responsive Care fixtures,50 legacy browser cases and1 actual browser/CSRF/API/CI-DB composition pass. Read-only help and reply-practice gates verified. Full route learning modes/hosted/device acceptance remain open."
+        },
+        {
+          "pattern": "/admin/workforce/complaints",
+          "task": "Scoped complaint queue",
+          "verification": "W14C:14 native branch/action/handler/race/expiry/privacy cases,61 workforce/session/learning regressions,36 responsive Care fixtures,50 legacy browser cases and1 actual browser/CSRF/API/CI-DB composition pass. Read-only help and reply-practice gates verified. Full route learning modes/hosted/device acceptance remain open."
+        },
+        {
+          "pattern": "/admin/workforce/orders",
+          "task": "Scoped preparation queue",
+          "verification": "W5 source predicate/native policy tests; full route-specific rendered states and learning modes remain open."
+        },
+        {
+          "pattern": "/admin/workforce/finance",
+          "task": "Permitted finance overview",
+          "verification": "W5 source predicate/native policy tests; full route-specific rendered states and learning modes remain open."
+        },
+        {
+          "pattern": "/admin/workforce/aftercare",
+          "task": "Scoped financial aftercare queue",
+          "verification": "W13: native branch/grant/fee/privacy/stale/concurrency acceptance, 21 responsive Staff/Admin fixtures and actual browser/CSRF/API/CI-DB composition; full learning modes/hosted/device acceptance remain open."
+        },
+        {
+          "pattern": "/admin/workforce/aftercare/[requestId]",
+          "task": "Scoped financial aftercare evidence and reviewed decision",
+          "verification": "W13: native branch/grant/fee/privacy/stale/concurrency acceptance, 21 responsive Staff/Admin fixtures and actual browser/CSRF/API/CI-DB composition; full learning modes/hosted/device acceptance remain open."
+        }
+      ]
+    },
+    "/contact": {
+      "source": "app/contact/page.tsx",
+      "audience": "public",
+      "accessPredicate": "public; launch mode and token conditions may restrict actions",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/dashboard/bookings/[bookingId]": {
+      "source": "app/dashboard/bookings/[bookingId]/page.tsx",
+      "audience": "customer",
+      "accessPredicate": "authenticated customer; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/dashboard/bookings": {
+      "source": "app/dashboard/bookings/page.tsx",
+      "audience": "customer",
+      "accessPredicate": "authenticated customer; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/dashboard/cart": {
+      "source": "app/dashboard/cart/page.tsx",
+      "audience": "customer",
+      "accessPredicate": "authenticated customer; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/dashboard/inspections": {
+      "source": "app/dashboard/inspections/page.tsx",
+      "audience": "customer",
+      "accessPredicate": "authenticated customer; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/dashboard/invoices/[invoiceId]": {
+      "source": "app/dashboard/invoices/[invoiceId]/page.tsx",
+      "audience": "customer",
+      "accessPredicate": "authenticated customer; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/dashboard/invoices": {
+      "source": "app/dashboard/invoices/page.tsx",
+      "audience": "customer",
+      "accessPredicate": "authenticated customer; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/dashboard/notifications": {
+      "source": "app/dashboard/notifications/page.tsx",
+      "audience": "customer",
+      "accessPredicate": "authenticated customer; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/dashboard/orders/[orderId]/aftercare": {
+      "source": "app/dashboard/orders/[orderId]/aftercare/page.tsx",
+      "audience": "customer",
+      "accessPredicate": "authenticated customer; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/dashboard/orders/[orderId]": {
+      "source": "app/dashboard/orders/[orderId]/page.tsx",
+      "audience": "customer",
+      "accessPredicate": "authenticated customer; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/dashboard/orders": {
+      "source": "app/dashboard/orders/page.tsx",
+      "audience": "customer",
+      "accessPredicate": "authenticated customer; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/dashboard": {
+      "source": "app/dashboard/page.tsx",
+      "audience": "customer",
+      "accessPredicate": "authenticated customer; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/dashboard/payments/[paymentId]": {
+      "source": "app/dashboard/payments/[paymentId]/page.tsx",
+      "audience": "customer",
+      "accessPredicate": "authenticated customer; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/dashboard/payments": {
+      "source": "app/dashboard/payments/page.tsx",
+      "audience": "customer",
+      "accessPredicate": "authenticated customer; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/dashboard/privacy": {
+      "source": "app/dashboard/privacy/page.tsx",
+      "audience": "customer",
+      "accessPredicate": "authenticated customer; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/dashboard/profile": {
+      "source": "app/dashboard/profile/page.tsx",
+      "audience": "customer",
+      "accessPredicate": "authenticated customer; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/dashboard/reviews/[reviewId]": {
+      "source": "app/dashboard/reviews/[reviewId]/page.tsx",
+      "audience": "customer",
+      "accessPredicate": "authenticated customer; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/dashboard/reviews": {
+      "source": "app/dashboard/reviews/page.tsx",
+      "audience": "customer",
+      "accessPredicate": "authenticated customer; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/dashboard/saved": {
+      "source": "app/dashboard/saved/page.tsx",
+      "audience": "customer",
+      "accessPredicate": "authenticated customer; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/dashboard/security": {
+      "source": "app/dashboard/security/page.tsx",
+      "audience": "customer",
+      "accessPredicate": "authenticated customer; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/dashboard/support/[kind]/[supportId]": {
+      "source": "app/dashboard/support/[kind]/[supportId]/page.tsx",
+      "audience": "customer",
+      "accessPredicate": "Current verified CUSTOMER session; server enforces owned enquiry/complaint reads and reviewed handoff writes independently of workforce grants.",
+      "decision": "pending",
+      "purpose": "Read and follow up in one owned canonical support conversation.",
+      "contextualAnswer": null,
+      "articleIds": ["own-conversation"],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [
+        "Handoff QUEUED/SAVED confirms database persistence, not email delivery or human reading; support business status remains independent."
+      ],
+      "recovery": [
+        "Check an uncertain handoff by operation ID, then retry the identical review or cancel safely before editing. Browser stores no summary or transcript."
+      ],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [
+        "W15: docs/help-learn/REVIEWED_HANDOFF_W15.md; provider-off real browser/CSRF/API/restricted-CI-DB new enquiry and existing complaint handoff, owned history and scoped operator queue; partial route evidence."
+      ],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4.",
+        "Shared staffed transport, complete exact-route learning modes and hosted/actual-role/device acceptance remain open."
+      ],
+      "subviews": []
+    },
+    "/dashboard/support": {
+      "source": "app/dashboard/support/page.tsx",
+      "audience": "customer",
+      "accessPredicate": "Current verified CUSTOMER session; server enforces owned enquiry/complaint reads and reviewed handoff writes independently of workforce grants.",
+      "decision": "pending",
+      "purpose": "Find and continue your owned support requests; start or receive a reviewed queued handoff.",
+      "contextualAnswer": null,
+      "articleIds": ["own-conversation"],
+      "guideIds": ["own-request"],
+      "practiceIds": [],
+      "statusDefinitions": [
+        "Handoff QUEUED/SAVED confirms database persistence, not email delivery or human reading; support business status remains independent."
+      ],
+      "recovery": [
+        "Check an uncertain handoff by operation ID, then retry the identical review or cancel safely before editing. Browser stores no summary or transcript."
+      ],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [
+        "W9: docs/help-learn/ALLIE_EVALUATION_W9.md; real provider baseline/targeted review, actual guest/customer composition and native scope checks. This is partial evidence, not complete per-route acceptance.",
+        "W15: docs/help-learn/REVIEWED_HANDOFF_W15.md; provider-off real browser/CSRF/API/restricted-CI-DB new enquiry and existing complaint handoff, owned history and scoped operator queue; partial route evidence."
+      ],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4.",
+        "Shared staffed transport, complete exact-route learning modes and hosted/actual-role/device acceptance remain open."
+      ],
+      "subviews": []
+    },
+    "/dashboard/vehicle-transactions/[transactionId]": {
+      "source": "app/dashboard/vehicle-transactions/[transactionId]/page.tsx",
+      "audience": "customer",
+      "accessPredicate": "authenticated customer; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/dashboard/vehicle-transactions": {
+      "source": "app/dashboard/vehicle-transactions/page.tsx",
+      "audience": "customer",
+      "accessPredicate": "authenticated customer; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/dashboard/vehicles/[vehicleId]": {
+      "source": "app/dashboard/vehicles/[vehicleId]/page.tsx",
+      "audience": "customer",
+      "accessPredicate": "authenticated customer; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/dashboard/vehicles": {
+      "source": "app/dashboard/vehicles/page.tsx",
+      "audience": "customer",
+      "accessPredicate": "authenticated customer; per-route confirmation required",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/forgot-password": {
+      "source": "app/forgot-password/page.tsx",
+      "audience": "authentication",
+      "accessPredicate": "public; launch mode and token conditions may restrict actions",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": ["security-basics"],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/help/[slug]": {
+      "source": "app/help/[slug]/page.tsx",
+      "audience": "public",
+      "accessPredicate": "public; launch mode and token conditions may restrict actions",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/help": {
+      "source": "app/help/page.tsx",
+      "audience": "public",
+      "accessPredicate": "public; launch mode and token conditions may restrict actions",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": ["no-live-lookup"],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [
+        "W9: docs/help-learn/ALLIE_EVALUATION_W9.md; real provider baseline/targeted review, actual guest/customer composition and native scope checks. This is partial evidence, not complete per-route acceptance."
+      ],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/learn": {
+      "source": "app/learn/page.tsx",
+      "audience": "public",
+      "accessPredicate": "public; launch mode and token conditions may restrict actions",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [
+        "docs/help-learn/ALLIE_PROVIDER_CORE_W6.md",
+        "docs/help-learn/ALLIE_CONVERSATIONS_W7.md",
+        "backend/tests/integration/allie-conversations.test.ts",
+        "docs/help-learn/ALLIE_CONVERSATION_UI_W8.md",
+        "frontend/tests/e2e/allie-conversation.spec.ts"
+      ],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4.",
+        "W8 conversation/privacy UI and W7 owned API are isolated-tested in separate browser/API and native provider-mocked layers. Real combined backend/provider journeys, >=100 reviewed evaluation, persisted handoff and staffed chat remain unfinished."
+      ],
+      "subviews": []
+    },
+    "/learn/practice/[scenarioId]": {
+      "source": "app/learn/practice/[scenarioId]/page.tsx",
+      "audience": "public",
+      "accessPredicate": "public; launch mode and token conditions may restrict actions",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [
+        "docs/help-learn/ALLIE_PROVIDER_CORE_W6.md",
+        "docs/help-learn/ALLIE_CONVERSATIONS_W7.md",
+        "backend/tests/integration/allie-conversations.test.ts",
+        "docs/help-learn/ALLIE_CONVERSATION_UI_W8.md",
+        "frontend/tests/e2e/allie-conversation.spec.ts"
+      ],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4.",
+        "W8 conversation/privacy UI and W7 owned API are isolated-tested in separate browser/API and native provider-mocked layers. Real combined backend/provider journeys, >=100 reviewed evaluation, persisted handoff and staffed chat remain unfinished."
+      ],
+      "subviews": []
+    },
+    "/login": {
+      "source": "app/login/page.tsx",
+      "audience": "authentication",
+      "accessPredicate": "public; launch mode and token conditions may restrict actions",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/mfa": {
+      "source": "app/mfa/page.tsx",
+      "audience": "authentication",
+      "accessPredicate": "public; launch mode and token conditions may restrict actions",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/": {
+      "source": "app/page.tsx",
+      "audience": "public",
+      "accessPredicate": "public; launch mode and token conditions may restrict actions",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/parts/[productId]": {
+      "source": "app/parts/[productId]/page.tsx",
+      "audience": "public",
+      "accessPredicate": "public; launch mode and token conditions may restrict actions",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/parts": {
+      "source": "app/parts/page.tsx",
+      "audience": "public",
+      "accessPredicate": "public; launch mode and token conditions may restrict actions",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": ["parts-fitment"],
+      "guideIds": ["parts-find"],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [
+        "W9: docs/help-learn/ALLIE_EVALUATION_W9.md; real provider baseline/targeted review, actual guest/customer composition and native scope checks. This is partial evidence, not complete per-route acceptance."
+      ],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/payments/complete": {
+      "source": "app/payments/complete/page.tsx",
+      "audience": "public",
+      "accessPredicate": "public; launch mode and token conditions may restrict actions",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/privacy": {
+      "source": "app/privacy/page.tsx",
+      "audience": "public",
+      "accessPredicate": "public; launch mode and token conditions may restrict actions",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/register": {
+      "source": "app/register/page.tsx",
+      "audience": "authentication",
+      "accessPredicate": "public; launch mode and token conditions may restrict actions",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/reset-password": {
+      "source": "app/reset-password/page.tsx",
+      "audience": "authentication",
+      "accessPredicate": "public; launch mode and token conditions may restrict actions",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/reviews": {
+      "source": "app/reviews/page.tsx",
+      "audience": "public",
+      "accessPredicate": "public; launch mode and token conditions may restrict actions",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/services/[serviceId]": {
+      "source": "app/services/[serviceId]/page.tsx",
+      "audience": "public",
+      "accessPredicate": "public; launch mode and token conditions may restrict actions",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/services": {
+      "source": "app/services/page.tsx",
+      "audience": "public",
+      "accessPredicate": "public; launch mode and token conditions may restrict actions",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": ["service-request"],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/staff/accept-invitation": {
+      "source": "app/staff/accept-invitation/page.tsx",
+      "audience": "authentication",
+      "accessPredicate": "public; launch mode and token conditions may restrict actions",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/vehicles/[listingId]": {
+      "source": "app/vehicles/[listingId]/page.tsx",
+      "audience": "public",
+      "accessPredicate": "public; launch mode and token conditions may restrict actions",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/vehicles": {
+      "source": "app/vehicles/page.tsx",
+      "audience": "public",
+      "accessPredicate": "public; launch mode and token conditions may restrict actions",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": ["vehicle-enquiry"],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    },
+    "/verify-email": {
+      "source": "app/verify-email/page.tsx",
+      "audience": "authentication",
+      "accessPredicate": "public; launch mode and token conditions may restrict actions",
+      "decision": "pending",
+      "purpose": null,
+      "contextualAnswer": null,
+      "articleIds": [],
+      "guideIds": [],
+      "practiceIds": [],
+      "statusDefinitions": [],
+      "recovery": [],
+      "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
+      "fixture": "Identify the permitted role/scope and realistic state for this route.",
+      "verification": "pending",
+      "evidence": [],
+      "gaps": [
+        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      ],
+      "subviews": []
+    }
+  }
+}

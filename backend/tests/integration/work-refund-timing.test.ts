@@ -11,7 +11,11 @@ import { refundTimingWorkspaceResponse } from "../../src/modules/policies/refund
 const app = createApp({ checkReadiness: async () => undefined, rateLimit: 10000 }),
   root = "/api/v1/admin/policies",
   url = root + "/refund-timing/current";
-describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
+const provisionedWorkspaceAcceptanceChecksEnabled =
+  process.env.RUN_DATABASE_TESTS === "true" &&
+  process.env.RUN_PROVISIONED_WORKSPACE_TESTS === "true";
+
+describe.skipIf(!provisionedWorkspaceAcceptanceChecksEnabled)(
   "bank refund timing policy workspace",
   () => {
     const sessions: string[] = [],

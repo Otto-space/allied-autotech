@@ -48,6 +48,16 @@ export class ResendEmailProvider implements EmailProvider {
             subject: message.subject,
             text: message.text,
             html: message.html,
+            ...(message.supportOutboxEventId
+              ? {
+                  tags: [
+                    {
+                      name: "support_outbox_event_id",
+                      value: message.supportOutboxEventId,
+                    },
+                  ],
+                }
+              : {}),
           }),
         },
         env.MESSAGING_REQUEST_TIMEOUT_MS,

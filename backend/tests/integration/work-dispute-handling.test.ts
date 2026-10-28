@@ -10,7 +10,11 @@ import { sessionCookieName } from "../../src/common/security/cookies.js";
 
 const app = createApp({ checkReadiness: async () => undefined }),
   root = "/api/v1/staff/disputes";
-describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
+const provisionedWorkspaceAcceptanceChecksEnabled =
+  process.env.RUN_DATABASE_TESTS === "true" &&
+  process.env.RUN_PROVISIONED_WORKSPACE_TESTS === "true";
+
+describe.skipIf(!provisionedWorkspaceAcceptanceChecksEnabled)(
   "dispute current records and eligible operators",
   () => {
     type Actor = { id: string; headers: Record<string, string> };

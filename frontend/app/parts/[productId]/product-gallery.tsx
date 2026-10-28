@@ -21,7 +21,7 @@ function ProductPhoto({
 }) {
   const [failed, setFailed] = useState(false);
   return (
-    <div className="pd-photo">
+    <div className={`pd-photo${!photo && !small ? " pd-photo-missing" : ""}`}>
       {photo && !failed ? (
         <Image
           src={photo.url}

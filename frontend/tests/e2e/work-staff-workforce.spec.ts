@@ -1,6 +1,14 @@
 import { expect, test, type Page, type Locator } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
+import path from "node:path";
+import os from "node:os";
 import { workStaffDetailFixture, id } from "../fixtures/work-staff-detail";
+import { definitionForAssignment } from "../../../backend/src/modules/organization/workforce-catalogue";
+import {
+  effectiveWorkforceGrants,
+  workforceGrantChanges,
+  type GrantVisibility,
+} from "../../../backend/src/modules/organization/workforce-effective-access";
 const stamp = "2026-10-19T08:00:00.000Z";
 const proof = "Synthetic browser proof only";
 const reason = "Reviewed workshop responsibility coverage";
@@ -23,6 +31,7 @@ async function setup(page: Page, enrolled = false, admin = false, role = "SUPER_
     enabledAt: stamp,
     delegatedTemplates: [] as string[],
     delegatedBranchIds: [] as string[],
+    delegationPolicyVersion: 1,
   };
   if (enrolled) {
     w.access = access;
@@ -33,14 +42,134 @@ async function setup(page: Page, enrolled = false, admin = false, role = "SUPER_
     writes: [] as { path: string; body: Record<string, unknown> }[],
     mode: "normal",
     reads: 0,
+    previews: [] as Record<string, unknown>[],
   };
+  const assignments = () =>
+    w.assignments.map((a) => ({
+      ...a,
+      templateVersion: a.templateVersion ?? 1,
+      startsAt: new Date(a.startsAt),
+      expiresAt: a.expiresAt ? new Date(a.expiresAt) : null,
+      revokedAt: a.revokedAt ? new Date(a.revokedAt) : null,
+    }));
+  function visibility(): GrantVisibility {
+    const delegated = w.management.branchIds !== null;
+    const scopes = new Map<string, "BRANCH" | "ASSIGNED">();
+    for (const template of w.management.templates)
+      for (const capability of w.templates[template]!.actions)
+        if (scopes.get(capability) !== "BRANCH")
+          scopes.set(capability, w.templates[template]!.scope as "BRANCH" | "ASSIGNED");
+    return {
+      eligible: true,
+      branches: w.branches,
+      capabilities: delegated
+        ? (new Set(scopes.keys()) as GrantVisibility["capabilities"])
+        : null,
+      maximumScopes: scopes as GrantVisibility["maximumScopes"],
+      visibleAssignmentIds: new Set(w.assignments.map((a) => a.id)),
+    };
+  }
+  function projection() {
+    w.assignmentDefinitions = Object.fromEntries(
+      assignments().map((a) => [a.id, definitionForAssignment(a) ?? null]),
+    );
+    w.effectiveAccess = {
+      baseline: w.access ? "MANAGED" : "LEGACY",
+      visibility: w.management.branchIds === null ? "FULL" : "DELEGATED",
+      evaluatedAt: new Date().toISOString(),
+      grants: effectiveWorkforceGrants(assignments(), visibility(), new Date()),
+      responsibilityGrantsOnly: true,
+    };
+    w.management.delegationCapabilities =
+      w.management.branchIds === null
+        ? null
+        : [...visibility().maximumScopes!.entries()].map(([capability, scope]) => ({
+            capability,
+            scope,
+          }));
+  }
+  await page.route(/\/api\/v1\/admin\/workforce\/accounts(?:\?.*)?$/, (r) =>
+    r.fulfill(
+      ok({
+        items: [
+          {
+            userId: f.member.id,
+            name: "Ada Okoro",
+            email: f.member.email,
+            role: f.member.role,
+            status: "ACTIVE",
+            verified: true,
+            managed: enrolled,
+            position: enrolled ? "WORKSHOP_LEAD" : null,
+            version: enrolled ? 0 : null,
+            accountBranch: null,
+            responsibilities: [],
+            responsibilitiesMore: false,
+            canInspect: true,
+          },
+        ],
+        generatedAt: stamp,
+      }),
+    ),
+  );
   await page.route("**/api/v1/admin/workforce/accounts/**", async (r) => {
     if (r.request().method() === "GET") {
       state.reads++;
+      projection();
       return r.fulfill(ok(w));
     }
     const body = r.request().postDataJSON(),
       path = new URL(r.request().url()).pathname;
+    if (path.endsWith("/access-preview")) {
+      state.previews.push(body);
+      if (state.mode === "preview-unavailable")
+        return r.fulfill({
+          status: 503,
+          json: {
+            success: false,
+            error: { code: "SERVICE_UNAVAILABLE" },
+            message: "Access preview is unavailable",
+          },
+        });
+      const before = assignments(),
+        now = new Date(),
+        at =
+          body.operation === "assign"
+            ? new Date(Math.max(now.getTime(), Date.parse(body.startsAt)))
+            : now;
+      const after =
+        body.operation === "assign"
+          ? [
+              ...before,
+              {
+                id: "proposal",
+                template: body.template,
+                templateVersion: 1,
+                scope: w.templates[body.template]!.scope,
+                branchId: body.branchId,
+                startsAt: new Date(body.startsAt),
+                expiresAt: body.expiresAt ? new Date(body.expiresAt) : null,
+                revokedAt: null,
+              },
+            ]
+          : before.filter((a) => a.id !== body.assignmentId);
+      return r.fulfill(
+        ok({
+          ...workforceGrantChanges(
+            effectiveWorkforceGrants(before, visibility(), at),
+            effectiveWorkforceGrants(after, visibility(), at, "proposal"),
+          ),
+          userId: w.userId,
+          expectedVersion: w.access!.version,
+          operation: body.operation,
+          evaluatedAt: at.toISOString(),
+          scheduled: at > now,
+          visibility: w.management.branchIds === null ? "FULL" : "DELEGATED",
+          responsibilityGrantsOnly: true,
+          fingerprint: "a".repeat(64),
+        }),
+      );
+    }
     state.writes.push({ path, body });
     if (state.mode === "lost") return r.abort("failed");
     if (state.mode === "malformed")
@@ -64,7 +193,7 @@ async function setup(page: Page, enrolled = false, admin = false, role = "SUPER_
         revokedByUserId: id(302),
         revocationReason: body.reason,
       });
-      w.activeAssignmentIds = [];
+      w.activeAssignmentIds = w.assignments.filter((a) => !a.revokedAt).map((a) => a.id);
       w.access!.version++;
       return r.fulfill(ok(a));
     }
@@ -73,6 +202,7 @@ async function setup(page: Page, enrolled = false, admin = false, role = "SUPER_
         id: id(700),
         userId: w.userId,
         template: body.template,
+        templateVersion: 1,
         branchId: body.branchId,
         scope: "BRANCH" as const,
         temporary: body.temporary,
@@ -98,6 +228,121 @@ async function setup(page: Page, enrolled = false, admin = false, role = "SUPER_
   return state;
 }
 const section = (page: Page) => page.locator(".workforce-panel");
+for (const width of [390, 1440])
+  test(`access review explains overlapping care grants at ${width}px`, async ({
+    page,
+  }) => {
+    const pageErrors: string[] = [];
+    const consoleMessages: { level: string; text: string }[] = [];
+    page.on("pageerror", (error) => pageErrors.push(error.message));
+    page.on("console", (message) => {
+      if (["warning", "error"].includes(message.type()))
+        consoleMessages.push({ level: message.type(), text: message.text() });
+    });
+    const s = await setup(page, true);
+    s.f.workforce.assignments = [780, 781].map((n) => ({
+      id: id(n),
+      userId: s.f.member.id,
+      template: "CUSTOMER_SERVICE",
+      templateVersion: 1,
+      branchId: id(101),
+      scope: "BRANCH",
+      temporary: false,
+      startsAt: stamp,
+      expiresAt: null,
+      reason: "Isolated reviewed care coverage",
+      assignedByUserId: id(302),
+      createdAt: stamp,
+      revokedAt: null,
+      revokedByUserId: null,
+      revocationReason: null,
+    }));
+    s.f.workforce.activeAssignmentIds = s.f.workforce.assignments.map((a) => a.id);
+    await page.setViewportSize({ width, height: 1000 });
+    await page.goto(`/admin/staff/${s.f.member.id}`);
+    const current = page.getByRole("region", {
+      name: "Effective responsibility access",
+      exact: true,
+    });
+    await expect(current.getByText("Capabilities and grant sources (4)")).toBeVisible();
+    const first = section(page).locator(".wf-assignments > li").first();
+    await first.getByText("Revoke this responsibility", { exact: true }).click();
+    const form = first.locator("form");
+    await fillProof(form);
+    await form.getByRole("button", { name: "Review revocation" }).click();
+    const dialog = page.getByRole("dialog");
+    await expect(
+      dialog.getByRole("heading", { name: "Access removed (0)" }),
+    ).toBeVisible();
+    const retained = dialog.getByText("Access retained (4)", { exact: true });
+    await retained.focus();
+    await retained.press("Enter");
+    await expect(
+      dialog.getByText("Handle Customer Care enquiries", { exact: true }),
+    ).toBeVisible();
+    await expect(dialog).toContainText("Supplied by: Customer Service Officer.");
+    await expect(page).toHaveURL(new RegExp(`/admin/staff/${s.f.member.id}$`));
+    expect(await page.title()).not.toBe("");
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+    expect(
+      (
+        await new AxeBuilder({ page })
+          .withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"])
+          .analyze()
+      ).violations,
+    ).toEqual([]);
+    expect(pageErrors).toEqual([]);
+    expect(consoleMessages.filter((message) => message.level === "error")).toEqual([]);
+    await test.info().attach("review-console", {
+      body: JSON.stringify(consoleMessages, null, 2),
+      contentType: "application/json",
+    });
+    expect(s.writes).toHaveLength(0);
+    expect(JSON.stringify(s.previews)).not.toContain(proof);
+    await page.screenshot({
+      path: path.join(os.tmpdir(), `allied-workforce-effective-review-${width}.png`),
+      fullPage: false,
+    });
+    const careGrant = dialog.getByText("Handle Customer Care enquiries", { exact: true });
+    await careGrant.scrollIntoViewIfNeeded();
+    await expect(careGrant).toBeInViewport();
+    await page.screenshot({
+      path: path.join(os.tmpdir(), `allied-workforce-effective-retained-${width}.png`),
+      fullPage: false,
+    });
+    await confirm(page);
+    await expect(dialog).toHaveCount(0);
+    expect(s.writes).toHaveLength(1);
+    expect(s.writes[0]!.body.expectedAccessPreview).toBe("a".repeat(64));
+  });
+test("unavailable access preview never opens confirmation or creates an uncertain save", async ({
+  page,
+}) => {
+  const s = await setup(page, true);
+  s.mode = "preview-unavailable";
+  await page.goto(`/admin/staff/${s.f.member.id}`);
+  await section(page).getByText("Assign responsibility", { exact: true }).click();
+  const form = section(page)
+    .locator("details")
+    .filter({ has: page.locator("#workforce-template") })
+    .locator("form");
+  await form.getByLabel("Responsibility", { exact: true }).selectOption("WORKSHOP_LEAD");
+  await form.getByLabel("Branch", { exact: true }).selectOption(id(101));
+  await form.getByLabel("Starts at (your device time)").fill("2026-10-26T09:00");
+  await fillProof(form);
+  await form.getByRole("button", { name: "Review responsibility assignment" }).click();
+  await expect(section(page).getByRole("alert")).toContainText(
+    "The request could not be completed. Please try again shortly.",
+  );
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  expect(s.previews).toHaveLength(1);
+  expect(s.writes).toHaveLength(0);
+  await expect(
+    page.getByRole("heading", { name: "Check the previous access change" }),
+  ).toHaveCount(0);
+});
 async function fillProof(scope: Locator) {
   await scope.getByLabel("Reason", { exact: true }).fill(reason);
   await scope.getByLabel("Your current password", { exact: true }).fill(proof);
@@ -140,6 +385,7 @@ test("enrollment reviews named account, clears and hides password, then applies 
   ).toBeVisible();
   expect(s.writes).toHaveLength(1);
   expect(s.writes[0]!.body).toEqual({
+    receiptVersion: 2,
     currentPassword: proof,
     reason,
     position: "WORKSHOP_LEAD",
@@ -303,7 +549,7 @@ for (const width of [430, 1440])
       fullPage: true,
     });
   });
-test("owner responsibility lookup reuses verified account and hides protected actions", async ({
+test("owner responsibility directory reuses verified account and hides protected actions", async ({
   page,
 }) => {
   const s = await setup(page);
@@ -314,8 +560,7 @@ test("owner responsibility lookup reuses verified account and hides protected ac
     canDelegate: false,
   });
   await page.goto("/admin/workforce");
-  await page.getByLabel("Staff user reference", { exact: true }).fill(s.f.member.id);
-  await page.getByRole("button", { name: "Review staff responsibilities" }).click();
+  await page.getByRole("link", { name: "View/manage Ada Okoro", exact: true }).click();
   await expect(
     section(page).getByText(/Responsibility changes are unavailable/),
   ).toBeVisible();
@@ -379,8 +624,7 @@ test("delegated responsibility workspace assigns through scoped APIs without leg
     ),
   );
   await page.goto("/admin/workforce/access");
-  await page.getByLabel("Staff user reference", { exact: true }).fill(s.f.member.id);
-  await page.getByRole("button", { name: "Review account", exact: true }).click();
+  await page.getByRole("link", { name: "View/manage Ada Okoro", exact: true }).click();
   await section(page).getByText("Assign responsibility", { exact: true }).click();
   const form = section(page).locator("form");
   await expect(

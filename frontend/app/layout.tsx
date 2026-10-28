@@ -12,10 +12,13 @@ import "./dashboard-forms.css";
 import "./brand-system.css";
 import "./status-progress.css";
 import "./dashboard-spacing.css";
+import "./learning.css";
+import { LearningCompanion } from "./components/learning/learning-companion";
 
 import { SupportWidget } from "./components/support-widget";
 import { ToastRegion } from "./components/toast-region";
 import { FormDrafts } from "./components/form-drafts";
+import { ViewportNavigation } from "./components/viewport-navigation";
 
 const quicksand = localFont({
   src: "../public/fonts/quicksand-variable.ttf",
@@ -47,16 +50,23 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   await connection();
 
   return (
-    <html
-      lang="en"
-      data-scroll-behavior="smooth"
-      className={`${quicksand.variable} ${nippo.variable}`}
-    >
+    <html lang="en" className={`${quicksand.variable} ${nippo.variable}`}>
+      <head>
+        {/* Keep one versioned icon mounted across route metadata updates. */}
+        <link
+          rel="icon"
+          href="/brand/allied-favicon-v1.png"
+          type="image/png"
+          sizes="512x512"
+        />
+      </head>
       <body>
         {children}
         <SupportWidget />
+        <LearningCompanion />
         <ToastRegion />
         <FormDrafts />
+        <ViewportNavigation />
       </body>
     </html>
   );

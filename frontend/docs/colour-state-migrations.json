@@ -1,0 +1,757 @@
+[
+  {
+    "source": "frontend/app/about/about.css",
+    "selector": ".about-page :is(a, summary, [tabindex=\"-1\"]):focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/admin/booking-capacity/booking-capacity.css",
+    "selector": ".work-capacity-policy summary:focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/admin/booking-capacity/booking-capacity.css",
+    "selector": ".dashboard .dashboard-content .capacity-days input[type=\"checkbox\"]",
+    "change": "native checked accent"
+  },
+  {
+    "source": "frontend/app/admin/booking-slots/booking-slots.css",
+    "selector": ".work-slot-own input",
+    "change": "native checked accent"
+  },
+  {
+    "source": "frontend/app/admin/booking-slots/booking-slots.css",
+    "selector": ".dashboard\r\n  .dashboard-content\r\n  .work-slots\r\n  :is(input, select, button, a, summary):focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/admin/bookings/bookings.css",
+    "selector": ".work-bookings :is(a, button, input, select, summary):focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/admin/bookings/bookings.css",
+    "selector": ".work-booking-own input",
+    "change": "native checked accent"
+  },
+  {
+    "source": "frontend/app/admin/bookings/bookings.css",
+    "selector": ".dashboard .dashboard-content .work-bookings :is(input, select):focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/admin/bookings/[bookingId]/booking-detail.css",
+    "selector": ".work-booking-detail :is(input, select, textarea, button, a, summary):focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/admin/branches/branches.css",
+    "selector": ".wb-check input",
+    "change": "native checked accent"
+  },
+  {
+    "source": "frontend/app/admin/categories/categories.css",
+    "selector": ".work-product-categories .check-label input",
+    "change": "native checked accent"
+  },
+  {
+    "source": "frontend/app/admin/complaint-policy/complaint-policy.css",
+    "selector": ".work-complaint-policy summary:focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/admin/delivery-policy/delivery-policy.css",
+    "selector": ".work-delivery-policy summary:focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/admin/dispute-policy/dispute-policy.css",
+    "selector": ".work-dispute-policy summary:focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/admin/finance-policy/finance-policy.css",
+    "selector": ".finance-history summary:focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/admin/fitment/fitment.css",
+    "selector": ".fitment-workspace :is(button, summary, a, input, select, textarea):focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/admin/inspections/inspections.css",
+    "selector": ".work-inspections :is(input, select, textarea, button, a, summary):focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/admin/payment-disputes/payment-disputes.css",
+    "selector": ".work-disputes select:focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/admin/payment-disputes/work/dispute-handling.css",
+    "selector": ".work-dispute-handling .field input:focus-visible,\r\n.work-dispute-handling .field select:focus-visible,\r\n.work-dispute-handling textarea:focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/admin/payment-exceptions/payment-exceptions.css",
+    "selector": ".work-exceptions :is(input, select, textarea):focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/admin/payment-exceptions/payment-exceptions.css",
+    "selector": ".we-ack input",
+    "change": "native checked accent"
+  },
+  {
+    "source": "frontend/app/admin/payments/payments.css",
+    "selector": ".wp-ack input",
+    "change": "native checked accent"
+  },
+  {
+    "source": "frontend/app/admin/promotions/promotion-create.css",
+    "selector": ".pc-editor :is(input, select, textarea):focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/admin/promotions/promotion-create.css",
+    "selector": ".dashboard .dashboard-content .work-promotion-create .pc-editor input[type=\"checkbox\"]",
+    "change": "native checked accent"
+  },
+  {
+    "source": "frontend/app/admin/promotions/promotion-create.css",
+    "selector": ".work-promotion-create :is(a, button):focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/admin/refund-timing/refund-timing.css",
+    "selector": ".work-refund-timing summary:focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/admin/refund-timing/refund-timing.css",
+    "selector": ".dashboard .dashboard-content .refund-timing-form input[type=\"checkbox\"],\r\n.refund-timing-ack input",
+    "change": "native checked accent"
+  },
+  {
+    "source": "frontend/app/admin/refund-timing/refund-timing.css",
+    "selector": ".dashboard .dashboard-content .refund-timing-form input:focus-visible,\r\n.dashboard .dashboard-content .refund-timing-form select:focus-visible,\r\n.dashboard .dashboard-content .refund-timing-form textarea:focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/admin/refund-timing/refund-timing.css",
+    "selector": ".dashboard .dashboard-content .refund-timing-form input:focus-visible,\r\n.dashboard .dashboard-content .refund-timing-form select:focus-visible,\r\n.dashboard .dashboard-content .refund-timing-form textarea:focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/admin/refunds/refunds.css",
+    "selector": ".work-refunds :is(button, a, input, select, textarea, summary):focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/admin/refunds/refunds.css",
+    "selector": ".work-refunds :is(h1, h2)[tabindex=\"-1\"]:focus",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/admin/refunds/refunds.css",
+    "selector": ".work-refunds input[type=\"checkbox\"]",
+    "change": "native checked accent"
+  },
+  {
+    "source": "frontend/app/admin/reservation-terms/reservation-policy.css",
+    "selector": ".work-reservation-policy summary:focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/admin/reservation-terms/reservation-policy.css",
+    "selector": ".dashboard .dashboard-content .reservation-form input[type=\"checkbox\"],\r\n.reservation-ack input",
+    "change": "native checked accent"
+  },
+  {
+    "source": "frontend/app/admin/reservation-terms/reservation-policy.css",
+    "selector": ".dashboard .dashboard-content .reservation-form input:focus-visible,\r\n.dashboard .dashboard-content .reservation-form select:focus-visible,\r\n.dashboard .dashboard-content .reservation-form textarea:focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/admin/retention-policy/retention-policy.css",
+    "selector": ".work-retention-policy summary:focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/admin/staff/invite/staff-invitations.css",
+    "selector": ".wsi-password button:focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/admin/staff/[staffUserId]/staff-account.css",
+    "selector": ".wsad-ack input",
+    "change": "native checked accent"
+  },
+  {
+    "source": "frontend/app/admin/vehicles/new/vehicle-create.css",
+    "selector": ".dashboard .dashboard-content .work-vehicle-create :is(input, select):focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/admin/vehicles/new/vehicle-create.css",
+    "selector": ".dashboard .dashboard-content .work-vehicle-create input[type=\"checkbox\"]",
+    "change": "native checked accent"
+  },
+  {
+    "source": "frontend/app/admin/vehicles/vehicle-stock.css",
+    "selector": ".dashboard .dashboard-content .work-vehicle-stock :is(input, select):focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/admin/vehicles/vehicle-stock.css",
+    "selector": ".work-vehicle-stock :is(a, button):focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/admin/vehicles/[vehicleId]/vehicle-detail.css",
+    "selector": ".work-vehicle-detail details > summary:focus-visible,\r\n.vd-sections a:focus-visible,\r\n.vd-back:focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/admin/vehicles/[vehicleId]/vehicle-detail.css",
+    "selector": ".dashboard\r\n  .dashboard-content\r\n  .work-vehicle-detail\r\n  :is(input, select, textarea):focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/admin/vehicles/[vehicleId]/vehicle-detail.css",
+    "selector": ".work-vehicle-detail input[type=\"checkbox\"]",
+    "change": "native checked accent"
+  },
+  {
+    "source": "frontend/app/admin/work-overview.css",
+    "selector": ".work-dashboard :is(a, button, input, select, summary):focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/admin/work-overview.css",
+    "selector": ".work-dashboard .overview-chart-controls input",
+    "change": "native checked accent"
+  },
+  {
+    "source": "frontend/app/components/account-security.css",
+    "selector": ".dashboard\r\n  .dashboard-content\r\n  .account-security\r\n  :is(input, button, a, summary, textarea):focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/components/authenticator-help.css",
+    "selector": ".authenticator-help summary:focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/components/care-workspace.css",
+    "selector": ".care-sort:focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/components/care-workspace.css",
+    "selector": ".care-account-menu > summary:focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/components/care-workspace.css",
+    "selector": ".care-table-region:focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/components/care-workspace.css",
+    "selector": ".care-create > summary:focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/components/care-workspace.css",
+    "selector": ".care-secondary > summary:focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/components/cart-checkout.css",
+    "selector": ".dashboard\r\n  .dashboard-content\r\n  .cart-page\r\n  :where(a, button, input, select, textarea):focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/components/cart-checkout.css",
+    "selector": ".dashboard .dashboard-content .cart-page .cart-fulfillment-option input",
+    "change": "native checked accent"
+  },
+  {
+    "source": "frontend/app/components/cart-update-drawer.css",
+    "selector": ".cart-update-drawer :is(button, a, [tabindex]):focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/components/catalogue-discovery.css",
+    "selector": ".shop-page .parts-intent input[type=\"radio\"]",
+    "change": "native checked accent"
+  },
+  {
+    "source": "frontend/app/components/catalogue-discovery.css",
+    "selector": ":is(.shop-page, .vehicles-page) summary:focus-visible,\r\n.parts-intent label:focus-within",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/components/copyable-value.module.css",
+    "selector": ".copy:focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/components/document-actions.css",
+    "selector": ".document-share .button:focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/components/garage-images.module.css",
+    "selector": ".page button:focus-visible,\r\n.page a:focus-visible,\r\n.page input:focus-visible,\r\n.upload h2:focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/components/garage-images.module.css",
+    "selector": ".upload progress",
+    "change": "native checked accent"
+  },
+  {
+    "source": "frontend/app/components/garage-photo-carousel.module.css",
+    "selector": ".carousel button:focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/components/home-feedback.css",
+    "selector": ".home-reviews-carousel button:focus-visible,\r\n.home-feedback__refresh:focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/components/invoice-detail.css",
+    "selector": ".invoice-detail .button:focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/components/notification-preview.css",
+    "selector": ".notification-preview-dialog :focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/components/notification-record-context.css",
+    "selector": ".notification-record-context:focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/components/notification-record-context.css",
+    "selector": ".cn-attention h2:focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/components/notification-record-context.css",
+    "selector": ".wp-payment[tabindex=\"-1\"]:focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/components/order-detail.css",
+    "selector": ".dashboard\r\n  .dashboard-content\r\n  .customer-order\r\n  :where(a, button, input, textarea):focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/components/payment-detail.css",
+    "selector": ".dashboard\r\n  .dashboard-content\r\n  .customer-payment\r\n  :where(a, button, input, select):focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/components/product-media-workspace.css",
+    "selector": ".product-media-editor :is(a, button, summary, input):focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/components/record-references.css",
+    "selector": ".record-references summary:focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/components/saved-items.css",
+    "selector": ".saved-page :is(button, a, [tabindex]):focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/components/staff-quotations.css",
+    "selector": ".dashboard\r\n  .dashboard-content\r\n  .staff-quotations\r\n  .quotation-editor\r\n  :is(input, select, textarea):focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/components/visit-request.module.css",
+    "selector": ".request .toggle input[type=\"checkbox\"]",
+    "change": "native checked accent"
+  },
+  {
+    "source": "frontend/app/components/workforce-access-panel.css",
+    "selector": ".wf-check input",
+    "change": "native checked accent"
+  },
+  {
+    "source": "frontend/app/components/workforce-bookings.css",
+    "selector": ".workforce-bookings :is(a, button, input, select):focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/components/workforce-complaints.css",
+    "selector": ".workforce-complaints [tabindex]:focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/components/workforce-complaints.css",
+    "selector": ".workforce-complaints :is(a, button, input, select):focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/components/workforce-complaints.css",
+    "selector": ".workforce-complaints :is(textarea, fieldset):focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/components/workforce-directory.css",
+    "selector": ".wf-directory-table-region:focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/components/workforce-enquiries.css",
+    "selector": ".workforce-enquiries [tabindex]:focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/components/workforce-enquiries.css",
+    "selector": ".workforce-enquiries :is(a, button, input, select):focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/components/workforce-enquiries.css",
+    "selector": ".workforce-enquiries :is(textarea, fieldset):focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/components/workforce-enquiries.css",
+    "selector": ".workforce-enquiries .wfe-staff-options input",
+    "change": "native checked accent"
+  },
+  {
+    "source": "frontend/app/components/workforce-job-detail.css",
+    "selector": ".workforce-job-detail :is(a, button, input, select, textarea):focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/components/workforce-job-detail.css",
+    "selector": ".workforce-job-detail input:is([type=\"radio\"], [type=\"checkbox\"])",
+    "change": "native checked accent"
+  },
+  {
+    "source": "frontend/app/components/workforce-jobs.css",
+    "selector": ".workforce-jobs :is(a, button, input, select):focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/components/workforce-overview.css",
+    "selector": ".workforce-overview :is(a, button):focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/contact/contact.css",
+    "selector": ".contact-page :is(a, button, input, select, textarea, summary):focus-visible,\r\n.contact-page [tabindex=\"-1\"]:focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/contact/contact.css",
+    "selector": ".contact-reason input:focus-visible + span",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/contact/contact.css",
+    "selector": ".contact-form-panel :is(input, select, textarea):focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/dashboard/bookings/bookings.css",
+    "selector": ".customer-bookings :is(a, button, select, [tabindex]):focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/dashboard/bookings/[bookingId]/booking-detail.css",
+    "selector": ".customer-booking-detail :is(a, button, summary, textarea):focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/dashboard/customer-overview.css",
+    "selector": ".customer-overview :is(a, button, input, select, summary):focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/dashboard/inspections/inspections.css",
+    "selector": ".customer-inspections :is(a, button, select, [tabindex]):focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/dashboard/invoices/invoices.css",
+    "selector": ".customer-invoices :is(a, button, select, [tabindex]):focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/dashboard/invoices/invoices.css",
+    "selector": ".dashboard .dashboard-content .customer-invoices .invlist-filters select:focus",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/dashboard/notifications/notifications.css",
+    "selector": ".cn-filters input[type=\"checkbox\"]",
+    "change": "native checked accent"
+  },
+  {
+    "source": "frontend/app/dashboard/notifications/notifications.css",
+    "selector": ".customer-notifications :focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/dashboard/orders/orders.css",
+    "selector": ".customer-orders :is(a, button, select, [tabindex]):focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/dashboard/orders/orders.css",
+    "selector": ".dashboard .dashboard-content .customer-orders .order-filters select:focus",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/dashboard/orders/[orderId]/aftercare/aftercare.css",
+    "selector": ".dashboard .dashboard-content .ca-intake .check-label input",
+    "change": "native checked accent"
+  },
+  {
+    "source": "frontend/app/dashboard/payments/payments.css",
+    "selector": ".customer-payments :is(a, button, select, [tabindex]):focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/dashboard/payments/payments.css",
+    "selector": ".dashboard .dashboard-content .customer-payments .paylist-filters select:focus",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/dashboard/profile/profile.css",
+    "selector": ".cp-photo progress",
+    "change": "native checked accent"
+  },
+  {
+    "source": "frontend/app/dashboard/profile/profile.css",
+    "selector": ".cp-form input:focus",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/dashboard/vehicle-transactions/purchases.css",
+    "selector": ".customer-purchases :is(a, button, select, [tabindex]):focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/dashboard/vehicles/garage.css",
+    "selector": ".customer-garage :is(a, button, select, input, [tabindex]):focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/dashboard/vehicles/garage.css",
+    "selector": ".customer-garage .garage-field input:focus",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/dashboard-forms.css",
+    "selector": ".dashboard .dashboard-content :is(input, select, textarea):focus",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/dashboard-forms.css",
+    "selector": ".dashboard .dashboard-content :is(input[type=\"checkbox\"], input[type=\"radio\"])",
+    "change": "native checked accent"
+  },
+  {
+    "source": "frontend/app/dashboard-forms.css",
+    "selector": ".dashboard-content input[type=\"range\"]",
+    "change": "native checked accent"
+  },
+  {
+    "source": "frontend/app/dashboard-forms.css",
+    "selector": ".dashboard .dashboard-content .button:focus-visible,\r\n.dashboard-content .text-link:focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/feedback.css",
+    "selector": ".toast :is(button, a):focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/globals.css",
+    "selector": ":focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/globals.css",
+    "selector": ":is(.ui-action, .ui-navigation):focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/globals.css",
+    "selector": ".support-reply-compose .support-audience input[type=\"radio\"]",
+    "change": "native checked accent"
+  },
+  {
+    "source": "frontend/app/globals.css",
+    "selector": ".input:focus,\r\n.field select:focus,\r\n.field textarea:focus",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/globals.css",
+    "selector": ".support-timeline-selected,\r\n.support-timeline-entry:focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/help/help.css",
+    "selector": ".help-index :is(a, button, input, select, summary, [tabindex=\"-1\"]):focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/help/[slug]/article.css",
+    "selector": ".help-detail :is(a, button):focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/learning.css",
+    "selector": ".learning-content :focus-visible,\n.learning-practice-session :focus-visible,\n.learning-guide-panel :focus-visible,\n.allie-dialog :focus-visible,\n.learning-entry:focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/login/login.css",
+    "selector": ".login-page :is(input, button, a):focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/mfa/mfa.css",
+    "selector": ".mfa-form .field :is(input, select, textarea):focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/mfa/mfa.css",
+    "selector": ".mfa-form .check-field input",
+    "change": "native checked accent"
+  },
+  {
+    "source": "frontend/app/overview.css",
+    "selector": ".overview-chart-controls input",
+    "change": "native checked accent"
+  },
+  {
+    "source": "frontend/app/parts/parts.css",
+    "selector": ".shop-page :is(input, select, button, a):focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/parts/parts.css",
+    "selector": ".shop-page :is(input, select):focus-visible,\r\n.product-category-popup input:focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/parts/parts.css",
+    "selector": ".product-category-popup :is(input, button):focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/parts/parts.css",
+    "selector": ".product-category-popup input:focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/parts/parts.css",
+    "selector": ".parts-selected-car input",
+    "change": "native checked accent"
+  },
+  {
+    "source": "frontend/app/parts/[productId]/product-detail.css",
+    "selector": ".product-detail :is(a, button, input):focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/parts/[productId]/product-detail.css",
+    "selector": ".pd-cart-row input:focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/parts/[productId]/product-detail.css",
+    "selector": ".pd-ordering-faq summary:focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/reset-password/reset-password.css",
+    "selector": ".reset-token summary:focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/reviews/reviews.css",
+    "selector": ".reviews-page :is(a, button, select, summary, [tabindex=\"-1\"]):focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/services/services.css",
+    "selector": ".services-page :is(a, button, summary):focus-visible,\r\n.services-pricing input:focus-visible + span",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/services/services.css",
+    "selector": ".services-discovery-controls input:focus-visible,\r\n.services-discovery-controls select:focus-visible,\r\n.services-category-finder summary:focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/services/[serviceId]/service-detail.css",
+    "selector": ".sd-panel :is(input, textarea):focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/services/[serviceId]/service-detail.css",
+    "selector": ".sd-consent input",
+    "change": "native checked accent"
+  },
+  {
+    "source": "frontend/app/services/[serviceId]/service-detail.css",
+    "selector": ".sd-questions summary:focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/vehicles/vehicles.css",
+    "selector": ".vehicles-page :is(input, select, button, a):focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/vehicles/vehicles.css",
+    "selector": ".vehicles-page :is(input, select):focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/vehicles/vehicles.css",
+    "selector": ".vehicle-origin-presets button:focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/vehicles/vehicles.css",
+    "selector": ".vehicle-multiple-options input[type=\"checkbox\"]",
+    "change": "native checked accent"
+  },
+  {
+    "source": "frontend/app/vehicles/[listingId]/vehicle-detail.css",
+    "selector": ".vehicle-detail :is(a, button, input, textarea):focus-visible",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/vehicles/[listingId]/vehicle-detail.css",
+    "selector": ".vd-inspection-panel :is(input, textarea):focus",
+    "change": "dual focus ring"
+  },
+  {
+    "source": "frontend/app/vehicles/[listingId]/vehicle-detail.css",
+    "selector": ".vehicle-detail\r\n  .vd-summary\r\n  :is(.vd-request-review, .vd-feedback)\r\n  :is(a, button):focus-visible",
+    "change": "dual focus ring"
+  }
+]

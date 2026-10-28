@@ -40,6 +40,7 @@ const enquiry = base.extend({
   bookingId: ref,
   quoteId: ref,
   vehicleListingId: ref,
+  vehicleEnquiryIntent: z.enum(["LISTING", "REQUIREMENTS"]).nullable().optional(),
 });
 const complaint = base.extend({
   acknowledgedAt: stamp.nullable().optional(),
@@ -88,6 +89,9 @@ export function parseSupportPage(kind: SupportKind, staff: boolean, value: unkno
 }
 export const supportMessageSchema = z.object({
   id: z.uuid(),
+  kind: z.enum(["LEGACY", "REPLY", "INTERNAL_NOTE", "STATUS_CHANGE"]).optional(),
+  fromStatus: z.string().nullable().optional(),
+  toStatus: z.string().nullable().optional(),
   authorType: z.enum(["CUSTOMER", "STAFF", "SYSTEM"]),
   visibility: z.enum(["CUSTOMER", "INTERNAL"]),
   body: z.string(),

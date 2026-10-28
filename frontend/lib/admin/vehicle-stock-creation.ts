@@ -135,6 +135,13 @@ export function parseCreatedStock(
     ) {
       if (Date.parse(actual) !== Date.parse(expected))
         throw Error("Unexpected acquisition date");
+    } else if (key === "features" && Array.isArray(expected)) {
+      if (
+        !Array.isArray(actual) ||
+        expected.length !== actual.length ||
+        expected.some((feature, index) => feature !== actual[index])
+      )
+        throw Error("Created stock features differ from reviewed request");
     } else if (actual !== expected)
       throw Error("Created stock differs from reviewed request");
   }

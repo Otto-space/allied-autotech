@@ -1,5 +1,9 @@
+import { notifySupportTeam } from "../notifications/team-notifications.js";
+import { enforceWorkforceBoundary } from "../organization/workforce.policy.js";
+import { lockAccessActor } from "../organization/team-access-security.js";
 import {
   enqueueSupportCustomerUpdate,
+  dismissSupportDeliveryNotices,
   supportEmailDeliveries,
 } from "./customer-email.js";
 import {
@@ -91,6 +95,12 @@ export class SupportService {
         context,
       });
       await enqueueDepartmentEmail(transaction, { ...input, id: enquiry.id });
+      await notifySupportTeam(transaction, {
+        kind: "ENQUIRY",
+        id: enquiry.id,
+        event: `new:${enquiry.id}`,
+        title: "New customer enquiry",
+      });
       return enquiry;
     });
   }
@@ -140,6 +150,13 @@ export class SupportService {
               id: enquiry.id,
               email: customer.user.email,
             });
+            await notifySupportTeam(transaction, {
+              kind: "ENQUIRY",
+              id: enquiry.id,
+              event: `new:${enquiry.id}`,
+              title: "New customer enquiry",
+              actorUserId: actor.userId,
+            });
             return enquiry;
           },
           (id) => this.repository.ownedEnquirySummary(customer.id, id, transaction),
@@ -178,6 +195,12 @@ export class SupportService {
         email: input.email,
         subject: input.subject,
         message: input.description,
+      });
+      await notifySupportTeam(transaction, {
+        kind: "COMPLAINT",
+        id: complaint.id,
+        event: `new:${complaint.id}`,
+        title: "New customer complaint",
       });
       return {
         ...complaint,
@@ -238,6 +261,13 @@ export class SupportService {
               email: customer.user.email,
               subject: input.subject,
               message: input.description,
+            });
+            await notifySupportTeam(transaction, {
+              kind: "COMPLAINT",
+              id: complaint.id,
+              event: `new:${complaint.id}`,
+              title: "New customer complaint",
+              actorUserId: actor.userId,
             });
             const record = await this.repository.ownedComplaintSummary(
               customer.id,
@@ -367,28 +397,14 @@ export class SupportService {
               input.message,
               transaction,
             );
-            const assignedStaff = record.assignedStaffId
-              ? await transaction.staffProfile.findUnique({
-                  where: { id: record.assignedStaffId },
-                  select: { userId: true },
-                })
-              : null;
-            if (assignedStaff)
-              await enqueueNotification(transaction, {
-                userId: assignedStaff.userId,
-                type: kind === "enquiry" ? "ENQUIRY" : "COMPLAINT",
-                category: "OPERATIONAL",
-                title:
-                  kind === "enquiry"
-                    ? "New customer enquiry message"
-                    : "New customer complaint message",
-                message:
-                  "A customer added a message to an assigned support conversation.",
-                deduplicationKey: `${kind}:${id}:customer-message:${created.id}`,
-                resourceType: kind === "enquiry" ? "ENQUIRY" : "COMPLAINT",
-                resourceId: id,
-                channels: ["EMAIL"],
-              });
+            await notifySupportTeam(transaction, {
+              kind: kind === "enquiry" ? "ENQUIRY" : "COMPLAINT",
+              id,
+              event: `reply:${created.id}`,
+              title: "New customer reply",
+              actorUserId: actor.userId,
+              supportMessageId: created.id,
+            });
             await appendAuditEvent(transaction, {
               actorUserId: actor.userId,
               action: "CREATE",
@@ -548,7 +564,43 @@ export class SupportService {
   ) {
     // Authorize the conversation before reading any delivery metadata.
     await this.staffRecord(actor, kind, id, context);
-    return supportEmailDeliveries(this.database, id);
+    return supportEmailDeliveries(this.database, id, actor.userId);
+  }
+
+  async dismissDeliveryNotices(
+    actor: AuthenticatedActor,
+    kind: "enquiry" | "complaint",
+    id: string,
+    body: unknown,
+    context: RequestSecurityContext,
+  ) {
+    assertSupportOperator(actor);
+    // Managed Customer Service uses the transactional responsibility-scoped API.
+    if (actor.role === "STAFF") throw supportForbidden();
+    return this.database.$transaction(async (tx) => {
+      await lockAccessActor(tx, actor);
+      await enforceWorkforceBoundary(
+        tx,
+        actor,
+        `/api/v1/staff/support/${kind === "enquiry" ? "enquiries" : "complaints"}/${id}/email-deliveries/dismiss`,
+      );
+      const record =
+        kind === "enquiry"
+          ? await this.repository.staffEnquiry(id, tx)
+          : await this.repository.staffComplaint(id, tx);
+      if (!record) throw supportNotFound();
+      await this.assertStaffBranch(actor, record.branchId, tx);
+      const page = await dismissSupportDeliveryNotices(tx, actor.userId, id, body);
+      await appendAuditEvent(tx, {
+        actorUserId: actor.userId,
+        action: "UPDATE",
+        entityType: kind === "enquiry" ? "ENQUIRY" : "COMPLAINT",
+        entityId: id,
+        newValues: { operation: "DISMISS_OWN_DELIVERY_NOTICES" },
+        context,
+      });
+      return page;
+    });
   }
 
   async assign(
@@ -610,6 +662,15 @@ export class SupportService {
           ? await this.repository.staffEnquiry(id, transaction)
           : await this.repository.staffComplaint(id, transaction);
       if (updated === null) throw supportNotFound();
+      if (record.assignedStaffId !== input.assignedStaffId && input.assignedStaffId)
+        await notifySupportTeam(transaction, {
+          kind: kind === "enquiry" ? "ENQUIRY" : "COMPLAINT",
+          id,
+          event: `assigned:${id}:${updated.version}`,
+          title: "Support conversation assigned to you",
+          actorUserId: actor.userId,
+          assignedOnly: true,
+        });
       return updated;
     });
   }
@@ -645,16 +706,14 @@ export class SupportService {
         transaction,
       );
       if (changed.count !== 1) throw supportStale();
-      const messageReceipt = input.response
-        ? await this.repository.createMessage(
-            { enquiryId: id },
-            actor.userId,
-            "STAFF",
-            "CUSTOMER",
-            input.response,
-            transaction,
-          )
-        : null;
+      const messageReceipt = await this.repository.createStatusEvent(
+        { enquiryId: id },
+        actor.userId,
+        current.status,
+        input.status,
+        input.response ?? "No additional explanation was provided.",
+        transaction,
+      );
       await enqueueSupportCustomerUpdate(transaction, {
         kind: "enquiry",
         record: current,
@@ -717,16 +776,14 @@ export class SupportService {
         transaction,
       );
       if (changed.count !== 1) throw supportStale();
-      const messageReceipt = input.resolution
-        ? await this.repository.createMessage(
-            { complaintId: id },
-            actor.userId,
-            "STAFF",
-            "CUSTOMER",
-            input.resolution,
-            transaction,
-          )
-        : null;
+      const messageReceipt = await this.repository.createStatusEvent(
+        { complaintId: id },
+        actor.userId,
+        current.status,
+        input.status,
+        input.resolution ?? "No additional explanation was provided.",
+        transaction,
+      );
       await enqueueSupportCustomerUpdate(transaction, {
         kind: "complaint",
         record: current,
@@ -963,12 +1020,19 @@ export class SupportService {
   ) {
     let sourceBranch: string | null = null;
     if (input.type === "PRODUCT") {
-      if ((await this.repository.activeProduct(input.productId, transaction)) === null)
+      if (
+        input.productId &&
+        (await this.repository.activeProduct(input.productId, transaction)) === null
+      )
         throw supportNotFound();
     } else if (input.type === "SERVICE") {
       if ((await this.repository.activeService(input.serviceId, transaction)) === null)
         throw supportNotFound();
-    } else if (input.type === "VEHICLE") {
+    } else if (
+      input.type === "VEHICLE" &&
+      input.vehicleEnquiryIntent !== "REQUIREMENTS"
+    ) {
+      if (!input.vehicleListingId) throw supportNotFound();
       const listing = await this.repository.activeListing(
         input.vehicleListingId,
         transaction,
@@ -1031,6 +1095,10 @@ export class SupportService {
       return requested;
     }
     const branches = await this.repository.activeBranches(transaction);
+    if (branches.length === 0)
+      throw supportConflict(
+        "No active workshop is configured to handle this request. Contact our team for help.",
+      );
     if (branches.length !== 1) throw supportBranchRequired();
     return branches[0]!.id;
   }

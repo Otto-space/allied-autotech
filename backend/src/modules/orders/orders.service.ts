@@ -3,11 +3,9 @@ import { buildInvoiceSnapshot } from "../billing/document-snapshot.js";
 import { requestFreeCancellationRefund } from "../payments/refund-workflow.js";
 import { requestAftercare } from "./order-aftercare.service.js";
 import { customerAftercareView } from "./order-aftercare.schemas.js";
-import { deliverySettingsSchema } from "../policies/policies.schemas.js";
 import {
   assertFinanceGate,
   currentPolicy,
-  approvedPolicy,
   policySnapshot,
 } from "../policies/policies.service.js";
 import { draftTotals } from "../policies/policy-money.js";
@@ -74,6 +72,8 @@ export class OrdersService {
     context: RequestSecurityContext,
   ) {
     assertCustomer(actor);
+    if (input.fulfillmentMethod !== "COLLECTION")
+      throw orderConflict("Orders are collection only; delivery is unavailable");
     const scope = `order-checkout:${actor.userId}`;
     const keyHash = hashToken("order-checkout-idempotency", rawKey);
     const requestHash = orderFingerprint(input);
@@ -129,6 +129,8 @@ export class OrdersService {
           quantity === undefined ||
           !inventory.product.isActive ||
           !inventory.product.category.isActive ||
+          (inventory.product.category.parentId !== null &&
+            inventory.product.category.parent?.isActive !== true) ||
           !inventory.branch.isActive ||
           inventory.product.currency !== "NGN" ||
           inventory.quantity - inventory.reserved < quantity
@@ -163,36 +165,13 @@ export class OrdersService {
       const finance = await assertFinanceGate(transaction);
       const timing = await currentPolicy(transaction, "order-payment");
       const discountAmountKobo = evaluation?.discountAmountKobo ?? 0n;
-      let deliveryFeeKobo = 0n;
-      let taxableDeliveryKobo = 0n;
-      let deliverySnapshot: Prisma.InputJsonObject = {
+      const deliveryFeeKobo = 0n;
+      const taxableDeliveryKobo = 0n;
+      const deliverySnapshot: Prisma.InputJsonObject = {
         method: "COLLECTION",
         address:
-          "133 Stadium Road, beside Kilimanjaro, Port Harcourt, Rivers State, Nigeria",
+          "133 Stadium Road, beside Kilimanjaro Pizza Jungle Restaurant, Port Harcourt, Rivers State, Nigeria",
       };
-      if (input.fulfillmentMethod === "DELIVERY") {
-        const deliveryPolicy = await approvedPolicy(transaction, "delivery");
-        const settings = deliverySettingsSchema.parse(deliveryPolicy.settings);
-        const zone = settings.zones.find((item) => item.id === input.delivery?.zoneId);
-        if (
-          !zone ||
-          zone.city.toLowerCase() !== input.delivery?.city.toLowerCase() ||
-          zone.state.toLowerCase() !== input.delivery?.state.toLowerCase()
-        )
-          throw orderConflict("Delivery address is outside the selected approved zone");
-        const financeSettings = finance.settings as Record<string, unknown>;
-        if (typeof financeSettings["deliveryTaxable"] !== "boolean")
-          throw orderConflict(
-            "Delivery tax treatment requires accounting approval before checkout",
-          );
-        deliveryFeeKobo = BigInt(zone.feeKobo);
-        taxableDeliveryKobo = financeSettings["deliveryTaxable"] ? deliveryFeeKobo : 0n;
-        deliverySnapshot = {
-          policy: policySnapshot(deliveryPolicy),
-          zoneId: zone.id,
-          feeKobo: zone.feeKobo,
-        };
-      }
       const { taxKobo } = draftTotals(
         subtotalKobo + taxableDeliveryKobo,
         discountAmountKobo,
@@ -224,16 +203,6 @@ export class OrdersService {
           customerName: `${profile.firstName} ${profile.lastName}`,
           customerEmail: profile.user.email,
           customerPhone: profile.phone,
-          ...(input.delivery === undefined
-            ? {}
-            : {
-                deliveryName: input.delivery.name,
-                deliveryPhone: input.delivery.phone,
-                deliveryAddress: input.delivery.address,
-                deliveryCity: input.delivery.city,
-                deliveryState: input.delivery.state,
-                deliveryCountry: input.delivery.country,
-              }),
           paymentDueAt,
           items: { createMany: { data: items } },
         },

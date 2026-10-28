@@ -5,6 +5,7 @@ import { AppError } from "../../common/errors/app-error.js";
 import { errorCodes } from "../../common/errors/error-codes.js";
 import { successResponse } from "../../common/http/api-response.js";
 import { catalogService, type CatalogService } from "./catalog.service.js";
+import type { ProductOptionQuery } from "./product-options.schemas.js";
 import type {
   ProductDiscoveryQuery,
   ProductFacetQuery,
@@ -12,6 +13,7 @@ import type {
 import type {
   AdminCategoryListQuery,
   AdminProductListQuery,
+  CartClearInput,
   CategoryCreateInput,
   CategoryListQuery,
   CategoryUpdateInput,
@@ -77,6 +79,17 @@ export class CatalogController {
           "Product options retrieved",
           req.id,
           await this.service.publicFacets(validated<ProductFacetQuery>(res, "query")),
+        ),
+      );
+  };
+  publicOptions = async (req: Request, res: Response) => {
+    res
+      .status(200)
+      .json(
+        successResponse(
+          "Scoped product options retrieved",
+          req.id,
+          await this.service.publicOptions(validated<ProductOptionQuery>(res, "query")),
         ),
       );
   };
@@ -283,8 +296,9 @@ export class CatalogController {
       value.productId,
       value.compatibilityId,
       context(req),
+      (validated(res, "body") as { expectedVersion?: number }).expectedVersion,
     );
-    res.status(200).json(successResponse("Compatibility deleted", req.id));
+    res.status(200).json(successResponse("Compatibility retired", req.id));
   };
   createImage = async (req: Request, res: Response) => {
     res
@@ -388,7 +402,7 @@ export class CatalogController {
     res.status(200).json(successResponse("Cart item removed", req.id));
   };
   clearCart = async (req: Request, res: Response) => {
-    await this.service.clearCart(actor(req));
+    await this.service.clearCart(actor(req), validated<CartClearInput>(res, "body"));
     res.status(200).json(successResponse("Cart cleared", req.id));
   };
 }

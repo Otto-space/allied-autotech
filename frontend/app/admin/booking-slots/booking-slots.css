@@ -140,7 +140,7 @@
   width: 18px;
   height: 18px;
   flex-shrink: 0;
-  accent-color: #e60301;
+  accent-color: var(--checked);
 }
 .work-slot-layout {
   display: grid;
@@ -323,8 +323,9 @@
   .dashboard-content
   .work-slots
   :is(input, select, button, a, summary):focus-visible {
-  outline: 2px solid #c50302;
+  outline: 3px solid var(--focus-ring);
   outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .dashboard .dashboard-content .work-slots [id] {
   scroll-margin-top: 100px;

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { isManagedProductPreviewUrl } from "@/lib/media";
+import { isDurablePublicImageUrl } from "@/lib/product-image-url";
 const singleLine = (maximum: number) =>
   z
     .string()
@@ -50,7 +51,11 @@ export const imageFormSchema = z.object({
       } catch {
         return false;
       }
-    }, "Use a public HTTPS URL without credentials."),
+    }, "Use a public HTTPS URL without credentials.")
+    .refine(
+      isDurablePublicImageUrl,
+      "Use a durable public image URL without private hosts, ports or expiring access tokens.",
+    ),
   altText: singleLine(250),
   sortOrder: z
     .string()

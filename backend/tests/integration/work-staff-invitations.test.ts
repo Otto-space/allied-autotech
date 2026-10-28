@@ -8,7 +8,11 @@ import { env } from "../../src/config/env.js";
 import { hashToken } from "../../src/common/security/session-tokens.js";
 import { sessionCookieName } from "../../src/common/security/cookies.js";
 const app = createApp({ checkReadiness: async () => undefined });
-describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
+const provisionedWorkspaceAcceptanceChecksEnabled =
+  process.env.RUN_DATABASE_TESTS === "true" &&
+  process.env.RUN_PROVISIONED_WORKSPACE_TESTS === "true";
+
+describe.skipIf(!provisionedWorkspaceAcceptanceChecksEnabled)(
   "private invitation inspection and candidate eligibility",
   () => {
     type Actor = { id: string; headers: Record<string, string> };

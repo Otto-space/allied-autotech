@@ -1,6 +1,11 @@
 "use client";
+import { enquiryLabel } from "@/lib/support/enquiry-label";
+import { NotificationRecordContext } from "./notification-record-context";
+import { SupportTimelineEntry } from "./support-timeline-entry";
+import { CopyableValue } from "./copyable-value";
 import { WorkflowProgress } from "./status-progress";
 import Link from "next/link";
+import { CareBackLink } from "./care-back-link";
 import { SupportEmailDelivery } from "./support-email-delivery";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -338,7 +343,9 @@ function ThreadWorkspace({
       <nav className="wi-breadcrumb" aria-label="Breadcrumb">
         <Link href="/admin">Overview</Link>
         <ChevronRight size={14} aria-hidden="true" />
-        <Link href="/admin/support">Customer care</Link>
+        <CareBackLink id={id} kind={kind} branchId={current?.branchId}>
+          Customer care
+        </CareBackLink>
         <ChevronRight size={14} aria-hidden="true" />
         <span aria-current="page">{current?.subject ?? "Conversation"}</span>
       </nav>
@@ -352,7 +359,7 @@ function ThreadWorkspace({
               </span>
               <span>
                 {current.kind === "enquiries"
-                  ? supportLabel(current.type)
+                  ? enquiryLabel(current.type, current.vehicleEnquiryIntent)
                   : `${supportLabel(current.priority)} priority`}
               </span>
             </div>
@@ -367,10 +374,15 @@ function ThreadWorkspace({
             <RefreshCw size={16} aria-hidden="true" />
             Refresh conversation
           </button>
-          <Link className="button secondary" href="/admin/support">
+          <CareBackLink
+            id={id}
+            kind={kind}
+            branchId={current?.branchId}
+            className="button secondary"
+          >
             <ArrowLeft size={16} aria-hidden="true" />
             Back to customer care
-          </Link>
+          </CareBackLink>
         </div>
       </header>
       <Feedback message={message} tone={tone} />
@@ -426,17 +438,57 @@ function ThreadWorkspace({
               ["reply", "Reply"],
               ["management", "Management"],
             ].map(([anchor, label]) => (
-              <a key={anchor} href={`#conversation-${anchor}`}>
+              <a
+                key={anchor}
+                href={`#conversation-${anchor}`}
+                onClick={() => {
+                  const disclosure = document
+                    .getElementById(`conversation-${anchor}`)
+                    ?.closest("details");
+                  if (disclosure) disclosure.open = true;
+                }}
+              >
                 {label}
               </a>
             ))}
           </nav>
-          <WorkflowProgress
-            workflow={kind === "enquiries" ? "enquiry" : "complaint"}
-            status={current.status}
-          />
-          <ThreadFacts record={current} />
-          <SupportEmailDelivery base={base} revision={revision} />
+          <div className="care-context">
+            <strong>{current.contact?.name || "Customer contact not recorded"}</strong>
+            {["ADMIN", "SUPER_ADMIN"].includes(role) && current.contact?.customerId && (
+              <Link
+                className="text-link"
+                href={`/admin/customers/${current.contact.customerId}`}
+              >
+                Customer details
+              </Link>
+            )}
+            <CopyableValue value={current.contact?.email} label="Copy customer email" />
+            <span>
+              Assigned to{" "}
+              {current.assignedStaff
+                ? current.assignedStaff.firstName + " " + current.assignedStaff.lastName
+                : "Unassigned"}
+            </span>
+            <a className="care-next" href="#conversation-reply">
+              {current.status === "CLOSED"
+                ? "Review conversation"
+                : "Write a reply / internal note"}
+            </a>
+          </div>
+          <section className="wi-card">
+            <h2>Original request</h2>
+            <p className="preserve-lines">
+              {current.text.length > 240
+                ? current.text.slice(0, 240) + "…"
+                : current.text}
+            </p>
+            {current.text.length > 240 && (
+              <details>
+                <summary>Read the full original request</summary>
+                <p className="preserve-lines">{current.text}</p>
+              </details>
+            )}
+          </section>
           <div className="wst-workspace">
             <div>
               <ThreadHistory
@@ -469,21 +521,22 @@ function ThreadWorkspace({
               />
             </aside>
           </div>
+          <details className="care-secondary">
+            <summary>Case details, workflow and technical references</summary>
+            <WorkflowProgress
+              workflow={kind === "enquiries" ? "enquiry" : "complaint"}
+              status={current.status}
+            />
+            <ThreadFacts record={current} />
+          </details>
+          <SupportEmailDelivery base={base} revision={revision} />
           {lastReceipt && (
             <section
               className={`wi-card wst-confirmed${lastReceipt.visibility === "INTERNAL" ? " wst-internal" : ""}`}
               aria-labelledby="wst-confirmed"
             >
-              <h2 id="wst-confirmed">Last confirmed message</h2>
-              <span className="status">
-                {lastReceipt.visibility === "INTERNAL"
-                  ? "Internal staff note"
-                  : "Customer-visible"}
-              </span>
-              <p className="preserve-lines">{lastReceipt.body}</p>
-              <p className="wst-meta">
-                {formatStockInstant(lastReceipt.createdAt)} · Reference {lastReceipt.id}
-              </p>
+              <h2 id="wst-confirmed">Last confirmed update</h2>
+              <SupportTimelineEntry entry={lastReceipt} staff anchored={false} />
             </section>
           )}
         </div>
@@ -494,7 +547,11 @@ function ThreadWorkspace({
           confirmLabel={
             proposal.supportChange?.kind === "acknowledgement"
               ? "Record acknowledgement"
-              : "Confirm change"
+              : proposal.supportChange?.kind === "reply"
+                ? proposal.supportChange.body.visibility === "INTERNAL"
+                  ? "Save internal note"
+                  : "Send reply"
+                : `Confirm ${proposal.supportChange?.kind ?? "support"} change`
           }
           onClose={() => {
             setProposal(null);
@@ -549,7 +606,22 @@ function ThreadFacts({ record: r }: { record: SupportRecord }) {
             ].map((f) => (
               <div key={f.label}>
                 <dt>{f.label}</dt>
-                <dd>{f.value}</dd>
+                <dd>
+                  {f.label.toLowerCase().includes("reference") &&
+                  f.value &&
+                  f.value !== "Not recorded" ? (
+                    <CopyableValue
+                      value={f.value}
+                      label={
+                        f.label === "Reference"
+                          ? "Copy case reference"
+                          : `Copy ${f.label.toLowerCase()}`
+                      }
+                    />
+                  ) : (
+                    f.value
+                  )}
+                </dd>
               </div>
             ))}
           </dl>
@@ -565,7 +637,17 @@ function ThreadFacts({ record: r }: { record: SupportRecord }) {
             ].map((f) => (
               <div key={f.label}>
                 <dt>{f.label}</dt>
-                <dd>{f.value || "Not recorded"}</dd>
+                <dd>
+                  {["Email", "Phone", "Customer profile reference"].includes(f.label) &&
+                  f.value ? (
+                    <CopyableValue
+                      value={f.value}
+                      label={`Copy ${f.label.toLowerCase()}`}
+                    />
+                  ) : (
+                    f.value || "Not recorded"
+                  )}
+                </dd>
               </div>
             ))}
           </dl>
@@ -644,6 +726,24 @@ function ThreadHistory({
   }
   return (
     <>
+      {!blocked && !query.invalid && (
+        <NotificationRecordContext
+          resourceType={record.kind === "enquiries" ? "ENQUIRY" : "COMPLAINT"}
+          resourceId={record.id}
+          supportMessageIds={messages.data?.items.map((message) => message.id)}
+        />
+      )}
+      <div id="conversation-reply">
+        <SupportReplyForm
+          record={record}
+          staff
+          base={base}
+          disabled={disabled || blocked || query.invalid}
+          onSaved={() => {}}
+          onUncertain={() => {}}
+          onReview={onReview}
+        />
+      </div>
       <section className="wi-card" id="conversation-messages">
         <div className="wst-message-header">
           <h2>Messages</h2>
@@ -656,8 +756,8 @@ function ThreadHistory({
           </button>
         </div>
         <p className="wst-meta">
-          Oldest replies appear first. Use Next for later pages. Refresh to check for
-          updates; this is not a live-agent chat.
+          Replies and status updates appear in chronological order. Use Next for later
+          pages. Refresh to check for updates; this is not a live-agent chat.
         </p>
         {query.invalid ? (
           <div className="wi-state">
@@ -697,32 +797,15 @@ function ThreadHistory({
               !error &&
               !readDisabled &&
               messages.data &&
-              !messages.data.items.length && <p>No replies on this page.</p>}
+              !messages.data.items.length && <p>No conversation updates on this page.</p>}
             <div className="wst-messages">
               {messages.data?.items.map((m) => (
-                <article
+                <SupportTimelineEntry
                   key={m.id}
-                  className={`wst-message${m.visibility === "INTERNAL" ? " wst-internal" : ""}`}
-                >
-                  <header>
-                    <h3>
-                      {m.authorType === "SYSTEM"
-                        ? "System update"
-                        : m.authorType === "CUSTOMER"
-                          ? "Customer"
-                          : "Allied AutoTech team"}
-                    </h3>
-                    <span className="status">
-                      {m.visibility === "INTERNAL"
-                        ? "Internal staff note"
-                        : "Customer-visible"}
-                    </span>
-                  </header>
-                  <p className="preserve-lines">{m.body}</p>
-                  <p className="wst-meta">
-                    {formatStockInstant(m.createdAt)} · Reference {m.id}
-                  </p>
-                </article>
+                  entry={m}
+                  staff
+                  highlighted={m.id === query.params.get("messageId")}
+                />
               ))}
             </div>
             <nav className="wi-pagination" aria-label="Conversation messages pages">
@@ -748,17 +831,6 @@ function ThreadHistory({
           </>
         )}
       </section>
-      <div id="conversation-reply">
-        <SupportReplyForm
-          record={record}
-          staff
-          base={base}
-          disabled={disabled || blocked || query.invalid}
-          onSaved={() => {}}
-          onUncertain={() => {}}
-          onReview={onReview}
-        />
-      </div>
     </>
   );
 }

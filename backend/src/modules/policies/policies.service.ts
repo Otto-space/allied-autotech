@@ -1,5 +1,4 @@
 import type { PublishPolicyInput } from "./policies.schemas.js";
-import { deliverySettingsSchema } from "./policies.schemas.js";
 import type { AuthenticatedActor } from "../../common/contracts/actor.js";
 import type { RequestSecurityContext } from "../../common/contracts/request-security.js";
 import { env } from "../../config/env.js";
@@ -134,28 +133,18 @@ export async function publicFulfillmentOptions(
   database: PolicyDatabase = prisma,
   now = new Date(),
 ) {
-  const [delivery, finance] = await Promise.all([
-    availabilityPolicy(database, "delivery", now),
-    availabilityPolicy(database, "finance", now),
-  ]);
-  return fulfillmentAvailability(delivery, finance, now);
+  const finance = await availabilityPolicy(database, "finance", now);
+  return fulfillmentAvailability(null, finance, now);
 }
 
 function fulfillmentAvailability(
-  delivery: AvailabilityPolicy,
+  _delivery: AvailabilityPolicy,
   finance: AvailabilityPolicy,
   now: Date,
 ) {
   const checkoutEnabled =
     !!finance &&
     (env.DEPLOYMENT_ENV !== "production" || finance.approvalStatus === "APPROVED");
-  const settings = deliverySettingsSchema.safeParse(delivery?.settings);
-  const financeSettings = finance?.settings;
-  const hasDeliveryTax =
-    financeSettings !== null &&
-    typeof financeSettings === "object" &&
-    !Array.isArray(financeSettings) &&
-    typeof financeSettings?.["deliveryTaxable"] === "boolean";
   return {
     serverTime: now.toISOString(),
     currency: "NGN" as const,
@@ -163,15 +152,10 @@ function fulfillmentAvailability(
     collection: {
       enabled: true as const,
       address:
-        "133 Stadium Road, beside Kilimanjaro, Port Harcourt, Rivers State, Nigeria",
+        "133 Stadium Road, beside Kilimanjaro Pizza Jungle Restaurant, Port Harcourt, Rivers State, Nigeria",
     },
-    delivery:
-      delivery?.approvalStatus === "APPROVED" &&
-      checkoutEnabled &&
-      hasDeliveryTax &&
-      settings.success
-        ? { enabled: true, policyVersion: delivery.version, zones: settings.data.zones }
-        : { enabled: false, policyVersion: null, zones: [] },
+    // Preserve stored policy/history, but never advertise delivery for new orders.
+    delivery: { enabled: false as const, policyVersion: null, zones: [] },
   };
 }
 

@@ -1,6 +1,6 @@
 .work-staff-directory {
   max-width: 1400px;
-  color: #01121a;
+  color: var(--ink);
 }
 .work-staff-directory h1 {
   font-size: 30px;

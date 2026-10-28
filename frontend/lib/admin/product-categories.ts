@@ -1,12 +1,17 @@
 import { z } from "zod";
-import { categoryFormSchema, type CategoryFormValues } from "./category-catalogue";
-export { categoryFormSchema };
-export type { CategoryFormValues };
+import { categoryFormSchema as baseCategoryFormSchema } from "./category-catalogue";
+export const categoryFormSchema = baseCategoryFormSchema.extend({
+  family: z.enum(["", "REPLACEMENT_PART", "ENGINE_OIL"]).optional(),
+  parentId: z.union([z.literal(""), z.uuid()]).optional(),
+});
+export type CategoryFormValues = z.infer<typeof categoryFormSchema>;
 export const adminProductCategorySchema = z.object({
+  family: z.enum(["REPLACEMENT_PART", "ENGINE_OIL"]).nullable().optional(),
   id: z.uuid(),
   name: z.string().min(1).max(120),
   slug: z.string().min(2).max(120),
   description: z.string().max(2000).nullable(),
+  parentId: z.uuid().nullable().optional(),
   isActive: z.boolean(),
   createdAt: z.iso.datetime({ offset: true }),
   updatedAt: z.iso.datetime({ offset: true }),
@@ -86,9 +91,11 @@ export function productCategoryBody(
 ) {
   return {
     name: values.name.trim(),
+    ...(values.family === undefined ? {} : { family: values.family || null }),
     slug: values.slug.trim(),
     description: values.description.trim() || null,
     isActive: values.isActive,
+    parentId: values.parentId || null,
     ...(record ? { expectedUpdatedAt: record.updatedAt } : {}),
   };
 }

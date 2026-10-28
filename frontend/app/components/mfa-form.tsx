@@ -162,7 +162,7 @@ export function MfaForm({
         <ShieldCheck className="mfa-complete-icon" size={36} aria-hidden="true" />
       )}
       {!codes && (
-        <h1 ref={heading} tabIndex={-1}>
+        <h1 ref={heading} data-reading-focus tabIndex={-1}>
           {complete
             ? "Verification complete"
             : session && ((verified && (enroll || replacement)) || setup)
@@ -173,11 +173,11 @@ export function MfaForm({
           <span>.</span>
         </h1>
       )}
-      {!ready && (
+      <noscript hidden={ready}>
         <p>
           Enable JavaScript to verify your sign-in. You can still open our Help Centre.
         </p>
-      )}
+      </noscript>
       <Feedback message={error} />
       {!ready ? null : !session ? (
         <>

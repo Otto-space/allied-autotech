@@ -1,4 +1,5 @@
 "use client";
+import { enquiryLabel } from "@/lib/support/enquiry-label";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
@@ -47,6 +48,7 @@ export function WorkforceEnquiries({
   function select(id?: string) {
     const params = new URLSearchParams(query.params);
     params.delete("messageCursor");
+    params.delete("messageId");
     params.delete("_messageTrail");
     if (id) params.set("selected", id);
     else params.delete("selected");
@@ -114,6 +116,7 @@ export function WorkforceEnquiries({
             <Search size={18} aria-hidden="true" />
             <input
               id="wfe-q"
+              data-learning-target="care-search"
               name="q"
               type="search"
               maxLength={120}
@@ -131,6 +134,7 @@ export function WorkforceEnquiries({
               .filter(
                 ([value]) =>
                   access.permissions.includes("CUSTOMER_ENQUIRIES") ||
+                  access.permissions.includes("CARE_CASE_VIEW") ||
                   ["PRODUCT", "VEHICLE"].includes(value),
               )
               .map(([value, label]) => (
@@ -192,6 +196,7 @@ export function WorkforceEnquiries({
       )}
       <section
         className="wfe-results"
+        data-learning-target="care-results"
         aria-labelledby="wfe-results-title"
         aria-busy={busy}
       >
@@ -234,7 +239,12 @@ export function WorkforceEnquiries({
                       </time>
                     </small>
                   </th>
-                  <td data-label="Type">{enquiryTypeLabels[row.type]}</td>
+                  <td data-label="Customer">
+                    {row.contact?.name || "Not available in this scope"}
+                  </td>
+                  <td data-label="Type">
+                    {enquiryLabel(row.type, row.vehicleEnquiryIntent)}
+                  </td>
                   <td data-label="Branch">{row.branch?.name ?? "Branch not recorded"}</td>
                   <td data-label="Assigned to">{enquiryStaffName(row.assignedStaff)}</td>
                   <td data-label="Status">

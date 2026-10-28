@@ -11,6 +11,7 @@ export const notificationSelect = {
   message: true,
   resourceType: true,
   resourceId: true,
+  supportMessageId: true,
   readAt: true,
   expiresAt: true,
   createdAt: true,
@@ -19,21 +20,13 @@ export const notificationSelect = {
 export class NotificationsRepository {
   constructor(private readonly database: PrismaClient = prisma) {}
 
-  unreadGroups(userId: string) {
-    return this.database.notification.groupBy({
-      by: ["resourceType", "type", "category"],
-      where: {
-        userId,
-        readAt: null,
-        OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
-      },
-      _count: { _all: true },
-    });
-  }
-
-  list(userId: string, query: NotificationListQuery) {
+  list(
+    userId: string,
+    query: NotificationListQuery,
+    client: DatabaseClient = this.database,
+  ) {
     const now = new Date();
-    return this.database.notification.findMany({
+    return client.notification.findMany({
       where: {
         userId,
         OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
@@ -62,10 +55,17 @@ export class NotificationsRepository {
     });
   }
 
-  markAllRead(userId: string, client: DatabaseClient) {
+  markUnread(userId: string, id: string, client: DatabaseClient) {
     return client.notification.updateMany({
-      where: { userId, readAt: null },
-      data: { readAt: new Date() },
+      where: { id, userId, readAt: { not: null } },
+      data: { readAt: null },
+    });
+  }
+
+  markAllRead(userId: string, client: DatabaseClient, cutoff = new Date()) {
+    return client.notification.updateMany({
+      where: { userId, readAt: null, createdAt: { lte: cutoff } },
+      data: { readAt: cutoff },
     });
   }
 

@@ -82,7 +82,7 @@
   width: 100%;
   margin-top: 10px;
   border: 1px solid #82939f;
-  color: #01121a;
+  color: var(--ink);
   background: white;
   text-transform: none;
   box-shadow: none;

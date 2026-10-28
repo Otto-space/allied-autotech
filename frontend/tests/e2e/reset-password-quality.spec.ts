@@ -357,7 +357,9 @@ test("no JavaScript prevents token or password submission", async ({ browser }) 
     const p = await c.newPage();
     await p.goto((process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3000") + linked);
     await expect(
-      p.getByText("Enable JavaScript to reset your password.", { exact: false }),
+      p
+        .locator("noscript p")
+        .filter({ hasText: "Enable JavaScript to reset your password." }),
     ).toBeVisible();
     await expect(
       p.getByRole("button", { name: "Reset password", exact: true }),

@@ -16,7 +16,11 @@ export function privateTesting(enabled: boolean, password?: string): RequestHand
       (["GET", "HEAD"].includes(request.method) &&
         ["/api/v1/health/live", "/api/v1/health/ready"].includes(request.path)) ||
       (request.method === "POST" &&
-        ["/api/v1/webhooks/paystack", "/api/v1/webhooks/monnify"].includes(request.path))
+        [
+          "/api/v1/webhooks/paystack",
+          "/api/v1/webhooks/monnify",
+          "/api/v1/webhooks/resend",
+        ].includes(request.path))
     )
       return next();
     const match = /^Basic ([A-Za-z0-9+/]+=*)$/i.exec(request.headers.authorization ?? "");

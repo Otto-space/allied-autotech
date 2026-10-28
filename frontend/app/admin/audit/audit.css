@@ -1,5 +1,5 @@
 .work-audit {
-  color: #01121a;
+  color: var(--ink);
   font-size: 14px;
 }
 .work-audit h1 {

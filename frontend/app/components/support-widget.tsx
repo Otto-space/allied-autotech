@@ -4,13 +4,36 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { CircleHelp, MessageCircle, X } from "lucide-react";
 import { answerFaq, business, faqs } from "@/lib/business";
+import { HelpAccountAction } from "./help-account-action";
 import { SESSION_CHANGED } from "@/lib/api/client";
+import { learningEnabled } from "@/lib/learning/contracts";
+import { requestLearningOpen } from "./learning/learning-entry";
+import { containDialogFocus } from "@/lib/dialog-focus";
+import { AllieAvatar } from "./learning/allie-avatar";
+import {
+  assistantName,
+  ASSISTANT_HIDDEN_KEY,
+  ASSISTANT_VISIBILITY,
+} from "@/lib/learning/search";
 export function SupportWidget() {
   const pathname = usePathname();
   const dialog = useRef<HTMLDialogElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
   const questionForm = useRef<HTMLFormElement>(null);
   const [answer, setAnswer] = useState<ReturnType<typeof answerFaq> | undefined>();
+  const [helpHidden, setHelpHidden] = useState(false);
+  useEffect(() => {
+    function visibility() {
+      try {
+        setHelpHidden(sessionStorage.getItem(ASSISTANT_HIDDEN_KEY) === "true");
+      } catch {
+        setHelpHidden(false);
+      }
+    }
+    visibility();
+    window.addEventListener(ASSISTANT_VISIBILITY, visibility);
+    return () => window.removeEventListener(ASSISTANT_VISIBILITY, visibility);
+  }, []);
   useEffect(() => {
     function discard() {
       dialog.current?.close();
@@ -20,43 +43,12 @@ export function SupportWidget() {
     window.addEventListener(SESSION_CHANGED, discard);
     return () => window.removeEventListener(SESSION_CHANGED, discard);
   }, []);
-  useEffect(() => {
-    function revealFocusedField(event: Event) {
-      const element = document.activeElement;
-      if (!(element instanceof HTMLElement) || !element.closest("main")) return;
-      // Moving a pointer-focused button between pointerdown and pointerup cancels
-      // its click. Reveal keyboard focus and editable fields without moving a
-      // clicked action; viewport changes can still reveal any focused control.
-      if (
-        event.type === "focusin" &&
-        !element.matches(
-          ":focus-visible, input, select, textarea, [contenteditable='true']",
-        )
-      )
-        return;
-      const controls = trigger.current?.closest("nav");
-      if (!controls) return;
-      const bar = controls.getBoundingClientRect();
-      const field = element.getBoundingClientRect();
-      if (
-        field.bottom > bar.top - 12 &&
-        field.top < bar.bottom + 12 &&
-        field.right > bar.left - 12 &&
-        field.left < bar.right + 12
-      )
-        element.scrollIntoView({ block: "center", behavior: "instant" });
-    }
-    document.addEventListener("focusin", revealFocusedField);
-    window.visualViewport?.addEventListener("resize", revealFocusedField);
-    return () => {
-      document.removeEventListener("focusin", revealFocusedField);
-      window.visualViewport?.removeEventListener("resize", revealFocusedField);
-    };
-  }, []);
   if (
     pathname.startsWith("/admin") ||
     pathname.startsWith("/staff") ||
     pathname.startsWith("/dashboard/support") ||
+    pathname.startsWith("/learn/practice/") ||
+    pathname === "/dashboard/notifications" ||
     [
       "/login",
       "/register",
@@ -70,30 +62,40 @@ export function SupportWidget() {
   return (
     <>
       <nav className="support-controls" aria-label="Customer support">
-        <button
-          ref={trigger}
-          className="support-trigger"
-          onClick={() => dialog.current?.showModal()}
-          aria-haspopup="dialog"
-          aria-label="Quick help"
-          title="Quick help"
-        >
-          <CircleHelp size={22} aria-hidden="true" />
-          <span className="support-control-label" aria-hidden="true">
-            Help
-          </span>
-        </button>
+        {!(learningEnabled() && helpHidden) && (
+          <button
+            ref={trigger}
+            className={
+              learningEnabled() ? "support-trigger allie-trigger" : "support-trigger"
+            }
+            onClick={() =>
+              learningEnabled() ? requestLearningOpen() : dialog.current?.showModal()
+            }
+            aria-haspopup="dialog"
+            aria-label={learningEnabled() ? `Ask ${assistantName}` : "Quick help"}
+            title={learningEnabled() ? `Ask ${assistantName}` : "Quick help"}
+          >
+            {learningEnabled() ? (
+              <AllieAvatar />
+            ) : (
+              <CircleHelp size={22} aria-hidden="true" />
+            )}
+            <span className="support-control-label" aria-hidden="true">
+              {learningEnabled() ? `Ask ${assistantName}` : "Help"}
+            </span>
+          </button>
+        )}
         <a
           className="whatsapp-control"
           href={business.whatsapp}
           target="_blank"
-          rel="noreferrer"
+          rel="noopener noreferrer"
           aria-label="Message Allied AutoTech on WhatsApp (opens a new tab)"
-          title="WhatsApp"
+          title="Whatsapp"
         >
           <MessageCircle size={22} aria-hidden="true" />
           <span className="support-control-label" aria-hidden="true">
-            WhatsApp
+            Whatsapp
           </span>
         </a>
       </nav>
@@ -101,7 +103,11 @@ export function SupportWidget() {
         className="support-dialog"
         ref={dialog}
         aria-labelledby="support-title"
-        onClose={() => trigger.current?.focus()}
+        onKeyDown={containDialogFocus}
+        onClose={() => {
+          setAnswer(undefined);
+          trigger.current?.focus();
+        }}
       >
         <div className="dialog-header">
           <div>
@@ -161,13 +167,35 @@ export function SupportWidget() {
                 {answer?.answer ??
                   "I don’t have an approved answer to that question. Please contact Allied AutoTech for help."}
               </p>
-              <a
-                className="text-link"
-                href={answer?.href ?? business.whatsapp}
-                onClick={() => dialog.current?.close()}
-              >
-                {answer?.action ?? "Message Allied AutoTech"} →
-              </a>
+              {answer?.href.startsWith("/dashboard/") ? (
+                <HelpAccountAction
+                  key={answer.id}
+                  href={answer.href}
+                  action={answer.action}
+                  compact
+                  onNavigate={() => dialog.current?.close()}
+                />
+              ) : (
+                <Link
+                  className="text-link"
+                  href={answer?.href ?? business.whatsapp}
+                  onClick={() => dialog.current?.close()}
+                  {...((answer?.href ?? business.whatsapp).startsWith("https://")
+                    ? {
+                        target: "_blank",
+                        rel: "noopener noreferrer",
+                        "aria-label": `${answer?.action ?? "Message Allied AutoTech"} (opens in a new tab)`,
+                      }
+                    : {})}
+                >
+                  {answer?.action ?? "Message Allied AutoTech"}{" "}
+                  <span aria-hidden="true">
+                    {(answer?.href ?? business.whatsapp).startsWith("https://")
+                      ? "\u2197"
+                      : "\u2192"}
+                  </span>
+                </Link>
+              )}
             </div>
           )}
         </div>
@@ -176,9 +204,9 @@ export function SupportWidget() {
             className="button secondary"
             href={business.whatsapp}
             target="_blank"
-            rel="noreferrer"
+            rel="noopener noreferrer"
           >
-            Talk to Allied AutoTech ↗
+            Whatsapp ↗
           </a>
           <Link
             className="text-link"

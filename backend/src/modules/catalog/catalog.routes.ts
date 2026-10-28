@@ -7,6 +7,7 @@ import {
 import { requireCsrf } from "../../common/middleware/csrf.js";
 import { validate } from "../../common/middleware/validate.js";
 import { CatalogController } from "./catalog.controller.js";
+import { productOptionQuerySchema } from "./product-options.schemas.js";
 import {
   productDiscoveryQuerySchema,
   productFacetQuerySchema,
@@ -14,6 +15,7 @@ import {
 import {
   adminCategoryListQuerySchema,
   adminProductListQuerySchema,
+  cartClearBodySchema,
   cartItemBodySchema,
   catalogEmptyBodySchema,
   catalogEmptyQuerySchema,
@@ -22,6 +24,7 @@ import {
   categoryParamsSchema,
   categoryUpdateBodySchema,
   compatibilityCreateBodySchema,
+  compatibilityDeleteBodySchema,
   compatibilityParamsSchema,
   compatibilityUpdateBodySchema,
   favouriteListQuerySchema,
@@ -38,6 +41,11 @@ import {
 export function createPublicCatalogRouter(): Router {
   const router = Router();
   const controller = new CatalogController();
+  router.get(
+    "/products/options",
+    validate({ query: productOptionQuerySchema }),
+    controller.publicOptions,
+  );
   router.get(
     "/products/discovery",
     validate({ query: productDiscoveryQuerySchema }),
@@ -124,7 +132,7 @@ export function createCustomerCatalogRouter(): Router {
   router.delete(
     "/cart",
     requireCsrf,
-    validate({ query: catalogEmptyQuerySchema, body: catalogEmptyBodySchema }),
+    validate({ query: catalogEmptyQuerySchema, body: cartClearBodySchema }),
     controller.clearCart,
   );
   return router;
@@ -212,7 +220,7 @@ export function createAdminCatalogRouter(): Router {
     validate({
       params: compatibilityParamsSchema,
       query: catalogEmptyQuerySchema,
-      body: catalogEmptyBodySchema,
+      body: compatibilityDeleteBodySchema,
     }),
     controller.deleteCompatibility,
   );

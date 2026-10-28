@@ -14,7 +14,7 @@ import { publicCapabilitiesSchema } from "../../src/modules/policies/policies.sc
 const originalEnvironment = env.DEPLOYMENT_ENV;
 const now = new Date("2026-09-24T12:00:00Z");
 const address =
-  "133 Stadium Road, beside Kilimanjaro, Port Harcourt, Rivers State, Nigeria";
+  "133 Stadium Road, beside Kilimanjaro Pizza Jungle Restaurant, Port Harcourt, Rivers State, Nigeria";
 const deliverySettings = {
   collectionEnabled: true,
   collectionAddress: address,
@@ -105,7 +105,7 @@ describe("public policy availability summary", () => {
     },
   ])(
     "matches checkout gates for $name",
-    async ({ finance, deployment, delivery, checkout, enabled }) => {
+    async ({ finance, deployment, delivery, checkout }) => {
       env.DEPLOYMENT_ENV = deployment;
       const deliveryPolicy = policy("delivery", "APPROVED", delivery);
       const lookup = vi
@@ -113,7 +113,6 @@ describe("public policy availability summary", () => {
         .mockResolvedValueOnce(deliveryPolicy)
         .mockResolvedValueOnce(policy("vehicle"))
         .mockResolvedValueOnce(finance)
-        .mockResolvedValueOnce(deliveryPolicy)
         .mockResolvedValueOnce(finance);
       const summary = publicCapabilitiesSchema.parse(await safeCapabilities(prisma, now));
       const fulfillment = await publicFulfillmentOptions(prisma, now);
@@ -122,7 +121,7 @@ describe("public policy availability summary", () => {
         serverTime: now.toISOString(),
         checkoutEnabled: checkout,
         collection: { enabled: true, address },
-        delivery: { enabled },
+        delivery: { enabled: false },
         vehicleDeposits: { enabled: checkout },
         finance: { approvalStatus: finance?.approvalStatus ?? null },
         marketing: { enabled: false },

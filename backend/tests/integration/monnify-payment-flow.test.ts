@@ -14,14 +14,33 @@ import { testOwner } from "../helpers/owner.js";
 
 const runDatabaseTests = process.env.RUN_DATABASE_TESTS === "true";
 const context = { requestId: randomUUID(), ipAddress: null, userAgent: null };
-const actor = (userId: string, role: AuthenticatedActor["role"]): AuthenticatedActor => ({
-  userId,
-  sessionId: randomUUID(),
-  email: `${role.toLowerCase()}@example.test`,
-  role,
-  mfaRequired: role !== "CUSTOMER",
-  mfaVerifiedAt: role === "CUSTOMER" ? null : new Date(),
-});
+async function actor(
+  userId: string,
+  role: AuthenticatedActor["role"],
+): Promise<AuthenticatedActor> {
+  const now = new Date();
+  const expiresAt = new Date(now.getTime() + 3_600_000);
+  const stored = await prisma.session.create({
+    data: {
+      userId,
+      tokenHash: randomUUID(),
+      expiresAt,
+      idleExpiresAt: expiresAt,
+      createdAt: now,
+      lastRotatedAt: now,
+      mfaRequired: role !== "CUSTOMER",
+      mfaVerifiedAt: role === "CUSTOMER" ? null : now,
+    },
+  });
+  return {
+    userId,
+    sessionId: stored.id,
+    email: `${role.toLowerCase()}@example.test`,
+    role,
+    mfaRequired: role !== "CUSTOMER",
+    mfaVerifiedAt: role === "CUSTOMER" ? null : now,
+  };
+}
 
 describe.skipIf(!runDatabaseTests)("Monnify payment flow", () => {
   afterAll(async () => prisma.$disconnect());
@@ -133,7 +152,7 @@ describe.skipIf(!runDatabaseTests)("Monnify payment flow", () => {
         paymentDueAt: new Date(Date.now() + 3_600_000),
       },
     });
-    const customerActor = actor(customer.id, "CUSTOMER");
+    const customerActor = await actor(customer.id, "CUSTOMER");
     const created = (await service.createIntent(
       customerActor,
       { targetType: "ORDER", targetId: order.id, purpose: "ORDER_PAYMENT" },
@@ -214,7 +233,7 @@ describe.skipIf(!runDatabaseTests)("Monnify payment flow", () => {
     });
 
     const requested = (await service.requestRefund(
-      actor(requesterId, "ADMIN"),
+      await actor(requesterId, "ADMIN"),
       {
         paymentAttemptId: attempt.id,
         amountKobo: 3_000n,
@@ -224,7 +243,7 @@ describe.skipIf(!runDatabaseTests)("Monnify payment flow", () => {
       context,
     )) as { refund: { id: string } };
     await service.decideRefund(
-      actor(approverId, "SUPER_ADMIN"),
+      await actor(approverId, "SUPER_ADMIN"),
       requested.refund.id,
       { decision: "APPROVED" },
       context,

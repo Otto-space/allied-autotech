@@ -16,7 +16,11 @@ import type { AuthenticatedActor } from "../../src/common/contracts/actor.js";
 const app = createApp({ checkReadiness: async () => undefined, rateLimit: 10000 });
 const path = "/api/v1/admin/operations/jobs",
   context = { requestId: "work-jobs", ipAddress: null, userAgent: null };
-describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
+const provisionedWorkspaceAcceptanceChecksEnabled =
+  process.env.RUN_DATABASE_TESTS === "true" &&
+  process.env.RUN_PROVISIONED_WORKSPACE_TESTS === "true";
+
+describe.skipIf(!provisionedWorkspaceAcceptanceChecksEnabled)(
   "current processing-job workspace",
   () => {
     const sessions: string[] = [],
@@ -583,7 +587,9 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         });
         await expect(
           service.job(actor, "outbox", ids[3]!, context),
-        ).rejects.toMatchObject({ statusCode: 403 });
+        ).rejects.toMatchObject({
+          statusCode: 403,
+        });
         await expect(
           service.retryJob(
             actor,

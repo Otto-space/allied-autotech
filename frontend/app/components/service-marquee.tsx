@@ -10,7 +10,7 @@ const services = [
   "Vehicle Inspections",
 ];
 export function ServiceMarquee() {
-  const [paused, setPaused] = useState(false);
+  const [paused, setPaused] = useState(true);
   return (
     <div className={`service-marquee ${paused ? "is-paused" : ""}`}>
       <p className="sr-only">Our services: {services.join(", ")}.</p>

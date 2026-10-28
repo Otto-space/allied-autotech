@@ -91,7 +91,13 @@ const inventoryCheckoutSelect = {
       priceKobo: true,
       currency: true,
       isActive: true,
-      category: { select: { isActive: true } },
+      category: {
+        select: {
+          isActive: true,
+          parentId: true,
+          parent: { select: { isActive: true } },
+        },
+      },
     },
   },
   branch: { select: { isActive: true } },

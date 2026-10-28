@@ -246,7 +246,7 @@ async function confirm(page: Page) {
   await page
     .getByRole("dialog")
     .getByRole("button", {
-      name: /^(Confirm change|Send enquiry|Send complaint|Send reply)$/,
+      name: /^(Confirm (?:status|assignment|priority) change|Save internal note|Confirm change|Send enquiry|Send complaint|Send reply)$/,
     })
     .click();
 }
@@ -570,16 +570,28 @@ for (const visibility of ["INTERNAL", "CUSTOMER"]) {
       page.getByText(/This record has no linked customer account/),
     ).toBeVisible();
     await expect(page.getByText("Isolated reply 14", { exact: true })).toBeVisible();
-    await page.getByLabel("Message visibility").selectOption(visibility);
+    await page
+      .getByRole("radio", {
+        name:
+          visibility === "INTERNAL" ? "Internal staff note" : "Customer-visible reply",
+        exact: true,
+      })
+      .check();
     await page.getByLabel("Reply text").fill("Staff test message");
-    await page.getByRole("button", { name: "Review reply" }).click();
+    await page
+      .getByRole("button", {
+        name: visibility === "INTERNAL" ? "Review internal note" : "Review reply",
+      })
+      .click();
     await expect(page.getByRole("dialog")).toContainText(
       visibility === "INTERNAL" ? "Staff only" : "Customer-visible",
     );
     await confirm(page);
     await expect(page.locator(".wst-confirmed")).toContainText("Staff test message");
     expect(state.writes[0].body).toEqual({ message: "Staff test message", visibility });
-    await expect(page.getByLabel("Message visibility")).toHaveValue("CUSTOMER");
+    await expect(
+      page.getByRole("radio", { name: "Customer-visible reply", exact: true }),
+    ).toBeChecked();
   });
 }
 for (const kind of ["enquiries", "complaints"]) {
@@ -589,12 +601,14 @@ for (const kind of ["enquiries", "complaints"]) {
     const state = await fixture(page, "ADMIN");
     await page.goto(thread(kind, true));
     await page.getByLabel("New status").selectOption("RESOLVED");
-    await page.getByRole("button", { name: "Review support change" }).click();
-    await expect(page.getByRole("dialog")).toHaveCount(0);
     await page
-      .getByLabel("Customer-visible response or resolution")
-      .fill("Test resolution text");
-    await page.getByRole("button", { name: "Review support change" }).click();
+      .getByRole("button", { name: /^Review (status|assignment|priority) change$/ })
+      .click();
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+    await page.getByLabel("Status update explanation").fill("Test resolution text");
+    await page
+      .getByRole("button", { name: /^Review (status|assignment|priority) change$/ })
+      .click();
     await expect(page.getByRole("dialog")).toContainText("Test resolution text");
     await confirm(page);
     await expect(
@@ -609,7 +623,9 @@ for (const kind of ["enquiries", "complaints"]) {
       [kind === "enquiries" ? "response" : "resolution"]: "Test resolution text",
     });
     await page.getByLabel("New status").selectOption("CLOSED");
-    await page.getByRole("button", { name: "Review support change" }).click();
+    await page
+      .getByRole("button", { name: /^Review (status|assignment|priority) change$/ })
+      .click();
     await confirm(page);
     await expect(
       page.getByText("This record is closed. The reply form is unavailable."),
@@ -625,7 +641,9 @@ test("staff assignment, removal and complaint priority use exact server versions
   await page.goto(thread("complaints", true));
   await page.getByLabel("Action", { exact: true }).selectOption("assignment");
   await page.getByLabel("Staff member", { exact: true }).selectOption(id(3));
-  await page.getByRole("button", { name: "Review support change" }).click();
+  await page
+    .getByRole("button", { name: /^Review (status|assignment|priority) change$/ })
+    .click();
   await expect(page.getByRole("dialog")).toContainText("Test Handler");
   await confirm(page);
   await expect(
@@ -636,12 +654,16 @@ test("staff assignment, removal and complaint priority use exact server versions
   await expect(page.getByLabel("Action", { exact: true })).toHaveValue("status");
   await page.getByLabel("Action", { exact: true }).selectOption("assignment");
   await page.getByLabel("Remove the current assignment").check();
-  await page.getByRole("button", { name: "Review support change" }).click();
+  await page
+    .getByRole("button", { name: /^Review (status|assignment|priority) change$/ })
+    .click();
   await confirm(page);
   await expect(page.getByLabel("Action", { exact: true })).toHaveValue("status");
   await page.getByLabel("Action", { exact: true }).selectOption("priority");
   await page.getByLabel("New priority").selectOption("URGENT");
-  await page.getByRole("button", { name: "Review support change" }).click();
+  await page
+    .getByRole("button", { name: /^Review (status|assignment|priority) change$/ })
+    .click();
   await confirm(page);
   await expect(page.getByLabel("Action", { exact: true })).toHaveValue("status");
   expect(state.writes.map((write) => write.body)).toEqual([
@@ -659,18 +681,22 @@ for (const unknown of [false, true]) {
     state.stale = !unknown;
     await page.goto(thread("enquiries", true));
     await page.getByLabel("New status").selectOption("IN_PROGRESS");
-    await page.getByRole("button", { name: "Review support change" }).click();
+    await page
+      .getByRole("button", { name: /^Review (status|assignment|priority) change$/ })
+      .click();
     await confirm(page);
     await expect(page.getByRole("dialog").getByRole("alert")).toBeVisible();
     await expect(
-      page
-        .getByRole("dialog")
-        .getByRole("button", { name: /^(Confirm change|Send enquiry|Send complaint)$/ }),
+      page.getByRole("dialog").getByRole("button", {
+        name: /^(Confirm (?:status|assignment|priority) change|Save internal note|Confirm change|Send enquiry|Send complaint)$/,
+      }),
     ).toBeDisabled();
     await page.keyboard.press("Escape");
     if (unknown)
       await expect(
-        page.getByRole("button", { name: "Review support change" }),
+        page.getByRole("button", {
+          name: /^Review (status|assignment|priority) change$/,
+        }),
       ).toBeDisabled();
     expect(state.writes).toHaveLength(1);
   });

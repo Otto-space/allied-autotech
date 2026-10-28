@@ -37,6 +37,38 @@ async function fixture() {
       isActive: false,
     },
   });
+  // Synthetic reviewed evidence belongs only to the isolated test database.
+  // Legacy rows default to DRAFT and must not populate public fitment facets.
+  const make = await prisma.vehicleMake.create({
+    data: { name: `${prefix}-Make`, key: `${prefix}-make`.toLowerCase() },
+  });
+  const models = await Promise.all(
+    ["Sedan", "Coupe"].map((name) =>
+      prisma.vehicleModel.create({
+        data: {
+          makeId: make.id,
+          name,
+          key: name.toLowerCase(),
+          yearFrom: 2010,
+          yearTo: 2020,
+          sourceReference: "Synthetic model-year fixture",
+        },
+      }),
+    ),
+  );
+  const [author, reviewer] = await Promise.all(
+    ["author", "reviewer"].map((role) =>
+      prisma.user.create({
+        data: {
+          email: `${prefix}-${role}@example.test`,
+          passwordHash: "unusable-test-password",
+          role: "STAFF",
+          status: "ACTIVE",
+          emailVerifiedAt: new Date(),
+        },
+      }),
+    ),
+  );
   const rows = [];
   for (let i = 0; i < 10; i++) {
     const row = await prisma.product.create({
@@ -47,6 +79,7 @@ async function fixture() {
         slug: `${prefix.toLowerCase()}-${i}`,
         priceKobo: BigInt(Math.floor(i / 2) * 1000),
         brand: `${prefix}-${i < 4 ? "Alpha" : "Beta"}`,
+        productType: "AIR_FILTER",
         isActive: i !== 8,
         createdAt: new Date(Date.UTC(2026, 0, 1, 0, 0, Math.floor(i / 2))),
         compatibilities: {
@@ -55,6 +88,28 @@ async function fixture() {
             model: i % 2 ? "Coupe" : "Sedan",
             yearFrom: 2010,
             yearTo: 2020,
+            vehicleModelId: models[i % 2]!.id,
+            reviewStatus: "APPROVED",
+            safetyCritical: false,
+            allVariantsConfirmed: true,
+            sourceReference: "Synthetic independent technical evidence",
+            evidenceNotes:
+              "Isolated discovery fixture: the complete stated variant range is reviewed.",
+            createdByUserId: author!.id,
+            updatedByUserId: author!.id,
+            reviewedByUserId: reviewer!.id,
+            reviewedAt: new Date(),
+            history: {
+              create: {
+                actorUserId: reviewer!.id,
+                action: "APPROVE",
+                version: 0,
+                snapshot: {
+                  sourceReference: "Synthetic independent technical evidence",
+                  reviewStatus: "APPROVED",
+                },
+              },
+            },
           },
         },
       },
@@ -92,6 +147,78 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
   "Product discovery API and database",
   () => {
     afterAll(() => prisma.$disconnect());
+    it("scopes root and child categories without bypassing other filters", async () => {
+      const f = await fixture();
+      const child = await prisma.category.create({
+        data: {
+          name: `${f.prefix}-Child`,
+          slug: `${f.prefix.toLowerCase()}-child`,
+          parentId: f.category.id,
+        },
+      });
+      const hiddenChild = await prisma.category.create({
+        data: {
+          name: `${f.prefix}-HiddenChild`,
+          slug: `${f.prefix.toLowerCase()}-hidden-child`,
+          parentId: f.category.id,
+          isActive: false,
+        },
+      });
+      await prisma.product.update({
+        where: { id: f.rows[0]!.id },
+        data: { categoryId: child.id },
+      });
+      await prisma.product.update({
+        where: { id: f.rows[1]!.id },
+        data: { categoryId: hiddenChild.id },
+      });
+      expect((await page({ categoryId: f.category.id })).totalMatches).toBe(7);
+      expect((await page({ parentCategoryId: f.category.id })).totalMatches).toBe(7);
+      const exact = await page({ parentCategoryId: f.category.id, categoryId: child.id });
+      expect(exact.items.map((row) => row.id)).toEqual([f.rows[0]!.id]);
+      expect(
+        (await page({ parentCategoryId: f.hidden.id, categoryId: child.id }))
+          .totalMatches,
+      ).toBe(0);
+      expect(
+        (
+          await page({
+            parentCategoryId: f.category.id,
+            categoryId: child.id,
+            search: "NoSuchProduct",
+          })
+        ).totalMatches,
+      ).toBe(0);
+      expect(
+        (await page({ categoryId: f.category.id, availability: "in_stock" }))
+          .totalMatches,
+      ).toBe(1);
+      const brands = await facets({ field: "brand", categoryId: f.category.id });
+      expect(brands.items).toHaveLength(2);
+      const categories = await request(app)
+        .get("/api/v1/public/catalog/categories")
+        .query({ parentId: f.category.id, search: `${f.prefix}-C` });
+      expect(categories.status, JSON.stringify(categories.body)).toBe(200);
+      expect(categories.body.data.items.map((row: { id: string }) => row.id)).toEqual([
+        child.id,
+      ]);
+      const roots = await request(app)
+        .get("/api/v1/public/catalog/categories")
+        .query({ rootOnly: true, search: f.prefix });
+      expect(roots.status).toBe(200);
+      expect(roots.body.data.items.map((row: { id: string }) => row.id)).toEqual([
+        f.category.id,
+      ]);
+      await prisma.category.update({
+        where: { id: f.category.id },
+        data: { isActive: false },
+      });
+      expect((await page({ categoryId: child.id })).totalMatches).toBe(0);
+      const hidden = await request(app)
+        .get("/api/v1/public/catalog/categories")
+        .query({ parentId: f.category.id });
+      expect(hidden.body.data.items).toEqual([]);
+    }, 30000);
     it.each(["newest", "name", "price_asc", "price_desc"] as const)(
       "traverses %s ties, exact totals, visibility and legacy links",
       async (sort) => {
@@ -168,7 +295,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
           .totalMatches,
       ).toBe(0);
     });
-    it("binds cursors to filters, sort and endpoint, and survives deleted anchors", async () => {
+    it("binds cursors to filters, sort and endpoint, and survives withdrawn reviewed anchors", async () => {
       const f = await fixture();
       const first = await page({
         categoryId: f.category.id,
@@ -177,7 +304,15 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       });
       const anchor = first.items[1]!;
       await prisma.inventory.deleteMany({ where: { productId: anchor.id } });
-      await prisma.product.delete({ where: { id: anchor.id } });
+      // Reviewed evidence cannot be erased through a product cascade. Withdrawal
+      // must still leave a signed cursor usable and exclude the unpublished anchor.
+      await expect(
+        prisma.product.delete({ where: { id: anchor.id } }),
+      ).rejects.toMatchObject({ code: "P2003" });
+      await prisma.product.update({
+        where: { id: anchor.id },
+        data: { isActive: false },
+      });
       const next = await page({
         categoryId: f.category.id,
         sort: "price_asc",
@@ -212,6 +347,35 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
             .query({ field: "brand", cursor: first.nextCursor })
         ).status,
       ).toBe(422);
+    });
+    it("survives deletion of a synthetic anchor with no reviewed evidence or business records", async () => {
+      const nonce = randomUUID();
+      const category = await prisma.category.create({
+        data: {
+          name: "Synthetic deletable cursor fixture",
+          slug: `delete-anchor-${nonce}`,
+        },
+      });
+      await prisma.product.createMany({
+        data: [0, 1].map((index) => ({
+          categoryId: category.id,
+          name: `Synthetic anchor ${index}`,
+          sku: `DELETE-${nonce}-${index}`,
+          slug: `delete-anchor-${nonce}-${index}`,
+          priceKobo: 100n,
+        })),
+      });
+      const first = await page({ categoryId: category.id, limit: 1 });
+      expect(first.totalMatches).toBe(2);
+      await prisma.product.delete({ where: { id: first.items[0]!.id } });
+      const next = await page({
+        categoryId: category.id,
+        limit: 1,
+        cursor: first.nextCursor,
+      });
+      expect(next.totalMatches).toBe(1);
+      expect(next.items).toHaveLength(1);
+      expect(next.items[0]!.id).not.toBe(first.items[0]!.id);
     });
     it("searches complete category and case-folded brand/make/model options with scope and pagination", async () => {
       const f = await fixture();

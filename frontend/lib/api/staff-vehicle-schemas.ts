@@ -5,7 +5,7 @@ import {
   conditionSummarySchema,
 } from "./vehicle-document-schemas";
 export const vehicleEnums = {
-  condition: ["NEW", "USED"],
+  condition: ["NEW", "USED", "FOREIGN_USED", "LOCALLY_USED"],
   transmission: ["AUTOMATIC", "MANUAL", "CVT", "OTHER"],
   fuelType: ["PETROL", "DIESEL", "HYBRID", "ELECTRIC", "OTHER"],
   bodyType: [
@@ -20,6 +20,7 @@ export const vehicleEnums = {
     "BUS",
     "OTHER",
   ],
+  powertrain: ["BEV", "HEV", "PHEV", "ICE"],
   driveType: ["FWD", "RWD", "AWD", "FOUR_WD", "OTHER"],
 } as const;
 export const listingStatuses = [
@@ -59,6 +60,10 @@ export const staffVehicleSchema = z.object({
   fuelType: z.enum(vehicleEnums.fuelType).nullable(),
   condition: z.enum(vehicleEnums.condition),
   bodyType: z.enum(vehicleEnums.bodyType).nullable(),
+  manufactureCountryCode: z.string().nullable().optional(),
+  powertrain: z.enum(vehicleEnums.powertrain).nullable().optional(),
+  engineCapacityCc: z.number().int().nullable().optional(),
+  features: z.array(z.string()).optional(),
   engineSize: z.string().nullable(),
   driveType: z.enum(vehicleEnums.driveType).nullable(),
   color: z.string().nullable(),

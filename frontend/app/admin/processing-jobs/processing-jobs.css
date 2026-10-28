@@ -1,7 +1,7 @@
 .work-jobs {
   --wj-line: #c5d1dd;
   --wj-muted: #536579;
-  color: #01121a;
+  color: var(--ink);
   min-width: 0;
   font-size: 14px;
   line-height: 1.6;

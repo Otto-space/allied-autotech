@@ -1,5 +1,7 @@
 import { z } from "zod";
+import { savedVehicleQualifierKeys } from "../parts-fitment";
 import { branchRef, money } from "./commerce-schemas";
+import { profilePhotoSchema } from "./profile-schemas";
 const image = z.object({
   id: z.string().uuid(),
   url: z.string(),
@@ -24,6 +26,10 @@ export const listingSchema = z.object({
     transmission: z.string().nullable(),
     fuelType: z.string().nullable(),
     condition: z.string(),
+    manufactureCountryCode: z.string().nullable().optional(),
+    powertrain: z.enum(["BEV", "HEV", "PHEV", "ICE"]).nullable().optional(),
+    engineCapacityCc: z.number().int().nullable().optional(),
+    features: z.array(z.string()).optional(),
     bodyType: z.string().nullable(),
     color: z.string().nullable(),
     images: z.array(image),
@@ -56,6 +62,33 @@ export const parseVehicleDiscovery = (value: unknown) =>
     })
     .parse(value);
 export const customerVehicleSchema = z.object({
+  nickname: z.string().max(80).nullable().optional(),
+  isDefault: z.boolean().optional(),
+  vehicleModelId: z.uuid().nullable().optional(),
+  vehicleModel: z
+    .object({
+      id: z.uuid(),
+      makeId: z.uuid(),
+      name: z.string(),
+      yearFrom: z.number().int(),
+      yearTo: z.number().int(),
+      isActive: z.boolean(),
+      make: z.object({ id: z.uuid(), name: z.string(), isActive: z.boolean() }),
+    })
+    .nullable()
+    .optional(),
+  ...(Object.fromEntries(
+    savedVehicleQualifierKeys.map((key) => [
+      key,
+      z.string().max(100).nullable().optional(),
+    ]),
+  ) as {
+    [K in (typeof savedVehicleQualifierKeys)[number]]: z.ZodOptional<
+      z.ZodNullable<z.ZodString>
+    >;
+  }),
+  createdAt: z.iso.datetime({ offset: true }).optional(),
+  updatedAt: z.iso.datetime({ offset: true }).optional(),
   id: z.string().uuid(),
   make: z.string(),
   model: z.string(),
@@ -64,6 +97,7 @@ export const customerVehicleSchema = z.object({
   vin: z.string().nullable(),
   color: z.string().nullable(),
   mileageKm: z.number().nullable(),
+  images: z.array(profilePhotoSchema).max(12).default([]),
 });
 export type CustomerVehicle = z.infer<typeof customerVehicleSchema>;
 export const parseCustomerVehicles = (value: unknown) =>

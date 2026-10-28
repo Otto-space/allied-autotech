@@ -64,6 +64,8 @@ export async function fixture(page: Page, role = "CUSTOMER") {
   await page.route("**/api/v1/**", async (route) => {
     const request = route.request();
     const endpoint = new URL(request.url()).pathname.replace("/api/v1", "");
+    if (endpoint === "/customers/notifications/summary")
+      return reply(route, { unreadCount: 0, groups: [] });
     if (endpoint === "/auth/session")
       return reply(route, {
         id: id(10),

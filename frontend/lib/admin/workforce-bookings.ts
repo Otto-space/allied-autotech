@@ -22,7 +22,15 @@ const workforceBookingSchema = z.object({
     ],
   ),
   version: z.number().int().nonnegative(),
-  service: z.object({ name: z.string() }),
+  service: z.object({
+    name: z.string(),
+    durationMinutes: z.number().int().positive().nullable().optional(),
+  }),
+  assignedStaff: z
+    .object({ id: z.uuid(), firstName: z.string(), lastName: z.string() })
+    .nullable()
+    .optional(),
+  confirmedAt: z.iso.datetime().nullable().optional(),
   customer: z.object({ firstName: z.string(), lastName: z.string(), phone: z.string() }),
   branch: z.object({ id: z.uuid(), name: z.string() }).nullable(),
   vehicle: z
@@ -34,6 +42,48 @@ const workforceBookingSchema = z.object({
     })
     .nullable(),
 });
+export type WorkforceBooking = z.infer<typeof workforceBookingSchema>;
+export function parseWorkforceBookingDetail(value: unknown, id: string) {
+  const envelope = z
+    .object({ access: workforceAccessSchema, generatedAt: z.iso.datetime() })
+    .parse(value);
+  const page = parseScopedWorkforceBookings({ items: [value], ...envelope });
+  if (page.items[0].id !== id) throw Error("Mismatched booking");
+  return { row: page.items[0], access: page.access, generatedAt: page.generatedAt };
+}
+const confirmationReceipt = z.object({
+  id: z.uuid(),
+  branchId: z.uuid(),
+  assignedStaffId: z.uuid(),
+  status: z.literal("CONFIRMED"),
+  version: z.number().int().positive(),
+  scheduledAt: z.iso.datetime(),
+  confirmedAt: z.iso.datetime(),
+  resourceReviewNote: z.string().min(10).max(2000),
+  capacityPolicyVersionId: z.uuid(),
+  performedByUserId: z.uuid(),
+});
+export type BookingConfirmationReceipt = z.infer<typeof confirmationReceipt>;
+export function parseBookingConfirmationReceipt(
+  value: unknown,
+  before: WorkforceBooking,
+  owner: string,
+  note: string,
+) {
+  const receipt = confirmationReceipt.parse(value);
+  if (
+    before.status !== "REQUESTED" ||
+    receipt.id !== before.id ||
+    receipt.branchId !== before.branchId ||
+    receipt.assignedStaffId !== before.assignedStaff?.id ||
+    receipt.scheduledAt !== before.scheduledAt ||
+    receipt.version !== before.version + 1 ||
+    receipt.performedByUserId !== owner ||
+    receipt.resourceReviewNote !== note
+  )
+    throw Error("The booking confirmation receipt could not be verified");
+  return receipt;
+}
 export function workforceBookingsQuery(input: URLSearchParams) {
   const allowed = ["q", "status", "cursor", "_trail"],
     params = new URLSearchParams();
@@ -84,7 +134,7 @@ export function parseScopedWorkforceBookings(value: unknown) {
       items: z.array(workforceBookingSchema).max(25),
       nextCursor: z.uuid().optional(),
       generatedAt: z.iso.datetime(),
-      access: workforceAccessSchema.extend({ managed: z.literal(true) }),
+      access: workforceAccessSchema.safeExtend({ managed: z.literal(true) }),
     })
     .parse(value);
   if (

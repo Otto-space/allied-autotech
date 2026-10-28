@@ -1,7 +1,7 @@
 .contact-page {
   --contact-control-border: #82939f;
   --contact-rule: #c6d0d7;
-  --contact-focus: #b80201;
+  --contact-focus: var(--brand-red-dark);
   --contact-soft: #f2f5f7;
   --contact-text: #445662;
   background: #fff;
@@ -15,8 +15,9 @@
 }
 .contact-page :is(a, button, input, select, textarea, summary):focus-visible,
 .contact-page [tabindex="-1"]:focus-visible {
-  outline: 2px solid var(--contact-focus);
-  outline-offset: 4px;
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .contact-breadcrumb {
   padding-block: 22px 16px;
@@ -55,7 +56,7 @@
   align-items: center;
   gap: 0;
   margin-bottom: 28px;
-  background: #01121a;
+  background: var(--ink);
   color: #fff;
   border-radius: 6px;
   overflow: hidden;
@@ -228,7 +229,7 @@
 .contact-preparation {
   margin-top: 24px;
   padding: 22px;
-  background: #01121a;
+  background: var(--ink);
   color: #fff;
   border-radius: 5px;
 }
@@ -355,10 +356,11 @@
   color: #fff;
 }
 .contact-reason input:focus-visible + span {
-  outline: 2px solid var(--contact-focus);
-  outline-offset: 3px;
   position: relative;
   z-index: 1;
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .contact-reason label:hover span {
   border-color: var(--ink);
@@ -409,15 +411,16 @@
   box-shadow: none;
 }
 .contact-form-panel :is(input, select, textarea):hover {
-  border-color: #435968;
+  border-color: var(--border-control);
 }
 .contact-form-panel :is(input, select, textarea):focus-visible {
   border-color: var(--contact-focus);
-  outline: 2px solid var(--contact-focus);
-  outline-offset: 2px;
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .contact-form-panel [aria-invalid="true"] {
-  border-color: #b80201 !important;
+  border-color: var(--error-ink) !important;
   background: #fff8f8;
 }
 .contact-form-panel :is(input, select, textarea, button):disabled,
@@ -481,7 +484,7 @@
   background: #fff;
   box-shadow: 0 8px 28px #01121a24;
   padding: 5px;
-  color: #01121a;
+  color: var(--ink);
   font:
     500 14px/1.5 var(--font-quicksand),
     sans-serif;
@@ -627,7 +630,7 @@
   justify-content: center;
   text-align: center;
   padding: 28px;
-  background: #01121a;
+  background: var(--ink);
   color: #d6dfe6;
 }
 .contact-page .contact-map-fallback h3 {
@@ -848,4 +851,11 @@
     transition: none;
     animation: none;
   }
+}
+
+.parts-enquiry-message {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 14px;
+  line-height: 1.7;
 }

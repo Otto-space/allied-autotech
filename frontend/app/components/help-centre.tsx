@@ -121,6 +121,10 @@ export function HelpCentre({
     const url = helpUrl(nextQuery, nextCategory);
     if (push) window.history.pushState(null, "", url);
     else window.history.replaceState(null, "", url);
+    if (push)
+      requestAnimationFrame(() => {
+        results.current?.scrollIntoView({ block: "start", behavior: "instant" });
+      });
   }
   function clear() {
     update("", "All topics");
@@ -151,7 +155,8 @@ export function HelpCentre({
           role="search"
           onSubmit={(event) => {
             event.preventDefault();
-            results.current?.focus();
+            results.current?.focus({ preventScroll: true });
+            results.current?.scrollIntoView({ block: "start", behavior: "instant" });
           }}
         >
           <label htmlFor="faq-search">Search help topics</label>
@@ -202,6 +207,7 @@ export function HelpCentre({
                       name="topic"
                       value={item}
                       type="submit"
+                      aria-controls="help-results"
                       aria-pressed={category === item}
                       aria-label={item}
                     >
@@ -217,6 +223,7 @@ export function HelpCentre({
               <input type="hidden" name="q" value={query} />
               <select
                 id="help-topic"
+                aria-controls="help-results"
                 name="topic"
                 value={category}
                 onChange={(event) => update(query, event.target.value, true)}
@@ -246,6 +253,7 @@ export function HelpCentre({
           <section
             ref={results}
             id="help-results"
+            data-reading-focus
             className="help-results"
             tabIndex={-1}
             aria-labelledby="help-results-title"
@@ -360,7 +368,7 @@ export function HelpCentre({
           <div className="help-contact-details">
             <a href={`tel:${business.internationalPhone}`}>
               <Phone size={18} aria-hidden="true" />
-              <span>{business.phone}</span>
+              <span>Call our team</span>
             </a>
             <a href={`mailto:${business.email}`}>
               <Mail size={18} aria-hidden="true" />
@@ -370,9 +378,9 @@ export function HelpCentre({
               href={business.whatsapp}
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="WhatsApp the team (opens in a new tab)"
+              aria-label="Whatsapp (opens in a new tab)"
             >
-              WhatsApp the team <ArrowUpRight size={16} aria-hidden="true" />
+              Whatsapp <ArrowUpRight size={16} aria-hidden="true" />
             </a>
             <p>
               <MapPin size={18} aria-hidden="true" />

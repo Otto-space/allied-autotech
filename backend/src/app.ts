@@ -132,6 +132,7 @@ export function createApp(options: CreateAppOptions = {}): Express {
 
   app.use("/api/v1/webhooks/paystack", rawWebhookBody);
   app.use("/api/v1/webhooks/monnify", rawWebhookBody);
+  app.use("/api/v1/webhooks/resend", rawWebhookBody);
   app.use(
     express.json({
       limit: options.requestBodyLimit ?? env.REQUEST_BODY_LIMIT,

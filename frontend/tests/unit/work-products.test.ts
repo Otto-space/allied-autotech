@@ -43,6 +43,18 @@ const values = {
   isActive: true,
 };
 describe("administrator product boundaries", () => {
+  it("preserves the compatibility tab only for a selected media workspace", () => {
+    const selected = productQuery(
+      new URLSearchParams(`media=${id}&tab=compatibility&search=filter`),
+    );
+    expect(selected.invalid).toBe(false);
+    expect(selected.params.get("tab")).toBe("compatibility");
+    expect(selected.api.has("tab")).toBe(false);
+    expect(productQuery(new URLSearchParams("tab=compatibility")).invalid).toBe(true);
+    expect(productQuery(new URLSearchParams(`media=${id}&tab=unknown`)).invalid).toBe(
+      true,
+    );
+  });
   it("keeps large prices exact and binds edits to the observed version", () => {
     const body = productBody(productFormSchema.parse(values), parseAdminProduct(record));
     expect(body).toMatchObject({

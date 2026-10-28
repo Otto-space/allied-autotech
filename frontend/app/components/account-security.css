@@ -1,5 +1,5 @@
 .dashboard .dashboard-content .account-security {
-  color: #01121a;
+  color: var(--ink);
   font-family: var(--font-quicksand), sans-serif;
   max-width: 1240px;
 }
@@ -26,7 +26,7 @@
   min-height: 44px;
   font-size: 13px;
   font-weight: 700;
-  color: #01121a;
+  color: var(--ink);
   text-decoration: underline;
   text-underline-offset: 5px;
 }
@@ -78,9 +78,9 @@
 .dashboard .dashboard-content .account-security .field textarea {
   width: 100%;
   min-width: 0;
-  border: 1px solid #82939f;
+  border: 1px solid var(--border-control);
   border-radius: 6px;
-  color: #01121a;
+  color: var(--ink);
   background: white;
   font:
     400 16px/1.5 var(--font-quicksand),
@@ -122,8 +122,9 @@
   .dashboard-content
   .account-security
   :is(input, button, a, summary, textarea):focus-visible {
-  outline: 2px solid #e60301;
+  outline: 3px solid var(--focus-ring);
   outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .dashboard .dashboard-content .account-security .button {
   text-transform: none;
@@ -141,7 +142,7 @@
 .dashboard .dashboard-content .account-security .button.secondary {
   border: 1px solid #82939f;
   background: white;
-  color: #01121a;
+  color: var(--ink);
 }
 .dashboard .dashboard-content .account-security .button:disabled {
   opacity: 0.6;
@@ -210,7 +211,7 @@
   border: 1px solid #aab8c2;
   border-radius: 4px;
   background: #f1f4f6;
-  color: #01121a;
+  color: var(--ink);
 }
 .dashboard .dashboard-content .account-security .security-factors > section {
   border-top: 1px solid #cbd5df;

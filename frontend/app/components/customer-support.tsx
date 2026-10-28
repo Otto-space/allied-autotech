@@ -1,4 +1,6 @@
 "use client";
+import "./care-workspace.css";
+import { StatusBadge } from "./status-progress";
 
 import Link from "next/link";
 import { useCallback, useState } from "react";
@@ -76,16 +78,23 @@ function SupportCategory({
         />
       )}
       <div className="cc-layout">
-        <SupportCreateForm
-          kind={kind}
-          presentation="dashboard"
-          userId={userId}
-          guard={guard}
-          onReviewChange={reviewChanged}
-          locked={guard.pending}
-          onUncertain={() => {}}
-          onSaved={(id) => router.push(`/dashboard/support/${kind}/${id}`)}
-        />
+        <details className="care-create">
+          <summary
+            data-learning-target={kind === "enquiries" ? "support-start" : undefined}
+          >
+            {kind === "enquiries" ? "New enquiry" : "Make a complaint"}
+          </summary>
+          <SupportCreateForm
+            kind={kind}
+            presentation="dashboard"
+            userId={userId}
+            guard={guard}
+            onReviewChange={reviewChanged}
+            locked={guard.pending}
+            onUncertain={() => {}}
+            onSaved={(id) => router.push(`/dashboard/support/${kind}/${id}`)}
+          />
+        </details>
         <section
           className="cc-history"
           aria-labelledby="support-list-heading"
@@ -162,33 +171,48 @@ function SupportCategory({
             </div>
           )}
           {!records.loading && !records.error && (
-            <div className="cc-records">
-              {records.data?.items.map((record) => (
-                <article
-                  className="cc-record"
-                  key={record.id}
-                  aria-labelledby={`support-${record.id}`}
-                >
-                  <div className="cc-record-top">
-                    <h3 id={`support-${record.id}`}>
-                      <Link href={`/dashboard/support/${kind}/${record.id}`}>
-                        {record.subject}
-                        <ChevronRight size={18} aria-hidden="true" />
-                      </Link>
-                    </h3>
-                    <span className="cc-status" data-status={record.status}>
-                      {label(record.status)}
-                    </span>
-                  </div>
-                  <p>{record.branch?.name ?? "Unassigned branch"}</p>
-                  {record.kind === "complaints" && (
-                    <p>Priority: {label(record.priority)}</p>
-                  )}
-                  <time dateTime={record.createdAt}>
-                    {formatBusinessDate(record.createdAt)}
-                  </time>
-                </article>
-              ))}
+            <div
+              className="care-table-region"
+              role="region"
+              aria-label="Your customer care requests"
+              tabIndex={0}
+            >
+              <table className="care-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Subject</th>
+                    <th scope="col">Type</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Updated</th>
+                    <th scope="col">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {records.data?.items.map((record) => (
+                    <tr className="cc-record" key={record.id}>
+                      <td>{record.subject}</td>
+                      <td>{kind === "enquiries" ? "Enquiry" : "Complaint"}</td>
+                      <td>
+                        <StatusBadge status={record.status} />
+                      </td>
+                      <td>
+                        <time dateTime={record.updatedAt}>
+                          {formatBusinessDate(record.updatedAt)}
+                        </time>
+                      </td>
+                      <td>
+                        <Link
+                          className="text-link"
+                          href={"/dashboard/support/" + kind + "/" + record.id}
+                        >
+                          View <ChevronRight size={16} aria-hidden="true" />
+                          <span className="sr-only"> {record.subject}</span>
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
           <CursorPagination
@@ -228,6 +252,7 @@ export function CustomerSupport({ userId }: { userId: string }) {
           <label htmlFor="support-record-kind">Record category</label>
           <select
             id="support-record-kind"
+            aria-describedby="support-kind-help"
             value={kind}
             disabled={reviewOpen}
             onChange={(event) =>
@@ -238,10 +263,12 @@ export function CustomerSupport({ userId }: { userId: string }) {
             <option value="complaints">Complaints</option>
           </select>
         </div>
-        <a href="#support-list-heading">
-          View your records <ArrowRight size={16} aria-hidden="true" />
-        </a>
       </div>
+      <p className="cc-kind-help" id="support-kind-help">
+        {kind === "enquiries"
+          ? "Ask about a service, part or vehicle. For an existing request, open its record and reply there."
+          : "Tell us about a problem and the outcome you need. For an existing complaint, reply in its record."}
+      </p>
       <SupportCategory
         key={kind}
         userId={userId}

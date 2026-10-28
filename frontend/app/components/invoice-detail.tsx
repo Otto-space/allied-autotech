@@ -1,4 +1,5 @@
 "use client";
+import { NotificationRecordContext } from "./notification-record-context";
 import { WorkflowProgress } from "./status-progress";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
@@ -123,6 +124,13 @@ export function InvoiceDetail({ invoiceId }: { invoiceId: string }) {
       </header>
       <Feedback message={invoice.error ?? invoice.refreshError} />
       {invoice.loading && <p role="status">Checking invoice…</p>}
+      {current &&
+        !invoice.loading &&
+        !invoice.refreshing &&
+        !invoice.error &&
+        !invoice.refreshError && (
+          <NotificationRecordContext resourceType="INVOICE" resourceId={current.id} />
+        )}
       {current && (
         <>
           <WorkflowProgress workflow="invoice" status={current.status} />
@@ -306,7 +314,7 @@ function InvoiceSheet({ document }: { document: InvoiceDocument }) {
       <header className="invoice-paper-header">
         <div>
           <p className="invoice-issuer">{document.issuer.name}</p>
-          <p className="invoice-tagline">Built on Trust, Driven by Quality.</p>
+          <p className="invoice-tagline">Built on trust driven by quality</p>
         </div>
         <div>
           <span>Invoice</span>
@@ -319,7 +327,9 @@ function InvoiceSheet({ document }: { document: InvoiceDocument }) {
       <address>
         {document.issuer.address}
         <br />
-        <a href="tel:+2348136075567">08136075567</a>
+        <a href="https://wa.me/2348136075567" target="_blank" rel="noopener noreferrer">
+          Whatsapp
+        </a>
       </address>
       <dl className="invoice-meta">
         <div>

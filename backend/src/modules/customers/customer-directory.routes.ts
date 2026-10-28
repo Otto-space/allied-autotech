@@ -3,9 +3,11 @@ import { authenticate } from "../../common/middleware/authenticate.js";
 import { requireAdministrator } from "../../common/middleware/authorize.js";
 import { createSensitiveRateLimit } from "../../common/middleware/rate-limits.js";
 import { validate } from "../../common/middleware/validate.js";
+import { requireCsrf } from "../../common/middleware/csrf.js";
 import { CustomerDirectoryController } from "./customer-directory.controller.js";
 import {
   directoryCollections,
+  customerAccountStatusSchema,
   directoryListQuerySchema,
   directoryParamsSchema,
   directoryRelatedQuerySchema,
@@ -21,6 +23,16 @@ export function createCustomerDirectoryRouter() {
     next();
   });
   router.get("/", validate({ query: directoryListQuerySchema }), controller.list);
+  router.post(
+    "/:customerId/account-status",
+    requireCsrf,
+    validate({
+      params: directoryParamsSchema,
+      query: customerEmptyQuerySchema,
+      body: customerAccountStatusSchema,
+    }),
+    controller.changeAccountStatus,
+  );
   router.get(
     "/:customerId",
     validate({ params: directoryParamsSchema, query: customerEmptyQuerySchema }),

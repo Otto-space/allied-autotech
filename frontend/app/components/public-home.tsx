@@ -10,16 +10,12 @@ import { parsePublicReviews } from "@/lib/api/review-schemas";
 import { SiteHeader } from "./site-header";
 import { SiteFooter } from "./site-footer";
 import { HomeHero } from "./home-hero";
+import { CampaignArtwork } from "./campaign-artwork";
 import { ServiceMarquee } from "./service-marquee";
 import { ServiceList } from "./service-list";
 import { HomePartsPreview, HomeVehiclesPreview } from "./home-catalogue-preview";
 import { HomeReviewsPreview } from "./home-reviews-preview";
-import {
-  ContactInvitation,
-  LifestyleDiscovery,
-  ServiceJourney,
-  TrustPrinciples,
-} from "./brand-editorial";
+import { ContactInvitation, TrustPrinciples } from "./brand-editorial";
 import "../home.css";
 
 export async function PublicHome() {
@@ -65,7 +61,7 @@ export async function PublicHome() {
                 {
                   icon: CarFront,
                   title: "Vehicle marketplace",
-                  copy: "Explore current vehicles and arrange a closer look with our team.",
+                  copy: "View published listings or discuss your vehicle search with our team.",
                   href: "/vehicles",
                 },
               ].map((item) => (
@@ -84,11 +80,10 @@ export async function PublicHome() {
         <section className="public-section public-surface home-services">
           <div className="public-wrap home-services__layout">
             <div className="home-services__image">
-              <Image
-                src="/images/allied-autotech/workshop-editorial.webp"
-                alt="Editorial workshop scene showing a technician inspecting an SUV"
-                fill
-                sizes="(max-width: 700px) 90vw, 35vw"
+              <CampaignArtwork
+                artwork="precision-autocare"
+                alt="Allied AutoTech Precision Autocare You Can Trust campaign, with a person in a red branded uniform"
+                sizes="(max-width: 380px) calc(100vw - 40px), 320px"
               />
             </div>
             <div>
@@ -106,29 +101,58 @@ export async function PublicHome() {
             </div>
           </div>
         </section>
-        <ServiceJourney />
+        <section
+          className="services-journey journey-section"
+          aria-labelledby="services-journey-title"
+        >
+          <div className="public-wrap">
+            <div className="services-journey-heading">
+              <h2 id="services-journey-title">A clear path to better vehicle care.</h2>
+              <p>From the first conversation to collection, know what comes next.</p>
+            </div>
+            <ol>
+              {[
+                [
+                  "Tell us what you need",
+                  "Share the vehicle details and the issue, service or part you need help with.",
+                ],
+                [
+                  "Discuss the findings and scope",
+                  "Review the proposed work and quotation with our team before approval.",
+                ],
+                [
+                  "Confirm your visit or collection",
+                  "Agree arrangements with the team. An enquiry alone does not confirm an appointment or reserve stock.",
+                ],
+              ].map(([title, copy], index) => (
+                <li key={title}>
+                  <span aria-hidden="true">0{index + 1}</span>
+                  <h3>{title}</h3>
+                  <p>{copy}</p>
+                </li>
+              ))}
+            </ol>
+            <Link className="text-link journey-start" href="/services">
+              Start with a service <ArrowUpRight size={17} aria-hidden="true" />
+            </Link>
+          </div>
+        </section>
         <section className="public-section trust-story">
           <div className="public-wrap trust-layout">
             <figure className="technician-story">
               <div className="technician-story__image">
-                <Image
-                  src="/images/allied-autotech/technician-original.webp"
-                  alt="Allied AutoTech technician in the company’s original Precision Autocare You Can Trust campaign"
-                  fill
-                  sizes="(max-width: 700px) 90vw, 40vw"
+                <CampaignArtwork
+                  artwork="built-on-trust"
+                  alt="Sculptural red Allied emblem from the Built on Trust campaign"
+                  sizes="(max-width: 390px) calc(100vw - 40px), 350px"
                 />
               </div>
-              <figcaption>From the Allied AutoTech workshop.</figcaption>
             </figure>
             <div>
-              <h2>
-                Precision Autocare
-                <br />
-                You Can Trust.
-              </h2>
+              <h2>What you can expect from us.</h2>
               <p>
-                Built on Trust, Driven by Quality. Our principles shape the way we care
-                for your vehicle and the way we work with you.
+                Our principles shape the way we care for your vehicle and the way we work
+                with you.
               </p>
               <TrustPrinciples />
               <Link className="text-link" href="/about#principles">
@@ -144,17 +168,16 @@ export async function PublicHome() {
               <div className="section-heading">
                 <h2>Your next chapter starts here.</h2>
                 <p>
-                  Current listings. Clear details. A closer look before your next move.
+                  View published listings or discuss what you need before your next move.
                 </p>
               </div>
               <Link className="button secondary" href="/vehicles">
-                Explore Vehicles <ArrowUpRight size={17} aria-hidden="true" />
+                Explore vehicles <ArrowUpRight size={17} aria-hidden="true" />
               </Link>
             </div>
             <HomeVehiclesPreview initial={vehicles} />
           </div>
         </section>
-        <LifestyleDiscovery />
         <section className="public-section public-surface home-shop">
           <div className="public-wrap">
             <div className="shop-editorial">
@@ -165,8 +188,8 @@ export async function PublicHome() {
                   Reliable performance.
                 </h2>
                 <p>
-                  Explore available automotive essentials. Check compatibility, stock and
-                  collection details before ordering.
+                  Explore available automotive essentials. Ask our team to check
+                  compatibility, stock and workshop collection details.
                 </p>
                 <Link className="button" href="/parts">
                   Visit the Shop <ArrowUpRight size={17} aria-hidden="true" />

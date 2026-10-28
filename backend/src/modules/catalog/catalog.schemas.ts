@@ -1,4 +1,12 @@
+import { qualifiersShape, qualifierKeys } from "../fitment/fitment.schemas.js";
 import { z } from "zod";
+import { isDurablePublicImageUrl } from "./image-url.js";
+import {
+  productFamilySchema,
+  oilGradeSchema,
+  recordedProductFields,
+  validRecordedProduct,
+} from "./product-family.js";
 
 const cleanText = (maximum: number) =>
   z
@@ -56,28 +64,39 @@ export const imageParamsSchema = z
   })
   .strict();
 
-export const categoryListQuerySchema = z.object(pageFields).strict();
+const categoryPageFields = {
+  ...pageFields,
+  rootOnly: optionalBoolean,
+  parentId: z.uuid().optional(),
+};
+export const categoryListQuerySchema = z
+  .object({ ...categoryPageFields, search: cleanText(120).optional() })
+  .strict();
 export const adminCategoryListQuerySchema = z
   .object({
-    ...pageFields,
+    ...categoryPageFields,
     search: cleanText(120).optional(),
     isActive: optionalBoolean,
   })
   .strict();
 export const categoryCreateBodySchema = z
   .object({
+    family: productFamilySchema.nullable().optional(),
     name: cleanText(120),
     slug,
     description: nullableText(2_000),
+    parentId: z.uuid().nullable().optional(),
     isActive: z.boolean().default(true),
   })
   .strict();
 export const categoryUpdateBodySchema = z
   .object({
+    family: productFamilySchema.nullable().optional(),
     expectedUpdatedAt: z.iso.datetime({ offset: true, precision: 3 }).optional(),
     name: cleanText(120).optional(),
     slug: slug.optional(),
     description: nullableText(2_000),
+    parentId: z.uuid().nullable().optional(),
     isActive: z.boolean().optional(),
   })
   .strict()
@@ -86,25 +105,84 @@ export const categoryUpdateBodySchema = z
     "At least one field is required",
   );
 
-export const productListQuerySchema = z
+export const productListQueryBase = z
   .object({
     ...pageFields,
     categoryId: z.uuid().optional(),
+    parentCategoryId: z.uuid().optional(),
+    condition: z.enum(["NEW", "USED", "REFURBISHED"]).optional(),
+    classification: z.enum(["GENUINE_OEM", "AFTERMARKET"]).optional(),
+    productType: cleanText(80).optional(),
+    family: productFamilySchema.optional(),
+    oilViscosityGrade: oilGradeSchema.optional(),
+    packVolumeMl: z.coerce.number().int().min(1).max(1000000).optional(),
+    vehicleMakeId: z.uuid().optional(),
+    vehicleModelId: z.uuid().optional(),
+    fitment: z.enum(["candidates", "verified"]).optional(),
+    ...qualifiersShape,
     brand: cleanText(100).optional(),
     search: cleanText(100).optional(),
     make: cleanText(100).optional(),
     model: cleanText(100).optional(),
-    year: z.coerce.number().int().min(1886).max(2100).optional(),
+    year: z.coerce.number().int().min(1886).max(2200).optional(),
     featured: optionalBoolean,
     sort: z.enum(["newest", "name", "price_asc", "price_desc"]).default("newest"),
   })
   .strict();
-export const adminProductListQuerySchema = productListQuerySchema.extend({
+export function checkProductQuery(
+  value: Omit<z.infer<typeof productListQueryBase>, "sort">,
+  context: z.RefinementCtx,
+) {
+  if (
+    value.family !== "ENGINE_OIL" &&
+    (value.oilViscosityGrade || value.packVolumeMl !== undefined)
+  )
+    context.addIssue({
+      code: "custom",
+      path: ["family"],
+      message: "Choose engine oil before filtering by grade or pack volume",
+    });
+  if (value.family === "ENGINE_OIL" && (value.condition || value.classification))
+    context.addIssue({
+      code: "custom",
+      path: ["family"],
+      message: "Condition and parts classification do not apply to engine oil",
+    });
+  if (value.vehicleModelId && value.year === undefined)
+    context.addIssue({
+      code: "custom",
+      path: ["year"],
+      message: "Choose a model year",
+    });
+  if (
+    !value.vehicleModelId &&
+    (value.vehicleMakeId ||
+      value.fitment ||
+      qualifierKeys.some((key) => value[key] !== undefined))
+  )
+    context.addIssue({
+      code: "custom",
+      path: ["vehicleModelId"],
+      message: "Choose a vehicle model before checking fitment",
+    });
+  if (value.vehicleModelId && (value.make || value.model))
+    context.addIssue({
+      code: "custom",
+      path: ["vehicleModelId"],
+      message: "Use either a catalogue vehicle or legacy name filters",
+    });
+}
+export const productListQuerySchema = productListQueryBase.superRefine(checkProductQuery);
+export const adminProductListQuerySchema = productListQuerySchema.safeExtend({
   isActive: optionalBoolean,
 });
 
 const productFields = {
+  ...recordedProductFields,
   categoryId: z.uuid(),
+  condition: z.enum(["NEW", "USED", "REFURBISHED"]).nullable().optional(),
+  classification: z.enum(["GENUINE_OEM", "AFTERMARKET"]).nullable().optional(),
+  productType: nullableText(80),
   name: cleanText(180),
   slug,
   sku,
@@ -127,14 +205,22 @@ const validPrices = (value: {
 export const productCreateBodySchema = z
   .object(productFields)
   .strict()
+  .refine(validRecordedProduct, {
+    path: ["family"],
+    message: "Use only fields appropriate to the selected product family",
+  })
   .refine(validPrices, {
     path: ["compareAtPriceKobo"],
     message: "Must not be below the selling price",
   });
 export const productUpdateBodySchema = z
   .object({
+    ...recordedProductFields,
     expectedUpdatedAt: z.iso.datetime({ offset: true, precision: 3 }).optional(),
     categoryId: productFields.categoryId.optional(),
+    condition: productFields.condition,
+    classification: productFields.classification,
+    productType: productFields.productType,
     name: productFields.name.optional(),
     slug: productFields.slug.optional(),
     sku: productFields.sku.optional(),
@@ -160,8 +246,8 @@ export const productUpdateBodySchema = z
 const compatibilityFields = {
   make: cleanText(100),
   model: nullableText(100),
-  yearFrom: z.number().int().min(1886).max(2100).nullable().optional(),
-  yearTo: z.number().int().min(1886).max(2100).nullable().optional(),
+  yearFrom: z.number().int().min(1886).max(2200).nullable().optional(),
+  yearTo: z.number().int().min(1886).max(2200).nullable().optional(),
   notes: nullableText(1_000),
 } as const;
 const validYearRange = (value: {
@@ -174,6 +260,7 @@ export const compatibilityCreateBodySchema = z
   .refine(validYearRange, { path: ["yearTo"], message: "Must not precede yearFrom" });
 export const compatibilityUpdateBodySchema = z
   .object({
+    expectedVersion: z.number().int().nonnegative().optional(),
     make: compatibilityFields.make.optional(),
     model: compatibilityFields.model,
     yearFrom: compatibilityFields.yearFrom,
@@ -181,16 +268,31 @@ export const compatibilityUpdateBodySchema = z
     notes: compatibilityFields.notes,
   })
   .strict()
-  .refine((value) => Object.keys(value).length > 0, "At least one field is required")
+  .refine(
+    (value) => Object.keys(value).some((key) => key !== "expectedVersion"),
+    "At least one compatibility field is required",
+  )
   .refine(validYearRange, { path: ["yearTo"], message: "Must not precede yearFrom" });
+export const compatibilityDeleteBodySchema = z
+  .object({ expectedVersion: z.number().int().nonnegative().optional() })
+  .strict()
+  .default({});
 
 const publicImageUrl = z
   .url()
   .max(2_048)
   .refine((value) => {
-    const url = new URL(value);
-    return url.protocol === "https:" && url.username === "" && url.password === "";
-  }, "Use a public HTTPS URL without credentials");
+    try {
+      const url = new URL(value);
+      return url.protocol === "https:" && url.username === "" && url.password === "";
+    } catch {
+      return false;
+    }
+  }, "Use a public HTTPS URL without credentials")
+  .refine(
+    isDurablePublicImageUrl,
+    "Use a durable public image URL, without private hosts, ports or expiring access tokens",
+  );
 export const imageCreateBodySchema = z
   .object({
     expectedVersion: z.number().int().min(0).max(2147483647).optional(),
@@ -224,6 +326,22 @@ export const cartItemBodySchema = z
     quantity: z.number().int().min(1).max(1_000),
   })
   .strict();
+export const cartClearBodySchema = z
+  .object({
+    expectedItems: z
+      .array(
+        z
+          .object({
+            id: z.uuid(),
+            productId: z.uuid(),
+            quantity: z.number().int().min(1).max(1_000),
+            unitPriceKobo: kobo,
+          })
+          .strict(),
+      )
+      .min(1),
+  })
+  .strict();
 
 export type CategoryListQuery = z.infer<typeof categoryListQuerySchema>;
 export type AdminCategoryListQuery = z.infer<typeof adminCategoryListQuerySchema>;
@@ -239,3 +357,4 @@ export type ImageCreateInput = z.infer<typeof imageCreateBodySchema>;
 export type ImageUpdateInput = z.infer<typeof imageUpdateBodySchema>;
 export type FavouriteListQuery = z.infer<typeof favouriteListQuerySchema>;
 export type CartItemInput = z.infer<typeof cartItemBodySchema>;
+export type CartClearInput = z.infer<typeof cartClearBodySchema>;

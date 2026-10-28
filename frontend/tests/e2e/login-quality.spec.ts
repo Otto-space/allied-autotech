@@ -18,9 +18,9 @@ test("without JavaScript the form cannot expose credentials in a URL", async ({
       (process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3000") + "/login",
     );
     await expect(
-      page.getByText(
-        "Enable JavaScript to sign in. You can still browse our Help Centre.",
-      ),
+      page.locator("noscript p").filter({
+        hasText: "Enable JavaScript to sign in. You can still browse our Help Centre.",
+      }),
     ).toBeVisible();
     await expect(page.getByRole("button", { name: "Sign in", exact: true })).toHaveCount(
       0,

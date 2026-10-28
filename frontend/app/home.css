@@ -47,20 +47,19 @@
 }
 .home-page .home-services__layout {
   display: grid;
-  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  grid-template-columns: minmax(0, 320px) minmax(0, 1fr);
   gap: var(--home-gap);
-  align-items: stretch;
+  align-items: center;
 }
 .home-page .home-services__image {
   position: relative;
-  min-height: 360px;
+  align-self: center;
   border-radius: 6px;
   overflow: hidden;
   background: var(--ink);
 }
 .home-page .home-services__image img {
-  object-fit: cover;
-  object-position: 72% center;
+  object-fit: contain;
 }
 .home-page .service-discovery--preview {
   grid-template-columns: 1fr;
@@ -144,12 +143,12 @@
   font-size: 13px;
 }
 .home-page .home-vehicles {
-  background: linear-gradient(115deg, var(--marketplace-blue), #102c47);
+  background: var(--gradient-brand);
   color: white;
 }
 .home-page .home-vehicles .section-heading p,
 .home-page .home-vehicles .home-preview-empty p {
-  color: #d4dfe8;
+  color: var(--text-inverse-muted);
 }
 .home-page .home-vehicle-grid,
 .home-page .home-product-grid {
@@ -159,6 +158,23 @@
 }
 .home-page .home-product-grid {
   grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.home-page .home-product-grid[data-sparse="true"] {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+}
+.home-page .home-product-grid[data-sparse="true"] .home-product-card {
+  display: grid;
+  grid-template-columns: minmax(90px, 0.4fr) minmax(0, 1fr);
+  max-width: 720px;
+}
+.home-page .home-product-grid[data-sparse="true"] .product-media {
+  height: 100%;
+  aspect-ratio: auto;
+  border-bottom: 0;
+}
+.home-page .home-product-grid[data-sparse="true"] .media-placeholder {
+  padding: 12px;
+  text-align: center;
 }
 .home-page .home-vehicle-card,
 .home-page .home-product-card {
@@ -410,7 +426,7 @@
     min-height: 0;
   }
   .home-page .home-services__layout {
-    grid-template-columns: minmax(0, 0.65fr) minmax(0, 1.35fr);
+    grid-template-columns: minmax(0, 280px) minmax(0, 1fr);
   }
   .home-page .service-discovery__body {
     display: flex;
@@ -464,7 +480,8 @@
   }
   .home-page .home-services__image {
     min-height: 0;
-    aspect-ratio: 16 / 9;
+    width: min(100%, 320px);
+    justify-self: center;
   }
   .home-page .technician-story {
     width: 100%;
@@ -503,5 +520,49 @@
   .home-page .home-product-card .media-placeholder {
     padding: 12px;
     text-align: center;
+  }
+}
+
+/* Keep illustration context quiet without covering the preferred hero composition. */
+.home-page .hero-caption {
+  max-width: 240px;
+  padding: 4px 7px;
+  border-radius: 4px;
+  background: #01121ae8;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #fff;
+}
+.home-page .partner-links p,
+.home-page .principles-list p {
+  font-size: 14px;
+}
+.home-page .home-preview-empty p {
+  margin-bottom: 8px;
+}
+.home-page
+  :is(
+    .partner-layout,
+    .home-services__layout,
+    .trust-layout,
+    .shop-editorial,
+    .equipment-story,
+    .home-faq
+  )
+  > * {
+  min-width: 0;
+}
+.home-page :is(h1, h2, h3, .text-link) {
+  overflow-wrap: anywhere;
+}
+.home-page .text-link {
+  max-width: 100%;
+}
+.home-page .text-link svg {
+  flex-shrink: 0;
+}
+@media (max-width: 700px) {
+  .home-page .hero-caption {
+    display: none;
   }
 }

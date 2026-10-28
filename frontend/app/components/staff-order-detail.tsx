@@ -1,4 +1,5 @@
 "use client";
+import { NotificationRecordContext } from "./notification-record-context";
 import { WorkflowProgress } from "./status-progress";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
@@ -284,6 +285,13 @@ function OrderRecord({
           </button>
         </section>
       )}
+      {current &&
+        !order.loading &&
+        !order.refreshing &&
+        !order.error &&
+        !order.refreshError && (
+          <NotificationRecordContext resourceType="ORDER" resourceId={current.id} />
+        )}
       {current && (
         <>
           <WorkflowProgress workflow="order" status={current.status} />

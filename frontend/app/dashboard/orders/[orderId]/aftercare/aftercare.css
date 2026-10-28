@@ -2,7 +2,7 @@
   --ca-line: #dce3e9;
   --ca-muted: #536478;
   padding-bottom: 48px;
-  color: #01121a;
+  color: var(--ink);
 }
 .ca-breadcrumb ol {
   display: flex;
@@ -84,7 +84,7 @@
   padding: 22px 24px;
   margin-bottom: 24px;
   border-radius: 8px;
-  background: #01121a;
+  background: var(--ink);
   color: white;
 }
 .ca-order > div {
@@ -215,7 +215,7 @@
   width: 19px;
   height: 19px;
   flex-shrink: 0;
-  accent-color: #e60301;
+  accent-color: var(--checked);
 }
 .aftercare-product-name small {
   display: block;

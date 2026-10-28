@@ -47,6 +47,8 @@ export function FileUpload({
   onChange,
   validate,
   prepare,
+  preparationHint = "Uploading prepares the file; it is attached only when you confirm the record.",
+  uploadedHint = "File uploaded. Ready to attach when you confirm the record.",
 }: {
   uploadId: string;
   label: string;
@@ -56,6 +58,8 @@ export function FileUpload({
   onChange: (selection: AssetSelection) => void;
   validate: (file: File) => unknown;
   prepare: (options: UploadOptions) => Promise<PreparedUpload>;
+  preparationHint?: string;
+  uploadedHint?: string;
 }) {
   const hosts = useAssetStorageHosts();
   const input = useRef<HTMLInputElement>(null);
@@ -143,8 +147,7 @@ export function FileUpload({
     <div className="detail-section field asset-upload">
       <label htmlFor={uploadId}>{label}</label>
       <p id={`${uploadId}-hint`} className="field-hint">
-        {hint} Uploading prepares the file; it is attached only when you confirm the
-        record.
+        {hint} {preparationHint}
       </p>
       {!hosts.length && (
         <p className="notice">
@@ -179,12 +182,19 @@ export function FileUpload({
           type="file"
           accept={accept}
           disabled={disabled || busy || !hosts.length}
-          aria-describedby={`${uploadId}-hint`}
-          onChange={(event) => select(event.target.files?.[0] ?? null)}
+          aria-describedby={`${uploadId}-hint${error ? ` ${uploadId}-error` : ""}`}
+          aria-invalid={!!error}
+          onChange={(event) => {
+            const next = event.target.files?.[0] ?? null;
+            event.currentTarget.value = "";
+            select(next);
+          }}
         />
       </div>
       {file && valid && <SelectedFilePreview file={file} />}
-      <Feedback message={error} />
+      <div id={`${uploadId}-error`}>
+        <Feedback message={error} />
+      </div>
       {busy && (
         <div role="status">
           <p>
@@ -195,9 +205,7 @@ export function FileUpload({
           <progress aria-label="File upload progress" value={progress} max={100} />
         </div>
       )}
-      {uploaded && (
-        <p role="status">File uploaded. Ready to attach when you confirm the record.</p>
-      )}
+      {uploaded && <p role="status">{uploadedHint}</p>}
       <div className="actions">
         {file && (
           <button

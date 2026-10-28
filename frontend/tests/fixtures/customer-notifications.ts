@@ -79,9 +79,20 @@ export async function notificationsFixture(page: Page, role = "CUSTOMER") {
         mfaRequired: state.role !== "CUSTOMER",
         mfaVerifiedAt: state.role === "CUSTOMER" ? null : time,
       });
+    if (endpoint === "/staff/profile" && role !== "CUSTOMER")
+      return reply(route, {
+        id: state.sessionUserId,
+        email: "notifications@example.test",
+        role: state.role,
+        status: "ACTIVE",
+        staffProfile: null,
+        capabilities: [],
+      });
     if (endpoint === "/auth/csrf")
       return reply(route, { csrfToken: "isolated-notification-csrf-".repeat(3) });
     const base = `/${role === "CUSTOMER" ? "customers" : "staff"}/notifications`;
+    if (endpoint === `${base}/push` && request.method() === "GET")
+      return reply(route, { available: false, publicKey: null, enabled: false });
     if (!endpoint.startsWith(base)) return fail(route, 403);
     if (request.method() === "GET") {
       state.reads.push(endpoint + url.search);
@@ -124,6 +135,23 @@ export async function notificationsFixture(page: Page, role = "CUSTOMER") {
         }
         return reply(route, { unreadCount: unread.length, groups: [...groups.values()] });
       }
+      if (endpoint === `${base}/context`) {
+        const messageIds = url.searchParams.get("messageIds")?.split(",");
+        return reply(route, {
+          hasMore: false,
+          items: state.items.filter(
+            (row) =>
+              !row.readAt &&
+              row.resourceType?.toUpperCase() === url.searchParams.get("resourceType") &&
+              row.resourceId === url.searchParams.get("resourceId") &&
+              (!messageIds ||
+                !row.supportMessageId ||
+                messageIds.includes(row.supportMessageId)),
+          ),
+        });
+      }
+      const owned = state.items.find((row) => endpoint === `${base}/${row.id}`);
+      if (owned) return reply(route, owned);
       if (state.malformed) return reply(route, { items: [{}] });
       const selected = (
         state.paginate && url.searchParams.has("cursor")
@@ -137,7 +165,7 @@ export async function notificationsFixture(page: Page, role = "CUSTOMER") {
           (url.searchParams.get("unreadOnly") !== "true" || !row.readAt),
       );
       return reply(route, {
-        items: selected,
+        items: selected.slice(0, Number(url.searchParams.get("limit") ?? 25)),
         ...(state.paginate && !url.searchParams.has("cursor")
           ? { nextCursor: id(1) }
           : {}),
@@ -211,6 +239,21 @@ export async function notificationsFixture(page: Page, role = "CUSTOMER") {
         replayed: false,
       });
     }
+    if (endpoint === `${base}/read-context`) {
+      const body = request.postDataJSON();
+      let updated = 0;
+      for (const row of state.items)
+        if (
+          body.notificationIds.includes(row.id) &&
+          row.resourceType?.toUpperCase() === body.resourceType &&
+          row.resourceId === body.resourceId &&
+          !row.readAt
+        ) {
+          row.readAt = time;
+          updated++;
+        }
+      return reply(route, { updated });
+    }
     if (endpoint.endsWith("/read-all")) {
       const updated = state.items.filter((row) => !row.readAt).length;
       state.items = state.items.map((row) => ({ ...row, readAt: time }));
@@ -218,7 +261,7 @@ export async function notificationsFixture(page: Page, role = "CUSTOMER") {
     }
     const row = state.items.find((row) => endpoint.includes(row.id));
     if (row) {
-      row.readAt = time;
+      row.readAt = endpoint.endsWith("/unread") ? null : time;
       return reply(route, state.wrongResponse ? { ...row, id: id(999) } : row);
     }
     return fail(route, 403);

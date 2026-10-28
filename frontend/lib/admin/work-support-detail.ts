@@ -140,10 +140,24 @@ export function validateThreadChange(
       if (saved.status !== change.body.status) throw Error("Unconfirmed status");
       const text = change.body.response ?? change.body.resolution;
       const extra = z.object({ messageReceipt: z.unknown().nullable() }).parse(data);
-      if (text) receipt = validateMessage(extra.messageReceipt, before, text, "CUSTOMER");
-      else if (extra.messageReceipt !== null) throw Error("Unexpected response message");
+      if (extra.messageReceipt !== null) {
+        receipt = validateMessage(
+          extra.messageReceipt,
+          before,
+          text ?? "No additional explanation was provided.",
+          "CUSTOMER",
+        );
+        if (
+          receipt.kind === "STATUS_CHANGE" &&
+          (receipt.fromStatus !== before.status || receipt.toStatus !== saved.status)
+        )
+          throw Error("Unconfirmed status event");
+        if (!text && receipt.kind !== "STATUS_CHANGE")
+          throw Error("Unexpected response message");
+      } else if (text) throw Error("Missing status explanation");
       if (
         saved.kind === "complaints" &&
+        change.body.status === "RESOLVED" &&
         change.body.resolution &&
         saved.resolution !== change.body.resolution
       )
@@ -156,7 +170,10 @@ export function threadMessagesQuery(input: URLSearchParams, base: string) {
   let invalid = false;
   const params = new URLSearchParams();
   for (const key of input.keys())
-    if (!["cursor", "_trail"].includes(key) || input.getAll(key).length !== 1)
+    if (
+      !["cursor", "_trail", "messageId"].includes(key) ||
+      input.getAll(key).length !== 1
+    )
       invalid = true;
   const cursor = input.get("cursor"),
     trail = input.get("_trail");
@@ -176,6 +193,11 @@ export function threadMessagesQuery(input: URLSearchParams, base: string) {
     )
       invalid = true;
     else params.set("_trail", trail);
+  }
+  const messageId = input.get("messageId");
+  if (messageId !== null) {
+    if (cursor || !z.uuid().safeParse(messageId).success) invalid = true;
+    else params.set("messageId", messageId);
   }
   const api = new URLSearchParams(params);
   api.delete("_trail");
@@ -203,7 +225,15 @@ export function parseThreadMessages(value: unknown, cursor?: string | null) {
     throw Error("Unexpected conversation history page");
   return data;
 }
-export const threadPageParams = inspectionPageParams;
+export function threadPageParams(
+  params: URLSearchParams,
+  cursor?: string,
+  previous = false,
+) {
+  const next = new URLSearchParams(params);
+  next.delete("messageId");
+  return inspectionPageParams(next, cursor, previous);
+}
 const prefix = "aat:staff-conversation:v1:",
   pending = z
     .object({

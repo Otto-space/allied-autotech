@@ -1,4 +1,5 @@
 "use client";
+import { NotificationRecordContext } from "./notification-record-context";
 import { WorkflowProgress } from "./status-progress";
 import Link from "next/link";
 import { useState } from "react";
@@ -287,6 +288,13 @@ function BookingRecord({ bookingId }: { bookingId: string }) {
         </section>
       )}
       {booking.loading && current && <p role="status">Checking booking...</p>}
+      {current &&
+        !booking.loading &&
+        !booking.refreshing &&
+        !booking.error &&
+        !booking.refreshError && (
+          <NotificationRecordContext resourceType="BOOKING" resourceId={current.id} />
+        )}
       {current && (
         <>
           {stale && (

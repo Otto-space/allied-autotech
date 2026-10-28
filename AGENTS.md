@@ -2,6 +2,26 @@
 
 Make every change professional, complete and reviewable.
 
+## Owner-approved integration and release workflow
+
+The owner approved this standing workflow on 28 October 2026. Finish changes in
+bounded, verified batches; reconcile them with current production and merge to
+`master` without losing other work. Required GitHub checks must pass for the exact
+`master` commit before production publication. Follow
+`backend/docs/integration-release-workflow.md` for release and branch retirement.
+Preserve database, permission, business-policy and disk safeguards. A release
+request does not authorise unverified migrations or enabling gated capabilities.
+
+## Owner's local disk reserve
+
+Keep at least 20 GiB free on C:. Before a build, dependency install, Docker
+pull/build/test, substantial download/worktree/write, run
+`powershell -NoProfile -File C:/Users/PC/.codex/scripts/assert-disk-space.ps1`.
+Its default includes 5 GiB growth; justify any operation-specific
+`-ExpectedGrowthGiB` without reducing the reserve. Stop a failed operation,
+review safe cleanup, reuse dependencies and preserve other tasks' resources.
+Recheck between large stages and at completion. This is a preflight, not an OS quota.
+
 ## Database safety — mandatory
 
 - Preserve existing application data. Never reset, drop, truncate, recreate, or restore
@@ -89,3 +109,11 @@ treat this directive as independent authority for publication or real transactio
 For dashboard and managed-workforce work, follow the per-page index and state
 coverage in the quality register and `frontend/tests/quality/dashboard-pages.txt`.
 Keep source-only, launch-restricted, mocked and real acceptance distinct.
+
+## Help, Learn & Practice maintenance
+
+When a covered workflow, permission, policy or semantic guide target changes, update
+the versioned backend learning definitions, eligibility checks and acceptance tests,
+and the content/checkpoint records in `docs/help-learn/` (relative to repository root).
+Keep restricted content server-side, practice in memory, and all feature flags off
+until a separately reviewed publication. Never make tutorials grant permissions.

@@ -1,0 +1,31 @@
+.fitment-picker {
+  position: relative;
+  min-width: 0;
+}
+.fitment-picker > input {
+  width: 100%;
+}
+.fitment-picker-popup {
+  position: absolute;
+  z-index: 30;
+  inset: calc(100% + 4px) 0 auto;
+  max-height: 300px;
+  overflow: auto;
+  border: 1px solid #b8b8b8;
+  border-radius: 8px;
+  background: #fff;
+  color: #18242d;
+  box-shadow: 0 8px 24px #0002;
+}
+.fitment-picker-popup [role="option"] {
+  min-height: 44px;
+  padding: 12px;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+.fitment-picker-popup [role="option"]:is(:hover, [data-active="true"]) {
+  background: #f0f4f5;
+}
+.fitment-picker-popup :is(button, p) {
+  margin: 12px;
+}

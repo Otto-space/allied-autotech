@@ -28,6 +28,7 @@ const payload = {
 };
 function transaction(optedOut = false) {
   return {
+    $queryRaw: vi.fn().mockResolvedValue([]),
     $executeRaw: vi.fn().mockResolvedValue(1),
     user: { findUnique: vi.fn().mockResolvedValue({ email: "account@example.test" }) },
     notificationPreference: {
@@ -136,7 +137,8 @@ describe("support customer email", () => {
     const rendered = renderSupportCustomerEmail(payload);
     expect(rendered.html).toContain("&lt;script&gt;");
     expect(rendered.text).toContain(payload.message);
-    expect(rendered.html).not.toContain("href=");
+    expect(rendered.html).not.toContain("/dashboard/");
+    expect(rendered.html).toContain('href="https://alliedautotech.com/help"');
   });
   it("uses the configured frontend and the real authenticated support route", () => {
     env.FRONTEND_URL = ["https://allied.example.test"];
@@ -211,6 +213,9 @@ describe("support customer email", () => {
     expect(h.database.outboxEvent.updateMany.mock.calls[0]![0].data.status).toBe(
       attempts === 8 ? "DEAD_LETTER" : "FAILED",
     );
+    expect(h.database.outboxEvent.updateMany.mock.calls[0]![0].data.lastError).toBe(
+      attempts === 8 ? "RETRY_EXHAUSTED" : "SUPPORT_EMAIL_FAILED",
+    );
   });
   it("does not retry a permanent provider rejection", async () => {
     const h = harness();
@@ -219,18 +224,31 @@ describe("support customer email", () => {
     expect(h.database.outboxEvent.updateMany.mock.calls[0]![0].data.status).toBe(
       "DEAD_LETTER",
     );
+    expect(h.database.outboxEvent.updateMany.mock.calls[0]![0].data.lastError).toBe(
+      "PROVIDER_REJECTED",
+    );
   });
   it("returns bounded redacted delivery metadata, never recipients or payloads", async () => {
     const tx = transaction();
     const date = new Date();
     tx.outboxEvent.findMany.mockResolvedValue([
-      { id, status: "PUBLISHED", lastError: null, createdAt: date, publishedAt: date },
+      {
+        id,
+        status: "PUBLISHED",
+        lastError: null,
+        createdAt: date,
+        publishedAt: date,
+        attempts: 1,
+        availableAt: date,
+      },
       {
         id: userId,
         status: "DEAD_LETTER",
         lastError: "private-provider-text",
         createdAt: date,
         publishedAt: null,
+        attempts: 8,
+        availableAt: date,
       },
     ]);
     const result = await supportEmailDeliveries(
@@ -238,6 +256,9 @@ describe("support customer email", () => {
       id,
     );
     expect(result.items.map((r) => r.status)).toEqual(["SENT", "FAILED"]);
+    expect(result.items.map((r) => r.attempts)).toEqual([1, 8]);
+    expect(result.items.every((r) => r.nextRetryAt === null)).toBe(true);
+    expect(result.items.every((r) => r.providerStatus === null)).toBe(true);
     expect(JSON.stringify(result)).not.toContain("private-provider-text");
     expect(tx.outboxEvent.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -246,5 +267,41 @@ describe("support customer email", () => {
         select: expect.not.objectContaining({ payload: true }),
       }),
     );
+  });
+  it("uses the latest provider event time even when callbacks arrive out of order", async () => {
+    const tx = transaction();
+    const accepted = new Date("2026-10-23T10:00:00Z");
+    tx.outboxEvent.findMany.mockResolvedValueOnce([
+      {
+        id,
+        status: "PUBLISHED",
+        lastError: null,
+        createdAt: accepted,
+        publishedAt: accepted,
+        attempts: 1,
+        availableAt: accepted,
+      },
+    ]);
+    tx.$queryRaw.mockResolvedValueOnce([
+      {
+        aggregateId: id,
+        createdAt: new Date("2026-10-23T10:02:00Z"),
+        payload: { type: "email.delivered" },
+      },
+      {
+        aggregateId: id,
+        createdAt: new Date("2026-10-23T10:01:00Z"),
+        payload: { type: "email.delivery_delayed" },
+      },
+    ]);
+    const result = await supportEmailDeliveries(
+      tx as unknown as Prisma.TransactionClient,
+      id,
+    );
+    expect(result.items[0]).toMatchObject({
+      providerStatus: "DELIVERED",
+      providerUpdatedAt: "2026-10-23T10:02:00.000Z",
+    });
+    expect(JSON.stringify(result)).not.toContain("guest@example.test");
   });
 });

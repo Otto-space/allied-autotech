@@ -1,0 +1,275 @@
+{
+  "scope": "Opaque sRGB token pairs and conservative brand-gradient endpoints. Actual image scrims, native controls, compositing and focus need browser review.",
+  "contrast": [
+    {
+      "foreground": "on-primary",
+      "background": "action-primary",
+      "fg": "#ffffff",
+      "bg": "#d71920",
+      "ratio": 5.19,
+      "minimum": 4.5,
+      "pass": true
+    },
+    {
+      "foreground": "on-primary",
+      "background": "action-hover",
+      "fg": "#ffffff",
+      "bg": "#b51218",
+      "ratio": 6.85,
+      "minimum": 4.5,
+      "pass": true
+    },
+    {
+      "foreground": "on-primary",
+      "background": "action-pressed",
+      "fg": "#ffffff",
+      "bg": "#950e14",
+      "ratio": 8.93,
+      "minimum": 4.5,
+      "pass": true
+    },
+    {
+      "foreground": "on-secondary",
+      "background": "action-secondary",
+      "fg": "#22262d",
+      "bg": "#ffffff",
+      "ratio": 15.18,
+      "minimum": 4.5,
+      "pass": true
+    },
+    {
+      "foreground": "on-secondary",
+      "background": "action-secondary-hover",
+      "fg": "#22262d",
+      "bg": "#fff0f1",
+      "ratio": 13.73,
+      "minimum": 4.5,
+      "pass": true
+    },
+    {
+      "foreground": "on-secondary",
+      "background": "action-secondary-pressed",
+      "fg": "#22262d",
+      "bg": "#f9dfe1",
+      "ratio": 12.05,
+      "minimum": 4.5,
+      "pass": true
+    },
+    {
+      "foreground": "on-destructive",
+      "background": "destructive",
+      "fg": "#ffffff",
+      "bg": "#991b1b",
+      "ratio": 8.31,
+      "minimum": 4.5,
+      "pass": true
+    },
+    {
+      "foreground": "on-destructive",
+      "background": "destructive-hover",
+      "fg": "#ffffff",
+      "bg": "#7f1d1d",
+      "ratio": 10.02,
+      "minimum": 4.5,
+      "pass": true
+    },
+    {
+      "foreground": "on-destructive",
+      "background": "destructive-pressed",
+      "fg": "#ffffff",
+      "bg": "#651717",
+      "ratio": 12.44,
+      "minimum": 4.5,
+      "pass": true
+    },
+    {
+      "foreground": "text-body",
+      "background": "surface-raised",
+      "fg": "#22262d",
+      "bg": "#ffffff",
+      "ratio": 15.18,
+      "minimum": 4.5,
+      "pass": true
+    },
+    {
+      "foreground": "muted",
+      "background": "surface-raised",
+      "fg": "#626975",
+      "bg": "#ffffff",
+      "ratio": 5.53,
+      "minimum": 4.5,
+      "pass": true
+    },
+    {
+      "foreground": "muted",
+      "background": "surface",
+      "fg": "#626975",
+      "bg": "#f5f6f8",
+      "ratio": 5.11,
+      "minimum": 4.5,
+      "pass": true
+    },
+    {
+      "foreground": "link",
+      "background": "surface-raised",
+      "fg": "#b51218",
+      "bg": "#ffffff",
+      "ratio": 6.85,
+      "minimum": 4.5,
+      "pass": true
+    },
+    {
+      "foreground": "link-hover",
+      "background": "surface-raised",
+      "fg": "#950e14",
+      "bg": "#ffffff",
+      "ratio": 8.93,
+      "minimum": 4.5,
+      "pass": true
+    },
+    {
+      "foreground": "selection-ink",
+      "background": "selection-fill",
+      "fg": "#950e14",
+      "bg": "#ffe6e8",
+      "ratio": 7.54,
+      "minimum": 4.5,
+      "pass": true
+    },
+    {
+      "foreground": "readonly-ink",
+      "background": "readonly-fill",
+      "fg": "#22262d",
+      "bg": "#f5f6f8",
+      "ratio": 14.04,
+      "minimum": 4.5,
+      "pass": true
+    },
+    {
+      "foreground": "disabled-ink",
+      "background": "disabled-fill",
+      "fg": "#626975",
+      "bg": "#e9ecf0",
+      "ratio": 4.67,
+      "minimum": 4.5,
+      "pass": true
+    },
+    {
+      "foreground": "success-ink",
+      "background": "success-fill",
+      "fg": "#166534",
+      "bg": "#f0fdf4",
+      "ratio": 6.81,
+      "minimum": 4.5,
+      "pass": true
+    },
+    {
+      "foreground": "warning-ink",
+      "background": "warning-fill",
+      "fg": "#854d0e",
+      "bg": "#fefce8",
+      "ratio": 6.62,
+      "minimum": 4.5,
+      "pass": true
+    },
+    {
+      "foreground": "error-ink",
+      "background": "error-fill",
+      "fg": "#991b1b",
+      "bg": "#fef2f2",
+      "ratio": 7.6,
+      "minimum": 4.5,
+      "pass": true
+    },
+    {
+      "foreground": "info-ink",
+      "background": "info-fill",
+      "fg": "#1e40af",
+      "bg": "#eff6ff",
+      "ratio": 8.01,
+      "minimum": 4.5,
+      "pass": true
+    },
+    {
+      "foreground": "neutral-ink",
+      "background": "neutral-fill",
+      "fg": "#334155",
+      "bg": "#f1f5f9",
+      "ratio": 9.45,
+      "minimum": 4.5,
+      "pass": true
+    },
+    {
+      "foreground": "text-inverse",
+      "background": "palette-black",
+      "fg": "#ffffff",
+      "bg": "#080c0f",
+      "ratio": 19.63,
+      "minimum": 4.5,
+      "pass": true
+    },
+    {
+      "foreground": "text-inverse-muted",
+      "background": "palette-black",
+      "fg": "#e0e2e6",
+      "bg": "#080c0f",
+      "ratio": 15.13,
+      "minimum": 4.5,
+      "pass": true
+    },
+    {
+      "foreground": "link-inverse",
+      "background": "palette-black",
+      "fg": "#ff7378",
+      "bg": "#080c0f",
+      "ratio": 7.46,
+      "minimum": 4.5,
+      "pass": true
+    },
+    {
+      "foreground": "text-inverse",
+      "background": "palette-red-deep",
+      "fg": "#ffffff",
+      "bg": "#650c12",
+      "ratio": 13.01,
+      "minimum": 4.5,
+      "pass": true
+    },
+    {
+      "foreground": "text-inverse-muted",
+      "background": "palette-red-deep",
+      "fg": "#e0e2e6",
+      "bg": "#650c12",
+      "ratio": 10.03,
+      "minimum": 4.5,
+      "pass": true
+    },
+    {
+      "foreground": "link-inverse",
+      "background": "palette-red-deep",
+      "fg": "#ff7378",
+      "bg": "#650c12",
+      "ratio": 4.94,
+      "minimum": 4.5,
+      "pass": true
+    },
+    {
+      "foreground": "border-control",
+      "background": "surface-raised",
+      "fg": "#818894",
+      "bg": "#ffffff",
+      "ratio": 3.57,
+      "minimum": 3,
+      "pass": true
+    },
+    {
+      "foreground": "border-control",
+      "background": "surface",
+      "fg": "#818894",
+      "bg": "#f5f6f8",
+      "ratio": 3.3,
+      "minimum": 3,
+      "pass": true
+    }
+  ]
+}

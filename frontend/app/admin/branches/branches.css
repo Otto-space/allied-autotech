@@ -1,5 +1,5 @@
 .work-branches {
-  color: #01121a;
+  color: var(--ink);
   font-size: 14px;
 }
 .work-branches h1 {
@@ -237,7 +237,7 @@
   width: 20px;
   height: 20px;
   min-height: 20px;
-  accent-color: #d50301;
+  accent-color: var(--checked);
 }
 .wb-check small {
   display: block;

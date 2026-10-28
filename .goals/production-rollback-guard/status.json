@@ -1,0 +1,31 @@
+{
+  "goal_id": "production-rollback-guard",
+  "status": "completed",
+  "iteration": 2,
+  "builder_model": "GPT:5.6-Luna",
+  "inspector_model": "GPT:5.6-Sol",
+  "inspector_review_mode": "fallback independent review; configured model unavailable",
+  "initial_sha": "13b5688ce9ecb57d2835b94a342638cfff7bacc3",
+  "created_at": "2026-10-27T14:57:38.9549252+01:00",
+  "last_verdict": "PASS",
+  "history": [
+    {
+      "iteration": 1,
+      "role": "independent-inspector-fallback",
+      "verdict": "FAIL",
+      "inspected_sha": "5a93f5623c229effd1b08d37356f006d1b7ac1cf",
+      "feedback": "inspector-feedback-1.md",
+      "timestamp": "2026-10-27T15:10:00+01:00",
+      "required_next_iteration": "Guard active rollback state and complete deployment-list pagination; test the actual helper entrypoint and approval/mutation boundary with local mocks."
+    },
+    {
+      "iteration": 2,
+      "role": "independent-inspector-fallback",
+      "verdict": "PASS",
+      "inspected_sha": "dd38e5e8c3a2daf400a86ebcf93a3e856ba70a13",
+      "feedback": "inspector-feedback-2.md",
+      "timestamp": "2026-10-27T15:24:00+01:00",
+      "required_next_iteration": null
+    }
+  ]
+}

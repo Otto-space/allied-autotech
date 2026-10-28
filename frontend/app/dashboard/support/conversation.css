@@ -148,7 +148,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  background: #01121a;
+  background: var(--ink);
   color: #fff;
   padding: 16px 20px;
 }
@@ -158,7 +158,7 @@
 }
 .dashboard .dashboard-content .ct-messages > header .button {
   background: #fff;
-  color: #01121a;
+  color: var(--ink);
   font-size: 12px;
   padding-inline: 12px;
 }
@@ -171,6 +171,14 @@
 }
 .ct-message-content {
   padding: 0 20px;
+}
+.customer-conversation .support-timeline-compact {
+  padding: 12px;
+  margin-block: 8px;
+  border-radius: 6px;
+}
+.customer-conversation .support-timeline-compact .support-timeline-header {
+  margin-bottom: 6px;
 }
 .ct-message {
   padding: 20px 0;

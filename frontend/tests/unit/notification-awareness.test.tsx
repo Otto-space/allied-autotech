@@ -5,10 +5,14 @@ import {
   customerNotificationDestination,
   notificationNavigationCounts,
 } from "@/lib/notifications/destinations";
-import { notificationSummarySchema } from "@/lib/api/notification-schemas";
+import {
+  notificationSummarySchema,
+  notificationDestinationSchema,
+} from "@/lib/api/notification-schemas";
 import {
   useNotificationSummary,
   announceNotificationChange,
+  subscribeNotificationChanges,
 } from "@/lib/notifications/use-notification-summary";
 import { apiRequest, SESSION_CHANGED } from "@/lib/api/client";
 import type { SessionState } from "@/lib/api/types";
@@ -39,8 +43,43 @@ beforeEach(() => {
 afterEach(() => {
   cleanup();
   vi.unstubAllGlobals();
+  vi.unstubAllEnvs();
 });
 describe("notification destinations", () => {
+  it.each(["full", "browse_enquiries"])(
+    "respects %s release destinations without reviving unavailable records",
+    (mode) => {
+      vi.stubEnv("NEXT_PUBLIC_PUBLIC_LAUNCH_MODE", mode);
+      const record = {
+        resourceType: "BOOKING",
+        resourceId: id,
+        category: "TRANSACTIONAL" as const,
+      };
+      const destination = {
+        section: "/dashboard/bookings",
+        href: `/dashboard/bookings/${id}`,
+        label: "View booking",
+      };
+      const expected =
+        mode === "full"
+          ? { href: destination.href, label: destination.label }
+          : { href: "/contact", label: "Contact about this update" };
+      expect(customerNotificationDestination(record)).toEqual(expected);
+      expect(customerNotificationDestination({ ...record, destination })).toEqual(
+        mode === "full" ? destination : expected,
+      );
+      expect(
+        customerNotificationDestination({ ...record, destination: null }),
+      ).toBeNull();
+      expect(
+        customerNotificationDestination({
+          resourceType: "REVIEW",
+          resourceId: id,
+          category: "OPERATIONAL",
+        })?.href,
+      ).toBe(`/dashboard/reviews/${id}`);
+    },
+  );
   it("uses the related booking for a refund update and supports historical casing", () => {
     expect(
       customerNotificationDestination({
@@ -91,6 +130,50 @@ describe("notification destinations", () => {
       }),
     ).toBeNull();
   });
+  it("uses authoritative current target counts and does not revive a revoked destination", () => {
+    const scoped = {
+      ...summary,
+      destinations: [
+        {
+          section: "/dashboard/bookings",
+          count: 1,
+          recordCount: 1,
+          href: `/dashboard/notifications?notification=${id}`,
+        },
+      ],
+    };
+    expect(notificationNavigationCounts(scoped, true)).toEqual({
+      "/dashboard/notifications": 130,
+      "/dashboard/bookings": 1,
+    });
+    expect(
+      customerNotificationDestination({
+        resourceType: "BOOKING",
+        resourceId: id,
+        category: "TRANSACTIONAL",
+        destination: null,
+      }),
+    ).toBeNull();
+    expect(
+      notificationSummarySchema.safeParse({
+        ...scoped,
+        destinations: [{ ...scoped.destinations[0], recordCount: 2 }],
+      }).success,
+    ).toBe(false);
+    for (const href of [
+      "https://example.test/path",
+      "//example.test/path",
+      "/admin/../%2f%2fexample.test",
+      "/admin/\\example.test",
+    ])
+      expect(
+        notificationDestinationSchema.safeParse({
+          section: "/dashboard/bookings",
+          href,
+          label: "View",
+        }).success,
+      ).toBe(false);
+  });
   it("rejects inconsistent and negative counts; includes unknown records only in the bell", () => {
     expect(
       notificationSummarySchema.safeParse({ ...summary, unreadCount: 129 }).success,
@@ -110,6 +193,30 @@ describe("notification destinations", () => {
   });
 });
 describe("account-scoped notification status", () => {
+  it("refreshes an opted-in whole-inbox count on summary-only changes without refreshing the list", () => {
+    const list = vi.fn(),
+      count = vi.fn();
+    const stopList = subscribeNotificationChanges("one", list);
+    const stopCount = subscribeNotificationChanges("one", count, true);
+    announceNotificationChange("other", false);
+    expect(count).not.toHaveBeenCalled();
+    announceNotificationChange("one", false);
+    expect(count).toHaveBeenCalledOnce();
+    expect(list).not.toHaveBeenCalled();
+    stopList();
+    stopCount();
+  });
+  it("summary-only refresh does not replace an intentional foreground inbox refresh", () => {
+    const listener = vi.fn();
+    const unsubscribe = subscribeNotificationChanges("one", listener);
+    announceNotificationChange("one", false);
+    expect(listener).not.toHaveBeenCalled();
+    announceNotificationChange("other");
+    expect(listener).not.toHaveBeenCalled();
+    announceNotificationChange("one");
+    expect(listener).toHaveBeenCalledTimes(1);
+    unsubscribe();
+  });
   it("does not fetch before sign-in and refreshes after a confirmed read change", async () => {
     vi.mocked(apiRequest).mockResolvedValue({
       success: true,

@@ -135,7 +135,7 @@
   border: 1px solid var(--quote-border);
   background-color: #fff;
   border-radius: 5px;
-  color: #01121a;
+  color: var(--ink);
   min-height: 44px;
   font-family: inherit;
   font-size: 15px;
@@ -155,10 +155,10 @@
   .staff-quotations
   .quotation-editor
   :is(input, select, textarea):focus-visible {
-  border-color: #e60301;
-  outline: 2px solid #e60301;
-  outline-offset: 2px;
-  box-shadow: 0 0 0 4px #e6030114;
+  border-color: var(--brand-red);
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .dashboard
   .dashboard-content
@@ -177,7 +177,7 @@
   cursor: not-allowed;
 }
 .dashboard .dashboard-content .staff-quotations .quotation-editor input:-webkit-autofill {
-  -webkit-text-fill-color: #01121a;
+  -webkit-text-fill-color: var(--ink);
 }
 .dashboard .dashboard-content .staff-quotations .quotation-editor .form-row {
   display: grid;
@@ -352,7 +352,7 @@
   justify-content: flex-end;
   flex-wrap: wrap;
   gap: 20px 40px;
-  background: #01121a;
+  background: var(--ink);
   color: white;
   margin: 0;
   padding: 18px 22px;

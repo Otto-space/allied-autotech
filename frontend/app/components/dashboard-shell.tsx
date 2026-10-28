@@ -1,16 +1,15 @@
 "use client";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { LogOut, Menu, PanelLeftClose, PanelLeftOpen, UserRound, X } from "lucide-react";
 import {
-  Bell,
-  LogOut,
-  Menu,
-  PanelLeftClose,
-  PanelLeftOpen,
-  UserRound,
-  X,
-} from "lucide-react";
-import { createContext, useContext, useEffect, useRef, useState } from "react";
+  createContext,
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import {
   apiRequest,
   ApiError,
@@ -18,6 +17,7 @@ import {
   invalidateSession,
   isExternalSessionChange,
   SESSION_CHANGED,
+  invalidateWorkforceAccess,
 } from "@/lib/api/client";
 import type { SessionState } from "@/lib/api/types";
 import { Brand } from "./brand";
@@ -28,10 +28,22 @@ import { useResource } from "@/lib/api/use-resource";
 import { parseOwnStaffProfile } from "@/lib/api/capability-schemas";
 import { parseWorkforceAccess } from "@/lib/api/workforce-schemas";
 import { workforceNavigation } from "@/lib/workforce-navigation";
+import { workforceAccessKey, workforceDestination } from "@/lib/workforce-registry";
+import {
+  WORKFORCE_CHANNEL,
+  WORKFORCE_RECHECK,
+  isExternalWorkforceRefresh,
+} from "@/lib/workforce-invalidation";
 import { WorkforceWorkspace, useWorkforceRefresh } from "./workforce-workspace";
 import { useNotificationSummary } from "@/lib/notifications/use-notification-summary";
-import { notificationNavigationCounts } from "@/lib/notifications/destinations";
-import { NotificationBadge } from "./notification-badge";
+import {
+  notificationNavigationCounts,
+  notificationNavigationLinks,
+} from "@/lib/notifications/destinations";
+import { NotificationPreview } from "./notification-preview";
+import { NotificationAccessContext } from "@/lib/notifications/access-context";
+import { LearningEntry } from "./learning/learning-entry";
+import { containDialogFocus } from "@/lib/dialog-focus";
 const SessionContext = createContext<SessionState | null>(null);
 const StaffPermissionContext = createContext<ReturnType<
   typeof useResource<ReturnType<typeof parseOwnStaffProfile>>
@@ -54,12 +66,6 @@ export function DashboardShell({
   const router = useRouter();
   const pathname = usePathname();
   const [session, setSession] = useState<SessionState | null>(null);
-  const notifications = useNotificationSummary(session);
-  const unreadCount = notifications?.data?.unreadCount ?? 0;
-  const unreadLinks = notificationNavigationCounts(
-    notifications?.data,
-    audience === "customer",
-  );
   const [error, setError] = useState<string | null>(null);
   const [retry, setRetry] = useState(0);
   const [busy, setBusy] = useState(false);
@@ -75,19 +81,90 @@ export function DashboardShell({
     parseWorkforceAccess,
   );
   useWorkforceRefresh(workforce.refresh, workforce.data);
-  const verifiedWorkforce =
+  // Retain a mounted workspace while a fresh check is pending. It stays hidden
+  // and inert until verified; failures and scope changes still discard it.
+  const retainedWorkforce =
     session?.workforceManaged &&
     !workforce.error &&
+    !workforce.refreshError &&
     workforce.data?.managed &&
     workforce.data.userId === session.user.id
       ? workforce.data
       : undefined;
+  const verifiedWorkforce = !workforce.loading ? retainedWorkforce : undefined;
+  const workforceMismatch = !!(
+    session?.workforceManaged &&
+    workforce.data &&
+    (!workforce.data.managed || workforce.data.userId !== session.user.id)
+  );
+  const acceptedWorkforce = useRef<{ userId: string; key: string } | undefined>(
+    undefined,
+  );
+  useLayoutEffect(() => {
+    const previous = acceptedWorkforce.current;
+    if (
+      !session?.workforceManaged ||
+      workforce.error ||
+      workforce.refreshError ||
+      workforceMismatch
+    ) {
+      const owner =
+        previous?.userId ??
+        (workforce.error || workforce.refreshError || workforceMismatch
+          ? session?.user.id
+          : undefined);
+      if (owner) invalidateWorkforceAccess(owner);
+      acceptedWorkforce.current = undefined;
+      return;
+    }
+    if (!verifiedWorkforce) return;
+    const key = workforceAccessKey(verifiedWorkforce);
+    if (
+      previous &&
+      (previous.userId !== verifiedWorkforce.userId || previous.key !== key)
+    )
+      invalidateWorkforceAccess(previous.userId);
+    acceptedWorkforce.current = { userId: verifiedWorkforce.userId, key };
+  }, [
+    session?.workforceManaged,
+    session?.user.id,
+    verifiedWorkforce,
+    workforce.error,
+    workforce.refreshError,
+    workforceMismatch,
+  ]);
+  const refreshWorkforce = workforce.refresh;
+  useEffect(() => {
+    const recheck = () => {
+      refreshWorkforce();
+      setRetry((value) => value + 1);
+    };
+    const channel =
+      typeof BroadcastChannel !== "undefined"
+        ? new BroadcastChannel(WORKFORCE_CHANNEL)
+        : null;
+    if (channel)
+      channel.onmessage = (event) => {
+        if (isExternalWorkforceRefresh(event.data)) recheck();
+      };
+    window.addEventListener(WORKFORCE_RECHECK, recheck);
+    return () => {
+      channel?.close();
+      window.removeEventListener(WORKFORCE_RECHECK, recheck);
+    };
+  }, [refreshWorkforce]);
+  const workforcePage = workforceDestination(pathname);
+  const notifications = useNotificationSummary(
+    session && (!session.workforceManaged || verifiedWorkforce) ? session : null,
+  );
+  const unreadCount = notifications?.data?.unreadCount ?? 0;
   const grants = useResource(
     session?.user.role === "STAFF" && !session.workforceManaged ? "/staff/profile" : null,
     parseOwnStaffProfile,
   );
   const navigationCapabilities =
     !grants.error &&
+    !grants.refreshError &&
     !grants.loading &&
     grants.data?.id === session?.user.id &&
     grants.data?.role === "STAFF" &&
@@ -105,6 +182,15 @@ export function DashboardShell({
     .flatMap((group) => group.links.map((link) => ({ ...link, group: group.label })))
     .filter((link) => pathname === link.href || pathname.startsWith(`${link.href}/`))
     .sort((a, b) => b.href.length - a.href.length)[0];
+  const notificationAccess = {
+    managed: !!session?.workforceManaged,
+    links: navigation.flatMap((group) => group.links.map((link) => link.href)),
+  };
+  const unreadLinks = notificationNavigationCounts(
+    notifications?.data,
+    audience === "customer",
+    notificationAccess,
+  );
   useEffect(() => {
     const dialog = mobileDialog.current;
     const opener = menuButton.current;
@@ -245,6 +331,7 @@ export function DashboardShell({
         <div className="container empty">
           {error ? (
             <>
+              <h1>Dashboard access unavailable</h1>
               <Feedback message={error} tone={passwordChanged ? "success" : "error"} />
               <button
                 className="button"
@@ -263,7 +350,10 @@ export function DashboardShell({
               </p>
             </>
           ) : (
-            "Verifying your session…"
+            <>
+              <h1>Opening your dashboard</h1>
+              <p role="status">Verifying your session…</p>
+            </>
           )}
         </div>
       </main>
@@ -272,7 +362,7 @@ export function DashboardShell({
     <div
       className="dashboard"
       data-sidebar-collapsed={sidebarCollapsed}
-      key={`${session.id}:${session.user.id}:${session.user.role}`}
+      key={`${session.id}:${session.user.id}:${session.user.role}:${pathname}`}
       onKeyDown={(event) => {
         if (event.key === "Escape" && menuOpen) {
           setMenuPath(null);
@@ -318,6 +408,7 @@ export function DashboardShell({
           <DashboardNavigation
             collapsed={sidebarCollapsed}
             unreadCounts={unreadLinks}
+            unreadLinks={notificationNavigationLinks(notifications?.data)}
             onExpand={() => setSidebarCollapsed(false)}
             groups={navigation}
             pathname={pathname}
@@ -339,6 +430,7 @@ export function DashboardShell({
         ref={mobileDialog}
         className="dashboard-drawer"
         aria-label="Dashboard navigation"
+        onKeyDown={containDialogFocus}
         onCancel={() => setMenuPath(null)}
         onClick={(event) => {
           if (event.target === event.currentTarget) {
@@ -362,6 +454,7 @@ export function DashboardShell({
           <DashboardNavigation
             groups={navigation}
             unreadCounts={unreadLinks}
+            unreadLinks={notificationNavigationLinks(notifications?.data)}
             pathname={pathname}
             onNavigate={() => setMenuPath(null)}
             label={audience === "staff" ? "Administration" : "Customer dashboard"}
@@ -380,26 +473,15 @@ export function DashboardShell({
         <header className="dashboard-top">
           <DashboardPageSearch groups={navigation} />
           <div className="dashboard-account-controls">
+            <LearningEntry />
             {(!session.workforceManaged || verifiedWorkforce) && (
-              <Link
-                className="dashboard-icon-link"
-                aria-label={
-                  unreadCount > 0
-                    ? `Open notifications, ${unreadCount} unread`
-                    : notifications?.unavailable
-                      ? "Open notifications, unread status unavailable"
-                      : "Open notifications"
-                }
-                href={
-                  audience === "staff"
-                    ? "/admin/notifications"
-                    : "/dashboard/notifications"
-                }
-                prefetch={false}
-              >
-                <Bell size={19} aria-hidden="true" />
-                <NotificationBadge count={unreadCount} />
-              </Link>
+              <NotificationPreview
+                key={`${session.id}:${session.user.id}:${session.user.role}:${pathname}`}
+                customer={audience === "customer"}
+                count={unreadCount}
+                unavailable={notifications?.unavailable}
+                pending={!notifications}
+              />
             )}
             <Link
               className="dashboard-account-link"
@@ -455,6 +537,7 @@ export function DashboardShell({
             pathname !== "/admin/booking-slots" &&
             pathname !== "/admin/services" &&
             pathname !== "/admin/products" &&
+            pathname !== "/admin/fitment" &&
             pathname !== "/admin/categories" &&
             pathname !== "/admin/orders" &&
             pathname !== "/admin/inventory" &&
@@ -516,38 +599,87 @@ export function DashboardShell({
               </nav>
             )}
           <Feedback message={error} />
+          {session.user.role === "STAFF" &&
+            !session.workforceManaged &&
+            (grants.error || grants.refreshError) && (
+              <section aria-label="Work access check">
+                <Feedback message="We could not verify your current work permissions. Work page links are unavailable until you retry." />
+                <button
+                  className="button secondary"
+                  onClick={grants.refresh}
+                  disabled={grants.loading}
+                >
+                  Retry work permissions
+                </button>
+              </section>
+            )}
           <SessionContext.Provider value={session}>
-            <StaffPermissionContext.Provider
-              value={session.user.role === "STAFF" ? grants : null}
-            >
-              {session.workforceManaged ? (
-                verifiedWorkforce ? (
-                  pathname === "/admin/security" ||
-                  pathname === "/admin/notifications" ? (
-                    children
-                  ) : (
-                    <WorkforceWorkspace
-                      key={JSON.stringify([
-                        verifiedWorkforce.version,
-                        verifiedWorkforce.assignments.map((a) => a.id),
-                      ])}
-                      access={verifiedWorkforce}
-                      refreshAccess={workforce.refresh}
-                    />
-                  )
-                ) : (
+            <NotificationAccessContext.Provider value={notificationAccess}>
+              <StaffPermissionContext.Provider
+                value={
+                  session.user.role === "STAFF" && !session.workforceManaged
+                    ? grants
+                    : null
+                }
+              >
+                {session.workforceManaged ? (
                   <>
-                    <Feedback message={workforce.error} />
-                    <p role="status">Checking current responsibility access…</p>
-                    <button className="button secondary" onClick={workforce.refresh}>
-                      Retry access check
-                    </button>
+                    {retainedWorkforce && (
+                      <div hidden={!verifiedWorkforce} inert={!verifiedWorkforce}>
+                        {workforcePage?.id === "security" ||
+                        workforcePage?.id === "notifications" ? (
+                          children
+                        ) : (
+                          <WorkforceWorkspace
+                            key={workforceAccessKey(retainedWorkforce)}
+                            access={retainedWorkforce}
+                            refreshAccess={workforce.refresh}
+                          >
+                            {children}
+                          </WorkforceWorkspace>
+                        )}
+                      </div>
+                    )}
+                    {!verifiedWorkforce && (
+                      <>
+                        {workforce.error ||
+                        workforce.refreshError ||
+                        workforceMismatch ? (
+                          <>
+                            <h1>Work access unavailable</h1>
+                            <Feedback
+                              message={
+                                workforce.error ||
+                                workforce.refreshError ||
+                                "Your current work access could not be verified. Retry before continuing."
+                              }
+                            />
+                            <p>
+                              We could not verify your current responsibilities. Retry
+                              before continuing with work records.
+                            </p>
+                          </>
+                        ) : (
+                          <>
+                            <h1>Checking work access</h1>
+                            <p role="status">Checking current responsibility access…</p>
+                          </>
+                        )}
+                        <button
+                          className="button secondary"
+                          onClick={workforce.refresh}
+                          disabled={workforce.loading}
+                        >
+                          Retry access check
+                        </button>
+                      </>
+                    )}
                   </>
-                )
-              ) : (
-                children
-              )}
-            </StaffPermissionContext.Provider>
+                ) : (
+                  children
+                )}
+              </StaffPermissionContext.Provider>
+            </NotificationAccessContext.Provider>
           </SessionContext.Provider>
         </main>
       </div>

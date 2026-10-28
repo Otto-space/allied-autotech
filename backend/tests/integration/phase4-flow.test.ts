@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import request from "supertest";
-import { afterAll, describe, expect, it } from "vitest";
+import { afterAll, describe, expect, it, vi } from "vitest";
 import { createApp } from "../../src/app.js";
 import { errorCodes } from "../../src/common/errors/error-codes.js";
 import { sessionCookieName } from "../../src/common/security/cookies.js";
@@ -217,7 +217,8 @@ describe.skipIf(!runDatabaseTests)("Phase 4 catalogue, cart, and inventory flow"
         sort,
       });
       expect(products.status).toBe(200);
-      expect(products.body.data.items).toHaveLength(1);
+      // Legacy authoring remains draft until independent evidence review.
+      expect(products.body.data.items).toHaveLength(0);
     }
     const adminCategories = await request(app)
       .get("/api/v1/admin/catalog/categories?isActive=true")
@@ -276,22 +277,48 @@ describe.skipIf(!runDatabaseTests)("Phase 4 catalogue, cart, and inventory flow"
     expect(inventoryList.status).toBe(200);
     expect(inventoryList.body.data.items).toHaveLength(1);
 
-    const expiry = new Date(Date.now() + 60 * 60 * 1_000).toISOString();
+    const expiry = new Date(Date.now() + 10 * 60 * 1_000).toISOString();
+    const reserveKeys = [`reserve-${randomUUID()}`, `reserve-${randomUUID()}`];
     const reservations = await Promise.all([
       request(app)
         .post(`/api/v1/staff/inventory/${inventoryId}/reservations`)
         .set(mutation(staffSession))
-        .set("Idempotency-Key", `reserve-${randomUUID()}`)
+        .set("Idempotency-Key", reserveKeys[0]!)
         .send({ quantity: 6, expiresAt: expiry, customerId: customer.profile?.id }),
       request(app)
         .post(`/api/v1/staff/inventory/${inventoryId}/reservations`)
         .set(mutation(staffSession))
-        .set("Idempotency-Key", `reserve-${randomUUID()}`)
+        .set("Idempotency-Key", reserveKeys[1]!)
         .send({ quantity: 6, expiresAt: expiry, customerId: customer.profile?.id }),
     ]);
     expect(reservations.map(({ status }) => status).sort()).toEqual([201, 409]);
     const winningReservation = reservations.find(({ status }) => status === 201);
     expect(winningReservation?.body.data.inventory.reserved).toBe(6);
+    const winningKey = reserveKeys[reservations[0]?.status === 201 ? 0 : 1]!;
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date(Date.parse(expiry) + 60_000));
+    try {
+      const reservationPath = `/api/v1/staff/inventory/${inventoryId}/reservations`;
+      const expiredReplay = await request(app)
+        .post(reservationPath)
+        .set(mutation(staffSession))
+        .set("Idempotency-Key", winningKey)
+        .send({ quantity: 6, expiresAt: expiry, customerId: customer.profile?.id });
+      expect(expiredReplay.status).toBe(201);
+      expect(expiredReplay.body.data.replayed).toBe(true);
+      expect(expiredReplay.body.data.reservation.id).toBe(
+        winningReservation?.body.data.reservation.id,
+      );
+      const expiredNew = await request(app)
+        .post(reservationPath)
+        .set(mutation(staffSession))
+        .set("Idempotency-Key", `reserve-${randomUUID()}`)
+        .send({ quantity: 1, expiresAt: expiry });
+      expect(expiredNew.status).toBe(422);
+      expect(expiredNew.body.error.code).toBe(errorCodes.validationFailed);
+    } finally {
+      vi.useRealTimers();
+    }
     const reservedVersion = winningReservation?.body.data.inventory.version as number;
     const activeReservations = await request(app)
       .get(`/api/v1/staff/inventory/${inventoryId}/reservations?status=ACTIVE`)
@@ -402,10 +429,28 @@ describe.skipIf(!runDatabaseTests)("Phase 4 catalogue, cart, and inventory flow"
       .set(mutation(customerSession))
       .send({ quantity: 1 })
       .expect(200);
+    const reviewedCart = await request(app)
+      .get("/api/v1/customers/cart")
+      .set("Cookie", customerSession.cookie);
+    expect(reviewedCart.status).toBe(200);
     await request(app)
       .delete("/api/v1/customers/cart")
       .set(mutation(customerSession))
-      .send({})
+      .send({
+        expectedItems: reviewedCart.body.data.items.map(
+          (item: {
+            id: string;
+            product: { id: string };
+            quantity: number;
+            unitPriceKobo: string;
+          }) => ({
+            id: item.id,
+            productId: item.product.id,
+            quantity: item.quantity,
+            unitPriceKobo: item.unitPriceKobo,
+          }),
+        ),
+      })
       .expect(200);
     await request(app)
       .delete(`/api/v1/customers/favourites/${productId}`)

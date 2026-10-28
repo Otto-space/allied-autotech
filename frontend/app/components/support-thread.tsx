@@ -1,4 +1,5 @@
 "use client";
+import { enquiryLabel } from "@/lib/support/enquiry-label";
 import { useCallback, useState } from "react";
 import Link from "next/link";
 import { useResource } from "@/lib/api/use-resource";
@@ -14,10 +15,12 @@ export function SupportThread({
   kind,
   id,
   staff = false,
+  messageId,
 }: {
   kind: SupportKind;
   id: string;
   staff?: boolean;
+  messageId?: string;
 }) {
   const session = useAccountSession();
   if (!staff) {
@@ -25,15 +28,17 @@ export function SupportThread({
     return (
       <CustomerSupportThread
         key={`${session.user.id}:${kind}:${id}`}
+        messageId={messageId}
         userId={session.user.id}
         kind={kind}
         id={id}
       />
     );
   }
-  return <StaffSupportThread kind={kind} id={id} staff={staff} />;
+  return <StaffSupportThread kind={kind} id={id} staff={staff} messageId={messageId} />;
 }
 function StaffSupportThread({
+  messageId,
   kind,
   id,
   staff,
@@ -41,6 +46,7 @@ function StaffSupportThread({
   kind: SupportKind;
   id: string;
   staff: boolean;
+  messageId?: string;
 }) {
   const base = `/${staff ? "staff" : "customers"}/support/${kind}/${id}`;
   const parse = useCallback(
@@ -126,7 +132,7 @@ function StaffSupportThread({
               ) : (
                 <>
                   <dt>Enquiry type</dt>
-                  <dd>{record.type.toLowerCase()}</dd>
+                  <dd>{enquiryLabel(record.type, record.vehicleEnquiryIntent)}</dd>
                 </>
               )}
               <dt>Created</dt>
@@ -189,6 +195,7 @@ function StaffSupportThread({
             />
           )}
           <SupportMessages
+            messageId={messageId}
             key={base}
             refreshKey={messageRevision}
             record={record}

@@ -25,12 +25,14 @@ export function ContactRecordPicker({
   value,
   onChange,
   error,
+  required = true,
 }: {
   id: string;
   kind: "branch" | SupportSourceType;
   value?: SupportSource;
   onChange: (value?: SupportSource) => void;
   error?: string;
+  required?: boolean;
 }) {
   const pagination = useCursorPage();
   const parse = useCallback(
@@ -73,6 +75,19 @@ export function ContactRecordPicker({
   );
   const highlighted = options[active];
   const disabled = records.loading || !!records.error;
+  const onlyBranch =
+    kind === "branch" &&
+    !disabled &&
+    !records.refreshError &&
+    !pagination.cursor &&
+    !records.data?.nextCursor &&
+    records.data?.items.length === 1 &&
+    (!value || value.id === records.data.items[0].id)
+      ? records.data.items[0]
+      : undefined;
+  useEffect(() => {
+    if (onlyBranch && !value) onChange(onlyBranch);
+  }, [onlyBranch, value, onChange]);
   const expanded = open && !disabled;
   const choose = (row: SupportSource) => {
     onChange(row);
@@ -157,89 +172,100 @@ export function ContactRecordPicker({
         ))}
       </select>
       <div className="contact-choice">
-        <input
-          data-no-draft
-          ref={input}
-          id={id}
-          role="combobox"
-          aria-required="true"
-          aria-expanded={expanded}
-          aria-controls={expanded ? listId : undefined}
-          aria-autocomplete="list"
-          aria-activedescendant={
-            expanded && highlighted ? `${listId}-${highlighted.id}` : undefined
-          }
-          aria-invalid={!!error}
-          aria-describedby={`${id}-help${error ? ` ${id}-error` : ""}`}
-          autoComplete="off"
-          disabled={disabled}
-          placeholder={
-            records.loading
-              ? "Loading choices…"
-              : kind === "branch"
-                ? "Choose a branch"
-                : "Choose a related record"
-          }
-          value={expanded ? query : (value?.label ?? "")}
-          onFocus={() => {
-            // Focus can scroll an input clear of the support controls before the
-            // pointer is released. Open here so that movement cannot lose the click.
-            setOpen(true);
-            setQuery("");
-            setActive(0);
-          }}
-          onClick={() => {
-            setOpen(true);
-            setQuery("");
-            setActive(0);
-          }}
-          onChange={(event) => {
-            setQuery(event.target.value);
-            setActive(0);
-            setOpen(true);
-          }}
-          onBlur={(event) => {
-            if (!popup.current?.contains(event.relatedTarget)) setOpen(false);
-          }}
-          onKeyDown={(event) => {
-            if (event.key === "Escape") {
-              event.preventDefault();
-              setOpen(false);
-              return;
-            }
-            if (event.key === "Tab") {
-              setOpen(false);
-              return;
-            }
-            if (["ArrowDown", "ArrowUp"].includes(event.key)) {
-              event.preventDefault();
-              setOpen(true);
-              setActive((index) =>
-                expanded
-                  ? Math.max(
-                      0,
-                      Math.min(
-                        options.length - 1,
-                        index + (event.key === "ArrowDown" ? 1 : -1),
-                      ),
-                    )
-                  : 0,
-              );
-            }
-            if (expanded && (event.key === "Home" || event.key === "End")) {
-              event.preventDefault();
-              setActive(event.key === "Home" ? 0 : Math.max(0, options.length - 1));
-            }
-            if (expanded && event.key === "Enter") {
-              event.preventDefault();
-              if (highlighted) choose(highlighted);
-            }
-          }}
-        />
-        {expanded ? (
-          <Search aria-hidden="true" size={16} />
+        {onlyBranch ? (
+          <input
+            id={id}
+            readOnly
+            value={onlyBranch.label}
+            aria-describedby={`${id}-help`}
+          />
         ) : (
-          <ChevronDown aria-hidden="true" size={16} />
+          <>
+            <input
+              data-no-draft
+              ref={input}
+              id={id}
+              role="combobox"
+              aria-required={required}
+              aria-expanded={expanded}
+              aria-controls={expanded ? listId : undefined}
+              aria-autocomplete="list"
+              aria-activedescendant={
+                expanded && highlighted ? `${listId}-${highlighted.id}` : undefined
+              }
+              aria-invalid={!!error}
+              aria-describedby={`${id}-help${error ? ` ${id}-error` : ""}`}
+              autoComplete="off"
+              disabled={disabled}
+              placeholder={
+                records.loading
+                  ? "Loading choices…"
+                  : kind === "branch"
+                    ? "Choose a branch"
+                    : "Choose a related record"
+              }
+              value={expanded ? query : (value?.label ?? "")}
+              onFocus={() => {
+                // Focus can scroll an input clear of the support controls before the
+                // pointer is released. Open here so that movement cannot lose the click.
+                setOpen(true);
+                setQuery("");
+                setActive(0);
+              }}
+              onClick={() => {
+                setOpen(true);
+                setQuery("");
+                setActive(0);
+              }}
+              onChange={(event) => {
+                setQuery(event.target.value);
+                setActive(0);
+                setOpen(true);
+              }}
+              onBlur={(event) => {
+                if (!popup.current?.contains(event.relatedTarget)) setOpen(false);
+              }}
+              onKeyDown={(event) => {
+                if (event.key === "Escape") {
+                  event.preventDefault();
+                  setOpen(false);
+                  return;
+                }
+                if (event.key === "Tab") {
+                  setOpen(false);
+                  return;
+                }
+                if (["ArrowDown", "ArrowUp"].includes(event.key)) {
+                  event.preventDefault();
+                  setOpen(true);
+                  setActive((index) =>
+                    expanded
+                      ? Math.max(
+                          0,
+                          Math.min(
+                            options.length - 1,
+                            index + (event.key === "ArrowDown" ? 1 : -1),
+                          ),
+                        )
+                      : 0,
+                  );
+                }
+                if (expanded && (event.key === "Home" || event.key === "End")) {
+                  event.preventDefault();
+                  setActive(event.key === "Home" ? 0 : Math.max(0, options.length - 1));
+                }
+                if (expanded && event.key === "Enter") {
+                  event.preventDefault();
+                  if (highlighted) choose(highlighted);
+                }
+              }}
+            />
+            {expanded ? (
+              <Search aria-hidden="true" size={16} />
+            ) : (
+              <ChevronDown aria-hidden="true" size={16} />
+            )}
+          </>
         )}
       </div>
       <p className="contact-field-help" id={`${id}-help`}>
@@ -247,7 +273,9 @@ export function ContactRecordPicker({
           ? "Loading choices…"
           : records.error
             ? "Choices could not be loaded. Please retry."
-            : "Type to find a choice on this page."}
+            : onlyBranch
+              ? "Your request goes to this workshop. No branch selection is needed."
+              : "Type to find a choice on this page."}
       </p>
       {error && (
         <p id={`${id}-error`} className="field-error" role="alert">

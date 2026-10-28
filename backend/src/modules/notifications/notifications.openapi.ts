@@ -1,7 +1,12 @@
 import type { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import { z } from "zod";
+import { pushSubscriptionSchema } from "./push.schemas.js";
 import {
   notificationListQuerySchema,
+  notificationTargetSchema,
+  notificationContextQuerySchema,
+  notificationContextReadSchema,
+  notificationAttentionQuerySchema,
   notificationSummarySchema,
   notificationParamsSchema,
   preferenceUpdateBodySchema,
@@ -16,10 +21,162 @@ const response = z.object({
   data: z.unknown().optional(),
   meta: z.object({ requestId: z.string() }),
 });
+const inboxPage = z.object({
+  items: z.array(
+    z.object({
+      id: z.uuid(),
+      destination: notificationTargetSchema.nullable(),
+      type: z.string(),
+      category: z.string(),
+      title: z.string(),
+      message: z.string(),
+      resourceType: z.string().nullable(),
+      resourceId: z.string().nullable(),
+      supportMessageId: z.uuid().nullable(),
+      readAt: z.iso.datetime().nullable(),
+      expiresAt: z.iso.datetime().nullable(),
+      createdAt: z.iso.datetime(),
+    }),
+  ),
+  nextCursor: z.uuid().optional(),
+});
 const csrf = z.object({ "x-csrf-token": z.string().min(32) });
 
 export function registerNotificationsOpenApi(registry: OpenAPIRegistry): void {
   for (const prefix of ["/customers/notifications", "/staff/notifications"] as const) {
+    for (const [suffix, query, data, summary] of [
+      [
+        "attention",
+        notificationAttentionQuerySchema,
+        inboxPage,
+        "List unread updates with currently authorized targets in one sidebar section",
+      ],
+      [
+        "context",
+        notificationContextQuerySchema,
+        z.object({ items: inboxPage.shape.items, hasMore: z.boolean() }),
+        "Read own unread updates for one currently authorized record without marking them read",
+      ],
+    ] as const)
+      registry.registerPath({
+        method: "get",
+        path: `${prefix}/${suffix}`,
+        tags: ["Notifications"],
+        summary,
+        security: [{ sessionCookie: [] }],
+        request: { query: query as never },
+        responses: {
+          "200": {
+            description:
+              "Recipient and current target access checked; no read or business status changes",
+            content: { "application/json": { schema: response.extend({ data }) } },
+          },
+          "404": { description: "Target or cursor unavailable" },
+        },
+      });
+    registry.registerPath({
+      method: "post",
+      path: `${prefix}/read-context`,
+      tags: ["Notifications"],
+      summary:
+        "Idempotently acknowledge displayed notifications for one authorized record",
+      description:
+        "Called only after the record and relevant message are displayed. Every supplied ID must belong to this recipient and exact target, be unexpired and still accessible. Repeated calls do not change the original read time. Does not change any business status. Manual individual and bulk read operations remain available.",
+      security: [{ sessionCookie: [] }],
+      request: {
+        headers: csrf as never,
+        body: {
+          required: true,
+          content: { "application/json": { schema: notificationContextReadSchema } },
+        },
+      },
+      responses: {
+        "200": {
+          description: "Confirmed number newly read",
+          content: {
+            "application/json": {
+              schema: response.extend({
+                data: z.object({ updated: z.number().int().nonnegative() }),
+              }),
+            },
+          },
+        },
+        "404": {
+          description:
+            "A supplied notification or its current target is unavailable; no read changes applied",
+        },
+      },
+    });
+    registry.registerPath({
+      method: "get",
+      path: `${prefix}/{notificationId}`,
+      tags: ["Notifications"],
+      summary: "Read one owned unexpired notification",
+      security: [{ sessionCookie: [] }],
+      request: { params: notificationParamsSchema as never },
+      responses: {
+        "200": {
+          description: "Owned notification",
+          content: {
+            "application/json": {
+              schema: response.extend({ data: inboxPage.shape.items.element }),
+            },
+          },
+        },
+        "404": { description: "Notification unavailable" },
+      },
+    });
+    registry.registerPath({
+      method: "get",
+      path: `${prefix}/push`,
+      tags: ["Notifications"],
+      summary: "Read browser push availability and current session subscription status",
+      security: [{ sessionCookie: [] }],
+      responses: {
+        "200": {
+          description: "Browser push settings",
+          content: {
+            "application/json": {
+              schema: response.extend({
+                data: z.object({
+                  available: z.boolean(),
+                  publicKey: z.string().nullable(),
+                  enabled: z.boolean(),
+                  endpointHashes: z.array(z.string().regex(/^[a-f0-9]{64}$/)),
+                }),
+              }),
+            },
+          },
+        },
+      },
+    });
+    registry.registerPath({
+      method: "put",
+      path: `${prefix}/push`,
+      tags: ["Notifications"],
+      summary: "Opt this session into browser push",
+      security: [{ sessionCookie: [] }],
+      request: {
+        headers: csrf as never,
+        body: {
+          required: true,
+          content: { "application/json": { schema: pushSubscriptionSchema } },
+        },
+      },
+      responses: {
+        "200": { description: "Subscription saved" },
+        "409": { description: "Unavailable or endpoint belongs to another account" },
+      },
+    });
+    registry.registerPath({
+      method: "delete",
+      path: `${prefix}/push`,
+      tags: ["Notifications"],
+      summary: "Disable browser push for this session only",
+      security: [{ sessionCookie: [] }],
+      request: { headers: csrf as never },
+      responses: { "200": { description: "Subscription disabled" } },
+    });
     registry.registerPath({
       method: "get",
       path: `${prefix}/summary`,
@@ -47,7 +204,9 @@ export function registerNotificationsOpenApi(registry: OpenAPIRegistry): void {
       responses: {
         "200": {
           description: "Notifications retrieved",
-          content: { "application/json": { schema: response } },
+          content: {
+            "application/json": { schema: response.extend({ data: inboxPage }) },
+          },
         },
       },
     });
@@ -56,9 +215,45 @@ export function registerNotificationsOpenApi(registry: OpenAPIRegistry): void {
       path: `${prefix}/read-all`,
       tags: ["Notifications"],
       summary: "Mark all own notifications as read",
+      description:
+        "Marks the whole owned inbox, independent of filters and pagination, through the returned server cutoff. Notifications created after that cutoff remain unread. Does not change business records or send messages.",
       security: [{ sessionCookie: [] }],
       request: { headers: csrf as never },
-      responses: { "200": { description: "Notifications updated" } },
+      responses: {
+        "200": {
+          description: "Notifications updated",
+          content: {
+            "application/json": {
+              schema: response.extend({
+                data: z.object({
+                  updated: z.number().int().nonnegative(),
+                  cutoff: z.iso.datetime(),
+                }),
+              }),
+            },
+          },
+        },
+      },
+    });
+    registry.registerPath({
+      method: "post",
+      path: `${prefix}/{notificationId}/unread`,
+      tags: ["Notifications"],
+      summary:
+        "Idempotently mark one owned notification unread without changing its source",
+      security: [{ sessionCookie: [] }],
+      request: { params: notificationParamsSchema as never, headers: csrf as never },
+      responses: {
+        "200": {
+          description: "Owned notification with current authorized projection",
+          content: {
+            "application/json": {
+              schema: response.extend({ data: inboxPage.shape.items.element }),
+            },
+          },
+        },
+        "404": { description: "Notification not owned" },
+      },
     });
     registry.registerPath({
       method: "post",
@@ -67,7 +262,16 @@ export function registerNotificationsOpenApi(registry: OpenAPIRegistry): void {
       summary: "Mark one owned notification as read",
       security: [{ sessionCookie: [] }],
       request: { params: notificationParamsSchema as never, headers: csrf as never },
-      responses: { "200": { description: "Notification updated" } },
+      responses: {
+        "200": {
+          description: "Notification updated",
+          content: {
+            "application/json": {
+              schema: response.extend({ data: inboxPage.shape.items.element }),
+            },
+          },
+        },
+      },
     });
     registry.registerPath({
       method: "get",
@@ -84,6 +288,11 @@ export function registerNotificationsOpenApi(registry: OpenAPIRegistry): void {
               schema: response.extend({
                 data: z.object({
                   immutableCategories: z.array(z.enum(["SECURITY", "TRANSACTIONAL"])),
+                  channels: z.object({
+                    email: z.boolean(),
+                    sms: z.boolean(),
+                    marketing: z.literal(false),
+                  }),
                   preferences: z.array(preferenceResponseSchema),
                 }),
               }),

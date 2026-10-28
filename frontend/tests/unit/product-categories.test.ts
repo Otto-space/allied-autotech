@@ -81,6 +81,7 @@ describe("product category boundary", () => {
       name: "Braking",
       slug: "braking",
       description: null,
+      parentId: null,
       isActive: false,
       expectedUpdatedAt: record.updatedAt,
     });

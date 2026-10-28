@@ -143,3 +143,27 @@ parts-fitment-workspace.spec.ts > staff author, independent reviewer and history
 dashboard-access-quality.spec.ts
 dashboard-page-recovery.spec.ts
 help-launch-quality.spec.ts
+# Cycle 6: audit A01-A07, local isolated fixtures; no real operations acceptance.
+audit-actions.spec.ts
+parts-fitment-workspace.spec.ts > legacy Toyota Camry remains visible and requires deliberate catalogue reconciliation without an unchanged write
+parts-fitment-workspace.spec.ts > oil-filter application, evidence, keyboard and reflow at 390px
+parts-fitment-workspace.spec.ts > oil-filter application, evidence, keyboard and reflow at 1440px
+product-extras.spec.ts > populated gallery moves, main selection and preview keyboard at 390px
+product-extras.spec.ts > populated gallery moves, main selection and preview keyboard at 1440px
+
+# Cycle 13: table density, hidden scrollbar tracks and keyboard/touch reachability.
+customer-table-responsive.spec.ts
+
+# Revision 4: scoped workforce discovery, filters, failure and access invalidation.
+workforce-directory.spec.ts
+# Revision 4 W5: current-access redirects, private draft disposal and cross-tab rechecks.
+workforce-session-revocation.spec.ts
+
+# Revision 4 W8: Allie conversation controls and role/privacy boundaries with isolated fixtures.
+allie-conversation.spec.ts
+# Revision 4 W9: paid provider composition is opt-in; normal runs skip safely.
+allie-real-provider.spec.ts
+# Revision 4 W10: bounded legacy history never becomes current authority.
+workforce-history.spec.ts
+# Revision 4 W11: separate explicit grants, populated work and active revocation.
+workforce-independent.spec.ts

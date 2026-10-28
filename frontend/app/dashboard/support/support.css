@@ -17,12 +17,12 @@
   color: var(--cc-muted);
 }
 .cc-heading > a,
-.cc-toolbar > a {
+.cc-jump-links a {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   min-height: 44px;
-  color: #b60201;
+  color: var(--link);
   font-weight: 600;
   flex-shrink: 0;
 }
@@ -30,7 +30,32 @@
   display: flex;
   align-items: flex-end;
   gap: 24px;
-  margin-bottom: 24px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.cc-jump-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.cc-jump-links a {
+  padding: 8px 14px;
+  border: 1px solid #bdccd7;
+  border-radius: 6px;
+  background: white;
+  color: var(--link);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.cc-jump-links a:hover {
+  background: #edf4f8;
+  border-color: var(--action-primary);
+}
+.dashboard .dashboard-content .cc-kind-help {
+  margin: 0 0 24px;
+  color: var(--cc-muted);
+  font-size: 13px;
+  max-width: 85ch;
 }
 .dashboard .dashboard-content .cc-toolbar .field {
   margin: 0;
@@ -80,6 +105,7 @@
 .cc-form-grid > .field:has(#support-source),
 .cc-form-grid > .field:has(#support-subject),
 .cc-form-grid > .field:has(#support-opening),
+.cc-form-grid > .contact-field-wide,
 .cc-form-grid > p {
   grid-column: 1 / -1;
 }
@@ -113,6 +139,15 @@
   min-height: 144px;
   resize: vertical;
 }
+.dashboard .dashboard-content .cc-field-help {
+  margin: 6px 0 0;
+  color: var(--cc-muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.cc-form h2 {
+  scroll-margin-top: 96px;
+}
 .cc-character-count {
   text-align: right;
   margin: 6px 0 0;
@@ -136,7 +171,7 @@
 .cc-history-heading {
   padding: 20px 22px;
   border-radius: 9px 9px 0 0;
-  background: #01121a;
+  background: var(--ink);
   color: #fff;
 }
 .dashboard .dashboard-content .cc-history-heading h2 {
@@ -177,6 +212,8 @@
   flex: 1;
 }
 .cc-record h3 a {
+  text-decoration: underline;
+  text-underline-offset: 4px;
   display: flex;
   justify-content: space-between;
   gap: 10px;
@@ -283,6 +320,9 @@
   }
 }
 @media (max-width: 600px) {
+  .customer-care :is(#support-create-heading, #support-list-heading) {
+    scroll-margin-top: 160px;
+  }
   .cc-heading {
     align-items: flex-start;
     flex-direction: column;

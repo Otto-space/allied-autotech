@@ -35,17 +35,22 @@ import { redactWorkforceEnquiryPending } from "../admin/workforce-enquiry-pendin
 import { redactWorkforceComplaintPending } from "../admin/workforce-complaint-pending";
 import { redactWorkforceOrderPending } from "../admin/workforce-order-pending";
 import { redactWorkforceJobPending } from "../admin/workforce-job-pending";
+import { redactWorkforceBookingPending } from "../admin/workforce-booking-pending";
+import { redactAftercarePending } from "../admin/workforce-aftercare-pending";
 import { redactDisputeChanges } from "../admin/work-dispute-pending";
 import { redactSupportReplyRecoveries } from "../support/reply-recovery";
 import { redactSupportCreationRecoveries } from "../support/creation-recovery";
 import { redactReviewRecoveries } from "../reviews/review-recovery";
+import { redactHandoffPending } from "../learning/handoff-pending";
 import { redactSupportCreateRecoveries } from "../support/support-recovery";
 import {
   captureDraftSubmission,
   clearAccountDrafts,
+  clearWorkforceDrafts,
   completeDraftSubmission,
   setDraftIdentity,
 } from "../forms/drafts";
+import { discardWorkforceReads, workforceReadGuard } from "../workforce-invalidation";
 
 const API_ROOT = "/api/v1";
 let csrfToken: string | null = null;
@@ -126,6 +131,7 @@ export async function apiRequest<T>(
     throw new Error("Invalid API path");
   const generation = sessionGeneration;
   const method = (options.method ?? "GET").toUpperCase();
+  const workGuard = method === "GET" ? workforceReadGuard(path) : undefined;
   const draft = captureDraftSubmission(path, method);
   const headers: Record<string, string> = {
     Accept: "application/json",
@@ -142,7 +148,11 @@ export async function apiRequest<T>(
   if (generation !== sessionGeneration)
     throw new DOMException("Session changed", "AbortError");
   const timeout = AbortSignal.timeout(options.timeoutMs ?? 20_000);
-  const signal = options.signal ? AbortSignal.any([options.signal, timeout]) : timeout;
+  const signal = AbortSignal.any([
+    timeout,
+    ...(options.signal ? [options.signal] : []),
+    ...(workGuard ? [workGuard.signal] : []),
+  ]);
   const response = await fetch(`${API_ROOT}${path}`, {
     ...options,
     method,
@@ -153,13 +163,14 @@ export async function apiRequest<T>(
     redirect: "error",
     signal,
   }).catch((error: unknown) => {
-    if (options.signal?.aborted) throw error;
+    if (options.signal?.aborted || workGuard?.signal.aborted) throw error;
     throw new ApiError(0, {
       error: { code: timeout.aborted ? "REQUEST_TIMEOUT" : "NETWORK_ERROR" },
     });
   });
   const body = await decode(response);
   options.signal?.throwIfAborted();
+  workGuard?.signal.throwIfAborted();
   if (generation !== sessionGeneration)
     throw new DOMException("Session changed", "AbortError");
   if (!response.ok) {
@@ -238,10 +249,14 @@ export function refreshCsrf(): Promise<string> {
 }
 
 export function invalidateSession(reason?: "password-changed"): void {
+  void import("../notifications/browser-push")
+    .then(({ clearBrowserPush }) => clearBrowserPush())
+    .catch(() => undefined);
   clearAccountDrafts();
   redactVehicleRetries();
   redactReservationRetries();
   redactReviewRecoveries();
+  redactHandoffPending();
   redactSupportCreateRecoveries();
   redactSupportCreationRecoveries();
   redactSupportReplyRecoveries();
@@ -260,6 +275,8 @@ export function invalidateSession(reason?: "password-changed"): void {
   redactExceptionChanges();
   redactJobRetries();
   redactWorkforceJobPending();
+  redactWorkforceBookingPending();
+  redactAftercarePending();
   redactWorkforceEnquiryPending();
   redactWorkforceComplaintPending();
   redactWorkforceOrderPending();
@@ -300,6 +317,21 @@ export function setCsrfToken(value: unknown): void {
 
 export function clearCsrfToken(): void {
   csrfToken = null;
+}
+
+export function invalidateWorkforceAccess(userId: string) {
+  clearWorkforceDrafts(userId);
+  redactRefundChanges();
+  redactDisputeChanges();
+  redactPrivacyChanges();
+  redactFinancePolicyChanges();
+  redactWorkforceJobPending();
+  redactWorkforceBookingPending();
+  redactAftercarePending();
+  redactWorkforceEnquiryPending();
+  redactWorkforceComplaintPending();
+  redactWorkforceOrderPending();
+  discardWorkforceReads();
 }
 
 export function newIdempotencyKey(): string {

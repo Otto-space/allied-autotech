@@ -23,7 +23,7 @@ describe("public product discovery contract boundary", () => {
       limit: "12",
     });
   });
-  it.each(["1885", "2101", "2e3", "2020.5"])(
+  it.each(["1885", "2201", "2e3", "2020.5"])(
     "rejects unsupported year %s on shared links",
     (year) => {
       const result = normalizeProductQuery(

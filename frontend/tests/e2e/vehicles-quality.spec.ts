@@ -47,6 +47,16 @@ const listing = (n: number): ReturnType<typeof parseListings>["items"][number] =
   },
 });
 async function fixture(page: Page) {
+  await page.route("**/api/v1/auth/session", (route) =>
+    route.fulfill({
+      status: 401,
+      json: {
+        success: false,
+        error: { code: "UNAUTHORIZED" },
+        meta: { requestId: "anonymous-ui-fixture" },
+      },
+    }),
+  );
   const state = {
     status: 200,
     empty: false,
@@ -108,7 +118,8 @@ async function fixture(page: Page) {
     });
   });
   await page.route("**/api/v1/public/vehicles/discovery?*", async (route) => {
-    state.requests.push(new URL(route.request().url()));
+    if (new URL(route.request().url()).searchParams.get("limit") !== "1")
+      state.requests.push(new URL(route.request().url()));
     if (state.delay) await new Promise((resolve) => setTimeout(resolve, state.delay));
     if (state.offline) return route.abort("internetdisconnected");
     if (state.status !== 200)
@@ -145,6 +156,8 @@ async function fixture(page: Page) {
   });
   await page.goto("/vehicles");
   await page.getByRole("searchbox", { name: "Search vehicles" }).fill("QA");
+  await expect(page).toHaveURL(/search=QA/);
+  await expect.poll(() => state.requests.at(-1)?.searchParams.get("search")).toBe("QA");
   await expect(
     page.getByRole("status").filter({ hasText: "3 vehicles on this page" }),
   ).toBeVisible();
@@ -177,7 +190,7 @@ test("make suggestions page and search globally; model suggestions follow the se
   await expect
     .poll(() => state.facetRequests.some((url) => url.searchParams.has("cursor")))
     .toBe(true);
-  await page.getByLabel("Make (exact name)").fill("Toy");
+  await page.getByLabel("Make").fill("Toy");
   await expect(page.locator('#filter-make-options option[value="Toyota"]')).toHaveCount(
     1,
   );
@@ -189,14 +202,14 @@ test("make suggestions page and search globally; model suggestions follow the se
         ?.searchParams.get("search"),
     )
     .toBe("Toy");
-  await page.getByLabel("Make (exact name)").fill("Toyota");
+  await page.getByLabel("Make").fill("Toyota");
   await expect(page.locator('#filter-model-options option[value="Camry"]')).toHaveCount(
     1,
   );
-  await page.getByLabel("Model (exact name)").fill("Cam");
+  await page.getByLabel("Model").fill("Cam");
   await expect(page.locator("#filter-model-options option")).toHaveCount(1);
-  await page.getByLabel("Make (exact name)").fill("Honda");
-  await expect(page.getByLabel("Model (exact name)")).toHaveValue("");
+  await page.getByLabel("Make").fill("Honda");
+  await expect(page.getByLabel("Model")).toHaveValue("");
   await expect(page.locator('#filter-model-options option[value="Accord"]')).toHaveCount(
     1,
   );
@@ -206,11 +219,11 @@ test("failed option reads retain typed values and support retry", async ({ page 
   const state = await fixture(page);
   state.facetError = true;
   await page.getByRole("button", { name: /^Filters/ }).click();
-  await page.getByLabel("Make (exact name)").fill("Toyota");
+  await page.getByLabel("Make").fill("Toyota");
   await expect(
     page.getByRole("button", { name: "Retry make suggestions" }),
   ).toBeVisible();
-  await expect(page.getByLabel("Make (exact name)")).toHaveValue("Toyota");
+  await expect(page.getByLabel("Make")).toHaveValue("Toyota");
   state.facetError = false;
   await page.getByRole("button", { name: "Retry make suggestions" }).click();
   await expect(page.locator('#filter-make-options option[value="Toyota"]')).toHaveCount(
@@ -262,9 +275,10 @@ test("advanced filters validate, send exact public parameters and survive reload
 }) => {
   const state = await fixture(page);
   await page.getByRole("button", { name: /^Filters/ }).click();
-  await page.getByLabel("Make (exact name)").fill("Toyota");
-  await page.getByLabel("Model (exact name)").fill("Camry");
-  await page.getByLabel("Year", { exact: true }).fill("2023");
+  await page.getByLabel("Make").fill("Toyota");
+  await page.getByLabel("Model").fill("Camry");
+  await page.getByLabel("Year from", { exact: true }).fill("2023");
+  await page.getByLabel("Year to", { exact: true }).fill("2023");
   await page.getByLabel("Minimum price (NGN)").fill("5000000.01");
   await page.getByLabel("Maximum price (NGN)").fill("4000000");
   await page.getByRole("button", { name: "Apply filters" }).click();
@@ -278,9 +292,9 @@ test("advanced filters validate, send exact public parameters and survive reload
   );
   await page.getByLabel("Maximum price (NGN)").fill("6000000.99");
   await page.getByLabel("Body type").selectOption("SEDAN");
+  await page.getByText("Advanced: driving and equipment", { exact: true }).click();
   await page.getByLabel("Transmission", { exact: true }).selectOption("AUTOMATIC");
   await page.getByLabel("Fuel type").selectOption("PETROL");
-  await page.getByLabel("Featured listings").selectOption("false");
   await page.getByRole("button", { name: "Apply filters" }).click();
   await expect(page.getByRole("dialog")).not.toBeVisible();
   await expect(page.getByRole("button", { name: /^Filters/ })).toBeFocused();
@@ -291,19 +305,19 @@ test("advanced filters validate, send exact public parameters and survive reload
     search: "QA",
     make: "Toyota",
     model: "Camry",
-    year: "2023",
+    minYear: "2023",
+    maxYear: "2023",
     minPriceKobo: "500000001",
     maxPriceKobo: "600000099",
     bodyType: "SEDAN",
     transmission: "AUTOMATIC",
     fuelType: "PETROL",
-    featured: "false",
     limit: "12",
   });
   await page.reload();
   await page.getByRole("button", { name: /^Filters/ }).click();
   await expect(page.getByLabel("Minimum price (NGN)")).toHaveValue("5000000.01");
-  await expect(page.getByLabel("Featured listings")).toHaveValue("false");
+  await expect(page.getByLabel("Featured listings")).toHaveCount(0);
 });
 
 test("cursor navigation restores Previous after reload and filters reset pagination", async ({
@@ -326,24 +340,24 @@ test("cursor navigation restores Previous after reload and filters reset paginat
   await expect(page.getByText("Page 1", { exact: true })).toBeVisible();
 });
 
-test("mobile drawer retains drafts, traps focus, clears and restores trigger focus", async ({
+test("mobile drawer cancels unapplied edits, traps focus, clears and restores trigger focus", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 650 });
   await fixture(page);
   const trigger = page.getByRole("button", { name: /^Filters/ });
   await trigger.click();
-  await page.getByLabel("Make (exact name)").fill("Toyota");
+  await page.getByLabel("Make").fill("Toyota");
   await page.keyboard.press("Escape");
   await expect(trigger).toBeFocused();
   await trigger.click();
-  await expect(page.getByLabel("Make (exact name)")).toHaveValue("Toyota");
+  await expect(page.getByLabel("Make")).toHaveValue("");
   const apply = page.getByRole("button", { name: "Apply filters" });
   await apply.focus();
   await page.keyboard.press("Tab");
   await expect(page.getByRole("button", { name: "Close filters" })).toBeFocused();
   await page.getByRole("button", { name: "Clear filters", exact: true }).click();
-  await expect(page.getByLabel("Make (exact name)")).toHaveValue("");
+  await expect(page.getByLabel("Make")).toHaveValue("");
   await expect(page.getByRole("dialog")).toBeVisible();
   await expect(apply).toBeInViewport();
   await apply.click();
@@ -371,10 +385,10 @@ test("loading, no matches, error, rate limit and network recovery remain usable"
   });
   await page.getByRole("button", { name: "Clear filters", exact: true }).click();
   await expect(
-    page.getByRole("heading", { name: "No vehicles are listed yet" }),
+    page.getByRole("heading", { name: "No vehicles are published yet" }),
   ).toBeVisible();
   state.status = 503;
-  await page.getByLabel("Sort by").selectOption("year_desc");
+  await page.getByRole("searchbox", { name: "Search vehicles" }).fill("test failure");
   await expect(page.getByRole("button", { name: "Retry vehicles" })).toBeVisible();
   await page.screenshot({ path: path.join(os.tmpdir(), "vehicles-quality-error.png") });
   state.status = 429;
@@ -422,8 +436,8 @@ for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536]) {
       path: path.join(os.tmpdir(), `vehicles-quality-${width}-viewport.png`),
     });
     await page.getByRole("button", { name: /^Filters/ }).click();
-    await page.getByLabel("Make (exact name)").fill("A".repeat(80));
-    await page.getByLabel("Model (exact name)").fill("B".repeat(80));
+    await page.getByLabel("Make").fill("A".repeat(80));
+    await page.getByLabel("Model").fill("B".repeat(80));
     await expect(page.getByRole("button", { name: "Apply filters" })).toBeVisible();
     await page.screenshot({
       path: path.join(os.tmpdir(), `vehicles-quality-${width}-filters.png`),
@@ -441,9 +455,10 @@ for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536]) {
       .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth))
       .toBe(true);
     await expect(page.getByRole("button", { name: /Remove Make:/ })).toBeVisible();
-    await page.locator(".lifestyle-section").scrollIntoViewIfNeeded();
+    await expect(page.locator(".lifestyle-section")).toHaveCount(0);
+    await page.locator(".vehicle-buying-guide").scrollIntoViewIfNeeded();
     await page.screenshot({
-      path: path.join(os.tmpdir(), `vehicles-quality-${width}-lifestyle.png`),
+      path: path.join(os.tmpdir(), `vehicles-quality-${width}-guidance.png`),
     });
     await page.screenshot({
       path: path.join(os.tmpdir(), `vehicles-quality-${width}-full.png`),
@@ -480,7 +495,7 @@ test("invalid deep links recover without sending unsupported filters", async ({
   await page.goto("/vehicles?year=1000&maxPriceKobo=wrong&make=Toyota");
   await expect(page.getByText(/Some filters in this link were invalid/)).toBeVisible();
   await page.getByRole("button", { name: /^Filters/ }).click();
-  await expect(page.getByLabel("Make (exact name)")).toHaveValue("Toyota");
+  await expect(page.getByLabel("Make")).toHaveValue("Toyota");
   await expect(page.getByLabel("Year", { exact: true })).toHaveValue("");
   await expect(page.getByLabel("Maximum price (NGN)")).toHaveValue("");
 });
@@ -491,11 +506,11 @@ test.describe("touch filter drawer", () => {
     await fixture(page);
     await page.getByRole("button", { name: /^Filters/ }).tap();
     await expect(page.getByRole("button", { name: "Apply filters" })).toBeInViewport();
-    await page.getByLabel("Featured listings").scrollIntoViewIfNeeded();
-    await page.getByLabel("Featured listings").selectOption("true");
+    await page.getByText("Advanced: driving and equipment", { exact: true }).click();
+    await page.getByLabel("Mileage to (km)").fill("50000");
     await page.getByRole("button", { name: "Apply filters" }).tap();
     await expect(
-      page.getByRole("button", { name: "Remove Featured only" }),
+      page.getByRole("button", { name: "Remove Mileage to (km): 50000" }),
     ).toBeVisible();
     await expect(page.getByRole("dialog")).not.toBeVisible();
   });
@@ -514,13 +529,13 @@ test("native concept dimensions and complete section captures", async ({ page })
     path: path.join(os.tmpdir(), "vehicles-quality-native-inventory.png"),
   });
   await page.getByRole("button", { name: /^Filters/ }).click();
-  await page
-    .getByRole("dialog")
-    .screenshot({ path: path.join(os.tmpdir(), "vehicles-quality-native-panel.png") });
-  await page.getByRole("button", { name: "Close filters" }).click();
-  await page.locator(".lifestyle-section").screenshot({
-    path: path.join(os.tmpdir(), "vehicles-quality-native-lifestyle.png"),
+  await expect(page.getByRole("dialog")).toBeVisible();
+  // A viewport capture preserves the native non-modal dialog dimensions.
+  await page.screenshot({
+    path: path.join(os.tmpdir(), "vehicles-quality-native-panel.png"),
+    fullPage: false,
   });
+  await page.getByRole("button", { name: "Close filters" }).click();
   await page.locator(".vehicle-buying-guide").screenshot({
     path: path.join(os.tmpdir(), "vehicles-oct-native-guide.png"),
   });
@@ -625,3 +640,92 @@ test("cards preserve zero values, missing specifications, report truth and long 
     page.locator(".vehicle-buying-guide").getByRole("link", { name: "Ask our team" }),
   ).toHaveAttribute("href", "/contact");
 });
+
+for (const width of [1440, 390]) {
+  test(`origin, powertrain and range filters at ${width}px`, async ({
+    page,
+  }, testInfo) => {
+    await page.setViewportSize({ width, height: 900 });
+    const errors: string[] = [];
+    page.on("pageerror", (error) => errors.push(error.message));
+    const state = await fixture(page);
+    const field = (name: string) => page.getByLabel(name, { exact: true });
+    const apply = () => page.getByRole("button", { name: "Apply filters" }).click();
+    await page.getByRole("button", { name: /^Filters/ }).click();
+    await page.getByRole("checkbox", { name: "Foreign used", exact: true }).check();
+    await page.getByRole("checkbox", { name: "Brand new", exact: true }).check();
+    await page.getByText("Advanced: assembly location", { exact: true }).click();
+    await field("Final assembly country").fill("South Korea");
+    await page.getByText("Advanced: driving and equipment", { exact: true }).click();
+    await page.getByRole("checkbox", { name: /Plug-in hybrid/ }).check();
+    await page.getByRole("checkbox", { name: /^Hybrid/ }).check();
+    await field("Year from").fill("2024");
+    await field("Year to").fill("2018");
+    await apply();
+    await expect(
+      page.getByText("Maximum must be at least the minimum.", { exact: true }),
+    ).toBeVisible();
+    await expect(field("Year to")).toBeFocused();
+    await field("Year from").fill("2018");
+    await field("Year to").fill("2024");
+    await field("Mileage to (km)").fill("75000");
+    await page.screenshot({
+      path: testInfo.outputPath(`vehicle-filters-${width}.png`),
+      fullPage: false,
+    });
+    await apply();
+    await expect
+      .poll(() => state.requests.at(-1)?.searchParams.get("manufactureCountryCode"))
+      .toBe("KR");
+    for (const [key, value] of [
+      ["conditions", "NEW,FOREIGN_USED"],
+      ["powertrains", "HEV,PHEV"],
+      ["minYear", "2018"],
+      ["maxYear", "2024"],
+      ["maxMileageKm", "75000"],
+    ])
+      expect(state.requests.at(-1)?.searchParams.get(key)).toBe(value);
+    await field("Sort by").selectOption("mileage_asc");
+    await expect
+      .poll(() => state.requests.at(-1)?.searchParams.get("sort"))
+      .toBe("mileage_asc");
+    await page.goBack();
+    await expect(page).not.toHaveURL(/sort=/);
+    await page.goForward();
+    await expect(page).toHaveURL(/sort=mileage_asc/);
+    await page.getByRole("button", { name: /^Filters/ }).click();
+    await field("Final assembly region").selectOption("EUROPE");
+    await expect(field("Final assembly country")).toHaveValue("");
+    await field("Final assembly country").fill("Imaginary country");
+    await apply();
+    await expect(
+      page.getByText("Choose a country from the suggestions or clear the field.", {
+        exact: true,
+      }),
+    ).toBeVisible();
+    await field("Final assembly country").fill("Germany");
+    expect(
+      (await new AxeBuilder({ page }).include("#vehicle-filter-panel").analyze())
+        .violations,
+    ).toEqual([]);
+    await apply();
+    await expect
+      .poll(() => state.requests.at(-1)?.searchParams.get("manufactureCountryCode"))
+      .toBe("DE");
+    expect(
+      await page
+        .locator("body")
+        .evaluate((node) => node.scrollWidth <= window.innerWidth),
+    ).toBe(true);
+    await page
+      .getByRole("button", { name: "Remove Condition: Brand new", exact: true })
+      .click();
+    await expect
+      .poll(() => state.requests.at(-1)?.searchParams.get("conditions"))
+      .toBe("FOREIGN_USED");
+    await expect(
+      page.getByRole("button", { name: "Remove Condition: Foreign used", exact: true }),
+    ).toBeVisible();
+    expect(errors).toEqual([]);
+  });
+}

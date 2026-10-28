@@ -334,6 +334,10 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
     it("uses existing search indexes at representative catalogue volume", async () => {
       const a = await account(),
         f = await fixture(10_000);
+      // Supply our own unrelated catalogue baseline. With only this fixture,
+      // PostgreSQL can correctly prefer a small sequential scan; relying on
+      // another test file's rows makes the index-use assertion order-dependent.
+      await fixture(10_000);
       const needle = `${f.prefix} 9999`;
       const result = await page(a.headers, { search: needle, limit: 25 });
       expect(result.items).toHaveLength(1);
@@ -348,7 +352,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       ORDER BY id ASC LIMIT 26`;
       expect(JSON.stringify(plan)).toContain("Service_name_search_idx");
       console.info(`Administrator search plan: ${JSON.stringify(plan)}`);
-    }, 30_000);
+    }, 60_000);
 
     it("projects authorized image metadata without exposing storage internals", async () => {
       const a = await account(),

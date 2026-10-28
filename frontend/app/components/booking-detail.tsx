@@ -1,4 +1,5 @@
 ﻿"use client";
+import { NotificationRecordContext } from "./notification-record-context";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ChevronRight, RefreshCw } from "lucide-react";
@@ -258,6 +259,13 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
           </Link>
         </div>
       )}
+      {current &&
+        !booking.loading &&
+        !booking.refreshing &&
+        !booking.error &&
+        !booking.refreshError && (
+          <NotificationRecordContext resourceType="BOOKING" resourceId={current.id} />
+        )}
       {current && (
         <>
           <div className="booking-detail-grid">

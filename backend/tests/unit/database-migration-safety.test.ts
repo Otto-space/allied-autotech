@@ -9,6 +9,7 @@ import {
 } from "../../src/config/prisma-command-safety.js";
 import {
   assertNonDestructiveMigration,
+  localMigrations,
   pendingMigrations,
 } from "../../scripts/lib/database-safety.js";
 
@@ -125,6 +126,27 @@ describe("database migration command protection", () => {
 });
 
 describe("forward migration history and SQL review gates", () => {
+  it("accepts only the exact reviewed catalogue backfills and rejects changed or renamed SQL", () => {
+    const migrations = localMigrations();
+    for (const name of [
+      "20261025132000_catalogue_word_search",
+      "20261025133000_catalogue_brand_options",
+      "20261025134000_preserve_alphabetic_search_codes",
+    ]) {
+      const sql = migrations.get(name)!.sql;
+      expect(() => assertNonDestructiveMigration(sql, name)).not.toThrow();
+      expect(() => assertNonDestructiveMigration(sql, "renamed")).toThrow();
+      expect(() =>
+        assertNonDestructiveMigration(
+          sql + '\nUPDATE "Product" SET "priceKobo" = 0;',
+          name,
+        ),
+      ).toThrow("changed");
+      expect(() =>
+        assertNonDestructiveMigration(sql.replace("'10s'", "'11s'"), name),
+      ).toThrow("changed");
+    }
+  });
   const local = new Map([
     ["first", { checksum: "original", sql: "" }],
     ["second", { checksum: "new", sql: "" }],
@@ -153,6 +175,20 @@ describe("forward migration history and SQL review gates", () => {
     "DO $$ BEGIN EXECUTE 'DROP TABLE users'; END $$;",
     "ALTER TABLE users ALTER COLUMN id TYPE text;",
   ])("refuses unsafe pending SQL %s", (sql) => {
+    expect(() => assertNonDestructiveMigration(sql)).toThrow("potentially destructive");
+  });
+  const truncateProtection =
+    'CREATE TRIGGER "ProductCompatibilityHistory_no_truncate" BEFORE TRUNCATE ON "ProductCompatibilityHistory" FOR EACH STATEMENT EXECUTE FUNCTION protect_fitment_history();';
+  it("allows a complete protective truncate-trigger declaration", () => {
+    expect(() => assertNonDestructiveMigration(truncateProtection)).not.toThrow();
+  });
+  it.each([
+    `${truncateProtection} TRUNCATE "ProductCompatibilityHistory";`,
+    `TRUNCATE users; ${truncateProtection}`,
+    `CREATE FUNCTION protect_fitment_history() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN DELETE FROM users; RETURN NULL; END $$; ${truncateProtection}`,
+    "CREATE TRIGGER unsafe BEFORE TRUNCATE ON users FOR EACH STATEMENT EXECUTE FUNCTION handler('TRUNCATE users');",
+    'CREATE TRIGGER "unsafe; TRUNCATE users" BEFORE TRUNCATE ON users FOR EACH STATEMENT EXECUTE FUNCTION handler();',
+  ])("keeps destructive operations blocked alongside trigger DDL %s", (sql) => {
     expect(() => assertNonDestructiveMigration(sql)).toThrow("potentially destructive");
   });
   it("allows additive changes and harmless commented examples", () => {

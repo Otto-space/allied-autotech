@@ -43,7 +43,9 @@
     "phase7:preflight": "tsx scripts/verify-phase7-preflight.ts",
     "reconcile:payments": "tsx scripts/reconcile-payments.ts",
     "seed:staging:public": "tsx scripts/seed-staging-public.ts",
-    "check:routes": "tsx scripts/verify-route-coverage.ts"
+    "check:routes": "tsx scripts/verify-route-coverage.ts",
+    "learning:coverage:check": "tsx scripts/check-learning-coverage.ts",
+    "learning:coverage:complete": "tsx scripts/check-learning-coverage.ts --require-complete"
   },
   "keywords": [
     "automotive",
@@ -76,7 +78,8 @@
     "sharp": "^0.35.5",
     "swagger-ui-express": "^5.0.1",
     "uuid": "^14.0.2",
-    "zod": "^4.5.4"
+    "web-push": "^3.6.7",
+    "zod": "4.6.6"
   },
   "devDependencies": {
     "@types/cookie-parser": "^1.4.10",
@@ -88,6 +91,7 @@
     "@types/supertest": "^7.2.1",
     "@types/swagger-ui-express": "^4.1.8",
     "@types/uuid": "^10.0.0",
+    "@types/web-push": "^3.6.4",
     "@vitest/coverage-v8": "^5.0.0",
     "eslint": "^10.9.1",
     "eslint-config-prettier": "^10.1.8",

@@ -64,6 +64,692 @@ Paystack calls the DigitalOcean API origin directly; Monnify remains disabled, n
 
 ## Public API
 
+### GET `/public/learning/assistant/conversations`
+
+- Operation ID: `getPublicLearningAssistantConversations`
+- Purpose: Disabled by default. Requires enabled reviewed learning, server-only provider settings and a positive shared daily reservation budget. Current verified identity/MFA and session-bound ownership are resolved on every protected operation. Public sessions are separate secure opaque cookies and never silently join an account. All writes require trusted Origin; account writes use existing CSRF, guest writes additionally verify the guest CSRF header. Conversation and turn creation use scoped operation IDs. Only typed questions and eligible reviewed help reach the provider; no business lookup/mutation tools. Output sources/actions are validated, state encrypted with short expiry, budget/concurrency shared in PostgreSQL. Persistence is automated help, not a Customer Care case, live staffing or human delivery. All responses private/no-store; no transcript URL parameters. Limited catalogue mode retains its public-write restrictions. Allie list. Access boundary: public. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: PUBLIC
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Allie list",
+  "data": {
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "createdAt": "2030-01-15T10:00:00.000Z",
+        "expiresAt": "2030-01-15T10:00:00.000Z"
+      }
+    ]
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current account session required; 403 Current assurance, CSRF, Origin or release restriction; 404 Disabled, expired or unavailable to this owner; no existence disclosure; 409 Pending, uncertain, cancelled, changed context or conflicting operation; never automatically replay generation; 422 Strict bounded payload; unsupported context or obvious sensitive input rejected; 429 Shared rate, concurrency or conservative token reservation limit; ordinary help/support unaffected; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 Provider/configuration/output verification unavailable; no fabricated AI answer
+
+### POST `/public/learning/assistant/conversations`
+
+- Operation ID: `postPublicLearningAssistantConversations`
+- Purpose: Disabled by default. Requires enabled reviewed learning, server-only provider settings and a positive shared daily reservation budget. Current verified identity/MFA and session-bound ownership are resolved on every protected operation. Public sessions are separate secure opaque cookies and never silently join an account. All writes require trusted Origin; account writes use existing CSRF, guest writes additionally verify the guest CSRF header. Conversation and turn creation use scoped operation IDs. Only typed questions and eligible reviewed help reach the provider; no business lookup/mutation tools. Output sources/actions are validated, state encrypted with short expiry, budget/concurrency shared in PostgreSQL. Persistence is automated help, not a Customer Care case, live staffing or human delivery. All responses private/no-store; no transcript URL parameters. Limited catalogue mode retains its public-write restrictions. Allie create. Access boundary: public. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: PUBLIC
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `origin` | header | string (uri) | Yes | Origin used to constrain this request. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `operationId` | string (uuid) | Yes | Identifier of the operation resource; ownership is resolved server-side. |
+
+Synthetic request example:
+
+```json
+{
+  "operationId": "00000000-0000-4000-8000-000000000001"
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Allie create",
+  "data": {
+    "replayed": true,
+    "conversation": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "version": 1,
+      "audience": "public",
+      "expiresAt": "2030-01-15T10:00:00.000Z",
+      "messages": [
+        {
+          "operationId": "00000000-0000-4000-8000-000000000001",
+          "question": "synthetic-question",
+          "answer": {
+            "kind": "answer",
+            "answer": "synthetic-answer",
+            "steps": [
+              "synthetic-steps-item"
+            ],
+            "caveat": "2030-01-15T10:00:00.000Z",
+            "sourceIds": [
+              "synthetic-sourceids-item"
+            ],
+            "actionIds": [
+              "synthetic-actionids-item"
+            ],
+            "sources": [
+              {
+                "id": "synthetic-id",
+                "articleId": "synthetic-articleid",
+                "version": 1,
+                "title": "synthetic-title",
+                "href": "synthetic-href"
+              }
+            ],
+            "actions": [
+              {
+                "id": "synthetic-id",
+                "kind": "article",
+                "label": "synthetic-label",
+                "href": "synthetic-href",
+                "sourceId": "synthetic-sourceid"
+              }
+            ]
+          }
+        }
+      ],
+      "historyReset": true,
+      "pending": {
+        "operationId": "00000000-0000-4000-8000-000000000001",
+        "state": "pending"
+      }
+    }
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current account session required; 403 Current assurance, CSRF, Origin or release restriction; 404 Disabled, expired or unavailable to this owner; no existence disclosure; 409 Pending, uncertain, cancelled, changed context or conflicting operation; never automatically replay generation; 422 Strict bounded payload; unsupported context or obvious sensitive input rejected; 429 Shared rate, concurrency or conservative token reservation limit; ordinary help/support unaffected; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 Provider/configuration/output verification unavailable; no fabricated AI answer
+
+### GET `/public/learning/assistant/conversations/{conversationId}`
+
+- Operation ID: `getPublicLearningAssistantConversationsByConversationId`
+- Purpose: Disabled by default. Requires enabled reviewed learning, server-only provider settings and a positive shared daily reservation budget. Current verified identity/MFA and session-bound ownership are resolved on every protected operation. Public sessions are separate secure opaque cookies and never silently join an account. All writes require trusted Origin; account writes use existing CSRF, guest writes additionally verify the guest CSRF header. Conversation and turn creation use scoped operation IDs. Only typed questions and eligible reviewed help reach the provider; no business lookup/mutation tools. Output sources/actions are validated, state encrypted with short expiry, budget/concurrency shared in PostgreSQL. Persistence is automated help, not a Customer Care case, live staffing or human delivery. All responses private/no-store; no transcript URL parameters. Limited catalogue mode retains its public-write restrictions. Allie read. Access boundary: public. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: PUBLIC
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `conversationId` | path | string (uuid) | Yes | Identifier selecting the conversation resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Allie read",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "version": 1,
+    "audience": "public",
+    "expiresAt": "2030-01-15T10:00:00.000Z",
+    "messages": [
+      {
+        "operationId": "00000000-0000-4000-8000-000000000001",
+        "question": "synthetic-question",
+        "answer": {
+          "kind": "answer",
+          "answer": "synthetic-answer",
+          "steps": [
+            "synthetic-steps-item"
+          ],
+          "caveat": "2030-01-15T10:00:00.000Z",
+          "sourceIds": [
+            "synthetic-sourceids-item"
+          ],
+          "actionIds": [
+            "synthetic-actionids-item"
+          ],
+          "sources": [
+            {
+              "id": "synthetic-id",
+              "articleId": "synthetic-articleid",
+              "version": 1,
+              "title": "synthetic-title",
+              "href": "synthetic-href"
+            }
+          ],
+          "actions": [
+            {
+              "id": "synthetic-id",
+              "kind": "article",
+              "label": "synthetic-label",
+              "href": "synthetic-href",
+              "sourceId": "synthetic-sourceid"
+            }
+          ]
+        }
+      }
+    ],
+    "historyReset": true,
+    "pending": {
+      "operationId": "00000000-0000-4000-8000-000000000001",
+      "state": "pending"
+    }
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current account session required; 403 Current assurance, CSRF, Origin or release restriction; 404 Disabled, expired or unavailable to this owner; no existence disclosure; 409 Pending, uncertain, cancelled, changed context or conflicting operation; never automatically replay generation; 422 Strict bounded payload; unsupported context or obvious sensitive input rejected; 429 Shared rate, concurrency or conservative token reservation limit; ordinary help/support unaffected; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 Provider/configuration/output verification unavailable; no fabricated AI answer
+
+### DELETE `/public/learning/assistant/conversations/{conversationId}`
+
+- Operation ID: `deletePublicLearningAssistantConversationsByConversationId`
+- Purpose: Disabled by default. Requires enabled reviewed learning, server-only provider settings and a positive shared daily reservation budget. Current verified identity/MFA and session-bound ownership are resolved on every protected operation. Public sessions are separate secure opaque cookies and never silently join an account. All writes require trusted Origin; account writes use existing CSRF, guest writes additionally verify the guest CSRF header. Conversation and turn creation use scoped operation IDs. Only typed questions and eligible reviewed help reach the provider; no business lookup/mutation tools. Output sources/actions are validated, state encrypted with short expiry, budget/concurrency shared in PostgreSQL. Persistence is automated help, not a Customer Care case, live staffing or human delivery. All responses private/no-store; no transcript URL parameters. Limited catalogue mode retains its public-write restrictions. Allie clear. Access boundary: public. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: PUBLIC
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `conversationId` | path | string (uuid) | Yes | Identifier selecting the conversation resource. |
+| `origin` | header | string (uri) | Yes | Origin used to constrain this request. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+
+Synthetic request example:
+
+```json
+{}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Allie clear",
+  "data": {
+    "cleared": true
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current account session required; 403 Current assurance, CSRF, Origin or release restriction; 404 Disabled, expired or unavailable to this owner; no existence disclosure; 409 Pending, uncertain, cancelled, changed context or conflicting operation; never automatically replay generation; 422 Strict bounded payload; unsupported context or obvious sensitive input rejected; 429 Shared rate, concurrency or conservative token reservation limit; ordinary help/support unaffected; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 Provider/configuration/output verification unavailable; no fabricated AI answer
+
+### POST `/public/learning/assistant/conversations/{conversationId}/cancel`
+
+- Operation ID: `postPublicLearningAssistantConversationsByConversationIdCancel`
+- Purpose: Disabled by default. Requires enabled reviewed learning, server-only provider settings and a positive shared daily reservation budget. Current verified identity/MFA and session-bound ownership are resolved on every protected operation. Public sessions are separate secure opaque cookies and never silently join an account. All writes require trusted Origin; account writes use existing CSRF, guest writes additionally verify the guest CSRF header. Conversation and turn creation use scoped operation IDs. Only typed questions and eligible reviewed help reach the provider; no business lookup/mutation tools. Output sources/actions are validated, state encrypted with short expiry, budget/concurrency shared in PostgreSQL. Persistence is automated help, not a Customer Care case, live staffing or human delivery. All responses private/no-store; no transcript URL parameters. Limited catalogue mode retains its public-write restrictions. Allie cancel. Access boundary: public. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: PUBLIC
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `conversationId` | path | string (uuid) | Yes | Identifier selecting the conversation resource. |
+| `origin` | header | string (uri) | Yes | Origin used to constrain this request. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `operationId` | string (uuid) | Yes | Identifier of the operation resource; ownership is resolved server-side. |
+
+Synthetic request example:
+
+```json
+{
+  "operationId": "00000000-0000-4000-8000-000000000001"
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Allie cancel",
+  "data": {
+    "cancelled": true,
+    "status": "PENDING"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current account session required; 403 Current assurance, CSRF, Origin or release restriction; 404 Disabled, expired or unavailable to this owner; no existence disclosure; 409 Pending, uncertain, cancelled, changed context or conflicting operation; never automatically replay generation; 422 Strict bounded payload; unsupported context or obvious sensitive input rejected; 429 Shared rate, concurrency or conservative token reservation limit; ordinary help/support unaffected; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 Provider/configuration/output verification unavailable; no fabricated AI answer
+
+### POST `/public/learning/assistant/conversations/{conversationId}/turns`
+
+- Operation ID: `postPublicLearningAssistantConversationsByConversationIdTurns`
+- Purpose: Disabled by default. Requires enabled reviewed learning, server-only provider settings and a positive shared daily reservation budget. Current verified identity/MFA and session-bound ownership are resolved on every protected operation. Public sessions are separate secure opaque cookies and never silently join an account. All writes require trusted Origin; account writes use existing CSRF, guest writes additionally verify the guest CSRF header. Conversation and turn creation use scoped operation IDs. Only typed questions and eligible reviewed help reach the provider; no business lookup/mutation tools. Output sources/actions are validated, state encrypted with short expiry, budget/concurrency shared in PostgreSQL. Persistence is automated help, not a Customer Care case, live staffing or human delivery. All responses private/no-store; no transcript URL parameters. Limited catalogue mode retains its public-write restrictions. Allie turns. Access boundary: public. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: PUBLIC
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `conversationId` | path | string (uuid) | Yes | Identifier selecting the conversation resource. |
+| `origin` | header | string (uri) | Yes | Origin used to constrain this request. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `operationId` | string (uuid) | Yes | Identifier of the operation resource; ownership is resolved server-side. |
+| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+| `question` | string | Yes | Question validated by this operation's strict request contract. |
+| `page` | home / parts / vehicles / services / contact / help / learn / customer-care / staff-care / work / security / other | Yes | Page validated by this operation's strict request contract. |
+
+Synthetic request example:
+
+```json
+{
+  "operationId": "00000000-0000-4000-8000-000000000001",
+  "expectedVersion": 1,
+  "question": "synthetic-question",
+  "page": "home"
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Allie turns",
+  "data": {
+    "replayed": true,
+    "conversation": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "version": 1,
+      "audience": "public",
+      "expiresAt": "2030-01-15T10:00:00.000Z",
+      "messages": [
+        {
+          "operationId": "00000000-0000-4000-8000-000000000001",
+          "question": "synthetic-question",
+          "answer": {
+            "kind": "answer",
+            "answer": "synthetic-answer",
+            "steps": [
+              "synthetic-steps-item"
+            ],
+            "caveat": "2030-01-15T10:00:00.000Z",
+            "sourceIds": [
+              "synthetic-sourceids-item"
+            ],
+            "actionIds": [
+              "synthetic-actionids-item"
+            ],
+            "sources": [
+              {
+                "id": "synthetic-id",
+                "articleId": "synthetic-articleid",
+                "version": 1,
+                "title": "synthetic-title",
+                "href": "synthetic-href"
+              }
+            ],
+            "actions": [
+              {
+                "id": "synthetic-id",
+                "kind": "article",
+                "label": "synthetic-label",
+                "href": "synthetic-href",
+                "sourceId": "synthetic-sourceid"
+              }
+            ]
+          }
+        }
+      ],
+      "historyReset": true,
+      "pending": {
+        "operationId": "00000000-0000-4000-8000-000000000001",
+        "state": "pending"
+      }
+    }
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current account session required; 403 Current assurance, CSRF, Origin or release restriction; 404 Disabled, expired or unavailable to this owner; no existence disclosure; 409 Pending, uncertain, cancelled, changed context or conflicting operation; never automatically replay generation; 422 Strict bounded payload; unsupported context or obvious sensitive input rejected; 429 Shared rate, concurrency or conservative token reservation limit; ordinary help/support unaffected; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 Provider/configuration/output verification unavailable; no fabricated AI answer
+
+### POST `/public/learning/assistant/session`
+
+- Operation ID: `postPublicLearningAssistantSession`
+- Purpose: Disabled by default. Requires enabled reviewed learning, server-only provider settings and a positive shared daily reservation budget. Current verified identity/MFA and session-bound ownership are resolved on every protected operation. Public sessions are separate secure opaque cookies and never silently join an account. All writes require trusted Origin; account writes use existing CSRF, guest writes additionally verify the guest CSRF header. Conversation and turn creation use scoped operation IDs. Only typed questions and eligible reviewed help reach the provider; no business lookup/mutation tools. Output sources/actions are validated, state encrypted with short expiry, budget/concurrency shared in PostgreSQL. Persistence is automated help, not a Customer Care case, live staffing or human delivery. All responses private/no-store; no transcript URL parameters. Limited catalogue mode retains its public-write restrictions. Allie session. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: PUBLIC
+- Authentication: None
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `origin` | header | string (uri) | Yes | Origin used to constrain this request. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+
+Synthetic request example:
+
+```json
+{}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Allie session",
+  "data": {
+    "csrfToken": "synthetic-token-value-not-a-real-secret",
+    "expiresAt": "2030-01-15T10:00:00.000Z"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current account session required; 403 Current assurance, CSRF, Origin or release restriction; 404 Disabled, expired or unavailable to this owner; no existence disclosure; 409 Pending, uncertain, cancelled, changed context or conflicting operation; never automatically replay generation; 422 Strict bounded payload; unsupported context or obvious sensitive input rejected; 429 Shared rate, concurrency or conservative token reservation limit; ordinary help/support unaffected; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 Provider/configuration/output verification unavailable; no fabricated AI answer
+
+### GET `/public/learning/catalogue`
+
+- Operation ID: `getPublicLearningCatalogue`
+- Purpose: Read-only versioned learning content. Catalogue q matches eligible articles, guides and practice separately using task synonyms and their eligible parent article context. Public routes always omit restricted titles, bodies, guides and fixtures. Protected reads resolve current identity, MFA and effective assignments server-side; client roles/owner IDs are not accepted. All responses are private/no-store and vary by Cookie. No AI, account lookup, progress mutation or training/live operational writes. Read eligible catalogue. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: PUBLIC
+- Authentication: None
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `q` | query | string | No | Q used to constrain this request. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Read eligible catalogue",
+  "data": {
+    "accessKey": "synthetic-accesskey",
+    "audience": "public",
+    "contentVersion": 1,
+    "mode": "full",
+    "flags": {
+      "guides": true,
+      "practice": true,
+      "ai": true
+    },
+    "articles": [
+      {
+        "id": "synthetic-id",
+        "title": "synthetic-title",
+        "summary": "synthetic-summary",
+        "prerequisites": "synthetic-prerequisites",
+        "steps": [
+          "synthetic-steps-item"
+        ],
+        "outcome": "synthetic-outcome",
+        "recovery": "synthetic-recovery",
+        "keywords": "synthetic-keywords",
+        "page": "synthetic-page",
+        "href": "synthetic-href",
+        "source": "synthetic-source",
+        "version": 1,
+        "status": "published",
+        "reviewedAt": "2030-01-15T10:00:00.000Z"
+      }
+    ],
+    "guides": [
+      {
+        "id": "synthetic-id",
+        "title": "synthetic-title",
+        "version": 1,
+        "articleId": "synthetic-articleid",
+        "page": "synthetic-page",
+        "href": "synthetic-href",
+        "steps": [
+          {
+            "id": "synthetic-id",
+            "target": "parts-search",
+            "text": "synthetic-text",
+            "event": "input"
+          }
+        ]
+      }
+    ],
+    "scenarios": [
+      {
+        "id": "synthetic-id",
+        "title": "synthetic-title",
+        "version": 1,
+        "articleId": "synthetic-articleid",
+        "objective": "synthetic-objective"
+      }
+    ]
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current session required; 403 Current assurance/access unavailable; 404 Disabled, unpublished or unavailable; no restricted existence disclosure; 422 Invalid query or definition ID; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/public/learning/articles/{id}`
+
+- Operation ID: `getPublicLearningArticlesById`
+- Purpose: Read-only versioned learning content. Catalogue q matches eligible articles, guides and practice separately using task synonyms and their eligible parent article context. Public routes always omit restricted titles, bodies, guides and fixtures. Protected reads resolve current identity, MFA and effective assignments server-side; client roles/owner IDs are not accepted. All responses are private/no-store and vary by Cookie. No AI, account lookup, progress mutation or training/live operational writes. Read eligible articles. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: PUBLIC
+- Authentication: None
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `id` | path | string | Yes | Identifier selecting the id resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Read eligible articles",
+  "data": {
+    "id": "synthetic-id",
+    "title": "synthetic-title",
+    "summary": "synthetic-summary",
+    "prerequisites": "synthetic-prerequisites",
+    "steps": [
+      "synthetic-steps-item"
+    ],
+    "outcome": "synthetic-outcome",
+    "recovery": "synthetic-recovery",
+    "keywords": "synthetic-keywords",
+    "page": "synthetic-page",
+    "href": "synthetic-href",
+    "source": "synthetic-source",
+    "version": 1,
+    "status": "published",
+    "reviewedAt": "2030-01-15T10:00:00.000Z"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current session required; 403 Current assurance/access unavailable; 404 Disabled, unpublished or unavailable; no restricted existence disclosure; 422 Invalid query or definition ID; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/public/learning/guides/{id}`
+
+- Operation ID: `getPublicLearningGuidesById`
+- Purpose: Read-only versioned learning content. Catalogue q matches eligible articles, guides and practice separately using task synonyms and their eligible parent article context. Public routes always omit restricted titles, bodies, guides and fixtures. Protected reads resolve current identity, MFA and effective assignments server-side; client roles/owner IDs are not accepted. All responses are private/no-store and vary by Cookie. No AI, account lookup, progress mutation or training/live operational writes. Read eligible guides. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: PUBLIC
+- Authentication: None
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `id` | path | string | Yes | Identifier selecting the id resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Read eligible guides",
+  "data": {
+    "id": "synthetic-id",
+    "title": "synthetic-title",
+    "version": 1,
+    "articleId": "synthetic-articleid",
+    "page": "synthetic-page",
+    "href": "synthetic-href",
+    "steps": [
+      {
+        "id": "synthetic-id",
+        "target": "parts-search",
+        "text": "synthetic-text",
+        "event": "input"
+      }
+    ]
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current session required; 403 Current assurance/access unavailable; 404 Disabled, unpublished or unavailable; no restricted existence disclosure; 422 Invalid query or definition ID; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/public/learning/scenarios/{id}`
+
+- Operation ID: `getPublicLearningScenariosById`
+- Purpose: Read-only versioned learning content. Catalogue q matches eligible articles, guides and practice separately using task synonyms and their eligible parent article context. Public routes always omit restricted titles, bodies, guides and fixtures. Protected reads resolve current identity, MFA and effective assignments server-side; client roles/owner IDs are not accepted. All responses are private/no-store and vary by Cookie. No AI, account lookup, progress mutation or training/live operational writes. Read eligible scenarios. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: PUBLIC
+- Authentication: None
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `id` | path | string | Yes | Identifier selecting the id resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Read eligible scenarios",
+  "data": {
+    "id": "synthetic-id",
+    "title": "synthetic-title",
+    "version": 1,
+    "articleId": "synthetic-articleid",
+    "objective": "synthetic-objective",
+    "kind": "fitment",
+    "fields": [
+      {
+        "id": "synthetic-id",
+        "label": "synthetic-label",
+        "example": "synthetic-example",
+        "min": 1,
+        "max": 1,
+        "options": [
+          "synthetic-options-item"
+        ],
+        "dependsOn": "synthetic-dependson"
+      }
+    ],
+    "choices": [
+      {
+        "id": "synthetic-id",
+        "label": "synthetic-label",
+        "feedback": "synthetic-feedback"
+      }
+    ],
+    "expected": "synthetic-expected",
+    "outcome": "synthetic-outcome",
+    "liveHref": "synthetic-livehref"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current session required; 403 Current assurance/access unavailable; 404 Disabled, unpublished or unavailable; no restricted existence disclosure; 422 Invalid query or definition ID; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
 ### GET `/public/media/images/{imageId}`
 
 - Operation ID: `getPublicMediaImagesByImageId`
@@ -200,10 +886,52 @@ Success: HTTP 200.
 
 Relevant errors: 400 The request is malformed.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
+### GET `/public/catalog/products/options`
+
+- Operation ID: `getPublicCatalogProductsOptions`
+- Purpose: Bounded public brand/family/product-type/recorded oil grade/pack-volume choices. scope is a URLSearchParams-encoded validated product-discovery query (maximum 6000 characters); sort, paging and page size are excluded. All active publication/category/availability/fitment/price/search constraints apply, except the requested facet is relaxed. Family also relaxes dependent condition/classification/type/oil fields. Brand case/whitespace variants share a normalized key with a recorded display label. No page-derived counts are returned. Options are ordered by their stable stored value (numeric volume); authenticated cursors bind complete scope/field/prefix state. Old /facets remains compatible. Unknown specifications do not become choices or approvals. Published product choices within the applied search scope. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: PUBLIC
+- Authentication: None
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `field` | query | brand / family / productType / oilViscosityGrade / packVolumeMl | Yes | Field used to constrain this request. |
+| `scope` | query | string | No | Scope used to constrain this request. |
+| `search` | query | string | No | Search used to constrain this request. |
+| `cursor` | query | string | No | Opaque cursor returned by the preceding page. |
+| `limit` | query | string | No | Maximum number of records to return, bounded by the API. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Published product choices within the applied search scope",
+  "data": {
+    "items": [
+      {
+        "value": "synthetic-value",
+        "label": "synthetic-label"
+      }
+    ],
+    "nextCursor": "synthetic-nextcursor"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
 ### GET `/public/catalog/products/discovery`
 
 - Operation ID: `getPublicCatalogProductsDiscovery`
-- Purpose: Anonymous. Active products in active categories only. Existing product filters retain literal case-insensitive exact brand/make/model matching, inclusive compatibility year bounds on the same compatibility row, and literal substring search across name, SKU, brand and manufacturer part number. minPriceKobo/maxPriceKobo are inclusive integer kobo (0-9999999999999999); availability=in_stock means at least one active branch has quantity greater than reserved, out_of_stock is its complement, including products with no inventory. No raw stock quantities are exposed. Maximum 50/default 20. totalMatches counts the filtered dataset before the cursor in the same repeatable-read transaction as the page. Sort and all filters are bound into authenticated cursors; page size may change. Deleted/unpublished anchors remain usable. Legacy UUID anchors require a currently visible matching product. Invalid/tampered/mismatched cursors return 422 VALIDATION_FAILED; restart from page one. Sort ties use ID; no cross-request snapshot/cache is promised. Price, name, stock or visibility edits can move products between reads. Existing /public/catalog/products remains supported. Search public products with exact totals and stable paging. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Anonymous. Active products in active categories with active parents only. Normalized vehicleModelId plus year (1886-2200), optional matching vehicleMakeId and technical qualifiers use approved inclusion evidence before counts and paging. fitment=verified requires a full technical match and no possible approved exclusion; make/model/year alone are candidates. verifiedMatches counts genuine verified results in the same repeatable-read snapshot. Legacy literal make/model filters remain available but expose only approved inclusion rules. Filters include condition (NEW/USED/REFURBISHED), classification (GENUINE_OEM/AFTERMARKET), stored productType, categoryId and parentCategoryId (direct subcategories), plus literal substring search across name, SKU, brand and manufacturer part number. minPriceKobo/maxPriceKobo are inclusive integer kobo (0-9999999999999999); availability=in_stock means at least one active branch has quantity greater than reserved, out_of_stock is its complement, including products with no inventory. No raw stock quantities are exposed. Maximum 50/default 20. totalMatches counts the filtered dataset before the cursor in the same repeatable-read transaction as the page. Sort and all filters are bound into authenticated cursors; page size may change. Deleted/unpublished anchors remain usable. Legacy UUID anchors require a currently visible matching product. Invalid/tampered/mismatched cursors return 422 VALIDATION_FAILED; restart from page one. Sort ties use ID; no cross-request snapshot/cache is promised. Price, name, stock or visibility edits can move products between reads. Existing /public/catalog/products remains supported. Search public products with exact totals and stable paging. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: PUBLIC
 - Authentication: None
 - CSRF: Not required
@@ -216,13 +944,33 @@ Parameters:
 | `cursor` | query | object | No | Opaque cursor returned by the preceding page. |
 | `limit` | query | string | No | Maximum number of records to return, bounded by the API. |
 | `categoryId` | query | string (uuid) | No | Category Id used to constrain this request. |
+| `parentCategoryId` | query | string (uuid) | No | Parent Category Id used to constrain this request. |
+| `condition` | query | NEW / USED / REFURBISHED | No | Condition used to constrain this request. |
+| `classification` | query | GENUINE_OEM / AFTERMARKET | No | Classification used to constrain this request. |
+| `productType` | query | string | No | Product Type used to constrain this request. |
+| `family` | query | REPLACEMENT_PART / ENGINE_OIL | No | Family used to constrain this request. |
+| `oilViscosityGrade` | query | string | No | Oil Viscosity Grade used to constrain this request. |
+| `packVolumeMl` | query | integer | No | Pack Volume Ml used to constrain this request. |
+| `vehicleMakeId` | query | string (uuid) | No | Vehicle Make Id used to constrain this request. |
+| `vehicleModelId` | query | string (uuid) | No | Vehicle Model Id used to constrain this request. |
+| `fitment` | query | candidates / verified | No | Fitment used to constrain this request. |
+| `trim` | query | string | No | Trim used to constrain this request. |
+| `engineCode` | query | string | No | Engine Code used to constrain this request. |
+| `market` | query | string | No | Market used to constrain this request. |
+| `position` | query | string | No | Position used to constrain this request. |
+| `brakeSystem` | query | string | No | Brake System used to constrain this request. |
+| `brakeDiameterMm` | query | string | No | Brake Diameter Mm used to constrain this request. |
+| `bodyType` | query | string | No | Body Type used to constrain this request. |
+| `transmission` | query | string | No | Transmission used to constrain this request. |
+| `generation` | query | string | No | Generation used to constrain this request. |
+| `chassisCode` | query | string | No | Chassis Code used to constrain this request. |
 | `brand` | query | string | No | Brand used to constrain this request. |
 | `search` | query | string | No | Search used to constrain this request. |
 | `make` | query | string | No | Make used to constrain this request. |
 | `model` | query | string | No | Model used to constrain this request. |
 | `year` | query | string | No | Year used to constrain this request. |
 | `featured` | query | true / false | No | Featured used to constrain this request. |
-| `sort` | query | newest / name / price_asc / price_desc | No | Sort used to constrain this request. |
+| `sort` | query | best_match / newest / name / price_asc / price_desc | No | Sort used to constrain this request. |
 | `minPriceKobo` | query | string | No | Min Price Kobo used to constrain this request. |
 | `maxPriceKobo` | query | string | No | Max Price Kobo used to constrain this request. |
 | `availability` | query | in_stock / out_of_stock | No | Availability used to constrain this request. |
@@ -256,6 +1004,7 @@ Success: HTTP 200.
           "name": "synthetic-name",
           "slug": "synthetic-slug",
           "description": "synthetic-description",
+          "parentId": "00000000-0000-4000-8000-000000000001",
           "isActive": true,
           "createdAt": "2030-01-15T10:00:00.000Z",
           "updatedAt": "2030-01-15T10:00:00.000Z"
@@ -280,7 +1029,21 @@ Success: HTTP 200.
             "model": "synthetic-model",
             "yearFrom": "synthetic-yearfrom",
             "yearTo": "synthetic-yearto",
-            "notes": "synthetic-notes"
+            "notes": "synthetic-notes",
+            "scope": "MODEL",
+            "requiredQualifiers": [
+              "trim"
+            ],
+            "trim": "synthetic-trim",
+            "engineCode": "synthetic-enginecode",
+            "market": "synthetic-market",
+            "position": "synthetic-position",
+            "brakeSystem": "synthetic-brakesystem",
+            "brakeDiameterMm": "synthetic-brakediametermm",
+            "bodyType": "synthetic-bodytype",
+            "transmission": "synthetic-transmission",
+            "generation": "synthetic-generation",
+            "chassisCode": "synthetic-chassiscode"
           }
         ],
         "availability": [
@@ -296,7 +1059,8 @@ Success: HTTP 200.
       }
     ],
     "nextCursor": "synthetic-nextcursor",
-    "totalMatches": 0
+    "totalMatches": 0,
+    "verifiedMatches": 0
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -364,6 +1128,9 @@ Parameters:
 | --- | --- | --- | --- | --- |
 | `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
 | `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+| `rootOnly` | query | true / false | No | Root Only used to constrain this request. |
+| `parentId` | query | string (uuid) | No | Parent Id used to constrain this request. |
+| `search` | query | string | No | Search used to constrain this request. |
 
 Success: HTTP 200.
 
@@ -437,6 +1204,26 @@ Parameters:
 | `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
 | `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
 | `categoryId` | query | string (uuid) | No | Category Id used to constrain this request. |
+| `parentCategoryId` | query | string (uuid) | No | Parent Category Id used to constrain this request. |
+| `condition` | query | NEW / USED / REFURBISHED | No | Condition used to constrain this request. |
+| `classification` | query | GENUINE_OEM / AFTERMARKET | No | Classification used to constrain this request. |
+| `productType` | query | string | No | Product Type used to constrain this request. |
+| `family` | query | REPLACEMENT_PART / ENGINE_OIL | No | Family used to constrain this request. |
+| `oilViscosityGrade` | query | string | No | Oil Viscosity Grade used to constrain this request. |
+| `packVolumeMl` | query | integer | No | Pack Volume Ml used to constrain this request. |
+| `vehicleMakeId` | query | string (uuid) | No | Vehicle Make Id used to constrain this request. |
+| `vehicleModelId` | query | string (uuid) | No | Vehicle Model Id used to constrain this request. |
+| `fitment` | query | candidates / verified | No | Fitment used to constrain this request. |
+| `trim` | query | string | No | Trim used to constrain this request. |
+| `engineCode` | query | string | No | Engine Code used to constrain this request. |
+| `market` | query | string | No | Market used to constrain this request. |
+| `position` | query | string | No | Position used to constrain this request. |
+| `brakeSystem` | query | string | No | Brake System used to constrain this request. |
+| `brakeDiameterMm` | query | string | No | Brake Diameter Mm used to constrain this request. |
+| `bodyType` | query | string | No | Body Type used to constrain this request. |
+| `transmission` | query | string | No | Transmission used to constrain this request. |
+| `generation` | query | string | No | Generation used to constrain this request. |
+| `chassisCode` | query | string | No | Chassis Code used to constrain this request. |
 | `brand` | query | string | No | Brand used to constrain this request. |
 | `search` | query | string | No | Search used to constrain this request. |
 | `make` | query | string | No | Make used to constrain this request. |
@@ -474,6 +1261,7 @@ Success: HTTP 200.
           "name": "synthetic-name",
           "slug": "synthetic-slug",
           "description": "synthetic-description",
+          "parentId": "00000000-0000-4000-8000-000000000001",
           "isActive": true,
           "createdAt": "2030-01-15T10:00:00.000Z",
           "updatedAt": "2030-01-15T10:00:00.000Z"
@@ -498,7 +1286,21 @@ Success: HTTP 200.
             "model": "synthetic-model",
             "yearFrom": "synthetic-yearfrom",
             "yearTo": "synthetic-yearto",
-            "notes": "synthetic-notes"
+            "notes": "synthetic-notes",
+            "scope": "MODEL",
+            "requiredQualifiers": [
+              "trim"
+            ],
+            "trim": "synthetic-trim",
+            "engineCode": "synthetic-enginecode",
+            "market": "synthetic-market",
+            "position": "synthetic-position",
+            "brakeSystem": "synthetic-brakesystem",
+            "brakeDiameterMm": "synthetic-brakediametermm",
+            "bodyType": "synthetic-bodytype",
+            "transmission": "synthetic-transmission",
+            "generation": "synthetic-generation",
+            "chassisCode": "synthetic-chassiscode"
           }
         ],
         "availability": [
@@ -565,6 +1367,7 @@ Success: HTTP 200.
       "name": "synthetic-name",
       "slug": "synthetic-slug",
       "description": "synthetic-description",
+      "parentId": "00000000-0000-4000-8000-000000000001",
       "isActive": true,
       "createdAt": "2030-01-15T10:00:00.000Z",
       "updatedAt": "2030-01-15T10:00:00.000Z"
@@ -589,7 +1392,21 @@ Success: HTTP 200.
         "model": "synthetic-model",
         "yearFrom": "synthetic-yearfrom",
         "yearTo": "synthetic-yearto",
-        "notes": "synthetic-notes"
+        "notes": "synthetic-notes",
+        "scope": "MODEL",
+        "requiredQualifiers": [
+          "trim"
+        ],
+        "trim": "synthetic-trim",
+        "engineCode": "synthetic-enginecode",
+        "market": "synthetic-market",
+        "position": "synthetic-position",
+        "brakeSystem": "synthetic-brakesystem",
+        "brakeDiameterMm": "synthetic-brakediametermm",
+        "bodyType": "synthetic-bodytype",
+        "transmission": "synthetic-transmission",
+        "generation": "synthetic-generation",
+        "chassisCode": "synthetic-chassiscode"
       }
     ],
     "availability": [
@@ -970,13 +1787,31 @@ Parameters:
 | `make` | query | string | No | Make used to constrain this request. |
 | `model` | query | string | No | Model used to constrain this request. |
 | `year` | query | string | No | Year used to constrain this request. |
+| `trim` | query | string | No | Trim used to constrain this request. |
+| `condition` | query | NEW / USED / FOREIGN_USED / LOCALLY_USED | No | Condition used to constrain this request. |
+| `conditions` | query | string | No | Comma-separated distinct choices: NEW, USED, FOREIGN_USED, LOCALLY_USED. Matches any selected choice; do not combine with the singular filter. |
+| `powertrains` | query | string | No | Comma-separated distinct choices: BEV, HEV, PHEV, ICE. Matches any selected choice; do not combine with the singular filter. |
+| `manufactureCountryCode` | query | string | No | Manufacture Country Code used to constrain this request. |
+| `manufactureRegion` | query | EUROPE | No | Manufacture Region used to constrain this request. |
+| `powertrain` | query | BEV / HEV / PHEV / ICE | No | Powertrain used to constrain this request. |
+| `driveType` | query | FWD / RWD / AWD / FOUR_WD / OTHER | No | Drive Type used to constrain this request. |
+| `minYear` | query | string | No | Min Year used to constrain this request. |
+| `maxYear` | query | string | No | Max Year used to constrain this request. |
+| `minMileageKm` | query | string | No | Min Mileage Km used to constrain this request. |
+| `maxMileageKm` | query | string | No | Max Mileage Km used to constrain this request. |
+| `minEngineCapacityCc` | query | string | No | Min Engine Capacity Cc used to constrain this request. |
+| `maxEngineCapacityCc` | query | string | No | Max Engine Capacity Cc used to constrain this request. |
+| `seats` | query | string | No | Seats used to constrain this request. |
+| `color` | query | string | No | Color used to constrain this request. |
+| `feature` | query | string | No | Feature used to constrain this request. |
+| `inspected` | query | true / false | No | Inspected used to constrain this request. |
 | `bodyType` | query | SEDAN / SUV / COUPE / HATCHBACK / WAGON / PICKUP / VAN / TRUCK / BUS / OTHER | No | Body Type used to constrain this request. |
 | `transmission` | query | AUTOMATIC / MANUAL / CVT / OTHER | No | Transmission used to constrain this request. |
 | `fuelType` | query | PETROL / DIESEL / HYBRID / ELECTRIC / OTHER | No | Fuel Type used to constrain this request. |
 | `featured` | query | true / false | No | Featured used to constrain this request. |
-| `minPriceKobo` | query | string | No | Min Price Kobo used to constrain this request. |
-| `maxPriceKobo` | query | string | No | Max Price Kobo used to constrain this request. |
-| `sort` | query | newest / price_asc / price_desc / year_desc | No | Sort used to constrain this request. |
+| `minPriceKobo` | query | object | No | Min Price Kobo used to constrain this request. |
+| `maxPriceKobo` | query | object | No | Max Price Kobo used to constrain this request. |
+| `sort` | query | best_match / newest / price_asc / price_desc / year_desc / year_asc / mileage_asc / mileage_desc | No | Sort used to constrain this request. |
 
 Success: HTTP 200.
 
@@ -1117,13 +1952,31 @@ Parameters:
 | `make` | query | string | No | Make used to constrain this request. |
 | `model` | query | string | No | Model used to constrain this request. |
 | `year` | query | integer | No | Year used to constrain this request. |
+| `trim` | query | string | No | Trim used to constrain this request. |
+| `condition` | query | NEW / USED / FOREIGN_USED / LOCALLY_USED | No | Condition used to constrain this request. |
+| `conditions` | query | string | No | Comma-separated distinct choices: NEW, USED, FOREIGN_USED, LOCALLY_USED. Matches any selected choice; do not combine with the singular filter. |
+| `powertrains` | query | string | No | Comma-separated distinct choices: BEV, HEV, PHEV, ICE. Matches any selected choice; do not combine with the singular filter. |
+| `manufactureCountryCode` | query | string | No | Manufacture Country Code used to constrain this request. |
+| `manufactureRegion` | query | EUROPE | No | Manufacture Region used to constrain this request. |
+| `powertrain` | query | BEV / HEV / PHEV / ICE | No | Powertrain used to constrain this request. |
+| `driveType` | query | FWD / RWD / AWD / FOUR_WD / OTHER | No | Drive Type used to constrain this request. |
+| `minYear` | query | string | No | Min Year used to constrain this request. |
+| `maxYear` | query | string | No | Max Year used to constrain this request. |
+| `minMileageKm` | query | string | No | Min Mileage Km used to constrain this request. |
+| `maxMileageKm` | query | string | No | Max Mileage Km used to constrain this request. |
+| `minEngineCapacityCc` | query | string | No | Min Engine Capacity Cc used to constrain this request. |
+| `maxEngineCapacityCc` | query | string | No | Max Engine Capacity Cc used to constrain this request. |
+| `seats` | query | string | No | Seats used to constrain this request. |
+| `color` | query | string | No | Color used to constrain this request. |
+| `feature` | query | string | No | Feature used to constrain this request. |
+| `inspected` | query | true / false | No | Inspected used to constrain this request. |
 | `bodyType` | query | SEDAN / SUV / COUPE / HATCHBACK / WAGON / PICKUP / VAN / TRUCK / BUS / OTHER | No | Body Type used to constrain this request. |
 | `transmission` | query | AUTOMATIC / MANUAL / CVT / OTHER | No | Transmission used to constrain this request. |
 | `fuelType` | query | PETROL / DIESEL / HYBRID / ELECTRIC / OTHER | No | Fuel Type used to constrain this request. |
 | `featured` | query | true / false | No | Featured used to constrain this request. |
-| `minPriceKobo` | query | string | No | Min Price Kobo used to constrain this request. |
-| `maxPriceKobo` | query | string | No | Max Price Kobo used to constrain this request. |
-| `sort` | query | newest / price_asc / price_desc / year_desc | No | Sort used to constrain this request. |
+| `minPriceKobo` | query | object | No | Min Price Kobo used to constrain this request. |
+| `maxPriceKobo` | query | object | No | Max Price Kobo used to constrain this request. |
+| `sort` | query | newest / price_asc / price_desc / year_desc / year_asc / mileage_asc / mileage_desc | No | Sort used to constrain this request. |
 
 Success: HTTP 200.
 
@@ -1205,6 +2058,217 @@ Success: HTTP 200.
 Binary image/webp bytes (no JSON envelope).
 
 Relevant errors: 400 The request is malformed.; 404 NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.; 409 STALE_VERSION, MEDIA_COUNT_LIMIT, MEDIA_LAST_PUBLISHED_IMAGE or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body.; 422 VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.
+
+### GET `/public/fitment/makes`
+
+- Operation ID: `getPublicFitmentMakes`
+- Purpose: Make/model/year identifies candidates only. Exact fit requires approved evidence, matching required technical qualifiers and no possible approved exclusion. Public reads omit draft/rejected rules. Staff requests revalidate current MFA, assignment and branch scope in a transaction. Sales/Operations author; Workshop/Quality or the owner review; authors and last editors cannot approve their own rules. Mutations record immutable version history. Stale versions and duplicate semantic rules conflict. Legacy rules remain draft until normalized and reviewed. No sale stock, checkout, inventory quantities or workflow completion is changed. Vehicle catalogue and reviewed parts fitment: makes. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: PUBLIC
+- Authentication: None
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `search` | query | string | No | Search used to constrain this request. |
+| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
+| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Vehicle catalogue and reviewed parts fitment: makes",
+  "data": {
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "name": "synthetic-name"
+      }
+    ],
+    "nextCursor": "00000000-0000-4000-8000-000000000001"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Authentication required for staff routes; 403 Current MFA, branch or responsibility does not permit this action; 404 Record is unavailable in this scope; 409 Stale version, duplicate rule or invalid review transition; 422 Invalid fields, vehicle relationship or incomplete evidence; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/public/fitment/models`
+
+- Operation ID: `getPublicFitmentModels`
+- Purpose: Make/model/year identifies candidates only. Exact fit requires approved evidence, matching required technical qualifiers and no possible approved exclusion. Public reads omit draft/rejected rules. Staff requests revalidate current MFA, assignment and branch scope in a transaction. Sales/Operations author; Workshop/Quality or the owner review; authors and last editors cannot approve their own rules. Mutations record immutable version history. Stale versions and duplicate semantic rules conflict. Legacy rules remain draft until normalized and reviewed. No sale stock, checkout, inventory quantities or workflow completion is changed. Vehicle catalogue and reviewed parts fitment: models. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: PUBLIC
+- Authentication: None
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `makeId` | query | string (uuid) | Yes | Make Id used to constrain this request. |
+| `search` | query | string | No | Search used to constrain this request. |
+| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
+| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Vehicle catalogue and reviewed parts fitment: models",
+  "data": {
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "name": "synthetic-name",
+        "makeId": "00000000-0000-4000-8000-000000000001",
+        "yearFrom": 1,
+        "yearTo": 1
+      }
+    ],
+    "nextCursor": "00000000-0000-4000-8000-000000000001"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Authentication required for staff routes; 403 Current MFA, branch or responsibility does not permit this action; 404 Record is unavailable in this scope; 409 Stale version, duplicate rule or invalid review transition; 422 Invalid fields, vehicle relationship or incomplete evidence; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/public/fitment/models/{modelId}`
+
+- Operation ID: `getPublicFitmentModelsByModelId`
+- Purpose: Make/model/year identifies candidates only. Exact fit requires approved evidence, matching required technical qualifiers and no possible approved exclusion. Public reads omit draft/rejected rules. Staff requests revalidate current MFA, assignment and branch scope in a transaction. Sales/Operations author; Workshop/Quality or the owner review; authors and last editors cannot approve their own rules. Mutations record immutable version history. Stale versions and duplicate semantic rules conflict. Legacy rules remain draft until normalized and reviewed. No sale stock, checkout, inventory quantities or workflow completion is changed. Vehicle catalogue and reviewed parts fitment: model. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: PUBLIC
+- Authentication: None
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `modelId` | path | string (uuid) | Yes | Identifier selecting the model resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Vehicle catalogue and reviewed parts fitment: model",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "name": "synthetic-name",
+    "makeId": "00000000-0000-4000-8000-000000000001",
+    "yearFrom": 1,
+    "yearTo": 1,
+    "make": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "name": "synthetic-name"
+    }
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Authentication required for staff routes; 403 Current MFA, branch or responsibility does not permit this action; 404 Record is unavailable in this scope; 409 Stale version, duplicate rule or invalid review transition; 422 Invalid fields, vehicle relationship or incomplete evidence; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/public/fitment/years`
+
+- Operation ID: `getPublicFitmentYears`
+- Purpose: Make/model/year identifies candidates only. Exact fit requires approved evidence, matching required technical qualifiers and no possible approved exclusion. Public reads omit draft/rejected rules. Staff requests revalidate current MFA, assignment and branch scope in a transaction. Sales/Operations author; Workshop/Quality or the owner review; authors and last editors cannot approve their own rules. Mutations record immutable version history. Stale versions and duplicate semantic rules conflict. Legacy rules remain draft until normalized and reviewed. No sale stock, checkout, inventory quantities or workflow completion is changed. Vehicle catalogue and reviewed parts fitment: years. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: PUBLIC
+- Authentication: None
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `modelId` | query | string (uuid) | Yes | Model Id used to constrain this request. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Vehicle catalogue and reviewed parts fitment: years",
+  "data": {
+    "years": [
+      1
+    ]
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Authentication required for staff routes; 403 Current MFA, branch or responsibility does not permit this action; 404 Record is unavailable in this scope; 409 Stale version, duplicate rule or invalid review transition; 422 Invalid fields, vehicle relationship or incomplete evidence; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/public/fitment/products/{productId}`
+
+- Operation ID: `getPublicFitmentProductsByProductId`
+- Purpose: Make/model/year identifies candidates only. Exact fit requires approved evidence, matching required technical qualifiers and no possible approved exclusion. Public reads omit draft/rejected rules. Staff requests revalidate current MFA, assignment and branch scope in a transaction. Sales/Operations author; Workshop/Quality or the owner review; authors and last editors cannot approve their own rules. Mutations record immutable version history. Stale versions and duplicate semantic rules conflict. Legacy rules remain draft until normalized and reviewed. No sale stock, checkout, inventory quantities or workflow completion is changed. Vehicle catalogue and reviewed parts fitment: productFitment. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: PUBLIC
+- Authentication: None
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `productId` | path | string (uuid) | Yes | Identifier selecting the product resource. |
+| `vehicleMakeId` | query | string (uuid) | No | Vehicle Make Id used to constrain this request. |
+| `vehicleModelId` | query | string (uuid) | Yes | Vehicle Model Id used to constrain this request. |
+| `year` | query | string | Yes | Year used to constrain this request. |
+| `trim` | query | string | No | Trim used to constrain this request. |
+| `engineCode` | query | string | No | Engine Code used to constrain this request. |
+| `market` | query | string | No | Market used to constrain this request. |
+| `position` | query | string | No | Position used to constrain this request. |
+| `brakeSystem` | query | string | No | Brake System used to constrain this request. |
+| `brakeDiameterMm` | query | string | No | Brake Diameter Mm used to constrain this request. |
+| `bodyType` | query | string | No | Body Type used to constrain this request. |
+| `transmission` | query | string | No | Transmission used to constrain this request. |
+| `generation` | query | string | No | Generation used to constrain this request. |
+| `chassisCode` | query | string | No | Chassis Code used to constrain this request. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Vehicle catalogue and reviewed parts fitment: productFitment",
+  "data": {
+    "status": "VERIFIED_FIT",
+    "scope": "MODEL",
+    "message": "synthetic-message",
+    "missingQualifiers": [
+      "trim"
+    ],
+    "matchedRuleIds": [
+      "00000000-0000-4000-8000-000000000001"
+    ]
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Authentication required for staff routes; 403 Current MFA, branch or responsibility does not permit this action; 404 Record is unavailable in this scope; 409 Stale version, duplicate rule or invalid review transition; 422 Invalid fields, vehicle relationship or incomplete evidence; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/public/support/reviews/{reviewId}/photo`
 
@@ -1290,7 +2354,7 @@ Relevant errors: 400 The request is malformed.; 422 One or more request fields a
 ### POST `/public/support/enquiries`
 
 - Operation ID: `postPublicSupportEnquiries`
-- Purpose: Submit a public enquiry. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Public PRODUCT enquiries may omit productId. VEHICLE accepts vehicleEnquiryIntent LISTING with a current public vehicleListingId, or explicit REQUIREMENTS without a listing. Legacy vehicle requests with a listing normalize to LISTING. Invalid/private references never downgrade to REQUIREMENTS. Listing branch is authoritative; requirements use an explicit active public branch or the sole active branch, otherwise 409 requests a choice. Existing branch/assignment/workforce queue scope applies. Deploy compatible forward migrations and API before enabling handoffs. Other source, validation, rate-limit and submission safeguards remain unchanged. Submit a public enquiry. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: PUBLIC
 - Authentication: None
 - CSRF: Not required
@@ -1382,7 +2446,7 @@ Relevant errors: 400 The request is malformed.; 409 The request conflicts with c
 ### GET `/public/fulfillment-options`
 
 - Operation ID: `getPublicFulfillmentOptions`
-- Purpose: Read collection details and currently effective approved delivery zones without private policy provenance. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Read collection-only ordering availability and collection details. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: PUBLIC
 - Authentication: None
 - CSRF: Not required
@@ -1393,14 +2457,14 @@ Success: HTTP 200.
 ```json
 {
   "success": true,
-  "message": "Read collection details and currently effective approved delivery zones without private policy provenance",
+  "message": "Read collection-only ordering availability and collection details",
   "data": {
     "serverTime": "2030-01-15T10:00:00.000Z",
     "currency": "NGN",
     "checkoutEnabled": true,
     "collection": {
       "enabled": true,
-      "address": "133 Stadium Road, beside Kilimanjaro, Port Harcourt, Rivers State, Nigeria"
+      "address": "133 Stadium Road, beside Kilimanjaro Pizza Jungle Restaurant, Port Harcourt, Rivers State, Nigeria"
     },
     "delivery": {
       "enabled": false,
@@ -1427,7 +2491,7 @@ Relevant errors: 400 The request is malformed.; 422 One or more request fields a
 ### GET `/public/capabilities`
 
 - Operation ID: `getPublicCapabilities`
-- Purpose: Informational only, not transaction authorization or a price quote. Checkout uses fulfillment-options for approved zones. Missing finance is represented by null approvalStatus and disabled checkout; private local/staging draft finance follows the existing finance gate. No private policy provenance is exposed. Refresh on use; responses are no-store. Read effective policy availability and server time. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Informational only, not transaction authorization or a price quote. New orders are collection only; delivery remains disabled even when historical delivery policies exist. Missing finance is represented by null approvalStatus and disabled checkout; private local/staging draft finance follows the existing finance gate. No private policy provenance is exposed. Refresh on use; responses are no-store. Read effective policy availability and server time. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: PUBLIC
 - Authentication: None
 - CSRF: Not required
@@ -1445,7 +2509,7 @@ Success: HTTP 200.
     "checkoutEnabled": true,
     "collection": {
       "enabled": true,
-      "address": "133 Stadium Road, beside Kilimanjaro, Port Harcourt, Rivers State, Nigeria"
+      "address": "133 Stadium Road, beside Kilimanjaro Pizza Jungle Restaurant, Port Harcourt, Rivers State, Nigeria"
     },
     "delivery": {
       "enabled": true
@@ -2582,7 +3646,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### GET `/customers/vehicles`
 
 - Operation ID: `getCustomersVehicles`
-- Purpose: List own customer vehicles. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Owned garage records only; independent of vehicles offered for sale. vehicleModelId explicitly links a real active make/model/year. Names must match that catalogue identity. Unknown legacy names are not automatically linked. Nickname, optional technical qualifiers and isDefault are supported. Defaults serialize per customer and never alter another account. Changing model or year clears implicit old specifications. PATCH accepts expectedUpdatedAt to reject stale edits. defaultOnly=true finds the owned default independently of ordinary list pagination. Removal preserves bookings and clears their vehicle reference; no default replacement is guessed. VIN and registration never enter public parts-search URLs. List own customer vehicles. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: CUSTOMER
 - Authentication: Opaque session cookie
 - CSRF: Not required
@@ -2593,6 +3657,7 @@ Parameters:
 | Parameter | Location | Type | Required | Purpose |
 | --- | --- | --- | --- | --- |
 | `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
+| `defaultOnly` | query | true / false | No | Default Only used to constrain this request. |
 | `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
 
 Success: HTTP 200.
@@ -2602,10 +3667,54 @@ Success: HTTP 200.
   "success": true,
   "message": "List own customer vehicles",
   "data": {
-    "items": [
+    "vehicles": [
       {
+        "nickname": "synthetic-nickname",
+        "isDefault": true,
+        "vehicleModelId": "00000000-0000-4000-8000-000000000001",
+        "vehicleModel": {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "makeId": "00000000-0000-4000-8000-000000000001",
+          "name": "synthetic-name",
+          "yearFrom": 1,
+          "yearTo": 1,
+          "isActive": true,
+          "make": {
+            "id": "00000000-0000-4000-8000-000000000001",
+            "name": "synthetic-name",
+            "isActive": true
+          }
+        },
+        "trim": "synthetic-trim",
+        "engineCode": "synthetic-enginecode",
+        "market": "synthetic-market",
+        "brakeSystem": "synthetic-brakesystem",
+        "brakeDiameterMm": "synthetic-brakediametermm",
+        "bodyType": "synthetic-bodytype",
+        "transmission": "synthetic-transmission",
+        "generation": "synthetic-generation",
+        "chassisCode": "synthetic-chassiscode",
         "id": "00000000-0000-4000-8000-000000000001",
-        "status": "synthetic-status"
+        "make": "synthetic-make",
+        "model": "synthetic-model",
+        "year": 1,
+        "registrationNumber": "synthetic-registrationnumber",
+        "vin": "synthetic-vin",
+        "color": "synthetic-color",
+        "mileageKm": "synthetic-mileagekm",
+        "createdAt": "2030-01-15T10:00:00.000Z",
+        "updatedAt": "2030-01-15T10:00:00.000Z",
+        "images": [
+          {
+            "id": "00000000-0000-4000-8000-000000000001",
+            "url": "https://example.test/continue",
+            "altText": "synthetic-alttext",
+            "sortOrder": 1,
+            "isPrimary": true,
+            "width": 1,
+            "height": 1
+          }
+        ]
       }
     ],
     "nextCursor": "00000000-0000-4000-8000-000000000001"
@@ -2621,7 +3730,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### POST `/customers/vehicles`
 
 - Operation ID: `postCustomersVehicles`
-- Purpose: Create an owned customer vehicle. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: Owned garage records only; independent of vehicles offered for sale. vehicleModelId explicitly links a real active make/model/year. Names must match that catalogue identity. Unknown legacy names are not automatically linked. Nickname, optional technical qualifiers and isDefault are supported. Defaults serialize per customer and never alter another account. Changing model or year clears implicit old specifications. PATCH accepts expectedUpdatedAt to reject stale edits. defaultOnly=true finds the owned default independently of ordinary list pagination. Removal preserves bookings and clears their vehicle reference; no default replacement is guessed. VIN and registration never enter public parts-search URLs. Create an owned customer vehicle. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
 - Roles: CUSTOMER
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -2637,6 +3746,18 @@ JSON request fields:
 
 | Field | Type | Required | Purpose |
 | --- | --- | --- | --- |
+| `nickname` | string / null | No | Nickname validated by this operation's strict request contract. |
+| `isDefault` | boolean | No | Boolean control for is default; authorization is still enforced server-side. |
+| `vehicleModelId` | string / null | No | Identifier of the vehicle model resource; ownership is resolved server-side. |
+| `trim` | string / null | No | Trim validated by this operation's strict request contract. |
+| `engineCode` | string / null | No | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
+| `market` | string / null | No | Market validated by this operation's strict request contract. |
+| `brakeSystem` | string / null | No | Brake System validated by this operation's strict request contract. |
+| `brakeDiameterMm` | string / null | No | Brake Diameter Mm validated by this operation's strict request contract. |
+| `bodyType` | string / null | No | Body Type validated by this operation's strict request contract. |
+| `transmission` | string / null | No | Transmission validated by this operation's strict request contract. |
+| `generation` | string / null | No | Generation validated by this operation's strict request contract. |
+| `chassisCode` | string / null | No | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
 | `make` | string | Yes | Make validated by this operation's strict request contract. |
 | `model` | string | Yes | Model validated by this operation's strict request contract. |
 | `year` | integer | Yes | Year validated by this operation's strict request contract. |
@@ -2651,11 +3772,7 @@ Synthetic request example:
 {
   "make": "synthetic-make",
   "model": "synthetic-model",
-  "year": 1886,
-  "registrationNumber": "synthetic-registrationnumber",
-  "vin": "synthetic-vin",
-  "color": "synthetic-color",
-  "mileageKm": "synthetic-mileagekm"
+  "year": 1886
 }
 ```
 
@@ -2666,8 +3783,41 @@ Success: HTTP 201.
   "success": true,
   "message": "Create an owned customer vehicle",
   "data": {
+    "nickname": "synthetic-nickname",
+    "isDefault": true,
+    "vehicleModelId": "00000000-0000-4000-8000-000000000001",
+    "vehicleModel": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "makeId": "00000000-0000-4000-8000-000000000001",
+      "name": "synthetic-name",
+      "yearFrom": 1,
+      "yearTo": 1,
+      "isActive": true,
+      "make": {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "name": "synthetic-name",
+        "isActive": true
+      }
+    },
+    "trim": "synthetic-trim",
+    "engineCode": "synthetic-enginecode",
+    "market": "synthetic-market",
+    "brakeSystem": "synthetic-brakesystem",
+    "brakeDiameterMm": "synthetic-brakediametermm",
+    "bodyType": "synthetic-bodytype",
+    "transmission": "synthetic-transmission",
+    "generation": "synthetic-generation",
+    "chassisCode": "synthetic-chassiscode",
     "id": "00000000-0000-4000-8000-000000000001",
-    "status": "synthetic-status"
+    "make": "synthetic-make",
+    "model": "synthetic-model",
+    "year": 1,
+    "registrationNumber": "synthetic-registrationnumber",
+    "vin": "synthetic-vin",
+    "color": "synthetic-color",
+    "mileageKm": "synthetic-mileagekm",
+    "createdAt": "2030-01-15T10:00:00.000Z",
+    "updatedAt": "2030-01-15T10:00:00.000Z"
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -2680,7 +3830,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### GET `/customers/vehicles/{vehicleId}`
 
 - Operation ID: `getCustomersVehiclesByVehicleId`
-- Purpose: Get an owned customer vehicle. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Owned garage records only; independent of vehicles offered for sale. vehicleModelId explicitly links a real active make/model/year. Names must match that catalogue identity. Unknown legacy names are not automatically linked. Nickname, optional technical qualifiers and isDefault are supported. Defaults serialize per customer and never alter another account. Changing model or year clears implicit old specifications. PATCH accepts expectedUpdatedAt to reject stale edits. defaultOnly=true finds the owned default independently of ordinary list pagination. Removal preserves bookings and clears their vehicle reference; no default replacement is guessed. VIN and registration never enter public parts-search URLs. Get an owned customer vehicle. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: CUSTOMER
 - Authentication: Opaque session cookie
 - CSRF: Not required
@@ -2699,6 +3849,31 @@ Success: HTTP 200.
   "success": true,
   "message": "Get an owned customer vehicle",
   "data": {
+    "nickname": "synthetic-nickname",
+    "isDefault": true,
+    "vehicleModelId": "00000000-0000-4000-8000-000000000001",
+    "vehicleModel": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "makeId": "00000000-0000-4000-8000-000000000001",
+      "name": "synthetic-name",
+      "yearFrom": 1,
+      "yearTo": 1,
+      "isActive": true,
+      "make": {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "name": "synthetic-name",
+        "isActive": true
+      }
+    },
+    "trim": "synthetic-trim",
+    "engineCode": "synthetic-enginecode",
+    "market": "synthetic-market",
+    "brakeSystem": "synthetic-brakesystem",
+    "brakeDiameterMm": "synthetic-brakediametermm",
+    "bodyType": "synthetic-bodytype",
+    "transmission": "synthetic-transmission",
+    "generation": "synthetic-generation",
+    "chassisCode": "synthetic-chassiscode",
     "id": "00000000-0000-4000-8000-000000000001",
     "make": "synthetic-make",
     "model": "synthetic-model",
@@ -2733,7 +3908,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### PATCH `/customers/vehicles/{vehicleId}`
 
 - Operation ID: `patchCustomersVehiclesByVehicleId`
-- Purpose: Update an owned customer vehicle. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: Owned garage records only; independent of vehicles offered for sale. vehicleModelId explicitly links a real active make/model/year. Names must match that catalogue identity. Unknown legacy names are not automatically linked. Nickname, optional technical qualifiers and isDefault are supported. Defaults serialize per customer and never alter another account. Changing model or year clears implicit old specifications. PATCH accepts expectedUpdatedAt to reject stale edits. defaultOnly=true finds the owned default independently of ordinary list pagination. Removal preserves bookings and clears their vehicle reference; no default replacement is guessed. VIN and registration never enter public parts-search URLs. Update an owned customer vehicle. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
 - Roles: CUSTOMER
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -2750,6 +3925,19 @@ JSON request fields:
 
 | Field | Type | Required | Purpose |
 | --- | --- | --- | --- |
+| `nickname` | string / null | No | Nickname validated by this operation's strict request contract. |
+| `isDefault` | boolean | No | Boolean control for is default; authorization is still enforced server-side. |
+| `vehicleModelId` | string / null | No | Identifier of the vehicle model resource; ownership is resolved server-side. |
+| `trim` | string / null | No | Trim validated by this operation's strict request contract. |
+| `engineCode` | string / null | No | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
+| `market` | string / null | No | Market validated by this operation's strict request contract. |
+| `brakeSystem` | string / null | No | Brake System validated by this operation's strict request contract. |
+| `brakeDiameterMm` | string / null | No | Brake Diameter Mm validated by this operation's strict request contract. |
+| `bodyType` | string / null | No | Body Type validated by this operation's strict request contract. |
+| `transmission` | string / null | No | Transmission validated by this operation's strict request contract. |
+| `generation` | string / null | No | Generation validated by this operation's strict request contract. |
+| `chassisCode` | string / null | No | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
+| `expectedUpdatedAt` | string (date-time) | No | ISO 8601 timestamp interpreted and validated by the server. |
 | `make` | string | No | Make validated by this operation's strict request contract. |
 | `model` | string | No | Model validated by this operation's strict request contract. |
 | `year` | integer | No | Year validated by this operation's strict request contract. |
@@ -2761,15 +3949,7 @@ JSON request fields:
 Synthetic request example:
 
 ```json
-{
-  "make": "synthetic-make",
-  "model": "synthetic-model",
-  "year": 1886,
-  "registrationNumber": "synthetic-registrationnumber",
-  "vin": "synthetic-vin",
-  "color": "synthetic-color",
-  "mileageKm": "synthetic-mileagekm"
-}
+{}
 ```
 
 Success: HTTP 200.
@@ -2779,8 +3959,41 @@ Success: HTTP 200.
   "success": true,
   "message": "Update an owned customer vehicle",
   "data": {
+    "nickname": "synthetic-nickname",
+    "isDefault": true,
+    "vehicleModelId": "00000000-0000-4000-8000-000000000001",
+    "vehicleModel": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "makeId": "00000000-0000-4000-8000-000000000001",
+      "name": "synthetic-name",
+      "yearFrom": 1,
+      "yearTo": 1,
+      "isActive": true,
+      "make": {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "name": "synthetic-name",
+        "isActive": true
+      }
+    },
+    "trim": "synthetic-trim",
+    "engineCode": "synthetic-enginecode",
+    "market": "synthetic-market",
+    "brakeSystem": "synthetic-brakesystem",
+    "brakeDiameterMm": "synthetic-brakediametermm",
+    "bodyType": "synthetic-bodytype",
+    "transmission": "synthetic-transmission",
+    "generation": "synthetic-generation",
+    "chassisCode": "synthetic-chassiscode",
     "id": "00000000-0000-4000-8000-000000000001",
-    "status": "synthetic-status"
+    "make": "synthetic-make",
+    "model": "synthetic-model",
+    "year": 1,
+    "registrationNumber": "synthetic-registrationnumber",
+    "vin": "synthetic-vin",
+    "color": "synthetic-color",
+    "mileageKm": "synthetic-mileagekm",
+    "createdAt": "2030-01-15T10:00:00.000Z",
+    "updatedAt": "2030-01-15T10:00:00.000Z"
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -2793,7 +4006,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### DELETE `/customers/vehicles/{vehicleId}`
 
 - Operation ID: `deleteCustomersVehiclesByVehicleId`
-- Purpose: Delete an owned customer vehicle. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: Owned garage records only; independent of vehicles offered for sale. vehicleModelId explicitly links a real active make/model/year. Names must match that catalogue identity. Unknown legacy names are not automatically linked. Nickname, optional technical qualifiers and isDefault are supported. Defaults serialize per customer and never alter another account. Changing model or year clears implicit old specifications. PATCH accepts expectedUpdatedAt to reject stale edits. defaultOnly=true finds the owned default independently of ordinary list pagination. Removal preserves bookings and clears their vehicle reference; no default replacement is guessed. VIN and registration never enter public parts-search URLs. Delete an owned customer vehicle. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
 - Roles: CUSTOMER
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -3404,7 +4617,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### DELETE `/customers/cart`
 
 - Operation ID: `deleteCustomersCart`
-- Purpose: Clear own cart. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: Atomically clears only the reviewed cart items. A changed cart returns 409 without deleting anything; send the item IDs, products, quantities and unit prices from a fresh cart read. Clear own cart. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
 - Roles: CUSTOMER
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -3415,6 +4628,27 @@ Parameters:
 | Parameter | Location | Type | Required | Purpose |
 | --- | --- | --- | --- | --- |
 | `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `expectedItems` | array<object> | Yes | Expected Items validated by this operation's strict request contract. |
+
+Synthetic request example:
+
+```json
+{
+  "expectedItems": [
+    {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "productId": "00000000-0000-4000-8000-000000000001",
+      "quantity": 1,
+      "unitPriceKobo": "300000"
+    }
+  ]
+}
+```
 
 Success: HTTP 200.
 
@@ -3902,9 +5136,8 @@ JSON request fields:
 | Field | Type | Required | Purpose |
 | --- | --- | --- | --- |
 | `branchId` | string (uuid) | Yes | Identifier of the branch resource; ownership is resolved server-side. |
-| `fulfillmentMethod` | COLLECTION / DELIVERY | No | Fulfillment Method validated by this operation's strict request contract. |
+| `fulfillmentMethod` | COLLECTION | No | Fulfillment Method validated by this operation's strict request contract. |
 | `promotionCode` | string | No | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
-| `delivery` | object | No | Delivery validated by this operation's strict request contract. |
 
 Synthetic request example:
 
@@ -3912,16 +5145,7 @@ Synthetic request example:
 {
   "branchId": "00000000-0000-4000-8000-000000000001",
   "fulfillmentMethod": "COLLECTION",
-  "promotionCode": "synthetic-promotioncode",
-  "delivery": {
-    "zoneId": "synthetic-zoneid",
-    "name": "synthetic-name",
-    "phone": "+2348000000000",
-    "address": "synthetic-address",
-    "city": "synthetic-city",
-    "state": "synthetic-state",
-    "country": "Nigeria"
-  }
+  "promotionCode": "synthetic-promotioncode"
 }
 ```
 
@@ -4884,7 +6108,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### GET `/customers/payments`
 
 - Operation ID: `getCustomersPayments`
-- Purpose: Requires the customer account that owns the payment; server verification remains authoritative. List own payments. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Requires the customer account that owns the payment; server verification remains authoritative. Optional vehicleTransactionId filters within the authenticated customer's payments before pagination. A cursor for another customer, target or selected status is rejected. An empty result does not reveal whether a different customer owns the target. List own payments, optionally for one vehicle purchase. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: CUSTOMER
 - Authentication: Opaque session cookie
 - CSRF: Not required
@@ -4896,6 +6120,7 @@ Parameters:
 | --- | --- | --- | --- | --- |
 | `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
 | `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+| `vehicleTransactionId` | query | string (uuid) | No | Vehicle Transaction Id used to constrain this request. |
 | `status` | query | REQUIRES_PAYMENT / PROCESSING / REQUIRES_REVIEW / SUCCEEDED / CANCELLED / EXPIRED | No | Status used to constrain this request. |
 
 Success: HTTP 200.
@@ -4903,7 +6128,7 @@ Success: HTTP 200.
 ```json
 {
   "success": true,
-  "message": "List own payments",
+  "message": "List own payments, optionally for one vehicle purchase",
   "data": {
     "items": [
       {
@@ -5219,6 +6444,290 @@ Success: HTTP 201.
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required provider or database is temporarily unavailable. PROVIDER_UNAVAILABLE when private file storage is unconfigured, unreachable, denied by the provider or exceeds its 20-second verification deadline. Verification shares that deadline across metadata and a bounded 16-byte signature read. Invalid or missing bytes retain the operation's existing validation/conflict response. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Restore storage before retrying an uncommitted upload, and check current state after an uncertain mutation.
 
+### POST `/customers/support/handoff/preview`
+
+- Operation ID: `postCustomersSupportHandoffPreview`
+- Purpose: No operational case/message is created. Customer identity comes from the session. Optional help excerpts must belong to the current customer session, remain eligible/unexpired, and be explicitly selected. Work/guest context is excluded. The keyed ten-minute review binds exact content, target/version, branch and session. No provider call, live availability or automatic transcript attachment. Prepare an exact review of an asynchronous Customer Care handoff. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Supports an optional Idempotency-Key; see the header contract for compatibility, replay and retention rules.
+- Roles: CUSTOMER
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| `idempotency-key` | header | string | No | Unique retry key for this logical mutation. Reuse it only with the identical request. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `target` | object | Yes | Target validated by this operation's strict request contract. |
+| `summary` | string | Yes | Summary validated by this operation's strict request contract. |
+| `excerpts` | object | No | Excerpts validated by this operation's strict request contract. |
+
+Synthetic request example:
+
+```json
+{
+  "target": {
+    "kind": "NEW_ENQUIRY",
+    "branchId": "00000000-0000-4000-8000-000000000001",
+    "subject": "synthetic-subject"
+  },
+  "summary": "synthetic-summary",
+  "excerpts": {
+    "conversationId": "00000000-0000-4000-8000-000000000001",
+    "expectedVersion": 1,
+    "selections": [
+      {
+        "operationId": "00000000-0000-4000-8000-000000000001",
+        "part": "QUESTION"
+      }
+    ]
+  }
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Prepare an exact review of an asynchronous Customer Care handoff",
+  "data": {
+    "target": {
+      "kind": "NEW_ENQUIRY",
+      "id": "00000000-0000-4000-8000-000000000001",
+      "branchId": "00000000-0000-4000-8000-000000000001",
+      "branchName": "synthetic-branchname",
+      "subject": "synthetic-subject",
+      "version": "synthetic-version"
+    },
+    "body": "synthetic-body",
+    "audience": "CUSTOMER_CARE",
+    "mode": "QUEUED",
+    "excerptCount": 0,
+    "review": {
+      "expiresAt": "2030-01-15T10:00:00.000Z",
+      "token": "synthetic-token-value-not-a-real-secret"
+    },
+    "recoveryExpiresAt": "2030-01-15T10:00:00.000Z"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current verified customer session required; 403 Customer identity, trusted origin or CSRF verification failed; 404 Owned current support/help resource unavailable; existence hidden; 409 Changed/expired review, closed case or mismatched/expired operation; 422 Strict bounded payload, consent or excerpt selection invalid; 429 Bounded handoff request limit reached; ordinary Customer Care retained; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### POST `/customers/support/handoff`
+
+- Operation ID: `postCustomersSupportHandoff`
+- Purpose: Creates one General enquiry or adds one public customer message to the explicitly selected owned enquiry/complaint. Session-derived identity, active branch, expected version, current excerpts and exact review are revalidated transactionally. Selected AI context ends after success. Owner/payload-bound operation receipts prevent duplicates and permit replay after transient help expires. Database-aborted conflicts have a bounded five-attempt budget; exhaustion returns the existing 503 error contract, and the customer checks the operation before retrying. Unknown outcomes are never retried automatically. Queued/Saved does not establish email delivery or human reading. Requires compatible backend before frontend exposure; no new schema. Persist an explicitly reviewed customer handoff in canonical support. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
+- Roles: CUSTOMER
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Required in `Idempotency-Key`
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| `idempotency-key` | header | string | Yes | Unique retry key for this logical mutation. Reuse it only with the identical request. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `draft` | object | Yes | Draft validated by this operation's strict request contract. |
+| `review` | object | Yes | Review validated by this operation's strict request contract. |
+| `consent` | true | Yes | Consent validated by this operation's strict request contract. |
+
+Synthetic request example:
+
+```json
+{
+  "draft": {
+    "target": {
+      "kind": "NEW_ENQUIRY",
+      "branchId": "00000000-0000-4000-8000-000000000001",
+      "subject": "synthetic-subject"
+    },
+    "summary": "synthetic-summary",
+    "excerpts": {
+      "conversationId": "00000000-0000-4000-8000-000000000001",
+      "expectedVersion": 1,
+      "selections": [
+        {
+          "operationId": "00000000-0000-4000-8000-000000000001",
+          "part": "QUESTION"
+        }
+      ]
+    }
+  },
+  "review": {
+    "expiresAt": "2030-01-15T10:00:00.000Z",
+    "token": "synthetic-token-value-not-a-real-secret"
+  },
+  "consent": true
+}
+```
+
+Success: HTTP 201.
+
+```json
+{
+  "success": true,
+  "message": "Persist an explicitly reviewed customer handoff in canonical support",
+  "data": {
+    "reference": {
+      "kind": "ENQUIRY",
+      "id": "00000000-0000-4000-8000-000000000001",
+      "branchId": "00000000-0000-4000-8000-000000000001",
+      "messageId": "00000000-0000-4000-8000-000000000001",
+      "createdNew": true
+    },
+    "replayed": true,
+    "state": "SAVED",
+    "mode": "QUEUED"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current verified customer session required; 403 Customer identity, trusted origin or CSRF verification failed; 404 Owned current support/help resource unavailable; existence hidden; 409 Changed/expired review, closed case or mismatched/expired operation; 422 Strict bounded payload, consent or excerpt selection invalid; 429 Bounded handoff request limit reached; ordinary Customer Care retained; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/customers/support/handoff/receipts/{operationKey}`
+
+- Operation ID: `getCustomersSupportHandoffReceiptsByOperationKey`
+- Purpose: The operation key is a non-bearer random identifier. Current customer session and canonical ownership are required; another customer receives 404. Absence does not prove a failed submission. Recovery expires after twenty-four hours; inspect canonical support history afterward. Returns no summary, help transcript, internal note or credential. Recover an owned durable handoff reference without a transcript. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: CUSTOMER
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `operationKey` | path | string | Yes | Identifier selecting the operation key resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Recover an owned durable handoff reference without a transcript",
+  "data": {
+    "reference": {
+      "kind": "ENQUIRY",
+      "id": "00000000-0000-4000-8000-000000000001",
+      "branchId": "00000000-0000-4000-8000-000000000001",
+      "messageId": "00000000-0000-4000-8000-000000000001",
+      "createdNew": true
+    },
+    "replayed": true,
+    "state": "SAVED",
+    "mode": "QUEUED"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current verified customer session required; 403 Customer identity, trusted origin or CSRF verification failed; 404 Owned current support/help resource unavailable; existence hidden; 409 Changed/expired review, closed case or mismatched/expired operation; 422 Strict bounded payload, consent or excerpt selection invalid; 429 Bounded handoff request limit reached; ordinary Customer Care retained; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/customers/support/handoff/drafts/{operationKey}`
+
+- Operation ID: `getCustomersSupportHandoffDraftsByOperationKey`
+- Purpose: When preview included an operation key, its exact draft/review is encrypted for this customer session for at most fifteen minutes, with three active reviews allowed. Current identity and support/help access are rechecked. Stale help text is omitted; the editable summary remains with NEEDS_REVIEW. A saved canonical reference takes precedence. No transcript is stored in the browser or passed to the model. Recover an encrypted short-lived handoff review after reload. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: CUSTOMER
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `operationKey` | path | string | Yes | Identifier selecting the operation key resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Recover an encrypted short-lived handoff review after reload",
+  "data": {
+    "reference": {
+      "kind": "ENQUIRY",
+      "id": "00000000-0000-4000-8000-000000000001",
+      "branchId": "00000000-0000-4000-8000-000000000001",
+      "messageId": "00000000-0000-4000-8000-000000000001",
+      "createdNew": true
+    },
+    "replayed": true,
+    "state": "SAVED",
+    "mode": "QUEUED"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current verified customer session required; 403 Customer identity, trusted origin or CSRF verification failed; 404 Owned current support/help resource unavailable; existence hidden; 409 Changed/expired review, closed case or mismatched/expired operation; 422 Strict bounded payload, consent or excerpt selection invalid; 429 Bounded handoff request limit reached; ordinary Customer Care retained; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### DELETE `/customers/support/handoff/drafts/{operationKey}`
+
+- Operation ID: `deleteCustomersSupportHandoffDraftsByOperationKey`
+- Purpose: Serialises with submission, records a durable cancellation for the operation window and erases only this session's transient draft. A delayed original submission is then denied. If submission already committed, returns its owned saved reference instead; never deletes the canonical case/message. Explicitly cancel/check before creating a replacement review after uncertainty. Cancel an unsaved handoff operation without deleting a support record. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: CUSTOMER
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `operationKey` | path | string | Yes | Identifier selecting the operation key resource. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Cancel an unsaved handoff operation without deleting a support record",
+  "data": {
+    "reference": {
+      "kind": "ENQUIRY",
+      "id": "00000000-0000-4000-8000-000000000001",
+      "branchId": "00000000-0000-4000-8000-000000000001",
+      "messageId": "00000000-0000-4000-8000-000000000001",
+      "createdNew": true
+    },
+    "replayed": true,
+    "state": "SAVED",
+    "mode": "QUEUED"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current verified customer session required; 403 Customer identity, trusted origin or CSRF verification failed; 404 Owned current support/help resource unavailable; existence hidden; 409 Changed/expired review, closed case or mismatched/expired operation; 422 Strict bounded payload, consent or excerpt selection invalid; 429 Bounded handoff request limit reached; ordinary Customer Care retained; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
 ### GET `/customers/support/review-sources`
 
 - Operation ID: `getCustomersSupportReviewSources`
@@ -5266,7 +6775,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### GET `/customers/support/enquiries/{supportId}/messages`
 
 - Operation ID: `getCustomersSupportEnquiriesBySupportIdMessages`
-- Purpose: Poll new customer-visible enquiry chat messages. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Chronological replies, status updates and authorized internal notes. messageId starts inclusively at an entry within this authorized conversation; cursor continues after an entry. Customer reads reject private and foreign anchors. Legacy messages retain their original content without inferred status metadata. Poll new customer-visible enquiry chat messages. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: CUSTOMER
 - Authentication: Opaque session cookie
 - CSRF: Not required
@@ -5277,6 +6786,7 @@ Parameters:
 | Parameter | Location | Type | Required | Purpose |
 | --- | --- | --- | --- | --- |
 | `supportId` | path | string (uuid) | Yes | Identifier selecting the support resource. |
+| `messageId` | query | string (uuid) | No | Message Id used to constrain this request. |
 | `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
 | `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
 
@@ -5287,8 +6797,21 @@ Success: HTTP 200.
   "success": true,
   "message": "Poll new customer-visible enquiry chat messages",
   "data": {
-    "id": "00000000-0000-4000-8000-000000000001",
-    "status": "synthetic-status"
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "authorType": "CUSTOMER",
+        "visibility": "CUSTOMER",
+        "body": "synthetic-body",
+        "createdAt": "2030-01-15T10:00:00.000Z",
+        "kind": "LEGACY",
+        "fromStatus": "synthetic-fromstatus",
+        "toStatus": "synthetic-tostatus"
+      }
+    ],
+    "cursor": "00000000-0000-4000-8000-000000000001",
+    "hasMore": true,
+    "pollAfterMs": 1
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -5336,6 +6859,9 @@ Success: HTTP 201.
   "success": true,
   "message": "Add a customer message to an owned enquiry",
   "data": {
+    "kind": "LEGACY",
+    "fromStatus": "synthetic-fromstatus",
+    "toStatus": "synthetic-tostatus",
     "id": "00000000-0000-4000-8000-000000000001",
     "authorType": "CUSTOMER",
     "visibility": "CUSTOMER",
@@ -5354,7 +6880,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### GET `/customers/support/complaints/{supportId}/messages`
 
 - Operation ID: `getCustomersSupportComplaintsBySupportIdMessages`
-- Purpose: Poll new customer-visible complaint chat messages. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Chronological replies, status updates and authorized internal notes. messageId starts inclusively at an entry within this authorized conversation; cursor continues after an entry. Customer reads reject private and foreign anchors. Legacy messages retain their original content without inferred status metadata. Poll new customer-visible complaint chat messages. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: CUSTOMER
 - Authentication: Opaque session cookie
 - CSRF: Not required
@@ -5365,6 +6891,7 @@ Parameters:
 | Parameter | Location | Type | Required | Purpose |
 | --- | --- | --- | --- | --- |
 | `supportId` | path | string (uuid) | Yes | Identifier selecting the support resource. |
+| `messageId` | query | string (uuid) | No | Message Id used to constrain this request. |
 | `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
 | `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
 
@@ -5375,8 +6902,21 @@ Success: HTTP 200.
   "success": true,
   "message": "Poll new customer-visible complaint chat messages",
   "data": {
-    "id": "00000000-0000-4000-8000-000000000001",
-    "status": "synthetic-status"
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "authorType": "CUSTOMER",
+        "visibility": "CUSTOMER",
+        "body": "synthetic-body",
+        "createdAt": "2030-01-15T10:00:00.000Z",
+        "kind": "LEGACY",
+        "fromStatus": "synthetic-fromstatus",
+        "toStatus": "synthetic-tostatus"
+      }
+    ],
+    "cursor": "00000000-0000-4000-8000-000000000001",
+    "hasMore": true,
+    "pollAfterMs": 1
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -5424,6 +6964,9 @@ Success: HTTP 201.
   "success": true,
   "message": "Add a customer message to an owned complaint",
   "data": {
+    "kind": "LEGACY",
+    "fromStatus": "synthetic-fromstatus",
+    "toStatus": "synthetic-tostatus",
     "id": "00000000-0000-4000-8000-000000000001",
     "authorType": "CUSTOMER",
     "visibility": "CUSTOMER",
@@ -5540,7 +7083,8 @@ Success: HTTP 201.
     "serviceId": "00000000-0000-4000-8000-000000000001",
     "bookingId": "00000000-0000-4000-8000-000000000001",
     "quoteId": "00000000-0000-4000-8000-000000000001",
-    "vehicleListingId": "00000000-0000-4000-8000-000000000001"
+    "vehicleListingId": "00000000-0000-4000-8000-000000000001",
+    "vehicleEnquiryIntent": "LISTING"
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -5864,6 +7408,325 @@ Success: HTTP 201.
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
+### GET `/customers/notifications/attention`
+
+- Operation ID: `getCustomersNotificationsAttention`
+- Purpose: List unread updates with currently authorized targets in one sidebar section. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: CUSTOMER
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `section` | query | /dashboard/bookings / /dashboard/orders / /dashboard/payments / /dashboard/invoices / /dashboard/vehicle-transactions / /dashboard/support / /dashboard/reviews / /admin/bookings / /admin/orders / /admin/payments / /admin/invoices / /admin/vehicle-sales / /admin/support / /admin/refunds / /admin/payment-disputes / /admin/payment-disputes/work / /admin/workforce/jobs / /admin/workforce/bookings / /admin/workforce/orders / /admin/workforce/enquiries / /admin/workforce/complaints / /admin/workforce/finance | Yes | Section used to constrain this request. |
+| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
+| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "List unread updates with currently authorized targets in one sidebar section",
+  "data": {
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "destination": {
+          "section": "synthetic-section",
+          "href": "synthetic-href",
+          "label": "synthetic-label"
+        },
+        "type": "synthetic-type",
+        "category": "synthetic-category",
+        "title": "synthetic-title",
+        "message": "synthetic-message",
+        "resourceType": "synthetic-resourcetype",
+        "resourceId": "synthetic-resourceid",
+        "supportMessageId": "00000000-0000-4000-8000-000000000001",
+        "readAt": "2030-01-15T10:00:00.000Z",
+        "expiresAt": "2030-01-15T10:00:00.000Z",
+        "createdAt": "2030-01-15T10:00:00.000Z"
+      }
+    ],
+    "nextCursor": "00000000-0000-4000-8000-000000000001"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 Target or cursor unavailable; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/customers/notifications/context`
+
+- Operation ID: `getCustomersNotificationsContext`
+- Purpose: Read own unread updates for one currently authorized record without marking them read. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: CUSTOMER
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `resourceType` | query | BOOKING / WORKFORCE_JOB / ORDER / PAYMENT / INVOICE / VEHICLE_TRANSACTION / ENQUIRY / COMPLAINT / REVIEW / REFUND / DISPUTE | Yes | Resource Type used to constrain this request. |
+| `resourceId` | query | string (uuid) | Yes | Resource Id used to constrain this request. |
+| `messageIds` | query | string | No | Message Ids used to constrain this request. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Read own unread updates for one currently authorized record without marking them read",
+  "data": {
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "destination": {
+          "section": "synthetic-section",
+          "href": "synthetic-href",
+          "label": "synthetic-label"
+        },
+        "type": "synthetic-type",
+        "category": "synthetic-category",
+        "title": "synthetic-title",
+        "message": "synthetic-message",
+        "resourceType": "synthetic-resourcetype",
+        "resourceId": "synthetic-resourceid",
+        "supportMessageId": "00000000-0000-4000-8000-000000000001",
+        "readAt": "2030-01-15T10:00:00.000Z",
+        "expiresAt": "2030-01-15T10:00:00.000Z",
+        "createdAt": "2030-01-15T10:00:00.000Z"
+      }
+    ],
+    "hasMore": true
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 Target or cursor unavailable; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### POST `/customers/notifications/read-context`
+
+- Operation ID: `postCustomersNotificationsReadContext`
+- Purpose: Called only after the record and relevant message are displayed. Every supplied ID must belong to this recipient and exact target, be unexpired and still accessible. Repeated calls do not change the original read time. Does not change any business status. Manual individual and bulk read operations remain available. Idempotently acknowledge displayed notifications for one authorized record. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: CUSTOMER
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `resourceType` | BOOKING / WORKFORCE_JOB / ORDER / PAYMENT / INVOICE / VEHICLE_TRANSACTION / ENQUIRY / COMPLAINT / REVIEW / REFUND / DISPUTE | Yes | Resource Type validated by this operation's strict request contract. |
+| `resourceId` | string (uuid) | Yes | Identifier of the resource resource; ownership is resolved server-side. |
+| `notificationIds` | array<string (uuid)> | Yes | Notification Ids validated by this operation's strict request contract. |
+
+Synthetic request example:
+
+```json
+{
+  "resourceType": "BOOKING",
+  "resourceId": "00000000-0000-4000-8000-000000000001",
+  "notificationIds": [
+    "00000000-0000-4000-8000-000000000001"
+  ]
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Idempotently acknowledge displayed notifications for one authorized record",
+  "data": {
+    "updated": "2030-01-15T10:00:00.000Z"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 A supplied notification or its current target is unavailable; no read changes applied; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/customers/notifications/{notificationId}`
+
+- Operation ID: `getCustomersNotificationsByNotificationId`
+- Purpose: Read one owned unexpired notification. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: CUSTOMER
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `notificationId` | path | string (uuid) | Yes | Identifier selecting the notification resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Read one owned unexpired notification",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "destination": {
+      "section": "synthetic-section",
+      "href": "synthetic-href",
+      "label": "synthetic-label"
+    },
+    "type": "synthetic-type",
+    "category": "synthetic-category",
+    "title": "synthetic-title",
+    "message": "synthetic-message",
+    "resourceType": "synthetic-resourcetype",
+    "resourceId": "synthetic-resourceid",
+    "supportMessageId": "00000000-0000-4000-8000-000000000001",
+    "readAt": "2030-01-15T10:00:00.000Z",
+    "expiresAt": "2030-01-15T10:00:00.000Z",
+    "createdAt": "2030-01-15T10:00:00.000Z"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 Notification unavailable; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/customers/notifications/push`
+
+- Operation ID: `getCustomersNotificationsPush`
+- Purpose: Read browser push availability and current session subscription status. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: CUSTOMER
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Read browser push availability and current session subscription status",
+  "data": {
+    "available": true,
+    "publicKey": "synthetic-publickey",
+    "enabled": true,
+    "endpointHashes": [
+      "synthetic-endpointhashes-item"
+    ]
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### PUT `/customers/notifications/push`
+
+- Operation ID: `putCustomersNotificationsPush`
+- Purpose: Opt this session into browser push. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: CUSTOMER
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `endpoint` | string | Yes | Endpoint validated by this operation's strict request contract. |
+| `keys` | object | Yes | Keys validated by this operation's strict request contract. |
+
+Synthetic request example:
+
+```json
+{
+  "endpoint": "synthetic-endpoint",
+  "keys": {
+    "p256dh": "synthetic-p256dh",
+    "auth": "synthetic-auth"
+  }
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Opt this session into browser push",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "status": "synthetic-status"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 Unavailable or endpoint belongs to another account; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### DELETE `/customers/notifications/push`
+
+- Operation ID: `deleteCustomersNotificationsPush`
+- Purpose: Disable browser push for this session only. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: CUSTOMER
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Disable browser push for this session only",
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
 ### GET `/customers/notifications/summary`
 
 - Operation ID: `getCustomersNotificationsSummary`
@@ -5880,6 +7743,14 @@ Success: HTTP 200.
   "success": true,
   "message": "Count all own unexpired unread notifications by related resource",
   "data": {
+    "destinations": [
+      {
+        "section": "synthetic-section",
+        "count": 1,
+        "recordCount": 1,
+        "href": "synthetic-href"
+      }
+    ],
     "unreadCount": 0,
     "groups": [
       {
@@ -5927,7 +7798,21 @@ Success: HTTP 200.
     "items": [
       {
         "id": "00000000-0000-4000-8000-000000000001",
-        "status": "synthetic-status"
+        "destination": {
+          "section": "synthetic-section",
+          "href": "synthetic-href",
+          "label": "synthetic-label"
+        },
+        "type": "synthetic-type",
+        "category": "synthetic-category",
+        "title": "synthetic-title",
+        "message": "synthetic-message",
+        "resourceType": "synthetic-resourcetype",
+        "resourceId": "synthetic-resourceid",
+        "supportMessageId": "00000000-0000-4000-8000-000000000001",
+        "readAt": "2030-01-15T10:00:00.000Z",
+        "expiresAt": "2030-01-15T10:00:00.000Z",
+        "createdAt": "2030-01-15T10:00:00.000Z"
       }
     ],
     "nextCursor": "00000000-0000-4000-8000-000000000001"
@@ -5943,7 +7828,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### POST `/customers/notifications/read-all`
 
 - Operation ID: `postCustomersNotificationsReadAll`
-- Purpose: Mark all own notifications as read. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: Marks the whole owned inbox, independent of filters and pagination, through the returned server cutoff. Notifications created after that cutoff remain unread. Does not change business records or send messages. Mark all own notifications as read. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
 - Roles: CUSTOMER
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -5962,8 +7847,8 @@ Success: HTTP 200.
   "success": true,
   "message": "Mark all own notifications as read",
   "data": {
-    "id": "00000000-0000-4000-8000-000000000001",
-    "status": "synthetic-status"
+    "updated": "2030-01-15T10:00:00.000Z",
+    "cutoff": "2030-01-15T10:00:00.000Z"
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -5972,6 +7857,54 @@ Success: HTTP 200.
 ```
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### POST `/customers/notifications/{notificationId}/unread`
+
+- Operation ID: `postCustomersNotificationsByNotificationIdUnread`
+- Purpose: Idempotently mark one owned notification unread without changing its source. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: CUSTOMER
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `notificationId` | path | string (uuid) | Yes | Identifier selecting the notification resource. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Idempotently mark one owned notification unread without changing its source",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "destination": {
+      "section": "synthetic-section",
+      "href": "synthetic-href",
+      "label": "synthetic-label"
+    },
+    "type": "synthetic-type",
+    "category": "synthetic-category",
+    "title": "synthetic-title",
+    "message": "synthetic-message",
+    "resourceType": "synthetic-resourcetype",
+    "resourceId": "synthetic-resourceid",
+    "supportMessageId": "00000000-0000-4000-8000-000000000001",
+    "readAt": "2030-01-15T10:00:00.000Z",
+    "expiresAt": "2030-01-15T10:00:00.000Z",
+    "createdAt": "2030-01-15T10:00:00.000Z"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 Notification not owned; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/customers/notifications/{notificationId}/read`
 
@@ -5997,7 +7930,21 @@ Success: HTTP 200.
   "message": "Mark one owned notification as read",
   "data": {
     "id": "00000000-0000-4000-8000-000000000001",
-    "status": "synthetic-status"
+    "destination": {
+      "section": "synthetic-section",
+      "href": "synthetic-href",
+      "label": "synthetic-label"
+    },
+    "type": "synthetic-type",
+    "category": "synthetic-category",
+    "title": "synthetic-title",
+    "message": "synthetic-message",
+    "resourceType": "synthetic-resourcetype",
+    "resourceId": "synthetic-resourceid",
+    "supportMessageId": "00000000-0000-4000-8000-000000000001",
+    "readAt": "2030-01-15T10:00:00.000Z",
+    "expiresAt": "2030-01-15T10:00:00.000Z",
+    "createdAt": "2030-01-15T10:00:00.000Z"
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -6026,6 +7973,11 @@ Success: HTTP 200.
     "immutableCategories": [
       "SECURITY"
     ],
+    "channels": {
+      "email": "customer@example.test",
+      "sms": true,
+      "marketing": false
+    },
     "preferences": [
       {
         "category": "OPERATIONAL",
@@ -8242,7 +10194,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### GET `/staff/vehicles`
 
 - Operation ID: `getStaffVehicles`
-- Purpose: Private, no-store staff stock discovery. Existing active assigned-branch Staff and cross-branch Admin/Super Admin/MFA policy is unchanged. Search is a literal case-insensitive substring across stock number, make, model and VIN; exact make/model matching also treats percent, underscore and backslash literally. Optional listed=true selects records with any listing; listed=false selects records with none and cannot be combined with status. Listing status matches any stored listing on a record, including history. Existing createdAt/ID descending cursor paging is retained. The stock UI uses search, exact make/model, year, branch and listing filters only; inherited public-discovery price/specification/sort parameters require a separate stock-query contract audit. List branch vehicle inventory; acquisition costs are administrator-only. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Private, no-store staff stock discovery. Existing active assigned-branch Staff and cross-branch Admin/Super Admin/MFA policy is unchanged. Search is a literal case-insensitive substring across stock number, make, model and VIN; exact make/model matching also treats percent, underscore and backslash literally. Optional listed=true selects records with any listing; listed=false selects records with none and cannot be combined with listing-specific filters. Status, featured and price bounds must match the same stored listing, including history. Newest, year and mileage sorts use an ID tie-breaker and cursor paging; price sorting is not accepted because a stock record can have multiple historical listing prices. The stock UI currently exposes search, exact make/model, year, branch and listing filters. List branch vehicle inventory; acquisition costs are administrator-only. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: STAFF, ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Not required
@@ -8258,13 +10210,31 @@ Parameters:
 | `make` | query | string | No | Make used to constrain this request. |
 | `model` | query | string | No | Model used to constrain this request. |
 | `year` | query | integer | No | Year used to constrain this request. |
+| `trim` | query | string | No | Trim used to constrain this request. |
+| `condition` | query | NEW / USED / FOREIGN_USED / LOCALLY_USED | No | Condition used to constrain this request. |
+| `conditions` | query | string | No | Comma-separated distinct choices: NEW, USED, FOREIGN_USED, LOCALLY_USED. Matches any selected choice; do not combine with the singular filter. |
+| `powertrains` | query | string | No | Comma-separated distinct choices: BEV, HEV, PHEV, ICE. Matches any selected choice; do not combine with the singular filter. |
+| `manufactureCountryCode` | query | string | No | Manufacture Country Code used to constrain this request. |
+| `manufactureRegion` | query | EUROPE | No | Manufacture Region used to constrain this request. |
+| `powertrain` | query | BEV / HEV / PHEV / ICE | No | Powertrain used to constrain this request. |
+| `driveType` | query | FWD / RWD / AWD / FOUR_WD / OTHER | No | Drive Type used to constrain this request. |
+| `minYear` | query | string | No | Min Year used to constrain this request. |
+| `maxYear` | query | string | No | Max Year used to constrain this request. |
+| `minMileageKm` | query | string | No | Min Mileage Km used to constrain this request. |
+| `maxMileageKm` | query | string | No | Max Mileage Km used to constrain this request. |
+| `minEngineCapacityCc` | query | string | No | Min Engine Capacity Cc used to constrain this request. |
+| `maxEngineCapacityCc` | query | string | No | Max Engine Capacity Cc used to constrain this request. |
+| `seats` | query | string | No | Seats used to constrain this request. |
+| `color` | query | string | No | Color used to constrain this request. |
+| `feature` | query | string | No | Feature used to constrain this request. |
+| `inspected` | query | true / false | No | Inspected used to constrain this request. |
 | `bodyType` | query | SEDAN / SUV / COUPE / HATCHBACK / WAGON / PICKUP / VAN / TRUCK / BUS / OTHER | No | Body Type used to constrain this request. |
 | `transmission` | query | AUTOMATIC / MANUAL / CVT / OTHER | No | Transmission used to constrain this request. |
 | `fuelType` | query | PETROL / DIESEL / HYBRID / ELECTRIC / OTHER | No | Fuel Type used to constrain this request. |
 | `featured` | query | true / false | No | Featured used to constrain this request. |
-| `minPriceKobo` | query | string | No | Min Price Kobo used to constrain this request. |
-| `maxPriceKobo` | query | string | No | Max Price Kobo used to constrain this request. |
-| `sort` | query | newest / price_asc / price_desc / year_desc | No | Sort used to constrain this request. |
+| `minPriceKobo` | query | object | No | Min Price Kobo used to constrain this request. |
+| `maxPriceKobo` | query | object | No | Max Price Kobo used to constrain this request. |
+| `sort` | query | newest / year_desc / year_asc / mileage_asc / mileage_desc | No | Sort used to constrain this request. |
 | `status` | query | DRAFT / AVAILABLE / RESERVED / SOLD / INACTIVE / ARCHIVED | No | Status used to constrain this request. |
 | `branchId` | query | string (uuid) | No | Branch Id used to constrain this request. |
 | `listed` | query | true / false | No | Listed used to constrain this request. |
@@ -8320,8 +10290,12 @@ JSON request fields:
 | `mileageKm` | integer / null | No | Mileage Km validated by this operation's strict request contract. |
 | `transmission` | AUTOMATIC / MANUAL / CVT / OTHER / null | No | Transmission validated by this operation's strict request contract. |
 | `fuelType` | PETROL / DIESEL / HYBRID / ELECTRIC / OTHER / null | No | Fuel Type validated by this operation's strict request contract. |
-| `condition` | NEW / USED | No | Condition validated by this operation's strict request contract. |
+| `condition` | NEW / USED / FOREIGN_USED / LOCALLY_USED | No | Condition validated by this operation's strict request contract. |
 | `bodyType` | SEDAN / SUV / COUPE / HATCHBACK / WAGON / PICKUP / VAN / TRUCK / BUS / OTHER / null | No | Body Type validated by this operation's strict request contract. |
+| `manufactureCountryCode` | string / null | No | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
+| `powertrain` | BEV / HEV / PHEV / ICE / null | No | Powertrain validated by this operation's strict request contract. |
+| `engineCapacityCc` | integer / null | No | Engine Capacity Cc validated by this operation's strict request contract. |
+| `features` | array<string> | No | Features validated by this operation's strict request contract. |
 | `engineSize` | string / null | No | Engine Size validated by this operation's strict request contract. |
 | `driveType` | FWD / RWD / AWD / FOUR_WD / OTHER / null | No | Drive Type validated by this operation's strict request contract. |
 | `color` | string / null | No | Color validated by this operation's strict request contract. |
@@ -8423,8 +10397,12 @@ JSON request fields:
 | `mileageKm` | integer / null | No | Mileage Km validated by this operation's strict request contract. |
 | `transmission` | AUTOMATIC / MANUAL / CVT / OTHER / null | No | Transmission validated by this operation's strict request contract. |
 | `fuelType` | PETROL / DIESEL / HYBRID / ELECTRIC / OTHER / null | No | Fuel Type validated by this operation's strict request contract. |
-| `condition` | NEW / USED | No | Condition validated by this operation's strict request contract. |
+| `condition` | NEW / USED / FOREIGN_USED / LOCALLY_USED | No | Condition validated by this operation's strict request contract. |
 | `bodyType` | SEDAN / SUV / COUPE / HATCHBACK / WAGON / PICKUP / VAN / TRUCK / BUS / OTHER / null | No | Body Type validated by this operation's strict request contract. |
+| `manufactureCountryCode` | string / null | No | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
+| `powertrain` | BEV / HEV / PHEV / ICE / null | No | Powertrain validated by this operation's strict request contract. |
+| `engineCapacityCc` | integer / null | No | Engine Capacity Cc validated by this operation's strict request contract. |
+| `features` | array<string> | No | Features validated by this operation's strict request contract. |
 | `engineSize` | string / null | No | Engine Size validated by this operation's strict request contract. |
 | `driveType` | FWD / RWD / AWD / FOUR_WD / OTHER / null | No | Drive Type validated by this operation's strict request contract. |
 | `color` | string / null | No | Color validated by this operation's strict request contract. |
@@ -9179,6 +11157,811 @@ Success: HTTP 200.
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is unconfigured, unreachable, denied by the provider or exceeds its 20-second verification deadline. Verification shares that deadline across metadata and a bounded 16-byte signature read. Invalid or missing bytes retain the operation's existing validation/conflict response. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Restore storage before retrying an uncommitted upload, and check current state after an uncertain mutation.
 
+### GET `/staff/fitment/access`
+
+- Operation ID: `getStaffFitmentAccess`
+- Purpose: Make/model/year identifies candidates only. Exact fit requires approved evidence, matching required technical qualifiers and no possible approved exclusion. Public reads omit draft/rejected rules. Staff requests revalidate current MFA, assignment and branch scope in a transaction. Sales/Operations author; Workshop/Quality or the owner review; authors and last editors cannot approve their own rules. Mutations record immutable version history. Stale versions and duplicate semantic rules conflict. Legacy rules remain draft until normalized and reviewed. No sale stock, checkout, inventory quantities or workflow completion is changed. Vehicle catalogue and reviewed parts fitment: access. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Vehicle catalogue and reviewed parts fitment: access",
+  "data": {
+    "canAuthor": true,
+    "canReview": true,
+    "globalAuthor": true,
+    "globalReviewer": true,
+    "authorBranches": [
+      "00000000-0000-4000-8000-000000000001"
+    ],
+    "reviewBranches": [
+      "00000000-0000-4000-8000-000000000001"
+    ],
+    "branches": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "name": "synthetic-name"
+      }
+    ]
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Authentication required for staff routes; 403 Current MFA, branch or responsibility does not permit this action; 404 Record is unavailable in this scope; 409 Stale version, duplicate rule or invalid review transition; 422 Invalid fields, vehicle relationship or incomplete evidence; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/staff/fitment/products`
+
+- Operation ID: `getStaffFitmentProducts`
+- Purpose: Make/model/year identifies candidates only. Exact fit requires approved evidence, matching required technical qualifiers and no possible approved exclusion. Public reads omit draft/rejected rules. Staff requests revalidate current MFA, assignment and branch scope in a transaction. Sales/Operations author; Workshop/Quality or the owner review; authors and last editors cannot approve their own rules. Mutations record immutable version history. Stale versions and duplicate semantic rules conflict. Legacy rules remain draft until normalized and reviewed. No sale stock, checkout, inventory quantities or workflow completion is changed. Vehicle catalogue and reviewed parts fitment: products. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `search` | query | string | No | Search used to constrain this request. |
+| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
+| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Vehicle catalogue and reviewed parts fitment: products",
+  "data": {
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "name": "synthetic-name",
+        "sku": "synthetic-sku",
+        "isActive": true,
+        "productType": "synthetic-producttype"
+      }
+    ],
+    "nextCursor": "00000000-0000-4000-8000-000000000001"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Authentication required for staff routes; 403 Current MFA, branch or responsibility does not permit this action; 404 Record is unavailable in this scope; 409 Stale version, duplicate rule or invalid review transition; 422 Invalid fields, vehicle relationship or incomplete evidence; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/staff/fitment/products/{productId}`
+
+- Operation ID: `getStaffFitmentProductsByProductId`
+- Purpose: Make/model/year identifies candidates only. Exact fit requires approved evidence, matching required technical qualifiers and no possible approved exclusion. Public reads omit draft/rejected rules. Staff requests revalidate current MFA, assignment and branch scope in a transaction. Sales/Operations author; Workshop/Quality or the owner review; authors and last editors cannot approve their own rules. Mutations record immutable version history. Stale versions and duplicate semantic rules conflict. Legacy rules remain draft until normalized and reviewed. No sale stock, checkout, inventory quantities or workflow completion is changed. Vehicle catalogue and reviewed parts fitment: product. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `productId` | path | string (uuid) | Yes | Identifier selecting the product resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Vehicle catalogue and reviewed parts fitment: product",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "name": "synthetic-name",
+    "sku": "synthetic-sku",
+    "isActive": true,
+    "productType": "synthetic-producttype"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Authentication required for staff routes; 403 Current MFA, branch or responsibility does not permit this action; 404 Record is unavailable in this scope; 409 Stale version, duplicate rule or invalid review transition; 422 Invalid fields, vehicle relationship or incomplete evidence; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/staff/fitment/products/{productId}/rules/{ruleId}`
+
+- Operation ID: `getStaffFitmentProductsByProductIdRulesByRuleId`
+- Purpose: Make/model/year identifies candidates only. Exact fit requires approved evidence, matching required technical qualifiers and no possible approved exclusion. Public reads omit draft/rejected rules. Staff requests revalidate current MFA, assignment and branch scope in a transaction. Sales/Operations author; Workshop/Quality or the owner review; authors and last editors cannot approve their own rules. Mutations record immutable version history. Stale versions and duplicate semantic rules conflict. Legacy rules remain draft until normalized and reviewed. No sale stock, checkout, inventory quantities or workflow completion is changed. Vehicle catalogue and reviewed parts fitment: rule. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `productId` | path | string (uuid) | Yes | Identifier selecting the product resource. |
+| `ruleId` | path | string (uuid) | Yes | Identifier selecting the rule resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Vehicle catalogue and reviewed parts fitment: rule",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "productId": "00000000-0000-4000-8000-000000000001",
+    "vehicleModelId": "00000000-0000-4000-8000-000000000001",
+    "branchId": "00000000-0000-4000-8000-000000000001",
+    "scope": "MODEL",
+    "effect": "INCLUDE",
+    "reviewStatus": "DRAFT",
+    "safetyCritical": true,
+    "allVariantsConfirmed": true,
+    "requiredQualifiers": [
+      "synthetic-requiredqualifiers-item"
+    ],
+    "trim": "synthetic-trim",
+    "engineCode": "synthetic-enginecode",
+    "market": "synthetic-market",
+    "position": "synthetic-position",
+    "brakeSystem": "synthetic-brakesystem",
+    "brakeDiameterMm": "synthetic-brakediametermm",
+    "bodyType": "synthetic-bodytype",
+    "transmission": "synthetic-transmission",
+    "generation": "synthetic-generation",
+    "chassisCode": "synthetic-chassiscode",
+    "make": "synthetic-make",
+    "model": "synthetic-model",
+    "yearFrom": "synthetic-yearfrom",
+    "yearTo": "synthetic-yearto",
+    "sourceReference": "synthetic-sourcereference",
+    "evidenceNotes": "synthetic-evidencenotes",
+    "reviewNote": "synthetic-reviewnote",
+    "notes": "synthetic-notes",
+    "createdByUserId": "00000000-0000-4000-8000-000000000001",
+    "updatedByUserId": "00000000-0000-4000-8000-000000000001",
+    "reviewedByUserId": "00000000-0000-4000-8000-000000000001",
+    "createdAt": "2030-01-15T10:00:00.000Z",
+    "updatedAt": "2030-01-15T10:00:00.000Z",
+    "submittedAt": "2030-01-15T10:00:00.000Z",
+    "reviewedAt": "2030-01-15T10:00:00.000Z",
+    "version": 0,
+    "product": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "name": "synthetic-name",
+      "sku": "synthetic-sku"
+    },
+    "vehicleModel": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "name": "synthetic-name",
+      "makeId": "00000000-0000-4000-8000-000000000001",
+      "yearFrom": 1,
+      "yearTo": 1,
+      "make": {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "name": "synthetic-name"
+      }
+    },
+    "createdBy": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "email": "customer@example.test",
+      "staffProfile": {
+        "firstName": "synthetic-firstname",
+        "lastName": "synthetic-lastname"
+      }
+    },
+    "updatedBy": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "email": "customer@example.test",
+      "staffProfile": {
+        "firstName": "synthetic-firstname",
+        "lastName": "synthetic-lastname"
+      }
+    },
+    "reviewedBy": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "email": "customer@example.test",
+      "staffProfile": {
+        "firstName": "synthetic-firstname",
+        "lastName": "synthetic-lastname"
+      }
+    }
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Authentication required for staff routes; 403 Current MFA, branch or responsibility does not permit this action; 404 Record is unavailable in this scope; 409 Stale version, duplicate rule or invalid review transition; 422 Invalid fields, vehicle relationship or incomplete evidence; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### PUT `/staff/fitment/products/{productId}/rules/{ruleId}`
+
+- Operation ID: `putStaffFitmentProductsByProductIdRulesByRuleId`
+- Purpose: Make/model/year identifies candidates only. Exact fit requires approved evidence, matching required technical qualifiers and no possible approved exclusion. Public reads omit draft/rejected rules. Staff requests revalidate current MFA, assignment and branch scope in a transaction. Sales/Operations author; Workshop/Quality or the owner review; authors and last editors cannot approve their own rules. Mutations record immutable version history. Stale versions and duplicate semantic rules conflict. Legacy rules remain draft until normalized and reviewed. No sale stock, checkout, inventory quantities or workflow completion is changed. Vehicle catalogue and reviewed parts fitment: updateRule. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `productId` | path | string (uuid) | Yes | Identifier selecting the product resource. |
+| `ruleId` | path | string (uuid) | Yes | Identifier selecting the rule resource. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `scope` | MODEL / UNIVERSAL | No | Scope validated by this operation's strict request contract. |
+| `vehicleModelId` | string / null | No | Identifier of the vehicle model resource; ownership is resolved server-side. |
+| `branchId` | string / null | No | Identifier of the branch resource; ownership is resolved server-side. |
+| `yearFrom` | integer / null | No | Year From validated by this operation's strict request contract. |
+| `yearTo` | integer / null | No | Year To validated by this operation's strict request contract. |
+| `effect` | INCLUDE / EXCLUDE | No | Effect validated by this operation's strict request contract. |
+| `safetyCritical` | boolean | No | Safety Critical validated by this operation's strict request contract. |
+| `allVariantsConfirmed` | boolean | No | All Variants Confirmed validated by this operation's strict request contract. |
+| `requiredQualifiers` | array<trim / engineCode / market / position / brakeSystem / brakeDiameterMm / bodyType / transmission / generation / chassisCode> | No | Required Qualifiers validated by this operation's strict request contract. |
+| `trim` | string / null | No | Trim validated by this operation's strict request contract. |
+| `engineCode` | string / null | No | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
+| `market` | string / null | No | Market validated by this operation's strict request contract. |
+| `position` | string / null | No | Position validated by this operation's strict request contract. |
+| `brakeSystem` | string / null | No | Brake System validated by this operation's strict request contract. |
+| `brakeDiameterMm` | string / null | No | Brake Diameter Mm validated by this operation's strict request contract. |
+| `bodyType` | string / null | No | Body Type validated by this operation's strict request contract. |
+| `transmission` | string / null | No | Transmission validated by this operation's strict request contract. |
+| `generation` | string / null | No | Generation validated by this operation's strict request contract. |
+| `chassisCode` | string / null | No | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
+| `sourceReference` | string / null | No | Source Reference validated by this operation's strict request contract. |
+| `evidenceNotes` | string / null | No | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| `notes` | string / null | No | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+
+Synthetic request example:
+
+```json
+{
+  "expectedVersion": 0
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Vehicle catalogue and reviewed parts fitment: updateRule",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "productId": "00000000-0000-4000-8000-000000000001",
+    "vehicleModelId": "00000000-0000-4000-8000-000000000001",
+    "branchId": "00000000-0000-4000-8000-000000000001",
+    "scope": "MODEL",
+    "effect": "INCLUDE",
+    "reviewStatus": "DRAFT",
+    "safetyCritical": true,
+    "allVariantsConfirmed": true,
+    "requiredQualifiers": [
+      "synthetic-requiredqualifiers-item"
+    ],
+    "trim": "synthetic-trim",
+    "engineCode": "synthetic-enginecode",
+    "market": "synthetic-market",
+    "position": "synthetic-position",
+    "brakeSystem": "synthetic-brakesystem",
+    "brakeDiameterMm": "synthetic-brakediametermm",
+    "bodyType": "synthetic-bodytype",
+    "transmission": "synthetic-transmission",
+    "generation": "synthetic-generation",
+    "chassisCode": "synthetic-chassiscode",
+    "make": "synthetic-make",
+    "model": "synthetic-model",
+    "yearFrom": "synthetic-yearfrom",
+    "yearTo": "synthetic-yearto",
+    "sourceReference": "synthetic-sourcereference",
+    "evidenceNotes": "synthetic-evidencenotes",
+    "reviewNote": "synthetic-reviewnote",
+    "notes": "synthetic-notes",
+    "createdByUserId": "00000000-0000-4000-8000-000000000001",
+    "updatedByUserId": "00000000-0000-4000-8000-000000000001",
+    "reviewedByUserId": "00000000-0000-4000-8000-000000000001",
+    "createdAt": "2030-01-15T10:00:00.000Z",
+    "updatedAt": "2030-01-15T10:00:00.000Z",
+    "submittedAt": "2030-01-15T10:00:00.000Z",
+    "reviewedAt": "2030-01-15T10:00:00.000Z",
+    "version": 0
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Authentication required for staff routes; 403 Current MFA, branch or responsibility does not permit this action; 404 Record is unavailable in this scope; 409 Stale version, duplicate rule or invalid review transition; 422 Invalid fields, vehicle relationship or incomplete evidence; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/staff/fitment/rules`
+
+- Operation ID: `getStaffFitmentRules`
+- Purpose: Make/model/year identifies candidates only. Exact fit requires approved evidence, matching required technical qualifiers and no possible approved exclusion. Public reads omit draft/rejected rules. Staff requests revalidate current MFA, assignment and branch scope in a transaction. Sales/Operations author; Workshop/Quality or the owner review; authors and last editors cannot approve their own rules. Mutations record immutable version history. Stale versions and duplicate semantic rules conflict. Legacy rules remain draft until normalized and reviewed. No sale stock, checkout, inventory quantities or workflow completion is changed. Vehicle catalogue and reviewed parts fitment: rules. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `productId` | query | string (uuid) | No | Product Id used to constrain this request. |
+| `reviewStatus` | query | DRAFT / PENDING / APPROVED / REJECTED / RETIRED | No | Review Status used to constrain this request. |
+| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
+| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Vehicle catalogue and reviewed parts fitment: rules",
+  "data": {
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "productId": "00000000-0000-4000-8000-000000000001",
+        "vehicleModelId": "00000000-0000-4000-8000-000000000001",
+        "branchId": "00000000-0000-4000-8000-000000000001",
+        "scope": "MODEL",
+        "effect": "INCLUDE",
+        "reviewStatus": "DRAFT",
+        "safetyCritical": true,
+        "allVariantsConfirmed": true,
+        "requiredQualifiers": [
+          "synthetic-requiredqualifiers-item"
+        ],
+        "trim": "synthetic-trim",
+        "engineCode": "synthetic-enginecode",
+        "market": "synthetic-market",
+        "position": "synthetic-position",
+        "brakeSystem": "synthetic-brakesystem",
+        "brakeDiameterMm": "synthetic-brakediametermm",
+        "bodyType": "synthetic-bodytype",
+        "transmission": "synthetic-transmission",
+        "generation": "synthetic-generation",
+        "chassisCode": "synthetic-chassiscode",
+        "make": "synthetic-make",
+        "model": "synthetic-model",
+        "yearFrom": "synthetic-yearfrom",
+        "yearTo": "synthetic-yearto",
+        "sourceReference": "synthetic-sourcereference",
+        "evidenceNotes": "synthetic-evidencenotes",
+        "reviewNote": "synthetic-reviewnote",
+        "notes": "synthetic-notes",
+        "createdByUserId": "00000000-0000-4000-8000-000000000001",
+        "updatedByUserId": "00000000-0000-4000-8000-000000000001",
+        "reviewedByUserId": "00000000-0000-4000-8000-000000000001",
+        "createdAt": "2030-01-15T10:00:00.000Z",
+        "updatedAt": "2030-01-15T10:00:00.000Z",
+        "submittedAt": "2030-01-15T10:00:00.000Z",
+        "reviewedAt": "2030-01-15T10:00:00.000Z",
+        "version": 0,
+        "product": {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "name": "synthetic-name",
+          "sku": "synthetic-sku"
+        },
+        "vehicleModel": {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "name": "synthetic-name",
+          "makeId": "00000000-0000-4000-8000-000000000001",
+          "yearFrom": 1,
+          "yearTo": 1,
+          "make": {
+            "id": "00000000-0000-4000-8000-000000000001",
+            "name": "synthetic-name"
+          }
+        },
+        "createdBy": {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "email": "customer@example.test",
+          "staffProfile": {
+            "firstName": "synthetic-firstname",
+            "lastName": "synthetic-lastname"
+          }
+        },
+        "updatedBy": {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "email": "customer@example.test",
+          "staffProfile": {
+            "firstName": "synthetic-firstname",
+            "lastName": "synthetic-lastname"
+          }
+        },
+        "reviewedBy": {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "email": "customer@example.test",
+          "staffProfile": {
+            "firstName": "synthetic-firstname",
+            "lastName": "synthetic-lastname"
+          }
+        }
+      }
+    ],
+    "nextCursor": "00000000-0000-4000-8000-000000000001"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Authentication required for staff routes; 403 Current MFA, branch or responsibility does not permit this action; 404 Record is unavailable in this scope; 409 Stale version, duplicate rule or invalid review transition; 422 Invalid fields, vehicle relationship or incomplete evidence; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/staff/fitment/products/{productId}/rules/{ruleId}/history`
+
+- Operation ID: `getStaffFitmentProductsByProductIdRulesByRuleIdHistory`
+- Purpose: Make/model/year identifies candidates only. Exact fit requires approved evidence, matching required technical qualifiers and no possible approved exclusion. Public reads omit draft/rejected rules. Staff requests revalidate current MFA, assignment and branch scope in a transaction. Sales/Operations author; Workshop/Quality or the owner review; authors and last editors cannot approve their own rules. Mutations record immutable version history. Stale versions and duplicate semantic rules conflict. Legacy rules remain draft until normalized and reviewed. No sale stock, checkout, inventory quantities or workflow completion is changed. Vehicle catalogue and reviewed parts fitment: history. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `productId` | path | string (uuid) | Yes | Identifier selecting the product resource. |
+| `ruleId` | path | string (uuid) | Yes | Identifier selecting the rule resource. |
+| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
+| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Vehicle catalogue and reviewed parts fitment: history",
+  "data": {
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "compatibilityId": "00000000-0000-4000-8000-000000000001",
+        "actorUserId": "00000000-0000-4000-8000-000000000001",
+        "actor": {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "email": "customer@example.test",
+          "staffProfile": {
+            "firstName": "synthetic-firstname",
+            "lastName": "synthetic-lastname"
+          }
+        },
+        "action": "synthetic-action",
+        "version": 1,
+        "snapshot": {},
+        "createdAt": "2030-01-15T10:00:00.000Z"
+      }
+    ],
+    "nextCursor": "00000000-0000-4000-8000-000000000001"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Authentication required for staff routes; 403 Current MFA, branch or responsibility does not permit this action; 404 Record is unavailable in this scope; 409 Stale version, duplicate rule or invalid review transition; 422 Invalid fields, vehicle relationship or incomplete evidence; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### POST `/staff/fitment/makes`
+
+- Operation ID: `postStaffFitmentMakes`
+- Purpose: Make/model/year identifies candidates only. Exact fit requires approved evidence, matching required technical qualifiers and no possible approved exclusion. Public reads omit draft/rejected rules. Staff requests revalidate current MFA, assignment and branch scope in a transaction. Sales/Operations author; Workshop/Quality or the owner review; authors and last editors cannot approve their own rules. Mutations record immutable version history. Stale versions and duplicate semantic rules conflict. Legacy rules remain draft until normalized and reviewed. No sale stock, checkout, inventory quantities or workflow completion is changed. Vehicle catalogue and reviewed parts fitment: createMake. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `name` | string | Yes | Name validated by this operation's strict request contract. |
+
+Synthetic request example:
+
+```json
+{
+  "name": "synthetic-name"
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Vehicle catalogue and reviewed parts fitment: createMake",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "name": "synthetic-name"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Authentication required for staff routes; 403 Current MFA, branch or responsibility does not permit this action; 404 Record is unavailable in this scope; 409 Stale version, duplicate rule or invalid review transition; 422 Invalid fields, vehicle relationship or incomplete evidence; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### POST `/staff/fitment/models`
+
+- Operation ID: `postStaffFitmentModels`
+- Purpose: Make/model/year identifies candidates only. Exact fit requires approved evidence, matching required technical qualifiers and no possible approved exclusion. Public reads omit draft/rejected rules. Staff requests revalidate current MFA, assignment and branch scope in a transaction. Sales/Operations author; Workshop/Quality or the owner review; authors and last editors cannot approve their own rules. Mutations record immutable version history. Stale versions and duplicate semantic rules conflict. Legacy rules remain draft until normalized and reviewed. No sale stock, checkout, inventory quantities or workflow completion is changed. Vehicle catalogue and reviewed parts fitment: createModel. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `makeId` | string (uuid) | Yes | Identifier of the make resource; ownership is resolved server-side. |
+| `name` | string | Yes | Name validated by this operation's strict request contract. |
+| `yearFrom` | integer | Yes | Year From validated by this operation's strict request contract. |
+| `yearTo` | integer | Yes | Year To validated by this operation's strict request contract. |
+| `sourceReference` | string | Yes | Source Reference validated by this operation's strict request contract. |
+
+Synthetic request example:
+
+```json
+{
+  "makeId": "00000000-0000-4000-8000-000000000001",
+  "name": "synthetic-name",
+  "yearFrom": 1886,
+  "yearTo": 1886,
+  "sourceReference": "synthetic-sourcereference"
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Vehicle catalogue and reviewed parts fitment: createModel",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "name": "synthetic-name",
+    "makeId": "00000000-0000-4000-8000-000000000001",
+    "yearFrom": 1,
+    "yearTo": 1
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Authentication required for staff routes; 403 Current MFA, branch or responsibility does not permit this action; 404 Record is unavailable in this scope; 409 Stale version, duplicate rule or invalid review transition; 422 Invalid fields, vehicle relationship or incomplete evidence; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### POST `/staff/fitment/products/{productId}/rules`
+
+- Operation ID: `postStaffFitmentProductsByProductIdRules`
+- Purpose: Make/model/year identifies candidates only. Exact fit requires approved evidence, matching required technical qualifiers and no possible approved exclusion. Public reads omit draft/rejected rules. Staff requests revalidate current MFA, assignment and branch scope in a transaction. Sales/Operations author; Workshop/Quality or the owner review; authors and last editors cannot approve their own rules. Mutations record immutable version history. Stale versions and duplicate semantic rules conflict. Legacy rules remain draft until normalized and reviewed. No sale stock, checkout, inventory quantities or workflow completion is changed. Vehicle catalogue and reviewed parts fitment: createRule. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `productId` | path | string (uuid) | Yes | Identifier selecting the product resource. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `scope` | MODEL / UNIVERSAL | No | Scope validated by this operation's strict request contract. |
+| `vehicleModelId` | string / null | No | Identifier of the vehicle model resource; ownership is resolved server-side. |
+| `branchId` | string / null | No | Identifier of the branch resource; ownership is resolved server-side. |
+| `yearFrom` | integer / null | No | Year From validated by this operation's strict request contract. |
+| `yearTo` | integer / null | No | Year To validated by this operation's strict request contract. |
+| `effect` | INCLUDE / EXCLUDE | No | Effect validated by this operation's strict request contract. |
+| `safetyCritical` | boolean | No | Safety Critical validated by this operation's strict request contract. |
+| `allVariantsConfirmed` | boolean | No | All Variants Confirmed validated by this operation's strict request contract. |
+| `requiredQualifiers` | array<trim / engineCode / market / position / brakeSystem / brakeDiameterMm / bodyType / transmission / generation / chassisCode> | No | Required Qualifiers validated by this operation's strict request contract. |
+| `trim` | string / null | No | Trim validated by this operation's strict request contract. |
+| `engineCode` | string / null | No | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
+| `market` | string / null | No | Market validated by this operation's strict request contract. |
+| `position` | string / null | No | Position validated by this operation's strict request contract. |
+| `brakeSystem` | string / null | No | Brake System validated by this operation's strict request contract. |
+| `brakeDiameterMm` | string / null | No | Brake Diameter Mm validated by this operation's strict request contract. |
+| `bodyType` | string / null | No | Body Type validated by this operation's strict request contract. |
+| `transmission` | string / null | No | Transmission validated by this operation's strict request contract. |
+| `generation` | string / null | No | Generation validated by this operation's strict request contract. |
+| `chassisCode` | string / null | No | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
+| `sourceReference` | string / null | No | Source Reference validated by this operation's strict request contract. |
+| `evidenceNotes` | string / null | No | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| `notes` | string / null | No | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+
+Synthetic request example:
+
+```json
+{}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Vehicle catalogue and reviewed parts fitment: createRule",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "productId": "00000000-0000-4000-8000-000000000001",
+    "vehicleModelId": "00000000-0000-4000-8000-000000000001",
+    "branchId": "00000000-0000-4000-8000-000000000001",
+    "scope": "MODEL",
+    "effect": "INCLUDE",
+    "reviewStatus": "DRAFT",
+    "safetyCritical": true,
+    "allVariantsConfirmed": true,
+    "requiredQualifiers": [
+      "synthetic-requiredqualifiers-item"
+    ],
+    "trim": "synthetic-trim",
+    "engineCode": "synthetic-enginecode",
+    "market": "synthetic-market",
+    "position": "synthetic-position",
+    "brakeSystem": "synthetic-brakesystem",
+    "brakeDiameterMm": "synthetic-brakediametermm",
+    "bodyType": "synthetic-bodytype",
+    "transmission": "synthetic-transmission",
+    "generation": "synthetic-generation",
+    "chassisCode": "synthetic-chassiscode",
+    "make": "synthetic-make",
+    "model": "synthetic-model",
+    "yearFrom": "synthetic-yearfrom",
+    "yearTo": "synthetic-yearto",
+    "sourceReference": "synthetic-sourcereference",
+    "evidenceNotes": "synthetic-evidencenotes",
+    "reviewNote": "synthetic-reviewnote",
+    "notes": "synthetic-notes",
+    "createdByUserId": "00000000-0000-4000-8000-000000000001",
+    "updatedByUserId": "00000000-0000-4000-8000-000000000001",
+    "reviewedByUserId": "00000000-0000-4000-8000-000000000001",
+    "createdAt": "2030-01-15T10:00:00.000Z",
+    "updatedAt": "2030-01-15T10:00:00.000Z",
+    "submittedAt": "2030-01-15T10:00:00.000Z",
+    "reviewedAt": "2030-01-15T10:00:00.000Z",
+    "version": 0
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Authentication required for staff routes; 403 Current MFA, branch or responsibility does not permit this action; 404 Record is unavailable in this scope; 409 Stale version, duplicate rule or invalid review transition; 422 Invalid fields, vehicle relationship or incomplete evidence; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### POST `/staff/fitment/products/{productId}/rules/{ruleId}/transitions`
+
+- Operation ID: `postStaffFitmentProductsByProductIdRulesByRuleIdTransitions`
+- Purpose: Make/model/year identifies candidates only. Exact fit requires approved evidence, matching required technical qualifiers and no possible approved exclusion. Public reads omit draft/rejected rules. Staff requests revalidate current MFA, assignment and branch scope in a transaction. Sales/Operations author; Workshop/Quality or the owner review; authors and last editors cannot approve their own rules. Mutations record immutable version history. Stale versions and duplicate semantic rules conflict. Legacy rules remain draft until normalized and reviewed. No sale stock, checkout, inventory quantities or workflow completion is changed. Vehicle catalogue and reviewed parts fitment: transition. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `productId` | path | string (uuid) | Yes | Identifier selecting the product resource. |
+| `ruleId` | path | string (uuid) | Yes | Identifier selecting the rule resource. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `action` | SUBMIT / APPROVE / REJECT / RETIRE | Yes | Action validated by this operation's strict request contract. |
+| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+| `note` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+
+Synthetic request example:
+
+```json
+{
+  "action": "SUBMIT",
+  "expectedVersion": 0,
+  "note": "synthetic-note"
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Vehicle catalogue and reviewed parts fitment: transition",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "productId": "00000000-0000-4000-8000-000000000001",
+    "vehicleModelId": "00000000-0000-4000-8000-000000000001",
+    "branchId": "00000000-0000-4000-8000-000000000001",
+    "scope": "MODEL",
+    "effect": "INCLUDE",
+    "reviewStatus": "DRAFT",
+    "safetyCritical": true,
+    "allVariantsConfirmed": true,
+    "requiredQualifiers": [
+      "synthetic-requiredqualifiers-item"
+    ],
+    "trim": "synthetic-trim",
+    "engineCode": "synthetic-enginecode",
+    "market": "synthetic-market",
+    "position": "synthetic-position",
+    "brakeSystem": "synthetic-brakesystem",
+    "brakeDiameterMm": "synthetic-brakediametermm",
+    "bodyType": "synthetic-bodytype",
+    "transmission": "synthetic-transmission",
+    "generation": "synthetic-generation",
+    "chassisCode": "synthetic-chassiscode",
+    "make": "synthetic-make",
+    "model": "synthetic-model",
+    "yearFrom": "synthetic-yearfrom",
+    "yearTo": "synthetic-yearto",
+    "sourceReference": "synthetic-sourcereference",
+    "evidenceNotes": "synthetic-evidencenotes",
+    "reviewNote": "synthetic-reviewnote",
+    "notes": "synthetic-notes",
+    "createdByUserId": "00000000-0000-4000-8000-000000000001",
+    "updatedByUserId": "00000000-0000-4000-8000-000000000001",
+    "reviewedByUserId": "00000000-0000-4000-8000-000000000001",
+    "createdAt": "2030-01-15T10:00:00.000Z",
+    "updatedAt": "2030-01-15T10:00:00.000Z",
+    "submittedAt": "2030-01-15T10:00:00.000Z",
+    "reviewedAt": "2030-01-15T10:00:00.000Z",
+    "version": 0
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Authentication required for staff routes; 403 Current MFA, branch or responsibility does not permit this action; 404 Record is unavailable in this scope; 409 Stale version, duplicate rule or invalid review transition; 422 Invalid fields, vehicle relationship or incomplete evidence; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
 ### GET `/staff/vehicle-inspections`
 
 - Operation ID: `getStaffVehicleInspections`
@@ -9895,10 +12678,138 @@ Success: HTTP 200.
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required provider or database is temporarily unavailable.
 
+### POST `/staff/support/enquiries/{supportId}/email-deliveries/dismiss`
+
+- Operation ID: `postStaffSupportEnquiriesBySupportIdEmailDeliveriesDismiss`
+- Purpose: Current case/branch access required. Atomic explicit batch of 1–20 stable revisions. Idempotent per operator and revision. Stale/ineligible/foreign notices conflict. Retains all delivery history/status and grants no retry authority. Dismiss eligible visible delivery notices for this operator. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `supportId` | path | string (uuid) | Yes | Identifier selecting the support resource. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `notices` | array<object> | Yes | Notices validated by this operation's strict request contract. |
+
+Synthetic request example:
+
+```json
+{
+  "notices": [
+    {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "revision": "synthetic-revision"
+    }
+  ]
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Dismiss eligible visible delivery notices for this operator",
+  "data": {
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "status": "QUEUED",
+        "reason": "CHANNEL_DISABLED",
+        "createdAt": "2030-01-15T10:00:00.000Z",
+        "sentAt": "2030-01-15T10:00:00.000Z",
+        "attempts": 0,
+        "nextRetryAt": "2030-01-15T10:00:00.000Z",
+        "providerStatus": "DELIVERED",
+        "providerUpdatedAt": "2030-01-15T10:00:00.000Z"
+      }
+    ]
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### POST `/staff/support/complaints/{supportId}/email-deliveries/dismiss`
+
+- Operation ID: `postStaffSupportComplaintsBySupportIdEmailDeliveriesDismiss`
+- Purpose: Current case/branch access required. Atomic explicit batch of 1–20 stable revisions. Idempotent per operator and revision. Stale/ineligible/foreign notices conflict. Retains all delivery history/status and grants no retry authority. Dismiss eligible visible delivery notices for this operator. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `supportId` | path | string (uuid) | Yes | Identifier selecting the support resource. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `notices` | array<object> | Yes | Notices validated by this operation's strict request contract. |
+
+Synthetic request example:
+
+```json
+{
+  "notices": [
+    {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "revision": "synthetic-revision"
+    }
+  ]
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Dismiss eligible visible delivery notices for this operator",
+  "data": {
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "status": "QUEUED",
+        "reason": "CHANNEL_DISABLED",
+        "createdAt": "2030-01-15T10:00:00.000Z",
+        "sentAt": "2030-01-15T10:00:00.000Z",
+        "attempts": 0,
+        "nextRetryAt": "2030-01-15T10:00:00.000Z",
+        "providerStatus": "DELIVERED",
+        "providerUpdatedAt": "2030-01-15T10:00:00.000Z"
+      }
+    ]
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
 ### GET `/staff/support/complaints/{supportId}/email-deliveries`
 
 - Operation ID: `getStaffSupportComplaintsBySupportIdEmailDeliveries`
-- Purpose: Staff/admin only, branch scoped, private/no-store. Latest 20 updates, newest first. SENT means the provider accepted the email, not confirmed inbox delivery. RETRYING will retry automatically; FAILED needs manual follow-up. NOT_SENT explains disabled delivery, opt-out or missing destination. No recipient, message content, provider payload or internal error is exposed. Historical updates before this feature are not backfilled. Read the latest customer email delivery attempts for this conversation. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Staff/admin only, branch scoped, private/no-store. Latest 20 updates, newest first. SENT means provider acceptance, not recipient-server or inbox delivery. Attempt count and next scheduled retry are shown. RETRYING will retry automatically; FAILED needs provider review and coordinated manual follow-up. NOT_SENT explains disabled delivery, opt-out or missing destination. No recipient, message content, provider payload or internal error is exposed. Historical updates before this feature are not backfilled. Read the latest customer email delivery attempts for this conversation. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: STAFF, ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Not required
@@ -9923,7 +12834,11 @@ Success: HTTP 200.
         "status": "QUEUED",
         "reason": "CHANNEL_DISABLED",
         "createdAt": "2030-01-15T10:00:00.000Z",
-        "sentAt": "2030-01-15T10:00:00.000Z"
+        "sentAt": "2030-01-15T10:00:00.000Z",
+        "attempts": 0,
+        "nextRetryAt": "2030-01-15T10:00:00.000Z",
+        "providerStatus": "DELIVERED",
+        "providerUpdatedAt": "2030-01-15T10:00:00.000Z"
       }
     ]
   },
@@ -9938,7 +12853,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### GET `/staff/support/enquiries/{supportId}/email-deliveries`
 
 - Operation ID: `getStaffSupportEnquiriesBySupportIdEmailDeliveries`
-- Purpose: Staff/admin only, branch scoped, private/no-store. Latest 20 updates, newest first. SENT means the provider accepted the email, not confirmed inbox delivery. RETRYING will retry automatically; FAILED needs manual follow-up. NOT_SENT explains disabled delivery, opt-out or missing destination. No recipient, message content, provider payload or internal error is exposed. Historical updates before this feature are not backfilled. Read the latest customer email delivery attempts for this conversation. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Staff/admin only, branch scoped, private/no-store. Latest 20 updates, newest first. SENT means provider acceptance, not recipient-server or inbox delivery. Attempt count and next scheduled retry are shown. RETRYING will retry automatically; FAILED needs provider review and coordinated manual follow-up. NOT_SENT explains disabled delivery, opt-out or missing destination. No recipient, message content, provider payload or internal error is exposed. Historical updates before this feature are not backfilled. Read the latest customer email delivery attempts for this conversation. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: STAFF, ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Not required
@@ -9963,7 +12878,11 @@ Success: HTTP 200.
         "status": "QUEUED",
         "reason": "CHANNEL_DISABLED",
         "createdAt": "2030-01-15T10:00:00.000Z",
-        "sentAt": "2030-01-15T10:00:00.000Z"
+        "sentAt": "2030-01-15T10:00:00.000Z",
+        "attempts": 0,
+        "nextRetryAt": "2030-01-15T10:00:00.000Z",
+        "providerStatus": "DELIVERED",
+        "providerUpdatedAt": "2030-01-15T10:00:00.000Z"
       }
     ]
   },
@@ -9978,7 +12897,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### GET `/staff/support/enquiries/{supportId}/messages`
 
 - Operation ID: `getStaffSupportEnquiriesBySupportIdMessages`
-- Purpose: Poll new branch-authorized enquiry chat messages. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Chronological replies, status updates and authorized internal notes. messageId starts inclusively at an entry within this authorized conversation; cursor continues after an entry. Customer reads reject private and foreign anchors. Legacy messages retain their original content without inferred status metadata. Poll new branch-authorized enquiry chat messages. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: STAFF, ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Not required
@@ -9989,6 +12908,7 @@ Parameters:
 | Parameter | Location | Type | Required | Purpose |
 | --- | --- | --- | --- | --- |
 | `supportId` | path | string (uuid) | Yes | Identifier selecting the support resource. |
+| `messageId` | query | string (uuid) | No | Message Id used to constrain this request. |
 | `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
 | `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
 
@@ -9999,8 +12919,21 @@ Success: HTTP 200.
   "success": true,
   "message": "Poll new branch-authorized enquiry chat messages",
   "data": {
-    "id": "00000000-0000-4000-8000-000000000001",
-    "status": "synthetic-status"
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "authorType": "CUSTOMER",
+        "visibility": "CUSTOMER",
+        "body": "synthetic-body",
+        "createdAt": "2030-01-15T10:00:00.000Z",
+        "kind": "LEGACY",
+        "fromStatus": "synthetic-fromstatus",
+        "toStatus": "synthetic-tostatus"
+      }
+    ],
+    "cursor": "00000000-0000-4000-8000-000000000001",
+    "hasMore": true,
+    "pollAfterMs": 1
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -10063,7 +12996,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### GET `/staff/support/complaints/{supportId}/messages`
 
 - Operation ID: `getStaffSupportComplaintsBySupportIdMessages`
-- Purpose: Poll new branch-authorized complaint chat messages. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Chronological replies, status updates and authorized internal notes. messageId starts inclusively at an entry within this authorized conversation; cursor continues after an entry. Customer reads reject private and foreign anchors. Legacy messages retain their original content without inferred status metadata. Poll new branch-authorized complaint chat messages. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: STAFF, ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Not required
@@ -10074,6 +13007,7 @@ Parameters:
 | Parameter | Location | Type | Required | Purpose |
 | --- | --- | --- | --- | --- |
 | `supportId` | path | string (uuid) | Yes | Identifier selecting the support resource. |
+| `messageId` | query | string (uuid) | No | Message Id used to constrain this request. |
 | `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
 | `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
 
@@ -10084,8 +13018,21 @@ Success: HTTP 200.
   "success": true,
   "message": "Poll new branch-authorized complaint chat messages",
   "data": {
-    "id": "00000000-0000-4000-8000-000000000001",
-    "status": "synthetic-status"
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "authorType": "CUSTOMER",
+        "visibility": "CUSTOMER",
+        "body": "synthetic-body",
+        "createdAt": "2030-01-15T10:00:00.000Z",
+        "kind": "LEGACY",
+        "fromStatus": "synthetic-fromstatus",
+        "toStatus": "synthetic-tostatus"
+      }
+    ],
+    "cursor": "00000000-0000-4000-8000-000000000001",
+    "hasMore": true,
+    "pollAfterMs": 1
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -10160,6 +13107,7 @@ Parameters:
 | --- | --- | --- | --- | --- |
 | `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
 | `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+| `q` | query | string | No | Q used to constrain this request. |
 | `branchId` | query | string (uuid) | No | Branch Id used to constrain this request. |
 | `type` | query | GENERAL / PRODUCT / VEHICLE / SERVICE / BOOKING / QUOTATION | No | Type used to constrain this request. |
 | `status` | query | OPEN / IN_PROGRESS / RESOLVED / CLOSED | No | Status used to constrain this request. |
@@ -10338,6 +13286,7 @@ Parameters:
 | --- | --- | --- | --- | --- |
 | `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
 | `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+| `q` | query | string | No | Q used to constrain this request. |
 | `branchId` | query | string (uuid) | No | Branch Id used to constrain this request. |
 | `status` | query | OPEN / INVESTIGATING / RESOLVED / CLOSED | No | Status used to constrain this request. |
 | `priority` | query | LOW / MEDIUM / HIGH / URGENT | No | Priority used to constrain this request. |
@@ -10678,6 +13627,325 @@ Success: HTTP 200.
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
+### GET `/staff/notifications/attention`
+
+- Operation ID: `getStaffNotificationsAttention`
+- Purpose: List unread updates with currently authorized targets in one sidebar section. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `section` | query | /dashboard/bookings / /dashboard/orders / /dashboard/payments / /dashboard/invoices / /dashboard/vehicle-transactions / /dashboard/support / /dashboard/reviews / /admin/bookings / /admin/orders / /admin/payments / /admin/invoices / /admin/vehicle-sales / /admin/support / /admin/refunds / /admin/payment-disputes / /admin/payment-disputes/work / /admin/workforce/jobs / /admin/workforce/bookings / /admin/workforce/orders / /admin/workforce/enquiries / /admin/workforce/complaints / /admin/workforce/finance | Yes | Section used to constrain this request. |
+| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
+| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "List unread updates with currently authorized targets in one sidebar section",
+  "data": {
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "destination": {
+          "section": "synthetic-section",
+          "href": "synthetic-href",
+          "label": "synthetic-label"
+        },
+        "type": "synthetic-type",
+        "category": "synthetic-category",
+        "title": "synthetic-title",
+        "message": "synthetic-message",
+        "resourceType": "synthetic-resourcetype",
+        "resourceId": "synthetic-resourceid",
+        "supportMessageId": "00000000-0000-4000-8000-000000000001",
+        "readAt": "2030-01-15T10:00:00.000Z",
+        "expiresAt": "2030-01-15T10:00:00.000Z",
+        "createdAt": "2030-01-15T10:00:00.000Z"
+      }
+    ],
+    "nextCursor": "00000000-0000-4000-8000-000000000001"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 Target or cursor unavailable; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/staff/notifications/context`
+
+- Operation ID: `getStaffNotificationsContext`
+- Purpose: Read own unread updates for one currently authorized record without marking them read. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `resourceType` | query | BOOKING / WORKFORCE_JOB / ORDER / PAYMENT / INVOICE / VEHICLE_TRANSACTION / ENQUIRY / COMPLAINT / REVIEW / REFUND / DISPUTE | Yes | Resource Type used to constrain this request. |
+| `resourceId` | query | string (uuid) | Yes | Resource Id used to constrain this request. |
+| `messageIds` | query | string | No | Message Ids used to constrain this request. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Read own unread updates for one currently authorized record without marking them read",
+  "data": {
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "destination": {
+          "section": "synthetic-section",
+          "href": "synthetic-href",
+          "label": "synthetic-label"
+        },
+        "type": "synthetic-type",
+        "category": "synthetic-category",
+        "title": "synthetic-title",
+        "message": "synthetic-message",
+        "resourceType": "synthetic-resourcetype",
+        "resourceId": "synthetic-resourceid",
+        "supportMessageId": "00000000-0000-4000-8000-000000000001",
+        "readAt": "2030-01-15T10:00:00.000Z",
+        "expiresAt": "2030-01-15T10:00:00.000Z",
+        "createdAt": "2030-01-15T10:00:00.000Z"
+      }
+    ],
+    "hasMore": true
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 Target or cursor unavailable; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### POST `/staff/notifications/read-context`
+
+- Operation ID: `postStaffNotificationsReadContext`
+- Purpose: Called only after the record and relevant message are displayed. Every supplied ID must belong to this recipient and exact target, be unexpired and still accessible. Repeated calls do not change the original read time. Does not change any business status. Manual individual and bulk read operations remain available. Idempotently acknowledge displayed notifications for one authorized record. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `resourceType` | BOOKING / WORKFORCE_JOB / ORDER / PAYMENT / INVOICE / VEHICLE_TRANSACTION / ENQUIRY / COMPLAINT / REVIEW / REFUND / DISPUTE | Yes | Resource Type validated by this operation's strict request contract. |
+| `resourceId` | string (uuid) | Yes | Identifier of the resource resource; ownership is resolved server-side. |
+| `notificationIds` | array<string (uuid)> | Yes | Notification Ids validated by this operation's strict request contract. |
+
+Synthetic request example:
+
+```json
+{
+  "resourceType": "BOOKING",
+  "resourceId": "00000000-0000-4000-8000-000000000001",
+  "notificationIds": [
+    "00000000-0000-4000-8000-000000000001"
+  ]
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Idempotently acknowledge displayed notifications for one authorized record",
+  "data": {
+    "updated": "2030-01-15T10:00:00.000Z"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 A supplied notification or its current target is unavailable; no read changes applied; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/staff/notifications/{notificationId}`
+
+- Operation ID: `getStaffNotificationsByNotificationId`
+- Purpose: Read one owned unexpired notification. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `notificationId` | path | string (uuid) | Yes | Identifier selecting the notification resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Read one owned unexpired notification",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "destination": {
+      "section": "synthetic-section",
+      "href": "synthetic-href",
+      "label": "synthetic-label"
+    },
+    "type": "synthetic-type",
+    "category": "synthetic-category",
+    "title": "synthetic-title",
+    "message": "synthetic-message",
+    "resourceType": "synthetic-resourcetype",
+    "resourceId": "synthetic-resourceid",
+    "supportMessageId": "00000000-0000-4000-8000-000000000001",
+    "readAt": "2030-01-15T10:00:00.000Z",
+    "expiresAt": "2030-01-15T10:00:00.000Z",
+    "createdAt": "2030-01-15T10:00:00.000Z"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 Notification unavailable; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/staff/notifications/push`
+
+- Operation ID: `getStaffNotificationsPush`
+- Purpose: Read browser push availability and current session subscription status. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Read browser push availability and current session subscription status",
+  "data": {
+    "available": true,
+    "publicKey": "synthetic-publickey",
+    "enabled": true,
+    "endpointHashes": [
+      "synthetic-endpointhashes-item"
+    ]
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### PUT `/staff/notifications/push`
+
+- Operation ID: `putStaffNotificationsPush`
+- Purpose: Opt this session into browser push. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `endpoint` | string | Yes | Endpoint validated by this operation's strict request contract. |
+| `keys` | object | Yes | Keys validated by this operation's strict request contract. |
+
+Synthetic request example:
+
+```json
+{
+  "endpoint": "synthetic-endpoint",
+  "keys": {
+    "p256dh": "synthetic-p256dh",
+    "auth": "synthetic-auth"
+  }
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Opt this session into browser push",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "status": "synthetic-status"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 Unavailable or endpoint belongs to another account; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### DELETE `/staff/notifications/push`
+
+- Operation ID: `deleteStaffNotificationsPush`
+- Purpose: Disable browser push for this session only. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Disable browser push for this session only",
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
 ### GET `/staff/notifications/summary`
 
 - Operation ID: `getStaffNotificationsSummary`
@@ -10694,6 +13962,14 @@ Success: HTTP 200.
   "success": true,
   "message": "Count all own unexpired unread notifications by related resource",
   "data": {
+    "destinations": [
+      {
+        "section": "synthetic-section",
+        "count": 1,
+        "recordCount": 1,
+        "href": "synthetic-href"
+      }
+    ],
     "unreadCount": 0,
     "groups": [
       {
@@ -10741,7 +14017,21 @@ Success: HTTP 200.
     "items": [
       {
         "id": "00000000-0000-4000-8000-000000000001",
-        "status": "synthetic-status"
+        "destination": {
+          "section": "synthetic-section",
+          "href": "synthetic-href",
+          "label": "synthetic-label"
+        },
+        "type": "synthetic-type",
+        "category": "synthetic-category",
+        "title": "synthetic-title",
+        "message": "synthetic-message",
+        "resourceType": "synthetic-resourcetype",
+        "resourceId": "synthetic-resourceid",
+        "supportMessageId": "00000000-0000-4000-8000-000000000001",
+        "readAt": "2030-01-15T10:00:00.000Z",
+        "expiresAt": "2030-01-15T10:00:00.000Z",
+        "createdAt": "2030-01-15T10:00:00.000Z"
       }
     ],
     "nextCursor": "00000000-0000-4000-8000-000000000001"
@@ -10757,7 +14047,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### POST `/staff/notifications/read-all`
 
 - Operation ID: `postStaffNotificationsReadAll`
-- Purpose: Mark all own notifications as read. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: Marks the whole owned inbox, independent of filters and pagination, through the returned server cutoff. Notifications created after that cutoff remain unread. Does not change business records or send messages. Mark all own notifications as read. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
 - Roles: STAFF, ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -10776,8 +14066,8 @@ Success: HTTP 200.
   "success": true,
   "message": "Mark all own notifications as read",
   "data": {
-    "id": "00000000-0000-4000-8000-000000000001",
-    "status": "synthetic-status"
+    "updated": "2030-01-15T10:00:00.000Z",
+    "cutoff": "2030-01-15T10:00:00.000Z"
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -10786,6 +14076,54 @@ Success: HTTP 200.
 ```
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### POST `/staff/notifications/{notificationId}/unread`
+
+- Operation ID: `postStaffNotificationsByNotificationIdUnread`
+- Purpose: Idempotently mark one owned notification unread without changing its source. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `notificationId` | path | string (uuid) | Yes | Identifier selecting the notification resource. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Idempotently mark one owned notification unread without changing its source",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "destination": {
+      "section": "synthetic-section",
+      "href": "synthetic-href",
+      "label": "synthetic-label"
+    },
+    "type": "synthetic-type",
+    "category": "synthetic-category",
+    "title": "synthetic-title",
+    "message": "synthetic-message",
+    "resourceType": "synthetic-resourcetype",
+    "resourceId": "synthetic-resourceid",
+    "supportMessageId": "00000000-0000-4000-8000-000000000001",
+    "readAt": "2030-01-15T10:00:00.000Z",
+    "expiresAt": "2030-01-15T10:00:00.000Z",
+    "createdAt": "2030-01-15T10:00:00.000Z"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 Notification not owned; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/staff/notifications/{notificationId}/read`
 
@@ -10811,7 +14149,21 @@ Success: HTTP 200.
   "message": "Mark one owned notification as read",
   "data": {
     "id": "00000000-0000-4000-8000-000000000001",
-    "status": "synthetic-status"
+    "destination": {
+      "section": "synthetic-section",
+      "href": "synthetic-href",
+      "label": "synthetic-label"
+    },
+    "type": "synthetic-type",
+    "category": "synthetic-category",
+    "title": "synthetic-title",
+    "message": "synthetic-message",
+    "resourceType": "synthetic-resourcetype",
+    "resourceId": "synthetic-resourceid",
+    "supportMessageId": "00000000-0000-4000-8000-000000000001",
+    "readAt": "2030-01-15T10:00:00.000Z",
+    "expiresAt": "2030-01-15T10:00:00.000Z",
+    "createdAt": "2030-01-15T10:00:00.000Z"
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -10840,6 +14192,11 @@ Success: HTTP 200.
     "immutableCategories": [
       "SECURITY"
     ],
+    "channels": {
+      "email": "customer@example.test",
+      "sms": true,
+      "marketing": false
+    },
     "preferences": [
       {
         "category": "OPERATIONAL",
@@ -12728,6 +16085,419 @@ Success: HTTP 200.
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
+### GET `/staff/workforce/aftercare`
+
+- Operation ID: `getStaffWorkforceAftercare`
+- Purpose: Explicit enrollment required for operational queues. Current assignments, branch, field projections and state are enforced in a transaction. Access changes require MFA, current password, target/version review and an owner-configured delegation envelope. No financial execution, exports or collection release authority is conferred by a title. Responsibility-based workspace: aftercare. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
+| `q` | query | string | No | Q used to constrain this request. |
+| `status` | query | REQUESTED / RECEIVED / INSPECTED / APPROVED / REJECTED | No | Status used to constrain this request. |
+| `kind` | query | RETURN / CANCELLATION | No | Kind used to constrain this request. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Responsibility-based workspace: aftercare",
+  "data": {
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "orderId": "00000000-0000-4000-8000-000000000001",
+        "kind": "synthetic-kind",
+        "status": "synthetic-status",
+        "requestedAt": "2030-01-15T10:00:00.000Z",
+        "receivedAt": "2030-01-15T10:00:00.000Z",
+        "inspectedAt": "2030-01-15T10:00:00.000Z",
+        "reviewedAt": "2030-01-15T10:00:00.000Z",
+        "approvedFeeKobo": "300000",
+        "order": {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "orderNumber": "synthetic-ordernumber",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "branch": {
+            "id": "00000000-0000-4000-8000-000000000001",
+            "name": "synthetic-name"
+          },
+          "currency": "NGN",
+          "totalKobo": "300000",
+          "confirmedAt": "2030-01-15T10:00:00.000Z",
+          "fulfillmentMethod": "COLLECTION"
+        }
+      }
+    ],
+    "nextCursor": "00000000-0000-4000-8000-000000000001",
+    "access": {
+      "managed": true,
+      "userId": "00000000-0000-4000-8000-000000000001",
+      "staffId": "00000000-0000-4000-8000-000000000001",
+      "position": "synthetic-position",
+      "department": "synthetic-department",
+      "version": 0,
+      "assignments": [
+        {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "userId": "00000000-0000-4000-8000-000000000001",
+          "template": "OPERATIONS",
+          "templateVersion": 1,
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH",
+          "temporary": true,
+          "startsAt": "2030-01-15T10:00:00.000Z",
+          "expiresAt": "2030-01-15T10:00:00.000Z",
+          "reason": "synthetic-reason",
+          "assignedByUserId": "00000000-0000-4000-8000-000000000001",
+          "createdAt": "2030-01-15T10:00:00.000Z",
+          "revokedAt": "2030-01-15T10:00:00.000Z",
+          "revokedByUserId": "00000000-0000-4000-8000-000000000001",
+          "revocationReason": "synthetic-revocationreason"
+        }
+      ],
+      "permissions": [
+        "synthetic-permissions-item"
+      ],
+      "independentCapabilities": [
+        "REFUND_APPROVE"
+      ],
+      "canManageAssignments": true,
+      "canInviteAdmins": true,
+      "accessRevision": "synthetic-accessrevision",
+      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+      "capabilityScopes": [
+        {
+          "capability": "synthetic-capability",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH"
+        }
+      ],
+      "serverTime": "2030-01-15T10:00:00.000Z"
+    },
+    "generatedAt": "2030-01-15T10:00:00.000Z"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 Current access does not permit this request; 404 Record unavailable in permitted scope; 409 Stale version or invalid state; 422 Invalid fields; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/staff/workforce/aftercare/{id}`
+
+- Operation ID: `getStaffWorkforceAftercareById`
+- Purpose: Explicit enrollment required for operational queues. Current assignments, branch, field projections and state are enforced in a transaction. Access changes require MFA, current password, target/version review and an owner-configured delegation envelope. No financial execution, exports or collection release authority is conferred by a title. Responsibility-based workspace: aftercareRequest. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Responsibility-based workspace: aftercareRequest",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "orderId": "00000000-0000-4000-8000-000000000001",
+    "kind": "synthetic-kind",
+    "status": "synthetic-status",
+    "requestedAt": "2030-01-15T10:00:00.000Z",
+    "receivedAt": "2030-01-15T10:00:00.000Z",
+    "inspectedAt": "2030-01-15T10:00:00.000Z",
+    "reviewedAt": "2030-01-15T10:00:00.000Z",
+    "approvedFeeKobo": "300000",
+    "order": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "orderNumber": "synthetic-ordernumber",
+      "branchId": "00000000-0000-4000-8000-000000000001",
+      "branch": {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "name": "synthetic-name"
+      },
+      "currency": "NGN",
+      "totalKobo": "300000",
+      "confirmedAt": "2030-01-15T10:00:00.000Z",
+      "fulfillmentMethod": "COLLECTION"
+    },
+    "reason": "synthetic-reason",
+    "reviewReason": "synthetic-reviewreason",
+    "inspectionNote": "synthetic-inspectionnote",
+    "goodCondition": "synthetic-goodcondition",
+    "reviewNote": "synthetic-reviewnote",
+    "requestedItems": "synthetic-requesteditems",
+    "policy": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "key": "synthetic-key",
+      "version": 1,
+      "approvalStatus": "synthetic-approvalstatus",
+      "source": "synthetic-source",
+      "effectiveAt": "2030-01-15T10:00:00.000Z"
+    },
+    "reviewEvidenceReady": true,
+    "reviewRevision": "synthetic-reviewrevision",
+    "access": {
+      "managed": true,
+      "userId": "00000000-0000-4000-8000-000000000001",
+      "staffId": "00000000-0000-4000-8000-000000000001",
+      "position": "synthetic-position",
+      "department": "synthetic-department",
+      "version": 0,
+      "assignments": [
+        {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "userId": "00000000-0000-4000-8000-000000000001",
+          "template": "OPERATIONS",
+          "templateVersion": 1,
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH",
+          "temporary": true,
+          "startsAt": "2030-01-15T10:00:00.000Z",
+          "expiresAt": "2030-01-15T10:00:00.000Z",
+          "reason": "synthetic-reason",
+          "assignedByUserId": "00000000-0000-4000-8000-000000000001",
+          "createdAt": "2030-01-15T10:00:00.000Z",
+          "revokedAt": "2030-01-15T10:00:00.000Z",
+          "revokedByUserId": "00000000-0000-4000-8000-000000000001",
+          "revocationReason": "synthetic-revocationreason"
+        }
+      ],
+      "permissions": [
+        "synthetic-permissions-item"
+      ],
+      "independentCapabilities": [
+        "REFUND_APPROVE"
+      ],
+      "canManageAssignments": true,
+      "canInviteAdmins": true,
+      "accessRevision": "synthetic-accessrevision",
+      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+      "capabilityScopes": [
+        {
+          "capability": "synthetic-capability",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH"
+        }
+      ],
+      "serverTime": "2030-01-15T10:00:00.000Z"
+    },
+    "generatedAt": "2030-01-15T10:00:00.000Z"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 Current access does not permit this request; 404 Record unavailable in permitted scope; 409 Stale version or invalid state; 422 Invalid fields; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### POST `/staff/workforce/aftercare/{id}/decision`
+
+- Operation ID: `postStaffWorkforceAftercareByIdDecision`
+- Purpose: Explicit enrollment required for operational queues. Current assignments, branch, field projections and state are enforced in a transaction. Access changes require MFA, current password, target/version review and an owner-configured delegation envelope. No financial execution, exports or collection release authority is conferred by a title. Responsibility-based workspace: aftercareDecision. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `note` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| `approvedFeeKobo` | string | No | Approved Fee Kobo validated by this operation's strict request contract. |
+| `stage` | APPROVED / REJECTED | Yes | Stage validated by this operation's strict request contract. |
+| `expectedStatus` | REQUESTED / RECEIVED / INSPECTED / APPROVED / REJECTED | Yes | Expected Status validated by this operation's strict request contract. |
+| `expectedRevision` | string | Yes | Last server version observed by the client; stale writes are rejected. |
+
+Synthetic request example:
+
+```json
+{
+  "note": "synthetic-note",
+  "approvedFeeKobo": "300000",
+  "stage": "APPROVED",
+  "expectedStatus": "REQUESTED",
+  "expectedRevision": "synthetic-expectedrevision"
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Responsibility-based workspace: aftercareDecision",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "orderId": "00000000-0000-4000-8000-000000000001",
+    "branchId": "00000000-0000-4000-8000-000000000001",
+    "status": "APPROVED",
+    "reviewNote": "synthetic-reviewnote",
+    "approvedFeeKobo": "300000",
+    "reviewedAt": "2030-01-15T10:00:00.000Z",
+    "performedByUserId": "00000000-0000-4000-8000-000000000001"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 Current access does not permit this request; 404 Record unavailable in permitted scope; 409 Stale version or invalid state; 422 Invalid fields; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### POST `/staff/workforce/enquiries/{id}/email-deliveries/dismiss`
+
+- Operation ID: `postStaffWorkforceEnquiriesByIdEmailDeliveriesDismiss`
+- Purpose: Explicit enrollment required for operational queues. Current assignments, branch, field projections and state are enforced in a transaction. Access changes require MFA, current password, target/version review and an owner-configured delegation envelope. No financial execution, exports or collection release authority is conferred by a title. Responsibility-based workspace: enquiryDeliveryDismiss. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `notices` | array<object> | Yes | Notices validated by this operation's strict request contract. |
+
+Synthetic request example:
+
+```json
+{
+  "notices": [
+    {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "revision": "synthetic-revision"
+    }
+  ]
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Responsibility-based workspace: enquiryDeliveryDismiss",
+  "data": {
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "status": "QUEUED",
+        "reason": "CHANNEL_DISABLED",
+        "createdAt": "2030-01-15T10:00:00.000Z",
+        "sentAt": "2030-01-15T10:00:00.000Z",
+        "attempts": 0,
+        "nextRetryAt": "2030-01-15T10:00:00.000Z",
+        "providerStatus": "DELIVERED",
+        "providerUpdatedAt": "2030-01-15T10:00:00.000Z"
+      }
+    ]
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 Current access does not permit this request; 404 Record unavailable in permitted scope; 409 Stale version or invalid state; 422 Invalid fields; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### POST `/staff/workforce/complaints/{id}/email-deliveries/dismiss`
+
+- Operation ID: `postStaffWorkforceComplaintsByIdEmailDeliveriesDismiss`
+- Purpose: Explicit enrollment required for operational queues. Current assignments, branch, field projections and state are enforced in a transaction. Access changes require MFA, current password, target/version review and an owner-configured delegation envelope. No financial execution, exports or collection release authority is conferred by a title. Responsibility-based workspace: complaintDeliveryDismiss. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `notices` | array<object> | Yes | Notices validated by this operation's strict request contract. |
+
+Synthetic request example:
+
+```json
+{
+  "notices": [
+    {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "revision": "synthetic-revision"
+    }
+  ]
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Responsibility-based workspace: complaintDeliveryDismiss",
+  "data": {
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "status": "QUEUED",
+        "reason": "CHANNEL_DISABLED",
+        "createdAt": "2030-01-15T10:00:00.000Z",
+        "sentAt": "2030-01-15T10:00:00.000Z",
+        "attempts": 0,
+        "nextRetryAt": "2030-01-15T10:00:00.000Z",
+        "providerStatus": "DELIVERED",
+        "providerUpdatedAt": "2030-01-15T10:00:00.000Z"
+      }
+    ]
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 Current access does not permit this request; 404 Record unavailable in permitted scope; 409 Stale version or invalid state; 422 Invalid fields; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
 ### GET `/staff/workforce/jobs/{id}/assignees`
 
 - Operation ID: `getStaffWorkforceJobsByIdAssignees`
@@ -12766,7 +16536,7 @@ Success: HTTP 200.
       "managed": true,
       "userId": "00000000-0000-4000-8000-000000000001",
       "staffId": "00000000-0000-4000-8000-000000000001",
-      "position": "CEO_MD",
+      "position": "synthetic-position",
       "department": "synthetic-department",
       "version": 0,
       "assignments": [
@@ -12774,6 +16544,7 @@ Success: HTTP 200.
           "id": "00000000-0000-4000-8000-000000000001",
           "userId": "00000000-0000-4000-8000-000000000001",
           "template": "OPERATIONS",
+          "templateVersion": 1,
           "branchId": "00000000-0000-4000-8000-000000000001",
           "scope": "BRANCH",
           "temporary": true,
@@ -12790,8 +16561,20 @@ Success: HTTP 200.
       "permissions": [
         "synthetic-permissions-item"
       ],
+      "independentCapabilities": [
+        "REFUND_APPROVE"
+      ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
+      "accessRevision": "synthetic-accessrevision",
+      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+      "capabilityScopes": [
+        {
+          "capability": "synthetic-capability",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH"
+        }
+      ],
       "serverTime": "2030-01-15T10:00:00.000Z"
     },
     "jobId": "00000000-0000-4000-8000-000000000001",
@@ -12844,7 +16627,7 @@ Success: HTTP 200.
       "managed": true,
       "userId": "00000000-0000-4000-8000-000000000001",
       "staffId": "00000000-0000-4000-8000-000000000001",
-      "position": "CEO_MD",
+      "position": "synthetic-position",
       "department": "synthetic-department",
       "version": 0,
       "assignments": [
@@ -12852,6 +16635,7 @@ Success: HTTP 200.
           "id": "00000000-0000-4000-8000-000000000001",
           "userId": "00000000-0000-4000-8000-000000000001",
           "template": "OPERATIONS",
+          "templateVersion": 1,
           "branchId": "00000000-0000-4000-8000-000000000001",
           "scope": "BRANCH",
           "temporary": true,
@@ -12868,8 +16652,20 @@ Success: HTTP 200.
       "permissions": [
         "synthetic-permissions-item"
       ],
+      "independentCapabilities": [
+        "REFUND_APPROVE"
+      ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
+      "accessRevision": "synthetic-accessrevision",
+      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+      "capabilityScopes": [
+        {
+          "capability": "synthetic-capability",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH"
+        }
+      ],
       "serverTime": "2030-01-15T10:00:00.000Z"
     },
     "enquiryId": "00000000-0000-4000-8000-000000000001",
@@ -12934,7 +16730,7 @@ Success: HTTP 200.
       "managed": true,
       "userId": "00000000-0000-4000-8000-000000000001",
       "staffId": "00000000-0000-4000-8000-000000000001",
-      "position": "CEO_MD",
+      "position": "synthetic-position",
       "department": "synthetic-department",
       "version": 0,
       "assignments": [
@@ -12942,6 +16738,7 @@ Success: HTTP 200.
           "id": "00000000-0000-4000-8000-000000000001",
           "userId": "00000000-0000-4000-8000-000000000001",
           "template": "OPERATIONS",
+          "templateVersion": 1,
           "branchId": "00000000-0000-4000-8000-000000000001",
           "scope": "BRANCH",
           "temporary": true,
@@ -12958,18 +16755,230 @@ Success: HTTP 200.
       "permissions": [
         "synthetic-permissions-item"
       ],
+      "independentCapabilities": [
+        "REFUND_APPROVE"
+      ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
+      "accessRevision": "synthetic-accessrevision",
+      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+      "capabilityScopes": [
+        {
+          "capability": "synthetic-capability",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH"
+        }
+      ],
       "serverTime": "2030-01-15T10:00:00.000Z"
     },
     "action": "reply",
     "messageReceipt": {
+      "kind": "LEGACY",
+      "fromStatus": "synthetic-fromstatus",
+      "toStatus": "synthetic-tostatus",
       "id": "00000000-0000-4000-8000-000000000001",
       "authorType": "CUSTOMER",
       "visibility": "CUSTOMER",
       "body": "synthetic-body",
       "createdAt": "2030-01-15T10:00:00.000Z",
       "complaintId": "00000000-0000-4000-8000-000000000001"
+    }
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 Current access does not permit this request; 404 Record unavailable in permitted scope; 409 Stale version or invalid state; 422 Invalid fields; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/staff/workforce/complaints/{id}/assignees`
+
+- Operation ID: `getStaffWorkforceComplaintsByIdAssignees`
+- Purpose: Explicit enrollment required for operational queues. Current assignments, branch, field projections and state are enforced in a transaction. Access changes require MFA, current password, target/version review and an owner-configured delegation envelope. No financial execution, exports or collection release authority is conferred by a title. Responsibility-based workspace: complaintAssignees. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
+| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
+| `q` | query | string | No | Q used to constrain this request. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Responsibility-based workspace: complaintAssignees",
+  "data": {
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "firstName": "synthetic-firstname",
+        "lastName": "synthetic-lastname"
+      }
+    ],
+    "nextCursor": "00000000-0000-4000-8000-000000000001",
+    "generatedAt": "2030-01-15T10:00:00.000Z",
+    "access": {
+      "managed": true,
+      "userId": "00000000-0000-4000-8000-000000000001",
+      "staffId": "00000000-0000-4000-8000-000000000001",
+      "position": "synthetic-position",
+      "department": "synthetic-department",
+      "version": 0,
+      "assignments": [
+        {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "userId": "00000000-0000-4000-8000-000000000001",
+          "template": "OPERATIONS",
+          "templateVersion": 1,
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH",
+          "temporary": true,
+          "startsAt": "2030-01-15T10:00:00.000Z",
+          "expiresAt": "2030-01-15T10:00:00.000Z",
+          "reason": "synthetic-reason",
+          "assignedByUserId": "00000000-0000-4000-8000-000000000001",
+          "createdAt": "2030-01-15T10:00:00.000Z",
+          "revokedAt": "2030-01-15T10:00:00.000Z",
+          "revokedByUserId": "00000000-0000-4000-8000-000000000001",
+          "revocationReason": "synthetic-revocationreason"
+        }
+      ],
+      "permissions": [
+        "synthetic-permissions-item"
+      ],
+      "independentCapabilities": [
+        "REFUND_APPROVE"
+      ],
+      "canManageAssignments": true,
+      "canInviteAdmins": true,
+      "accessRevision": "synthetic-accessrevision",
+      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+      "capabilityScopes": [
+        {
+          "capability": "synthetic-capability",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH"
+        }
+      ],
+      "serverTime": "2030-01-15T10:00:00.000Z"
+    },
+    "complaintId": "00000000-0000-4000-8000-000000000001",
+    "complaintVersion": 0,
+    "branchId": "00000000-0000-4000-8000-000000000001"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 Current access does not permit this request; 404 Record unavailable in permitted scope; 409 Stale version or invalid state; 422 Invalid fields; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### PATCH `/staff/workforce/complaints/{id}/assignment`
+
+- Operation ID: `patchStaffWorkforceComplaintsByIdAssignment`
+- Purpose: Explicit enrollment required for operational queues. Current assignments, branch, field projections and state are enforced in a transaction. Access changes require MFA, current password, target/version review and an owner-configured delegation envelope. No financial execution, exports or collection release authority is conferred by a title. Responsibility-based workspace: complaintAssignment. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+| `staffId` | string (uuid) | Yes | Identifier of the staff resource; ownership is resolved server-side. |
+| `reason` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+
+Synthetic request example:
+
+```json
+{
+  "expectedVersion": 0,
+  "staffId": "00000000-0000-4000-8000-000000000001",
+  "reason": "synthetic-reason"
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Responsibility-based workspace: complaintAssignment",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "version": 0,
+    "branchId": "00000000-0000-4000-8000-000000000001",
+    "actorUserId": "00000000-0000-4000-8000-000000000001",
+    "generatedAt": "2030-01-15T10:00:00.000Z",
+    "access": {
+      "managed": true,
+      "userId": "00000000-0000-4000-8000-000000000001",
+      "staffId": "00000000-0000-4000-8000-000000000001",
+      "position": "synthetic-position",
+      "department": "synthetic-department",
+      "version": 0,
+      "assignments": [
+        {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "userId": "00000000-0000-4000-8000-000000000001",
+          "template": "OPERATIONS",
+          "templateVersion": 1,
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH",
+          "temporary": true,
+          "startsAt": "2030-01-15T10:00:00.000Z",
+          "expiresAt": "2030-01-15T10:00:00.000Z",
+          "reason": "synthetic-reason",
+          "assignedByUserId": "00000000-0000-4000-8000-000000000001",
+          "createdAt": "2030-01-15T10:00:00.000Z",
+          "revokedAt": "2030-01-15T10:00:00.000Z",
+          "revokedByUserId": "00000000-0000-4000-8000-000000000001",
+          "revocationReason": "synthetic-revocationreason"
+        }
+      ],
+      "permissions": [
+        "synthetic-permissions-item"
+      ],
+      "independentCapabilities": [
+        "REFUND_APPROVE"
+      ],
+      "canManageAssignments": true,
+      "canInviteAdmins": true,
+      "accessRevision": "synthetic-accessrevision",
+      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+      "capabilityScopes": [
+        {
+          "capability": "synthetic-capability",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH"
+        }
+      ],
+      "serverTime": "2030-01-15T10:00:00.000Z"
+    },
+    "action": "assignment",
+    "assignmentReceipt": {
+      "staffId": "00000000-0000-4000-8000-000000000001",
+      "previousStaffId": "00000000-0000-4000-8000-000000000001",
+      "reason": "synthetic-reason"
     }
   },
   "meta": {
@@ -13030,7 +17039,7 @@ Success: HTTP 200.
       "managed": true,
       "userId": "00000000-0000-4000-8000-000000000001",
       "staffId": "00000000-0000-4000-8000-000000000001",
-      "position": "CEO_MD",
+      "position": "synthetic-position",
       "department": "synthetic-department",
       "version": 0,
       "assignments": [
@@ -13038,6 +17047,7 @@ Success: HTTP 200.
           "id": "00000000-0000-4000-8000-000000000001",
           "userId": "00000000-0000-4000-8000-000000000001",
           "template": "OPERATIONS",
+          "templateVersion": 1,
           "branchId": "00000000-0000-4000-8000-000000000001",
           "scope": "BRANCH",
           "temporary": true,
@@ -13054,8 +17064,20 @@ Success: HTTP 200.
       "permissions": [
         "synthetic-permissions-item"
       ],
+      "independentCapabilities": [
+        "REFUND_APPROVE"
+      ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
+      "accessRevision": "synthetic-accessrevision",
+      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+      "capabilityScopes": [
+        {
+          "capability": "synthetic-capability",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH"
+        }
+      ],
       "serverTime": "2030-01-15T10:00:00.000Z"
     },
     "action": "assignment",
@@ -13092,7 +17114,7 @@ Success: HTTP 200.
     "managed": true,
     "userId": "00000000-0000-4000-8000-000000000001",
     "staffId": "00000000-0000-4000-8000-000000000001",
-    "position": "CEO_MD",
+    "position": "synthetic-position",
     "department": "synthetic-department",
     "version": 0,
     "assignments": [
@@ -13100,6 +17122,7 @@ Success: HTTP 200.
         "id": "00000000-0000-4000-8000-000000000001",
         "userId": "00000000-0000-4000-8000-000000000001",
         "template": "OPERATIONS",
+        "templateVersion": 1,
         "branchId": "00000000-0000-4000-8000-000000000001",
         "scope": "BRANCH",
         "temporary": true,
@@ -13116,8 +17139,20 @@ Success: HTTP 200.
     "permissions": [
       "synthetic-permissions-item"
     ],
+    "independentCapabilities": [
+      "REFUND_APPROVE"
+    ],
     "canManageAssignments": true,
     "canInviteAdmins": true,
+    "accessRevision": "synthetic-accessrevision",
+    "nextChangeAt": "2030-01-15T10:00:00.000Z",
+    "capabilityScopes": [
+      {
+        "capability": "synthetic-capability",
+        "branchId": "00000000-0000-4000-8000-000000000001",
+        "scope": "BRANCH"
+      }
+    ],
     "serverTime": "2030-01-15T10:00:00.000Z"
   },
   "meta": {
@@ -13150,7 +17185,7 @@ Success: HTTP 200.
       "managed": true,
       "userId": "00000000-0000-4000-8000-000000000001",
       "staffId": "00000000-0000-4000-8000-000000000001",
-      "position": "CEO_MD",
+      "position": "synthetic-position",
       "department": "synthetic-department",
       "version": 0,
       "assignments": [
@@ -13158,6 +17193,7 @@ Success: HTTP 200.
           "id": "00000000-0000-4000-8000-000000000001",
           "userId": "00000000-0000-4000-8000-000000000001",
           "template": "OPERATIONS",
+          "templateVersion": 1,
           "branchId": "00000000-0000-4000-8000-000000000001",
           "scope": "BRANCH",
           "temporary": true,
@@ -13174,8 +17210,20 @@ Success: HTTP 200.
       "permissions": [
         "synthetic-permissions-item"
       ],
+      "independentCapabilities": [
+        "REFUND_APPROVE"
+      ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
+      "accessRevision": "synthetic-accessrevision",
+      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+      "capabilityScopes": [
+        {
+          "capability": "synthetic-capability",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH"
+        }
+      ],
       "serverTime": "2030-01-15T10:00:00.000Z"
     },
     "branches": [
@@ -13257,7 +17305,7 @@ Success: HTTP 200.
       "managed": true,
       "userId": "00000000-0000-4000-8000-000000000001",
       "staffId": "00000000-0000-4000-8000-000000000001",
-      "position": "CEO_MD",
+      "position": "synthetic-position",
       "department": "synthetic-department",
       "version": 0,
       "assignments": [
@@ -13265,6 +17313,7 @@ Success: HTTP 200.
           "id": "00000000-0000-4000-8000-000000000001",
           "userId": "00000000-0000-4000-8000-000000000001",
           "template": "OPERATIONS",
+          "templateVersion": 1,
           "branchId": "00000000-0000-4000-8000-000000000001",
           "scope": "BRANCH",
           "temporary": true,
@@ -13281,8 +17330,20 @@ Success: HTTP 200.
       "permissions": [
         "synthetic-permissions-item"
       ],
+      "independentCapabilities": [
+        "REFUND_APPROVE"
+      ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
+      "accessRevision": "synthetic-accessrevision",
+      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+      "capabilityScopes": [
+        {
+          "capability": "synthetic-capability",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH"
+        }
+      ],
       "serverTime": "2030-01-15T10:00:00.000Z"
     }
   },
@@ -13351,7 +17412,7 @@ Success: HTTP 200.
       "managed": true,
       "userId": "00000000-0000-4000-8000-000000000001",
       "staffId": "00000000-0000-4000-8000-000000000001",
-      "position": "CEO_MD",
+      "position": "synthetic-position",
       "department": "synthetic-department",
       "version": 0,
       "assignments": [
@@ -13359,6 +17420,7 @@ Success: HTTP 200.
           "id": "00000000-0000-4000-8000-000000000001",
           "userId": "00000000-0000-4000-8000-000000000001",
           "template": "OPERATIONS",
+          "templateVersion": 1,
           "branchId": "00000000-0000-4000-8000-000000000001",
           "scope": "BRANCH",
           "temporary": true,
@@ -13375,8 +17437,20 @@ Success: HTTP 200.
       "permissions": [
         "synthetic-permissions-item"
       ],
+      "independentCapabilities": [
+        "REFUND_APPROVE"
+      ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
+      "accessRevision": "synthetic-accessrevision",
+      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+      "capabilityScopes": [
+        {
+          "capability": "synthetic-capability",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH"
+        }
+      ],
       "serverTime": "2030-01-15T10:00:00.000Z"
     },
     "generatedAt": "2030-01-15T10:00:00.000Z"
@@ -13445,7 +17519,7 @@ Success: HTTP 200.
       "managed": true,
       "userId": "00000000-0000-4000-8000-000000000001",
       "staffId": "00000000-0000-4000-8000-000000000001",
-      "position": "CEO_MD",
+      "position": "synthetic-position",
       "department": "synthetic-department",
       "version": 0,
       "assignments": [
@@ -13453,6 +17527,7 @@ Success: HTTP 200.
           "id": "00000000-0000-4000-8000-000000000001",
           "userId": "00000000-0000-4000-8000-000000000001",
           "template": "OPERATIONS",
+          "templateVersion": 1,
           "branchId": "00000000-0000-4000-8000-000000000001",
           "scope": "BRANCH",
           "temporary": true,
@@ -13469,8 +17544,20 @@ Success: HTTP 200.
       "permissions": [
         "synthetic-permissions-item"
       ],
+      "independentCapabilities": [
+        "REFUND_APPROVE"
+      ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
+      "accessRevision": "synthetic-accessrevision",
+      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+      "capabilityScopes": [
+        {
+          "capability": "synthetic-capability",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH"
+        }
+      ],
       "serverTime": "2030-01-15T10:00:00.000Z"
     },
     "branch": {
@@ -13482,6 +17569,171 @@ Success: HTTP 200.
       "firstName": "synthetic-firstname",
       "lastName": "synthetic-lastname"
     }
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 Current access does not permit this request; 404 Record unavailable in permitted scope; 409 Stale version or invalid state; 422 Invalid fields; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### POST `/staff/workforce/bookings/{id}/confirmation`
+
+- Operation ID: `postStaffWorkforceBookingsByIdConfirmation`
+- Purpose: Explicit enrollment required for operational queues. Current assignments, branch, field projections and state are enforced in a transaction. Access changes require MFA, current password, target/version review and an owner-configured delegation envelope. No financial execution, exports or collection release authority is conferred by a title. Responsibility-based workspace: bookingConfirmation. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+| `resourceReviewNote` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+
+Synthetic request example:
+
+```json
+{
+  "expectedVersion": 0,
+  "resourceReviewNote": "synthetic-resourcereviewnote"
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Responsibility-based workspace: bookingConfirmation",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "branchId": "00000000-0000-4000-8000-000000000001",
+    "assignedStaffId": "00000000-0000-4000-8000-000000000001",
+    "status": "CONFIRMED",
+    "version": 0,
+    "scheduledAt": "2030-01-15T10:00:00.000Z",
+    "confirmedAt": "2030-01-15T10:00:00.000Z",
+    "resourceReviewNote": "synthetic-resourcereviewnote",
+    "capacityPolicyVersionId": "00000000-0000-4000-8000-000000000001",
+    "performedByUserId": "00000000-0000-4000-8000-000000000001"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 Current access does not permit this request; 404 Record unavailable in permitted scope; 409 Stale version or invalid state; 422 Invalid fields; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/staff/workforce/bookings/{id}`
+
+- Operation ID: `getStaffWorkforceBookingsById`
+- Purpose: Explicit enrollment required for operational queues. Current assignments, branch, field projections and state are enforced in a transaction. Access changes require MFA, current password, target/version review and an owner-configured delegation envelope. No financial execution, exports or collection release authority is conferred by a title. Responsibility-based workspace: booking. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Responsibility-based workspace: booking",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "branchId": "00000000-0000-4000-8000-000000000001",
+    "branch": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "name": "synthetic-name"
+    },
+    "vehicle": {
+      "make": "synthetic-make",
+      "model": "synthetic-model",
+      "year": "synthetic-year",
+      "registrationNumber": "synthetic-registrationnumber"
+    },
+    "scheduledAt": "2030-01-15T10:00:00.000Z",
+    "status": "synthetic-status",
+    "version": 0,
+    "service": {
+      "name": "synthetic-name",
+      "durationMinutes": "synthetic-durationminutes"
+    },
+    "customer": {
+      "firstName": "synthetic-firstname",
+      "lastName": "synthetic-lastname",
+      "phone": "+2348000000000"
+    },
+    "assignedStaff": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "firstName": "synthetic-firstname",
+      "lastName": "synthetic-lastname"
+    },
+    "confirmedAt": "2030-01-15T10:00:00.000Z",
+    "access": {
+      "managed": true,
+      "userId": "00000000-0000-4000-8000-000000000001",
+      "staffId": "00000000-0000-4000-8000-000000000001",
+      "position": "synthetic-position",
+      "department": "synthetic-department",
+      "version": 0,
+      "assignments": [
+        {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "userId": "00000000-0000-4000-8000-000000000001",
+          "template": "OPERATIONS",
+          "templateVersion": 1,
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH",
+          "temporary": true,
+          "startsAt": "2030-01-15T10:00:00.000Z",
+          "expiresAt": "2030-01-15T10:00:00.000Z",
+          "reason": "synthetic-reason",
+          "assignedByUserId": "00000000-0000-4000-8000-000000000001",
+          "createdAt": "2030-01-15T10:00:00.000Z",
+          "revokedAt": "2030-01-15T10:00:00.000Z",
+          "revokedByUserId": "00000000-0000-4000-8000-000000000001",
+          "revocationReason": "synthetic-revocationreason"
+        }
+      ],
+      "permissions": [
+        "synthetic-permissions-item"
+      ],
+      "independentCapabilities": [
+        "REFUND_APPROVE"
+      ],
+      "canManageAssignments": true,
+      "canInviteAdmins": true,
+      "accessRevision": "synthetic-accessrevision",
+      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+      "capabilityScopes": [
+        {
+          "capability": "synthetic-capability",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH"
+        }
+      ],
+      "serverTime": "2030-01-15T10:00:00.000Z"
+    },
+    "generatedAt": "2030-01-15T10:00:00.000Z"
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -13507,6 +17759,7 @@ Parameters:
 | `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
 | `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
 | `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
+| `messageId` | query | string (uuid) | No | Message Id used to constrain this request. |
 
 Success: HTTP 200.
 
@@ -13533,12 +17786,13 @@ Success: HTTP 200.
     "subject": "synthetic-subject",
     "message": "synthetic-message",
     "type": "synthetic-type",
+    "vehicleEnquiryIntent": "LISTING",
     "assignedStaffId": "00000000-0000-4000-8000-000000000001",
     "access": {
       "managed": true,
       "userId": "00000000-0000-4000-8000-000000000001",
       "staffId": "00000000-0000-4000-8000-000000000001",
-      "position": "CEO_MD",
+      "position": "synthetic-position",
       "department": "synthetic-department",
       "version": 0,
       "assignments": [
@@ -13546,6 +17800,7 @@ Success: HTTP 200.
           "id": "00000000-0000-4000-8000-000000000001",
           "userId": "00000000-0000-4000-8000-000000000001",
           "template": "OPERATIONS",
+          "templateVersion": 1,
           "branchId": "00000000-0000-4000-8000-000000000001",
           "scope": "BRANCH",
           "temporary": true,
@@ -13562,8 +17817,20 @@ Success: HTTP 200.
       "permissions": [
         "synthetic-permissions-item"
       ],
+      "independentCapabilities": [
+        "REFUND_APPROVE"
+      ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
+      "accessRevision": "synthetic-accessrevision",
+      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+      "capabilityScopes": [
+        {
+          "capability": "synthetic-capability",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH"
+        }
+      ],
       "serverTime": "2030-01-15T10:00:00.000Z"
     },
     "generatedAt": "2030-01-15T10:00:00.000Z",
@@ -13571,6 +17838,9 @@ Success: HTTP 200.
     "messages": {
       "items": [
         {
+          "kind": "LEGACY",
+          "fromStatus": "synthetic-fromstatus",
+          "toStatus": "synthetic-tostatus",
           "id": "00000000-0000-4000-8000-000000000001",
           "authorType": "CUSTOMER",
           "visibility": "CUSTOMER",
@@ -13588,7 +17858,11 @@ Success: HTTP 200.
           "status": "QUEUED",
           "reason": "CHANNEL_DISABLED",
           "createdAt": "2030-01-15T10:00:00.000Z",
-          "sentAt": "2030-01-15T10:00:00.000Z"
+          "sentAt": "2030-01-15T10:00:00.000Z",
+          "attempts": 0,
+          "nextRetryAt": "2030-01-15T10:00:00.000Z",
+          "providerStatus": "DELIVERED",
+          "providerUpdatedAt": "2030-01-15T10:00:00.000Z"
         }
       ]
     }
@@ -13678,7 +17952,7 @@ Success: HTTP 200.
       "managed": true,
       "userId": "00000000-0000-4000-8000-000000000001",
       "staffId": "00000000-0000-4000-8000-000000000001",
-      "position": "CEO_MD",
+      "position": "synthetic-position",
       "department": "synthetic-department",
       "version": 0,
       "assignments": [
@@ -13686,6 +17960,7 @@ Success: HTTP 200.
           "id": "00000000-0000-4000-8000-000000000001",
           "userId": "00000000-0000-4000-8000-000000000001",
           "template": "OPERATIONS",
+          "templateVersion": 1,
           "branchId": "00000000-0000-4000-8000-000000000001",
           "scope": "BRANCH",
           "temporary": true,
@@ -13702,8 +17977,20 @@ Success: HTTP 200.
       "permissions": [
         "synthetic-permissions-item"
       ],
+      "independentCapabilities": [
+        "REFUND_APPROVE"
+      ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
+      "accessRevision": "synthetic-accessrevision",
+      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+      "capabilityScopes": [
+        {
+          "capability": "synthetic-capability",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH"
+        }
+      ],
       "serverTime": "2030-01-15T10:00:00.000Z"
     },
     "branch": {
@@ -13797,7 +18084,7 @@ Success: HTTP 200.
       "managed": true,
       "userId": "00000000-0000-4000-8000-000000000001",
       "staffId": "00000000-0000-4000-8000-000000000001",
-      "position": "CEO_MD",
+      "position": "synthetic-position",
       "department": "synthetic-department",
       "version": 0,
       "assignments": [
@@ -13805,6 +18092,7 @@ Success: HTTP 200.
           "id": "00000000-0000-4000-8000-000000000001",
           "userId": "00000000-0000-4000-8000-000000000001",
           "template": "OPERATIONS",
+          "templateVersion": 1,
           "branchId": "00000000-0000-4000-8000-000000000001",
           "scope": "BRANCH",
           "temporary": true,
@@ -13821,8 +18109,20 @@ Success: HTTP 200.
       "permissions": [
         "synthetic-permissions-item"
       ],
+      "independentCapabilities": [
+        "REFUND_APPROVE"
+      ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
+      "accessRevision": "synthetic-accessrevision",
+      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+      "capabilityScopes": [
+        {
+          "capability": "synthetic-capability",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH"
+        }
+      ],
       "serverTime": "2030-01-15T10:00:00.000Z"
     },
     "branch": {
@@ -13918,7 +18218,7 @@ Success: HTTP 200.
       "managed": true,
       "userId": "00000000-0000-4000-8000-000000000001",
       "staffId": "00000000-0000-4000-8000-000000000001",
-      "position": "CEO_MD",
+      "position": "synthetic-position",
       "department": "synthetic-department",
       "version": 0,
       "assignments": [
@@ -13926,6 +18226,7 @@ Success: HTTP 200.
           "id": "00000000-0000-4000-8000-000000000001",
           "userId": "00000000-0000-4000-8000-000000000001",
           "template": "OPERATIONS",
+          "templateVersion": 1,
           "branchId": "00000000-0000-4000-8000-000000000001",
           "scope": "BRANCH",
           "temporary": true,
@@ -13942,8 +18243,20 @@ Success: HTTP 200.
       "permissions": [
         "synthetic-permissions-item"
       ],
+      "independentCapabilities": [
+        "REFUND_APPROVE"
+      ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
+      "accessRevision": "synthetic-accessrevision",
+      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+      "capabilityScopes": [
+        {
+          "capability": "synthetic-capability",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH"
+        }
+      ],
       "serverTime": "2030-01-15T10:00:00.000Z"
     },
     "branch": {
@@ -14010,6 +18323,7 @@ Success: HTTP 200.
         "subject": "synthetic-subject",
         "message": "synthetic-message",
         "type": "synthetic-type",
+        "vehicleEnquiryIntent": "LISTING",
         "assignedStaffId": "00000000-0000-4000-8000-000000000001"
       }
     ],
@@ -14018,7 +18332,7 @@ Success: HTTP 200.
       "managed": true,
       "userId": "00000000-0000-4000-8000-000000000001",
       "staffId": "00000000-0000-4000-8000-000000000001",
-      "position": "CEO_MD",
+      "position": "synthetic-position",
       "department": "synthetic-department",
       "version": 0,
       "assignments": [
@@ -14026,6 +18340,7 @@ Success: HTTP 200.
           "id": "00000000-0000-4000-8000-000000000001",
           "userId": "00000000-0000-4000-8000-000000000001",
           "template": "OPERATIONS",
+          "templateVersion": 1,
           "branchId": "00000000-0000-4000-8000-000000000001",
           "scope": "BRANCH",
           "temporary": true,
@@ -14042,8 +18357,20 @@ Success: HTTP 200.
       "permissions": [
         "synthetic-permissions-item"
       ],
+      "independentCapabilities": [
+        "REFUND_APPROVE"
+      ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
+      "accessRevision": "synthetic-accessrevision",
+      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+      "capabilityScopes": [
+        {
+          "capability": "synthetic-capability",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH"
+        }
+      ],
       "serverTime": "2030-01-15T10:00:00.000Z"
     },
     "generatedAt": "2030-01-15T10:00:00.000Z"
@@ -14106,7 +18433,7 @@ Success: HTTP 200.
       "managed": true,
       "userId": "00000000-0000-4000-8000-000000000001",
       "staffId": "00000000-0000-4000-8000-000000000001",
-      "position": "CEO_MD",
+      "position": "synthetic-position",
       "department": "synthetic-department",
       "version": 0,
       "assignments": [
@@ -14114,6 +18441,7 @@ Success: HTTP 200.
           "id": "00000000-0000-4000-8000-000000000001",
           "userId": "00000000-0000-4000-8000-000000000001",
           "template": "OPERATIONS",
+          "templateVersion": 1,
           "branchId": "00000000-0000-4000-8000-000000000001",
           "scope": "BRANCH",
           "temporary": true,
@@ -14130,12 +18458,27 @@ Success: HTTP 200.
       "permissions": [
         "synthetic-permissions-item"
       ],
+      "independentCapabilities": [
+        "REFUND_APPROVE"
+      ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
+      "accessRevision": "synthetic-accessrevision",
+      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+      "capabilityScopes": [
+        {
+          "capability": "synthetic-capability",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH"
+        }
+      ],
       "serverTime": "2030-01-15T10:00:00.000Z"
     },
     "action": "reply",
     "messageReceipt": {
+      "kind": "LEGACY",
+      "fromStatus": "synthetic-fromstatus",
+      "toStatus": "synthetic-tostatus",
       "id": "00000000-0000-4000-8000-000000000001",
       "authorType": "CUSTOMER",
       "visibility": "CUSTOMER",
@@ -14200,7 +18543,7 @@ Success: HTTP 200.
       "managed": true,
       "userId": "00000000-0000-4000-8000-000000000001",
       "staffId": "00000000-0000-4000-8000-000000000001",
-      "position": "CEO_MD",
+      "position": "synthetic-position",
       "department": "synthetic-department",
       "version": 0,
       "assignments": [
@@ -14208,6 +18551,7 @@ Success: HTTP 200.
           "id": "00000000-0000-4000-8000-000000000001",
           "userId": "00000000-0000-4000-8000-000000000001",
           "template": "OPERATIONS",
+          "templateVersion": 1,
           "branchId": "00000000-0000-4000-8000-000000000001",
           "scope": "BRANCH",
           "temporary": true,
@@ -14224,8 +18568,20 @@ Success: HTTP 200.
       "permissions": [
         "synthetic-permissions-item"
       ],
+      "independentCapabilities": [
+        "REFUND_APPROVE"
+      ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
+      "accessRevision": "synthetic-accessrevision",
+      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+      "capabilityScopes": [
+        {
+          "capability": "synthetic-capability",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH"
+        }
+      ],
       "serverTime": "2030-01-15T10:00:00.000Z"
     },
     "generatedAt": "2030-01-15T10:00:00.000Z"
@@ -14254,6 +18610,7 @@ Parameters:
 | `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
 | `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
 | `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
+| `messageId` | query | string (uuid) | No | Message Id used to constrain this request. |
 
 Success: HTTP 200.
 
@@ -14285,7 +18642,7 @@ Success: HTTP 200.
       "managed": true,
       "userId": "00000000-0000-4000-8000-000000000001",
       "staffId": "00000000-0000-4000-8000-000000000001",
-      "position": "CEO_MD",
+      "position": "synthetic-position",
       "department": "synthetic-department",
       "version": 0,
       "assignments": [
@@ -14293,6 +18650,7 @@ Success: HTTP 200.
           "id": "00000000-0000-4000-8000-000000000001",
           "userId": "00000000-0000-4000-8000-000000000001",
           "template": "OPERATIONS",
+          "templateVersion": 1,
           "branchId": "00000000-0000-4000-8000-000000000001",
           "scope": "BRANCH",
           "temporary": true,
@@ -14309,8 +18667,20 @@ Success: HTTP 200.
       "permissions": [
         "synthetic-permissions-item"
       ],
+      "independentCapabilities": [
+        "REFUND_APPROVE"
+      ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
+      "accessRevision": "synthetic-accessrevision",
+      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+      "capabilityScopes": [
+        {
+          "capability": "synthetic-capability",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH"
+        }
+      ],
       "serverTime": "2030-01-15T10:00:00.000Z"
     },
     "generatedAt": "2030-01-15T10:00:00.000Z",
@@ -14318,6 +18688,9 @@ Success: HTTP 200.
     "messages": {
       "items": [
         {
+          "kind": "LEGACY",
+          "fromStatus": "synthetic-fromstatus",
+          "toStatus": "synthetic-tostatus",
           "id": "00000000-0000-4000-8000-000000000001",
           "authorType": "CUSTOMER",
           "visibility": "CUSTOMER",
@@ -14335,7 +18708,11 @@ Success: HTTP 200.
           "status": "QUEUED",
           "reason": "CHANNEL_DISABLED",
           "createdAt": "2030-01-15T10:00:00.000Z",
-          "sentAt": "2030-01-15T10:00:00.000Z"
+          "sentAt": "2030-01-15T10:00:00.000Z",
+          "attempts": 0,
+          "nextRetryAt": "2030-01-15T10:00:00.000Z",
+          "providerStatus": "DELIVERED",
+          "providerUpdatedAt": "2030-01-15T10:00:00.000Z"
         }
       ]
     }
@@ -14405,7 +18782,7 @@ Success: HTTP 200.
       "managed": true,
       "userId": "00000000-0000-4000-8000-000000000001",
       "staffId": "00000000-0000-4000-8000-000000000001",
-      "position": "CEO_MD",
+      "position": "synthetic-position",
       "department": "synthetic-department",
       "version": 0,
       "assignments": [
@@ -14413,6 +18790,7 @@ Success: HTTP 200.
           "id": "00000000-0000-4000-8000-000000000001",
           "userId": "00000000-0000-4000-8000-000000000001",
           "template": "OPERATIONS",
+          "templateVersion": 1,
           "branchId": "00000000-0000-4000-8000-000000000001",
           "scope": "BRANCH",
           "temporary": true,
@@ -14429,8 +18807,20 @@ Success: HTTP 200.
       "permissions": [
         "synthetic-permissions-item"
       ],
+      "independentCapabilities": [
+        "REFUND_APPROVE"
+      ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
+      "accessRevision": "synthetic-accessrevision",
+      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+      "capabilityScopes": [
+        {
+          "capability": "synthetic-capability",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH"
+        }
+      ],
       "serverTime": "2030-01-15T10:00:00.000Z"
     },
     "generatedAt": "2030-01-15T10:00:00.000Z"
@@ -14496,7 +18886,7 @@ Success: HTTP 200.
       "managed": true,
       "userId": "00000000-0000-4000-8000-000000000001",
       "staffId": "00000000-0000-4000-8000-000000000001",
-      "position": "CEO_MD",
+      "position": "synthetic-position",
       "department": "synthetic-department",
       "version": 0,
       "assignments": [
@@ -14504,6 +18894,7 @@ Success: HTTP 200.
           "id": "00000000-0000-4000-8000-000000000001",
           "userId": "00000000-0000-4000-8000-000000000001",
           "template": "OPERATIONS",
+          "templateVersion": 1,
           "branchId": "00000000-0000-4000-8000-000000000001",
           "scope": "BRANCH",
           "temporary": true,
@@ -14520,8 +18911,20 @@ Success: HTTP 200.
       "permissions": [
         "synthetic-permissions-item"
       ],
+      "independentCapabilities": [
+        "REFUND_APPROVE"
+      ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
+      "accessRevision": "synthetic-accessrevision",
+      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+      "capabilityScopes": [
+        {
+          "capability": "synthetic-capability",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH"
+        }
+      ],
       "serverTime": "2030-01-15T10:00:00.000Z"
     },
     "generatedAt": "2030-01-15T10:00:00.000Z"
@@ -14606,7 +19009,7 @@ Success: HTTP 200.
       "managed": true,
       "userId": "00000000-0000-4000-8000-000000000001",
       "staffId": "00000000-0000-4000-8000-000000000001",
-      "position": "CEO_MD",
+      "position": "synthetic-position",
       "department": "synthetic-department",
       "version": 0,
       "assignments": [
@@ -14614,6 +19017,7 @@ Success: HTTP 200.
           "id": "00000000-0000-4000-8000-000000000001",
           "userId": "00000000-0000-4000-8000-000000000001",
           "template": "OPERATIONS",
+          "templateVersion": 1,
           "branchId": "00000000-0000-4000-8000-000000000001",
           "scope": "BRANCH",
           "temporary": true,
@@ -14630,8 +19034,20 @@ Success: HTTP 200.
       "permissions": [
         "synthetic-permissions-item"
       ],
+      "independentCapabilities": [
+        "REFUND_APPROVE"
+      ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
+      "accessRevision": "synthetic-accessrevision",
+      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+      "capabilityScopes": [
+        {
+          "capability": "synthetic-capability",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH"
+        }
+      ],
       "serverTime": "2030-01-15T10:00:00.000Z"
     },
     "generatedAt": "2030-01-15T10:00:00.000Z",
@@ -14702,7 +19118,7 @@ Success: HTTP 200.
       "managed": true,
       "userId": "00000000-0000-4000-8000-000000000001",
       "staffId": "00000000-0000-4000-8000-000000000001",
-      "position": "CEO_MD",
+      "position": "synthetic-position",
       "department": "synthetic-department",
       "version": 0,
       "assignments": [
@@ -14710,6 +19126,7 @@ Success: HTTP 200.
           "id": "00000000-0000-4000-8000-000000000001",
           "userId": "00000000-0000-4000-8000-000000000001",
           "template": "OPERATIONS",
+          "templateVersion": 1,
           "branchId": "00000000-0000-4000-8000-000000000001",
           "scope": "BRANCH",
           "temporary": true,
@@ -14726,8 +19143,20 @@ Success: HTTP 200.
       "permissions": [
         "synthetic-permissions-item"
       ],
+      "independentCapabilities": [
+        "REFUND_APPROVE"
+      ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
+      "accessRevision": "synthetic-accessrevision",
+      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+      "capabilityScopes": [
+        {
+          "capability": "synthetic-capability",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH"
+        }
+      ],
       "serverTime": "2030-01-15T10:00:00.000Z"
     },
     "generatedAt": "2030-01-15T10:00:00.000Z"
@@ -14788,7 +19217,7 @@ Success: HTTP 200.
       "managed": true,
       "userId": "00000000-0000-4000-8000-000000000001",
       "staffId": "00000000-0000-4000-8000-000000000001",
-      "position": "CEO_MD",
+      "position": "synthetic-position",
       "department": "synthetic-department",
       "version": 0,
       "assignments": [
@@ -14796,6 +19225,7 @@ Success: HTTP 200.
           "id": "00000000-0000-4000-8000-000000000001",
           "userId": "00000000-0000-4000-8000-000000000001",
           "template": "OPERATIONS",
+          "templateVersion": 1,
           "branchId": "00000000-0000-4000-8000-000000000001",
           "scope": "BRANCH",
           "temporary": true,
@@ -14812,8 +19242,20 @@ Success: HTTP 200.
       "permissions": [
         "synthetic-permissions-item"
       ],
+      "independentCapabilities": [
+        "REFUND_APPROVE"
+      ],
       "canManageAssignments": true,
       "canInviteAdmins": true,
+      "accessRevision": "synthetic-accessrevision",
+      "nextChangeAt": "2030-01-15T10:00:00.000Z",
+      "capabilityScopes": [
+        {
+          "capability": "synthetic-capability",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH"
+        }
+      ],
       "serverTime": "2030-01-15T10:00:00.000Z"
     },
     "generatedAt": "2030-01-15T10:00:00.000Z"
@@ -14828,6 +19270,59 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 
 ## Administration
+
+### POST `/admin/customers/{customerId}/account-status`
+
+- Operation ID: `postAdminCustomersByCustomerIdAccountStatus`
+- Purpose: MFA-verified administrator, current actor/session/target role revalidated transactionally. CSRF required. Expected status guards stale/concurrent changes; DEACTIVATED and non-customer targets are excluded. Suspension revokes sessions and unused reset/verification tokens. Reactivation never revives revoked credentials. Actor, target, reason, time and transition audited. No financial/history or outbound email side effects. Suspend or reactivate a current customer account. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `customerId` | path | string (uuid) | Yes | Identifier selecting the customer resource. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `expectedStatus` | ACTIVE / SUSPENDED | Yes | Expected Status validated by this operation's strict request contract. |
+| `status` | ACTIVE / SUSPENDED | Yes | Requested or filtered lifecycle state from the documented enum. |
+| `reason` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+
+Synthetic request example:
+
+```json
+{
+  "expectedStatus": "ACTIVE",
+  "status": "ACTIVE",
+  "reason": "synthetic-reason"
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Suspend or reactivate a current customer account",
+  "data": {
+    "customerId": "00000000-0000-4000-8000-000000000001",
+    "status": "ACTIVE",
+    "revokedSessions": 0
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 Not authorised; 404 Current customer unavailable; 409 Account state changed; 422 Invalid fields; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/admin/customers`
 
@@ -15540,6 +20035,60 @@ Binary image/webp bytes (no JSON envelope).
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.
 
+### POST `/admin/catalog/products/{productId}/images/reorder`
+
+- Operation ID: `postAdminCatalogProductsByProductIdImagesReorder`
+- Purpose: ADMIN/SUPER_ADMIN with verified MFA and CSRF. Requires expectedVersion and a unique complete permutation of the product image IDs. Validates product membership and gallery revision under the shared product lock; updates all zero-based positions and increments mediaVersion once. Does not change main selection or uploaded assets. Concurrent, partial or cross-product orders fail 409 without changes; audit retains the ordered image references. Atomically reorder the complete product image gallery without changing main selection. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `productId` | path | string (uuid) | Yes | Identifier selecting the product resource. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+| `imageIds` | array<string (uuid)> | Yes | Image Ids validated by this operation's strict request contract. |
+
+Synthetic request example:
+
+```json
+{
+  "expectedVersion": 0,
+  "imageIds": [
+    "00000000-0000-4000-8000-000000000001"
+  ]
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Atomically reorder the complete product image gallery without changing main selection",
+  "data": {
+    "version": 0,
+    "imageIds": [
+      "00000000-0000-4000-8000-000000000001"
+    ]
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.; 409 STALE_VERSION, MEDIA_COUNT_LIMIT, MEDIA_LAST_PUBLISHED_IMAGE or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body.; 422 VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.
+
 ### POST `/admin/catalog/products/{productId}/assets/upload`
 
 - Operation ID: `postAdminCatalogProductsByProductIdAssetsUpload`
@@ -16173,7 +20722,7 @@ JSON request fields:
 | Field | Type | Required | Purpose |
 | --- | --- | --- | --- |
 | `status` | ACTIVE / SUSPENDED / DEACTIVATED | Yes | Requested or filtered lifecycle state from the documented enum. |
-| `expectedRevision` | string | No | Optional account revision derived from updatedAt, role, status, profile updatedAt and branchId joined with colons. Checked atomically while the account and profile are locked. New clients should always provide it. |
+| `expectedRevision` | string | Yes | Required account revision derived from updatedAt, role, status, profile updatedAt and branchId joined with colons. Checked atomically while the account and profile are locked. |
 
 Synthetic request example:
 
@@ -16223,7 +20772,7 @@ JSON request fields:
 | Field | Type | Required | Purpose |
 | --- | --- | --- | --- |
 | `branchId` | string (uuid) | Yes | Identifier of the branch resource; ownership is resolved server-side. |
-| `expectedRevision` | string | No | Optional account revision derived from updatedAt, role, status, profile updatedAt and branchId joined with colons. Checked atomically while the account and profile are locked. New clients should always provide it. |
+| `expectedRevision` | string | Yes | Required account revision derived from updatedAt, role, status, profile updatedAt and branchId joined with colons. Checked atomically while the account and profile are locked. |
 
 Synthetic request example:
 
@@ -16274,7 +20823,9 @@ JSON request fields:
 | --- | --- | --- | --- |
 | `role` | STAFF | Yes | Role validated by this operation's strict request contract. |
 | `branchId` | string (uuid) | Yes | Identifier of the branch resource; ownership is resolved server-side. |
-| `expectedRevision` | string | No | Optional account revision derived from updatedAt, role, status, profile updatedAt and branchId joined with colons. Checked atomically while the account and profile are locked. New clients should always provide it. |
+| `expectedRevision` | string | Yes | Required account revision derived from updatedAt, role, status, profile updatedAt and branchId joined with colons. Checked atomically while the account and profile are locked. |
+| `reason` | string | No | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| `expectedWorkforceVersion` | integer / null | No | Required for an enrolled account; null for a reviewed account without workforce enrollment. Checked atomically with the role change. |
 
 Synthetic request example:
 
@@ -16282,7 +20833,9 @@ Synthetic request example:
 {
   "role": "STAFF",
   "branchId": "00000000-0000-4000-8000-000000000001",
-  "expectedRevision": "synthetic-expectedrevision"
+  "expectedRevision": "synthetic-expectedrevision",
+  "reason": "synthetic-reason",
+  "expectedWorkforceVersion": "synthetic-expectedworkforceversion"
 }
 ```
 
@@ -16566,6 +21119,8 @@ Parameters:
 | --- | --- | --- | --- | --- |
 | `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
 | `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+| `rootOnly` | query | true / false | No | Root Only used to constrain this request. |
+| `parentId` | query | string (uuid) | No | Parent Id used to constrain this request. |
 | `search` | query | string | No | Search used to constrain this request. |
 | `isActive` | query | true / false | No | Is Active used to constrain this request. |
 
@@ -16611,18 +21166,22 @@ JSON request fields:
 
 | Field | Type | Required | Purpose |
 | --- | --- | --- | --- |
+| `family` | REPLACEMENT_PART / ENGINE_OIL / null | No | Family validated by this operation's strict request contract. |
 | `name` | string | Yes | Name validated by this operation's strict request contract. |
 | `slug` | string | Yes | Slug validated by this operation's strict request contract. |
 | `description` | string / null | No | Description validated by this operation's strict request contract. |
+| `parentId` | string / null | No | Identifier of the parent resource; ownership is resolved server-side. |
 | `isActive` | boolean | No | Boolean control for is active; authorization is still enforced server-side. |
 
 Synthetic request example:
 
 ```json
 {
+  "family": "REPLACEMENT_PART",
   "name": "synthetic-name",
   "slug": "synthetic-slug",
   "description": "synthetic-description",
+  "parentId": "00000000-0000-4000-8000-000000000001",
   "isActive": true
 }
 ```
@@ -16703,20 +21262,24 @@ JSON request fields:
 
 | Field | Type | Required | Purpose |
 | --- | --- | --- | --- |
+| `family` | REPLACEMENT_PART / ENGINE_OIL / null | No | Family validated by this operation's strict request contract. |
 | `expectedUpdatedAt` | string (date-time) | No | ISO 8601 timestamp interpreted and validated by the server. |
 | `name` | string | No | Name validated by this operation's strict request contract. |
 | `slug` | string | No | Slug validated by this operation's strict request contract. |
 | `description` | string / null | No | Description validated by this operation's strict request contract. |
+| `parentId` | string / null | No | Identifier of the parent resource; ownership is resolved server-side. |
 | `isActive` | boolean | No | Boolean control for is active; authorization is still enforced server-side. |
 
 Synthetic request example:
 
 ```json
 {
+  "family": "REPLACEMENT_PART",
   "expectedUpdatedAt": "2030-01-15T10:00:00.000Z",
   "name": "synthetic-name",
   "slug": "synthetic-slug",
   "description": "synthetic-description",
+  "parentId": "00000000-0000-4000-8000-000000000001",
   "isActive": true
 }
 ```
@@ -16755,6 +21318,26 @@ Parameters:
 | `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
 | `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
 | `categoryId` | query | string (uuid) | No | Category Id used to constrain this request. |
+| `parentCategoryId` | query | string (uuid) | No | Parent Category Id used to constrain this request. |
+| `condition` | query | NEW / USED / REFURBISHED | No | Condition used to constrain this request. |
+| `classification` | query | GENUINE_OEM / AFTERMARKET | No | Classification used to constrain this request. |
+| `productType` | query | string | No | Product Type used to constrain this request. |
+| `family` | query | REPLACEMENT_PART / ENGINE_OIL | No | Family used to constrain this request. |
+| `oilViscosityGrade` | query | string | No | Oil Viscosity Grade used to constrain this request. |
+| `packVolumeMl` | query | integer | No | Pack Volume Ml used to constrain this request. |
+| `vehicleMakeId` | query | string (uuid) | No | Vehicle Make Id used to constrain this request. |
+| `vehicleModelId` | query | string (uuid) | No | Vehicle Model Id used to constrain this request. |
+| `fitment` | query | candidates / verified | No | Fitment used to constrain this request. |
+| `trim` | query | string | No | Trim used to constrain this request. |
+| `engineCode` | query | string | No | Engine Code used to constrain this request. |
+| `market` | query | string | No | Market used to constrain this request. |
+| `position` | query | string | No | Position used to constrain this request. |
+| `brakeSystem` | query | string | No | Brake System used to constrain this request. |
+| `brakeDiameterMm` | query | string | No | Brake Diameter Mm used to constrain this request. |
+| `bodyType` | query | string | No | Body Type used to constrain this request. |
+| `transmission` | query | string | No | Transmission used to constrain this request. |
+| `generation` | query | string | No | Generation used to constrain this request. |
+| `chassisCode` | query | string | No | Chassis Code used to constrain this request. |
 | `brand` | query | string | No | Brand used to constrain this request. |
 | `search` | query | string | No | Search used to constrain this request. |
 | `make` | query | string | No | Make used to constrain this request. |
@@ -16793,6 +21376,7 @@ Success: HTTP 200.
           "name": "synthetic-name",
           "slug": "synthetic-slug",
           "description": "synthetic-description",
+          "parentId": "00000000-0000-4000-8000-000000000001",
           "isActive": true,
           "createdAt": "2030-01-15T10:00:00.000Z",
           "updatedAt": "2030-01-15T10:00:00.000Z"
@@ -16817,7 +21401,22 @@ Success: HTTP 200.
             "model": "synthetic-model",
             "yearFrom": "synthetic-yearfrom",
             "yearTo": "synthetic-yearto",
-            "notes": "synthetic-notes"
+            "notes": "synthetic-notes",
+            "scope": "MODEL",
+            "requiredQualifiers": [
+              "trim"
+            ],
+            "trim": "synthetic-trim",
+            "engineCode": "synthetic-enginecode",
+            "market": "synthetic-market",
+            "position": "synthetic-position",
+            "brakeSystem": "synthetic-brakesystem",
+            "brakeDiameterMm": "synthetic-brakediametermm",
+            "bodyType": "synthetic-bodytype",
+            "transmission": "synthetic-transmission",
+            "generation": "synthetic-generation",
+            "chassisCode": "synthetic-chassiscode",
+            "version": 0
           }
         ],
         "availability": [
@@ -16861,7 +21460,13 @@ JSON request fields:
 
 | Field | Type | Required | Purpose |
 | --- | --- | --- | --- |
+| `family` | REPLACEMENT_PART / ENGINE_OIL / null | No | Family validated by this operation's strict request contract. |
+| `oilViscosityGrade` | string / null | No | Oil Viscosity Grade validated by this operation's strict request contract. |
+| `packVolumeMl` | integer / null | No | Pack Volume Ml validated by this operation's strict request contract. |
 | `categoryId` | string (uuid) | Yes | Identifier of the category resource; ownership is resolved server-side. |
+| `condition` | NEW / USED / REFURBISHED / null | No | Condition validated by this operation's strict request contract. |
+| `classification` | GENUINE_OEM / AFTERMARKET / null | No | Classification validated by this operation's strict request contract. |
+| `productType` | string / null | No | Product Type validated by this operation's strict request contract. |
 | `name` | string | Yes | Name validated by this operation's strict request contract. |
 | `slug` | string | Yes | Slug validated by this operation's strict request contract. |
 | `sku` | string | Yes | Sku validated by this operation's strict request contract. |
@@ -16913,6 +21518,7 @@ Success: HTTP 201.
       "name": "synthetic-name",
       "slug": "synthetic-slug",
       "description": "synthetic-description",
+      "parentId": "00000000-0000-4000-8000-000000000001",
       "isActive": true,
       "createdAt": "2030-01-15T10:00:00.000Z",
       "updatedAt": "2030-01-15T10:00:00.000Z"
@@ -16937,7 +21543,22 @@ Success: HTTP 201.
         "model": "synthetic-model",
         "yearFrom": "synthetic-yearfrom",
         "yearTo": "synthetic-yearto",
-        "notes": "synthetic-notes"
+        "notes": "synthetic-notes",
+        "scope": "MODEL",
+        "requiredQualifiers": [
+          "trim"
+        ],
+        "trim": "synthetic-trim",
+        "engineCode": "synthetic-enginecode",
+        "market": "synthetic-market",
+        "position": "synthetic-position",
+        "brakeSystem": "synthetic-brakesystem",
+        "brakeDiameterMm": "synthetic-brakediametermm",
+        "bodyType": "synthetic-bodytype",
+        "transmission": "synthetic-transmission",
+        "generation": "synthetic-generation",
+        "chassisCode": "synthetic-chassiscode",
+        "version": 0
       }
     ],
     "availability": [
@@ -17001,6 +21622,7 @@ Success: HTTP 200.
       "name": "synthetic-name",
       "slug": "synthetic-slug",
       "description": "synthetic-description",
+      "parentId": "00000000-0000-4000-8000-000000000001",
       "isActive": true,
       "createdAt": "2030-01-15T10:00:00.000Z",
       "updatedAt": "2030-01-15T10:00:00.000Z"
@@ -17025,7 +21647,22 @@ Success: HTTP 200.
         "model": "synthetic-model",
         "yearFrom": "synthetic-yearfrom",
         "yearTo": "synthetic-yearto",
-        "notes": "synthetic-notes"
+        "notes": "synthetic-notes",
+        "scope": "MODEL",
+        "requiredQualifiers": [
+          "trim"
+        ],
+        "trim": "synthetic-trim",
+        "engineCode": "synthetic-enginecode",
+        "market": "synthetic-market",
+        "position": "synthetic-position",
+        "brakeSystem": "synthetic-brakesystem",
+        "brakeDiameterMm": "synthetic-brakediametermm",
+        "bodyType": "synthetic-bodytype",
+        "transmission": "synthetic-transmission",
+        "generation": "synthetic-generation",
+        "chassisCode": "synthetic-chassiscode",
+        "version": 0
       }
     ],
     "availability": [
@@ -17067,8 +21704,14 @@ JSON request fields:
 
 | Field | Type | Required | Purpose |
 | --- | --- | --- | --- |
+| `family` | REPLACEMENT_PART / ENGINE_OIL / null | No | Family validated by this operation's strict request contract. |
+| `oilViscosityGrade` | string / null | No | Oil Viscosity Grade validated by this operation's strict request contract. |
+| `packVolumeMl` | integer / null | No | Pack Volume Ml validated by this operation's strict request contract. |
 | `expectedUpdatedAt` | string (date-time) | No | ISO 8601 timestamp interpreted and validated by the server. |
 | `categoryId` | string (uuid) | No | Identifier of the category resource; ownership is resolved server-side. |
+| `condition` | NEW / USED / REFURBISHED / null | No | Condition validated by this operation's strict request contract. |
+| `classification` | GENUINE_OEM / AFTERMARKET / null | No | Classification validated by this operation's strict request contract. |
+| `productType` | string / null | No | Product Type validated by this operation's strict request contract. |
 | `name` | string | No | Name validated by this operation's strict request contract. |
 | `slug` | string | No | Slug validated by this operation's strict request contract. |
 | `sku` | string | No | Sku validated by this operation's strict request contract. |
@@ -17114,6 +21757,7 @@ Success: HTTP 200.
       "name": "synthetic-name",
       "slug": "synthetic-slug",
       "description": "synthetic-description",
+      "parentId": "00000000-0000-4000-8000-000000000001",
       "isActive": true,
       "createdAt": "2030-01-15T10:00:00.000Z",
       "updatedAt": "2030-01-15T10:00:00.000Z"
@@ -17138,7 +21782,22 @@ Success: HTTP 200.
         "model": "synthetic-model",
         "yearFrom": "synthetic-yearfrom",
         "yearTo": "synthetic-yearto",
-        "notes": "synthetic-notes"
+        "notes": "synthetic-notes",
+        "scope": "MODEL",
+        "requiredQualifiers": [
+          "trim"
+        ],
+        "trim": "synthetic-trim",
+        "engineCode": "synthetic-enginecode",
+        "market": "synthetic-market",
+        "position": "synthetic-position",
+        "brakeSystem": "synthetic-brakesystem",
+        "brakeDiameterMm": "synthetic-brakediametermm",
+        "bodyType": "synthetic-bodytype",
+        "transmission": "synthetic-transmission",
+        "generation": "synthetic-generation",
+        "chassisCode": "synthetic-chassiscode",
+        "version": 0
       }
     ],
     "availability": [
@@ -17219,7 +21878,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### PATCH `/admin/catalog/products/{productId}/compatibilities/{compatibilityId}`
 
 - Operation ID: `patchAdminCatalogProductsByProductIdCompatibilitiesByCompatibilityId`
-- Purpose: Update compatibility. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: Legacy draft compatibility only. Optional expectedVersion is checked under the product lock; a stale version returns 409 without a write or audit. New editors should send the version from the administrator product read. Reviewed fitment rules use the separate technical-review workspace. Update compatibility. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
 - Roles: ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -17237,6 +21896,7 @@ JSON request fields:
 
 | Field | Type | Required | Purpose |
 | --- | --- | --- | --- |
+| `expectedVersion` | integer | No | Last server version observed by the client; stale writes are rejected. |
 | `make` | string | No | Make validated by this operation's strict request contract. |
 | `model` | string / null | No | Model validated by this operation's strict request contract. |
 | `yearFrom` | integer / null | No | Year From validated by this operation's strict request contract. |
@@ -17247,6 +21907,7 @@ Synthetic request example:
 
 ```json
 {
+  "expectedVersion": 0,
   "make": "synthetic-make",
   "model": "synthetic-model",
   "yearFrom": "synthetic-yearfrom",
@@ -17276,7 +21937,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### DELETE `/admin/catalog/products/{productId}/compatibilities/{compatibilityId}`
 
 - Operation ID: `deleteAdminCatalogProductsByProductIdCompatibilitiesByCompatibilityId`
-- Purpose: Delete compatibility. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: Retires an unreviewed legacy draft and preserves version history. Optional expectedVersion is checked under the product lock; a stale version returns 409 without a write or audit. New editors should send the version from the administrator product read. Delete compatibility. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
 - Roles: ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -17289,6 +21950,20 @@ Parameters:
 | `productId` | path | string (uuid) | Yes | Identifier selecting the product resource. |
 | `compatibilityId` | path | string (uuid) | Yes | Identifier selecting the compatibility resource. |
 | `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `expectedVersion` | integer | No | Last server version observed by the client; stale writes are rejected. |
+
+Synthetic request example:
+
+```json
+{
+  "expectedVersion": 0
+}
+```
 
 Success: HTTP 200.
 
@@ -18369,7 +23044,7 @@ Parameters:
 | `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
 | `userId` | query | string (uuid) | No | User Id used to constrain this request. |
 | `action` | query | READ / CREATE / UPDATE / DELETE / LOGIN / LOGOUT / LOGIN_FAILED / PASSWORD_RESET / EMAIL_VERIFIED / MFA_ENABLED / MFA_DISABLED / ROLE_CHANGE / ACCOUNT_SUSPENDED / ACCOUNT_DEACTIVATED / SESSION_REVOKED / STATUS_CHANGE / INVENTORY_ADJUSTED / PAYMENT_INITIALIZED / PAYMENT_VERIFIED / MANUAL_PAYMENT_APPROVED / REFUND_REQUESTED / REFUND_APPROVED / PAYMENT_REFUNDED / DISPUTE_UPDATED / VEHICLE_RESERVED / VEHICLE_RELEASED / INVITATION_CREATED / INVITATION_ACCEPTED / BRANCH_ASSIGNED | No | Action used to constrain this request. |
-| `entityType` | query | USER / BRANCH / PRIVILEGED_INVITATION / SESSION / MFA_FACTOR / CUSTOMER_PROFILE / STAFF_PROFILE / CUSTOMER_VEHICLE / SERVICE / SERVICE_CATEGORY / BOOKING_SLOT / BOOKING / QUOTE / WORK_ORDER / PRODUCT / INVENTORY / ORDER / PAYMENT / PAYMENT_ATTEMPT / REFUND / DISPUTE / VEHICLE / VEHICLE_LISTING / VEHICLE_TRANSACTION / INSPECTION / REVIEW / ENQUIRY / COMPLAINT / PROMOTION / INVOICE | No | Entity Type used to constrain this request. |
+| `entityType` | query | FITMENT_MAKE / FITMENT_MODEL / PRODUCT_FITMENT / USER / BRANCH / PRIVILEGED_INVITATION / SESSION / MFA_FACTOR / CUSTOMER_PROFILE / STAFF_PROFILE / CUSTOMER_VEHICLE / SERVICE / SERVICE_CATEGORY / BOOKING_SLOT / BOOKING / QUOTE / WORK_ORDER / PRODUCT / INVENTORY / ORDER / PAYMENT / PAYMENT_ATTEMPT / REFUND / DISPUTE / VEHICLE / VEHICLE_LISTING / VEHICLE_TRANSACTION / INSPECTION / REVIEW / ENQUIRY / COMPLAINT / PROMOTION / INVOICE | No | Entity Type used to constrain this request. |
 | `entityId` | query | string | No | Entity Id used to constrain this request. |
 | `requestId` | query | string | No | Request Id used to constrain this request. |
 | `from` | query | string (date-time) | No | From used to constrain this request. |
@@ -18387,7 +23062,7 @@ Success: HTTP 200.
         "id": "00000000-0000-4000-8000-000000000001",
         "userId": "00000000-0000-4000-8000-000000000001",
         "action": "READ",
-        "entityType": "USER",
+        "entityType": "FITMENT_MAKE",
         "entityId": "synthetic-entityid",
         "requestId": "synthetic-requestid",
         "oldValues": "synthetic-oldvalues",
@@ -19649,6 +24324,78 @@ Success: HTTP 200.
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
+### GET `/admin/workforce/accounts`
+
+- Operation ID: `getAdminWorkforceAccounts`
+- Purpose: Explicit enrollment required for operational queues. Current assignments, branch, field projections and state are enforced in a transaction. Access changes require MFA, current password, target/version review and an owner-configured delegation envelope. No financial execution, exports or collection release authority is conferred by a title. Responsibility-based workspace: directory. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
+| `q` | query | string | No | Q used to constrain this request. |
+| `role` | query | STAFF / ADMIN / SUPER_ADMIN | No | Role used to constrain this request. |
+| `status` | query | ACTIVE / SUSPENDED / DEACTIVATED | No | Status used to constrain this request. |
+| `position` | query | CEO_MD / OPERATIONS / CUSTOMER_SERVICE / SALES_SUPERVISOR / SALES_CASHIER / ACCOUNTANT / WORKSHOP_LEAD / ELECTRICAL_TECHNICIAN / MECHANICAL_TECHNICIAN | No | Position used to constrain this request. |
+| `branchId` | query | string (uuid) | No | Branch Id used to constrain this request. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Responsibility-based workspace: directory",
+  "data": {
+    "items": [
+      {
+        "userId": "00000000-0000-4000-8000-000000000001",
+        "name": "synthetic-name",
+        "email": "customer@example.test",
+        "role": "STAFF",
+        "status": "ACTIVE",
+        "verified": true,
+        "managed": true,
+        "position": "CEO_MD",
+        "version": "synthetic-version",
+        "accountBranch": {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "name": "synthetic-name",
+          "isActive": true
+        },
+        "responsibilities": [
+          {
+            "assignmentId": "00000000-0000-4000-8000-000000000001",
+            "template": "OPERATIONS",
+            "branch": {
+              "id": "00000000-0000-4000-8000-000000000001",
+              "name": "synthetic-name"
+            },
+            "scope": "BRANCH",
+            "temporary": true,
+            "expiresAt": "2030-01-15T10:00:00.000Z"
+          }
+        ],
+        "canInspect": true,
+        "responsibilitiesMore": true
+      }
+    ],
+    "nextCursor": "00000000-0000-4000-8000-000000000001",
+    "generatedAt": "2030-01-15T10:00:00.000Z"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 Current access does not permit this request; 404 Record unavailable in permitted scope; 409 Stale version or invalid state; 422 Invalid fields; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
 ### POST `/admin/workforce/invitations`
 
 - Operation ID: `postAdminWorkforceInvitations`
@@ -19751,11 +24498,12 @@ Success: HTTP 200.
       "templates": [
         "OPERATIONS"
       ],
-      "branchIds": "synthetic-branchids"
+      "branchIds": "synthetic-branchids",
+      "delegationCapabilities": "synthetic-delegationcapabilities"
     },
     "access": {
       "userId": "00000000-0000-4000-8000-000000000001",
-      "position": "CEO_MD",
+      "position": "synthetic-position",
       "enabledAt": "2030-01-15T10:00:00.000Z",
       "updatedByUserId": "00000000-0000-4000-8000-000000000001",
       "version": 0,
@@ -19764,15 +24512,17 @@ Success: HTTP 200.
       ],
       "delegatedBranchIds": [
         "00000000-0000-4000-8000-000000000001"
-      ]
+      ],
+      "delegationPolicyVersion": 1
     },
     "assignments": [
       {
         "id": "00000000-0000-4000-8000-000000000001",
         "userId": "00000000-0000-4000-8000-000000000001",
-        "template": "OPERATIONS",
+        "template": "synthetic-template",
+        "templateVersion": 1,
         "branchId": "00000000-0000-4000-8000-000000000001",
-        "scope": "BRANCH",
+        "scope": "synthetic-scope",
         "temporary": true,
         "startsAt": "2030-01-15T10:00:00.000Z",
         "expiresAt": "2030-01-15T10:00:00.000Z",
@@ -19787,6 +24537,36 @@ Success: HTTP 200.
     "activeAssignmentIds": [
       "00000000-0000-4000-8000-000000000001"
     ],
+    "effectiveAccess": {
+      "baseline": "OWNER",
+      "visibility": "FULL",
+      "evaluatedAt": "2030-01-15T10:00:00.000Z",
+      "grants": [
+        {
+          "capability": "synthetic-capability",
+          "label": "synthetic-label",
+          "branch": {
+            "id": "00000000-0000-4000-8000-000000000001",
+            "name": "synthetic-name"
+          },
+          "scope": "BRANCH",
+          "sources": [
+            {
+              "assignmentId": "00000000-0000-4000-8000-000000000001",
+              "label": "synthetic-label",
+              "scope": "BRANCH",
+              "kind": "ASSIGNMENT"
+            }
+          ]
+        }
+      ],
+      "responsibilityGrantsOnly": true,
+      "independentCapabilities": [
+        "REFUND_APPROVE"
+      ]
+    },
+    "templatesVersion": 1,
+    "assignmentDefinitions": {},
     "templates": {}
   },
   "meta": {
@@ -19817,6 +24597,7 @@ JSON request fields:
 
 | Field | Type | Required | Purpose |
 | --- | --- | --- | --- |
+| `receiptVersion` | 2 | No | Opt in to pinned-definition metadata; omission preserves the published legacy mutation receipt. |
 | `position` | CEO_MD / OPERATIONS / CUSTOMER_SERVICE / SALES_SUPERVISOR / SALES_CASHIER / ACCOUNTANT / WORKSHOP_LEAD / ELECTRICAL_TECHNICIAN / MECHANICAL_TECHNICIAN | Yes | Position validated by this operation's strict request contract. |
 | `expectedVersion` | integer / null | Yes | Last server version observed by the client; stale writes are rejected. |
 | `currentPassword` | string | Yes | Sensitive password value sent only over HTTPS and never logged or persisted by the client. |
@@ -19826,6 +24607,7 @@ Synthetic request example:
 
 ```json
 {
+  "receiptVersion": 2,
   "position": "CEO_MD",
   "expectedVersion": "synthetic-expectedversion",
   "currentPassword": "correct horse battery staple",
@@ -19841,7 +24623,7 @@ Success: HTTP 200.
   "message": "Responsibility-based workspace: enroll",
   "data": {
     "userId": "00000000-0000-4000-8000-000000000001",
-    "position": "CEO_MD",
+    "position": "synthetic-position",
     "enabledAt": "2030-01-15T10:00:00.000Z",
     "updatedByUserId": "00000000-0000-4000-8000-000000000001",
     "version": 0,
@@ -19850,7 +24632,119 @@ Success: HTTP 200.
     ],
     "delegatedBranchIds": [
       "00000000-0000-4000-8000-000000000001"
-    ]
+    ],
+    "delegationPolicyVersion": 1
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 Current access does not permit this request; 404 Record unavailable in permitted scope; 409 Stale version or invalid state; 422 Invalid fields; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### POST `/admin/workforce/accounts/{userId}/access-preview`
+
+- Operation ID: `postAdminWorkforceAccountsByUserIdAccessPreview`
+- Purpose: Explicit enrollment required for operational queues. Current assignments, branch, field projections and state are enforced in a transaction. Access changes require MFA, current password, target/version review and an owner-configured delegation envelope. No financial execution, exports or collection release authority is conferred by a title. Responsibility-based workspace: accessPreview. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `userId` | path | string (uuid) | Yes | Identifier selecting the user resource. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+Synthetic request example:
+
+```json
+{
+  "operation": "assign",
+  "expectedVersion": 0,
+  "expectedTemplateVersion": 1,
+  "template": "OPERATIONS",
+  "branchId": "00000000-0000-4000-8000-000000000001",
+  "startsAt": "2030-01-15T10:00:00.000Z",
+  "expiresAt": "2030-01-15T10:00:00.000Z"
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Responsibility-based workspace: accessPreview",
+  "data": {
+    "userId": "00000000-0000-4000-8000-000000000001",
+    "expectedVersion": 0,
+    "operation": "assign",
+    "evaluatedAt": "2030-01-15T10:00:00.000Z",
+    "scheduled": true,
+    "visibility": "FULL",
+    "fingerprint": "synthetic-fingerprint",
+    "added": [
+      {
+        "capability": "synthetic-capability",
+        "label": "synthetic-label",
+        "branch": {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "name": "synthetic-name"
+        },
+        "scope": "BRANCH",
+        "sources": [
+          {
+            "assignmentId": "00000000-0000-4000-8000-000000000001",
+            "label": "synthetic-label",
+            "scope": "BRANCH",
+            "kind": "ASSIGNMENT"
+          }
+        ]
+      }
+    ],
+    "removed": [
+      {
+        "capability": "synthetic-capability",
+        "label": "synthetic-label",
+        "branch": {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "name": "synthetic-name"
+        },
+        "scope": "BRANCH",
+        "sources": [
+          {
+            "assignmentId": "00000000-0000-4000-8000-000000000001",
+            "label": "synthetic-label",
+            "scope": "BRANCH",
+            "kind": "ASSIGNMENT"
+          }
+        ]
+      }
+    ],
+    "retained": [
+      {
+        "capability": "synthetic-capability",
+        "label": "synthetic-label",
+        "branch": {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "name": "synthetic-name"
+        },
+        "scope": "BRANCH",
+        "sources": [
+          {
+            "assignmentId": "00000000-0000-4000-8000-000000000001",
+            "label": "synthetic-label",
+            "scope": "BRANCH",
+            "kind": "ASSIGNMENT"
+          }
+        ]
+      }
+    ],
+    "responsibilityGrantsOnly": true
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -19880,7 +24774,10 @@ JSON request fields:
 
 | Field | Type | Required | Purpose |
 | --- | --- | --- | --- |
-| `template` | OPERATIONS / CUSTOMER_SERVICE / SALES_SUPERVISOR / SALES_CASHIER / ACCOUNTANT / WORKSHOP_LEAD / ELECTRICAL_TECHNICIAN / MECHANICAL_TECHNICIAN | Yes | Template validated by this operation's strict request contract. |
+| `receiptVersion` | 2 | No | Receipt Version validated by this operation's strict request contract. |
+| `expectedAccessPreview` | string | No | Expected Access Preview validated by this operation's strict request contract. |
+| `template` | OPERATIONS / CUSTOMER_SERVICE / SALES_SUPERVISOR / SALES_CASHIER / ACCOUNTANT / WORKSHOP_LEAD / ELECTRICAL_TECHNICIAN / MECHANICAL_TECHNICIAN / CARE_VIEWER / CARE_RESPONDER / CARE_ASSIGNER / CARE_LIVE_AGENT | Yes | Template validated by this operation's strict request contract. |
+| `expectedTemplateVersion` | integer | No | Expected Template Version validated by this operation's strict request contract. |
 | `branchId` | string (uuid) | Yes | Identifier of the branch resource; ownership is resolved server-side. |
 | `temporary` | boolean | Yes | Temporary validated by this operation's strict request contract. |
 | `startsAt` | string (date-time) | Yes | ISO 8601 timestamp interpreted and validated by the server. |
@@ -19955,6 +24852,8 @@ JSON request fields:
 
 | Field | Type | Required | Purpose |
 | --- | --- | --- | --- |
+| `receiptVersion` | 2 | No | Receipt Version validated by this operation's strict request contract. |
+| `expectedAccessPreview` | string | No | Expected Access Preview validated by this operation's strict request contract. |
 | `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
 | `reason` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
 | `currentPassword` | string | Yes | Sensitive password value sent only over HTTPS and never logged or persisted by the client. |
@@ -19963,6 +24862,8 @@ Synthetic request example:
 
 ```json
 {
+  "receiptVersion": 2,
+  "expectedAccessPreview": "synthetic-expectedaccesspreview",
   "expectedVersion": 0,
   "reason": "synthetic-reason",
   "currentPassword": "correct horse battery staple"
@@ -19978,9 +24879,9 @@ Success: HTTP 200.
   "data": {
     "id": "00000000-0000-4000-8000-000000000001",
     "userId": "00000000-0000-4000-8000-000000000001",
-    "template": "OPERATIONS",
+    "template": "synthetic-template",
     "branchId": "00000000-0000-4000-8000-000000000001",
-    "scope": "BRANCH",
+    "scope": "synthetic-scope",
     "temporary": true,
     "startsAt": "2030-01-15T10:00:00.000Z",
     "expiresAt": "2030-01-15T10:00:00.000Z",
@@ -20019,20 +24920,24 @@ JSON request fields:
 
 | Field | Type | Required | Purpose |
 | --- | --- | --- | --- |
+| `receiptVersion` | 2 | No | Receipt Version validated by this operation's strict request contract. |
 | `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
 | `reason` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
 | `currentPassword` | string | Yes | Sensitive password value sent only over HTTPS and never logged or persisted by the client. |
+| `expectedPolicyVersion` | integer | No | Expected Policy Version validated by this operation's strict request contract. |
 | `allowAdminInvitations` | boolean | No | Boolean control for allow admin invitations; authorization is still enforced server-side. |
-| `templates` | array<OPERATIONS / CUSTOMER_SERVICE / SALES_SUPERVISOR / SALES_CASHIER / ACCOUNTANT / WORKSHOP_LEAD / ELECTRICAL_TECHNICIAN / MECHANICAL_TECHNICIAN> | Yes | Templates validated by this operation's strict request contract. |
+| `templates` | array<OPERATIONS / CUSTOMER_SERVICE / SALES_SUPERVISOR / SALES_CASHIER / ACCOUNTANT / WORKSHOP_LEAD / ELECTRICAL_TECHNICIAN / MECHANICAL_TECHNICIAN / CARE_VIEWER / CARE_RESPONDER / CARE_ASSIGNER / CARE_LIVE_AGENT> | Yes | Templates validated by this operation's strict request contract. |
 | `branchIds` | array<string (uuid)> | Yes | Branch Ids validated by this operation's strict request contract. |
 
 Synthetic request example:
 
 ```json
 {
+  "receiptVersion": 2,
   "expectedVersion": 0,
   "reason": "synthetic-reason",
   "currentPassword": "correct horse battery staple",
+  "expectedPolicyVersion": 1,
   "allowAdminInvitations": true,
   "templates": [
     "OPERATIONS"
@@ -20051,7 +24956,7 @@ Success: HTTP 200.
   "message": "Responsibility-based workspace: delegate",
   "data": {
     "userId": "00000000-0000-4000-8000-000000000001",
-    "position": "CEO_MD",
+    "position": "synthetic-position",
     "enabledAt": "2030-01-15T10:00:00.000Z",
     "updatedByUserId": "00000000-0000-4000-8000-000000000001",
     "version": 0,
@@ -20060,7 +24965,8 @@ Success: HTTP 200.
     ],
     "delegatedBranchIds": [
       "00000000-0000-4000-8000-000000000001"
-    ]
+    ],
+    "delegationPolicyVersion": 1
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -20144,6 +25050,686 @@ Success: HTTP 200.
 Relevant errors: 400 The request is malformed.; 401 Missing or invalid production signature; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required provider or database is temporarily unavailable.
 
 
+## Messaging webhooks
+
+### POST `/webhooks/resend`
+
+- Operation ID: `postWebhooksResend`
+- Purpose: The exact raw JSON and Svix headers are signature-checked before processing. Only tagged Support email outcomes are retained. Duplicate events are acknowledged idempotently. Provider delivery to a mail server does not prove inbox placement or reading. Receive a signed Resend email outcome. Access boundary: provider-webhook. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: EMAIL_PROVIDER
+- Authentication: Provider signature plus authoritative verification
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `svix-id` | header | string | Yes | Svix Id used to constrain this request. |
+| `svix-timestamp` | header | string | Yes | Svix Timestamp used to constrain this request. |
+| `svix-signature` | header | string | Yes | Provider-generated webhook signature verified against the exact raw request bytes. |
+
+Success: HTTP 204.
+
+```json
+{
+  "success": true,
+  "message": "Receive a signed Resend email outcome",
+  "data": {
+    "accepted": true,
+    "duplicate": true,
+    "ignored": true
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Invalid signature; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 Webhook secret not configured
+
+
 ## Operational
 
+### GET `/learning/assistant/conversations`
+
+- Operation ID: `getLearningAssistantConversations`
+- Purpose: Disabled by default. Requires enabled reviewed learning, server-only provider settings and a positive shared daily reservation budget. Current verified identity/MFA and session-bound ownership are resolved on every protected operation. Public sessions are separate secure opaque cookies and never silently join an account. All writes require trusted Origin; account writes use existing CSRF, guest writes additionally verify the guest CSRF header. Conversation and turn creation use scoped operation IDs. Only typed questions and eligible reviewed help reach the provider; no business lookup/mutation tools. Output sources/actions are validated, state encrypted with short expiry, budget/concurrency shared in PostgreSQL. Persistence is automated help, not a Customer Care case, live staffing or human delivery. All responses private/no-store; no transcript URL parameters. Limited catalogue mode retains its public-write restrictions. Allie list. Access boundary: authenticated-user. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: AUTHENTICATED
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Allie list",
+  "data": {
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "createdAt": "2030-01-15T10:00:00.000Z",
+        "expiresAt": "2030-01-15T10:00:00.000Z"
+      }
+    ]
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current account session required; 403 Current assurance, CSRF, Origin or release restriction; 404 Disabled, expired or unavailable to this owner; no existence disclosure; 409 Pending, uncertain, cancelled, changed context or conflicting operation; never automatically replay generation; 422 Strict bounded payload; unsupported context or obvious sensitive input rejected; 429 Shared rate, concurrency or conservative token reservation limit; ordinary help/support unaffected; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 Provider/configuration/output verification unavailable; no fabricated AI answer
+
+### POST `/learning/assistant/conversations`
+
+- Operation ID: `postLearningAssistantConversations`
+- Purpose: Disabled by default. Requires enabled reviewed learning, server-only provider settings and a positive shared daily reservation budget. Current verified identity/MFA and session-bound ownership are resolved on every protected operation. Public sessions are separate secure opaque cookies and never silently join an account. All writes require trusted Origin; account writes use existing CSRF, guest writes additionally verify the guest CSRF header. Conversation and turn creation use scoped operation IDs. Only typed questions and eligible reviewed help reach the provider; no business lookup/mutation tools. Output sources/actions are validated, state encrypted with short expiry, budget/concurrency shared in PostgreSQL. Persistence is automated help, not a Customer Care case, live staffing or human delivery. All responses private/no-store; no transcript URL parameters. Limited catalogue mode retains its public-write restrictions. Allie create. Access boundary: authenticated-user. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: AUTHENTICATED
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `origin` | header | string (uri) | Yes | Origin used to constrain this request. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `operationId` | string (uuid) | Yes | Identifier of the operation resource; ownership is resolved server-side. |
+
+Synthetic request example:
+
+```json
+{
+  "operationId": "00000000-0000-4000-8000-000000000001"
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Allie create",
+  "data": {
+    "replayed": true,
+    "conversation": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "version": 1,
+      "audience": "public",
+      "expiresAt": "2030-01-15T10:00:00.000Z",
+      "messages": [
+        {
+          "operationId": "00000000-0000-4000-8000-000000000001",
+          "question": "synthetic-question",
+          "answer": {
+            "kind": "answer",
+            "answer": "synthetic-answer",
+            "steps": [
+              "synthetic-steps-item"
+            ],
+            "caveat": "2030-01-15T10:00:00.000Z",
+            "sourceIds": [
+              "synthetic-sourceids-item"
+            ],
+            "actionIds": [
+              "synthetic-actionids-item"
+            ],
+            "sources": [
+              {
+                "id": "synthetic-id",
+                "articleId": "synthetic-articleid",
+                "version": 1,
+                "title": "synthetic-title",
+                "href": "synthetic-href"
+              }
+            ],
+            "actions": [
+              {
+                "id": "synthetic-id",
+                "kind": "article",
+                "label": "synthetic-label",
+                "href": "synthetic-href",
+                "sourceId": "synthetic-sourceid"
+              }
+            ]
+          }
+        }
+      ],
+      "historyReset": true,
+      "pending": {
+        "operationId": "00000000-0000-4000-8000-000000000001",
+        "state": "pending"
+      }
+    }
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current account session required; 403 Current assurance, CSRF, Origin or release restriction; 404 Disabled, expired or unavailable to this owner; no existence disclosure; 409 Pending, uncertain, cancelled, changed context or conflicting operation; never automatically replay generation; 422 Strict bounded payload; unsupported context or obvious sensitive input rejected; 429 Shared rate, concurrency or conservative token reservation limit; ordinary help/support unaffected; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 Provider/configuration/output verification unavailable; no fabricated AI answer
+
+### GET `/learning/assistant/conversations/{conversationId}`
+
+- Operation ID: `getLearningAssistantConversationsByConversationId`
+- Purpose: Disabled by default. Requires enabled reviewed learning, server-only provider settings and a positive shared daily reservation budget. Current verified identity/MFA and session-bound ownership are resolved on every protected operation. Public sessions are separate secure opaque cookies and never silently join an account. All writes require trusted Origin; account writes use existing CSRF, guest writes additionally verify the guest CSRF header. Conversation and turn creation use scoped operation IDs. Only typed questions and eligible reviewed help reach the provider; no business lookup/mutation tools. Output sources/actions are validated, state encrypted with short expiry, budget/concurrency shared in PostgreSQL. Persistence is automated help, not a Customer Care case, live staffing or human delivery. All responses private/no-store; no transcript URL parameters. Limited catalogue mode retains its public-write restrictions. Allie read. Access boundary: authenticated-user. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: AUTHENTICATED
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `conversationId` | path | string (uuid) | Yes | Identifier selecting the conversation resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Allie read",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "version": 1,
+    "audience": "public",
+    "expiresAt": "2030-01-15T10:00:00.000Z",
+    "messages": [
+      {
+        "operationId": "00000000-0000-4000-8000-000000000001",
+        "question": "synthetic-question",
+        "answer": {
+          "kind": "answer",
+          "answer": "synthetic-answer",
+          "steps": [
+            "synthetic-steps-item"
+          ],
+          "caveat": "2030-01-15T10:00:00.000Z",
+          "sourceIds": [
+            "synthetic-sourceids-item"
+          ],
+          "actionIds": [
+            "synthetic-actionids-item"
+          ],
+          "sources": [
+            {
+              "id": "synthetic-id",
+              "articleId": "synthetic-articleid",
+              "version": 1,
+              "title": "synthetic-title",
+              "href": "synthetic-href"
+            }
+          ],
+          "actions": [
+            {
+              "id": "synthetic-id",
+              "kind": "article",
+              "label": "synthetic-label",
+              "href": "synthetic-href",
+              "sourceId": "synthetic-sourceid"
+            }
+          ]
+        }
+      }
+    ],
+    "historyReset": true,
+    "pending": {
+      "operationId": "00000000-0000-4000-8000-000000000001",
+      "state": "pending"
+    }
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current account session required; 403 Current assurance, CSRF, Origin or release restriction; 404 Disabled, expired or unavailable to this owner; no existence disclosure; 409 Pending, uncertain, cancelled, changed context or conflicting operation; never automatically replay generation; 422 Strict bounded payload; unsupported context or obvious sensitive input rejected; 429 Shared rate, concurrency or conservative token reservation limit; ordinary help/support unaffected; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 Provider/configuration/output verification unavailable; no fabricated AI answer
+
+### DELETE `/learning/assistant/conversations/{conversationId}`
+
+- Operation ID: `deleteLearningAssistantConversationsByConversationId`
+- Purpose: Disabled by default. Requires enabled reviewed learning, server-only provider settings and a positive shared daily reservation budget. Current verified identity/MFA and session-bound ownership are resolved on every protected operation. Public sessions are separate secure opaque cookies and never silently join an account. All writes require trusted Origin; account writes use existing CSRF, guest writes additionally verify the guest CSRF header. Conversation and turn creation use scoped operation IDs. Only typed questions and eligible reviewed help reach the provider; no business lookup/mutation tools. Output sources/actions are validated, state encrypted with short expiry, budget/concurrency shared in PostgreSQL. Persistence is automated help, not a Customer Care case, live staffing or human delivery. All responses private/no-store; no transcript URL parameters. Limited catalogue mode retains its public-write restrictions. Allie clear. Access boundary: authenticated-user. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: AUTHENTICATED
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `conversationId` | path | string (uuid) | Yes | Identifier selecting the conversation resource. |
+| `origin` | header | string (uri) | Yes | Origin used to constrain this request. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+
+Synthetic request example:
+
+```json
+{}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Allie clear",
+  "data": {
+    "cleared": true
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current account session required; 403 Current assurance, CSRF, Origin or release restriction; 404 Disabled, expired or unavailable to this owner; no existence disclosure; 409 Pending, uncertain, cancelled, changed context or conflicting operation; never automatically replay generation; 422 Strict bounded payload; unsupported context or obvious sensitive input rejected; 429 Shared rate, concurrency or conservative token reservation limit; ordinary help/support unaffected; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 Provider/configuration/output verification unavailable; no fabricated AI answer
+
+### POST `/learning/assistant/conversations/{conversationId}/cancel`
+
+- Operation ID: `postLearningAssistantConversationsByConversationIdCancel`
+- Purpose: Disabled by default. Requires enabled reviewed learning, server-only provider settings and a positive shared daily reservation budget. Current verified identity/MFA and session-bound ownership are resolved on every protected operation. Public sessions are separate secure opaque cookies and never silently join an account. All writes require trusted Origin; account writes use existing CSRF, guest writes additionally verify the guest CSRF header. Conversation and turn creation use scoped operation IDs. Only typed questions and eligible reviewed help reach the provider; no business lookup/mutation tools. Output sources/actions are validated, state encrypted with short expiry, budget/concurrency shared in PostgreSQL. Persistence is automated help, not a Customer Care case, live staffing or human delivery. All responses private/no-store; no transcript URL parameters. Limited catalogue mode retains its public-write restrictions. Allie cancel. Access boundary: authenticated-user. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: AUTHENTICATED
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `conversationId` | path | string (uuid) | Yes | Identifier selecting the conversation resource. |
+| `origin` | header | string (uri) | Yes | Origin used to constrain this request. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `operationId` | string (uuid) | Yes | Identifier of the operation resource; ownership is resolved server-side. |
+
+Synthetic request example:
+
+```json
+{
+  "operationId": "00000000-0000-4000-8000-000000000001"
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Allie cancel",
+  "data": {
+    "cancelled": true,
+    "status": "PENDING"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current account session required; 403 Current assurance, CSRF, Origin or release restriction; 404 Disabled, expired or unavailable to this owner; no existence disclosure; 409 Pending, uncertain, cancelled, changed context or conflicting operation; never automatically replay generation; 422 Strict bounded payload; unsupported context or obvious sensitive input rejected; 429 Shared rate, concurrency or conservative token reservation limit; ordinary help/support unaffected; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 Provider/configuration/output verification unavailable; no fabricated AI answer
+
+### POST `/learning/assistant/conversations/{conversationId}/turns`
+
+- Operation ID: `postLearningAssistantConversationsByConversationIdTurns`
+- Purpose: Disabled by default. Requires enabled reviewed learning, server-only provider settings and a positive shared daily reservation budget. Current verified identity/MFA and session-bound ownership are resolved on every protected operation. Public sessions are separate secure opaque cookies and never silently join an account. All writes require trusted Origin; account writes use existing CSRF, guest writes additionally verify the guest CSRF header. Conversation and turn creation use scoped operation IDs. Only typed questions and eligible reviewed help reach the provider; no business lookup/mutation tools. Output sources/actions are validated, state encrypted with short expiry, budget/concurrency shared in PostgreSQL. Persistence is automated help, not a Customer Care case, live staffing or human delivery. All responses private/no-store; no transcript URL parameters. Limited catalogue mode retains its public-write restrictions. Allie turns. Access boundary: authenticated-user. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: AUTHENTICATED
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `conversationId` | path | string (uuid) | Yes | Identifier selecting the conversation resource. |
+| `origin` | header | string (uri) | Yes | Origin used to constrain this request. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `operationId` | string (uuid) | Yes | Identifier of the operation resource; ownership is resolved server-side. |
+| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+| `question` | string | Yes | Question validated by this operation's strict request contract. |
+| `page` | home / parts / vehicles / services / contact / help / learn / customer-care / staff-care / work / security / other | Yes | Page validated by this operation's strict request contract. |
+
+Synthetic request example:
+
+```json
+{
+  "operationId": "00000000-0000-4000-8000-000000000001",
+  "expectedVersion": 1,
+  "question": "synthetic-question",
+  "page": "home"
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Allie turns",
+  "data": {
+    "replayed": true,
+    "conversation": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "version": 1,
+      "audience": "public",
+      "expiresAt": "2030-01-15T10:00:00.000Z",
+      "messages": [
+        {
+          "operationId": "00000000-0000-4000-8000-000000000001",
+          "question": "synthetic-question",
+          "answer": {
+            "kind": "answer",
+            "answer": "synthetic-answer",
+            "steps": [
+              "synthetic-steps-item"
+            ],
+            "caveat": "2030-01-15T10:00:00.000Z",
+            "sourceIds": [
+              "synthetic-sourceids-item"
+            ],
+            "actionIds": [
+              "synthetic-actionids-item"
+            ],
+            "sources": [
+              {
+                "id": "synthetic-id",
+                "articleId": "synthetic-articleid",
+                "version": 1,
+                "title": "synthetic-title",
+                "href": "synthetic-href"
+              }
+            ],
+            "actions": [
+              {
+                "id": "synthetic-id",
+                "kind": "article",
+                "label": "synthetic-label",
+                "href": "synthetic-href",
+                "sourceId": "synthetic-sourceid"
+              }
+            ]
+          }
+        }
+      ],
+      "historyReset": true,
+      "pending": {
+        "operationId": "00000000-0000-4000-8000-000000000001",
+        "state": "pending"
+      }
+    }
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current account session required; 403 Current assurance, CSRF, Origin or release restriction; 404 Disabled, expired or unavailable to this owner; no existence disclosure; 409 Pending, uncertain, cancelled, changed context or conflicting operation; never automatically replay generation; 422 Strict bounded payload; unsupported context or obvious sensitive input rejected; 429 Shared rate, concurrency or conservative token reservation limit; ordinary help/support unaffected; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 Provider/configuration/output verification unavailable; no fabricated AI answer
+
+### GET `/learning/catalogue`
+
+- Operation ID: `getLearningCatalogue`
+- Purpose: Read-only versioned learning content. Catalogue q matches eligible articles, guides and practice separately using task synonyms and their eligible parent article context. Public routes always omit restricted titles, bodies, guides and fixtures. Protected reads resolve current identity, MFA and effective assignments server-side; client roles/owner IDs are not accepted. All responses are private/no-store and vary by Cookie. No AI, account lookup, progress mutation or training/live operational writes. Read eligible catalogue. Access boundary: authenticated-user. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: AUTHENTICATED
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `q` | query | string | No | Q used to constrain this request. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Read eligible catalogue",
+  "data": {
+    "accessKey": "synthetic-accesskey",
+    "audience": "public",
+    "contentVersion": 1,
+    "mode": "full",
+    "flags": {
+      "guides": true,
+      "practice": true,
+      "ai": true
+    },
+    "articles": [
+      {
+        "id": "synthetic-id",
+        "title": "synthetic-title",
+        "summary": "synthetic-summary",
+        "prerequisites": "synthetic-prerequisites",
+        "steps": [
+          "synthetic-steps-item"
+        ],
+        "outcome": "synthetic-outcome",
+        "recovery": "synthetic-recovery",
+        "keywords": "synthetic-keywords",
+        "page": "synthetic-page",
+        "href": "synthetic-href",
+        "source": "synthetic-source",
+        "version": 1,
+        "status": "published",
+        "reviewedAt": "2030-01-15T10:00:00.000Z"
+      }
+    ],
+    "guides": [
+      {
+        "id": "synthetic-id",
+        "title": "synthetic-title",
+        "version": 1,
+        "articleId": "synthetic-articleid",
+        "page": "synthetic-page",
+        "href": "synthetic-href",
+        "steps": [
+          {
+            "id": "synthetic-id",
+            "target": "parts-search",
+            "text": "synthetic-text",
+            "event": "input"
+          }
+        ]
+      }
+    ],
+    "scenarios": [
+      {
+        "id": "synthetic-id",
+        "title": "synthetic-title",
+        "version": 1,
+        "articleId": "synthetic-articleid",
+        "objective": "synthetic-objective"
+      }
+    ]
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current session required; 403 Current assurance/access unavailable; 404 Disabled, unpublished or unavailable; no restricted existence disclosure; 422 Invalid query or definition ID; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/learning/articles/{id}`
+
+- Operation ID: `getLearningArticlesById`
+- Purpose: Read-only versioned learning content. Catalogue q matches eligible articles, guides and practice separately using task synonyms and their eligible parent article context. Public routes always omit restricted titles, bodies, guides and fixtures. Protected reads resolve current identity, MFA and effective assignments server-side; client roles/owner IDs are not accepted. All responses are private/no-store and vary by Cookie. No AI, account lookup, progress mutation or training/live operational writes. Read eligible articles. Access boundary: authenticated-user. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: AUTHENTICATED
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `id` | path | string | Yes | Identifier selecting the id resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Read eligible articles",
+  "data": {
+    "id": "synthetic-id",
+    "title": "synthetic-title",
+    "summary": "synthetic-summary",
+    "prerequisites": "synthetic-prerequisites",
+    "steps": [
+      "synthetic-steps-item"
+    ],
+    "outcome": "synthetic-outcome",
+    "recovery": "synthetic-recovery",
+    "keywords": "synthetic-keywords",
+    "page": "synthetic-page",
+    "href": "synthetic-href",
+    "source": "synthetic-source",
+    "version": 1,
+    "status": "published",
+    "reviewedAt": "2030-01-15T10:00:00.000Z"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current session required; 403 Current assurance/access unavailable; 404 Disabled, unpublished or unavailable; no restricted existence disclosure; 422 Invalid query or definition ID; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/learning/guides/{id}`
+
+- Operation ID: `getLearningGuidesById`
+- Purpose: Read-only versioned learning content. Catalogue q matches eligible articles, guides and practice separately using task synonyms and their eligible parent article context. Public routes always omit restricted titles, bodies, guides and fixtures. Protected reads resolve current identity, MFA and effective assignments server-side; client roles/owner IDs are not accepted. All responses are private/no-store and vary by Cookie. No AI, account lookup, progress mutation or training/live operational writes. Read eligible guides. Access boundary: authenticated-user. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: AUTHENTICATED
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `id` | path | string | Yes | Identifier selecting the id resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Read eligible guides",
+  "data": {
+    "id": "synthetic-id",
+    "title": "synthetic-title",
+    "version": 1,
+    "articleId": "synthetic-articleid",
+    "page": "synthetic-page",
+    "href": "synthetic-href",
+    "steps": [
+      {
+        "id": "synthetic-id",
+        "target": "parts-search",
+        "text": "synthetic-text",
+        "event": "input"
+      }
+    ]
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current session required; 403 Current assurance/access unavailable; 404 Disabled, unpublished or unavailable; no restricted existence disclosure; 422 Invalid query or definition ID; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/learning/scenarios/{id}`
+
+- Operation ID: `getLearningScenariosById`
+- Purpose: Read-only versioned learning content. Catalogue q matches eligible articles, guides and practice separately using task synonyms and their eligible parent article context. Public routes always omit restricted titles, bodies, guides and fixtures. Protected reads resolve current identity, MFA and effective assignments server-side; client roles/owner IDs are not accepted. All responses are private/no-store and vary by Cookie. No AI, account lookup, progress mutation or training/live operational writes. Read eligible scenarios. Access boundary: authenticated-user. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: AUTHENTICATED
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `id` | path | string | Yes | Identifier selecting the id resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Read eligible scenarios",
+  "data": {
+    "id": "synthetic-id",
+    "title": "synthetic-title",
+    "version": 1,
+    "articleId": "synthetic-articleid",
+    "objective": "synthetic-objective",
+    "kind": "fitment",
+    "fields": [
+      {
+        "id": "synthetic-id",
+        "label": "synthetic-label",
+        "example": "synthetic-example",
+        "min": 1,
+        "max": 1,
+        "options": [
+          "synthetic-options-item"
+        ],
+        "dependsOn": "synthetic-dependson"
+      }
+    ],
+    "choices": [
+      {
+        "id": "synthetic-id",
+        "label": "synthetic-label",
+        "feedback": "synthetic-feedback"
+      }
+    ],
+    "expected": "synthetic-expected",
+    "outcome": "synthetic-outcome",
+    "liveHref": "synthetic-livehref"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current session required; 403 Current assurance/access unavailable; 404 Disabled, unpublished or unavailable; no restricted existence disclosure; 422 Invalid query or definition ID; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 

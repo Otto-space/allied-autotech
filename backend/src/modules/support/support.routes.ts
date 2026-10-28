@@ -1,4 +1,6 @@
 import { z } from "zod";
+import { customerHandoffRouter } from "./support-handoff.routes.js";
+import { supportDeliveryDismissSchema } from "./customer-email.js";
 import { supportService } from "./support.service.js";
 import { successResponse } from "../../common/http/api-response.js";
 import { Router } from "express";
@@ -88,6 +90,7 @@ export function createCustomerSupportRouter(): Router {
   const router = Router();
   const controller = new SupportController();
   router.use(authenticate(), requireCustomer);
+  router.use("/handoff", customerHandoffRouter());
   router.get(
     "/review-sources",
     validate({ query: reviewSourceListQuerySchema }),
@@ -192,6 +195,36 @@ export function createStaffSupportRouter(): Router {
   const router = Router();
   const controller = new SupportController();
   router.use(authenticate(), requireStaff);
+  for (const kind of ["enquiries", "complaints"] as const)
+    router.post(
+      `/${kind}/:supportId/email-deliveries/dismiss`,
+      requireCsrf,
+      validate({
+        params: supportIdParamsSchema,
+        query: supportEmptyQuerySchema,
+        body: supportDeliveryDismissSchema,
+      }),
+      async (req, res) => {
+        const id = (res.locals.validated!["params"] as { supportId: string }).supportId;
+        res.json(
+          successResponse(
+            "Delivery notices dismissed for your view",
+            req.id,
+            await supportService.dismissDeliveryNotices(
+              req.actor!,
+              kind === "enquiries" ? "enquiry" : "complaint",
+              id,
+              res.locals.validated!["body"],
+              {
+                requestId: String(req.id),
+                ipAddress: req.ip ?? null,
+                userAgent: req.get("user-agent") ?? null,
+              },
+            ),
+          ),
+        );
+      },
+    );
   router.get(
     "/enquiries",
     validate({ query: staffEnquiryListQuerySchema }),

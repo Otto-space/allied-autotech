@@ -19,8 +19,16 @@ const statuses = {
   REJECTED: { label: "Rejected", description: "Not approved for public display." },
 } as const;
 
-export function CustomerReview({ review }: { review: ReviewRecord }) {
+export function CustomerReview({
+  review,
+  headingLevel = 3,
+}: {
+  review: ReviewRecord;
+  headingLevel?: 2 | 3;
+}) {
   const state = statuses[review.status];
+  const Title = headingLevel === 2 ? "h2" : "h3";
+  const ModerationTitle = headingLevel === 2 ? "h3" : "h4";
   return (
     <article className="cr-record" aria-labelledby={`review-${review.id}`}>
       <div className="cr-record-top">
@@ -40,9 +48,9 @@ export function CustomerReview({ review }: { review: ReviewRecord }) {
         </strong>
       </div>
       <p className="cr-target">{reviewLabels[review.targetType]}</p>
-      <h3 id={`review-${review.id}`}>
+      <Title className="cr-record-title" id={`review-${review.id}`}>
         {review.title || reviewLabels[review.targetType]}
-      </h3>
+      </Title>
       <p className="preserve-lines cr-comment">{review.comment}</p>
       <div className="cr-record-meta">
         <p>{formatBusinessDate(review.createdAt)}</p>
@@ -50,7 +58,9 @@ export function CustomerReview({ review }: { review: ReviewRecord }) {
       </div>
       {(review.moderationNote || review.moderatedAt) && (
         <div className="cr-moderation">
-          <h4>Moderation update</h4>
+          <ModerationTitle className="cr-moderation-title">
+            Moderation update
+          </ModerationTitle>
           {review.moderatedAt && <p>{formatBusinessDate(review.moderatedAt)}</p>}
           {review.moderationNote && (
             <p className="preserve-lines">{review.moderationNote}</p>

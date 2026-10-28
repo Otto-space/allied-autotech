@@ -4,7 +4,7 @@ import { invoiceSnapshotSchema, type InvoiceSnapshot } from "./document.schemas.
 
 export const approvedIssuer = {
   name: "Allied AutoTech",
-  address: "133 Stadium Road, beside Kilimanjaro, Port Harcourt, Rivers State, Nigeria",
+  address: "133 Stadium Road, beside Kilimanjaro Pizza Jungle Restaurant, Port Harcourt, Rivers State, Nigeria",
   paymentTerms: "",
 };
 

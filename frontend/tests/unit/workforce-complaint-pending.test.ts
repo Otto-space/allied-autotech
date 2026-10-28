@@ -51,3 +51,19 @@ it("retains a redacted lock and refuses sending when storage or identity is unav
   await expect(markWorkforceComplaintPending(owner, target, {})).rejects.toThrow();
   expect(() => clearWorkforceComplaintPending(owner)).toThrow();
 });
+it("shares the pending block between assignments and replies without storing the internal reason", async () => {
+  const marker = await markWorkforceComplaintPending(
+    owner,
+    { ...target, action: "assignment" },
+    { staffId: owner, reason: "Private internal assignment reason" },
+  );
+  expect(readWorkforceComplaintPending(owner)).toEqual(marker);
+  expect(JSON.stringify(sessionStorage)).not.toContain(
+    "Private internal assignment reason",
+  );
+  await expect(
+    markWorkforceComplaintPending(owner, target, { body: "reply" }),
+  ).rejects.toThrow();
+  clearWorkforceComplaintPending(owner, marker.token);
+  expect(readWorkforceComplaintPending(owner)).toBeUndefined();
+});

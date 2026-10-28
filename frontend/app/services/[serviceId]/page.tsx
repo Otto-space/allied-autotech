@@ -63,7 +63,11 @@ async function OtherServices({ serviceId }: { readonly serviceId: string }) {
                 priceLabel = "Contact us for pricing";
               }
               return (
-                <Link className="sd-more-item" key={item.id} href={`/services/${item.id}`}>
+                <Link
+                  className="sd-more-item"
+                  key={item.id}
+                  href={`/services/${item.id}`}
+                >
                   <div className="sd-more-media">
                     {item.image ? (
                       <ServicePhoto

@@ -1,5 +1,5 @@
 .purchase-detail-page {
-  color: #01121a;
+  color: var(--ink);
   min-width: 0;
   padding-bottom: 64px;
 }
@@ -229,7 +229,7 @@
   min-height: 48px;
   font-size: 16px;
   background-color: #fff;
-  border-color: #9eafc5;
+  border-color: var(--border-control);
 }
 .pd-payments .list {
   gap: 0;

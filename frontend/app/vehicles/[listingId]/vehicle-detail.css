@@ -2,7 +2,7 @@
   --vd-muted: #4f6073;
   --vd-line: #cbd5e1;
   --vd-control: #8290a1;
-  color: #01121a;
+  color: var(--ink);
   background: #f3f5f8;
   padding: 12px 0 0;
 }
@@ -487,7 +487,7 @@
   padding: 10px 12px;
   font: inherit;
   font-size: 16px;
-  color: #01121a;
+  color: var(--ink);
   background: #fff;
   color-scheme: light;
   box-sizing: border-box;
@@ -498,7 +498,7 @@
 }
 .vd-inspection-panel input:hover,
 .vd-inspection-panel textarea:hover {
-  border-color: #344860;
+  border-color: var(--border-control);
 }
 .vd-inspection-panel input:disabled,
 .vd-inspection-panel textarea:disabled {
@@ -540,7 +540,7 @@
   margin: 0 0 18px;
   border: 1px solid #9d3434;
   border-radius: 5px;
-  color: #01121a;
+  color: var(--ink);
   background: #fff;
   scroll-margin-top: 110px;
 }
@@ -636,8 +636,9 @@
   background: #f6f8fa;
 }
 .vehicle-detail :is(a, button, input, textarea):focus-visible {
-  outline: 2px solid #e60301;
+  outline: 3px solid var(--focus-ring);
   outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .vd-summary :is(a, button):focus-visible {
   outline-color: white;
@@ -900,7 +901,7 @@
 }
 .vd-section-nav a:hover {
   color: #b80000;
-  border-color: #e60301;
+  border-color: var(--brand-red);
 }
 #vehicle-overview,
 #vehicle-specifications,
@@ -950,9 +951,10 @@
   width: 100%;
 }
 .vd-inspection-panel :is(input, textarea):focus {
-  border-color: #e60301;
-  box-shadow: 0 0 0 1px #e60301;
-  outline: none;
+  border-color: var(--brand-red);
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .vd-related-item .media-placeholder {
   min-height: 0;
@@ -1040,7 +1042,7 @@
   display: block;
   width: 32px;
   height: 3px;
-  background: #e60301;
+  background: var(--brand-red);
   margin-bottom: 18px;
 }
 .vehicle-detail .vd-inspection-steps {
@@ -1223,10 +1225,10 @@
   width: 100%;
   min-height: 0;
   padding: 10px;
-  border: 1px solid #82939f;
+  border: 1px solid var(--border-control);
   border-radius: 5px;
   background: #fff;
-  color: #01121a;
+  color: var(--ink);
   font: inherit;
   font-size: 13px;
   line-height: 1.6;
@@ -1291,11 +1293,11 @@
   }
 }
 .vehicle-detail .vd-request-vehicle strong {
-  color: #01121a;
+  color: var(--ink);
 }
 .vehicle-detail .vd-summary .vd-request-review {
   background: #fff;
-  color: #01121a;
+  color: var(--ink);
   padding: 18px;
   border: 1px solid #82939f;
   border-radius: 5px;
@@ -1305,7 +1307,7 @@
   color: #344860;
 }
 .vehicle-detail .vd-summary .vd-request-review h2 {
-  color: #01121a;
+  color: var(--ink);
 }
 .vehicle-detail .vd-summary :is(.vd-request-review, .vd-feedback) .button.secondary {
   background: #fff;
@@ -1322,6 +1324,14 @@
   .vd-summary
   :is(.vd-request-review, .vd-feedback)
   :is(a, button):focus-visible {
-  outline: 2px solid #c60000;
+  outline: 3px solid var(--focus-ring);
   outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
+}
+
+.vd-summary > .actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-block: 1rem;
 }

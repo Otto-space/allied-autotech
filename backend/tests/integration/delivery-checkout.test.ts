@@ -56,11 +56,11 @@ async function version(key: string) {
   );
 }
 describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
-  "Approved delivery discovery and checkout",
+  "Collection-only checkout and preserved policy history",
   () => {
     afterAll(() => prisma.$disconnect());
     const app = createApp({ checkReadiness: async () => undefined });
-    it("publishes only effective approved zones, prices checkout on the server and preserves replayed order snapshots", async () => {
+    it("keeps retained delivery policies disabled, rejects shipping and preserves collection replay totals", async () => {
       const owner = await testOwner("unusable-delivery-test-only");
       const ownerSession = await session(owner.id, true);
       await testCapability(owner.id, "FINANCE_POLICY_APPROVE");
@@ -134,11 +134,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         currency: "NGN",
         checkoutEnabled: true,
         collection: { enabled: true, address },
-        delivery: {
-          enabled: true,
-          policyVersion: approved.body.data.version,
-          zones: [zone],
-        },
+        delivery: { enabled: false, policyVersion: null, zones: [] },
       });
       expect(JSON.stringify(read.body.data)).not.toContain("Private synthetic");
       const summary = await request(app).get("/api/v1/public/capabilities");
@@ -147,7 +143,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       expect(summary.body.data).toMatchObject({
         scope: "POLICY_SUMMARY",
         checkoutEnabled: true,
-        delivery: { enabled: true },
+        delivery: { enabled: false },
       });
       expect(JSON.stringify(summary.body.data)).not.toContain("Private synthetic");
       expect(read.body.data.delivery).not.toHaveProperty("approvalEvidence");
@@ -155,17 +151,17 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       const futureZone = { ...zone, feeKobo: "20202" };
       expect((await publish([futureZone], future.toISOString())).status).toBe(201);
       expect(await safeCapabilities(prisma)).toMatchObject({
-        delivery: { enabled: true },
+        delivery: { enabled: false },
         finance: { approvalStatus: "APPROVED" },
       });
       expect(
         (await request(app).get("/api/v1/public/fulfillment-options")).body.data.delivery
           .zones,
-      ).toEqual([zone]);
+      ).toEqual([]);
       expect(
         (await publicFulfillmentOptions(prisma, new Date(future.getTime() + 1))).delivery
           .zones,
-      ).toEqual([futureZone]);
+      ).toEqual([]);
       const customer = await prisma.user.create({
         data: {
           email: `${randomUUID()}@example.test`,
@@ -211,7 +207,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         data: { cartId: customer.profile!.cart!.id, productId: product.id, quantity: 2 },
       });
       const key = randomUUID();
-      const body = {
+      const deliveryRequest = {
         branchId: branch.id,
         fulfillmentMethod: "DELIVERY",
         delivery: {
@@ -224,6 +220,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
           country: "Nigeria",
         },
       };
+      const body = { branchId: branch.id, fulfillmentMethod: "COLLECTION" };
       const checkout = (payload: unknown, requestKey = randomUUID()) =>
         request(app)
           .post("/api/v1/customers/orders/checkout")
@@ -233,11 +230,15 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       expect(
         (
           await checkout({
-            ...body,
-            delivery: { ...body.delivery, city: "Different city" },
+            ...deliveryRequest,
+            delivery: { ...deliveryRequest.delivery, city: "Different city" },
           })
         ).status,
-      ).toBe(409);
+      ).toBe(422);
+      expect((await checkout(deliveryRequest)).status).toBe(422);
+      expect(
+        await prisma.order.count({ where: { customerId: customer.profile!.id } }),
+      ).toBe(0);
       expect((await checkout({ ...body, deliveryFeeKobo: "1" })).status).toBe(422);
       expect(
         (await prisma.inventory.findUniqueOrThrow({ where: { id: inventory.id } }))
@@ -246,22 +247,21 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       const created = await checkout(body, key);
       expect(created.status).toBe(201);
       expect(created.body.data.order).toMatchObject({
-        fulfillmentMethod: "DELIVERY",
+        fulfillmentMethod: "COLLECTION",
         subtotalKobo: "20000",
-        deliveryFeeKobo: "10101",
-        taxKobo: "2258",
-        totalKobo: "32359",
-        deliveryName: body.delivery.name,
-        deliveryAddress: body.delivery.address,
+        deliveryFeeKobo: "0",
+        taxKobo: "1500",
+        totalKobo: "21500",
+        deliveryName: null,
+        deliveryAddress: null,
       });
       expect(created.body.data.order).not.toHaveProperty("policySnapshot");
       const orderId = String(created.body.data.order.id);
       const saved = await prisma.order.findUniqueOrThrow({ where: { id: orderId } });
       expect(saved.policySnapshot).toMatchObject({
         fulfillment: {
-          zoneId: zone.id,
-          feeKobo: zone.feeKobo,
-          policy: { version: approved.body.data.version },
+          method: "COLLECTION",
+          address,
         },
       });
       expect((await publish([{ ...zone, feeKobo: "30303" }])).status).toBe(201);
@@ -269,7 +269,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       expect(replay.status).toBe(201);
       expect(replay.body.data).toMatchObject({
         replayed: true,
-        order: { id: orderId, deliveryFeeKobo: "10101", totalKobo: "32359" },
+        order: { id: orderId, deliveryFeeKobo: "0", totalKobo: "21500" },
       });
       expect(
         (await prisma.inventory.findUniqueOrThrow({ where: { id: inventory.id } }))

@@ -113,15 +113,16 @@
 .work-dispute-handling .field input,
 .work-dispute-handling .field select,
 .work-dispute-handling textarea {
-  border-color: #8999ad;
+  border-color: var(--border-control);
   background-color: #fff;
   min-width: 0;
 }
 .work-dispute-handling .field input:focus-visible,
 .work-dispute-handling .field select:focus-visible,
 .work-dispute-handling textarea:focus-visible {
-  outline: 2px solid #b71c1c;
-  outline-offset: 2px;
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .wh-queue {
   background: #fff;
@@ -158,7 +159,7 @@
 }
 .wh-record.is-selected {
   background: #fff7f6;
-  border-left-color: #e60301;
+  border-left-color: var(--brand-red);
 }
 .wh-record h3 {
   font-size: 14px;

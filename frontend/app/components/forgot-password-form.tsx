@@ -148,12 +148,12 @@ export function ForgotPasswordForm() {
         </>
       )}
       <Feedback message={error} />
-      {!ready && (
+      <noscript hidden={ready}>
         <p className="login-intro">
           Enable JavaScript to request a recovery link. You can still browse our Help
           Centre.
         </p>
-      )}
+      </noscript>
       <form
         ref={form}
         hidden={!ready || accepted}

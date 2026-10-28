@@ -17,6 +17,7 @@ import { MutationReview, type MutationProposal } from "./mutation-review";
 import { koboToInput } from "@/lib/format/currency-input";
 import { formatKobo } from "@/lib/format/money";
 import { WorkProductCategory } from "./work-product-category";
+import { familyLabels, packVolumeLabel } from "@/lib/product-family";
 
 export function WorkProductEditor({
   id,
@@ -188,6 +189,12 @@ function ProductForm({
       slug: record?.slug ?? "",
       sku: record?.sku ?? "",
       categoryId: record?.category.id ?? "",
+      family: record?.family ?? "",
+      oilViscosityGrade: record?.oilViscosityGrade ?? "",
+      packVolumeMl: record?.packVolumeMl?.toString() ?? "",
+      condition: record?.condition ?? "",
+      classification: record?.classification ?? "",
+      productType: record?.productType ?? "",
       brand: record?.brand ?? "",
       manufacturerPartNumber: record?.manufacturerPartNumber ?? "",
       description: record?.description ?? "",
@@ -201,11 +208,18 @@ function ProductForm({
   });
   const errors = form.formState.errors;
   const selectedCategory = useWatch({ control: form.control, name: "categoryId" });
+  const family = useWatch({ control: form.control, name: "family" });
   const fieldOrder: (keyof ProductFormValues)[] = [
     "name",
     "slug",
     "sku",
     "categoryId",
+    "family",
+    "oilViscosityGrade",
+    "packVolumeMl",
+    "condition",
+    "classification",
+    "productType",
     "brand",
     "manufacturerPartNumber",
     "description",
@@ -230,6 +244,21 @@ function ProductForm({
           label: "Category",
           value: categoryLabel,
         },
+        {
+          label: "Product family",
+          value: body.family ? familyLabels[body.family] : "Shared / not classified",
+        },
+        { label: "Recorded oil grade", value: body.oilViscosityGrade || "Not recorded" },
+        {
+          label: "Pack volume",
+          value: body.packVolumeMl ? packVolumeLabel(body.packVolumeMl) : "Not recorded",
+        },
+        { label: "Condition", value: body.condition || "Not recorded" },
+        {
+          label: "Classification",
+          value: body.classification?.replaceAll("_", " ") || "Not recorded",
+        },
+        { label: "Product type", value: body.productType || "Not recorded" },
         { label: "Brand", value: body.brand || "Not provided" },
         {
           label: "Manufacturer part number",
@@ -360,6 +389,12 @@ function ProductForm({
                   slug: "",
                   sku: "",
                   categoryId: "",
+                  condition: "",
+                  family: "",
+                  oilViscosityGrade: "",
+                  packVolumeMl: "",
+                  classification: "",
+                  productType: "",
                   brand: "",
                   manufacturerPartNumber: "",
                   priceKobo: "",
@@ -450,6 +485,158 @@ function ProductForm({
                 }}
               />
               {error("categoryId")}
+            </div>
+            <div className="field">
+              <label htmlFor="admin-family">Product family (optional)</label>
+              <select
+                {...form.register("family")}
+                {...common("family")}
+                aria-describedby={`product-family-hint${errors.family ? " product-error-family" : ""}`}
+                onChange={(event) => {
+                  const next = event.target.value as
+                    "" | "REPLACEMENT_PART" | "ENGINE_OIL";
+                  form.setValue("family", next, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  });
+                  form.setValue("productType", "", { shouldDirty: true });
+                  if (next === "ENGINE_OIL") {
+                    form.setValue("condition", "");
+                    form.setValue("classification", "");
+                  } else {
+                    form.setValue("oilViscosityGrade", "");
+                    form.setValue("packVolumeMl", "");
+                  }
+                }}
+              >
+                <option value="">Shared / not classified</option>
+                <option value="REPLACEMENT_PART">Replacement parts</option>
+                <option value="ENGINE_OIL">Engine oils</option>
+              </select>
+              <span className="field-hint" id="product-family-hint">
+                Match the category family. Keep unknown information blank; changing family
+                clears incompatible fields for review.
+              </span>
+              {error("family")}
+            </div>
+            {family === "ENGINE_OIL" && (
+              <>
+                <div className="field">
+                  <label htmlFor="admin-oilViscosityGrade">
+                    Recorded viscosity grade (optional)
+                  </label>
+                  <input
+                    {...form.register("oilViscosityGrade")}
+                    {...common("oilViscosityGrade")}
+                    maxLength={12}
+                    aria-describedby={`oil-grade-hint${errors.oilViscosityGrade ? " product-error-oilViscosityGrade" : ""}`}
+                  />
+                  <span className="field-hint" id="oil-grade-hint">
+                    Copy the multigrade label, for example 5W-30. This does not establish
+                    vehicle suitability or manufacturer approval.
+                  </span>
+                  {error("oilViscosityGrade")}
+                </div>
+                <div className="field">
+                  <label htmlFor="admin-packVolumeMl">Pack volume in ml (optional)</label>
+                  <input
+                    {...form.register("packVolumeMl")}
+                    {...common("packVolumeMl")}
+                    inputMode="numeric"
+                    maxLength={7}
+                    aria-describedby={`oil-volume-hint${errors.packVolumeMl ? " product-error-packVolumeMl" : ""}`}
+                  />
+                  <span className="field-hint" id="oil-volume-hint">
+                    Record the labelled volume: 1 L = 1,000 ml; 5 L = 5,000 ml.
+                  </span>
+                  {error("packVolumeMl")}
+                </div>
+              </>
+            )}
+            {family !== "ENGINE_OIL" && (
+              <>
+                <div className="field">
+                  <label htmlFor="admin-condition">Condition (optional)</label>
+                  <select {...form.register("condition")} {...common("condition")}>
+                    <option value="">Not recorded</option>
+                    <option value="NEW">New</option>
+                    <option value="USED">Used</option>
+                    <option value="REFURBISHED">Refurbished</option>
+                  </select>
+                  {error("condition")}
+                </div>
+                <div className="field">
+                  <label htmlFor="admin-classification">Classification (optional)</label>
+                  <select
+                    {...form.register("classification")}
+                    {...common("classification")}
+                  >
+                    <option value="">Not recorded</option>
+                    <option value="GENUINE_OEM">Genuine / OEM</option>
+                    <option value="AFTERMARKET">Aftermarket</option>
+                  </select>
+                  {error("classification")}
+                </div>
+              </>
+            )}
+            <div className="field product-field-wide">
+              <label htmlFor="admin-productType">Product type (optional)</label>
+              {!family ? (
+                <input
+                  {...form.register("productType")}
+                  {...common("productType")}
+                  maxLength={80}
+                  aria-describedby="part-type-hint"
+                />
+              ) : (
+                <select
+                  {...form.register("productType")}
+                  {...common("productType")}
+                  aria-describedby="part-type-hint"
+                >
+                  <option value="">Not recorded</option>
+                  {record?.productType &&
+                    ![
+                      "BRAKE_PADS",
+                      "BRAKE_DISCS",
+                      "OIL_FILTER",
+                      "AIR_FILTER",
+                      "ACCESSORY",
+                      "ENGINE_OIL",
+                    ].includes(record.productType) && (
+                      <option value={record.productType}>
+                        Recorded type: {record.productType}
+                      </option>
+                    )}
+                  {(family === "ENGINE_OIL"
+                    ? [["ENGINE_OIL", "Engine oil"]]
+                    : [
+                        ["BRAKE_PADS", "Brake pads"],
+                        ["BRAKE_DISCS", "Brake discs"],
+                        ["OIL_FILTER", "Oil filter"],
+                        ["AIR_FILTER", "Air filter"],
+                        ["ACCESSORY", "Accessory"],
+                      ]
+                  ).map(([value, label]) => (
+                    <option key={value} value={value}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+              )}
+              <span className="field-hint" id="part-type-hint">
+                {family === "ENGINE_OIL" ? (
+                  "Record only the product type shown on its label. Grade and pack volume do not establish vehicle suitability or manufacturer approval."
+                ) : (
+                  <>
+                    Use a consistent type, such as BRAKE_PADS. Only the recorded ACCESSORY
+                    type supports non-critical or universal scope; other types require
+                    safety-critical fitment review. Retire approved fitment rules before
+                    changing a product type.
+                  </>
+                )}
+              </span>
+              {error("productType")}
             </div>
             <div className="field">
               <label htmlFor="admin-brand">Brand (optional)</label>

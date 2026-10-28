@@ -12,7 +12,7 @@ dialog.cart-update-drawer {
   border-left: 1px solid #cbd5df;
   border-radius: 0;
   background: #fff;
-  color: #01121a;
+  color: var(--ink);
   overflow: hidden;
   box-shadow: -15px 0 60px #01121a26;
 }
@@ -59,12 +59,13 @@ dialog.cart-update-drawer :is(h2, h3, h4, p) {
   border: 1px solid #82939f;
   border-radius: 8px;
   background: #fff;
-  color: #01121a;
+  color: var(--ink);
   flex: none;
 }
 .cart-update-drawer :is(button, a, [tabindex]):focus-visible {
-  outline: 2px solid #e60301;
-  outline-offset: -3px;
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .cart-drawer-body {
   padding: 0 24px 16px;

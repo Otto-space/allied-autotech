@@ -1,4 +1,8 @@
-import { supportEmailDeliveryPageSchema } from "./customer-email.js";
+import {
+  supportEmailDeliveryPageSchema,
+  supportDeliveryDismissSchema,
+} from "./customer-email.js";
+import { registerSupportHandoffOpenApi } from "./support-handoff.openapi.js";
 import {
   extendZodWithOpenApi,
   type OpenAPIRegistry,
@@ -104,6 +108,7 @@ const enquirySubmission = supportSubmissionBase.extend({
   bookingId: z.uuid().nullable(),
   quoteId: z.uuid().nullable(),
   vehicleListingId: z.uuid().nullable(),
+  vehicleEnquiryIntent: z.enum(["LISTING", "REQUIREMENTS"]).nullable(),
 });
 const complaintSubmission = supportSubmissionBase.extend({
   status: z.enum(["OPEN", "INVESTIGATING", "RESOLVED", "CLOSED"]),
@@ -120,7 +125,27 @@ const complaintSubmission = supportSubmissionBase.extend({
 const creationDescription =
   "Requires Idempotency-Key support-create-v1.<13-digit Unix milliseconds>.<lowercase UUID v4>. Scope is authenticated customer plus enquiry/complaint creation. The normalized body is bound to the key; changed content returns 409 IDEMPOTENCY_CONFLICT. Original-key/body replay within 24 hours returns 201 with the same owned record ID, current state and replayed true, without another creation audit or repeating branch/source checks or complaint deadline assignment. New requests retain branch, source, ownership and policy validation. Keys over 24 hours old or more than one minute in the future return 409 IDEMPOTENCY_EXPIRED, including after receipt cleanup. Missing/malformed keys return 422. Receipts hold hashes and the record ID, not message/contact text. Private projections exclude contact fields and internal messages. Same-key concurrency serializes; role, CSRF and rate limits apply on every attempt. Public anonymous creation is unchanged. Deploy matching frontend/API; older customer clients must reload.";
 
+const timelineMessage = z.object({
+  id: z.uuid(),
+  authorType: z.enum(["CUSTOMER", "STAFF", "SYSTEM"]),
+  visibility: z.enum(["CUSTOMER", "INTERNAL"]),
+  body: z.string(),
+  createdAt: z.iso.datetime(),
+  kind: z.enum(["LEGACY", "REPLY", "INTERNAL_NOTE", "STATUS_CHANGE"]),
+  fromStatus: z.string().nullable(),
+  toStatus: z.string().nullable(),
+});
+const timelinePage = z.object({
+  items: z.array(timelineMessage),
+  cursor: z.uuid().nullable(),
+  hasMore: z.boolean(),
+  pollAfterMs: z.number().int(),
+});
 const replySubmission = z.object({
+  kind: z.enum(["LEGACY", "REPLY", "INTERNAL_NOTE", "STATUS_CHANGE"]),
+  fromStatus: z.string().nullable(),
+  toStatus: z.string().nullable(),
+
   id: z.uuid(),
   authorType: z.literal("CUSTOMER"),
   visibility: z.literal("CUSTOMER"),
@@ -147,6 +172,7 @@ type Route = {
 };
 
 export function registerSupportOpenApi(registry: OpenAPIRegistry): void {
+  registerSupportHandoffOpenApi(registry);
   registry.registerPath({
     method: "get",
     path: "/public/support/reviews/{reviewId}/photo",
@@ -183,12 +209,24 @@ export function registerSupportOpenApi(registry: OpenAPIRegistry): void {
     },
   });
   const routes: Route[] = [
+    ...(["enquiries", "complaints"] as const).map((kind): Route => ({
+      method: "post",
+      path: `/staff/support/${kind}/{supportId}/email-deliveries/dismiss`,
+      summary: "Dismiss eligible visible delivery notices for this operator",
+      description:
+        "Current case/branch access required. Atomic explicit batch of 1–20 stable revisions. Idempotent per operator and revision. Stale/ineligible/foreign notices conflict. Retains all delivery history/status and grants no retry authority.",
+      security: true,
+      params: supportIdParamsSchema,
+      body: supportDeliveryDismissSchema,
+      mutate: true,
+      data: supportEmailDeliveryPageSchema,
+    })),
     {
       method: "get",
       path: "/staff/support/complaints/{supportId}/email-deliveries",
       summary: "Read the latest customer email delivery attempts for this conversation",
       description:
-        "Staff/admin only, branch scoped, private/no-store. Latest 20 updates, newest first. SENT means the provider accepted the email, not confirmed inbox delivery. RETRYING will retry automatically; FAILED needs manual follow-up. NOT_SENT explains disabled delivery, opt-out or missing destination. No recipient, message content, provider payload or internal error is exposed. Historical updates before this feature are not backfilled.",
+        "Staff/admin only, branch scoped, private/no-store. Latest 20 updates, newest first. SENT means provider acceptance, not recipient-server or inbox delivery. Attempt count and next scheduled retry are shown. RETRYING will retry automatically; FAILED needs provider review and coordinated manual follow-up. NOT_SENT explains disabled delivery, opt-out or missing destination. No recipient, message content, provider payload or internal error is exposed. Historical updates before this feature are not backfilled.",
       security: true,
       params: supportIdParamsSchema,
       data: supportEmailDeliveryPageSchema,
@@ -198,7 +236,7 @@ export function registerSupportOpenApi(registry: OpenAPIRegistry): void {
       path: "/staff/support/enquiries/{supportId}/email-deliveries",
       summary: "Read the latest customer email delivery attempts for this conversation",
       description:
-        "Staff/admin only, branch scoped, private/no-store. Latest 20 updates, newest first. SENT means the provider accepted the email, not confirmed inbox delivery. RETRYING will retry automatically; FAILED needs manual follow-up. NOT_SENT explains disabled delivery, opt-out or missing destination. No recipient, message content, provider payload or internal error is exposed. Historical updates before this feature are not backfilled.",
+        "Staff/admin only, branch scoped, private/no-store. Latest 20 updates, newest first. SENT means provider acceptance, not recipient-server or inbox delivery. Attempt count and next scheduled retry are shown. RETRYING will retry automatically; FAILED needs provider review and coordinated manual follow-up. NOT_SENT explains disabled delivery, opt-out or missing destination. No recipient, message content, provider payload or internal error is exposed. Historical updates before this feature are not backfilled.",
       security: true,
       params: supportIdParamsSchema,
       data: supportEmailDeliveryPageSchema,
@@ -228,12 +266,17 @@ export function registerSupportOpenApi(registry: OpenAPIRegistry): void {
       summary: "Poll new customer-visible enquiry chat messages",
       params: supportIdParamsSchema,
       query: supportMessageListQuerySchema,
+      data: timelinePage,
+      description:
+        "Chronological replies, status updates and authorized internal notes. messageId starts inclusively at an entry within this authorized conversation; cursor continues after an entry. Customer reads reject private and foreign anchors. Legacy messages retain their original content without inferred status metadata.",
       security: true,
     },
     {
       method: "post",
       path: "/public/support/enquiries",
       summary: "Submit a public enquiry",
+      description:
+        "Public PRODUCT enquiries may omit productId. VEHICLE accepts vehicleEnquiryIntent LISTING with a current public vehicleListingId, or explicit REQUIREMENTS without a listing. Legacy vehicle requests with a listing normalize to LISTING. Invalid/private references never downgrade to REQUIREMENTS. Listing branch is authoritative; requirements use an explicit active public branch or the sole active branch, otherwise 409 requests a choice. Existing branch/assignment/workforce queue scope applies. Deploy compatible forward migrations and API before enabling handoffs. Other source, validation, rate-limit and submission safeguards remain unchanged.",
       body: publicEnquiryCreateBodySchema,
       accepted: true,
     },
@@ -243,6 +286,9 @@ export function registerSupportOpenApi(registry: OpenAPIRegistry): void {
       summary: "Poll new customer-visible complaint chat messages",
       params: supportIdParamsSchema,
       query: supportMessageListQuerySchema,
+      data: timelinePage,
+      description:
+        "Chronological replies, status updates and authorized internal notes. messageId starts inclusively at an entry within this authorized conversation; cursor continues after an entry. Customer reads reject private and foreign anchors. Legacy messages retain their original content without inferred status metadata.",
       security: true,
     },
     {
@@ -265,6 +311,9 @@ export function registerSupportOpenApi(registry: OpenAPIRegistry): void {
       summary: "Poll new branch-authorized enquiry chat messages",
       params: supportIdParamsSchema,
       query: supportMessageListQuerySchema,
+      data: timelinePage,
+      description:
+        "Chronological replies, status updates and authorized internal notes. messageId starts inclusively at an entry within this authorized conversation; cursor continues after an entry. Customer reads reject private and foreign anchors. Legacy messages retain their original content without inferred status metadata.",
       security: true,
     },
     {
@@ -291,6 +340,9 @@ export function registerSupportOpenApi(registry: OpenAPIRegistry): void {
       summary: "Poll new branch-authorized complaint chat messages",
       params: supportIdParamsSchema,
       query: supportMessageListQuerySchema,
+      data: timelinePage,
+      description:
+        "Chronological replies, status updates and authorized internal notes. messageId starts inclusively at an entry within this authorized conversation; cursor continues after an entry. Customer reads reject private and foreign anchors. Legacy messages retain their original content without inferred status metadata.",
       security: true,
     },
     {

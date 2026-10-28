@@ -67,6 +67,8 @@ function accessFor(
   roles: string[];
 } {
   if (path.startsWith("/public/")) return { boundary: "public", roles: ["PUBLIC"] };
+  if (path === "/webhooks/resend")
+    return { boundary: "provider-webhook", roles: ["EMAIL_PROVIDER"] };
   if (path.startsWith("/webhooks/"))
     return { boundary: "provider-webhook", roles: ["PAYMENT_PROVIDER"] };
   if (path.startsWith("/customers/"))
@@ -99,6 +101,10 @@ function parameterDescription(name: string, location: string): string {
     return "Provider-generated webhook signature verified against the exact raw request bytes.";
   if (location === "path")
     return `Identifier selecting the ${field.replace(/ id$/u, "")} resource.`;
+  if (name === "conditions")
+    return "Distinct comma-separated vehicle conditions: NEW, USED, FOREIGN_USED, LOCALLY_USED. Matches any selected choice; do not combine with condition.";
+  if (name === "powertrains")
+    return "Distinct comma-separated powertrains: BEV, HEV, PHEV, ICE. Matches any selected choice; do not combine with powertrain.";
   if (name === "cursor") return "Opaque cursor returned by the preceding page.";
   if (name === "limit") return "Maximum number of records to return, bounded by the API.";
   return `${title(field)} used to constrain this request.`;
@@ -149,6 +155,8 @@ function syntheticValue(name: string, schema: JsonObject): unknown {
   if (Array.isArray(schema["enum"]) && schema["enum"].length > 0)
     return schema["enum"][0];
   const lower = name.toLowerCase();
+  if (name === "conditions") return "NEW,FOREIGN_USED";
+  if (name === "powertrains") return "HEV,PHEV";
   if (schema["format"] === "uuid") return "00000000-0000-4000-8000-000000000001";
   if (schema["format"] === "date-time") return "2030-01-15T10:00:00.000Z";
   if (schema["format"] === "email" || lower.includes("email"))

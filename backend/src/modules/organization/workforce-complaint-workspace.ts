@@ -1,6 +1,12 @@
+import {
+  workforceCareContactSelect,
+  projectWorkforceCareContact,
+} from "./workforce-care-contact.js";
 import type { Prisma } from "../../generated/prisma/client.js";
+import type { AuthenticatedActor } from "../../common/contracts/actor.js";
 import type { WorkforceSnapshot } from "./workforce.policy.js";
-import { workforceNotFound } from "./workforce.policy.js";
+import { workforceNotFound, workforceSnapshot } from "./workforce.policy.js";
+import { complaintScope } from "./workforce-care-scope.js";
 
 export const workforceComplaintSelect = {
   id: true,
@@ -10,6 +16,8 @@ export const workforceComplaintSelect = {
   priority: true,
   status: true,
   version: true,
+  assignedStaffId: true,
+  assignedStaff: { select: { id: true, firstName: true, lastName: true } },
   createdAt: true,
   updatedAt: true,
   branch: { select: { id: true, name: true } },
@@ -44,17 +52,26 @@ export async function latestComplaintMessage(
 
 export async function readWorkforceComplaint(
   tx: Prisma.TransactionClient,
+  actor: AuthenticatedActor,
   access: WorkforceSnapshot,
   id: string,
-  branchIds: string[],
-  query: { limit: number; cursor?: string | undefined },
+  query: { limit: number; cursor?: string | undefined; messageId?: string | undefined },
 ) {
+  if (
+    !(await tx.complaint.findFirst({
+      where: { AND: [{ id }, complaintScope(access)] },
+      select: { id: true },
+    }))
+  )
+    workforceNotFound();
   // Serialize the current revision and history with customer/legacy message writers.
   await tx.$queryRaw`SELECT "id" FROM "Complaint" WHERE "id" = ${id}::uuid FOR SHARE`;
+  const current = await workforceSnapshot(tx, actor);
   const row = await tx.complaint.findFirst({
-    where: { id, branchId: { in: branchIds } },
+    where: { AND: [{ id }, complaintScope(current)] },
     select: {
       ...workforceComplaintSelect,
+      ...workforceCareContactSelect,
       acknowledgedAt: true,
       acknowledgementDueAt: true,
       escalatedAt: true,
@@ -64,9 +81,10 @@ export async function readWorkforceComplaint(
     },
   });
   if (!row) workforceNotFound();
-  if (query.cursor) {
+  const anchor = query.messageId ?? query.cursor;
+  if (anchor) {
     const cursor = await tx.supportMessage.findFirst({
-      where: { id: query.cursor, complaintId: id, visibility: "CUSTOMER" },
+      where: { id: anchor, complaintId: id, visibility: "CUSTOMER" },
       select: { id: true },
     });
     if (!cursor) workforceNotFound();
@@ -76,9 +94,12 @@ export async function readWorkforceComplaint(
     where: { complaintId: id, visibility: "CUSTOMER" },
     orderBy: [{ createdAt: "desc" }, { id: "desc" }],
     take: query.limit + 1,
-    ...(query.cursor ? { cursor: { id: query.cursor }, skip: 1 } : {}),
+    ...(anchor ? { cursor: { id: anchor }, skip: query.messageId ? 0 : 1 } : {}),
     select: {
       id: true,
+      kind: true,
+      fromStatus: true,
+      toStatus: true,
       authorType: true,
       authorUserId: true,
       visibility: true,
@@ -90,14 +111,22 @@ export async function readWorkforceComplaint(
     ...message,
     isOwn: authorUserId === access.userId,
   }));
+  const finalAccess = await workforceSnapshot(tx, actor);
+  if (
+    !(await tx.complaint.findFirst({
+      where: { AND: [{ id }, complaintScope(finalAccess)] },
+      select: { id: true },
+    }))
+  )
+    workforceNotFound();
   return {
-    ...row,
+    ...projectWorkforceCareContact(row),
     latestMessageId: latest?.id ?? null,
     messages: {
       items,
       ...(messages.length > query.limit ? { nextCursor: items.at(-1)!.id } : {}),
     },
-    access,
+    access: finalAccess,
     generatedAt: new Date().toISOString(),
   };
 }

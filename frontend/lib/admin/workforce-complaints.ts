@@ -1,6 +1,7 @@
 import { supportEmailDeliveryPageSchema } from "../api/support-email-schemas";
 import { z } from "zod";
 import { workforceAccessSchema, type WorkforceAccess } from "../api/workforce-schemas";
+import { careCaseAllows } from "../workforce-care";
 import { sameWorkforceScope } from "./workforce-overview";
 export { inspectionPageParams as workforceComplaintsPageParams } from "./work-inspections";
 
@@ -18,9 +19,22 @@ export const complaintStatusLabels = {
 } as const;
 const complaintPriority = z.enum(["LOW", "MEDIUM", "HIGH", "URGENT"]);
 const complaintStatus = z.enum(["OPEN", "INVESTIGATING", "RESOLVED", "CLOSED"]);
-const accessSchema = workforceAccessSchema.extend({ managed: z.literal(true) });
+const accessSchema = workforceAccessSchema.safeExtend({ managed: z.literal(true) });
 const rowSchema = z.object({
+  contact: z
+    .object({
+      name: z.string().nullable(),
+      email: z.string().nullable(),
+      phone: z.string().nullable(),
+      customerId: z.uuid().nullable(),
+    })
+    .optional(),
   id: z.uuid(),
+  assignedStaffId: z.uuid().nullable().optional(),
+  assignedStaff: z
+    .object({ id: z.uuid(), firstName: z.string(), lastName: z.string() })
+    .nullable()
+    .optional(),
   branchId: z.uuid().nullable(),
   branch: z.object({ id: z.uuid(), name: z.string() }).nullable(),
   subject: z.string(),
@@ -33,6 +47,9 @@ const rowSchema = z.object({
 });
 const messageSchema = z.object({
   id: z.uuid(),
+  kind: z.enum(["LEGACY", "REPLY", "STATUS_CHANGE"]).optional(),
+  fromStatus: z.string().nullable().optional(),
+  toStatus: z.string().nullable().optional(),
   authorType: z.enum(["CUSTOMER", "STAFF", "SYSTEM"]),
   visibility: z.literal("CUSTOMER"),
   body: z.string(),
@@ -67,6 +84,7 @@ export function workforceComplaintsQuery(input: URLSearchParams) {
     "_trail",
     "selected",
     "messageCursor",
+    "messageId",
     "_messageTrail",
   ];
   const params = new URLSearchParams();
@@ -86,7 +104,7 @@ export function workforceComplaintsQuery(input: URLSearchParams) {
   if (q) params.set("q", q);
   if (priority) params.set("priority", priority);
   if (status) params.set("status", status);
-  for (const name of ["cursor", "selected", "messageCursor"]) {
+  for (const name of ["cursor", "selected", "messageCursor", "messageId"]) {
     const value = input.get(name);
     if (value !== null) {
       if (!z.uuid().safeParse(value).success) invalid = true;
@@ -114,12 +132,21 @@ export function workforceComplaintsQuery(input: URLSearchParams) {
     }
   }
   if (
-    (input.has("messageCursor") || input.has("_messageTrail")) &&
+    (input.has("messageCursor") ||
+      input.has("_messageTrail") ||
+      input.has("messageId")) &&
     !params.has("selected")
   )
     invalid = true;
+  if (params.has("messageId") && params.has("messageCursor")) invalid = true;
   const api = new URLSearchParams(params);
-  for (const name of ["_trail", "selected", "messageCursor", "_messageTrail"])
+  for (const name of [
+    "_trail",
+    "selected",
+    "messageCursor",
+    "_messageTrail",
+    "messageId",
+  ])
     api.delete(name);
   api.set("limit", "25");
   return { params, invalid, path: invalid ? null : `/staff/workforce/complaints?${api}` };
@@ -127,33 +154,33 @@ export function workforceComplaintsQuery(input: URLSearchParams) {
 export const complaintsHref = (params: URLSearchParams) =>
   `/admin/workforce/complaints${params.size ? `?${params}` : ""}`;
 
-function activeAssignment(
-  assignment: WorkforceAccess["assignments"][number],
-  access: WorkforceAccess,
-) {
-  return (
-    assignment.userId === access.userId &&
-    assignment.revokedAt === null &&
-    Date.parse(assignment.startsAt) <= Date.parse(access.serverTime) &&
-    (assignment.expiresAt === null ||
-      Date.parse(assignment.expiresAt) > Date.parse(access.serverTime))
-  );
-}
 export function complaintInScope(row: WorkforceComplaintRow, access: WorkforceAccess) {
   return (
-    access.managed &&
-    access.permissions.includes("COMPLAINTS") &&
-    !!row.branchId &&
     row.branch?.id === row.branchId &&
-    access.assignments.some(
-      (assignment) =>
-        activeAssignment(assignment, access) &&
-        assignment.branchId === row.branchId &&
-        assignment.template === "CUSTOMER_SERVICE" &&
-        assignment.scope === "BRANCH",
-    )
+    careCaseAllows(access, "COMPLAINT", "view", row) &&
+    ((row.assignedStaffId === undefined && row.assignedStaff === undefined) ||
+      (row.assignedStaffId !== undefined &&
+        row.assignedStaff !== undefined &&
+        (row.assignedStaff?.id ?? null) === row.assignedStaffId))
   );
 }
+export function canReplyComplaint(row: WorkforceComplaintRow, access: WorkforceAccess) {
+  return (
+    complaintInScope(row, access) &&
+    ["OPEN", "INVESTIGATING"].includes(row.status) &&
+    careCaseAllows(access, "COMPLAINT", "reply", row)
+  );
+}
+export function canAssignComplaint(row: WorkforceComplaintRow, access: WorkforceAccess) {
+  return (
+    complaintInScope(row, access) &&
+    row.assignedStaffId !== undefined &&
+    row.assignedStaff !== undefined &&
+    ["OPEN", "INVESTIGATING"].includes(row.status) &&
+    careCaseAllows(access, "COMPLAINT", "assign", row)
+  );
+}
+
 function validPage(items: { id: string }[], nextCursor?: string) {
   return (
     new Set(items.map((item) => item.id)).size === items.length &&
@@ -170,7 +197,7 @@ export function parseScopedWorkforceComplaints(value: unknown) {
     })
     .parse(value);
   if (
-    !data.access.permissions.includes("COMPLAINTS") ||
+    !data.access.permissions.some((p) => ["COMPLAINTS", "CARE_CASE_VIEW"].includes(p)) ||
     !validPage(data.items, data.nextCursor) ||
     data.items.some((row) => !complaintInScope(row, data.access))
   )
@@ -197,10 +224,40 @@ export function parseWorkforceComplaint(value: unknown) {
 }
 export const complaintRevision = (row: WorkforceComplaint) =>
   JSON.stringify([row.id, row.version, row.updatedAt, row.latestMessageId]);
-export type ComplaintChange = {
-  action: "reply";
-  body: { expectedVersion: number; expectedLatestMessageId: string | null; body: string };
-};
+export function parseWorkforceComplaintCandidates(value: unknown) {
+  const data = z
+    .object({
+      items: z
+        .array(z.object({ id: z.uuid(), firstName: z.string(), lastName: z.string() }))
+        .max(25),
+      nextCursor: z.uuid().optional(),
+      complaintId: z.uuid(),
+      complaintVersion: z.number().int().nonnegative(),
+      branchId: z.uuid(),
+      access: accessSchema,
+      generatedAt: z.iso.datetime(),
+    })
+    .parse(value);
+  if (
+    !validPage(data.items, data.nextCursor) ||
+    !careCaseAllows(data.access, "COMPLAINT", "assign", { branchId: data.branchId })
+  )
+    throw Error("Eligible staff do not match current responsibilities");
+  return data;
+}
+export type ComplaintChange =
+  | {
+      action: "reply";
+      body: {
+        expectedVersion: number;
+        expectedLatestMessageId: string | null;
+        body: string;
+      };
+    }
+  | {
+      action: "assignment";
+      body: { expectedVersion: number; staffId: string; reason: string };
+    };
 
 export function validateComplaintReceipt(
   value: unknown,
@@ -213,7 +270,7 @@ export function validateComplaintReceipt(
       version: z.number().int(),
       branchId: z.uuid(),
       actorUserId: z.uuid(),
-      action: z.literal("reply"),
+      action: z.enum(["reply", "assignment"]),
       access: accessSchema,
       generatedAt: z.iso.datetime(),
     })
@@ -225,9 +282,29 @@ export function validateComplaintReceipt(
     common.actorUserId !== base.access.userId ||
     common.action !== change.action ||
     !sameWorkforceScope(base.access, common.access) ||
-    !complaintInScope(base, common.access)
+    !(change.action === "reply"
+      ? canReplyComplaint(base, common.access)
+      : canAssignComplaint(base, common.access))
   )
     throw Error("The change receipt could not be verified");
+  if (change.action === "assignment") {
+    const { assignmentReceipt: receipt } = z
+      .object({
+        assignmentReceipt: z.object({
+          staffId: z.uuid(),
+          previousStaffId: z.uuid().nullable(),
+          reason: z.string(),
+        }),
+      })
+      .parse(value);
+    if (
+      receipt.staffId !== change.body.staffId ||
+      receipt.previousStaffId !== base.assignedStaffId ||
+      receipt.reason !== change.body.reason
+    )
+      throw Error("The assignment receipt could not be verified");
+    return common;
+  }
   const { messageReceipt: receipt } = z
     .object({
       messageReceipt: messageSchema

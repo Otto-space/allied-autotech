@@ -88,6 +88,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       });
       return { user, actor: await auth(user.id, role) };
     }
+    const pagingTime = Date.now();
     async function manual(submitter = customer.id, offset = 0) {
       const order = await prisma.order.create({
         data: {
@@ -112,7 +113,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
           amountKobo: 18500000n,
           status: "REQUIRES_REVIEW",
           idempotencyKeyHash: hashToken("qa-payment", randomUUID()),
-          createdAt: new Date(Date.now() - offset * 1000),
+          createdAt: new Date(pagingTime - offset * 1000),
           expiresAt: order.paymentDueAt,
           attempts: {
             create: {
@@ -453,6 +454,8 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       ])
         expect(first.body.data.refund).not.toHaveProperty(key);
       expect((await post("/refunds", body, other, key)).status).toBe(409);
+      for (const who of [staff, customer, unverified])
+        expect((await post("/refunds", body, who, key)).status).toBe(403);
       expect(
         (await post("/refunds", { ...body, reason: "Different request" }, admin, key))
           .status,

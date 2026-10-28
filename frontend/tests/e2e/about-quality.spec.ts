@@ -128,7 +128,7 @@ test("section links move keyboard focus below the header on a short mobile scree
   }
 });
 
-test("every equipment item and campaign poster is available with readable labels", async ({
+test("every equipment item and the current campaign image have readable labels", async ({
   page,
 }) => {
   await session(page);
@@ -153,35 +153,11 @@ test("every equipment item and campaign poster is available with readable labels
       expect(await img.getAttribute("alt")).toBeTruthy();
     }
   }
-  const archive = page.locator(".about-archive");
-  await archive.locator("summary").focus();
-  await page.keyboard.press("Enter");
-  await expect(archive.locator("figure")).toHaveCount(4);
-  await expect(archive).toContainText(
-    "Pictured campaign vehicles are lifestyle inspiration",
+  await expect(page.locator(".about-archive")).toHaveCount(0);
+  await expect(page.locator(".about-hero-photo img")).toHaveAttribute(
+    "src",
+    /brand\/r2\/precision-autocare-\d+\.webp/,
   );
-  for (const anchor of await archive
-    .getByRole("link", { name: /Open full-size poster:/ })
-    .all()) {
-    await expect(anchor).toHaveAttribute("target", "_blank");
-    await expect(anchor).toHaveAttribute("rel", "noopener noreferrer");
-    const href = await anchor.getAttribute("href");
-    expect(href).toMatch(/^\/images\/allied-autotech\/[a-z-]+\.webp$/);
-    expect((await page.request.get(href!)).status()).toBe(200);
-  }
-  const popupPromise = page.waitForEvent("popup");
-  await archive
-    .getByRole("link", {
-      name: /Open full-size poster: Our original operating principles/,
-    })
-    .click();
-  const popup = await popupPromise;
-  await expect(popup).toHaveURL(/\/images\/allied-autotech\/operating-principles\.webp$/);
-  expect(await popup.evaluate(() => window.opener === null)).toBe(true);
-  await popup.close();
-  await expect(
-    archive.getByRole("link", { name: "Explore current vehicle listings", exact: true }),
-  ).toHaveAttribute("href", "/vehicles");
 });
 
 test("contact links use the confirmed address and safe public destinations", async ({
@@ -197,7 +173,7 @@ test("contact links use the confirmed address and safe public destinations", asy
   );
   await expect(visit.locator('a[href^="mailto:"]')).toHaveAttribute(
     "href",
-    "mailto:alliedautotech26@gmail.com",
+    "mailto:support@alliedautotech.com",
   );
   const directions = visit.getByRole("link", { name: "Get directions", exact: false });
   const url = new URL((await directions.getAttribute("href"))!);
@@ -214,7 +190,10 @@ test("contact links use the confirmed address and safe public destinations", asy
     "Let’s talk about your vehicle.",
   );
   await page.goBack();
-  await page.getByRole("link", { name: "Explore services", exact: false }).click();
+  await page
+    .getByRole("main")
+    .getByRole("link", { name: "Explore services", exact: false })
+    .click();
   await expect(page).toHaveURL(/\/services$/);
 });
 
@@ -242,7 +221,11 @@ test("About content and disclosures work with JavaScript disabled", async ({
   browser,
 }) => {
   const context = await browser.newContext({
-    baseURL: process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3000",
+    baseURL:
+      test.info().project.use.baseURL ??
+      process.env.PLAYWRIGHT_BASE_URL ??
+      "http://localhost:3000",
+    storageState: test.info().project.use.storageState,
     javaScriptEnabled: false,
     viewport: { width: 390, height: 844 },
   });
@@ -256,8 +239,7 @@ test("About content and disclosures work with JavaScript disabled", async ({
     await expect(
       engine.getByRole("heading", { name: "Smoke leak detector", exact: true }),
     ).toBeVisible();
-    await page.locator(".about-archive > summary").click();
-    await expect(page.locator(".about-archive figure")).toHaveCount(4);
+    await expect(page.locator(".about-archive")).toHaveCount(0);
     await page
       .getByRole("main")
       .getByRole("link", { name: "Contact the team", exact: false })

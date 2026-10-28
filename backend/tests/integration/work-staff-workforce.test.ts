@@ -11,7 +11,11 @@ import { sessionCookieName } from "../../src/common/security/cookies.js";
 import { fixturePassword } from "../fixtures/workforce.js";
 const app = createApp({ checkReadiness: async () => undefined }),
   root = "/api/v1/admin/workforce/accounts";
-describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
+const provisionedWorkspaceAcceptanceChecksEnabled =
+  process.env.RUN_DATABASE_TESTS === "true" &&
+  process.env.RUN_PROVISIONED_WORKSPACE_TESTS === "true";
+
+describe.skipIf(!provisionedWorkspaceAcceptanceChecksEnabled)(
   "staff responsibility management contract",
   () => {
     type Actor = { id: string; headers: Record<string, string> };

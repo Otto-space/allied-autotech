@@ -1,5 +1,5 @@
 "use client";
-import { browseEnquiriesOnly } from "@/lib/public-launch";
+import { browseEnquiriesOnly, catalogueOnly } from "@/lib/public-launch";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -164,6 +164,8 @@ function HeaderContent({ pathname }: { pathname: string }) {
    */
   useEffect(() => {
     let active = true;
+    // Public catalogue visitors do not need a session lookup or account controls.
+    if (catalogueOnly()) return;
     let pending: AbortController | null = null;
     let verified = false;
     let handlingUnauthorized = false;
@@ -264,17 +266,19 @@ function HeaderContent({ pathname }: { pathname: string }) {
     };
   }, []);
 
-  const accountLink = session
-    ? {
-        href: session.user.role === "CUSTOMER" ? "/dashboard" : "/admin",
-        label: "Dashboard",
-        icon: LayoutDashboard,
-      }
-    : {
-        href: "/login",
-        label: "Sign In",
-        icon: LogIn,
-      };
+  const accountLink = catalogueOnly()
+    ? { href: "/login", label: "Staff sign in", icon: LogIn }
+    : session
+      ? {
+          href: session.user.role === "CUSTOMER" ? "/dashboard" : "/admin",
+          label: "Dashboard",
+          icon: LayoutDashboard,
+        }
+      : {
+          href: "/login",
+          label: "Sign In",
+          icon: LogIn,
+        };
 
   const AccountIcon = accountLink.icon;
 
@@ -457,7 +461,13 @@ function HeaderContent({ pathname }: { pathname: string }) {
               </span>
 
               <span className="mobile-account-link__copy">
-                <small>{session ? "Your account" : "Existing customer"}</small>
+                <small>
+                  {catalogueOnly()
+                    ? "Authorised team"
+                    : session
+                      ? "Your account"
+                      : "Existing customer"}
+                </small>
 
                 <strong>{accountLink.label}</strong>
               </span>

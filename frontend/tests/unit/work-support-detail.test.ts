@@ -192,4 +192,19 @@ describe("staff conversation", () => {
       markThreadPending(owner, role, "complaints", id(60000), "reply", 0),
     ).toThrow();
   });
+  it("validates exact message anchors and clears them when changing history pages", () => {
+    const anchor = "b4000000-0000-4000-8000-000000000001";
+    const anchored = new URLSearchParams({ messageId: anchor });
+    expect(threadMessagesQuery(anchored, "/base").path).toContain(`messageId=${anchor}`);
+    expect(
+      threadMessagesQuery(
+        new URLSearchParams({ messageId: anchor, cursor: anchor }),
+        "/base",
+      ).invalid,
+    ).toBe(true);
+    expect(
+      threadMessagesQuery(new URLSearchParams("messageId=../outside"), "/base").invalid,
+    ).toBe(true);
+    expect(threadPageParams(anchored, anchor).has("messageId")).toBe(false);
+  });
 });

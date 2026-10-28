@@ -1,5 +1,5 @@
 .dashboard .dashboard-content .work-services {
-  color: #01121a;
+  color: var(--ink);
   font-size: 13px;
   line-height: 1.6;
 }
@@ -131,7 +131,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  background: #01121a;
+  background: var(--ink);
   color: #fff;
   padding: 17px 18px;
 }
@@ -254,7 +254,7 @@
   color: #53677a;
 }
 .work-services .work-service-form .work-service-selected {
-  color: #01121a;
+  color: var(--ink);
   font-weight: 700;
   margin-bottom: 5px;
   overflow-wrap: anywhere;

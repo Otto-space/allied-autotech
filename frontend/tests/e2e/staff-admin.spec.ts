@@ -58,6 +58,8 @@ async function fixture(
         expiresAt: "2027-01-01T00:00:00Z",
         idleExpiresAt: "2027-01-01T00:00:00Z",
       });
+    if (endpoint === "/staff/notifications/summary")
+      return reply(route, { unreadCount: 0, groups: [] });
     if (endpoint === "/auth/csrf")
       return reply(route, { csrfToken: "isolated-staff-csrf-".repeat(4) });
     if (endpoint === "/staff/profile")
@@ -104,6 +106,14 @@ test("Super Admin can grant and revoke a narrow duty on their own protected acco
   const runtimeErrors: string[] = [];
   page.on("pageerror", (error) => runtimeErrors.push(error.message));
   page.on("console", (message) => {
+    // Next may preload a stylesheet for the route left during this interaction.
+    if (
+      message.type() === "warning" &&
+      /_next\/static\/css\/.*was preloaded using link preload but not used/.test(
+        message.text(),
+      )
+    )
+      return;
     if (["error", "warning"].includes(message.type())) runtimeErrors.push(message.text());
   });
   const member = { ...memberFixture(), id: id(11), role: "SUPER_ADMIN" };
@@ -695,6 +705,9 @@ test("owner demotion requires an active branch and confirms the returned staff a
     page.getByLabel("New account role").locator('option[value="ADMIN"]'),
   ).toHaveCount(0);
   await page.getByLabel("New active branch").selectOption(id(20));
+  await page
+    .getByLabel("Reason for role change")
+    .fill("Reviewed owner demotion and management handover");
   await page.getByRole("button", { name: "Review account change" }).click();
   expect(writes).toEqual([]);
   await confirm(page).click();
@@ -704,6 +717,8 @@ test("owner demotion requires an active branch and confirms the returned staff a
       role: "STAFF",
       branchId: id(20),
       expectedRevision: staffRevision({ ...memberFixture(), role: "ADMIN" }),
+      expectedWorkforceVersion: null,
+      reason: "Reviewed owner demotion and management handover",
     },
   ]);
   await expect(page.getByRole("dialog")).toHaveCount(0);

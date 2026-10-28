@@ -1,6 +1,7 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { apiRequest, ApiError, SESSION_CHANGED } from "./client";
+import { isWorkforceRead, WORKFORCE_ACCESS_CHANGED } from "../workforce-invalidation";
 
 type ResourceState<T> = {
   path: string;
@@ -31,6 +32,10 @@ export function useResource<T>(
   const backgroundRefresh = useRef(false);
   const refresh = useCallback(() => {
     backgroundRefresh.current = false;
+    setRevision((value) => value + 1);
+  }, []);
+  const revalidate = useCallback(() => {
+    backgroundRefresh.current = true;
     setRevision((value) => value + 1);
   }, []);
   useEffect(() => {
@@ -103,21 +108,26 @@ export function useResource<T>(
     function visible() {
       if (document.visibilityState === "visible") revalidate();
     }
-    function revalidate() {
-      backgroundRefresh.current = true;
-      setRevision((value) => value + 1);
+    function workChanged() {
+      if (!isWorkforceRead(path!)) return;
+      active = false;
+      controller.abort();
+      setState(null);
+      refresh();
     }
     window.addEventListener(SESSION_CHANGED, discard);
+    window.addEventListener(WORKFORCE_ACCESS_CHANGED, workChanged);
     window.addEventListener("online", revalidate);
     document.addEventListener("visibilitychange", visible);
     return () => {
       active = false;
       controller.abort();
       window.removeEventListener(SESSION_CHANGED, discard);
+      window.removeEventListener(WORKFORCE_ACCESS_CHANGED, workChanged);
       window.removeEventListener("online", revalidate);
       document.removeEventListener("visibilitychange", visible);
     };
-  }, [path, parse, revision, refresh, options?.refreshKey]);
+  }, [path, parse, revision, refresh, revalidate, options?.refreshKey]);
   const current = state?.path === path ? state : null;
   return {
     denied: current?.denied ?? false,
@@ -127,6 +137,7 @@ export function useResource<T>(
     refreshing: current?.status === "refreshing",
     loading: !!path && (!current || current.status === "loading"),
     refresh,
+    revalidate,
     settledRevision:
       current &&
       !current.refreshError &&

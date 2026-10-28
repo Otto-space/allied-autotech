@@ -23,9 +23,7 @@ for (const width of [360, 390, 430, 768, 1024, 1280, 1440]) {
     const failures: string[] = [];
     page.on("pageerror", (error) => failures.push(error.message));
     await page.goto("/", { waitUntil: "domcontentloaded" });
-    await expect(page.getByRole("heading", { level: 1 })).toContainText(
-      "Built on Trust,",
-    );
+    await expect(page.getByRole("heading", { level: 1 })).toContainText("Built on trust");
     await expect(page.getByText("Services are not listed yet")).toBeVisible();
     await expect(page.getByText(/No products are published yet/)).toBeVisible();
     await expect(page.getByText(/No vehicles are published yet/)).toBeVisible();

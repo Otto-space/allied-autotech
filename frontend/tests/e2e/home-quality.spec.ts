@@ -1,4 +1,4 @@
-import { test, expect, type Page } from "@playwright/test";
+﻿import { test, expect, type Page } from "@playwright/test";
 import { createServer, type Server } from "node:http";
 import path from "node:path";
 import os from "node:os";
@@ -181,7 +181,7 @@ async function fixture(page: Page) {
 }
 async function ready(page: Page) {
   await page.goto("/");
-  await expect(page.locator("main h1")).toHaveText("Built on Trust,Driven by Quality.");
+  await expect(page.locator("main h1")).toContainText("Built on trust");
   await page.evaluate(() => document.fonts.ready);
 }
 async function noOverflow(page: Page) {
@@ -223,10 +223,10 @@ for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536]) {
     ).toHaveCount(0);
     for (const selector of [
       ".home-services",
-      ".trust-story",
+      ".partner-layout",
       ".home-vehicles",
       ".home-shop",
-      ".home-feedback",
+      ".services-journey",
       ".home-faq",
     ]) {
       await page.locator(selector).scrollIntoViewIfNeeded();
@@ -272,14 +272,14 @@ test("carousel, keyboard, FAQ and navigation perform their advertised actions", 
   await page.getByRole("button", { name: "Next slide", exact: true }).click();
   await expect(page.locator("main h1")).toContainText("Find the car");
   await page.getByRole("button", { name: "Next slide", exact: true }).press("ArrowRight");
-  await expect(page.locator("main h1")).toContainText("Built for every");
-  await page.getByRole("button", { name: "Show slide 4: Visit the Shop" }).click();
+  await expect(page.locator("main h1")).toContainText("Quality parts.");
+  await page.getByRole("button", { name: "Show slide 3: Visit the Shop" }).click();
   await expect(page.locator(".hero-copy .button").first()).toHaveAttribute(
     "href",
     "/parts",
   );
   await page.getByRole("button", { name: "Next slide", exact: true }).click();
-  await expect(page.locator("main h1")).toContainText("Built on Trust,");
+  await expect(page.locator("main h1")).toContainText("Built on trust");
   await page
     .locator("main")
     .getByText("Where is Allied AutoTech?", { exact: true })
@@ -300,12 +300,13 @@ test("empty collections retain useful contact and browsing paths", async ({ page
   mode = "empty";
   await fixture(page);
   await ready(page);
-  await expect(page.getByRole("link", { name: "Ask about a product" })).toBeVisible();
+  await expect(page.locator(".partner-links a")).toHaveCount(3);
+  await expect(page.locator(".home-feedback")).toBeVisible();
   await expect(
-    page.getByRole("link", { name: "Discuss your vehicle search" }),
-  ).toBeVisible();
+    page.getByRole("link", { name: "About customer reviews" }),
+  ).toHaveAttribute("href", "/reviews");
   await expect(
-    page.getByText("No customer reviews have been published yet."),
+    page.getByText(/No customer reviews have been published yet/),
   ).toBeVisible();
   await expect(
     page.locator(".home-product-card, .home-vehicle-card, .review-card"),
@@ -397,6 +398,37 @@ test("Home passes the scoped automated accessibility check", async ({ page }) =>
   expect(report.violations).toEqual([]);
 });
 
+test("homepage sections reflow when text is doubled on a narrow screen", async ({
+  page,
+}) => {
+  await fixture(page);
+  await page.setViewportSize({ width: 320, height: 568 });
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await ready(page);
+  await page.evaluate(() => {
+    const text = Array.from(
+      document.querySelectorAll<HTMLElement>(
+        "main h1, main h2, main h3, main p, main summary, main a, main button",
+      ),
+    ).map(
+      (element) => [element, parseFloat(getComputedStyle(element).fontSize)] as const,
+    );
+    for (const [element, size] of text) {
+      element.style.fontSize = `${size * 2}px`;
+      element.style.lineHeight = "1.5";
+    }
+  });
+  for (const selector of [
+    ".home-shop",
+    ".equipment-story",
+    ".home-feedback",
+    ".home-faq",
+  ]) {
+    await page.locator(selector).scrollIntoViewIfNeeded();
+    await noOverflow(page);
+  }
+});
+
 test("mobile menu, touch carousel and paused autoplay remain usable", async ({
   page,
 }) => {
@@ -407,7 +439,7 @@ test("mobile menu, touch carousel and paused autoplay remain usable", async ({
   await page.getByRole("button", { name: "Pause slideshow", exact: true }).click();
   await page.mouse.move(1, 1);
   await page.waitForTimeout(7200);
-  await expect(page.locator("main h1")).toContainText("Built on Trust,");
+  await expect(page.locator("main h1")).toContainText("Built on trust");
   const hero = page.locator(".home-hero");
   await hero.dispatchEvent("pointerdown", {
     pointerType: "touch",

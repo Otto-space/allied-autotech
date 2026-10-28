@@ -178,8 +178,9 @@
   cursor: pointer;
 }
 .finance-history summary:focus-visible {
-  outline: 2px solid #e60301;
-  outline-offset: 4px;
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .finance-history > p {
   font-size: 13px;

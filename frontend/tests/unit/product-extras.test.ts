@@ -14,6 +14,12 @@ describe("product metadata input boundaries", () => {
       "http://images.invalid/a.jpg",
       "https://user:password@images.invalid/a.jpg",
       "javascript:alert(1)",
+      "https://127.0.0.1/part.png",
+      "https://[::1]/part.png",
+      "https://images.internal/part.png",
+      "https://images.invalid/part.png?X-Amz-Signature=private",
+      "https://images.invalid/part.png?token=private",
+      "https://images.invalid:8443/part.png",
     ]) {
       expect(
         imageFormSchema.safeParse({ url, altText: "", sortOrder: "0", isPrimary: false })

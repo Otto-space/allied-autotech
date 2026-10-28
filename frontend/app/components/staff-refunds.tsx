@@ -1,4 +1,5 @@
 "use client";
+import { NotificationRecordContext } from "./notification-record-context";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -145,7 +146,9 @@ function RefundWorkspace({
 }) {
   const router = useRouter(),
     search = useSearchParams(),
-    administrator = ["ADMIN", "SUPER_ADMIN"].includes(role);
+    session = useAccountSession(),
+    administrator =
+      role === "SUPER_ADMIN" || (role === "ADMIN" && !session?.workforceManaged);
   const query = refundQuery(new URLSearchParams(search.toString()), administrator),
     params = query.params;
   const routeId = params.get("refundId"),
@@ -870,6 +873,13 @@ function RefundWorkspace({
                   continuing.
                 </p>
               )}
+              {row &&
+                !selected.loading &&
+                !selected.refreshing &&
+                !selected.error &&
+                !selected.refreshError && (
+                  <NotificationRecordContext resourceType="REFUND" resourceId={row.id} />
+                )}
               {row && (
                 <>
                   <section className="wr-value" aria-label="Selected refund amount">

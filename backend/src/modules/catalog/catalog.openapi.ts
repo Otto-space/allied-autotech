@@ -1,5 +1,6 @@
 import type { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import { z, type ZodType } from "zod";
+import { productOptionQuerySchema } from "./product-options.schemas.js";
 import {
   productDiscoveryQuerySchema,
   productDiscoveryPageSchema,
@@ -7,6 +8,7 @@ import {
   productFacetPageSchema,
 } from "./product-discovery.schemas.js";
 import {
+  adminProductResponseSchema,
   productResponseSchema,
   productImageResponseSchema,
 } from "./product-media.schemas.js";
@@ -14,12 +16,14 @@ import {
   adminCategoryListQuerySchema,
   catalogEmptyQuerySchema,
   adminProductListQuerySchema,
+  cartClearBodySchema,
   cartItemBodySchema,
   categoryCreateBodySchema,
   categoryListQuerySchema,
   categoryParamsSchema,
   categoryUpdateBodySchema,
   compatibilityCreateBodySchema,
+  compatibilityDeleteBodySchema,
   compatibilityParamsSchema,
   compatibilityUpdateBodySchema,
   favouriteListQuerySchema,
@@ -60,12 +64,21 @@ export function registerCatalogOpenApi(registry: OpenAPIRegistry): void {
   const paths: readonly Path[] = [
     {
       method: "get",
+      path: "/public/catalog/products/options",
+      summary: "Published product choices within the applied search scope",
+      query: productOptionQuerySchema,
+      response: responseSchema.extend({ data: productFacetPageSchema }),
+      description:
+        "Bounded public brand/family/product-type/recorded oil grade/pack-volume choices. scope is a URLSearchParams-encoded validated product-discovery query (maximum 6000 characters); sort, paging and page size are excluded. All active publication/category/availability/fitment/price/search constraints apply, except the requested facet is relaxed. Family also relaxes dependent condition/classification/type/oil fields. Brand case/whitespace variants share a normalized key with a recorded display label. No page-derived counts are returned. Options are ordered by their stable stored value (numeric volume); authenticated cursors bind complete scope/field/prefix state. Old /facets remains compatible. Unknown specifications do not become choices or approvals.",
+    },
+    {
+      method: "get",
       path: "/public/catalog/products/discovery",
       summary: "Search public products with exact totals and stable paging",
       query: productDiscoveryQuerySchema,
       response: responseSchema.extend({ data: productDiscoveryPageSchema }),
       description:
-        "Anonymous. Active products in active categories only. Existing product filters retain literal case-insensitive exact brand/make/model matching, inclusive compatibility year bounds on the same compatibility row, and literal substring search across name, SKU, brand and manufacturer part number. minPriceKobo/maxPriceKobo are inclusive integer kobo (0-9999999999999999); availability=in_stock means at least one active branch has quantity greater than reserved, out_of_stock is its complement, including products with no inventory. No raw stock quantities are exposed. Maximum 50/default 20. totalMatches counts the filtered dataset before the cursor in the same repeatable-read transaction as the page. Sort and all filters are bound into authenticated cursors; page size may change. Deleted/unpublished anchors remain usable. Legacy UUID anchors require a currently visible matching product. Invalid/tampered/mismatched cursors return 422 VALIDATION_FAILED; restart from page one. Sort ties use ID; no cross-request snapshot/cache is promised. Price, name, stock or visibility edits can move products between reads. Existing /public/catalog/products remains supported.",
+        "Anonymous. Active products in active categories with active parents only. Normalized vehicleModelId plus year (1886-2200), optional matching vehicleMakeId and technical qualifiers use approved inclusion evidence before counts and paging. fitment=verified requires a full technical match and no possible approved exclusion; make/model/year alone are candidates. verifiedMatches counts genuine verified results in the same repeatable-read snapshot. Legacy literal make/model filters remain available but expose only approved inclusion rules. Filters include condition (NEW/USED/REFURBISHED), classification (GENUINE_OEM/AFTERMARKET), stored productType, categoryId and parentCategoryId (direct subcategories), plus literal substring search across name, SKU, brand and manufacturer part number. minPriceKobo/maxPriceKobo are inclusive integer kobo (0-9999999999999999); availability=in_stock means at least one active branch has quantity greater than reserved, out_of_stock is its complement, including products with no inventory. No raw stock quantities are exposed. Maximum 50/default 20. totalMatches counts the filtered dataset before the cursor in the same repeatable-read transaction as the page. Sort and all filters are bound into authenticated cursors; page size may change. Deleted/unpublished anchors remain usable. Legacy UUID anchors require a currently visible matching product. Invalid/tampered/mismatched cursors return 422 VALIDATION_FAILED; restart from page one. Sort ties use ID; no cross-request snapshot/cache is promised. Price, name, stock or visibility edits can move products between reads. Existing /public/catalog/products remains supported.",
     },
     {
       method: "get",
@@ -152,6 +165,9 @@ export function registerCatalogOpenApi(registry: OpenAPIRegistry): void {
       method: "delete",
       path: "/customers/cart",
       summary: "Clear own cart",
+      description:
+        "Atomically clears only the reviewed cart items. A changed cart returns 409 without deleting anything; send the item IDs, products, quantities and unit prices from a fresh cart read.",
+      body: cartClearBodySchema,
       secured: true,
       csrf: true,
     },
@@ -211,7 +227,7 @@ export function registerCatalogOpenApi(registry: OpenAPIRegistry): void {
       summary: "List all products",
       response: responseSchema.extend({
         data: z.object({
-          items: z.array(productResponseSchema),
+          items: z.array(adminProductResponseSchema),
           nextCursor: z.uuid().optional(),
         }),
       }),
@@ -224,7 +240,7 @@ export function registerCatalogOpenApi(registry: OpenAPIRegistry): void {
       summary: "Get an administrator product independently of catalogue paging",
       description:
         "Admin or Super Admin with the existing staff MFA assurance. Includes inactive products and inactive categories, safe administrator media metadata, compatibility and branch availability booleans; no raw inventory quantities or storage keys. Private no-store. Strict UUID and empty query. Missing records return 404. The returned updatedAt can be supplied as expectedUpdatedAt on product updates.",
-      response: responseSchema.extend({ data: productResponseSchema }),
+      response: responseSchema.extend({ data: adminProductResponseSchema }),
       params: productParamsSchema,
       secured: true,
     },
@@ -232,7 +248,7 @@ export function registerCatalogOpenApi(registry: OpenAPIRegistry): void {
       method: "post",
       path: "/admin/catalog/products",
       summary: "Create a product",
-      response: responseSchema.extend({ data: productResponseSchema }),
+      response: responseSchema.extend({ data: adminProductResponseSchema }),
       status: "201",
       body: productCreateBodySchema,
       secured: true,
@@ -244,7 +260,7 @@ export function registerCatalogOpenApi(registry: OpenAPIRegistry): void {
       summary: "Update a product",
       description:
         "Admin or Super Admin with CSRF and existing MFA assurance. New editors supply expectedUpdatedAt from the direct administrator read. A mismatched timestamp returns 409 without changing the product or appending an audit. The comparison and update hold a product row lock; successful catalogue edits advance updatedAt by at least one millisecond. The precondition is optional for compatibility with existing clients; clients omitting it retain the existing update behavior and do not receive stale-snapshot protection. This is not an original-request receipt. Existing active-category, comparison-price and inventory-reservation rules remain authoritative.",
-      response: responseSchema.extend({ data: productResponseSchema }),
+      response: responseSchema.extend({ data: adminProductResponseSchema }),
       params: productParamsSchema,
       body: productUpdateBodySchema,
       secured: true,
@@ -264,6 +280,8 @@ export function registerCatalogOpenApi(registry: OpenAPIRegistry): void {
       method: "patch",
       path: "/admin/catalog/products/{productId}/compatibilities/{compatibilityId}",
       summary: "Update compatibility",
+      description:
+        "Legacy draft compatibility only. Optional expectedVersion is checked under the product lock; a stale version returns 409 without a write or audit. New editors should send the version from the administrator product read. Reviewed fitment rules use the separate technical-review workspace.",
       params: compatibilityParamsSchema,
       body: compatibilityUpdateBodySchema,
       secured: true,
@@ -273,7 +291,10 @@ export function registerCatalogOpenApi(registry: OpenAPIRegistry): void {
       method: "delete",
       path: "/admin/catalog/products/{productId}/compatibilities/{compatibilityId}",
       summary: "Delete compatibility",
+      description:
+        "Retires an unreviewed legacy draft and preserves version history. Optional expectedVersion is checked under the product lock; a stale version returns 409 without a write or audit. New editors should send the version from the administrator product read.",
       params: compatibilityParamsSchema,
+      body: compatibilityDeleteBodySchema,
       secured: true,
       csrf: true,
     },

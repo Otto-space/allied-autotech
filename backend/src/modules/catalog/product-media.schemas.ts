@@ -1,4 +1,9 @@
+import {
+  fitmentDecisionSchema,
+  publishedCompatibilitySchema,
+} from "../fitment/fitment.schemas.js";
 import { z } from "zod";
+import { recordedProductFields, productFamilySchema } from "./product-family.js";
 import { mediaConfirmSchema } from "../media/media.schemas.js";
 export const productImageConfirmSchema = mediaConfirmSchema
   .extend({
@@ -7,6 +12,21 @@ export const productImageConfirmSchema = mediaConfirmSchema
   })
   .strict();
 export type ProductImageConfirm = z.infer<typeof productImageConfirmSchema>;
+export const productImageOrderSchema = z
+  .object({
+    expectedVersion: z.number().int().nonnegative(),
+    imageIds: z
+      .array(z.uuid())
+      .min(1)
+      .max(100)
+      .refine((ids) => new Set(ids).size === ids.length, "Each image must appear once"),
+  })
+  .strict();
+export const productImageOrderResultSchema = z.object({
+  version: z.number().int().nonnegative(),
+  imageIds: z.array(z.uuid()),
+});
+export type ProductImageOrder = z.infer<typeof productImageOrderSchema>;
 export const productImageResponseSchema = z.object({
   id: z.uuid(),
   url: z.string(),
@@ -21,6 +41,11 @@ export const productImageResponseSchema = z.object({
 const timestamp = z.iso.datetime({ offset: true });
 const money = z.string().regex(/^(?:0|[1-9][0-9]*)$/u);
 export const productResponseSchema = z.object({
+  ...recordedProductFields,
+  fitment: fitmentDecisionSchema.optional(),
+  condition: z.enum(["NEW", "USED", "REFURBISHED"]).nullable().optional(),
+  classification: z.enum(["GENUINE_OEM", "AFTERMARKET"]).nullable().optional(),
+  productType: z.string().nullable().optional(),
   id: z.uuid(),
   name: z.string(),
   slug: z.string(),
@@ -37,29 +62,27 @@ export const productResponseSchema = z.object({
   createdAt: timestamp,
   updatedAt: timestamp,
   category: z.object({
+    family: productFamilySchema.nullable().optional(),
     id: z.uuid(),
     name: z.string(),
     slug: z.string(),
     description: z.string().nullable(),
+    parentId: z.uuid().nullable(),
     isActive: z.boolean(),
     createdAt: timestamp,
     updatedAt: timestamp,
   }),
   images: z.array(productImageResponseSchema),
-  compatibilities: z.array(
-    z.object({
-      id: z.uuid(),
-      make: z.string(),
-      model: z.string().nullable(),
-      yearFrom: z.number().int().nullable(),
-      yearTo: z.number().int().nullable(),
-      notes: z.string().nullable(),
-    }),
-  ),
+  compatibilities: z.array(publishedCompatibilitySchema),
   availability: z.array(
     z.object({
       branch: z.object({ id: z.uuid(), code: z.string(), name: z.string() }),
       inStock: z.boolean(),
     }),
+  ),
+});
+export const adminProductResponseSchema = productResponseSchema.extend({
+  compatibilities: z.array(
+    publishedCompatibilitySchema.extend({ version: z.number().int().nonnegative() }),
   ),
 });

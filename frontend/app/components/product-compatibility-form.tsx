@@ -29,7 +29,11 @@ export function ProductCompatibilityForm({
   });
   return (
     <form
-      data-draft-key={JSON.stringify(["product-compatibility-form:1", item?.id])}
+      data-draft-key={JSON.stringify([
+        "product-compatibility-form:2",
+        item?.id,
+        item?.version,
+      ])}
       noValidate
       onSubmit={form.handleSubmit((value) => {
         if (!disabled) onReview(value);
@@ -37,8 +41,8 @@ export function ProductCompatibilityForm({
     >
       <h3>{item ? "Edit compatibility" : "Add compatibility"}</h3>
       <p>
-        Enter verified fitment details. A model-specific search only matches records with
-        that model named.
+        Record draft compatibility details. A model-specific search only matches records
+        with that model named.
       </p>
       <fieldset className="handover-fields" disabled={disabled}>
         <div className="form-row">

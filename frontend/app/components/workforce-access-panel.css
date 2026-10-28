@@ -86,7 +86,7 @@
   height: 18px;
   flex: none;
   margin-top: 3px;
-  accent-color: #e60301;
+  accent-color: var(--checked);
 }
 .wf-checks {
   border: 0;
@@ -120,6 +120,10 @@
 .wf-assignment-heading span {
   color: #42596b;
   font-size: 12px;
+}
+.wf-assignment-heading h4 {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 .wf-assignments dl > div {
   display: grid;

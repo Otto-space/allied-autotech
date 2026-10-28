@@ -1,6 +1,11 @@
 import { supportEmailDeliveryPageSchema } from "../api/support-email-schemas";
 import { z } from "zod";
 import { workforceAccessSchema, type WorkforceAccess } from "../api/workforce-schemas";
+import { workforceAllows, workforceActionPredicates } from "../workforce-registry";
+import {
+  careCaseAllows,
+  currentWorkforceAssignment as activeAssignment,
+} from "../workforce-care";
 import { sameWorkforceScope } from "./workforce-overview";
 export { inspectionPageParams as workforceEnquiriesPageParams } from "./work-inspections";
 
@@ -27,13 +32,21 @@ const enquiryType = z.enum([
   "QUOTATION",
 ]);
 const enquiryStatus = z.enum(["OPEN", "IN_PROGRESS", "RESOLVED", "CLOSED"]);
-const accessSchema = workforceAccessSchema.extend({ managed: z.literal(true) });
+const accessSchema = workforceAccessSchema.safeExtend({ managed: z.literal(true) });
 const personSchema = z.object({
   id: z.uuid(),
   firstName: z.string(),
   lastName: z.string(),
 });
 const rowSchema = z.object({
+  contact: z
+    .object({
+      name: z.string().nullable(),
+      email: z.string().nullable(),
+      phone: z.string().nullable(),
+      customerId: z.uuid().nullable(),
+    })
+    .optional(),
   id: z.uuid(),
   branchId: z.uuid().nullable(),
   assignedStaffId: z.uuid().nullable(),
@@ -42,6 +55,7 @@ const rowSchema = z.object({
   subject: z.string(),
   message: z.string(),
   type: enquiryType,
+  vehicleEnquiryIntent: z.enum(["LISTING", "REQUIREMENTS"]).nullable().optional(),
   status: enquiryStatus,
   version: z.number().int().nonnegative(),
   createdAt: z.iso.datetime(),
@@ -49,6 +63,9 @@ const rowSchema = z.object({
 });
 const messageSchema = z.object({
   id: z.uuid(),
+  kind: z.enum(["LEGACY", "REPLY", "STATUS_CHANGE"]).optional(),
+  fromStatus: z.string().nullable().optional(),
+  toStatus: z.string().nullable().optional(),
   authorType: z.enum(["CUSTOMER", "STAFF", "SYSTEM"]),
   visibility: z.literal("CUSTOMER"),
   body: z.string(),
@@ -78,6 +95,7 @@ export function workforceEnquiriesQuery(input: URLSearchParams) {
     "_trail",
     "selected",
     "messageCursor",
+    "messageId",
     "_messageTrail",
   ];
   const params = new URLSearchParams();
@@ -97,7 +115,7 @@ export function workforceEnquiriesQuery(input: URLSearchParams) {
   if (q) params.set("q", q);
   if (type) params.set("type", type);
   if (status) params.set("status", status);
-  for (const name of ["cursor", "selected", "messageCursor"]) {
+  for (const name of ["cursor", "selected", "messageCursor", "messageId"]) {
     const value = input.get(name);
     if (value !== null) {
       if (!z.uuid().safeParse(value).success) invalid = true;
@@ -125,12 +143,21 @@ export function workforceEnquiriesQuery(input: URLSearchParams) {
     }
   }
   if (
-    (input.has("messageCursor") || input.has("_messageTrail")) &&
+    (input.has("messageCursor") ||
+      input.has("_messageTrail") ||
+      input.has("messageId")) &&
     !params.has("selected")
   )
     invalid = true;
+  if (params.has("messageId") && params.has("messageCursor")) invalid = true;
   const api = new URLSearchParams(params);
-  for (const name of ["_trail", "selected", "messageCursor", "_messageTrail"])
+  for (const name of [
+    "_trail",
+    "selected",
+    "messageCursor",
+    "_messageTrail",
+    "messageId",
+  ])
     api.delete(name);
   api.set("limit", "25");
   return { params, invalid, path: invalid ? null : `/staff/workforce/enquiries?${api}` };
@@ -138,43 +165,46 @@ export function workforceEnquiriesQuery(input: URLSearchParams) {
 export const enquiriesHref = (params: URLSearchParams) =>
   `/admin/workforce/enquiries${params.size ? `?${params}` : ""}`;
 
-function activeAssignment(
-  assignment: WorkforceAccess["assignments"][number],
+export function enquiryContactInScope(
+  row: Pick<WorkforceEnquiryRow, "branchId">,
   access: WorkforceAccess,
 ) {
+  return careCaseAllows(access, "ENQUIRY", "view", row);
+}
+function salesInScope(row: WorkforceEnquiryRow, access: WorkforceAccess) {
   return (
-    assignment.userId === access.userId &&
-    assignment.revokedAt === null &&
-    Date.parse(assignment.startsAt) <= Date.parse(access.serverTime) &&
-    (assignment.expiresAt === null ||
-      Date.parse(assignment.expiresAt) > Date.parse(access.serverTime))
+    ["PRODUCT", "VEHICLE"].includes(row.type) &&
+    workforceAllows(access, { all: ["SALES_ENQUIRIES"], scope: "responsibility" }, row) &&
+    access.assignments.some(
+      (a) =>
+        activeAssignment(a, access) &&
+        a.branchId === row.branchId &&
+        ((a.template === "SALES_SUPERVISOR" && a.scope === "BRANCH") ||
+          (a.template === "SALES_CASHIER" &&
+            a.scope === "ASSIGNED" &&
+            access.staffId !== null &&
+            row.assignedStaffId === access.staffId)),
+    )
   );
 }
 export function enquiryInScope(row: WorkforceEnquiryRow, access: WorkforceAccess) {
   if (
     !access.managed ||
-    !access.permissions.some((p) => p === "CUSTOMER_ENQUIRIES" || p === "SALES_ENQUIRIES")
-  )
-    return false;
-  if (
     row.branch?.id !== row.branchId ||
-    (row.assignedStaff?.id ?? null) !== row.assignedStaffId
+    (row.assignedStaff?.id ?? null) !== row.assignedStaffId ||
+    (row.contact !== undefined && !enquiryContactInScope(row, access))
   )
     return false;
-  return access.assignments.some((assignment) => {
-    if (!activeAssignment(assignment, access) || assignment.branchId !== row.branchId)
-      return false;
-    if (assignment.template === "CUSTOMER_SERVICE") return assignment.scope === "BRANCH";
-    if (!["PRODUCT", "VEHICLE"].includes(row.type)) return false;
-    if (assignment.template === "SALES_SUPERVISOR") return assignment.scope === "BRANCH";
-    return (
-      assignment.template === "SALES_CASHIER" &&
-      assignment.scope === "ASSIGNED" &&
-      access.staffId !== null &&
-      row.assignedStaffId === access.staffId
-    );
-  });
+  return careCaseAllows(access, "ENQUIRY", "view", row) || salesInScope(row, access);
 }
+export function canReplyEnquiry(row: WorkforceEnquiryRow, access: WorkforceAccess) {
+  return (
+    enquiryInScope(row, access) &&
+    ["OPEN", "IN_PROGRESS"].includes(row.status) &&
+    (careCaseAllows(access, "ENQUIRY", "reply", row) || salesInScope(row, access))
+  );
+}
+
 function validPage(items: { id: string }[], nextCursor?: string) {
   return (
     new Set(items.map((item) => item.id)).size === items.length &&
@@ -192,7 +222,8 @@ export function parseScopedWorkforceEnquiries(value: unknown) {
     .parse(value);
   if (
     !data.access.permissions.some(
-      (p) => p === "CUSTOMER_ENQUIRIES" || p === "SALES_ENQUIRIES",
+      (p) =>
+        p === "CUSTOMER_ENQUIRIES" || p === "SALES_ENQUIRIES" || p === "CARE_CASE_VIEW",
     ) ||
     !validPage(data.items, data.nextCursor) ||
     data.items.some((row) => !enquiryInScope(row, data.access))
@@ -222,17 +253,19 @@ export function canAssignEnquiry(row: WorkforceEnquiryRow, access: WorkforceAcce
   return (
     enquiryInScope(row, access) &&
     ["OPEN", "IN_PROGRESS"].includes(row.status) &&
-    ["PRODUCT", "VEHICLE"].includes(row.type) &&
-    access.permissions.includes("ENQUIRIES_ASSIGN") &&
-    access.assignments.some(
-      (a) =>
-        activeAssignment(a, access) &&
-        a.template === "SALES_SUPERVISOR" &&
-        a.scope === "BRANCH" &&
-        a.branchId === row.branchId,
-    )
+    (careCaseAllows(access, "ENQUIRY", "assign", row) ||
+      (salesInScope(row, access) &&
+        workforceAllows(access, workforceActionPredicates.enquiryAssign, row) &&
+        access.assignments.some(
+          (a) =>
+            activeAssignment(a, access) &&
+            a.template === "SALES_SUPERVISOR" &&
+            a.scope === "BRANCH" &&
+            a.branchId === row.branchId,
+        )))
   );
 }
+
 export function parseWorkforceEnquiryCandidates(value: unknown) {
   const data = z
     .object({
@@ -247,13 +280,16 @@ export function parseWorkforceEnquiryCandidates(value: unknown) {
     .parse(value);
   if (
     !validPage(data.items, data.nextCursor) ||
-    !data.access.permissions.includes("ENQUIRIES_ASSIGN") ||
-    !data.access.assignments.some(
-      (a) =>
-        activeAssignment(a, data.access) &&
-        a.template === "SALES_SUPERVISOR" &&
-        a.scope === "BRANCH" &&
-        a.branchId === data.branchId,
+    !(
+      careCaseAllows(data.access, "ENQUIRY", "assign", { branchId: data.branchId }) ||
+      (data.access.permissions.includes("ENQUIRIES_ASSIGN") &&
+        data.access.assignments.some(
+          (a) =>
+            activeAssignment(a, data.access) &&
+            a.template === "SALES_SUPERVISOR" &&
+            a.scope === "BRANCH" &&
+            a.branchId === data.branchId,
+        ))
     )
   )
     throw Error("Eligible staff do not match current responsibilities");
@@ -301,7 +337,10 @@ export function validateEnquiryReceipt(
     common.actorUserId !== base.access.userId ||
     common.action !== change.action ||
     !sameWorkforceScope(base.access, common.access) ||
-    !enquiryInScope(base, common.access)
+    !enquiryInScope(base, common.access) ||
+    !(change.action === "reply"
+      ? canReplyEnquiry(base, common.access)
+      : canAssignEnquiry(base, common.access))
   )
     throw Error("The change receipt could not be verified");
   if (change.action === "reply") {

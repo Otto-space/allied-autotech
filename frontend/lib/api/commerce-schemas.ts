@@ -1,4 +1,6 @@
+import { fitmentDecisionSchema, fitmentQualifierKeys } from "../parts-fitment";
 import { z } from "zod";
+import { productFamily, recordedProductFields } from "../product-family";
 export const money = z.string().regex(/^\d+$/);
 export const branchRef = z.object({
   id: z.string().uuid(),
@@ -6,12 +8,19 @@ export const branchRef = z.object({
   name: z.string(),
 });
 export const categorySchema = z.object({
+  family: productFamily.nullable().optional(),
+  parentId: z.uuid().nullable().optional(),
   id: z.string().uuid(),
   name: z.string(),
   slug: z.string(),
   description: z.string().nullable(),
 });
 export const productSchema = z.object({
+  ...recordedProductFields,
+  fitment: fitmentDecisionSchema.optional(),
+  condition: z.enum(["NEW", "USED", "REFURBISHED"]).nullable().optional(),
+  classification: z.enum(["GENUINE_OEM", "AFTERMARKET"]).nullable().optional(),
+  productType: z.string().nullable().optional(),
   id: z.string().uuid(),
   name: z.string(),
   slug: z.string(),
@@ -39,6 +48,18 @@ export const productSchema = z.object({
       yearFrom: z.number().nullable(),
       yearTo: z.number().nullable(),
       notes: z.string().nullable(),
+      scope: z.enum(["MODEL", "UNIVERSAL"]).optional(),
+      requiredQualifiers: z.array(z.enum(fitmentQualifierKeys)).optional(),
+      trim: z.string().nullable().optional(),
+      engineCode: z.string().nullable().optional(),
+      market: z.string().nullable().optional(),
+      position: z.string().nullable().optional(),
+      brakeSystem: z.string().nullable().optional(),
+      brakeDiameterMm: z.string().nullable().optional(),
+      bodyType: z.string().nullable().optional(),
+      transmission: z.string().nullable().optional(),
+      generation: z.string().nullable().optional(),
+      chassisCode: z.string().nullable().optional(),
     }),
   ),
   availability: z.array(z.object({ branch: branchRef, inStock: z.boolean() })),
@@ -60,6 +81,7 @@ export const parseProductDiscovery = (value: unknown) =>
       items: z.array(productSchema).max(50),
       nextCursor: discoveryCursor.optional(),
       totalMatches: z.number().int().nonnegative(),
+      verifiedMatches: z.number().int().nonnegative().optional(),
     })
     .parse(value);
 export const parseProductFacets = (value: unknown) =>

@@ -1,5 +1,6 @@
 ﻿import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
+import { catalogueOnly } from "@/lib/public-launch";
 import { ArrowRight, ArrowUpRight, ChevronRight, Phone } from "lucide-react";
 import { business, faqs } from "@/lib/business";
 import { helpArticleGuidance } from "@/lib/help-article-guidance";
@@ -29,6 +30,7 @@ export async function generateMetadata({ params, searchParams }: Props) {
   );
 }
 export default async function HelpArticle({ params, searchParams }: Props) {
+  if (catalogueOnly()) redirect("/help");
   const { slug } = await params;
   const article = faqs.find((faq) => faq.id === slug);
   if (!article) notFound();
@@ -177,15 +179,15 @@ export default async function HelpArticle({ params, searchParams }: Props) {
             <div className="ha-contact-links">
               <a href={`tel:${business.internationalPhone}`}>
                 <Phone size={20} aria-hidden="true" />
-                {business.phone}
+                Call our team
               </a>
               <a
                 href={business.whatsapp}
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="Chat on WhatsApp (opens in a new tab)"
+                aria-label="Whatsapp (opens in a new tab)"
               >
-                Chat on WhatsApp
+                Whatsapp
                 <ArrowUpRight size={16} aria-hidden="true" />
               </a>
             </div>

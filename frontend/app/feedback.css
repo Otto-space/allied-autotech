@@ -27,7 +27,7 @@
   border-left: 4px solid #82939f;
   border-radius: 12px;
   background: white;
-  color: #01121a;
+  color: var(--ink);
   box-shadow: 0 4px 20px #01121a1a;
   pointer-events: auto;
   font-size: 14px;
@@ -35,7 +35,7 @@
 }
 .toast > svg {
   margin-top: 4px;
-  color: #01121a;
+  color: var(--ink);
 }
 .toast p {
   margin: 4px 0 0;
@@ -59,10 +59,10 @@
   background: transparent;
   border: 1px solid #82939f;
   border-radius: 8px;
-  color: #01121a;
+  color: var(--ink);
 }
 .toast--success {
-  border-left-color: #01121a;
+  border-left-color: var(--success-ink);
 }
 .toast--error {
   border-left-color: #c40000;
@@ -72,11 +72,12 @@
   color: #c40000;
 }
 .toast--warning {
-  border-left-color: #01121a;
+  border-left-color: var(--warning-ink);
 }
 .toast :is(button, a):focus-visible {
-  outline: 2px solid #e60301;
-  outline-offset: 2px;
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 @media (max-width: 600px) {
   .toast {

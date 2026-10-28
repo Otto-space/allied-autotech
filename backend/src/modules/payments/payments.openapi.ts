@@ -41,7 +41,7 @@ export function registerPaymentsOpenApi(registry: OpenAPIRegistry): void {
     {
       method: "get",
       path: "/customers/payments",
-      summary: "List own payments",
+      summary: "List own payments, optionally for one vehicle purchase",
       query: paymentListQuerySchema,
     },
     {
@@ -166,6 +166,9 @@ export function registerPaymentsOpenApi(registry: OpenAPIRegistry): void {
         (route.path.startsWith("/staff/")
           ? "Requires ADMIN or SUPER_ADMIN with verified MFA. STAFF has no payment, evidence or refund access. Existing separation-of-duties and transactional checks also apply."
           : "Requires the customer account that owns the payment; server verification remains authoritative.") +
+        (route.method === "get" && route.path === "/customers/payments"
+          ? " Optional vehicleTransactionId filters within the authenticated customer's payments before pagination. A cursor for another customer, target or selected status is rejected. An empty result does not reveal whether a different customer owns the target."
+          : "") +
         (route.method === "get" && route.path === "/customers/payments/{paymentId}"
           ? " The private no-store detail response includes checkoutProviders, containing only currently enabled online provider names. An empty array means online checkout is unavailable. This is configuration availability, not authorization to charge; initialization independently validates the current payable and competing attempts. No provider credentials or internal configuration are exposed."
           : "") +

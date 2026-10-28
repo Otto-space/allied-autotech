@@ -1,3 +1,4 @@
+import { assertIsolatedLoopbackDatabase } from "../helpers/isolated-database.js";
 import { WorkforceWorkService } from "../../src/modules/organization/workforce-work.service.js";
 import { hashToken } from "../../src/common/security/session-tokens.js";
 import { randomUUID } from "node:crypto";
@@ -20,14 +21,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       otherStaff: AuthenticatedActor;
     let branchId: string, customerId: string;
     beforeAll(async () => {
-      // This suite only accepts its newly provisioned local test namespace.
-      expect(env.NODE_ENV).toBe("test");
-      expect(env.DB_HOST).toBe("127.0.0.1");
-      expect(env.DB_NAME).toMatch(/^aat_support_progress_[a-f0-9]+_test$/);
-      const [target] = await prisma.$queryRaw<
-        { database: string }[]
-      >`SELECT current_database() AS database`;
-      expect(target?.database).toBe(env.DB_NAME);
+      await assertIsolatedLoopbackDatabase();
       const branch = await prisma.branch.create({
         data: {
           code: randomUUID().slice(0, 8),
@@ -222,18 +216,60 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       ).rejects.toThrow();
     });
     it("notifies from the responsibility-based staff workspace and keeps its delivery view scoped", async () => {
-    await prisma.session.create({ data: { id: admin.sessionId, userId: admin.userId, tokenHash: hashToken("session", randomUUID()), createdAt: new Date(Date.now() - 1000), expiresAt: new Date(Date.now() + 3600000), idleExpiresAt: new Date(Date.now() + 3600000), mfaRequired: true, mfaVerifiedAt: new Date() } });
-    await prisma.workforceAccess.create({ data: { userId: admin.userId, position: "CUSTOMER_SERVICE", updatedByUserId: admin.userId, assignments: { create: { template: "CUSTOMER_SERVICE", branchId, scope: "BRANCH", startsAt: new Date(Date.now() - 1000), reason: "Synthetic customer care test", assignedByUserId: admin.userId } } } });
-    const workforce = new WorkforceWorkService();
-    const row = await enquiry();
-    await workforce.reply(admin, row.id, { expectedVersion: 0, body: "Role-scoped staff reply" }, context);
-    const result = await workforce.enquiry(admin, row.id, { limit: 25 }, context);
-    expect(result.emailDeliveries.items).toHaveLength(1);
-    expect(result.emailDeliveries.items[0]?.status).toBe("QUEUED");
-    await expect(workforce.reply(admin, row.id, { expectedVersion: 0, body: "Stale repeated reply" }, context)).rejects.toThrow();
-    expect((await workforce.enquiry(admin, row.id, { limit: 25 }, context)).emailDeliveries.items).toHaveLength(1);
-  });
-  it("sends one complaint acknowledgement and records failed delivery for manual follow-up", async () => {
+      await prisma.session.create({
+        data: {
+          id: admin.sessionId,
+          userId: admin.userId,
+          tokenHash: hashToken("session", randomUUID()),
+          createdAt: new Date(Date.now() - 1000),
+          expiresAt: new Date(Date.now() + 3600000),
+          idleExpiresAt: new Date(Date.now() + 3600000),
+          mfaRequired: true,
+          mfaVerifiedAt: new Date(),
+        },
+      });
+      await prisma.workforceAccess.create({
+        data: {
+          userId: admin.userId,
+          position: "CUSTOMER_SERVICE",
+          updatedByUserId: admin.userId,
+          assignments: {
+            create: {
+              template: "CUSTOMER_SERVICE",
+              branchId,
+              scope: "BRANCH",
+              startsAt: new Date(Date.now() - 1000),
+              reason: "Synthetic customer care test",
+              assignedByUserId: admin.userId,
+            },
+          },
+        },
+      });
+      const workforce = new WorkforceWorkService();
+      const row = await enquiry();
+      await workforce.reply(
+        admin,
+        row.id,
+        { expectedVersion: 0, body: "Role-scoped staff reply" },
+        context,
+      );
+      const result = await workforce.enquiry(admin, row.id, { limit: 25 }, context);
+      expect(result.emailDeliveries.items).toHaveLength(1);
+      expect(result.emailDeliveries.items[0]?.status).toBe("QUEUED");
+      await expect(
+        workforce.reply(
+          admin,
+          row.id,
+          { expectedVersion: 0, body: "Stale repeated reply" },
+          context,
+        ),
+      ).rejects.toThrow();
+      expect(
+        (await workforce.enquiry(admin, row.id, { limit: 25 }, context)).emailDeliveries
+          .items,
+      ).toHaveLength(1);
+    });
+    it("sends one complaint acknowledgement and records failed delivery for manual follow-up", async () => {
       const row = await prisma.complaint.create({
         data: {
           branchId,

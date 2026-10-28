@@ -5,8 +5,16 @@ import type { AuthenticatedActor } from "../../src/common/contracts/actor.js";
 import { OrdersService } from "../../src/modules/orders/orders.service.js";
 import { OrdersRepository } from "../../src/modules/orders/orders.repository.js";
 import { PaymentsService } from "../../src/modules/payments/payments.service.js";
+import { paymentTestSession } from "../helpers/payment-session.js";
 
 const context = () => ({ requestId: randomUUID(), ipAddress: null, userAgent: null });
+function gate() {
+  let release!: () => void;
+  const promise = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  return { promise, release };
+}
 async function account(role: "CUSTOMER" | "ADMIN"): Promise<AuthenticatedActor> {
   const user = await prisma.user.create({
     data: {
@@ -31,7 +39,7 @@ async function account(role: "CUSTOMER" | "ADMIN"): Promise<AuthenticatedActor> 
     userId: user.id,
     email: user.email,
     role,
-    sessionId: randomUUID(),
+    sessionId: await paymentTestSession(user.id, role),
     mfaRequired: role !== "CUSTOMER",
     mfaVerifiedAt: role === "CUSTOMER" ? null : new Date(),
   };
@@ -136,7 +144,7 @@ async function fixture(state: "unpaid" | "review" | "processing") {
   const candidates = vi
     .spyOn(OrdersRepository.prototype, "dueOrderIds")
     .mockResolvedValue([candidate]);
-  return { order, reservation, inventory, candidates, candidate };
+  return { owner, order, reservation, inventory, candidates, candidate };
 }
 describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
   "Strict unpaid order expiry",
@@ -219,5 +227,108 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         }),
       ).toBe(1);
     });
+    for (const operation of ["intent", "online", "manual"] as const)
+      it(`${operation} rejects an order cancelled while its source row is locked`, async () => {
+        const f = await fixture("unpaid");
+        await prisma.order.update({
+          where: { id: f.order.id },
+          data: { paymentDueAt: new Date(Date.now() + 3600000) },
+        });
+        const payments = new PaymentsService(prisma);
+        const paymentId =
+          operation === "intent"
+            ? null
+            : (
+                await payments.createIntent(
+                  f.owner,
+                  { targetType: "ORDER", targetId: f.order.id, purpose: "ORDER_PAYMENT" },
+                  randomUUID(),
+                  context(),
+                )
+              ).payment.id;
+        const held = gate();
+        const resume = gate();
+        const cancellation = prisma
+          .$transaction(async (tx) => {
+            try {
+              await tx.$queryRaw`SELECT "id" FROM "Order" WHERE "id" = ${f.order.id}::uuid FOR UPDATE`;
+              await tx.order.update({
+                where: { id: f.order.id },
+                data: {
+                  status: "CANCELLED",
+                  paymentDueAt: new Date(Date.now() - 1000),
+                  cancelledAt: new Date(),
+                  cancellationReason: "PAYMENT_WINDOW_EXPIRED",
+                  version: { increment: 1 },
+                },
+              });
+              held.release();
+              await resume.promise;
+            } finally {
+              held.release();
+            }
+          })
+          .then(
+            () => null,
+            (error: unknown) => error,
+          );
+        await held.promise;
+        const changing = (
+          operation === "intent"
+            ? payments.createIntent(
+                f.owner,
+                { targetType: "ORDER", targetId: f.order.id, purpose: "ORDER_PAYMENT" },
+                randomUUID(),
+                context(),
+              )
+            : operation === "online"
+              ? payments.initializePaystack(f.owner, paymentId!, randomUUID(), context())
+              : payments.submitManual(
+                  f.owner,
+                  paymentId!,
+                  {
+                    method: "BANK_TRANSFER",
+                    payerName: "Isolated Expiry",
+                    transferredAt: new Date().toISOString(),
+                  },
+                  randomUUID(),
+                  context(),
+                )
+        ).then(
+          (result) => ({ result }),
+          (error: unknown) => ({ error }),
+        );
+        try {
+          await expect
+            .poll(
+              async () => {
+                const rows = await prisma.$queryRaw<
+                  { blocked: boolean }[]
+                >`SELECT EXISTS (
+                SELECT 1 FROM pg_stat_activity WHERE datname = current_database()
+                AND cardinality(pg_blocking_pids(pid)) > 0
+                AND query LIKE '%FOR UPDATE%'
+                AND query LIKE '%"Order"%'
+              ) AS blocked`;
+                return rows[0]?.blocked;
+              },
+              { timeout: 3000, interval: 20 },
+            )
+            .toBe(true);
+        } finally {
+          resume.release();
+        }
+        expect(await cancellation).toBeNull();
+        const outcome = await changing;
+        expect(outcome).toMatchObject({ error: { statusCode: 404 } });
+        expect(await prisma.payment.count({ where: { orderId: f.order.id } })).toBe(
+          operation === "intent" ? 0 : 1,
+        );
+        expect(
+          await prisma.paymentAttempt.count({
+            where: { payment: { orderId: f.order.id } },
+          }),
+        ).toBe(0);
+      });
   },
 );

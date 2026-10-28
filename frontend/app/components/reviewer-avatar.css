@@ -7,7 +7,7 @@
   border-radius: 50%;
   overflow: hidden;
   background: #edf1f4;
-  color: #01121a;
+  color: var(--ink);
   font:
     700 16px/1 var(--font-quicksand),
     sans-serif;
@@ -23,7 +23,7 @@
   align-items: center;
   gap: 12px;
   margin-bottom: 14px;
-  color: #01121a;
+  color: var(--ink);
   font-size: 14px;
   font-weight: 700;
 }

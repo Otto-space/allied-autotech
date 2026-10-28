@@ -125,6 +125,7 @@ const operationalGroups: DashboardGroup[] = [
       { href: "/admin/orders", label: "Order fulfilment" },
       { href: "/admin/inventory", label: "Product inventory" },
       adminOnly("/admin/products", "Products"),
+      adminOnly("/admin/fitment", "Fitment evidence & review"),
       adminOnly("/admin/categories", "Product categories"),
       adminOnly("/admin/promotions", "Promotions"),
       { href: "/admin/delivery-policy", label: "Delivery setup", roles: ["SUPER_ADMIN"] },
@@ -204,7 +205,7 @@ const operationalGroups: DashboardGroup[] = [
     icon: Settings,
     links: [
       { href: "/admin/security", label: "My account security" },
-      { href: "/admin/notifications", label: "My notifications" },
+      { href: "/admin/notifications", label: "Notifications" },
       {
         href: "/admin/complaint-policy",
         label: "Complaint policy",
@@ -230,6 +231,12 @@ export function dashboardNavigation(
   return (role === "CUSTOMER" ? customerGroups : operationalGroups)
     .map((group) => ({
       ...group,
+      label:
+        role === "CUSTOMER" && group.id === "shop"
+          ? browseEnquiriesOnly()
+            ? "Saved items"
+            : "Orders & saved items"
+          : group.label,
       links: group.links.filter(
         (link) =>
           !(

@@ -17,6 +17,31 @@ const png = (width = 64, height = 64) =>
     .png()
     .toBuffer();
 describe("managed image validation", () => {
+  it("keeps product image dimensions and 10 MiB boundaries authoritative", async () => {
+    const minimum = await png(32, 32);
+    expect(
+      (await validateAndTransformImage(minimum, metadata(minimum), "PRODUCT")).width,
+    ).toBe(32);
+    const maximumSide = await png(8192, 128);
+    expect(
+      (await validateAndTransformImage(maximumSide, metadata(maximumSide), "PRODUCT"))
+        .width,
+    ).toBeLessThanOrEqual(2048);
+    for (const dimensions of [
+      [31, 64],
+      [8193, 32],
+      [8192, 32],
+    ]) {
+      const bytes = await png(dimensions[0], dimensions[1]);
+      await expect(
+        validateAndTransformImage(bytes, metadata(bytes), "PRODUCT"),
+      ).rejects.toMatchObject({ code: "MEDIA_INVALID_DIMENSIONS" });
+    }
+    const tooLarge = Buffer.alloc(10 * 1024 * 1024 + 1);
+    await expect(
+      validateAndTransformImage(tooLarge, metadata(tooLarge), "PRODUCT"),
+    ).rejects.toMatchObject({ code: "MEDIA_TOO_LARGE" });
+  });
   it("decodes, resizes, strips personal metadata and returns actual dimensions", async () => {
     const bytes = await sharp({
       create: { width: 1600, height: 1200, channels: 3, background: "blue" },

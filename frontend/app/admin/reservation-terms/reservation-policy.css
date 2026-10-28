@@ -1,6 +1,6 @@
 .work-reservation-policy {
   max-width: 1360px;
-  color: #01121a;
+  color: var(--ink);
   font-size: 14px;
 }
 .work-reservation-policy .breadcrumbs a {
@@ -167,8 +167,9 @@
   min-height: 44px;
 }
 .work-reservation-policy summary:focus-visible {
-  outline: 2px solid #e60301;
-  outline-offset: 4px;
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .reservation-version {
   background: #fff;
@@ -341,11 +342,11 @@
 }
 .dashboard .dashboard-content .reservation-form input[type="checkbox"],
 .reservation-ack input {
-  accent-color: #e60301;
+  accent-color: var(--checked);
 }
 .dashboard .dashboard-content .reservation-form input[type="checkbox"]:checked {
-  background-color: #e60301;
-  border-color: #e60301;
+  background-color: var(--brand-red);
+  border-color: var(--brand-red);
 }
 .reservation-draft {
   background: #eaf0f5;
@@ -370,8 +371,8 @@
 .dashboard .dashboard-content .reservation-form input:focus-visible,
 .dashboard .dashboard-content .reservation-form select:focus-visible,
 .dashboard .dashboard-content .reservation-form textarea:focus-visible {
-  border-color: #e60301;
-  outline: 2px solid #e60301;
-  outline-offset: 2px;
-  box-shadow: 0 0 0 1px #ffffff;
+  border-color: var(--brand-red);
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }

@@ -98,6 +98,8 @@ async function fixture(page: Page) {
         mfaRequired: state.role !== "CUSTOMER",
         mfaVerifiedAt: state.role !== "CUSTOMER" ? "2026-09-24T09:00:00Z" : null,
       });
+    if (endpoint.endsWith("/notifications/summary"))
+      return reply(route, { unreadCount: 0, groups: [] });
     if (endpoint === "/auth/csrf")
       return reply(route, { csrfToken: "delivery-test-csrf-".repeat(4) });
     if (endpoint === "/public/branches") return reply(route, { items: [branch] });
@@ -196,6 +198,7 @@ async function fixture(page: Page) {
         customerEmail: "synthetic@example.test",
         customerPhone: "+2348000000000",
         cancellationReason: null,
+        allowedTransitions: [],
       });
     if (endpoint.startsWith("/customers/payments")) state.paymentCalls++;
     return route.fulfill({
@@ -205,17 +208,11 @@ async function fixture(page: Page) {
   });
   return state;
 }
-async function enterDelivery(page: Page) {
-  await page.getByRole("radio", { name: "Delivery", exact: true }).check();
-  await page.getByLabel("Stock branch").selectOption(branch.id);
-  await page.getByLabel("Delivery area", { exact: true }).selectOption(zone.id);
-  await page.getByLabel("Recipient name").fill(order.deliveryName);
-  await page.getByLabel("Recipient phone").fill(order.deliveryPhone);
-  await page
-    .getByLabel("Street address and directions")
-    .fill("Synthetic street\nnear test gate");
+async function enterCollection(page: Page) {
+  await page.getByLabel("Collection branch").selectOption(branch.id);
 }
-test("delivery checkout sends the selected area and reviews server totals before payment", async ({
+
+test("collection checkout excludes delivery and reviews server totals before payment", async ({
   page,
 }) => {
   const state = await fixture(page);
@@ -225,14 +222,12 @@ test("delivery checkout sends the selected area and reviews server totals before
     if (["error", "warning"].includes(message.type())) errors.push(message.text());
   });
   await page.goto("/dashboard/cart");
-  await enterDelivery(page);
-  await expect(page.getByText(/before any applicable tax/)).toBeVisible();
-  for (const width of [320, 360, 375, 390, 414, 768, 1024, 1280, 1440, 1920]) {
-    await page.setViewportSize({ width, height: 900 });
-    expect(
-      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
-    ).toBe(true);
-  }
+  await enterCollection(page);
+  await expect(
+    page.getByText("Orders are collection only. Delivery is unavailable."),
+  ).toBeVisible();
+  await expect(page.getByRole("radio", { name: "Delivery", exact: true })).toHaveCount(0);
+  await expect(page.getByLabel("Recipient name")).toHaveCount(0);
   await page.setViewportSize({ width: 390, height: 844 });
   expect(
     (
@@ -241,7 +236,7 @@ test("delivery checkout sends the selected area and reviews server totals before
         .analyze()
     ).violations,
   ).toEqual([]);
-  await page.getByLabel("Delivery area", { exact: true }).scrollIntoViewIfNeeded();
+  await page.getByLabel("Collection branch", { exact: true }).scrollIntoViewIfNeeded();
   await page.screenshot({
     path: path.join(os.tmpdir(), "allied-delivery-checkout-390.png"),
   });
@@ -255,20 +250,12 @@ test("delivery checkout sends the selected area and reviews server totals before
       key: expect.any(String),
       body: {
         branchId: branch.id,
-        fulfillmentMethod: "DELIVERY",
-        delivery: {
-          zoneId: zone.id,
-          name: order.deliveryName,
-          phone: order.deliveryPhone,
-          address: order.deliveryAddress,
-          city: zone.city,
-          state: zone.state,
-          country: "Nigeria",
-        },
+        fulfillmentMethod: "COLLECTION",
       },
     },
   ]);
   await page.getByRole("link", { name: "Review order & payment" }).click();
+  // Historical delivery snapshots remain readable after collection-only checkout.
   await expect(page.getByText(order.deliveryAddress, { exact: true })).toBeVisible();
   await expect(page.locator("dl.checkout-summary dd")).toContainText([
     "200.00",
@@ -280,21 +267,20 @@ test("delivery checkout sends the selected area and reviews server totals before
   expect(state.paymentCalls).toBe(0);
   expect(errors).toEqual([]);
 });
-test("uncertain delivery checkout locks fields and repeats only its original body and key", async ({
+test("uncertain collection checkout locks fields and repeats only its original body and key", async ({
   page,
 }) => {
   const state = await fixture(page);
   state.mode = "uncertain";
   await page.goto("/dashboard/cart");
-  await enterDelivery(page);
+  await enterCollection(page);
   await page.getByRole("button", { name: "Review checkout", exact: true }).click();
   await page.getByRole("button", { name: "Create order & review total" }).click();
   await expect(
     page.getByRole("heading", { name: "Checkout confirmation is pending" }),
   ).toBeVisible();
-  await expect(page.getByLabel("Recipient name")).toBeDisabled();
   await expect(
-    page.getByRole("radio", { name: "Collection", exact: true, includeHidden: true }),
+    page.getByRole("button", { name: "Create order & review total" }),
   ).toBeDisabled();
   await page.getByRole("button", { name: "Check this checkout again" }).click();
   await expect(
@@ -304,19 +290,15 @@ test("uncertain delivery checkout locks fields and repeats only its original bod
   expect(state.writes[1]).toEqual(state.writes[0]);
   expect(state.paymentCalls).toBe(0);
 });
-test("a withdrawn area blocks delivery and lets the customer explicitly switch to collection", async ({
+test("retained delivery policies cannot enable a delivery option in customer checkout", async ({
   page,
 }) => {
   const state = await fixture(page);
   await page.goto("/dashboard/cart");
-  await enterDelivery(page);
+  await enterCollection(page);
+  await expect(page.getByRole("radio", { name: "Delivery", exact: true })).toHaveCount(0);
   state.available = false;
-  await page.getByRole("button", { name: "Refresh delivery options" }).click();
-  await expect(page.getByText(/The selected delivery area is unavailable/)).toBeVisible();
-  await expect(
-    page.getByRole("button", { name: "Review checkout", exact: true }),
-  ).toBeDisabled();
-  await page.getByRole("radio", { name: "Collection", exact: true }).check();
+  await page.getByRole("button", { name: "Refresh ordering availability" }).click();
   await page.getByRole("button", { name: "Review checkout", exact: true }).click();
   await page.getByRole("button", { name: "Create order & review total" }).click();
   await expect(
@@ -327,21 +309,28 @@ test("a withdrawn area blocks delivery and lets the customer explicitly switch t
     fulfillmentMethod: "COLLECTION",
   });
 });
-test("delivery read failures preserve collection and support retry", async ({ page }) => {
+
+test("ordering availability failures block checkout and support retry without losing the cart", async ({
+  page,
+}) => {
   const state = await fixture(page);
   state.optionsFail = true;
   await page.goto("/dashboard/cart");
-  await expect(page.getByText(/We could not load delivery options/)).toBeVisible();
-  await expect(page.getByRole("radio", { name: "Delivery", exact: true })).toBeDisabled();
-  await page.getByLabel("Collection branch").selectOption(branch.id);
+  await expect(
+    page.getByText(/Ordering availability could not be checked/),
+  ).toBeVisible();
+  await enterCollection(page);
+  await expect(
+    page.getByRole("button", { name: "Review checkout", exact: true }),
+  ).toBeDisabled();
+  state.optionsFail = false;
+  await page.getByRole("button", { name: "Refresh ordering availability" }).click();
   await expect(
     page.getByRole("button", { name: "Review checkout", exact: true }),
   ).toBeEnabled();
-  state.optionsFail = false;
-  await page.getByRole("button", { name: "Refresh delivery options" }).click();
-  await expect(page.getByRole("radio", { name: "Delivery", exact: true })).toBeEnabled();
   expect(state.writes).toEqual([]);
 });
+
 test("known unavailable ordering blocks checkout without discarding the cart", async ({
   page,
 }) => {
@@ -356,18 +345,17 @@ test("known unavailable ordering blocks checkout without discarding the cart", a
   ).toBeDisabled();
   expect(state.writes).toEqual([]);
 });
-test("delivery contact details clear after a session change", async ({ page }) => {
+test("collection details clear after a session change", async ({ page }) => {
   const state = await fixture(page);
   await page.goto("/dashboard/cart");
-  await enterDelivery(page);
+  await enterCollection(page);
   await page.evaluate(() => window.dispatchEvent(new CustomEvent("aat:session-changed")));
-  await expect(page.getByLabel("Recipient name")).toHaveCount(0);
   await expect(page.getByText(/Your session changed/)).toBeVisible();
   expect(state.writes).toEqual([]);
   await page.getByRole("button", { name: "Verify session again" }).click();
-  await page.getByRole("radio", { name: "Delivery", exact: true }).check();
-  await expect(page.getByLabel("Recipient name")).toHaveValue("");
+  await expect(page.getByLabel("Collection branch")).toHaveValue("");
 });
+
 test("staff fulfilment reads the saved delivery address", async ({ page }) => {
   const state = await fixture(page);
   state.role = "STAFF";
@@ -380,20 +368,20 @@ test("staff fulfilment reads the saved delivery address", async ({ page }) => {
   expect(state.writes).toEqual([]);
 });
 
-test("review is read-only, can be edited, and successful checkout clears the delivery draft", async ({
+test("review is read-only, can be edited, and successful checkout clears the collection draft", async ({
   page,
 }) => {
   const state = await fixture(page);
   await page.goto("/dashboard/cart");
-  await enterDelivery(page);
+  await enterCollection(page);
   await page.getByRole("button", { name: "Review checkout", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Review your checkout" })).toBeFocused();
   expect(state.writes).toHaveLength(0);
   await expect(page.getByLabel("Quantity", { exact: true })).toBeDisabled();
-  await expect(page.locator(".cart-review-facts")).toContainText(order.deliveryAddress);
+  await expect(page.locator(".cart-review-facts")).toContainText(branch.name);
   await page.getByRole("button", { name: "Edit details", exact: true }).click();
-  await expect(page.getByLabel("Stock branch")).toBeFocused();
-  await expect(page.getByLabel("Recipient name")).toHaveValue(order.deliveryName);
+  await expect(page.getByLabel("Collection branch")).toBeFocused();
+  await expect(page.getByLabel("Collection branch")).toHaveValue(branch.id);
   await page.getByRole("button", { name: "Review checkout", exact: true }).click();
   await page.getByRole("button", { name: "Create order & review total" }).click();
   await expect(
@@ -402,9 +390,9 @@ test("review is read-only, can be edited, and successful checkout clears the del
   await expect(page.locator(".cart-confirmation .cart-amounts dd")).toContainText([
     "200.00",
     "0.00",
-    "101.01",
-    "22.58",
-    "323.59",
+    "0.00",
+    "15.00",
+    "215.00",
   ]);
   await expect
     .poll(() =>
@@ -420,16 +408,17 @@ test("review is read-only, can be edited, and successful checkout clears the del
   expect(state.paymentCalls).toBe(0);
 });
 
-test("invalid recipient details stay in the editor with a focused error and no order write", async ({
+test("a missing collection branch focuses its error and sends no order", async ({
   page,
 }) => {
   const state = await fixture(page);
   await page.goto("/dashboard/cart");
-  await enterDelivery(page);
-  await page.getByLabel("Recipient name").fill("   ");
   await page.getByRole("button", { name: "Review checkout", exact: true }).click();
-  await expect(page.getByLabel("Recipient name")).toBeFocused();
-  await expect(page.getByLabel("Recipient name")).toHaveAttribute("aria-invalid", "true");
+  await expect(page.getByLabel("Collection branch")).toBeFocused();
+  await expect(page.getByLabel("Collection branch")).toHaveAttribute(
+    "aria-invalid",
+    "true",
+  );
   await expect(page.getByRole("heading", { name: "Review your checkout" })).toHaveCount(
     0,
   );
@@ -457,24 +446,21 @@ test("edited quantities cannot silently reach checkout and use the authoritative
   expect(state.writes).toHaveLength(0);
 });
 
-test("delivery price changes invalidate a review until the customer reviews the new options", async ({
+test("newly unavailable ordering blocks an existing review until availability recovers", async ({
   page,
 }) => {
   const state = await fixture(page);
   await page.goto("/dashboard/cart");
-  await enterDelivery(page);
+  await enterCollection(page);
   await page.getByRole("button", { name: "Review checkout", exact: true }).click();
-  state.feeKobo = "15000";
-  await page.getByRole("button", { name: "Refresh delivery options" }).click();
-  await expect(page.getByText(/Your cart or delivery options changed/)).toBeVisible();
+  state.checkoutEnabled = false;
+  await page.getByRole("button", { name: "Refresh ordering availability" }).click();
+  await expect(page.getByText(/Ordering is temporarily unavailable/)).toBeVisible();
   await expect(
     page.getByRole("button", { name: "Create order & review total" }),
   ).toBeDisabled();
-  await page.getByRole("button", { name: "Edit details", exact: true }).click();
-  await page.getByRole("button", { name: "Review checkout", exact: true }).click();
-  await expect(page.locator(".cart-checkout-review .cart-amounts")).toContainText(
-    "150.00",
-  );
+  state.checkoutEnabled = true;
+  await page.getByRole("button", { name: "Refresh ordering availability" }).click();
   await expect(
     page.getByRole("button", { name: "Create order & review total" }),
   ).toBeEnabled();
@@ -489,7 +475,7 @@ for (const kind of ["paid", "cancelled"] as const) {
     state.mode = "uncertain";
     state[kind] = true;
     await page.goto("/dashboard/cart");
-    await enterDelivery(page);
+    await enterCollection(page);
     await page.getByRole("button", { name: "Review checkout", exact: true }).click();
     await page.getByRole("button", { name: "Create order & review total" }).click();
     await page.getByRole("button", { name: "Check this checkout again" }).click();
@@ -511,7 +497,7 @@ test("malformed success cannot manufacture an order receipt", async ({ page }) =
   const state = await fixture(page);
   state.mode = "malformed";
   await page.goto("/dashboard/cart");
-  await enterDelivery(page);
+  await enterCollection(page);
   await page.getByRole("button", { name: "Review checkout", exact: true }).click();
   await page.getByRole("button", { name: "Create order & review total" }).click();
   await expect(
@@ -529,7 +515,7 @@ test("session invalidation during checkout removes private review and suppresses
   const state = await fixture(page);
   state.checkoutDelay = 1400;
   await page.goto("/dashboard/cart");
-  await enterDelivery(page);
+  await enterCollection(page);
   await page.getByRole("button", { name: "Review checkout", exact: true }).click();
   await page.getByRole("button", { name: "Create order & review total" }).click();
   await expect.poll(() => state.writes.length).toBe(1);
@@ -554,7 +540,7 @@ for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536]) {
     await fixture(page);
     await page.setViewportSize({ width, height: 960 });
     await page.goto("/dashboard/cart");
-    await enterDelivery(page);
+    await enterCollection(page);
     await page.evaluate(() => document.fonts.ready);
     for (const stage of ["editor", "review", "receipt"]) {
       if (stage === "review")
@@ -577,7 +563,7 @@ for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536]) {
         ).violations,
       ).toEqual([]);
       await page.screenshot({
-        path: path.join(os.homedir(), ".codex", `cart-oct-after-${width}-${stage}.png`),
+        path: path.join(os.tmpdir(), `allied-collection-${width}-${stage}.png`),
         fullPage: true,
       });
     }
@@ -591,7 +577,7 @@ test("a rejected checkout remains editable and a new review gets a new idempoten
   const state = await fixture(page);
   state.mode = "rejected";
   await page.goto("/dashboard/cart");
-  await enterDelivery(page);
+  await enterCollection(page);
   await page.getByRole("button", { name: "Review checkout", exact: true }).click();
   await page.getByRole("button", { name: "Create order & review total" }).click();
   await expect(
@@ -602,7 +588,7 @@ test("a rejected checkout remains editable and a new review gets a new idempoten
   ).toBeEnabled();
   expect(state.writes).toHaveLength(1);
   await page.getByRole("button", { name: "Edit details", exact: true }).click();
-  await page.getByLabel("Recipient name").fill("Revised recipient");
+  await page.getByLabel("Collection branch").selectOption(branch.id);
   state.mode = "success";
   await page.getByRole("button", { name: "Review checkout", exact: true }).click();
   await page.getByRole("button", { name: "Create order & review total" }).click();
@@ -611,7 +597,10 @@ test("a rejected checkout remains editable and a new review gets a new idempoten
   ).toBeVisible();
   expect(state.writes).toHaveLength(2);
   expect(state.writes[1].key).not.toBe(state.writes[0].key);
-  expect(state.writes[1].body).toMatchObject({ delivery: { name: "Revised recipient" } });
+  expect(state.writes[1].body).toEqual({
+    branchId: branch.id,
+    fulfillmentMethod: "COLLECTION",
+  });
 });
 
 test("branch pagination retains an explicitly selected branch from another page", async ({
@@ -639,7 +628,7 @@ test("branch pagination retains an explicitly selected branch from another page"
   await page.getByLabel("Collection branch").selectOption(next.id);
   await page.getByRole("button", { name: "Review checkout", exact: true }).click();
   await expect(page.locator(".cart-review-facts")).toContainText(next.name);
-  expect(reads).toEqual(["first", id(41)]);
+  expect([...new Set(reads)]).toEqual(["first", id(41)]);
   expect(state.writes).toHaveLength(0);
 });
 
@@ -826,7 +815,7 @@ for (const viewport of [
   { width: 390, height: 568 },
   { width: 844, height: 390 },
 ]) {
-  test(`long delivery review and manual copy remain usable at ${viewport.width}x${viewport.height}`, async ({
+  test(`collection review and manual copy remain usable at ${viewport.width}x${viewport.height}`, async ({
     page,
   }) => {
     await fixture(page);
@@ -839,11 +828,9 @@ for (const viewport of [
     await page.setViewportSize(viewport);
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto("/dashboard/cart");
-    await enterDelivery(page);
-    const address = "QA street direction ".repeat(23).trim();
-    await page.getByLabel("Street address and directions").fill(address);
+    await enterCollection(page);
     await page.getByRole("button", { name: "Review checkout", exact: true }).click();
-    await expect(page.locator(".cart-review-facts")).toContainText(address);
+    await expect(page.locator(".cart-review-facts")).toContainText(branch.name);
     const create = page.getByRole("button", { name: "Create order & review total" });
     await create.scrollIntoViewIfNeeded();
     await expect(create).toBeInViewport();

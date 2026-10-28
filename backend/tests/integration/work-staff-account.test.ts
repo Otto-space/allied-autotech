@@ -9,7 +9,11 @@ import { hashToken } from "../../src/common/security/session-tokens.js";
 import { sessionCookieName } from "../../src/common/security/cookies.js";
 const app = createApp({ checkReadiness: async () => undefined }),
   root = "/api/v1/admin/staff";
-describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
+const provisionedWorkspaceAcceptanceChecksEnabled =
+  process.env.RUN_DATABASE_TESTS === "true" &&
+  process.env.RUN_PROVISIONED_WORKSPACE_TESTS === "true";
+
+describe.skipIf(!provisionedWorkspaceAcceptanceChecksEnabled)(
   "staff account revision and private permissions",
   () => {
     type Actor = { id: string; sessionId: string; headers: Record<string, string> };
@@ -225,12 +229,12 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       await request(app)
         .patch(`${root}/${admin.id}/status`)
         .set(admin.headers)
-        .send({ status: "SUSPENDED" })
+        .send({ status: "SUSPENDED", expectedRevision: "stale-revision" })
         .expect(403);
       await request(app)
         .patch(`${root}/${owner.id}/status`)
         .set(admin.headers)
-        .send({ status: "SUSPENDED" })
+        .send({ status: "SUSPENDED", expectedRevision: "stale-revision" })
         .expect(403);
       await request(app)
         .patch(`${root}/${staffId}/status`)

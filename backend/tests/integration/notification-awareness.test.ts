@@ -60,7 +60,8 @@ describe.skipIf(process.env.RUN_NOTIFICATION_AWARENESS_TESTS !== "true")(
     beforeAll(async () => {
       if (
         env.DB_HOST !== "127.0.0.1" ||
-        env.DB_NAME !== "allied_notification_awareness_20261022_ci"
+        (env.DB_NAME !== "allied_notification_awareness_20261022_ci" &&
+          !/^allied_notifications_20261025_[a-f0-9]{12}_ci$/.test(env.DB_NAME))
       )
         throw new Error("Requires the newly created isolated notification test database");
       const target = await prisma.$queryRaw<
@@ -132,12 +133,13 @@ describe.skipIf(process.env.RUN_NOTIFICATION_AWARENESS_TESTS !== "true")(
         unreadCount: 130,
         groups: [
           {
-            resourceType: "BOOKING",
-            type: "BOOKING",
-            category: "TRANSACTIONAL",
+            resourceType: null,
+            type: "SYSTEM",
+            category: "OPERATIONAL",
             count: 130,
           },
         ],
+        destinations: [],
       });
       const other = await request(app)
         .get(`${base}/summary`)
@@ -179,7 +181,7 @@ describe.skipIf(process.env.RUN_NOTIFICATION_AWARENESS_TESTS !== "true")(
       await request(app).post(`${base}/read-all`).set(headers).send({}).expect(200);
       expect(
         (await request(app).get(`${base}/summary`).set(headers).expect(200)).body.data,
-      ).toEqual({ unreadCount: 0, groups: [] });
+      ).toEqual({ unreadCount: 0, groups: [], destinations: [] });
       expect(
         (await request(app).get(`${base}/summary`).set(otherHeaders).expect(200)).body
           .data.unreadCount,

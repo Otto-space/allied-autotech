@@ -2,15 +2,56 @@
 import { useState } from "react";
 import type { SupportKind } from "@/lib/api/support-schemas";
 import { SupportCreateForm } from "./support-create-form";
-export function PublicEnquiryForm({
+import { catalogueOnly } from "@/lib/public-launch";
+import { PublicEnquiryActions } from "./public-enquiry-actions";
+
+export function PublicEnquiryForm(props: Parameters<typeof EnabledPublicEnquiryForm>[0]) {
+  if (catalogueOnly())
+    return (
+      <section aria-label="Contact our team">
+        <h3>Speak with our team</h3>
+        <p>
+          Contact us by email or WhatsApp to discuss your vehicle, a service or a product.
+        </p>
+        {props.initialMessage && (
+          <p className="parts-enquiry-message">{props.initialMessage}</p>
+        )}
+        <PublicEnquiryActions
+          subject={props.initialSubject || props.serviceName || "an enquiry"}
+          message={props.initialMessage}
+        />
+      </section>
+    );
+  return <EnabledPublicEnquiryForm {...props} />;
+}
+
+function EnabledPublicEnquiryForm({
   serviceId,
   serviceName,
   submissionLocked = false,
   onSubmissionUncertain,
   presentation,
+  productId,
+  productName,
+  initialSubject,
+  initialMessage,
+  initialContextKey,
+  initialEnquiryType,
+  initialVehicleEnquiryIntent,
+  vehicleListingId,
+  vehicleListingTitle,
 }: {
   serviceId?: string;
   serviceName?: string;
+  productId?: string;
+  productName?: string;
+  initialSubject?: string;
+  initialMessage?: string;
+  initialContextKey?: string;
+  initialEnquiryType?: "PRODUCT" | "VEHICLE";
+  initialVehicleEnquiryIntent?: "LISTING" | "REQUIREMENTS";
+  vehicleListingId?: string;
+  vehicleListingTitle?: string;
   submissionLocked?: boolean;
   onSubmissionUncertain?: () => void;
   presentation?: "contact";
@@ -74,6 +115,15 @@ export function PublicEnquiryForm({
         serviceId={serviceId}
         serviceName={serviceName}
         presentation={presentation}
+        productId={productId}
+        productName={productName}
+        initialSubject={initialSubject}
+        initialMessage={initialMessage}
+        initialEnquiryType={initialEnquiryType}
+        initialVehicleEnquiryIntent={initialVehicleEnquiryIntent}
+        vehicleListingId={vehicleListingId}
+        vehicleListingTitle={vehicleListingTitle}
+        initialContextKey={initialContextKey}
       />
     </>
   );

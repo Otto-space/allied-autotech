@@ -1,0 +1,245 @@
+.fitment-workspace {
+  display: grid;
+  gap: 1.5rem;
+  max-width: 1200px;
+}
+.fitment-workspace :is(h1, h2, h3, p) {
+  margin-top: 0;
+}
+.fitment-workspace :is(h1, h2) {
+  scroll-margin-top: 6rem;
+}
+.fitment-workspace .fitment-toolbar,
+.fitment-workspace .actions {
+  display: flex;
+  align-items: end;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+.fitment-workspace :is(input:not([type="checkbox"]), select, textarea) {
+  width: 100%;
+  max-width: 100%;
+}
+.fitment-workspace .field {
+  min-width: 0;
+}
+.fitment-workspace :is(.fitment-rule-list, .fitment-history) {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 1rem;
+}
+.fitment-workspace .fitment-rule-card {
+  border: 1px solid var(--border, #d5d5d5);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  background: var(--surface, #fff);
+  overflow-wrap: anywhere;
+}
+.fitment-workspace .fitment-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem 1.5rem;
+  margin: 1rem 0;
+}
+.fitment-workspace .fitment-facts div {
+  min-width: 0;
+}
+.fitment-workspace dt {
+  font-size: 0.85rem;
+  color: var(--muted, #555);
+}
+.fitment-workspace dd {
+  margin: 0.3rem 0 0;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+.fitment-workspace .fitment-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+.fitment-workspace fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+.fitment-workspace .fitment-qualifier {
+  display: grid;
+  align-content: start;
+  gap: 0.4rem;
+  padding: 0.75rem;
+  border: 1px solid var(--border, #d5d5d5);
+  border-radius: 0.5rem;
+}
+.fitment-workspace .check-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 44px;
+}
+.fitment-workspace input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  min-height: 18px;
+  flex: 0 0 18px;
+}
+.fitment-workspace .fitment-picker {
+  position: relative;
+}
+.fitment-workspace .fitment-picker-popup {
+  position: absolute;
+  z-index: 20;
+  inset: calc(100% + 4px) 0 auto;
+  background: #fff;
+  color: #181818;
+  border: 1px solid #b8b8b8;
+  border-radius: 0.5rem;
+  box-shadow: 0 8px 24px #0002;
+  max-height: 310px;
+  overflow: auto;
+}
+.fitment-workspace [role="option"] {
+  min-height: 44px;
+  padding: 0.75rem;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+.fitment-workspace [role="option"]:is([data-active="true"], :hover) {
+  background: #f1f1f1;
+}
+.fitment-workspace .fitment-picker-popup :is(button, p) {
+  margin: 0.75rem;
+}
+.fitment-workspace .fitment-state {
+  display: inline-block;
+  padding: 0.3rem 0.65rem;
+  border-radius: 1rem;
+  background: #f0f0ed;
+  color: #242424;
+  font-size: 0.85rem;
+}
+.fitment-workspace .fitment-state[data-state="APPROVED"] {
+  background: #e5f2ea;
+  color: #194b2c;
+}
+.fitment-workspace .fitment-state[data-state="PENDING"] {
+  background: #fff0d3;
+  color: #624207;
+}
+.fitment-workspace .fitment-registry {
+  display: grid;
+  gap: 1rem;
+  border-top: 1px solid var(--border, #d5d5d5);
+  padding-top: 1rem;
+}
+@media (max-width: 640px) {
+  .fitment-workspace :is(.fitment-fields, .fitment-facts) {
+    grid-template-columns: 1fr;
+  }
+  .fitment-workspace .fitment-toolbar > * {
+    width: 100%;
+  }
+}
+.fitment-workspace > header h1 {
+  font-size: clamp(1.65rem, 3vw, 2.25rem);
+}
+.fitment-workspace > header p {
+  max-width: 65ch;
+}
+.fitment-workspace .fitment-access {
+  font-size: 0.9rem;
+}
+.fitment-workspace summary {
+  cursor: pointer;
+  padding: 0.65rem 0;
+  font-weight: 600;
+}
+.fitment-workspace .fitment-product-results {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+.fitment-workspace .fitment-product-choice {
+  width: 100%;
+  min-height: 48px;
+  padding: 0.8rem 1rem;
+  text-align: left;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: #f7fafc;
+  color: #064f70;
+  font-weight: 600;
+}
+.fitment-workspace .fitment-product-choice:hover {
+  background: #eaf3f7;
+}
+.fitment-workspace .fitment-year-range {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  grid-column: 1 / -1;
+}
+.fitment-workspace .fitment-editor-group {
+  margin: 1.5rem 0;
+}
+.fitment-workspace .fitment-editor-group > h3 {
+  border-top: 1px solid var(--border);
+  padding-top: 1rem;
+}
+.fitment-workspace .fitment-evidence-summary {
+  background: #fff8e8;
+  border: 1px solid #bc8b36;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  color: #533e15;
+  margin: 1rem 0;
+}
+.fitment-workspace .fitment-evidence-summary ul {
+  margin-bottom: 0;
+}
+.fitment-workspace .fitment-readiness {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+.fitment-workspace :is(button, summary, a, input, select, textarea):focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
+}
+.fitment-workspace .fitment-fields > .check-label {
+  align-self: start;
+}
+@media (max-width: 390px) {
+  .fitment-workspace .fitment-year-range {
+    grid-template-columns: 1fr;
+  }
+}
+/* Counter inherited field margins inside these deliberately grouped controls. */
+.dashboard .dashboard-content .fitment-workspace .field {
+  margin: 0;
+}
+.dashboard .dashboard-content .fitment-workspace > header {
+  display: grid;
+  gap: 0.6rem;
+}
+.dashboard .dashboard-content .fitment-workspace > header > :is(h1, p) {
+  margin: 0;
+}
+.dashboard .dashboard-content .fitment-workspace > header > button {
+  justify-self: start;
+}
+.dashboard .dashboard-content .fitment-workspace .fitment-fields {
+  gap: 1rem;
+  align-items: start;
+}
+.dashboard .dashboard-content .fitment-workspace .fitment-qualifier {
+  gap: 0.45rem;
+  padding: 0.75rem;
+}
+.dashboard .dashboard-content .fitment-workspace .fitment-qualifier .check-label {
+  margin: 0;
+  padding: 0.4rem 0 0;
+}

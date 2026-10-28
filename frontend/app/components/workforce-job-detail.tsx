@@ -1,4 +1,5 @@
 "use client";
+import { NotificationRecordContext } from "./notification-record-context";
 import { WorkflowProgress } from "./status-progress";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -508,6 +509,9 @@ export function WorkforceJobDetail({
         </section>
       )}
       {busy && <p role="status">Checking job access…</p>}
+      {job && (
+        <NotificationRecordContext resourceType="WORKFORCE_JOB" resourceId={job.id} />
+      )}
       {job && (
         <>
           <WorkflowProgress workflow="booking" status={job.status} />

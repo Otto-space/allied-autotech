@@ -1,4 +1,5 @@
 import { fileURLToPath } from "node:url";
+import { createECDH } from "node:crypto";
 
 import { config } from "dotenv";
 import { z } from "zod";
@@ -88,7 +89,15 @@ const optionalEmail = z.preprocess(
 const environmentSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   DEPLOYMENT_ENV: z.enum(["local", "staging", "production"]).default("local"),
-  PUBLIC_LAUNCH_MODE: z.enum(["full", "browse_enquiries"]).default("full"),
+  PUBLIC_LAUNCH_MODE: z.enum(["full", "browse_enquiries", "catalogue"]).default("full"),
+  HELP_LEARN_ENABLED: booleanValue(false),
+  HELP_LEARN_GUIDES_ENABLED: booleanValue(false),
+  HELP_LEARN_PRACTICE_ENABLED: booleanValue(false),
+  HELP_LEARN_AI_ENABLED: booleanValue(false),
+  OPENAI_API_KEY: optionalNonEmptyString,
+  ALLIE_OPENAI_MODEL: optionalNonEmptyString,
+  ALLIE_AI_DAILY_TOKEN_LIMIT: z.coerce.number().int().min(0).max(10000000).default(0),
+  ALLIE_AI_GLOBAL_CONCURRENCY: z.coerce.number().int().min(1).max(10).default(2),
   CLIENT_IP_SOURCE: z.enum(["socket", "digitalocean"]).default("socket"),
   FRONTEND_PROXY_SECRET: base64Key,
   PRIVATE_TESTING_ENABLED: booleanValue(false),
@@ -188,10 +197,15 @@ const environmentSchema = z.object({
     emailSenderSchema.optional(),
   ),
   RESEND_REPLY_TO_EMAIL: optionalEmail,
+  RESEND_WEBHOOK_SECRET: optionalNonEmptyString,
   DEPARTMENT_INFO_EMAIL: optionalEmail,
   DEPARTMENT_SALES_EMAIL: optionalEmail,
   DEPARTMENT_SUPPORT_EMAIL: optionalEmail,
   EMAIL_DELIVERY_ENABLED: booleanValue(false),
+  PUSH_DELIVERY_ENABLED: booleanValue(false),
+  VAPID_PUBLIC_KEY: optionalNonEmptyString,
+  VAPID_PRIVATE_KEY: optionalNonEmptyString,
+  VAPID_SUBJECT: optionalNonEmptyString,
   SMS_DELIVERY_ENABLED: booleanValue(false),
   STAGING_EMAIL_ALLOWLIST: optionalCommaSeparatedValues,
   STAGING_SMS_ALLOWLIST: optionalCommaSeparatedValues,
@@ -320,6 +334,26 @@ if (!environment.success) {
   );
 }
 
+if (environment.data.PUSH_DELIVERY_ENABLED) {
+  const { VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT } = environment.data;
+  try {
+    if (
+      !VAPID_PUBLIC_KEY ||
+      !VAPID_PRIVATE_KEY ||
+      !VAPID_SUBJECT ||
+      !/^mailto:[^\s@]+@[^\s@]+\.[^\s@]+$/.test(VAPID_SUBJECT)
+    )
+      throw new Error();
+    const key = createECDH("prime256v1");
+    key.setPrivateKey(Buffer.from(VAPID_PRIVATE_KEY, "base64url"));
+    if (key.getPublicKey().toString("base64url") !== VAPID_PUBLIC_KEY) throw new Error();
+  } catch {
+    throw new Error(
+      "Browser push requires matching VAPID keys and a valid mailto contact",
+    );
+  }
+}
+
 const localOnlyKey = (fill: number): string => Buffer.alloc(32, fill).toString("base64");
 
 export const env = {
@@ -396,6 +430,7 @@ export function assertApiEnvironment(
   source: NodeJS.ProcessEnv = process.env,
 ): void {
   assertPublicLaunchEnvironment(runtime);
+  assertAllieEnvironment(runtime, source);
   if (runtime.CLIENT_IP_SOURCE === "digitalocean" && !runtime.FRONTEND_PROXY_SECRET)
     throw new Error("Verified frontend forwarding requires FRONTEND_PROXY_SECRET.");
   if (
@@ -473,9 +508,39 @@ export function assertApiEnvironment(
   }
 }
 
+export function assertAllieEnvironment(
+  runtime: typeof env = env,
+  source: NodeJS.ProcessEnv = process.env,
+): void {
+  if (!runtime.HELP_LEARN_AI_ENABLED) return;
+  if (
+    !runtime.HELP_LEARN_ENABLED ||
+    !runtime.OPENAI_API_KEY ||
+    !/^\S{20,1000}$/.test(runtime.OPENAI_API_KEY) ||
+    !runtime.ALLIE_OPENAI_MODEL ||
+    !/^[a-zA-Z0-9][a-zA-Z0-9._:-]{0,119}$/.test(runtime.ALLIE_OPENAI_MODEL) ||
+    runtime.ALLIE_AI_DAILY_TOKEN_LIMIT < 32000
+  )
+    throw new Error(
+      "Allie requires enabled reviewed learning, server-only provider settings and an explicit daily token reservation limit of at least 32000.",
+    );
+  if (runtime.NODE_ENV === "production")
+    requireConfiguredVariables(
+      "Allie",
+      [
+        "OPENAI_API_KEY",
+        "ALLIE_OPENAI_MODEL",
+        "ALLIE_AI_DAILY_TOKEN_LIMIT",
+        "OUTBOX_ENCRYPTION_KEY",
+        "TOKEN_HASH_KEY",
+      ],
+      source,
+    );
+}
+
 export function assertPublicLaunchEnvironment(runtime: typeof env = env): void {
   if (
-    runtime.PUBLIC_LAUNCH_MODE === "browse_enquiries" &&
+    runtime.PUBLIC_LAUNCH_MODE !== "full" &&
     (runtime.PAYSTACK_MODE !== "disabled" ||
       runtime.MONNIFY_MODE !== "disabled" ||
       runtime.PAYSTACK_LIVE_ENABLED ||
@@ -483,7 +548,7 @@ export function assertPublicLaunchEnvironment(runtime: typeof env = env): void {
       runtime.PAYMENT_RECONCILIATION_ENABLED)
   )
     throw new Error(
-      "Browsing/enquiries launch requires disabled payment providers and reconciliation.",
+      "Limited public launch requires disabled payment providers and reconciliation.",
     );
 }
 

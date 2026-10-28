@@ -87,7 +87,12 @@ export function SupportStaffActions({
           });
         }
       },
-      title: "Apply this support change?",
+      title:
+        values.action === "status"
+          ? "Confirm this status change?"
+          : values.action === "assignment"
+            ? "Confirm this assignment change?"
+            : "Confirm this priority change?",
       description:
         values.action === "status"
           ? "The status change and any resolution text produce one customer update. Do not send the same resolution again through Reply. Check Customer email delivery after saving. Closing prevents further replies from both customers and staff; no reopening action is available here."
@@ -105,7 +110,7 @@ export function SupportStaffActions({
               : values.selection.toLowerCase().replaceAll("_", " "),
         },
         ...(values.action === "status" && values.note
-          ? [{ label: "Customer-visible response", value: values.note }]
+          ? [{ label: "Status update explanation", value: values.note }]
           : []),
       ],
       onUncertain,
@@ -244,9 +249,7 @@ export function SupportStaffActions({
           )}
           {action === "status" && (
             <div className="field">
-              <label htmlFor="support-resolution">
-                Customer-visible response or resolution
-              </label>
+              <label htmlFor="support-resolution">Status update explanation</label>
               <textarea
                 id="support-resolution"
                 maxLength={4000}
@@ -255,20 +258,28 @@ export function SupportStaffActions({
                 aria-invalid={!!form.formState.errors.note}
                 aria-describedby="support-resolution-error"
               />
-              <p>Required when resolving. This text will be added to the conversation.</p>
+              <p>
+                Required when resolving. This explanation appears with the status update
+                in the customer?s conversation.
+              </p>
               <p id="support-resolution-error" className="field-error">
                 {form.formState.errors.note?.message}
               </p>
             </div>
           )}
           <button type="submit" className="button">
-            Review support change
+            {action === "status"
+              ? "Review status change"
+              : action === "assignment"
+                ? "Review assignment change"
+                : "Review priority change"}
           </button>
         </fieldset>
       </form>
       {proposal && (
         <MutationReview
           proposal={proposal}
+          confirmLabel={`Confirm ${proposal.supportChange?.kind ?? "support"} change`}
           onClose={() => setProposal(null)}
           onSuccess={onSaved}
         />

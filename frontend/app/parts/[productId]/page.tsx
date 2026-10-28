@@ -1,6 +1,16 @@
+import { normalizeProductQuery } from "@/lib/product-discovery";
+import {
+  partsEnquiryHref,
+  productFitmentHref,
+  fitmentLabels,
+  fitmentQualifierKeys,
+} from "@/lib/parts-fitment";
+import { ProductFitmentCheck } from "../../components/product-fitment-check";
+import { packVolumeLabel, productTypeLabel } from "@/lib/product-family";
 import { browseEnquiriesOnly } from "@/lib/public-launch";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { productAvailability } from "@/lib/product-availability";
 import { cache, Suspense } from "react";
 import { headers } from "next/headers";
 import {
@@ -9,7 +19,6 @@ import {
   ChevronDown,
   ChevronRight,
   MapPin,
-  MessageCircle,
   Package,
 } from "lucide-react";
 import { notFound, unstable_rethrow } from "next/navigation";
@@ -134,7 +143,15 @@ export default async function ProductPage({
   searchParams: SearchParameters;
 }) {
   const product = await getProduct((await params).productId);
+  const selectedQuery = normalizeProductQuery(
+    new URLSearchParams(
+      Object.entries(await searchParams).flatMap(([key, value]) =>
+        typeof value === "string" ? [[key, value]] : [],
+      ),
+    ),
+  ).params;
   const available = product.availability.some((item) => item.inStock);
+  const enquiriesOnly = browseEnquiriesOnly();
   const compare =
     product.compareAtPriceKobo &&
     BigInt(product.compareAtPriceKobo) > BigInt(product.priceKobo)
@@ -191,6 +208,32 @@ export default async function ProductPage({
         }
       : null;
   const specs = {
+    ...(product.family === "ENGINE_OIL"
+      ? {
+          "Viscosity grade": product.oilViscosityGrade || "Not recorded",
+          "Pack volume": product.packVolumeMl
+            ? packVolumeLabel(product.packVolumeMl)
+            : "Not recorded",
+        }
+      : {
+          Condition:
+            product.condition === "NEW"
+              ? "New"
+              : product.condition === "USED"
+                ? "Used"
+                : product.condition === "REFURBISHED"
+                  ? "Refurbished"
+                  : "Not recorded",
+          Classification:
+            product.classification === "GENUINE_OEM"
+              ? "Genuine OEM"
+              : product.classification === "AFTERMARKET"
+                ? "Aftermarket"
+                : "Not recorded",
+        }),
+    "Product type": product.productType
+      ? productTypeLabel(product.productType)
+      : "Not listed",
     Brand: product.brand || "Not listed",
     Category: product.category.name,
     SKU: product.sku,
@@ -246,7 +289,7 @@ export default async function ProductPage({
             <a href="#product-overview">Overview</a>
             <a href="#product-information">Product information</a>
             <a href="#product-compatibility">Compatibility</a>
-            <a href="#product-delivery">Delivery</a>
+            <a href="#product-delivery">Collection</a>
           </nav>
           <div className="pd-top-grid">
             <div className="pd-gallery-frame" id="product-overview">
@@ -268,7 +311,7 @@ export default async function ProductPage({
                 ))}
               </dl>
             </div>
-            <section className="pd-purchase" aria-label="Price and ordering">
+            <section className="pd-purchase" aria-label="Price and availability">
               <div className="pd-price-row">
                 <strong>{formatKobo(product.priceKobo)}</strong>
                 {compare && (
@@ -297,11 +340,15 @@ export default async function ProductPage({
                     ))}
                   </ul>
                 ) : (
-                  <p>Availability has not been listed. Contact our team to check.</p>
+                  <p>
+                    {productAvailability(product.availability).label}. Contact our team to
+                    check.
+                  </p>
                 )}
                 {!available && !!product.availability.length && (
                   <p>
-                    Currently unavailable. Save this product or contact our team for help.
+                    {productAvailability(product.availability).label}. Contact our team
+                    for help.
                   </p>
                 )}
               </section>
@@ -310,17 +357,11 @@ export default async function ProductPage({
                 productId={product.id}
                 productName={product.name}
                 available={available}
+                enquiryHref={partsEnquiryHref(selectedQuery, product.id)}
+                returnHref={productFitmentHref(product.id, selectedQuery)}
               />
             </section>
           </div>
-          <aside className="pd-assistance">
-            <MessageCircle size={28} aria-hidden="true" />
-            <h2>Need help choosing the right part?</h2>
-            <p>Check the part number and compatibility before ordering.</p>
-            <Link href="/contact#enquiry">
-              Ask our team <ArrowRight size={17} aria-hidden="true" />
-            </Link>
-          </aside>
           <div className="pd-details-grid">
             <section id="product-information" aria-labelledby="pd-info-title">
               <h2 id="pd-info-title">Product information</h2>
@@ -343,9 +384,12 @@ export default async function ProductPage({
               aria-labelledby="pd-compatibility-title"
             >
               <h2 id="pd-compatibility-title">Vehicle compatibility</h2>
+              <Suspense fallback={<p>Preparing fitment check...</p>}>
+                <ProductFitmentCheck productId={product.id} />
+              </Suspense>
               <p>
-                Match your make, model and year. Confirm fitment with our team before
-                ordering.
+                Check the vehicle and product details below. Our team can help confirm
+                suitability for your vehicle.
               </p>
               {product.compatibilities.length ? (
                 <ul>
@@ -353,32 +397,52 @@ export default async function ProductPage({
                     <li key={item.id}>
                       <div>
                         <h3>
-                          {item.make}
-                          {item.model ? ` ${item.model}` : " (model not listed)"}
+                          {item.scope === "UNIVERSAL"
+                            ? "Universal accessory"
+                            : `${item.make}${item.model ? ` ${item.model}` : " (model not listed)"}`}
                         </h3>
                         <span>
-                          {item.yearFrom != null && item.yearTo != null
-                            ? `${item.yearFrom}–${item.yearTo}`
-                            : item.yearFrom != null
-                              ? `From ${item.yearFrom}`
-                              : item.yearTo != null
-                                ? `Up to ${item.yearTo}`
-                                : "Years not listed"}
+                          {item.scope === "UNIVERSAL"
+                            ? "Not vehicle-specific"
+                            : item.yearFrom != null && item.yearTo != null
+                              ? `${item.yearFrom}–${item.yearTo}`
+                              : item.yearFrom != null
+                                ? `From ${item.yearFrom}`
+                                : item.yearTo != null
+                                  ? `Up to ${item.yearTo}`
+                                  : "Years not listed"}
                         </span>
                       </div>
                       {item.notes && <p>{item.notes}</p>}
+                      <dl className="pd-fitment-qualifiers">
+                        {fitmentQualifierKeys
+                          .filter((key) => item[key])
+                          .map((key) => (
+                            <div key={key}>
+                              <dt>{fitmentLabels[key]}</dt>
+                              <dd>{item[key]}</dd>
+                            </div>
+                          ))}
+                      </dl>
+                      {!!item.requiredQualifiers?.length && (
+                        <p>
+                          Confirm:{" "}
+                          {item.requiredQualifiers
+                            .map((key) => fitmentLabels[key])
+                            .join(", ")}
+                          .
+                        </p>
+                      )}
                     </li>
                   ))}
                 </ul>
               ) : (
                 <p className="pd-empty">
                   Compatibility has not been listed. Confirm the product is suitable for
-                  your vehicle with our team before ordering.
+                  your vehicle with our team before{" "}
+                  {enquiriesOnly ? "requesting it" : "ordering"}.
                 </p>
               )}
-              <Link className="pd-link" href="/contact#enquiry">
-                Ask about compatibility <ArrowRight size={17} aria-hidden="true" />
-              </Link>
             </section>
           </div>
           <section
@@ -387,25 +451,25 @@ export default async function ProductPage({
             aria-labelledby="pd-ordering-title"
           >
             <div>
-              <h2 id="pd-ordering-title">Delivery and ordering</h2>
+              <h2 id="pd-ordering-title">
+                {enquiriesOnly ? "Enquire and collect" : "Collection and ordering"}
+              </h2>
               <ol className="pd-ordering-steps">
                 <li>
                   <span aria-hidden="true">01</span>
                   <div>
                     <h3>Check the fit</h3>
-                    <p>Match the part number and your vehicle before ordering.</p>
+                    <p>Match the part number and your vehicle before proceeding.</p>
                   </div>
                 </li>
                 <li>
                   <span aria-hidden="true">02</span>
                   <div>
                     <h3>
-                      {browseEnquiriesOnly()
-                        ? "Ask about availability"
-                        : "Review your cart"}
+                      {enquiriesOnly ? "Ask about availability" : "Review your cart"}
                     </h3>
                     <p>
-                      {browseEnquiriesOnly()
+                      {enquiriesOnly
                         ? "Tell our team which part and quantity you need."
                         : "Save the total quantity you need. Cart items do not reserve stock."}
                     </p>
@@ -415,29 +479,29 @@ export default async function ProductPage({
                   <span aria-hidden="true">03</span>
                   <div>
                     <h3>
-                      {browseEnquiriesOnly()
-                        ? "Discuss collection or delivery"
-                        : "Choose fulfilment"}
+                      {enquiriesOnly ? "Agree collection details" : "Confirm collection"}
                     </h3>
                     <p>
-                      {browseEnquiriesOnly()
-                        ? "Our team will confirm the available options and charges."
-                        : "Review collection or available delivery options at checkout."}
+                      {enquiriesOnly
+                        ? "Visit only after our team confirms availability and collection arrangements. Delivery is unavailable."
+                        : "Follow the collection details confirmed with your order. Delivery is unavailable."}
                     </p>
                   </div>
                 </li>
               </ol>
             </div>
             <div className="pd-ordering-faq">
-              <h3>Before you order</h3>
+              <h3>{enquiriesOnly ? "Before you visit" : "Before you order"}</h3>
               <details>
                 <summary>
-                  Where can I collect my order?
+                  {enquiriesOnly
+                    ? "Where can I collect this product?"
+                    : "Where can I collect my order?"}
                   <ChevronDown size={18} aria-hidden="true" />
                 </summary>
                 <p>
                   {business.address}.{" "}
-                  {browseEnquiriesOnly()
+                  {enquiriesOnly
                     ? "Contact our team before visiting to confirm availability and collection arrangements."
                     : "Follow the collection instructions in your order before visiting."}
                 </p>
@@ -448,12 +512,15 @@ export default async function ProductPage({
                   <ChevronDown size={18} aria-hidden="true" />
                 </summary>
                 <p>
-                  {browseEnquiriesOnly()
-                    ? "Contact our team to confirm whether delivery is available to your area and request the delivery charge."
-                    : "Checkout shows the currently available delivery areas and charges. If your area is not listed, contact our team for help."}
+                  {enquiriesOnly
+                    ? "We currently offer workshop collection only. Confirm availability with our team before visiting."
+                    : "Orders are collection only. We do not offer delivery."}
                 </p>
-                <Link className="pd-link" href="/contact#enquiry">
-                  Ask about delivery <ArrowRight size={17} aria-hidden="true" />
+                <Link
+                  className="pd-link"
+                  href={partsEnquiryHref(selectedQuery, product.id)}
+                >
+                  Ask about collection <ArrowRight size={17} aria-hidden="true" />
                 </Link>
               </details>
             </div>

@@ -1,6 +1,13 @@
+import {
+  workforceCareContactSelect,
+  projectWorkforceEnquiryContact,
+} from "./workforce-care-contact.js";
 import type { Prisma } from "../../generated/prisma/client.js";
+import type { AuthenticatedActor } from "../../common/contracts/actor.js";
 import type { WorkforceSnapshot } from "./workforce.policy.js";
-import { workforceNotFound } from "./workforce.policy.js";
+import { workforceNotFound, workforceSnapshot } from "./workforce.policy.js";
+import { enquiryScope } from "./workforce-enquiry-scope.js";
+import { careBranchesFor } from "./workforce-care-scope.js";
 
 export const workforceEnquirySelect = {
   id: true,
@@ -8,6 +15,7 @@ export const workforceEnquirySelect = {
   subject: true,
   message: true,
   type: true,
+  vehicleEnquiryIntent: true,
   status: true,
   version: true,
   assignedStaffId: true,
@@ -46,22 +54,34 @@ export async function latestEnquiryMessage(
 
 export async function readWorkforceEnquiry(
   tx: Prisma.TransactionClient,
+  actor: AuthenticatedActor,
   access: WorkforceSnapshot,
   id: string,
-  scope: Prisma.EnquiryWhereInput,
-  query: { limit: number; cursor?: string | undefined },
+  query: { limit: number; cursor?: string | undefined; messageId?: string | undefined },
 ) {
+  const visible = await tx.enquiry.findFirst({
+    where: { AND: [{ id }, enquiryScope(access)] },
+    select: { id: true },
+  });
+  if (!visible) workforceNotFound();
   // Customer and staff message writers lock this parent row. Read the record,
   // latest-message precondition and history page from one consistent revision.
   await tx.$queryRaw`SELECT "id" FROM "Enquiry" WHERE "id" = ${id}::uuid FOR SHARE`;
+  // Explicit access changes are serialised by the caller's workforce/actor locks,
+  // but an assignment can naturally expire while this record lock is waiting.
+  const current = await workforceSnapshot(tx, actor);
   const row = await tx.enquiry.findFirst({
-    where: { AND: [{ id }, scope] },
-    select: workforceEnquirySelect,
+    where: { AND: [{ id }, enquiryScope(current)] },
+    select: {
+      ...workforceEnquirySelect,
+      ...(careBranchesFor(current, "ENQUIRY").length ? workforceCareContactSelect : {}),
+    },
   });
   if (!row) workforceNotFound();
-  if (query.cursor) {
+  const anchor = query.messageId ?? query.cursor;
+  if (anchor) {
     const cursor = await tx.supportMessage.findFirst({
-      where: { id: query.cursor, enquiryId: id, visibility: "CUSTOMER" },
+      where: { id: anchor, enquiryId: id, visibility: "CUSTOMER" },
       select: { id: true },
     });
     if (!cursor) workforceNotFound();
@@ -71,9 +91,12 @@ export async function readWorkforceEnquiry(
     where: { enquiryId: id, visibility: "CUSTOMER" },
     orderBy: [{ createdAt: "desc" }, { id: "desc" }],
     take: query.limit + 1,
-    ...(query.cursor ? { cursor: { id: query.cursor }, skip: 1 } : {}),
+    ...(anchor ? { cursor: { id: anchor }, skip: query.messageId ? 0 : 1 } : {}),
     select: {
       id: true,
+      kind: true,
+      fromStatus: true,
+      toStatus: true,
       authorType: true,
       authorUserId: true,
       visibility: true,
@@ -85,14 +108,22 @@ export async function readWorkforceEnquiry(
     ...message,
     isOwn: authorUserId === access.userId,
   }));
+  const finalAccess = await workforceSnapshot(tx, actor);
+  if (
+    !(await tx.enquiry.findFirst({
+      where: { AND: [{ id }, enquiryScope(finalAccess)] },
+      select: { id: true },
+    }))
+  )
+    workforceNotFound();
   return {
-    ...row,
+    ...projectWorkforceEnquiryContact(row, finalAccess),
     latestMessageId: latest?.id ?? null,
     messages: {
       items,
       ...(messages.length > query.limit ? { nextCursor: items.at(-1)!.id } : {}),
     },
-    access,
+    access: finalAccess,
     generatedAt: new Date().toISOString(),
   };
 }

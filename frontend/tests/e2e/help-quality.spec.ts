@@ -120,7 +120,7 @@ test("every category and multiword search uses the complete article collection",
   await page.getByLabel("Search help topics").fill("Payments");
   await expect(page.locator(".help-answers details")).toHaveCount(1);
   await expect(page.locator(".help-answers summary")).toHaveText(
-    "My payment is not confirmed. What should I do?",
+    faqs.find((faq) => faq.id === "pending-payments")!.question,
   );
   await page.getByLabel("Search help topics").fill("  BOOK appointment ");
   await expect(page.locator(".help-answers details")).toHaveCount(1);
@@ -154,7 +154,7 @@ test("search and category survive reload, article return and history traversal",
   await topic(page, "Quotations");
   await page.goBack();
   await expect(page.locator(".help-answers summary")).toHaveText(
-    "My payment is not confirmed. What should I do?",
+    faqs.find((faq) => faq.id === "pending-payments")!.question,
   );
   await page.goForward();
   await expect(page.locator(".help-answers summary")).toHaveText(
@@ -280,8 +280,12 @@ test("server-rendered search and topic selection work without JavaScript", async
     await page.goto("/help");
     await page.getByLabel("Search help topics").fill("MFA");
     await page.getByRole("button", { name: "Search", exact: true }).click();
-    await expect(page.locator(".help-answers details")).toHaveCount(1);
-    await page.locator("summary").click();
+    // Both setup and lost-authenticator recovery are published MFA articles.
+    await expect(page.locator(".help-answers summary")).toHaveText([
+      faqs.find((faq) => faq.id === "account-security")!.question,
+      faqs.find((faq) => faq.id === "lost-authenticator")!.question,
+    ]);
+    await page.locator(".help-answers summary").first().click();
     await expect(
       page.getByRole("link", { name: "Read article", exact: false }),
     ).toBeVisible();
@@ -290,7 +294,7 @@ test("server-rendered search and topic selection work without JavaScript", async
     await page.getByLabel("Browse by topic", { exact: true }).selectOption("Payments");
     await page.getByRole("button", { name: "Apply topic" }).click();
     await expect(page.locator(".help-answers summary")).toHaveText(
-      "My payment is not confirmed. What should I do?",
+      faqs.find((faq) => faq.id === "pending-payments")!.question,
     );
     await page.getByRole("button", { name: "Clear search", exact: true }).click();
     await expect(page.locator(".help-answers details")).toHaveCount(faqs.length);

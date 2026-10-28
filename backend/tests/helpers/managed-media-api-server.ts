@@ -41,14 +41,14 @@ if (
   process.env.RUN_DATABASE_TESTS !== "true" ||
   env.NODE_ENV !== "test" ||
   env.DB_HOST !== "127.0.0.1" ||
-  !env.DB_NAME.endsWith("_test") ||
+  !/_(?:test|ci)$/.test(env.DB_NAME) ||
   env.EMAIL_DELIVERY_ENABLED ||
   env.SMS_DELIVERY_ENABLED ||
   env.PAYSTACK_MODE !== "disabled" ||
   env.MONNIFY_MODE !== "disabled"
 ) {
   throw new Error(
-    "Managed media browser tests require explicit opt-in, a loopback _test database and disabled providers.",
+    "Managed media browser tests require explicit opt-in, an isolated loopback _test/_ci database and disabled providers.",
   );
 }
 if (!env.FRONTEND_URL.includes("http://localhost:3011"))
@@ -220,9 +220,12 @@ const stockService = new VehiclesService(
 router.use("/staff/vehicles", createStaffVehiclesRouter(stockService));
 router.use("/public/vehicles", createPublicVehiclesRouter(stockService));
 router.use(createApiRouter({ checkReadiness: async () => undefined }));
-const server = createApp({ apiRouter: router }).listen(5011, "127.0.0.1", () => {
+const port = Number(process.env.BG_MEDIA_PORT ?? 5011);
+if (!Number.isInteger(port) || port < 1024 || port > 65535)
+  throw new Error("Invalid isolated media API port");
+const server = createApp({ apiRouter: router }).listen(port, "127.0.0.1", () => {
   process.stdout.write(
-    `Managed media test API ready on 127.0.0.1:5011. Synthetic fixture file: ${fixturePath}\n`,
+    `Managed media test API ready on 127.0.0.1:${port}. Synthetic fixture file: ${fixturePath}\n`,
   );
 });
 const stop = () =>

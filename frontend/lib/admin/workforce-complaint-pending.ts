@@ -5,7 +5,7 @@ const schema = z
   .object({
     token: z.uuid(),
     id: z.uuid(),
-    action: z.literal("reply"),
+    action: z.enum(["reply", "assignment"]),
     version: z.number().int().min(0),
     fingerprint: z.string().regex(/^[a-f0-9]{64}$/),
   })
@@ -28,7 +28,7 @@ export function readWorkforceComplaintPending(
 }
 export async function markWorkforceComplaintPending(
   owner: string,
-  target: { id: string; action: "reply"; version: number },
+  target: { id: string; action: "reply" | "assignment"; version: number },
   body: unknown,
 ) {
   identity(owner);

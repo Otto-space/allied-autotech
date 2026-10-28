@@ -1,8 +1,9 @@
 "use client";
+import "./care-workspace.css";
 import Link from "next/link";
 import { useCallback, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ChevronRight, RefreshCw } from "lucide-react";
+import { ChevronRight, RefreshCw, X } from "lucide-react";
 import { useResource } from "@/lib/api/use-resource";
 import {
   customerDefaults,
@@ -11,9 +12,12 @@ import {
   parseWorkCustomers,
   type WorkCustomer,
 } from "@/lib/admin/work-customers";
-import { formatStockInstant } from "@/lib/admin/work-vehicle-detail";
+import { CopyableValue } from "./copyable-value";
+import { CustomerAccountAction } from "./customer-account-action";
+import { StatusBadge } from "./status-progress";
 import { useAccountSession, useOwnStaffPermissions } from "./dashboard-shell";
 import { Feedback } from "./feedback";
+
 export function WorkCustomers() {
   const session = useAccountSession();
   if (!session) return null;
@@ -124,9 +128,48 @@ function CustomerWorkspace() {
       ) : (
         <>
           <CustomerFilters key={filters.toString()} params={filters} busy={busy} />
+          <div
+            className="wc-applied-filters"
+            role="group"
+            aria-label="Applied customer filters"
+          >
+            {["search", "status", "verified"]
+              .filter((key) => filters.has(key))
+              .map((key) => {
+                const title =
+                  key === "search"
+                    ? "Customer search"
+                    : key === "status"
+                      ? `Status: ${filters.get(key)!.toLowerCase()}`
+                      : `Email: ${filters.get(key) === "true" ? "verified" : "not verified"}`;
+                return (
+                  <button
+                    type="button"
+                    className="button secondary"
+                    key={key}
+                    disabled={busy}
+                    aria-label={`Remove ${title}`}
+                    onClick={() => {
+                      const next = new URLSearchParams(filters);
+                      next.delete(key);
+                      if (key === "search") next.delete("field");
+                      navigate(next);
+                      document
+                        .getElementById("wc-records")
+                        ?.focus({ preventScroll: true });
+                    }}
+                  >
+                    {title}
+                    <X size={14} aria-hidden="true" />
+                  </button>
+                );
+              })}
+          </div>
           <section aria-labelledby="wc-records">
             <div className="wi-band">
-              <h2 id="wc-records">Customer records</h2>
+              <h2 id="wc-records" tabIndex={-1}>
+                Customer records
+              </h2>
               {data && (
                 <span>
                   {data.items.length} {data.items.length === 1 ? "customer" : "customers"}{" "}
@@ -172,10 +215,91 @@ function CustomerWorkspace() {
                 </p>
               </div>
             )}
-            <div className="wc-records">
-              {data?.items.map((r) => (
-                <CustomerRecord key={r.id} customer={r} />
-              ))}
+            <div
+              className="wc-records care-table-region"
+              role="region"
+              aria-label="Customer results"
+              tabIndex={0}
+              onFocusCapture={(event) => {
+                const region = event.currentTarget;
+                const target = event.target;
+                if (target === region || !(target instanceof HTMLElement)) return;
+                // Keep keyboard focus clear of the pinned identity column and
+                // clipped edges, including browsers that only reveal part of a cell.
+                const bounds = region.getBoundingClientRect();
+                const cell = target.closest("th, td");
+                const identity = cell?.parentElement?.firstElementChild;
+                const pinned =
+                  identity instanceof HTMLElement &&
+                  identity !== cell &&
+                  getComputedStyle(identity).position === "sticky";
+                const left = pinned
+                  ? identity.getBoundingClientRect().right + 8
+                  : bounds.left + 8;
+                const right = bounds.right - 8;
+                const focused = target.getBoundingClientRect();
+                if (focused.right > right) region.scrollLeft += focused.right - right;
+                else if (focused.left < left) region.scrollLeft -= left - focused.left;
+              }}
+            >
+              <table className="care-table">
+                <colgroup>
+                  <col className="care-customer-col" />
+                  <col className="care-email-col" />
+                  <col className="care-phone-col" />
+                  <col className="care-status-col" />
+                  <col className="care-joined-col" />
+                  <col className="care-action-col" />
+                </colgroup>
+                <caption className="sr-only">Customers on this page</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Customer</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Phone</th>
+                    <th scope="col">Account status</th>
+                    <th
+                      scope="col"
+                      aria-sort={
+                        query.params.get("sort") === "oldest" ? "ascending" : "descending"
+                      }
+                    >
+                      <button
+                        type="button"
+                        className="care-sort"
+                        disabled={busy}
+                        aria-label={
+                          query.params.get("sort") === "oldest"
+                            ? "Sort joined newest first"
+                            : "Sort joined oldest first"
+                        }
+                        onClick={() => {
+                          const next = new URLSearchParams(filters);
+                          next.set(
+                            "sort",
+                            query.params.get("sort") === "oldest" ? "newest" : "oldest",
+                          );
+                          navigate(next);
+                        }}
+                      >
+                        Joined {query.params.get("sort") === "oldest" ? "↑" : "↓"}
+                      </button>
+                    </th>
+                    <th scope="col">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data?.items.map((r) => (
+                    <CustomerRecord
+                      key={r.id}
+                      customer={r}
+                      returnParams={query.params.toString()}
+                      disabled={blocked}
+                      onChanged={records.refresh}
+                    />
+                  ))}
+                </tbody>
+              </table>
             </div>
             <nav className="wi-pagination" aria-label="Customers pages">
               <button
@@ -246,19 +370,37 @@ function CustomerFilters({ params, busy }: { params: URLSearchParams; busy: bool
     >
       <fieldset disabled={busy}>
         <legend className="sr-only">Customer filters</legend>
+
         <div className="wi-filter-grid wc-filter-grid">
           <div className="field wc-search">
             <label htmlFor="customer-search">Search customers</label>
             <input
               id="customer-search"
+              type="search"
+              inputMode={
+                draft.field === "phone"
+                  ? "tel"
+                  : draft.field === "email"
+                    ? "email"
+                    : "text"
+              }
               value={draft.search}
               maxLength={120}
-              aria-describedby="wc-search-hint"
+              aria-describedby={
+                error ? "wc-search-hint wc-search-error" : "wc-search-hint"
+              }
               aria-invalid={!!error}
-              onChange={(e) => setDraft({ ...draft, search: e.target.value })}
+              onChange={(e) => {
+                setDraft({ ...draft, search: e.target.value });
+                setError("");
+              }}
             />
             <p id="wc-search-hint" className="field-hint">
-              Name, email or phone prefix; use a complete customer ID.
+              {draft.field === "id"
+                ? "Paste the complete customer ID; partial IDs cannot be searched."
+                : draft.field === "phone"
+                  ? "Start with at least 3 phone digits, including the country code when recorded."
+                  : `Enter at least 2 characters from the start of the ${draft.field}. Search is not case-sensitive.`}
             </p>
           </div>
           {(
@@ -318,7 +460,9 @@ function CustomerFilters({ params, busy }: { params: URLSearchParams; busy: bool
             </div>
           ))}
         </div>
-        <Feedback message={error} />
+        <div id="wc-search-error">
+          <Feedback message={error} />
+        </div>
         <div className="wi-filter-actions">
           <button className="button" type="submit">
             Search customers
@@ -339,62 +483,66 @@ function CustomerFilters({ params, busy }: { params: URLSearchParams; busy: bool
     </form>
   );
 }
-function CustomerRecord({ customer: r }: { customer: WorkCustomer }) {
-  const name = `${r.firstName} ${r.lastName}`.trim() || "Unnamed customer";
+function CustomerRecord({
+  customer: r,
+  returnParams,
+  disabled,
+  onChanged,
+}: {
+  customer: WorkCustomer;
+  returnParams: string;
+  disabled: boolean;
+  onChanged: () => void;
+}) {
+  const session = useAccountSession();
+  const name = (r.firstName + " " + r.lastName).trim() || "Unnamed customer",
+    href = "/admin/customers/" + r.id;
+  function remember() {
+    try {
+      sessionStorage.setItem(
+        `aat:customer-return:${session?.user.id}`,
+        JSON.stringify({ id: r.id, params: returnParams }),
+      );
+    } catch {}
+  }
   return (
-    <article className="wc-record" aria-labelledby={`wc-${r.id}`}>
-      <div className="wc-person">
-        <span className="wc-avatar" aria-hidden="true">
-          {r.firstName[0]}
-          {r.lastName[0]}
-        </span>
-        <div>
-          <h3 id={`wc-${r.id}`}>
-            <Link className="text-link" href={`/admin/customers/${r.id}`}>
-              {name}
-            </Link>
-          </h3>
-          <p className="wc-reference">Profile reference: {r.id}</p>
+    <tr className="wc-record">
+      <td>
+        <Link className="text-link" href={href} onClick={remember}>
+          {name}
+        </Link>
+      </td>
+      <td>
+        <CopyableValue value={r.email} label="Copy customer email" />
+      </td>
+      <td>
+        <CopyableValue value={r.phone} label="Copy customer phone" />
+      </td>
+      <td>
+        <StatusBadge status={r.status} />
+      </td>
+      <td>
+        <time dateTime={r.createdAt} title={new Date(r.createdAt).toISOString()}>
+          {new Intl.DateTimeFormat("en-NG", {
+            dateStyle: "medium",
+            timeZone: "Africa/Lagos",
+          }).format(new Date(r.createdAt))}
+        </time>
+      </td>
+      <td>
+        <div className="care-row-controls">
+          <Link className="text-link" href={href} onClick={remember}>
+            View details <ChevronRight size={14} aria-hidden="true" />
+            <span className="sr-only"> for {name}</span>
+          </Link>
+          <CustomerAccountAction
+            customer={r}
+            disabled={disabled}
+            onChanged={onChanged}
+            compact
+          />
         </div>
-      </div>
-      <dl>
-        <div>
-          <dt>Email</dt>
-          <dd>{r.email || "Not recorded"}</dd>
-        </div>
-        <div>
-          <dt>Phone</dt>
-          <dd>{r.phone || "Not recorded"}</dd>
-        </div>
-      </dl>
-      <dl>
-        <div>
-          <dt>Account status</dt>
-          <dd>
-            <span className="status" data-status={r.status}>
-              {
-                { ACTIVE: "Active", SUSPENDED: "Suspended", DEACTIVATED: "Deactivated" }[
-                  r.status
-                ]
-              }
-            </span>
-          </dd>
-        </div>
-        <div>
-          <dt>Email verification</dt>
-          <dd>{r.emailVerified ? "Verified" : "Not verified"}</dd>
-        </div>
-        <div>
-          <dt>Phone verification</dt>
-          <dd>{r.phoneVerified ? "Verified" : "Not verified"}</dd>
-        </div>
-      </dl>
-      <dl>
-        <div>
-          <dt>Registered</dt>
-          <dd>{formatStockInstant(r.createdAt)}</dd>
-        </div>
-      </dl>
-    </article>
+      </td>
+    </tr>
   );
 }

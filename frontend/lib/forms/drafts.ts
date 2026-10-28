@@ -2,6 +2,7 @@
 
 export const DRAFT_IDENTITY_CHANGED = "aat:draft-identity";
 export const DRAFT_SAVED = "aat:draft-submitted";
+export const DRAFT_STORAGE_FAILED = "aat:draft-storage-failed";
 const PREFIX = "aat:form-draft:v1:";
 let identity: string | null = null;
 type Submission = { key: string; snapshot: string };
@@ -23,7 +24,8 @@ export function clearAccountDrafts() {
   if (typeof window === "undefined") return;
   try {
     for (const key of Object.keys(sessionStorage))
-      if (key.startsWith(PREFIX)) sessionStorage.removeItem(key);
+      if (key.startsWith(PREFIX) || key.startsWith("aat:catalogue-drafts:v1:"))
+        sessionStorage.removeItem(key);
   } catch {
     /* Storage can be disabled by the browser. */
   }
@@ -33,6 +35,33 @@ export function clearAccountDrafts() {
 
 export function draftKey(owner: string, path: string, form: string) {
   return `${PREFIX}${JSON.stringify([owner, path, form])}`;
+}
+export function clearWorkforceDrafts(userId: string) {
+  if (typeof window === "undefined") return;
+  try {
+    for (const key of Object.keys(sessionStorage)) {
+      if (!key.startsWith(PREFIX)) continue;
+      let parts: unknown;
+      try {
+        parts = JSON.parse(key.slice(PREFIX.length));
+      } catch {
+        continue;
+      }
+      if (
+        !Array.isArray(parts) ||
+        typeof parts[0] !== "string" ||
+        typeof parts[1] !== "string"
+      )
+        continue;
+      const [owner, path] = parts as [string, string];
+      if (!owner.startsWith(`${userId}:`) || !path.startsWith("/admin/")) continue;
+      if (path === "/admin/security" || path === "/admin/notifications") continue;
+      sessionStorage.removeItem(key);
+      if (submission?.key === key) submission = null;
+    }
+  } catch {
+    /* A storage failure never becomes an operational fallback. */
+  }
 }
 
 export type DraftValue = string | boolean | string[];
@@ -61,10 +90,16 @@ export function readDraft(key: string): DraftFields {
 export function writeDraft(key: string, fields: DraftFields) {
   try {
     const serialized = JSON.stringify(fields);
-    if (serialized.length > 200_000) return false;
+    if (serialized.length > 200_000) {
+      if (typeof window !== "undefined")
+        window.dispatchEvent(new Event(DRAFT_STORAGE_FAILED));
+      return false;
+    }
     sessionStorage.setItem(key, serialized);
     return true;
   } catch {
+    if (typeof window !== "undefined")
+      window.dispatchEvent(new Event(DRAFT_STORAGE_FAILED));
     return false;
   }
 }

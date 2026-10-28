@@ -35,6 +35,7 @@ jobs:
       SITE_ORIGIN: https://www.example.com
       SITE_INDEXING: disabled
       NEXT_TELEMETRY_DISABLED: "1"
+      NEXT_PUBLIC_HELP_LEARN_ENABLED: "true"
     steps:
       - uses: actions/checkout@v7.0.1
       - uses: actions/setup-node@v7.1.0

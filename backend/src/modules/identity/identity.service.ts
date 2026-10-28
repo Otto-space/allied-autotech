@@ -1,3 +1,5 @@
+import { enqueueNotification } from "../notifications/notifications.service.js";
+import { sessionClientLabel } from "./session-client-label.js";
 import { randomUUID } from "node:crypto";
 
 import type { PrismaClient } from "../../generated/prisma/client.js";
@@ -20,6 +22,7 @@ import {
 } from "../../common/security/passwords.js";
 import { generateRecoveryCodes } from "../../common/security/recovery-codes.js";
 import { generateOpaqueToken, hashToken } from "../../common/security/session-tokens.js";
+import { AppError } from "../../common/errors/app-error.js";
 import { normalizeEmail } from "../../common/security/email.js";
 import { createTotpEnrollment, verifyTotp } from "../../common/security/totp.js";
 import {
@@ -44,6 +47,7 @@ import type {
   RegisterInput,
 } from "./identity.schemas.js";
 import type {
+  AuthenticatedSessionSnapshot,
   IdentityEmailPayload,
   MfaEnrollmentSession,
   RequestSecurityContext,
@@ -171,6 +175,7 @@ export class IdentityService {
     }
 
     await this.database.$transaction(async (tx) => {
+      await this.lockMfaAccount(tx, token.userId);
       const consumed = await tx.emailVerificationToken.updateMany({
         where: { id: token.id, usedAt: null, revokedAt: null, expiresAt: { gt: now } },
         data: { usedAt: now },
@@ -261,6 +266,12 @@ export class IdentityService {
       user.emailVerifiedAt !== null &&
       (user.lockedUntil === null || user.lockedUntil <= now);
 
+    if (passwordValid && user?.status === "SUSPENDED")
+      throw new AppError({
+        code: "ACCOUNT_SUSPENDED",
+        statusCode: 401,
+        message: "Your account is suspended. Contact Customer Care for assistance.",
+      });
     if (!passwordValid || !eligible || user === null) {
       await this.recordFailedLogin(user?.id, throttleHashes, context);
       throw invalidAuthentication();
@@ -334,7 +345,7 @@ export class IdentityService {
     });
     if (value === null) throw invalidAuthentication();
     const workforce =
-      value.user.role === "CUSTOMER"
+      value.user.role === "CUSTOMER" || value.user.role === "SUPER_ADMIN"
         ? null
         : await this.database.workforceAccess.findUnique({
             where: { userId },
@@ -371,7 +382,7 @@ export class IdentityService {
       expiresAt: item.expiresAt,
       mfaVerified: item.mfaVerifiedAt !== null,
       network: this.maskIp(item.ipAddress),
-      client: this.clientLabel(item.userAgent),
+      client: sessionClientLabel(item.userAgent),
     }));
   }
 
@@ -497,6 +508,9 @@ export class IdentityService {
     const passwordHash = await hashPassword(password);
     const now = new Date();
     await this.database.$transaction(async (tx) => {
+      // Same identity-first order as suspension; a reset cannot bypass a current
+      // account restriction or deadlock by consuming its token before the user lock.
+      await this.lockMfaAccount(tx, token.userId);
       const consumed = await tx.passwordResetToken.updateMany({
         where: {
           id: token.id,
@@ -540,12 +554,22 @@ export class IdentityService {
           userAgent: safeUserAgent(context.userAgent),
         },
       });
+      await enqueueNotification(tx, {
+        userId: token.userId,
+        type: "SYSTEM",
+        category: "SECURITY",
+        title: "Your password was reset",
+        message:
+          "Your password was reset and existing sessions were signed out. If this was not you, review your account security and contact Allied AutoTech.",
+        deduplicationKey: `security:password-reset:${token.id}`,
+        channels: [],
+      });
     });
   }
 
   async changePassword(
     userId: string,
-    sessionId: string,
+    snapshot: AuthenticatedSessionSnapshot,
     input: ChangePasswordInput,
     context: RequestSecurityContext,
   ): Promise<SessionIssueResult> {
@@ -556,22 +580,48 @@ export class IdentityService {
     ) {
       throw invalidAuthentication();
     }
-    const now = new Date();
     const passwordHash = await hashPassword(input.newPassword);
-    await this.database.$transaction([
-      this.database.user.update({
+    return this.database.$transaction(async (tx) => {
+      // Recheck the credential after locking the account: another password change
+      // may have committed while the original Argon2 verification was running.
+      const current = await this.lockMfaAccount(tx, userId);
+      if (current.passwordHash !== user.passwordHash) throw invalidAuthentication();
+      await tx.$queryRaw`SELECT id FROM "Session" WHERE id = ${snapshot.sessionId}::uuid AND "userId" = ${userId}::uuid FOR UPDATE`;
+      const session = await tx.session.findFirst({
+        where: { id: snapshot.sessionId, userId },
+        select: {
+          revokedAt: true,
+          expiresAt: true,
+          idleExpiresAt: true,
+          csrfTokenHash: true,
+          mfaRequired: true,
+          mfaVerifiedAt: true,
+        },
+      });
+      const now = new Date();
+      const mfaRequired = session?.mfaRequired || current.role !== "CUSTOMER";
+      if (
+        session === null ||
+        session.revokedAt !== null ||
+        session.expiresAt <= now ||
+        session.idleExpiresAt <= now ||
+        session.csrfTokenHash !== snapshot.csrfTokenHash ||
+        (mfaRequired && session.mfaVerifiedAt === null)
+      )
+        throw invalidAuthentication();
+      await tx.user.update({
         where: { id: userId },
         data: { passwordHash, passwordChangedAt: now },
-      }),
-      this.database.session.updateMany({
-        where: { userId, id: { not: sessionId }, revokedAt: null },
+      });
+      await tx.session.updateMany({
+        where: { userId, id: { not: snapshot.sessionId }, revokedAt: null },
         data: { revokedAt: now },
-      }),
-      this.database.passwordResetToken.updateMany({
+      });
+      await tx.passwordResetToken.updateMany({
         where: { userId, usedAt: null, revokedAt: null },
         data: { revokedAt: now },
-      }),
-      this.database.auditLog.create({
+      });
+      await tx.auditLog.create({
         data: {
           userId,
           action: "UPDATE",
@@ -582,19 +632,27 @@ export class IdentityService {
           userAgent: safeUserAgent(context.userAgent),
           newValues: { passwordChanged: true, otherSessionsRevoked: true },
         },
-      }),
-    ]);
-    const currentSession = await this.database.session.findFirst({
-      where: { id: sessionId, userId, revokedAt: null },
-      select: { mfaRequired: true, mfaVerifiedAt: true },
+      });
+      await enqueueNotification(tx, {
+        userId,
+        type: "SYSTEM",
+        category: "SECURITY",
+        title: "Your password changed",
+        message:
+          "Your password was changed and other sessions were signed out. If this was not you, review your account security and contact Allied AutoTech.",
+        deduplicationKey: `security:password-change:${userId}:${now.toISOString()}`,
+        channels: [],
+      });
+      // A failure to rotate the current session rolls back the password and all
+      // revocations, audit and notification with this transaction.
+      return this.rotateAuthenticatedSession(
+        { id: current.id, email: current.email, role: current.role },
+        snapshot.sessionId,
+        mfaRequired,
+        session.mfaVerifiedAt !== null,
+        tx,
+      );
     });
-    if (currentSession === null) throw invalidAuthentication();
-    return this.rotateAuthenticatedSession(
-      { id: user.id, email: user.email, role: user.role },
-      sessionId,
-      currentSession.mfaRequired,
-      currentSession.mfaVerifiedAt !== null,
-    );
   }
 
   private async lockMfaAccount(tx: Prisma.TransactionClient, userId: string) {
@@ -644,6 +702,35 @@ export class IdentityService {
       });
       if (active > 0 || recovery > 0) throw mfaEnrollmentRequiresVerification();
     }
+    return user;
+  }
+
+  private async assertMfaChallengeSession(
+    tx: Prisma.TransactionClient,
+    userId: string,
+    snapshot: AuthenticatedSessionSnapshot,
+  ) {
+    const user = await this.lockMfaAccount(tx, userId);
+    await tx.$queryRaw`SELECT id FROM "Session" WHERE id = ${snapshot.sessionId}::uuid AND "userId" = ${userId}::uuid FOR UPDATE`;
+    const session = await tx.session.findFirst({
+      where: { id: snapshot.sessionId, userId },
+      select: {
+        revokedAt: true,
+        expiresAt: true,
+        idleExpiresAt: true,
+        csrfTokenHash: true,
+      },
+    });
+    const now = new Date();
+    if (
+      session === null ||
+      session.revokedAt !== null ||
+      session.expiresAt <= now ||
+      session.idleExpiresAt <= now ||
+      !snapshot.csrfTokenHash ||
+      session.csrfTokenHash !== snapshot.csrfTokenHash
+    )
+      throw invalidAuthentication();
     return user;
   }
 
@@ -903,9 +990,19 @@ export class IdentityService {
 
   async verifyMfaChallenge(
     userId: string,
-    sessionId: string,
+    snapshot: AuthenticatedSessionSnapshot,
     input: MfaChallengeVerifyInput,
   ): Promise<SessionIssueResult> {
+    let proof:
+      | { kind: "totp"; factorId: string; lastUsedAt: Date | null; usedAt: Date }
+      | { kind: "recovery-code"; codeHash: string }
+      | {
+          kind: "webauthn";
+          challengeId: string;
+          factorId: string;
+          signCount: bigint | null;
+          newCounter: bigint;
+        };
     if (input.method === "totp") {
       const factor = await this.database.mfaFactor.findFirst({
         where: {
@@ -926,30 +1023,75 @@ export class IdentityService {
         factor.lastUsedAt,
       );
       if (!result.valid || result.usedAt === undefined) throw invalidToken();
-      const updated = await this.database.mfaFactor.updateMany({
-        where: {
-          id: factor.id,
-          status: "ACTIVE",
-          revokedAt: null,
-          lastUsedAt: factor.lastUsedAt,
-        },
-        data: { lastUsedAt: result.usedAt },
-      });
-      if (updated.count !== 1) throw invalidToken();
+      proof = {
+        kind: "totp",
+        factorId: factor.id,
+        lastUsedAt: factor.lastUsedAt,
+        usedAt: result.usedAt,
+      };
     } else if (input.method === "recovery-code") {
-      const used = await this.database.mfaRecoveryCode.updateMany({
-        where: {
-          userId,
-          codeHash: hashToken("recovery-code", input.code),
-          usedAt: null,
-        },
-        data: { usedAt: new Date() },
-      });
-      if (used.count !== 1) throw invalidToken();
+      proof = { kind: "recovery-code", codeHash: hashToken("recovery-code", input.code) };
     } else {
-      await this.verifyWebAuthnChallenge(userId, sessionId, input.response);
+      proof = {
+        kind: "webauthn",
+        ...(await this.prepareWebAuthnChallenge(
+          userId,
+          snapshot.sessionId,
+          input.response,
+        )),
+      };
     }
-    return this.completeMfaSession(userId, sessionId);
+    return this.database.$transaction(async (tx) => {
+      const user = await this.assertMfaChallengeSession(tx, userId, snapshot);
+      const now = new Date();
+      if (proof.kind === "totp") {
+        const updated = await tx.mfaFactor.updateMany({
+          where: {
+            id: proof.factorId,
+            userId,
+            type: "TOTP",
+            status: "ACTIVE",
+            revokedAt: null,
+            lastUsedAt: proof.lastUsedAt,
+          },
+          data: { lastUsedAt: proof.usedAt },
+        });
+        if (updated.count !== 1) throw invalidToken();
+      } else if (proof.kind === "recovery-code") {
+        const used = await tx.mfaRecoveryCode.updateMany({
+          where: { userId, codeHash: proof.codeHash, usedAt: null },
+          data: { usedAt: now },
+        });
+        if (used.count !== 1) throw invalidToken();
+      } else {
+        const consumed = await tx.mfaChallenge.updateMany({
+          where: {
+            id: proof.challengeId,
+            userId,
+            sessionId: snapshot.sessionId,
+            purpose: "AUTHENTICATION",
+            usedAt: null,
+            expiresAt: { gt: now },
+          },
+          data: { usedAt: now },
+        });
+        if (consumed.count !== 1) throw invalidToken();
+        const updated = await tx.mfaFactor.updateMany({
+          where: {
+            id: proof.factorId,
+            userId,
+            type: "WEBAUTHN",
+            signCount: proof.signCount,
+            status: "ACTIVE",
+            revokedAt: null,
+          },
+          data: { signCount: proof.newCounter, lastUsedAt: now },
+        });
+        if (updated.count !== 1) throw invalidToken();
+      }
+      // Proof consumption and assurance rotation either both commit or both roll back.
+      return this.rotateAuthenticatedSession(user, snapshot.sessionId, true, true, tx);
+    });
   }
 
   async listFactors(userId: string) {
@@ -994,6 +1136,16 @@ export class IdentityService {
           entityType: "MFA_FACTOR",
           entityId: factorId,
         },
+      });
+      await enqueueNotification(tx, {
+        userId,
+        type: "SYSTEM",
+        category: "SECURITY",
+        title: "A sign-in method was removed",
+        message:
+          "A multi-factor sign-in method was removed from your account. Review account security if you did not make this change.",
+        deduplicationKey: `security:factor-removed:${factorId}`,
+        channels: [],
       });
     });
   }
@@ -1042,6 +1194,13 @@ export class IdentityService {
 
     await this.database.$transaction(async (tx) => {
       await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${user.id}, 0))`;
+      await tx.$queryRaw`SELECT "id" FROM "User" WHERE "id" = ${user.id}::uuid FOR NO KEY UPDATE`;
+      const current = await tx.user.findUnique({
+        where: { id: user.id },
+        select: { status: true, role: true },
+      });
+      if (!current || current.status !== "ACTIVE" || current.role !== user.role)
+        throw invalidAuthentication();
       const active = await tx.session.findMany({
         where: {
           userId: user.id,
@@ -1210,11 +1369,11 @@ export class IdentityService {
     });
   }
 
-  private async verifyWebAuthnChallenge(
+  private async prepareWebAuthnChallenge(
     userId: string,
     sessionId: string,
     response: unknown,
-  ): Promise<void> {
+  ) {
     const credentialId =
       typeof response === "object" && response !== null && "id" in response
         ? response.id
@@ -1262,22 +1421,12 @@ export class IdentityService {
     if (!result.verified || result.authenticationInfo.newCounter < oldCounter) {
       throw invalidToken();
     }
-    const now = new Date();
-    await this.database.$transaction(async (tx) => {
-      const consumed = await tx.mfaChallenge.updateMany({
-        where: { id: challenge.id, usedAt: null, expiresAt: { gt: now } },
-        data: { usedAt: now },
-      });
-      if (consumed.count !== 1) throw invalidToken();
-      const updated = await tx.mfaFactor.updateMany({
-        where: { id: factor.id, signCount: factor.signCount, status: "ACTIVE" },
-        data: {
-          signCount: BigInt(result.authenticationInfo.newCounter),
-          lastUsedAt: now,
-        },
-      });
-      if (updated.count !== 1) throw invalidToken();
-    });
+    return {
+      challengeId: challenge.id,
+      factorId: factor.id,
+      signCount: factor.signCount,
+      newCounter: BigInt(result.authenticationInfo.newCounter),
+    };
   }
 
   private maskIp(ipAddress: string | null): string | null {
@@ -1286,12 +1435,6 @@ export class IdentityService {
       return `${ipAddress.split(":").slice(0, 3).join(":")}::/48`;
     const parts = ipAddress.split(".");
     return parts.length === 4 ? `${parts[0]}.${parts[1]}.${parts[2]}.0/24` : null;
-  }
-
-  private clientLabel(userAgent: string | null): string | null {
-    if (userAgent === null) return null;
-    const label = userAgent.match(/^[A-Za-z0-9._/-]{1,80}/)?.[0];
-    return label ?? "Unknown client";
   }
 }
 

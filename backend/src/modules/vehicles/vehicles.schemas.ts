@@ -1,6 +1,17 @@
 import { z } from "zod";
+import { countryCodes, europeanCountryCodes } from "../../common/reference/countries.js";
 import { savedVehicleCursorSchema } from "./saved-vehicle-cursor.js";
 
+const countryCode = z
+  .string()
+  .refine((v) => countryCodes.has(v), "Choose a valid ISO country code");
+const queryInteger = (min: number, max: number) =>
+  z
+    .string()
+    .regex(/^\d{1,8}$/)
+    .transform(Number)
+    .pipe(z.number().int().min(min).max(max))
+    .optional();
 const uuid = z.uuid();
 const clean = (max: number) => z.string().trim().min(1).max(max);
 const nullableClean = (max: number) => clean(max).nullable().optional();
@@ -36,7 +47,29 @@ export const documentParamsSchema = z
   .object({ vehicleId: uuid, documentId: uuid })
   .strict();
 
-export const publicVehicleListQuerySchema = z
+const enumSelections = <T extends string>(options: readonly T[]) =>
+  z
+    .string()
+    .min(1)
+    .max(100)
+    .describe(
+      `Comma-separated distinct choices: ${options.join(", ")}. Matches any selected choice; do not combine with the singular filter.`,
+    )
+    .transform((value) => value.split(","))
+    .pipe(
+      z
+        .array(z.enum(options as [T, ...T[]]))
+        .min(1)
+        .max(options.length),
+    )
+    .refine(
+      (values) => new Set(values).size === values.length,
+      "Choose each option only once",
+    )
+    .transform((values) => options.filter((option) => values.includes(option)))
+    .optional();
+
+export const publicVehicleListQueryBase = z
   .object({
     cursor: uuid.optional(),
     limit: z.coerce.number().int().min(1).max(50).default(20),
@@ -44,6 +77,24 @@ export const publicVehicleListQuerySchema = z
     make: clean(80).optional(),
     model: clean(80).optional(),
     year: z.coerce.number().int().min(1886).max(2200).optional(),
+    trim: clean(80).optional(),
+    condition: z.enum(["NEW", "USED", "FOREIGN_USED", "LOCALLY_USED"]).optional(),
+    conditions: enumSelections(["NEW", "USED", "FOREIGN_USED", "LOCALLY_USED"] as const),
+    powertrains: enumSelections(["BEV", "HEV", "PHEV", "ICE"] as const),
+    manufactureCountryCode: countryCode.optional(),
+    manufactureRegion: z.literal("EUROPE").optional(),
+    powertrain: z.enum(["BEV", "HEV", "PHEV", "ICE"]).optional(),
+    driveType: z.enum(["FWD", "RWD", "AWD", "FOUR_WD", "OTHER"]).optional(),
+    minYear: queryInteger(1886, 2200),
+    maxYear: queryInteger(1886, 2200),
+    minMileageKm: queryInteger(0, 10000000),
+    maxMileageKm: queryInteger(0, 10000000),
+    minEngineCapacityCc: queryInteger(1, 30000),
+    maxEngineCapacityCc: queryInteger(1, 30000),
+    seats: queryInteger(1, 100),
+    color: clean(40).optional(),
+    feature: clean(80).optional(),
+    inspected: optionalBoolean,
     bodyType: z
       .enum([
         "SEDAN",
@@ -61,20 +112,93 @@ export const publicVehicleListQuerySchema = z
     transmission: z.enum(["AUTOMATIC", "MANUAL", "CVT", "OTHER"]).optional(),
     fuelType: z.enum(["PETROL", "DIESEL", "HYBRID", "ELECTRIC", "OTHER"]).optional(),
     featured: optionalBoolean,
-    minPriceKobo: kobo.optional(),
-    maxPriceKobo: kobo.optional(),
-    sort: z.enum(["newest", "price_asc", "price_desc", "year_desc"]).default("newest"),
+    minPriceKobo: z.union([z.literal("0"), kobo]).optional(),
+    maxPriceKobo: z.union([z.literal("0"), kobo]).optional(),
+    sort: z
+      .enum([
+        "newest",
+        "price_asc",
+        "price_desc",
+        "year_desc",
+        "year_asc",
+        "mileage_asc",
+        "mileage_desc",
+      ])
+      .default("newest"),
   })
-  .strict()
-  .refine(
-    (value) =>
-      value.minPriceKobo === undefined ||
-      value.maxPriceKobo === undefined ||
-      BigInt(value.minPriceKobo) <= BigInt(value.maxPriceKobo),
-    { path: ["maxPriceKobo"], message: "Must be at least minPriceKobo" },
-  );
+  .strict();
+export function checkPublicVehicleQuery(
+  v: Omit<z.infer<typeof publicVehicleListQueryBase>, "sort">,
+  ctx: z.RefinementCtx,
+) {
+  if (
+    v.minPriceKobo !== undefined &&
+    v.maxPriceKobo !== undefined &&
+    BigInt(v.minPriceKobo) > BigInt(v.maxPriceKobo)
+  )
+    ctx.addIssue({
+      code: "custom",
+      path: ["maxPriceKobo"],
+      message: "Must be at least minPriceKobo",
+    });
+  for (const [single, multiple] of [
+    ["condition", "conditions"],
+    ["powertrain", "powertrains"],
+  ] as const) {
+    if (v[single] && v[multiple])
+      ctx.addIssue({
+        code: "custom",
+        path: [multiple],
+        message: `Use either ${single} or ${multiple}`,
+      });
+  }
+  for (const [minimum, maximum] of [
+    ["minYear", "maxYear"],
+    ["minMileageKm", "maxMileageKm"],
+    ["minEngineCapacityCc", "maxEngineCapacityCc"],
+  ] as const) {
+    if (v[minimum] !== undefined && v[maximum] !== undefined && v[minimum]! > v[maximum]!)
+      ctx.addIssue({
+        code: "custom",
+        path: [maximum],
+        message: `Must be at least ${minimum}`,
+      });
+  }
+  if (v.model && !v.make)
+    ctx.addIssue({
+      code: "custom",
+      path: ["model"],
+      message: "Choose a make before a model",
+    });
+  if (
+    v.year !== undefined &&
+    ((v.minYear !== undefined && v.year < v.minYear) ||
+      (v.maxYear !== undefined && v.year > v.maxYear))
+  )
+    ctx.addIssue({
+      code: "custom",
+      path: ["year"],
+      message: "Year conflicts with the selected range",
+    });
+  if (
+    v.manufactureRegion &&
+    v.manufactureCountryCode &&
+    !(europeanCountryCodes as readonly string[]).includes(v.manufactureCountryCode)
+  )
+    ctx.addIssue({
+      code: "custom",
+      path: ["manufactureCountryCode"],
+      message: "Country is outside Europe",
+    });
+}
+export const publicVehicleListQuerySchema = publicVehicleListQueryBase.superRefine(
+  checkPublicVehicleQuery,
+);
 export const staffVehicleListQuerySchema = publicVehicleListQuerySchema
   .safeExtend({
+    sort: z
+      .enum(["newest", "year_desc", "year_asc", "mileage_asc", "mileage_desc"])
+      .default("newest"),
     status: z
       .enum(["DRAFT", "AVAILABLE", "RESERVED", "SOLD", "INACTIVE", "ARCHIVED"])
       .optional(),
@@ -84,7 +208,18 @@ export const staffVehicleListQuerySchema = publicVehicleListQuerySchema
   .refine((value) => value.listed !== false || value.status === undefined, {
     path: ["listed"],
     message: "An unlisted record cannot have a listing status",
-  });
+  })
+  .refine(
+    (value) =>
+      value.listed !== false ||
+      (value.featured === undefined &&
+        value.minPriceKobo === undefined &&
+        value.maxPriceKobo === undefined),
+    {
+      path: ["listed"],
+      message: "An unlisted record cannot have listing-specific filters",
+    },
+  );
 
 export const vehicleCreateBodySchema = z
   .object({
@@ -105,7 +240,7 @@ export const vehicleCreateBodySchema = z
       .enum(["PETROL", "DIESEL", "HYBRID", "ELECTRIC", "OTHER"])
       .nullable()
       .optional(),
-    condition: z.enum(["NEW", "USED"]).default("USED"),
+    condition: z.enum(["NEW", "USED", "FOREIGN_USED", "LOCALLY_USED"]).default("USED"),
     bodyType: z
       .enum([
         "SEDAN",
@@ -120,6 +255,17 @@ export const vehicleCreateBodySchema = z
         "OTHER",
       ])
       .nullable()
+      .optional(),
+    manufactureCountryCode: countryCode.nullable().optional(),
+    powertrain: z.enum(["BEV", "HEV", "PHEV", "ICE"]).nullable().optional(),
+    engineCapacityCc: z.number().int().min(1).max(30000).nullable().optional(),
+    features: z
+      .array(clean(80))
+      .max(40)
+      .refine(
+        (v) => new Set(v.map((f) => f.toLowerCase())).size === v.length,
+        "Features must be unique",
+      )
       .optional(),
     engineSize: nullableClean(40),
     driveType: z.enum(["FWD", "RWD", "AWD", "FOUR_WD", "OTHER"]).nullable().optional(),

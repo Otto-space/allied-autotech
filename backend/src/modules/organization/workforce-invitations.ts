@@ -1,5 +1,6 @@
 import type { Prisma } from "../../generated/prisma/client.js";
 import { workforceDenied } from "./workforce.policy.js";
+import { isKnownWorkforcePolicyVersion } from "./workforce-catalogue.js";
 
 // Enrolled administrators retain the established invitation/acceptance flow, within
 // an explicit owner envelope. Promotion never switches an enrolled user to legacy access.
@@ -8,7 +9,15 @@ export async function assertWorkforceInvitationDelegation(
   inviterId: string,
   recipientId: string,
 ) {
-  const envelope = await tx.workforceAccess.findUnique({ where: { userId: inviterId } });
+  const inviter = await tx.user.findUnique({
+    where: { id: inviterId },
+    select: { role: true, workforceAccess: true },
+  });
+  if (!inviter) workforceDenied();
+  // A business-position record cannot narrow the established protected-owner
+  // invitation baseline. The caller still enforces current owner/tier/MFA/proof.
+  if (inviter.role === "SUPER_ADMIN") return;
+  const envelope = inviter.workforceAccess;
   if (!envelope) return;
   const recipient = await tx.user.findUnique({
     where: { id: recipientId },
@@ -20,6 +29,7 @@ export async function assertWorkforceInvitationDelegation(
     },
   });
   if (
+    !isKnownWorkforcePolicyVersion(envelope.delegationPolicyVersion) ||
     !envelope.delegatedTemplates.includes("ADMIN_INVITE") ||
     !recipient?.workforceAccess ||
     !recipient.staffProfile?.branchId ||

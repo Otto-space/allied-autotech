@@ -20,6 +20,7 @@ export function workSupportQuery(
     if (
       ![
         "kind",
+        "q",
         "status",
         "type",
         "priority",
@@ -34,6 +35,11 @@ export function workSupportQuery(
   if (kind !== "enquiries" && kind !== "complaints") invalid = true;
   else if (kind !== "enquiries") params.set("kind", kind);
   const category: SupportKind = kind === "complaints" ? "complaints" : "enquiries";
+  const q = input.get("q")?.trim().replace(/\s+/g, " ") ?? "";
+  if (q) {
+    if (q.length < 2 || q.length > 120 || /[\u0000-\u001f\u007f]/.test(q)) invalid = true;
+    else params.set("q", q);
+  }
   for (const key of [
     "status",
     "type",

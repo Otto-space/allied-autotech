@@ -22,6 +22,9 @@ type DatabaseClient = PrismaClient | Prisma.TransactionClient;
 
 const messageSelect = {
   id: true,
+  kind: true,
+  fromStatus: true,
+  toStatus: true,
   authorType: true,
   visibility: true,
   body: true,
@@ -40,6 +43,7 @@ const enquiryBaseSelect = {
   bookingId: true,
   quoteId: true,
   vehicleListingId: true,
+  vehicleEnquiryIntent: true,
   assignedStaffId: true,
   resolvedAt: true,
   closedAt: true,
@@ -243,9 +247,16 @@ export class SupportRepository {
         name: input.name,
         email: input.email,
         ...(input.phone === undefined ? {} : { phone: input.phone }),
-        ...(input.type === "PRODUCT" ? { productId: input.productId } : {}),
+        ...(input.type === "PRODUCT" && input.productId
+          ? { productId: input.productId }
+          : {}),
         ...(input.type === "SERVICE" ? { serviceId: input.serviceId } : {}),
-        ...(input.type === "VEHICLE" ? { vehicleListingId: input.vehicleListingId } : {}),
+        ...(input.type === "VEHICLE"
+          ? {
+              vehicleListingId: input.vehicleListingId ?? null,
+              vehicleEnquiryIntent: input.vehicleEnquiryIntent ?? "LISTING",
+            }
+          : {}),
       },
       select: { id: true, status: true, createdAt: true },
     });
@@ -270,7 +281,12 @@ export class SupportRepository {
         phone: customer.phone,
         ...(input.type === "PRODUCT" ? { productId: input.productId } : {}),
         ...(input.type === "SERVICE" ? { serviceId: input.serviceId } : {}),
-        ...(input.type === "VEHICLE" ? { vehicleListingId: input.vehicleListingId } : {}),
+        ...(input.type === "VEHICLE"
+          ? {
+              vehicleListingId: input.vehicleListingId ?? null,
+              vehicleEnquiryIntent: input.vehicleEnquiryIntent ?? "LISTING",
+            }
+          : {}),
         ...(input.type === "BOOKING" ? { bookingId: input.bookingId } : {}),
         ...(input.type === "QUOTATION" ? { quoteId: input.quoteId } : {}),
       },
@@ -491,10 +507,11 @@ export class SupportRepository {
     customerVisibleOnly: boolean,
   ) {
     const target = kind === "enquiry" ? { enquiryId: id } : { complaintId: id };
-    if (query.cursor) {
+    const anchor = query.cursor ?? query.messageId;
+    if (anchor) {
       const cursor = await this.database.supportMessage.findFirst({
         where: {
-          id: query.cursor,
+          id: anchor,
           ...target,
           ...(customerVisibleOnly ? { visibility: "CUSTOMER" as const } : {}),
         },
@@ -510,13 +527,20 @@ export class SupportRepository {
       select: messageSelect,
       orderBy: [{ createdAt: "asc" }, { id: "asc" }],
       take: query.limit + 1,
-      ...(query.cursor ? { cursor: { id: query.cursor }, skip: 1 } : {}),
+      ...(anchor ? { cursor: { id: anchor }, skip: query.cursor ? 1 : 0 } : {}),
     });
   }
 
   listStaffEnquiries(query: StaffEnquiryListQuery, branchId: string | null) {
     return this.database.enquiry.findMany({
       where: {
+        AND: (query.q?.split(/\s+/).filter(Boolean) ?? []).map((term) => {
+          const text = {
+            contains: term.replace(/[\\%_]/g, "\\$&"),
+            mode: "insensitive" as const,
+          };
+          return { OR: [{ subject: text }, { message: text }] };
+        }),
         ...(branchId ? { branchId } : query.branchId ? { branchId: query.branchId } : {}),
         ...(query.type ? { type: query.type } : {}),
         ...(query.status ? { status: query.status } : {}),
@@ -539,6 +563,13 @@ export class SupportRepository {
   listStaffComplaints(query: StaffComplaintListQuery, branchId: string | null) {
     return this.database.complaint.findMany({
       where: {
+        AND: (query.q?.split(/\s+/).filter(Boolean) ?? []).map((term) => {
+          const text = {
+            contains: term.replace(/[\\%_]/g, "\\$&"),
+            mode: "insensitive" as const,
+          };
+          return { OR: [{ subject: text }, { description: text }] };
+        }),
         ...(branchId ? { branchId } : query.branchId ? { branchId: query.branchId } : {}),
         ...(query.status ? { status: query.status } : {}),
         ...(query.priority ? { priority: query.priority } : {}),
@@ -605,7 +636,37 @@ export class SupportRepository {
     client: DatabaseClient,
   ) {
     return client.supportMessage.create({
-      data: { ...target, authorUserId, authorType, visibility, body },
+      data: {
+        ...target,
+        authorUserId,
+        authorType,
+        visibility,
+        body,
+        kind: visibility === "INTERNAL" ? "INTERNAL_NOTE" : "REPLY",
+      },
+      select: messageSelect,
+    });
+  }
+
+  createStatusEvent(
+    target: { enquiryId: string } | { complaintId: string },
+    authorUserId: string,
+    fromStatus: string,
+    toStatus: string,
+    body: string,
+    client: DatabaseClient,
+  ) {
+    return client.supportMessage.create({
+      data: {
+        ...target,
+        authorUserId,
+        authorType: "STAFF",
+        visibility: "CUSTOMER",
+        kind: "STATUS_CHANGE",
+        fromStatus,
+        toStatus,
+        body,
+      },
       select: messageSelect,
     });
   }

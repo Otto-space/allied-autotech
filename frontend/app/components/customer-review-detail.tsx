@@ -1,4 +1,5 @@
 "use client";
+import { NotificationRecordContext } from "./notification-record-context";
 import Link from "next/link";
 import { z } from "zod";
 import { useResource } from "@/lib/api/use-resource";
@@ -29,8 +30,13 @@ function OwnedReview({ reviewId }: { reviewId: string }) {
       {(!valid || (!record.loading && !record.error && !review)) && (
         <p>This review is unavailable or does not belong to your account.</p>
       )}
-      {!record.loading && !record.error && review && <CustomerReview review={review} />}
-      {record.error && (
+      {!record.loading && !record.error && !record.refreshError && review && (
+        <>
+          <NotificationRecordContext resourceType="REVIEW" resourceId={review.id} />
+          <CustomerReview review={review} headingLevel={2} />
+        </>
+      )}
+      {(record.error || record.refreshError) && (
         <button className="button secondary" onClick={record.refresh}>
           Try again
         </button>

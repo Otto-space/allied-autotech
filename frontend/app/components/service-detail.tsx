@@ -395,7 +395,7 @@ export function ServiceDetail({
     else formTitle = "Choose an available appointment.";
   }
   let priceText = "Quotation required";
-  if (fixed && current) {
+  if (listedFixed && current) {
     if (current.priceKobo !== null) priceText = formatKobo(current.priceKobo);
     else priceText = "Contact us for pricing";
   }
@@ -458,13 +458,7 @@ export function ServiceDetail({
                   )}
                   <div className="sd-facts">
                     <div>
-                      <p className="sd-price">
-                        {listedFixed && current.priceKobo !== null
-                          ? formatKobo(current.priceKobo)
-                          : listedFixed
-                            ? "Contact us for pricing"
-                            : "Quotation required"}
-                      </p>
+                      <p className="sd-price">{priceText}</p>
                       {listedFixed && current.priceKobo !== null && (
                         <p className="sd-price-label">Fixed price</p>
                       )}
@@ -558,9 +552,9 @@ export function ServiceDetail({
                 <div className="sd-preparation">
                   <h3>What to tell us</h3>
                   <ul>
-                    <li>When the concern occurs.</li>
-                    <li>Warning lights or changes you have noticed.</li>
-                    <li>Relevant service history.</li>
+                    <li>Your vehicle&apos;s make, model and year.</li>
+                    <li>The work you need or any symptoms you have noticed.</li>
+                    <li>Relevant service history or previous advice.</li>
                   </ul>
                 </div>
                 <div className="sd-help">
@@ -568,11 +562,11 @@ export function ServiceDetail({
                   <p>Speak with our team about your vehicle before you send a request.</p>
                   <a href={`tel:${business.internationalPhone}`}>
                     <Phone size={18} aria-hidden="true" />
-                    {business.phone}
+                    Call our team
                   </a>
                   <a href={business.whatsapp} target="_blank" rel="noopener noreferrer">
                     <MessageCircle size={18} aria-hidden="true" />
-                    Chat on WhatsApp <span className="sr-only">(new tab)</span>
+                    Whatsapp <span className="sr-only">(new tab)</span>
                     <ArrowRight size={16} aria-hidden="true" />
                   </a>
                 </div>
@@ -1127,17 +1121,16 @@ export function ServiceDetail({
           <>
             <section className="sd-care" aria-labelledby="sd-care-title">
               <div className="sd-container sd-care-layout">
-                <figure className="about-hero-figure">
-                  <div className="about-hero-photo">
+                <figure>
+                  <div className="sd-care-image">
                     <Image
                       src="/images/allied-autotech/technician-original.webp"
-                      alt="Allied AutoTech technician in the original company campaign photograph"
+                      alt="Allied AutoTech technician in the original Precision Autocare You Can Trust campaign"
                       fill
-                      sizes="(max-width: 760px) calc(100vw - 40px), (max-width: 1023px) 36vw, 380px"
-                      preload
+                      sizes="(max-width: 700px) 90vw, 36vw"
                     />
                   </div>
-                  <figcaption>From the Allied AutoTech workshop wall.</figcaption>
+                  <figcaption>From our original workshop campaign.</figcaption>
                 </figure>
                 <div>
                   <h2 id="sd-care-title">Clear advice. Careful workmanship.</h2>

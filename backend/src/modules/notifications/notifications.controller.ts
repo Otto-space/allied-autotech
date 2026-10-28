@@ -4,6 +4,9 @@ import type { RequestSecurityContext } from "../../common/contracts/request-secu
 import { successResponse } from "../../common/http/api-response.js";
 import type {
   NotificationListQuery,
+  NotificationAttentionQuery,
+  NotificationContextQuery,
+  NotificationContextRead,
   PreferenceUpdateInput,
 } from "./notifications.schemas.js";
 import {
@@ -24,6 +27,72 @@ const context = (request: Request): RequestSecurityContext => ({
 
 export class NotificationsController {
   constructor(private readonly service: NotificationsService = notificationsService) {}
+  markUnread = async (req: Request, res: Response) => {
+    res.setHeader("Cache-Control", "private, no-store");
+    res.json(
+      successResponse(
+        "Notification marked as unread",
+        req.id,
+        await this.service.markRead(
+          actor(req),
+          validated<{ notificationId: string }>(res, "params").notificationId,
+          false,
+        ),
+      ),
+    );
+  };
+  attention = async (req: Request, res: Response) => {
+    res.setHeader("Cache-Control", "private, no-store");
+    res.json(
+      successResponse(
+        "Updates requiring attention",
+        req.id,
+        await this.service.attention(
+          actor(req),
+          validated<NotificationAttentionQuery>(res, "query"),
+        ),
+      ),
+    );
+  };
+  context = async (req: Request, res: Response) => {
+    res.setHeader("Cache-Control", "private, no-store");
+    res.json(
+      successResponse(
+        "Related record updates",
+        req.id,
+        await this.service.context(
+          actor(req),
+          validated<NotificationContextQuery>(res, "query"),
+        ),
+      ),
+    );
+  };
+  readContext = async (req: Request, res: Response) => {
+    res.setHeader("Cache-Control", "private, no-store");
+    res.json(
+      successResponse(
+        "Displayed updates marked as read",
+        req.id,
+        await this.service.readContext(
+          actor(req),
+          validated<NotificationContextRead>(res, "body"),
+        ),
+      ),
+    );
+  };
+  detail = async (req: Request, res: Response) => {
+    res.setHeader("Cache-Control", "private, no-store");
+    res.json(
+      successResponse(
+        "Notification retrieved",
+        req.id,
+        await this.service.detail(
+          actor(req),
+          validated<{ notificationId: string }>(res, "params").notificationId,
+        ),
+      ),
+    );
+  };
 
   summary = async (req: Request, res: Response) => {
     res.setHeader("Cache-Control", "private, no-store");

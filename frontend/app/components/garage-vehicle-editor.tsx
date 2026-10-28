@@ -1,6 +1,12 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
+import {
+  fitmentLabels,
+  savedVehicleQualifierKeys,
+  type FitmentOption,
+} from "@/lib/parts-fitment";
+import { FitmentCataloguePicker } from "./fitment-catalogue-picker";
 import { apiRequest, ApiError } from "@/lib/api/client";
 import type { CustomerVehicle } from "@/lib/api/vehicle-schemas";
 import {
@@ -27,6 +33,20 @@ export function GarageVehicleEditor({
   const [busy, setBusy] = useState(false),
     [uncertain, setUncertain] = useState(false);
   const [error, setError] = useState<string>();
+  const [nickname, setNickname] = useState(vehicle?.nickname || "");
+  const [isDefault, setIsDefault] = useState(vehicle?.isDefault || false);
+  const [linked, setLinked] = useState(!!vehicle?.vehicleModelId);
+  const [make, setMake] = useState<FitmentOption | undefined>(
+    vehicle?.vehicleModel?.make,
+  );
+  const [model, setModel] = useState<FitmentOption | undefined>(
+    vehicle?.vehicleModel || undefined,
+  );
+  const [specifications, setSpecifications] = useState<Record<string, string>>(() =>
+    Object.fromEntries(
+      savedVehicleQualifierKeys.map((key) => [key, vehicle?.[key] || ""]),
+    ),
+  );
   const form = useForm<GarageFields>({
     defaultValues: {
       make: vehicle?.make ?? "",
@@ -46,6 +66,46 @@ export function GarageVehicleEditor({
   }, []);
   async function save(values: GarageFields) {
     if (sending.current || uncertain) return;
+    if (vehicle && !vehicle.updatedAt) {
+      setError(
+        "Reload the saved vehicle before editing it. Its current revision could not be verified.",
+      );
+      return;
+    }
+    if (
+      linked &&
+      (!make ||
+        !model ||
+        model.makeId !== make.id ||
+        Number(values.year) < model.yearFrom! ||
+        Number(values.year) > model.yearTo!)
+    ) {
+      setError(
+        "Choose a matching catalogue make, model and supported year before saving.",
+      );
+      document
+        .getElementById(
+          !make
+            ? "garage-catalogue-make"
+            : !model
+              ? "garage-catalogue-model"
+              : "garage-year",
+        )
+        ?.focus();
+      return;
+    }
+    if (
+      [nickname, ...Object.values(specifications)].some((value) =>
+        /[\u0000-\u001f\u007f]/.test(value),
+      ) ||
+      nickname.trim().length > 80 ||
+      Object.values(specifications).some((value) => value.length > 100)
+    ) {
+      setError(
+        "Use up to 80 characters for the nickname and 100 printable characters for each vehicle specification.",
+      );
+      return;
+    }
     sending.current = true;
     setBusy(true);
     setError(undefined);
@@ -55,7 +115,19 @@ export function GarageVehicleEditor({
         {
           method: vehicle ? "PATCH" : "POST",
           csrf: true,
-          body: garageBody(values),
+          body: {
+            ...garageBody(values),
+            nickname: nickname.trim() || null,
+            isDefault,
+            vehicleModelId: linked ? model!.id : null,
+            ...Object.fromEntries(
+              savedVehicleQualifierKeys.map((key) => [
+                key,
+                linked ? specifications[key]?.trim() || null : null,
+              ]),
+            ),
+            ...(vehicle?.updatedAt ? { expectedUpdatedAt: vehicle.updatedAt } : {}),
+          },
         },
       );
       const saved = garageVehicleSchema.parse(response.data);
@@ -80,6 +152,14 @@ export function GarageVehicleEditor({
   }
   function field(name: keyof GarageFields, label: string, required = false) {
     const issue = form.formState.errors[name];
+    const hints: Partial<Record<keyof GarageFields, string>> = {
+      make: "The manufacturer, for example Toyota or Honda.",
+      model: "The model name, for example Corolla or Accord.",
+      year: "Use the model year shown on your vehicle documents.",
+      registrationNumber: "Enter the number plate as shown on your vehicle.",
+      mileageKm: "Enter the odometer reading in kilometres. Leave blank if unknown.",
+    };
+    const hint = hints[name];
     return (
       <div
         className={`garage-field${name === "vin" ? " garage-field-wide" : ""}`}
@@ -107,18 +187,32 @@ export function GarageVehicleEditor({
                 ? 20
                 : name === "color"
                   ? 50
-                  : 80
+                  : 100
           }
           aria-required={required}
           aria-invalid={!!issue}
           aria-describedby={
-            [name === "vin" ? "garage-vin-hint" : "", issue ? `garage-${name}-error` : ""]
+            [
+              name === "vin" || hint ? `garage-${name}-hint` : "",
+              issue ? `garage-${name}-error` : "",
+            ]
               .filter(Boolean)
               .join(" ") || undefined
           }
           data-initial-focus={name === "make" ? "" : undefined}
-          {...form.register(name, { validate: (value) => garageFieldError(name, value) })}
+          readOnly={linked && (name === "make" || name === "model")}
+          {...form.register(name, {
+            validate: (value) => garageFieldError(name, value),
+            onChange: () => {
+              if (name === "year" && linked) setSpecifications({});
+            },
+          })}
         />
+        {hint && (
+          <p id={`garage-${name}-hint`} className="garage-hint">
+            {hint}
+          </p>
+        )}
         {name === "vin" && (
           <p id="garage-vin-hint" className="garage-hint">
             The 17-character vehicle identification number on your vehicle or registration
@@ -163,6 +257,125 @@ export function GarageVehicleEditor({
               {field("model", "Model", true)}
               {field("year", "Year", true)}
             </div>
+          </fieldset>
+          <fieldset disabled={busy || uncertain} className="garage-fields">
+            <legend>Your saved configuration</legend>
+            <div className="garage-field">
+              <label htmlFor="garage-nickname">Nickname (optional)</label>
+              <p id="garage-nickname-hint" className="garage-hint">
+                A name you recognise, such as Family car. It does not change the vehicle
+                model.
+              </p>
+              <input
+                aria-describedby="garage-nickname-hint"
+                id="garage-nickname"
+                name="nickname"
+                value={nickname}
+                maxLength={80}
+                onChange={(event) => setNickname(event.target.value)}
+              />
+            </div>
+            <label className="garage-default-choice">
+              <input
+                type="checkbox"
+                name="isDefault"
+                checked={isDefault}
+                onChange={(event) => setIsDefault(event.target.checked)}
+              />
+              Use as my default vehicle for parts searches
+            </label>
+          </fieldset>
+          <fieldset disabled={busy || uncertain} className="garage-fields">
+            <legend>Parts search configuration (optional)</legend>
+            <p>
+              A catalogue model lets you reuse this car in parts searches. This records
+              your vehicle details; fitment still needs approved technical evidence.
+            </p>
+            <label className="garage-default-choice">
+              <input
+                type="checkbox"
+                name="catalogueLinked"
+                checked={linked}
+                onChange={(event) => {
+                  setLinked(event.target.checked);
+                  if (!event.target.checked) setSpecifications({});
+                }}
+              />
+              Link a catalogue make and model
+            </label>
+            {linked && (
+              <>
+                <div className="garage-field-grid">
+                  <div className="garage-field">
+                    <label htmlFor="garage-catalogue-make">Catalogue make</label>
+                    <FitmentCataloguePicker
+                      id="garage-catalogue-make"
+                      kind="make"
+                      value={make?.id || ""}
+                      selected={make}
+                      onChange={(value) => {
+                        setMake(value);
+                        setModel(undefined);
+                        setSpecifications({});
+                        form.setValue("make", value?.name || "");
+                        form.setValue("model", "");
+                      }}
+                    />
+                  </div>
+                  <div className="garage-field">
+                    <label htmlFor="garage-catalogue-model">Catalogue model</label>
+                    <FitmentCataloguePicker
+                      key={make?.id || "unselected"}
+                      id="garage-catalogue-model"
+                      kind="model"
+                      makeId={make?.id}
+                      value={model?.id || ""}
+                      selected={model}
+                      disabled={!make}
+                      onChange={(value) => {
+                        setModel(value);
+                        setSpecifications({});
+                        form.setValue("model", value?.name || "");
+                      }}
+                    />
+                  </div>
+                </div>
+                {model && (
+                  <p className="garage-hint">
+                    Supported model years: {model.yearFrom}–{model.yearTo}. Update Year
+                    above if needed.
+                  </p>
+                )}
+                <details>
+                  <summary>Vehicle specifications for fitment checks</summary>
+                  <p>
+                    Leave unknown details blank. Axle or position is chosen for the part
+                    you need.
+                  </p>
+                  <div className="garage-field-grid">
+                    {savedVehicleQualifierKeys.map((key) => (
+                      <div className="garage-field" key={key}>
+                        <label htmlFor={`garage-spec-${key}`}>
+                          {fitmentLabels[key]} (optional)
+                        </label>
+                        <input
+                          id={`garage-spec-${key}`}
+                          name={key}
+                          maxLength={100}
+                          value={specifications[key] || ""}
+                          onChange={(event) =>
+                            setSpecifications((previous) => ({
+                              ...previous,
+                              [key]: event.target.value,
+                            }))
+                          }
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </details>
+              </>
+            )}
           </fieldset>
           <fieldset disabled={busy || uncertain} className="garage-fields">
             <legend>Additional details</legend>

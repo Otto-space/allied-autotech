@@ -3,6 +3,7 @@
 !.env.example
 .next/
 .next-*/
+allied-admin-redesign-20261022/
 node_modules/
 coverage/
 playwright-report/

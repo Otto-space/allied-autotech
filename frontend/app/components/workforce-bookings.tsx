@@ -197,7 +197,14 @@ export function WorkforceBookings({
             <tbody>
               {data.items.map((booking) => (
                 <tr key={booking.id}>
-                  <th scope="row">{booking.service.name}</th>
+                  <th scope="row">
+                    <Link
+                      href={`/admin/workforce/bookings/${booking.id}`}
+                      prefetch={false}
+                    >
+                      {booking.service.name}
+                    </Link>
+                  </th>
                   <td data-label="Customer">
                     <span>
                       {[booking.customer.firstName, booking.customer.lastName]

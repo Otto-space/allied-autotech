@@ -7,46 +7,32 @@ import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 
 const slides = [
   {
-    title: "Built on Trust,",
-    emphasis: "Driven by Quality.",
+    title: "Built on trust ",
+    emphasis: "driven by quality",
     description:
       "Professional diagnostics, maintenance and repairs, with clear advice and careful workmanship at every step.",
-    action: "Book a Service",
+    action: "Book a service",
     href: "/services",
     image: "/images/allied-autotech/workshop-editorial.webp",
     alt: "Editorial scene of a technician inspecting a dark SUV in a modern workshop",
-    secondary: "Request a Quote",
+    secondary: "Request a quote",
     secondaryHref: "/contact#enquiry",
-    caption: "Your vehicle. Our focus.",
+    caption: "Editorial workshop illustration.",
     contain: false,
   },
   {
     title: "Find the car",
     emphasis: "that fits your life.",
     description:
-      "Explore carefully presented vehicles for family life, daily movement, business and executive comfort.",
-    action: "Explore Vehicles",
+      "See published listings or tell our team what you are looking for. Availability and inspection arrangements are confirmed with you.",
+    action: "Explore vehicles",
     href: "/vehicles",
     image: "/images/allied-autotech/showroom-editorial.webp",
     alt: "Editorial showroom scene with a silver sedan and dark SUV",
-    secondary: "Request an Inspection",
-    secondaryHref: "/vehicles#inventory",
-    caption: "Technology that supports informed decisions.",
+    secondary: "Discuss your search",
+    secondaryHref: "/contact#enquiry",
+    caption: "Showroom illustration. See listings for availability.",
     contain: true,
-  },
-  {
-    title: "Built for every",
-    emphasis: "journey that matters.",
-    description:
-      "Family comfort, everyday confidence and room for the moments that make life yours. Start your next chapter with us.",
-    action: "Discover Vehicles",
-    href: "/vehicles",
-    image: "/images/allied-autotech/family-editorial.webp",
-    alt: "Editorial scene of an African family beside a white SUV",
-    secondary: "Speak With Us",
-    secondaryHref: "https://wa.me/2348136075567",
-    caption: "Quality products. Professional vehicle care.",
-    contain: false,
   },
   {
     title: "Quality parts.",
@@ -57,9 +43,9 @@ const slides = [
     href: "/parts",
     image: "/images/allied-autotech/parts-editorial.webp",
     alt: "Editorial arrangement of brake components, filters and unlabelled oil containers",
-    secondary: "Request a Quotation",
-    secondaryHref: "/contact#enquiry",
-    caption: "Care and support for your next move.",
+    secondary: "Ask about a product",
+    secondaryHref: "/contact?parts=1#enquiry",
+    caption: "Editorial parts illustration.",
     contain: false,
   },
 ] as const;
@@ -181,8 +167,10 @@ export function HomeHero() {
             ))}
           </div>
           <div className="hero-arrows">
+            <span className="hero-caption">{current.caption}</span>
             <span className="hero-count" aria-hidden="true">
-              {String(index + 1).padStart(2, "0")} / 04
+              {String(index + 1).padStart(2, "0")} /{" "}
+              {String(slides.length).padStart(2, "0")}
             </span>
             <button
               type="button"

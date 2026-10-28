@@ -1,4 +1,10 @@
 "use client";
+import "./care-workspace.css";
+import { StatusBadge } from "./status-progress";
+import { CopyableValue } from "./copyable-value";
+import { enquiryLabel } from "@/lib/support/enquiry-label";
+import { NotificationRecordContext } from "./notification-record-context";
+import { SupportTimelineEntry } from "./support-timeline-entry";
 
 import { WorkflowProgress } from "./status-progress";
 import { SupportReplyRecovery } from "./support-reply-recovery";
@@ -56,7 +62,7 @@ function RecordDetails({ record }: { record: SupportRecord }) {
         {record.kind === "enquiries" ? (
           <div>
             <dt>Enquiry type</dt>
-            <dd>{label(record.type)}</dd>
+            <dd>{enquiryLabel(record.type, record.vehicleEnquiryIntent)}</dd>
           </div>
         ) : (
           <>
@@ -105,10 +111,12 @@ function RecordDetails({ record }: { record: SupportRecord }) {
 
 export function CustomerSupportThread({
   userId,
+  messageId,
   kind,
   id,
 }: {
   userId: string;
+  messageId?: string;
   kind: SupportKind;
   id: string;
 }) {
@@ -135,7 +143,7 @@ export function CustomerSupportThread({
   );
   const messages = useResource(
     record
-      ? `${base}/messages?limit=50${pagination.cursor ? `&cursor=${pagination.cursor}` : ""}`
+      ? `${base}/messages?limit=50${pagination.cursor ? `&cursor=${pagination.cursor}` : messageId ? `&messageId=${messageId}` : ""}`
       : null,
     parseMessages,
   );
@@ -239,103 +247,151 @@ export function CustomerSupportThread({
         />
       )}
       {detail.loading && <p role="status">Checking support record…</p>}
+      {record && !detailUnavailable && (
+        <NotificationRecordContext
+          resourceType={kind === "enquiries" ? "ENQUIRY" : "COMPLAINT"}
+          resourceId={record.id}
+          supportMessageIds={
+            !messages.loading && !messages.error && !messages.refreshError
+              ? messages.data?.items.map((message) => message.id)
+              : []
+          }
+        />
+      )}
       {record && (
-        <div className="ct-grid">
-          <div className="ct-conversation-column">
-            <section className="ct-original ct-panel" aria-labelledby="ct-original-title">
-              <h2 id="ct-original-title">
-                Original {kind === "enquiries" ? "message" : "complaint"}
-              </h2>
-              <p className="support-text">{record.text}</p>
-              {record.kind === "complaints" && record.resolution && (
-                <div className="ct-resolution">
-                  <h3>Resolution</h3>
-                  <p className="support-text">{record.resolution}</p>
-                </div>
-              )}
-            </section>
-            <section
-              className="ct-messages ct-panel"
-              aria-labelledby="support-messages-title"
-            >
-              <header>
-                <h2 id="support-messages-title">Messages</h2>
-                <button
-                  className="button secondary"
-                  disabled={reading || frozen}
-                  onClick={refreshMessages}
-                >
-                  <RefreshCw size={16} aria-hidden="true" />
-                  Refresh messages
-                </button>
-              </header>
-              <p className="ct-message-intro">
-                Oldest replies appear first. Use Next for later pages. This is not a
-                live-agent chat.
-              </p>
-              <div className="ct-message-content">
-                <Feedback message={messages.error} />
-                {messages.refreshError && (
-                  <p className="notice" role="status">
-                    Messages may be out of date. Refresh messages before replying.
+        <>
+          <div className="care-context">
+            <StatusBadge status={record.status} />
+            <CopyableValue
+              value={record.id}
+              display={`Reference ${record.id.slice(0, 8)}…`}
+              label="Copy full case reference"
+            />
+            {record.status !== "CLOSED" && !detailUnavailable && !guard.disabled && (
+              <a
+                className="care-next"
+                href="#customer-care-reply"
+                onClick={(event) => {
+                  const composer = document.querySelector<HTMLTextAreaElement>(
+                    "#customer-care-reply textarea:not(:disabled)",
+                  );
+                  if (!composer) return;
+                  event.preventDefault();
+                  window.history.pushState(
+                    window.history.state,
+                    "",
+                    "#customer-care-reply",
+                  );
+                  composer.scrollIntoView({ block: "center" });
+                  composer.focus({ preventScroll: true });
+                }}
+              >
+                Reply to this request
+              </a>
+            )}
+          </div>
+          <div className="ct-grid">
+            <div className="ct-conversation-column">
+              <section
+                className="ct-original ct-panel"
+                aria-labelledby="ct-original-title"
+              >
+                <h2 id="ct-original-title">
+                  Original {kind === "enquiries" ? "message" : "complaint"}
+                </h2>
+                <p className="support-text">{record.text}</p>
+                {record.kind === "complaints" && record.resolution && (
+                  <div className="ct-resolution">
+                    <h3>Resolution</h3>
+                    <p className="support-text">{record.resolution}</p>
+                  </div>
+                )}
+              </section>
+              <section
+                className="ct-messages ct-panel"
+                aria-labelledby="support-messages-title"
+              >
+                <header>
+                  <h2 id="support-messages-title">Messages</h2>
+                  <button
+                    className="button secondary"
+                    disabled={reading || frozen}
+                    onClick={refreshMessages}
+                  >
+                    <RefreshCw size={16} aria-hidden="true" />
+                    Refresh messages
+                  </button>
+                </header>
+                <p className="ct-message-intro">
+                  Replies and status updates appear in chronological order. Use Next for
+                  later pages. This is not a live-agent chat.
+                </p>
+                {messageId && (
+                  <p className="notice">
+                    Viewing the selected update and later entries.{" "}
+                    <Link href={`/dashboard/support/${kind}/${id}`}>
+                      View full conversation
+                    </Link>
                   </p>
                 )}
-                {messages.loading && <p role="status">Checking messages…</p>}
-                {!messages.loading &&
-                  !messages.error &&
-                  messages.data?.items.length === 0 && (
-                    <p className="ct-empty">No replies on this page.</p>
+                <div className="ct-message-content">
+                  <Feedback message={messages.error} />
+                  {messages.refreshError && (
+                    <p className="notice" role="status">
+                      Messages may be out of date. Refresh messages before replying.
+                    </p>
                   )}
-                {!messages.error &&
-                  messages.data?.items.map((item) => (
-                    <article className="ct-message" key={item.id}>
-                      <div>
-                        <h3>
-                          {item.authorType === "SYSTEM"
-                            ? "System update"
-                            : item.authorType === "CUSTOMER"
-                              ? "You"
-                              : "Allied AutoTech team"}
-                        </h3>
-                        <time dateTime={item.createdAt}>
-                          {formatBusinessDate(item.createdAt)}
-                        </time>
-                      </div>
-                      <p className="support-text">{item.body}</p>
-                    </article>
-                  ))}
-              </div>
-              <CursorPagination
-                pagination={pagination}
-                nextCursor={
-                  !messages.error && !messages.refreshError && messages.data?.hasMore
-                    ? (messages.data.cursor ?? undefined)
-                    : undefined
-                }
-                disabled={reading || frozen}
-                label="Conversation messages"
+                  {messages.loading && <p role="status">Checking messages…</p>}
+                  {!messages.loading &&
+                    !messages.error &&
+                    messages.data?.items.length === 0 && (
+                      <p className="ct-empty">No conversation updates on this page.</p>
+                    )}
+                  {!messages.error &&
+                    messages.data?.items.map((item) => (
+                      <SupportTimelineEntry
+                        compact
+                        key={item.id}
+                        entry={item}
+                        highlighted={item.id === messageId}
+                      />
+                    ))}
+                </div>
+                <CursorPagination
+                  pagination={pagination}
+                  nextCursor={
+                    !messages.error && !messages.refreshError && messages.data?.hasMore
+                      ? (messages.data.cursor ?? undefined)
+                      : undefined
+                  }
+                  disabled={reading || frozen}
+                  label="Conversation messages"
+                />
+              </section>
+            </div>
+            <div className="ct-side-column" id="customer-care-reply">
+              <SupportReplyForm
+                key={replyGeneration}
+                record={record}
+                staff={false}
+                base={base}
+                userId={userId}
+                guard={guard}
+                disabled={detailUnavailable}
+                onReviewChange={setReviewing}
+                onUncertain={() => {}}
+                onSaved={() => {
+                  detail.refresh();
+                  messages.refresh();
+                }}
               />
-            </section>
+              <details className="care-secondary">
+                <summary>Request details and workflow</summary>
+                <RecordDetails record={record} />
+              </details>
+            </div>
           </div>
-          <div className="ct-side-column">
-            <RecordDetails record={record} />
-            <SupportReplyForm
-              key={replyGeneration}
-              record={record}
-              staff={false}
-              base={base}
-              userId={userId}
-              guard={guard}
-              disabled={detailUnavailable}
-              onReviewChange={setReviewing}
-              onUncertain={() => {}}
-              onSaved={() => {
-                detail.refresh();
-                messages.refresh();
-              }}
-            />
-          </div>
-        </div>
+        </>
       )}
     </div>
   );

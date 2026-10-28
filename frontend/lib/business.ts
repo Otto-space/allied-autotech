@@ -2,7 +2,8 @@ import { browseEnquiriesOnly } from "./public-launch";
 export const business = {
   name: "Allied AutoTech",
   legalName: "Allied Autotech Limited",
-  address: "133 Stadium Road, beside Kilimanjaro, Port Harcourt, Rivers State, Nigeria",
+  address:
+    "133 Stadium Road, beside Kilimanjaro Pizza Jungle Restaurant, Port Harcourt, Rivers State, Nigeria",
   phone: "08136075567",
   internationalPhone: "+2348136075567",
   whatsapp: "https://wa.me/2348136075567",
@@ -11,10 +12,11 @@ export const business = {
   customerCareResponse:
     "We aim to acknowledge enquiries within 30 minutes during these hours. Messages received outside these hours are acknowledged within 30 minutes of our next opening. Resolution time depends on the enquiry.",
   socialHandle: "@AlliedAutoTech",
+  instagram: "https://www.instagram.com/alliedautotech/",
   directions:
     "https://www.google.com/maps/dir/?api=1&destination=" +
     encodeURIComponent(
-      "133 Stadium Road, beside Kilimanjaro, Port Harcourt, Rivers State, Nigeria",
+      "133 Stadium Road, beside Kilimanjaro Pizza Jungle Restaurant, Port Harcourt, Rivers State, Nigeria",
     ),
 } as const;
 
@@ -44,9 +46,7 @@ export const faqs = [
     category: "Contact and location",
     question: "How can I speak to someone?",
     answer:
-      "Call " +
-      business.phone +
-      ", message us on WhatsApp, or email " +
+      "Call our team, message us on Whatsapp, or email " +
       business.email +
       ". Customer care is available " +
       business.customerCareHours +
@@ -54,7 +54,7 @@ export const faqs = [
       business.customerCareResponse,
     keywords: "contact human person agent support whatsapp phone email complaint",
     href: business.whatsapp,
-    action: "Message on WhatsApp",
+    action: "Whatsapp",
   },
   {
     id: "pending-payments",
@@ -83,8 +83,9 @@ export const faqs = [
     id: "policies-and-opening-hours",
     category: "Contact and location",
     question: "What are your hours, warranties and refund policies?",
-    answer:
-      "Contact Allied AutoTech for the policy that applies to your request. Current booking terms are shown before you submit, and any payment or refund status is available in your account.",
+    answer: browseEnquiriesOnly()
+      ? `Customer care is available ${business.customerCareHours}. Contact Allied AutoTech for the warranty or refund terms that apply to your request. Our team confirms workshop appointments separately.`
+      : "Contact Allied AutoTech for the policy that applies to your request. Current booking terms are shown before you submit, and any payment or refund status is available in your account.",
     keywords: "hours open closing warranty guarantee refund policy returns",
     href: business.whatsapp,
     action: "Ask Allied AutoTech",
@@ -103,8 +104,9 @@ export const faqs = [
     id: "shop-and-collection",
     category: "Shop and collection",
     question: "How do I order the right part?",
-    answer:
-      "Open a product to review its listed compatibility and branch availability. Ask our team if your vehicle is not listed. Review quantities, fulfilment options and the total at checkout. Adding an item to your cart does not reserve stock.",
+    answer: browseEnquiriesOnly()
+      ? "Use Find Parts for My Car to choose your vehicle and review the fitment result. Make, model and year identify candidates; only a verified fit confirms the recorded specifications match. If compatibility is unknown or needs verification, ask our team before choosing a part. Send a product enquiry to discuss fitment, availability and collection from the workshop. Online checkout is not available, and an enquiry does not reserve stock."
+      : "Use Find Parts for My Car and review the product's fitment result and branch availability. If compatibility is unknown or needs verification, ask our team before choosing a part. New orders are for collection from the workshop only. Review quantities and the total at checkout. Adding an item to your cart does not reserve stock.",
     keywords: "shop parts product compatibility cart collection delivery order stock",
     href: "/parts",
     action: "Browse the shop",

@@ -1,7 +1,9 @@
 import type { AuthenticatedActor } from "../../common/contracts/actor.js";
 import type { RequestSecurityContext } from "../../common/contracts/request-security.js";
 import { prisma } from "../../config/database.js";
-import type { PrismaClient } from "../../generated/prisma/client.js";
+import { AppError } from "../../common/errors/app-error.js";
+import { savedVehicleQualifierKeys } from "./customers.schemas.js";
+import type { Prisma, PrismaClient } from "../../generated/prisma/client.js";
 import { appendAuditEvent } from "../audit/audit.service.js";
 import { customerResourceNotFound } from "./customers.errors.js";
 import { assertCustomerActor } from "./customers.policy.js";
@@ -68,12 +70,14 @@ export class CustomersService {
     assertCustomerActor(actor);
     if (query.cursor !== undefined) {
       const cursor = await this.repository.vehicle(actor.userId, query.cursor);
-      if (cursor === null) throw customerResourceNotFound();
+      if (cursor === null || (query.defaultOnly && !cursor.isDefault))
+        throw customerResourceNotFound();
     }
     const rows = await this.repository.listVehicles(
       actor.userId,
       query.cursor,
       query.limit,
+      query.defaultOnly,
     );
     if (rows === null) throw customerResourceNotFound();
     const hasMore = rows.length > query.limit;
@@ -92,6 +96,106 @@ export class CustomersService {
     return vehicle;
   }
 
+  private async vehicleConfiguration<
+    T extends CustomerVehicleCreateInput | CustomerVehicleUpdateInput,
+  >(
+    input: T,
+    tx: Prisma.TransactionClient,
+    existing?: {
+      vehicleModelId: string | null;
+      year: number;
+      make: string;
+      model: string;
+    },
+  ): Promise<T> {
+    const next = { ...input };
+    const modelId =
+      input.vehicleModelId === undefined
+        ? existing?.vehicleModelId
+        : input.vehicleModelId;
+    if (
+      (input.vehicleModelId !== undefined &&
+        input.vehicleModelId !== existing?.vehicleModelId) ||
+      (existing && input.year !== undefined && input.year !== existing.year)
+    )
+      for (const key of savedVehicleQualifierKeys)
+        if (next[key] === undefined) next[key] = null;
+    for (const key of savedVehicleQualifierKeys) {
+      const value = next[key];
+      if (typeof value === "string") {
+        const normalized = value.normalize("NFKC").trim();
+        if (normalized.length > 100)
+          throw new AppError({
+            code: "VALIDATION_FAILED",
+            statusCode: 422,
+            message: "Vehicle specification is too long after normalization",
+          });
+        next[key] = normalized;
+      }
+    }
+    const sameName = (a: string, b: string) =>
+      a.normalize("NFKC").trim().toLowerCase() ===
+      b.normalize("NFKC").trim().toLowerCase();
+    const selectionChanged =
+      !existing ||
+      (input.vehicleModelId !== undefined &&
+        input.vehicleModelId !== existing.vehicleModelId) ||
+      (input.year !== undefined && input.year !== existing.year) ||
+      (input.make !== undefined && !sameName(input.make, existing.make)) ||
+      (input.model !== undefined && !sameName(input.model, existing.model));
+    if (modelId && selectionChanged) {
+      const model = await tx.vehicleModel.findFirst({
+        where: { id: modelId, isActive: true, make: { isActive: true } },
+        include: { make: true },
+      });
+      const year = input.year ?? existing?.year;
+      if (
+        !model ||
+        year === undefined ||
+        year < model.yearFrom ||
+        year > model.yearTo ||
+        (input.make !== undefined && !sameName(input.make, model.make.name)) ||
+        (input.model !== undefined && !sameName(input.model, model.name))
+      )
+        throw new AppError({
+          code: "VALIDATION_FAILED",
+          statusCode: 422,
+          message:
+            "Choose a matching catalogue make, model and supported year, or explicitly unlink the catalogue configuration",
+        });
+      next.make = model.make.name;
+      next.model = model.name;
+    }
+    if (modelId && !selectionChanged && existing) {
+      next.make = existing.make;
+      next.model = existing.model;
+    }
+    return next;
+  }
+
+  private async switchDefault(
+    transaction: Prisma.TransactionClient,
+    customerId: string,
+    vehicleId: string | null,
+    actor: AuthenticatedActor,
+    context: RequestSecurityContext,
+  ) {
+    const previous = await this.repository.clearOtherDefaults(
+      customerId,
+      vehicleId,
+      transaction,
+    );
+    for (const row of previous)
+      await appendAuditEvent(transaction, {
+        actorUserId: actor.userId,
+        action: "UPDATE",
+        entityType: "CUSTOMER_VEHICLE",
+        entityId: row.id,
+        newValues: { changedFields: "isDefault", isDefault: false },
+        context,
+      });
+  }
+
   async createVehicle(
     actor: AuthenticatedActor,
     input: CustomerVehicleCreateInput,
@@ -99,9 +203,14 @@ export class CustomersService {
   ) {
     assertCustomerActor(actor);
     return this.database.$transaction(async (transaction) => {
+      const customerId = await this.repository.lockGarage(actor.userId, transaction);
+      if (!customerId) throw customerResourceNotFound();
+      const prepared = await this.vehicleConfiguration(input, transaction);
+      if (input.isDefault)
+        await this.switchDefault(transaction, customerId, null, actor, context);
       const vehicle = await this.repository.createVehicle(
         actor.userId,
-        input,
+        prepared,
         transaction,
       );
       if (vehicle === null) throw customerResourceNotFound();
@@ -110,7 +219,11 @@ export class CustomersService {
         action: "CREATE",
         entityType: "CUSTOMER_VEHICLE",
         entityId: vehicle.id,
-        newValues: { ownerUserId: actor.userId },
+        newValues: {
+          ownerUserId: actor.userId,
+          isDefault: vehicle.isDefault,
+          catalogueLinked: vehicle.vehicleModelId !== null,
+        },
         context,
       });
       return vehicle;
@@ -125,10 +238,21 @@ export class CustomersService {
   ) {
     assertCustomerActor(actor);
     return this.database.$transaction(async (transaction) => {
+      const customerId = await this.repository.lockGarage(actor.userId, transaction);
+      if (!customerId) throw customerResourceNotFound();
+      const existing = await this.repository.vehicle(
+        actor.userId,
+        vehicleId,
+        transaction,
+      );
+      if (!existing) throw customerResourceNotFound();
+      const prepared = await this.vehicleConfiguration(input, transaction, existing);
+      if (input.isDefault)
+        await this.switchDefault(transaction, customerId, vehicleId, actor, context);
       const vehicle = await this.repository.updateVehicle(
         actor.userId,
         vehicleId,
-        input,
+        prepared,
         transaction,
       );
       if (vehicle === null) throw customerResourceNotFound();
@@ -137,7 +261,13 @@ export class CustomersService {
         action: "UPDATE",
         entityType: "CUSTOMER_VEHICLE",
         entityId: vehicle.id,
-        newValues: { changedFields: Object.keys(input).sort().join(",") },
+        newValues: {
+          changedFields: Object.keys(prepared)
+            .filter((key) => key !== "expectedUpdatedAt")
+            .sort()
+            .join(","),
+          isDefault: vehicle.isDefault,
+        },
         context,
       });
       return vehicle;
@@ -151,6 +281,8 @@ export class CustomersService {
   ): Promise<void> {
     assertCustomerActor(actor);
     await this.database.$transaction(async (transaction) => {
+      if (!(await this.repository.lockGarage(actor.userId, transaction)))
+        throw customerResourceNotFound();
       const vehicle = await this.repository.deleteVehicle(
         actor.userId,
         vehicleId,

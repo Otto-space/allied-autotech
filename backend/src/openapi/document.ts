@@ -1,3 +1,5 @@
+import { registerFitmentOpenApi } from "../modules/fitment/fitment.openapi.js";
+import { registerLearningOpenApi } from "../modules/learning/learning.openapi.js";
 import { OpenApiGeneratorV31, OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 
 import { registerIdentityOpenApi } from "../modules/identity/identity.openapi.js";
@@ -18,6 +20,7 @@ import { registerBillingOpenApi } from "../modules/billing/billing.openapi.js";
 import { registerVehiclesOpenApi } from "../modules/vehicles/vehicles.openapi.js";
 import { registerVehicleSalesOpenApi } from "../modules/vehicle-sales/vehicle-sales.openapi.js";
 import { registerPaymentsOpenApi } from "../modules/payments/payments.openapi.js";
+import { registerResendWebhookOpenApi } from "../providers/messaging/resend-webhook.openapi.js";
 import { registerSupportOpenApi } from "../modules/support/support.openapi.js";
 import { registerNotificationsOpenApi } from "../modules/notifications/notifications.openapi.js";
 import { registerAuditOpenApi } from "../modules/audit/audit.openapi.js";
@@ -32,6 +35,7 @@ export interface OpenApiDocumentOptions {
 
 export function createOpenApiDocument(options: OpenApiDocumentOptions) {
   const registry = new OpenAPIRegistry();
+  registerLearningOpenApi(registry);
   registerIdentityOpenApi(registry, options.sessionCookieName);
   registerCustomersOpenApi(registry);
   registerCustomerDirectoryOpenApi(registry);
@@ -48,8 +52,10 @@ export function createOpenApiDocument(options: OpenApiDocumentOptions) {
   registerPromotionsOpenApi(registry);
   registerBillingOpenApi(registry);
   registerVehiclesOpenApi(registry);
+  registerFitmentOpenApi(registry);
   registerVehicleSalesOpenApi(registry);
   registerPaymentsOpenApi(registry);
+  registerResendWebhookOpenApi(registry);
   registerSupportOpenApi(registry);
   registerNotificationsOpenApi(registry);
   registerAuditOpenApi(registry);

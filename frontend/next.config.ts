@@ -16,6 +16,9 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: projectRoot,
   },
+  async redirects() {
+    return [{ source: "/shop", destination: "/parts", permanent: true }];
+  },
   async rewrites() {
     const origin = backendOrigin();
     return [
@@ -27,6 +30,14 @@ const nextConfig: NextConfig = {
   },
   async headers() {
     return [
+      {
+        source: "/push-sw.js",
+        headers: [
+          { key: "Cache-Control", value: "no-cache, no-store, must-revalidate" },
+          { key: "Service-Worker-Allowed", value: "/" },
+          { key: "Content-Type", value: "application/javascript; charset=utf-8" },
+        ],
+      },
       {
         source: "/(.*)",
         headers: [
@@ -41,6 +52,10 @@ const nextConfig: NextConfig = {
           { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
           { key: "Cross-Origin-Resource-Policy", value: "same-origin" },
         ],
+      },
+      {
+        source: "/brand/:asset(allied-mark-red.png|allied-email-profile.png)",
+        headers: [{ key: "Cross-Origin-Resource-Policy", value: "cross-origin" }],
       },
     ];
   },

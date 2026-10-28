@@ -37,6 +37,21 @@ export class CustomerDirectoryController {
     );
     response.json(successResponse("Customers retrieved", request.id, result));
   };
+  changeAccountStatus = async (request: Request, response: Response) => {
+    const { customerId } = validated<{ customerId: string }>(response, "params");
+    response.json(
+      successResponse(
+        "Customer account status updated",
+        request.id,
+        await this.service.changeAccountStatus(
+          actor(request),
+          customerId,
+          response.locals.validated?.["body"],
+          context(request),
+        ),
+      ),
+    );
+  };
   detail = async (request: Request, response: Response) => {
     const { customerId } = validated<{ customerId: string }>(response, "params");
     const result = await this.service.detail(

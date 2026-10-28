@@ -28,7 +28,7 @@ for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536])
           await control.getAttribute("class"),
         ).toBeGreaterThanOrEqual(44);
     const care = await page.locator(".customer-care").boundingBox();
-    const activity = await page.locator(".customer-activity-heading").boundingBox();
+    const activity = await page.locator(".customer-history > summary").boundingBox();
     expect(care!.y + care!.height).toBeLessThan(activity!.y);
     await expect(page.locator(".customer-overview a[href^='/admin']")).toHaveCount(0);
     await expect(page.locator(".care-timeline li")).toHaveCount(3);
@@ -58,11 +58,15 @@ test("historical dates never replace current care with a zero state", async ({
   await expect(page.locator(".customer-care")).toBeVisible();
   const care = await page.locator(".customer-care").innerText();
   state.mode = "period_empty";
+  await page.locator(".customer-history > summary").click();
   await page.getByLabel("From", { exact: true }).fill("2000-01-01");
   await page.getByLabel("To", { exact: true }).fill("2000-01-02");
   await page.getByRole("button", { name: "Apply dates", exact: true }).click();
   await expect(
-    page.getByText("No new bookings or orders in this period.", { exact: true }),
+    page.getByText(
+      "No recorded activity in this period. Choose another date range to check earlier history.",
+      { exact: true },
+    ),
   ).toBeVisible();
   await expect(page.locator(".customer-care")).toHaveText(care, { useInnerText: true });
   expect(state.reads.at(-1)?.searchParams.get("from")).toBe("2000-01-01");
@@ -81,10 +85,17 @@ test("an empty account has clear next actions without invented progress", async 
   await expect(
     page.getByRole("link", { name: "Manage garage", exact: true }),
   ).toHaveAttribute("href", "/dashboard/vehicles");
+  const browseParts = page.getByRole("link", { name: "Browse parts", exact: true });
+  await expect(browseParts).toHaveAttribute("href", "/parts");
   await expect(page.locator(".care-timeline")).toHaveCount(0);
   await expect(page.getByRole("link", { name: "View payment", exact: true })).toHaveCount(
     0,
   );
+  await browseParts.click();
+  await expect(page).toHaveURL(/\/parts$/);
+  await expect(
+    page.getByRole("heading", { name: "We couldn’t find that page." }),
+  ).toHaveCount(0);
 });
 
 for (const mode of ["missingCare", "malformedCare", "wrongScope", "error"])
@@ -160,10 +171,10 @@ test("current-care detail links use owned records and distinguish requested time
       "href",
       href,
     );
-  await expect(page.locator(".care-next")).toContainText(
+  await expect(page.locator(".customer-care-next")).toContainText(
     "Requested time; awaiting confirmation.",
   );
-  await expect(page.locator(".care-secondary")).toContainText("Preferred date:");
+  await expect(page.locator(".customer-care-secondary")).toContainText("Preferred date:");
   await expect(page.locator(".customer-care")).not.toContainText(
     /Delivered|Quality check|Paid in full/,
   );

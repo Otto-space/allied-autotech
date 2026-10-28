@@ -44,7 +44,10 @@ INVESTIGATING. Only INVESTIGATING may become RESOLVED or IGNORED. Closed records
 cannot reopen. The conditional expected-status update and STATUS_CHANGE audit are
 atomic; stale/invalid transitions return 409. The terminal actor and time are set
 by the server. The response now includes the complete shared safe projection rather
-than the older partial receipt.
+than the older partial receipt. The write also locks and rechecks the current
+administrator account and session inside its transaction. A revoked, expired,
+inactive, demoted or no-longer-MFA-verified actor cannot change the investigation
+after the earlier request-level authorization check.
 
 This operation changes the exception investigation only. It does not verify,
 capture, refund, settle, reprice or update any linked financial record. No database

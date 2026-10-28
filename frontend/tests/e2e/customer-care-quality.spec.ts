@@ -91,6 +91,9 @@ test("long records and confirmation fit a short narrow viewport with reduced mot
   await expect(opener(page)).toBeFocused();
 });
 async function compose(page: Page) {
+  const disclosure = page.locator(".care-create");
+  if ((await disclosure.getAttribute("open")) === null)
+    await disclosure.locator("summary").click();
   await page
     .getByLabel("Handling branch")
     .selectOption("d5000000-0000-4000-8000-000000000002");
@@ -166,8 +169,9 @@ for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536]) {
     await page.setViewportSize({ width, height: 900 });
     await page.goto("/dashboard/support");
     await expect(
-      page.getByRole("link", { name: "Test enquiry", exact: true }),
+      page.getByRole("link", { name: "View Test enquiry", exact: true }),
     ).toBeVisible();
+    await page.locator(".care-create > summary").click();
     await expect(opener(page)).toBeEnabled();
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
@@ -175,8 +179,8 @@ for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536]) {
     if (width >= 1280) {
       const form = await page.locator(".cc-form").boundingBox();
       const history = await page.locator(".cc-history").boundingBox();
-      expect(Math.abs(form!.y - history!.y)).toBeLessThan(2);
-      expect(history!.x).toBeGreaterThan(form!.x + form!.width);
+      expect(history!.y).toBeGreaterThanOrEqual(form!.y + form!.height);
+      await expect(page.locator(".care-table")).toBeVisible();
     }
   });
 }
@@ -187,6 +191,7 @@ for (const width of [390, 768, 1280, 1440]) {
     const state = await customerSupportFixture(page);
     await page.setViewportSize({ width, height: 844 });
     await page.goto("/dashboard/support");
+    await page.locator(".care-create > summary").click();
     await expect(opener(page)).toBeEnabled();
     expect(
       (

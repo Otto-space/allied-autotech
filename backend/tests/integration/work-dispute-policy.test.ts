@@ -16,7 +16,11 @@ import type { AuthenticatedActor } from "../../src/common/contracts/actor.js";
 const app = createApp({ checkReadiness: async () => undefined, rateLimit: 10000 });
 const root = "/api/v1/admin/policies",
   context = { requestId: "work-dispute-policy", ipAddress: null, userAgent: null };
-describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
+const provisionedWorkspaceAcceptanceChecksEnabled =
+  process.env.RUN_DATABASE_TESTS === "true" &&
+  process.env.RUN_PROVISIONED_WORKSPACE_TESTS === "true";
+
+describe.skipIf(!provisionedWorkspaceAcceptanceChecksEnabled)(
   "dispute policy authoritative workspace",
   () => {
     const sessions: string[] = [],

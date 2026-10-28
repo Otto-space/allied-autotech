@@ -1,7 +1,7 @@
 ﻿.dashboard .dashboard-content .work-dashboard {
   --wl: #d5dfe7;
   max-width: 1600px;
-  color: #01121a;
+  color: var(--ink);
   font-family: var(--font-quicksand), sans-serif;
   padding-bottom: 48px;
 }
@@ -27,8 +27,9 @@
   margin: 6px 0 12px;
 }
 .work-dashboard :is(a, button, input, select, summary):focus-visible {
-  outline: 2px solid #e60301;
+  outline: 3px solid var(--focus-ring);
   outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .work-dashboard .overview-welcome {
   align-items: start;
@@ -36,7 +37,7 @@
 }
 .work-dashboard .overview-top-actions .overview-refresh {
   background: white;
-  color: #01121a;
+  color: var(--ink);
   border: 1px solid #b8c8d7;
 }
 .work-dashboard .button,
@@ -79,13 +80,13 @@
   font-size: 13px;
   padding: 8px 10px;
   background-color: white;
-  border: 1px solid #b1c3d4;
+  border: 1px solid var(--border-control);
   border-radius: 6px;
-  color: #01121a;
+  color: var(--ink);
 }
 .work-dashboard .overview-range button {
-  background: #e60301;
-  border-color: #e60301;
+  background: var(--brand-red);
+  border-color: var(--brand-red);
   color: white;
 }
 .work-dashboard .overview-range > span {
@@ -105,7 +106,7 @@
   display: grid;
   grid-template-columns: 0.8fr 0.8fr 1.3fr 1.15fr 1fr;
   gap: 0;
-  background: #01121a;
+  background: var(--ink);
   border: 1px solid #01121a;
   border-radius: 8px;
   overflow: hidden;
@@ -171,18 +172,18 @@
   min-height: 44px;
 }
 .work-dashboard .chart-dot.bookings {
-  background: #e60301;
+  background: var(--brand-red);
 }
 .work-dashboard .chart-dot.orders {
-  background: #01121a;
+  background: var(--ink);
 }
 .work-dashboard .overview-series.bookings {
-  stroke: #e60301;
-  fill: #e60301;
+  stroke: var(--brand-red);
+  fill: var(--brand-red);
 }
 .work-dashboard .overview-series.orders {
-  stroke: #01121a;
-  fill: #01121a;
+  stroke: var(--ink);
+  fill: var(--ink);
 }
 .work-dashboard .overview-chart svg {
   max-height: 190px;
@@ -196,7 +197,7 @@
 }
 .work-dashboard .overview-chart-controls input {
   min-height: 44px;
-  accent-color: #e60301;
+  accent-color: var(--checked);
 }
 .work-dashboard .overview-data {
   font-size: 12px;
@@ -213,10 +214,10 @@
   height: 6px;
 }
 .work-dashboard .overview-status-list meter::-webkit-meter-optimum-value {
-  background: #01121a;
+  background: var(--ink);
 }
 .work-dashboard .overview-status-list meter::-moz-meter-bar {
-  background: #01121a;
+  background: var(--ink);
 }
 .dashboard .dashboard-content .work-dashboard .overview-status {
   font-size: 11px;
@@ -295,7 +296,7 @@
 .work-dashboard .overview-definitions > summary,
 .work-dashboard .overview-operations > summary {
   padding-block: 10px;
-  color: #01121a;
+  color: var(--ink);
   font-size: 13px;
 }
 .work-dashboard .overview-definitions[open] {

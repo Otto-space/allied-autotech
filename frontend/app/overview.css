@@ -1,5 +1,5 @@
 .overview {
-  --overview-green: #087f69;
+  --overview-green: var(--chart-secondary);
 }
 .overview-welcome {
   display: flex;
@@ -26,7 +26,7 @@
   flex-shrink: 0;
 }
 .overview-top-actions select {
-  border: 1px solid var(--line);
+  border: 1px solid var(--border-control);
   border-radius: 8px;
   padding: 12px;
   background: white;
@@ -54,7 +54,7 @@
   font-weight: 600;
 }
 .overview-range input {
-  border: 1px solid var(--line);
+  border: 1px solid var(--border-control);
   background: white;
   border-radius: 6px;
   font: inherit;
@@ -238,12 +238,15 @@
   fill: #536475;
 }
 .overview-series.bookings {
-  stroke: var(--blue);
-  fill: var(--blue);
+  stroke: var(--chart-primary);
+  fill: var(--chart-primary);
 }
 .overview-series.orders {
   stroke: var(--overview-green);
   fill: var(--overview-green);
+}
+.overview-series.orders polyline {
+  stroke-dasharray: 6 4;
 }
 .overview-series polyline {
   fill: none;
@@ -276,7 +279,7 @@
 .overview-chart-controls input {
   flex: 1;
   min-width: 30px;
-  accent-color: var(--blue);
+  accent-color: var(--checked);
   min-height: 28px;
 }
 .overview-chart-controls label,

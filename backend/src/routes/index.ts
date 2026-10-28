@@ -1,3 +1,5 @@
+import { createFitmentRouter } from "../modules/fitment/fitment.routes.js";
+import { createLearningRouter } from "../modules/learning/learning.routes.js";
 import { createServiceDiscoveryRouter } from "../modules/service-operations/service-discovery.routes.js";
 import { createOrderAftercareRouter } from "../modules/orders/order-aftercare.routes.js";
 import { createPrivacyRouter } from "../modules/policies/privacy.routes.js";
@@ -5,6 +7,7 @@ import { createBookingActionsRouter } from "../modules/service-operations/bookin
 import { createPoliciesRouter } from "../modules/policies/policies.routes.js";
 import { createManualRefundsRouter } from "../modules/payments/manual-refunds.routes.js";
 import { Router } from "express";
+import { createResendWebhookRouter } from "../providers/messaging/resend-webhook.routes.js";
 import { publicLaunch } from "../common/middleware/public-launch.js";
 
 import { publicApiPaths } from "../common/contracts/public-api.js";
@@ -104,6 +107,7 @@ import { createDisputesRouter } from "../modules/payments/disputes.routes.js";
 export function createApiRouter(options: ApiRouterOptions): Router {
   const apiRouter = Router();
   apiRouter.use(publicLaunch(env.PUBLIC_LAUNCH_MODE));
+  apiRouter.use(createLearningRouter());
   apiRouter.use(createWorkforceRouter());
   apiRouter.use(createPoliciesRouter());
   apiRouter.use(createPrivacyRouter());
@@ -162,6 +166,7 @@ export function createApiRouter(options: ApiRouterOptions): Router {
   apiRouter.use("/admin", createAuditOperationsRouter());
   apiRouter.use("/webhooks/paystack", createPaystackWebhookRouter());
   apiRouter.use("/webhooks/monnify", createMonnifyWebhookRouter());
+  apiRouter.use("/webhooks/resend", createResendWebhookRouter());
   if (env.API_DOCS_ENABLED) {
     apiRouter.get("/openapi.json", (_req, res): void => {
       res.setHeader("Cache-Control", "no-store");
@@ -170,5 +175,6 @@ export function createApiRouter(options: ApiRouterOptions): Router {
     apiRouter.use("/docs", swaggerSecurityHeaders, swaggerServe, swaggerSetup);
   }
 
+  apiRouter.use(createFitmentRouter());
   return apiRouter;
 }

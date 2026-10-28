@@ -9,10 +9,33 @@ import {
 import { ProductActions } from "@/app/components/product-actions";
 import { VehicleActions } from "@/app/components/vehicle-actions";
 import { dashboardNavigation } from "@/lib/dashboard-navigation";
+import { PublicEnquiryForm } from "@/app/components/public-enquiry-form";
 
 afterEach(() => {
   cleanup();
   vi.unstubAllEnvs();
+});
+it("closes customer entry points in catalogue mode while retaining staff access", () => {
+  vi.stubEnv("NEXT_PUBLIC_PUBLIC_LAUNCH_MODE", "catalogue");
+  expect(publicLaunchMode()).toBe("catalogue");
+  for (const path of [
+    "/register",
+    "/dashboard",
+    "/dashboard/support",
+    "/payments/complete",
+  ])
+    expect(restrictedLaunchPage(path)).toBe(true);
+  for (const path of ["/login", "/mfa", "/admin", "/services", "/contact", "/privacy"])
+    expect(restrictedLaunchPage(path)).toBe(false);
+});
+it("offers external contact without mounting an enquiry form in catalogue mode", () => {
+  vi.stubEnv("NEXT_PUBLIC_PUBLIC_LAUNCH_MODE", "catalogue");
+  const { container } = render(<PublicEnquiryForm />);
+  expect(container.querySelector("form")).toBeNull();
+  expect(container.querySelector("input,textarea,select")).toBeNull();
+  expect(
+    screen.getByRole("link", { name: "Enquire by email" }).getAttribute("href"),
+  ).toContain("mailto:support@alliedautotech.com");
 });
 it("validates mode explicitly and preserves existing full-mode default", () => {
   vi.stubEnv("NEXT_PUBLIC_PUBLIC_LAUNCH_MODE", "");
@@ -64,6 +87,25 @@ it("hides unavailable customer destinations while preserving staff navigation", 
       .flatMap((group) => group.links)
       .some((link) => link.href === "/dashboard/cart"),
   ).toBe(true);
+});
+it("names saved items independently of unavailable orders in limited releases", () => {
+  for (const mode of ["browse_enquiries", "catalogue"]) {
+    vi.stubEnv("NEXT_PUBLIC_PUBLIC_LAUNCH_MODE", mode);
+    const shop = dashboardNavigation("CUSTOMER").find((group) => group.id === "shop");
+    if (mode === "catalogue") expect(shop).toBeUndefined();
+    else {
+      expect(shop?.label).toBe("Saved items");
+      expect(shop?.links.map((link) => link.href)).toEqual(["/dashboard/saved"]);
+    }
+  }
+  vi.stubEnv("NEXT_PUBLIC_PUBLIC_LAUNCH_MODE", "full");
+  const shop = dashboardNavigation("CUSTOMER").find((group) => group.id === "shop");
+  expect(shop?.label).toBe("Orders & saved items");
+  expect(shop?.links.map((link) => link.href)).toEqual([
+    "/dashboard/orders",
+    "/dashboard/cart",
+    "/dashboard/saved",
+  ]);
 });
 it("renders product enquiries instead of a cart or purchase form", () => {
   vi.stubEnv("NEXT_PUBLIC_PUBLIC_LAUNCH_MODE", "browse_enquiries");

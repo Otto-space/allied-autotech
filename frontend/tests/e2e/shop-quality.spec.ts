@@ -6,18 +6,17 @@ import type { Product } from "@/lib/api/commerce-schemas";
 
 const id = (n: number) => `f7000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
 const cursor = "A".repeat(120) + "_" + "a".repeat(64);
-const categoryOption = (n: number) => ({
-  value: category(n).id,
-  label: category(n).name,
-});
 const category = (n: number) => ({
   id: id(100 + n),
+  parentId: n === 4 ? id(101) : null,
   name:
-    n === 1
-      ? "Filters"
-      : n === 2
-        ? "Oils and fluids"
-        : "External engine components and emission control systems with a deliberately long category name",
+    n === 4
+      ? "Oil filters"
+      : n === 1
+        ? "Filters"
+        : n === 2
+          ? "Oils and fluids"
+          : "External engine components and emission control systems with a deliberately long category name",
   slug: `qa-category-${n}`,
   description: null,
 });
@@ -75,12 +74,21 @@ async function fixture(page: Page) {
     }),
   );
   await page.route("**/api/v1/public/catalog/categories/*", (route) =>
-    route.fulfill({ json: success(category(3)) }),
+    route.fulfill({
+      json: success(
+        category(
+          Number(new URL(route.request().url()).pathname.split("/").at(-1)!.slice(-3)) -
+            100,
+        ),
+      ),
+    }),
   );
-  await page.route("**/api/v1/public/catalog/facets?*", (route) => {
+  await page.route(/\/api\/v1\/public\/catalog\/(facets|categories)\?/, (route) => {
     const url = new URL(route.request().url());
     state.optionRequests.push(url);
-    const field = url.searchParams.get("field");
+    const field = url.pathname.endsWith("/categories")
+      ? "category"
+      : url.searchParams.get("field");
     const search = (url.searchParams.get("search") ?? "").toLowerCase();
     const more = url.searchParams.has("cursor");
     if (field === "category" ? state.categoryFailure : state.optionFailure)
@@ -110,6 +118,12 @@ async function fixture(page: Page) {
         }),
       });
     }
+    if (url.searchParams.has("parentId"))
+      return route.fulfill({
+        json: success({
+          items: url.searchParams.get("parentId") === id(101) ? [category(4)] : [],
+        }),
+      });
     const options = search
       ? [1, 2, 3].filter((n) => category(n).name.toLowerCase().startsWith(search))
       : more
@@ -117,13 +131,14 @@ async function fixture(page: Page) {
         : [1, 2];
     return route.fulfill({
       json: success({
-        items: options.map(categoryOption),
-        ...(!more && !search ? { nextCursor: cursor } : {}),
+        items: options.map(category),
+        ...(!more && !search ? { nextCursor: id(102) } : {}),
       }),
     });
   });
   await page.route("**/api/v1/public/catalog/products/discovery?*", async (route) => {
-    state.requests.push(new URL(route.request().url()));
+    if (new URL(route.request().url()).searchParams.get("limit") !== "1")
+      state.requests.push(new URL(route.request().url()));
     if (state.delay) await new Promise((resolve) => setTimeout(resolve, state.delay));
     if (state.offline) return route.abort("internetdisconnected");
     if (state.status !== 200)
@@ -151,6 +166,8 @@ async function fixture(page: Page) {
   });
   await page.goto("/parts");
   await page.getByRole("searchbox", { name: "Search products" }).fill("QA");
+  await expect(page).toHaveURL(/search=QA/);
+  await expect.poll(() => state.requests.at(-1)?.searchParams.get("search")).toBe("QA");
   await expect(
     page.getByRole("status").filter({ hasText: "3 products on this page" }),
   ).toBeVisible();
@@ -196,13 +213,15 @@ test("global category search finds an unloaded category and name options page, s
   page,
 }) => {
   const state = await fixture(page);
-  await page.locator(".product-category-trigger").click();
+  await page
+    .locator(".product-category:not(.product-subcategory) .product-category-trigger")
+    .click();
   await page.getByRole("combobox", { name: "Search categories" }).fill("External");
   await expect(page.getByRole("option", { name: /External engine/ })).toBeVisible();
   expect(
     state.optionRequests.some(
       (url) =>
-        url.searchParams.get("field") === "category" &&
+        url.pathname.endsWith("/categories") &&
         url.searchParams.get("search") === "External",
     ),
   ).toBe(true);
@@ -216,18 +235,6 @@ test("global category search finds an unloaded category and name options page, s
   await expect(page.locator("#product-filter-brand-options option")).toHaveAttribute(
     "value",
     "Other brand",
-  );
-  await page.getByLabel("Vehicle make (exact name)").fill("Toyota");
-  await expect(page.locator("#product-filter-model-options option")).toHaveAttribute(
-    "value",
-    "Camry",
-  );
-  await page.getByLabel("Vehicle model (exact name)").fill("Camry");
-  await page.getByLabel("Vehicle make (exact name)").fill("Honda");
-  await expect(page.getByLabel("Vehicle model (exact name)")).toHaveValue("");
-  await expect(page.locator("#product-filter-model-options option")).toHaveAttribute(
-    "value",
-    "Accord",
   );
   state.optionFailure = true;
   await page.getByLabel("Brand (exact name)").fill("QA");
@@ -285,16 +292,14 @@ test("advanced fields validate and send only the supported contract", async ({
   const state = await fixture(page);
   await page.getByRole("button", { name: /^Filters/ }).click();
   await page.getByLabel("Brand (exact name)").fill("QA brand");
-  await page.getByLabel("Vehicle make (exact name)").fill("Toyota");
-  await page.getByLabel("Vehicle model (exact name)").fill("Camry");
-  await page.getByLabel("Year", { exact: true }).fill("2101");
+  await page.getByLabel("Minimum price (NGN)").fill("invalid");
   await page.getByRole("button", { name: "Apply filters" }).click();
-  await expect(page.getByLabel("Year", { exact: true })).toBeFocused();
-  await expect(page.getByLabel("Year", { exact: true })).toHaveAttribute(
+  await expect(page.getByLabel("Minimum price (NGN)")).toBeFocused();
+  await expect(page.getByLabel("Minimum price (NGN)")).toHaveAttribute(
     "aria-invalid",
     "true",
   );
-  await page.getByLabel("Year", { exact: true }).fill("2023");
+  await page.getByLabel("Minimum price (NGN)").fill("100");
   await page.getByLabel("Featured products").selectOption("false");
   await page.getByRole("button", { name: "Apply filters" }).click();
   await expect(page.getByRole("dialog")).not.toBeVisible();
@@ -304,9 +309,7 @@ test("advanced fields validate and send only the supported contract", async ({
   expect(Object.fromEntries(state.requests.at(-1)!.searchParams)).toEqual({
     search: "QA",
     brand: "QA brand",
-    make: "Toyota",
-    model: "Camry",
-    year: "2023",
+    minPriceKobo: "10000",
     featured: "false",
     limit: "12",
   });
@@ -324,7 +327,9 @@ test("category keyboard search, retained selection, load-more failure and retry"
   page,
 }) => {
   const state = await fixture(page);
-  const trigger = page.locator(".product-category-trigger");
+  const trigger = page.locator(
+    ".product-category:not(.product-subcategory) .product-category-trigger",
+  );
   await trigger.click();
   const search = page.getByRole("combobox", { name: "Search categories" });
   await expect(search).toBeFocused();
@@ -391,7 +396,7 @@ test("loading, empty, server, rate-limit and network errors remain recoverable",
   await expect(page.getByRole("heading", { name: "No matching products" })).toBeVisible();
   await page.getByRole("button", { name: "Clear filters", exact: true }).click();
   await expect(
-    page.getByRole("heading", { name: "No products are listed yet" }),
+    page.getByRole("heading", { name: "No products are published yet" }),
   ).toBeVisible();
   state.empty = false;
   for (const status of [503, 429, 0]) {
@@ -420,7 +425,7 @@ for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536])
       page
         .getByRole("navigation", { name: "Breadcrumb" })
         .locator('[aria-current="page"]'),
-    ).toHaveText("Shop");
+    ).toHaveText("Parts");
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
     ).toBe(true);
@@ -449,7 +454,9 @@ for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536])
     await page.getByRole("button", { name: /^Filters/ }).click();
     await expect(page.getByLabel("Brand (exact name)")).toHaveValue("Retained draft");
     await page.getByRole("button", { name: "Close filters" }).click();
-    await page.locator(".product-category-trigger").click();
+    await page
+      .locator(".product-category:not(.product-subcategory) .product-category-trigger")
+      .click();
     await expect(page.getByRole("combobox", { name: "Search categories" })).toBeFocused();
     await page.getByRole("button", { name: "Load more categories" }).click();
     await expect(page.getByRole("option", { name: /External engine/ })).toBeVisible();
@@ -467,7 +474,11 @@ for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536])
     });
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
     await page.keyboard.press("Escape");
-    await expect(page.locator(".product-category-trigger")).toBeFocused();
+    await expect(
+      page.locator(
+        ".product-category:not(.product-subcategory) .product-category-trigger",
+      ),
+    ).toBeFocused();
     expect(errors).toEqual([]);
   });
 
@@ -475,9 +486,11 @@ test("invalid shared filters are explained and raw cursors can return to the fir
   page,
 }) => {
   await fixture(page);
-  await page.goto(`/parts?year=2101&featured=yes&categoryId=invalid&cursor=${id(3)}`);
+  await page.goto(`/parts?year=2500&featured=yes&categoryId=invalid&cursor=${id(3)}`);
   await expect(page.getByText(/Some filters in this link were invalid/)).toBeVisible();
-  await expect(page.locator(".product-category-trigger")).toContainText("All categories");
+  await expect(
+    page.locator(".product-category:not(.product-subcategory) .product-category-trigger"),
+  ).toContainText("All categories");
   await page.getByRole("button", { name: "First page", exact: true }).click();
   await expect(page).not.toHaveURL(/cursor=|year=|featured=|categoryId=/);
 });
@@ -486,26 +499,30 @@ test("empty categories and initial category errors keep search and recovery avai
   page,
 }) => {
   await fixture(page);
-  await page.route("**/api/v1/public/catalog/facets?*", (route) =>
+  await page.route("**/api/v1/public/catalog/categories?*", (route) =>
     route.fulfill({ json: success({ items: [] }) }),
   );
   await page.reload();
-  await page.locator(".product-category-trigger").click();
+  await page
+    .locator(".product-category:not(.product-subcategory) .product-category-trigger")
+    .click();
   await expect(page.getByText("No categories are listed yet.")).toBeVisible();
   await page.keyboard.press("Escape");
-  await page.route("**/api/v1/public/catalog/facets?*", (route) =>
+  await page.route("**/api/v1/public/catalog/categories?*", (route) =>
     route.fulfill({
       status: 503,
       json: { success: false, error: { code: "SERVICE_UNAVAILABLE" } },
     }),
   );
   await page.reload();
-  await page.locator(".product-category-trigger").click();
+  await page
+    .locator(".product-category:not(.product-subcategory) .product-category-trigger")
+    .click();
   await expect(
     page.getByRole("button", { name: "Retry categories", exact: true }),
   ).toBeVisible();
-  await page.route("**/api/v1/public/catalog/facets?*", (route) =>
-    route.fulfill({ json: success({ items: [categoryOption(1)] }) }),
+  await page.route("**/api/v1/public/catalog/categories?*", (route) =>
+    route.fulfill({ json: success({ items: [category(1)] }) }),
   );
   await page.getByRole("button", { name: "Retry categories", exact: true }).click();
   await expect(page.getByRole("option", { name: "Filters", exact: true })).toBeVisible();
@@ -535,7 +552,9 @@ test("native concept size and focused section evidence", async ({ page }) => {
     .locator(".product-filter-panel")
     .screenshot({ path: path.join(os.tmpdir(), "shop-quality-native-filters.png") });
   await page.getByRole("button", { name: "Close filters" }).click();
-  await page.locator(".product-category-trigger").click();
+  await page
+    .locator(".product-category:not(.product-subcategory) .product-category-trigger")
+    .click();
   await page.getByRole("button", { name: "Load more categories" }).click();
   await expect(page.getByRole("option", { name: /External engine/ })).toBeVisible();
   await page
@@ -552,10 +571,10 @@ test("touch drawer fits a short mobile viewport", async ({ browser }) => {
   const page = await context.newPage();
   await fixture(page);
   await page.getByRole("button", { name: /^Filters/ }).tap();
-  await page.getByLabel("Year", { exact: true }).fill("2020");
+  await page.getByLabel("Minimum price (NGN)").fill("2020");
   await expect(page.getByRole("button", { name: "Apply filters" })).toBeInViewport();
   await page.getByRole("button", { name: "Apply filters" }).tap();
-  await expect(page).toHaveURL(/year=2020/);
+  await expect(page).toHaveURL(/minPriceKobo=202000/);
   await context.close();
 });
 
@@ -564,7 +583,9 @@ test("clear cancels an uncommitted search while only category is selected", asyn
 }) => {
   await fixture(page);
   await page.getByRole("button", { name: "Remove Search: QA" }).click();
-  await page.locator(".product-category-trigger").click();
+  await page
+    .locator(".product-category:not(.product-subcategory) .product-category-trigger")
+    .click();
   await page.getByRole("combobox", { name: "Search categories" }).fill("Filters");
   await page.keyboard.press("Enter");
   await page.getByRole("searchbox", { name: "Search products" }).fill("pending search");
@@ -587,20 +608,20 @@ test("shared filter URLs take precedence over stale general form drafts", async 
       'aat:form-draft:v1:["guest","/parts","product-filters:2"]',
       JSON.stringify({
         "product-filter-brand:0": "Stale brand",
-        "product-filter-year:0": "1999",
+        "product-filter-minPriceKobo:0": "1999",
       }),
     );
   });
   await fixture(page);
-  await page.goto("/parts?search=Shared&brand=Current&year=2024");
+  await page.goto("/parts?search=Shared&brand=Current&minPriceKobo=202400");
   await page.getByRole("button", { name: /^Filters/ }).click();
   await expect(page.getByRole("searchbox", { name: "Search products" })).toHaveValue(
     "Shared",
   );
   await expect(page.getByLabel("Brand (exact name)")).toHaveValue("Current");
-  await expect(page.getByLabel("Year", { exact: true })).toHaveValue("2024");
+  await expect(page.getByLabel("Minimum price (NGN)")).toHaveValue("2024.00");
   await page.waitForTimeout(650);
-  await expect(page).toHaveURL(/search=Shared&brand=Current&year=2024/);
+  await expect(page).toHaveURL(/search=Shared&brand=Current&minPriceKobo=202400/);
   await page
     .getByRole("dialog", { name: "Filter products" })
     .getByRole("button", { name: "Clear filters", exact: true })
@@ -617,18 +638,16 @@ test("large category list keeps its search visible during keyboard navigation", 
 }) => {
   await page.setViewportSize({ width: 390, height: 500 });
   await fixture(page);
-  await page.route("**/api/v1/public/catalog/facets?*", (route) => {
+  await page.route("**/api/v1/public/catalog/categories?*", (route) => {
     const token = new URL(route.request().url()).searchParams.get("cursor") ?? "";
     const pageNumber = token ? Number(token.slice(-1)) : 0;
     return route.fulfill({
       json: success({
         items: Array.from({ length: 20 }, (_, index) => ({
-          value: category(pageNumber * 20 + index + 1).id,
-          label: `Category ${String(pageNumber * 20 + index + 1).padStart(3, "0")} with readable longer text`,
+          ...category(pageNumber * 20 + index + 1),
+          name: `Category ${String(pageNumber * 20 + index + 1).padStart(3, "0")} with readable longer text`,
         })),
-        ...(pageNumber < 4
-          ? { nextCursor: "b".repeat(100) + String(pageNumber + 1) }
-          : {}),
+        ...(pageNumber < 4 ? { nextCursor: id(pageNumber + 1) } : {}),
       }),
     });
   });
@@ -638,7 +657,9 @@ test("large category list keeps its search visible during keyboard navigation", 
     }),
   );
   await page.reload();
-  await page.locator(".product-category-trigger").click();
+  await page
+    .locator(".product-category:not(.product-subcategory) .product-category-trigger")
+    .click();
   const search = page.getByRole("combobox", { name: "Search categories" });
   for (let i = 1; i <= 4; i++) {
     await expect(
@@ -657,24 +678,31 @@ test("large category list keeps its search visible during keyboard navigation", 
   await expect(search).toBeInViewport();
   await expect(page.getByText("Search categories", { exact: true })).toBeInViewport();
   await search.press("Enter");
-  await expect(page.locator(".product-category-trigger")).toContainText("Category 100");
-  await page.locator(".product-category-trigger").click();
+  await expect(
+    page.locator(".product-category:not(.product-subcategory) .product-category-trigger"),
+  ).toContainText("Category 100");
+  await page
+    .locator(".product-category:not(.product-subcategory) .product-category-trigger")
+    .click();
   await search.press("Tab");
   await expect(page.getByRole("dialog", { name: "Choose a category" })).not.toBeVisible();
-  await expect(page.getByRole("button", { name: /^Filters/ })).toBeFocused();
+  await expect(
+    page.locator(".product-subcategory .product-category-trigger"),
+  ).toBeFocused();
 });
 
-test("category shortcuts preserve search and sort, clear only category and follow history", async ({
+test("category picker preserves search and sort, resets cursors and follows history", async ({
   page,
 }) => {
   const state = await fixture(page);
-  const shortcuts = page.getByRole("group", { name: "Category shortcuts" });
+  const picker = page.locator(
+    ".product-category:not(.product-subcategory) .product-category-trigger",
+  );
   await page.getByLabel("Sort by").selectOption("price_asc");
   await page.getByRole("button", { name: "Next", exact: true }).click();
   await expect(page).toHaveURL(/cursor=/);
-  await shortcuts
-    .getByRole("button", { name: "Category: Oils and fluids", exact: true })
-    .click();
+  await picker.click();
+  await page.getByRole("option", { name: "Oils and fluids", exact: true }).click();
   await expect(page).toHaveURL(new RegExp(`categoryId=${id(102)}`));
   await expect(page).not.toHaveURL(/cursor=|_trail=/);
   await expect
@@ -682,14 +710,18 @@ test("category shortcuts preserve search and sort, clear only category and follo
     .toBe(id(102));
   expect(state.requests.at(-1)?.searchParams.get("search")).toBe("QA");
   expect(state.requests.at(-1)?.searchParams.get("sort")).toBe("price_asc");
-  await shortcuts.getByRole("button", { name: "Category: Filters", exact: true }).focus();
+  await picker.focus();
   await page.keyboard.press("Enter");
+  const search = page.getByRole("combobox", { name: "Search categories" });
+  await search.fill("Filters");
+  await expect(page.getByRole("option", { name: "Filters", exact: true })).toBeVisible();
+  await search.press("ArrowDown");
+  await search.press("Enter");
   await expect(page).toHaveURL(new RegExp(`categoryId=${id(101)}`));
   await page.goBack();
-  await expect(
-    shortcuts.getByRole("button", { name: "Category: Oils and fluids", exact: true }),
-  ).toHaveAttribute("aria-pressed", "true");
-  await shortcuts.getByRole("button", { name: "All product categories" }).click();
+  await expect(picker).toContainText("Oils and fluids");
+  await picker.click();
+  await page.getByRole("option", { name: "All categories", exact: true }).click();
   await expect(page).not.toHaveURL(/categoryId=/);
   await expect(page).toHaveURL(/search=QA/);
   await expect(page).toHaveURL(/sort=price_asc/);
@@ -761,15 +793,20 @@ test("product cards distinguish real comparison prices, compatibility and missin
   await expect(cards).toHaveCount(4);
   await expect(cards.nth(0).locator("strong")).toHaveText("₦0.00");
   await expect(cards.nth(0).locator("s")).toHaveText("₦100.00");
-  await expect(cards.nth(0)).toContainText("2018–2024 · +1 more");
+  await expect(cards.nth(0)).toContainText("Reviewed application listed");
+  await expect(cards.nth(0)).toContainText(
+    "Select your vehicle and technical details to confirm fitment.",
+  );
   await expect(cards.nth(1).locator("s")).toHaveCount(0);
   await expect(cards.nth(2).locator("s")).toHaveCount(0);
   await expect(cards.nth(1)).toContainText("Currently unavailable");
-  await expect(cards.nth(1)).toContainText("Compatibility not listed");
+  await expect(cards.nth(1)).toContainText("Fitment unknown");
   await expect(cards.nth(1)).toContainText("SKU QA-2");
-  await expect(cards.nth(2)).toContainText("Model not listed");
-  await expect(cards.nth(2)).toContainText("Up to 2020");
-  await expect(cards.nth(3)).toContainText("From 2021");
+  await expect(cards.nth(2)).toContainText("Honda");
+  await expect(cards.nth(2)).not.toContainText("Up to 2020");
+  await expect(cards.nth(3)).not.toContainText("From 2021");
+  await expect(cards.getByText("Verified fit", { exact: true })).toHaveCount(0);
+
   await cards.nth(1).scrollIntoViewIfNeeded();
   await expect(cards.nth(1).getByText("Image unavailable")).toBeVisible();
   await expect(cards.nth(0).getByText("Image unavailable")).toBeAttached();
@@ -777,7 +814,7 @@ test("product cards distinguish real comparison prices, compatibility and missin
     await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
   ).toBe(true);
   await expect(page.locator(".product-guidance")).toContainText(
-    "Your cart does not reserve stock",
+    "does not reserve stock.",
   );
   await page.screenshot({
     path: path.join(os.tmpdir(), "shop-oct-card-edge-cases.png"),
@@ -799,18 +836,63 @@ test("unavailable selected category shows a readable fallback and can recover", 
       : route.fulfill({ json: success(category(3)) }),
   );
   await page.goto(`/parts?categoryId=${id(103)}`);
-  await expect(page.locator(".product-category-trigger")).toContainText(
-    "Category unavailable",
-  );
+  await expect(
+    page.locator(".product-category:not(.product-subcategory) .product-category-trigger"),
+  ).toContainText("Category unavailable");
   await expect(page.locator(".product-active-filters")).not.toContainText(id(103));
-  await page.locator(".product-category-trigger").click();
+  await page
+    .locator(".product-category:not(.product-subcategory) .product-category-trigger")
+    .click();
   missing = false;
   await page
     .getByRole("button", { name: "Retry selected category", exact: true })
     .click();
   await expect(page.getByRole("option", { name: /External engine/ })).toBeVisible();
   await page.keyboard.press("Escape");
-  await expect(page.locator(".product-category-trigger")).toContainText(
-    "External engine",
-  );
+  await expect(
+    page.locator(".product-category:not(.product-subcategory) .product-category-trigger"),
+  ).toContainText("External engine");
 });
+
+for (const width of [390, 1440]) {
+  test(`category hierarchy resets children and follows shared URLs at ${width}px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 900 });
+    const state = await fixture(page);
+    const root = page.locator(
+      ".product-category:not(.product-subcategory) .product-category-trigger",
+    );
+    const child = page.locator(".product-subcategory .product-category-trigger");
+    await expect(child).toBeDisabled();
+    await root.click();
+    await page.getByRole("option", { name: "Filters", exact: true }).click();
+    await child.click();
+    await page.getByRole("option", { name: "Oil filters", exact: true }).click();
+    await expect(page).toHaveURL(new RegExp(`parentCategoryId=${id(101)}`));
+    await expect
+      .poll(() => state.requests.at(-1)?.searchParams.get("categoryId"))
+      .toBe(id(104));
+    await page.reload();
+    await expect(root).toContainText("Filters");
+    await expect(child).toContainText("Oil filters");
+    await root.click();
+    await page.getByRole("option", { name: "Oils and fluids", exact: true }).click();
+    await expect(child).toContainText("All subcategories");
+    await expect(page).not.toHaveURL(/parentCategoryId=/);
+    await page.goBack();
+    await expect(child).toContainText("Oil filters");
+    await expect
+      .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth))
+      .toBe(true);
+    const results = await new AxeBuilder({ page })
+      .include(".product-search-panel")
+      .analyze();
+    expect(results.violations).toEqual([]);
+    await page
+      .getByRole("button", { name: "Remove Category: Filters", exact: true })
+      .click();
+    await expect(child).toBeDisabled();
+    await expect(page).not.toHaveURL(/categoryId=|parentCategoryId=/);
+  });
+}

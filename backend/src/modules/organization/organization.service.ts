@@ -11,6 +11,7 @@ import {
 import {
   assertAdministrator,
   assertCanChangeRole,
+  assertCanReviewRoleChange,
   assertCanManagePrivilegedUser,
   assertPrivilegedActor,
 } from "./organization.policy.js";
@@ -18,6 +19,7 @@ import { TeamAccessService } from "./team-access.service.js";
 import { lockAccessActor, revokeAccessInvitations } from "./team-access-security.js";
 import { OrganizationRepository } from "./organization.repository.js";
 import { assertStaffRevision, lockStaffAccount } from "./staff-account-revision.js";
+import { reconcileWorkforceRoleChange } from "./workforce-role-transition.js";
 import type {
   AdminBranchListQuery,
   BranchCreateInput,
@@ -271,7 +273,7 @@ export class OrganizationService {
     staffUserId: string,
     status: UserStatus,
     context: RequestSecurityContext,
-    expectedRevision?: string,
+    expectedRevision: string,
   ) {
     return this.database.$transaction(async (transaction) => {
       await lockAccessActor(transaction, actor);
@@ -315,7 +317,7 @@ export class OrganizationService {
     staffUserId: string,
     branchId: string,
     context: RequestSecurityContext,
-    expectedRevision?: string,
+    expectedRevision: string,
   ) {
     return this.database.$transaction(async (transaction) => {
       await lockAccessActor(transaction, actor);
@@ -369,8 +371,9 @@ export class OrganizationService {
       if (existing === null || existing.staffProfile === null) {
         throw organizationResourceNotFound();
       }
-      assertCanChangeRole(actor, staffUserId, existing.role, input.role);
+      assertCanReviewRoleChange(actor, staffUserId, existing.role);
       assertStaffRevision(existing, input.expectedRevision);
+      assertCanChangeRole(actor, staffUserId, existing.role, input.role);
       if (existing.role === input.role) throw organizationConflict();
 
       const nextBranchId = input.role === "STAFF" ? input.branchId : null;
@@ -380,6 +383,13 @@ export class OrganizationService {
         const branch = await this.repository.branch(nextBranchId, true, transaction);
         if (branch === null) throw organizationResourceNotFound();
       }
+      const workforceChange = await reconcileWorkforceRoleChange(transaction, {
+        userId: staffUserId,
+        actorUserId: actor.userId,
+        reason: input.reason,
+        expectedVersion: input.expectedWorkforceVersion,
+        requireReviewedVersion: true,
+      });
       await transaction.user.update({
         where: { id: staffUserId },
         data: { role: input.role },
@@ -399,7 +409,16 @@ export class OrganizationService {
         entityType: "USER",
         entityId: staffUserId,
         oldValues: { role: existing.role, branchId: existing.staffProfile.branchId },
-        newValues: { role: input.role, branchId: nextBranchId },
+        newValues: {
+          role: input.role,
+          branchId: nextBranchId,
+          reason: input.reason ?? "Owner-approved legacy account role change",
+          removedDelegationTemplates: workforceChange.templates.join(","),
+          removedDelegationBranchIds: workforceChange.branches.join(","),
+          workforceVersion: workforceChange.version,
+          operationalAssignments: "RETAINED_WITH_EXISTING_SCOPE",
+          independentCapabilities: "RETAINED_UNDER_EXISTING_POLICY",
+        },
         context,
       });
       return this.repository.staff(staffUserId, transaction);

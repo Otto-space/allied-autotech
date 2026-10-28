@@ -1,9 +1,9 @@
 .dashboard .dashboard-content .workforce-enquiries {
   --wfe-line: #ccd6df;
   --wfe-muted: #465866;
-  --form-focus: #e60301;
-  --form-halo: #ffe7e6;
-  color: #01121a;
+  --form-focus: var(--action-primary);
+  --form-halo: var(--selection-fill);
+  color: var(--ink);
   font-family: var(--font-quicksand), sans-serif;
   padding-bottom: 28px;
 }
@@ -11,12 +11,14 @@
   min-width: 0;
 }
 .workforce-enquiries [tabindex]:focus-visible {
-  outline: 2px solid #e60301;
+  outline: 3px solid var(--focus-ring);
   outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .workforce-enquiries :is(a, button, input, select):focus-visible {
-  outline: 2px solid #e60301;
+  outline: 3px solid var(--focus-ring);
   outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .workforce-enquiries .wfe-breadcrumb {
   display: flex;
@@ -27,7 +29,7 @@
   color: var(--wfe-muted);
 }
 .workforce-enquiries .wfe-breadcrumb a {
-  color: #01121a;
+  color: var(--ink);
   text-underline-offset: 3px;
 }
 .workforce-enquiries .wfe-heading {
@@ -95,7 +97,7 @@
   gap: 7px;
 }
 .workforce-enquiries .wfe-filters label {
-  color: #01121a;
+  color: var(--ink);
   font-size: 14px;
   font-weight: 650;
 }
@@ -103,10 +105,10 @@
   width: 100%;
   min-height: 44px;
   font-size: 14px;
-  border: 1px solid #9cadba;
+  border: 1px solid var(--border-control);
   border-radius: 5px;
   background: #fff;
-  color: #01121a;
+  color: var(--ink);
   padding: 10px 12px;
 }
 .workforce-enquiries .wfe-search > div {
@@ -360,7 +362,7 @@
   opacity: 1;
 }
 .workforce-enquiries .wfe-filters > .wfe-filter-actions > .button:not(.secondary) {
-  background: #e60301;
+  background: var(--button-fill, var(--action-primary));
   color: #fff;
 }
 @media (max-width: 760px) {
@@ -513,7 +515,7 @@
 }
 .dashboard .dashboard-content .workforce-enquiries :is(.wfe-original, .wfe-messages) p {
   white-space: pre-wrap;
-  color: #01121a;
+  color: var(--ink);
 }
 .workforce-enquiries .wfe-conversation footer {
   border-top: 1px solid var(--wfe-line);
@@ -538,11 +540,11 @@
   width: 100%;
   margin: 0;
   min-height: 44px;
-  border: 1px solid #9cadba;
+  border: 1px solid var(--border-control);
   border-radius: 5px;
   padding: 10px 12px;
   background: #fff;
-  color: #01121a;
+  color: var(--ink);
   font: inherit;
   font-size: 14px;
   line-height: 1.6;
@@ -551,57 +553,19 @@
   resize: vertical;
 }
 .workforce-enquiries :is(textarea, fieldset):focus-visible {
-  outline: 2px solid #e60301;
+  outline: 3px solid var(--focus-ring);
   outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
 }
 .workforce-enquiries .wfe-panel :is(input, textarea)[aria-invalid="true"] {
   border-color: #b42318;
 }
 .workforce-enquiries .wfe-panel .button:not(.secondary) {
-  background: #e60301;
+  background: var(--button-fill, var(--action-primary));
   color: #fff;
 }
 .workforce-enquiries .wfe-panel > .button {
   margin-top: 14px;
-}
-.workforce-enquiries .wfe-staff-search {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 10px;
-  align-items: end;
-  margin: 16px 0;
-}
-.workforce-enquiries .wfe-staff-search .field {
-  margin: 0;
-}
-.workforce-enquiries .wfe-staff-options {
-  margin: 0;
-  padding: 0;
-  border: 0;
-}
-.workforce-enquiries .wfe-staff-options > label {
-  display: flex;
-  align-items: start;
-  gap: 12px;
-  padding: 14px 0;
-  border-bottom: 1px solid var(--wfe-line);
-  cursor: pointer;
-  font-weight: 500;
-}
-.workforce-enquiries .wfe-staff-options input {
-  flex-shrink: 0;
-  width: 18px;
-  height: 18px;
-  margin: 3px 0;
-  accent-color: #e60301;
-}
-.workforce-enquiries .wfe-staff-options em {
-  font-size: 12px;
-  font-style: normal;
-}
-.workforce-enquiries .wfe-staff-options small,
-.workforce-enquiries .wfe-selected-staff small {
-  overflow-wrap: anywhere;
 }
 .workforce-enquiries .wfe-recovery {
   padding: 18px;
@@ -696,11 +660,17 @@
     justify-self: start;
   }
 }
-@media (max-width: 380px) {
-  .workforce-enquiries .wfe-staff-search {
-    grid-template-columns: minmax(0, 1fr);
-  }
-  .workforce-enquiries .wfe-staff-search button {
-    justify-self: start;
-  }
+
+.workforce-enquiries .wfe-breadcrumb a {
+  color: var(--link);
+  text-decoration: underline;
+}
+.workforce-enquiries button[aria-pressed="true"] {
+  background: #e7f1f6;
+  border-color: var(--action-primary);
+  color: var(--link);
+  box-shadow: inset 3px 0 #075579;
+}
+.workforce-enquiries .wfe-filters {
+  border-top: 3px solid #24485c;
 }

@@ -8,10 +8,14 @@ import { createSensitiveRateLimit } from "../../common/middleware/rate-limits.js
 import { validate } from "../../common/middleware/validate.js";
 import { successResponse } from "../../common/http/api-response.js";
 import { WorkforceAccessService } from "./workforce-access.service.js";
+import { WorkforceDirectoryService } from "./workforce-directory.service.js";
 import { WorkforceWorkService } from "./workforce-work.service.js";
+import { projectWorkforceMutationReceipt } from "./workforce-receipts.js";
 import * as schemas from "./workforce.schemas.js";
 
 import { TeamAccessService } from "./team-access.service.js";
+import { ServiceOperationsService } from "../service-operations/service-operations.service.js";
+import { OrderAftercareService } from "../orders/order-aftercare.service.js";
 import { privilegedInvitationBodySchema } from "./organization.schemas.js";
 
 const context = (req: Request) => ({
@@ -22,6 +26,48 @@ const context = (req: Request) => ({
 const empty = z.strictObject({});
 // Route definitions are shared with OpenAPI, so every new contract is documented.
 export const workforceRouteDefinitions = [
+  [
+    "get",
+    "/staff/workforce/aftercare",
+    "aftercare",
+    schemas.workforceAftercareQuerySchema,
+    empty,
+  ],
+  [
+    "get",
+    "/staff/workforce/aftercare/:id",
+    "aftercareRequest",
+    empty,
+    schemas.workforceRecordParams,
+  ],
+  [
+    "post",
+    "/staff/workforce/aftercare/:id/decision",
+    "aftercareDecision",
+    schemas.workforceAftercareDecisionSchema,
+    schemas.workforceRecordParams,
+  ],
+  [
+    "get",
+    "/admin/workforce/accounts",
+    "directory",
+    schemas.workforceDirectoryQuerySchema,
+    empty,
+  ],
+  [
+    "post",
+    "/staff/workforce/enquiries/:id/email-deliveries/dismiss",
+    "enquiryDeliveryDismiss",
+    schemas.supportDeliveryDismissSchema,
+    schemas.workforceRecordParams,
+  ],
+  [
+    "post",
+    "/staff/workforce/complaints/:id/email-deliveries/dismiss",
+    "complaintDeliveryDismiss",
+    schemas.supportDeliveryDismissSchema,
+    schemas.workforceRecordParams,
+  ],
   [
     "get",
     "/staff/workforce/jobs/:id/assignees",
@@ -41,6 +87,20 @@ export const workforceRouteDefinitions = [
     "/staff/workforce/complaints/:id/replies",
     "complaintReply",
     schemas.workforceComplaintReplySchema,
+    schemas.workforceRecordParams,
+  ],
+  [
+    "get",
+    "/staff/workforce/complaints/:id/assignees",
+    "complaintAssignees",
+    schemas.workforceEnquiryAssigneesQuerySchema,
+    schemas.workforceRecordParams,
+  ],
+  [
+    "patch",
+    "/staff/workforce/complaints/:id/assignment",
+    "complaintAssignment",
+    schemas.workforceComplaintAssignmentSchema,
     schemas.workforceRecordParams,
   ],
   [
@@ -69,10 +129,24 @@ export const workforceRouteDefinitions = [
   ],
   ["get", "/staff/workforce/jobs/:id", "job", empty, schemas.workforceRecordParams],
   [
+    "post",
+    "/staff/workforce/bookings/:id/confirmation",
+    "bookingConfirmation",
+    schemas.workforceBookingConfirmationSchema,
+    schemas.workforceRecordParams,
+  ],
+  [
+    "get",
+    "/staff/workforce/bookings/:id",
+    "booking",
+    empty,
+    schemas.workforceRecordParams,
+  ],
+  [
     "get",
     "/staff/workforce/enquiries/:id",
     "enquiry",
-    schemas.workforceListSchema,
+    schemas.workforceMessageQuerySchema,
     schemas.workforceRecordParams,
   ],
   [
@@ -121,7 +195,7 @@ export const workforceRouteDefinitions = [
     "get",
     "/staff/workforce/complaints/:id",
     "complaint",
-    schemas.workforceListSchema,
+    schemas.workforceMessageQuerySchema,
     schemas.workforceRecordParams,
   ],
   ["get", "/staff/workforce/orders", "orders", schemas.workforceOrdersQuerySchema, empty],
@@ -163,6 +237,13 @@ export const workforceRouteDefinitions = [
   ],
   [
     "post",
+    "/admin/workforce/accounts/:userId/access-preview",
+    "accessPreview",
+    schemas.workforceAccessPreviewSchema,
+    schemas.workforceAccountParams,
+  ],
+  [
+    "post",
     "/admin/workforce/accounts/:userId/assignments",
     "assign",
     schemas.workforceAssignmentSchema,
@@ -190,22 +271,29 @@ export function createWorkforceRouter(): Router {
     work = new WorkforceWorkService();
   for (const [method, path, action, schema, params] of workforceRouteDefinitions) {
     const handler = async (req: Request, res: Response) => {
-      if (path.startsWith("/admin/workforce/accounts/"))
+      if (
+        path === "/admin/workforce/accounts" ||
+        path.startsWith("/admin/workforce/accounts/")
+      )
         res.set("Cache-Control", "private, no-store");
       const actor = req.actor!,
         ctx = context(req),
         body = req.body,
-        query =
-          action === "jobs"
+        query = ["enquiry", "complaint"].includes(action)
+          ? schemas.workforceMessageQuerySchema.parse(req.query)
+          : action === "jobs"
             ? schemas.workforceJobsQuerySchema.parse(req.query)
             : [
                   "jobAssignees",
                   "enquiryAssignees",
+                  "complaintAssignees",
                   "bookings",
                   "enquiries",
                   "complaints",
                   "orders",
                   "finance",
+                  "directory",
+                  "aftercare",
                 ].includes(action)
               ? schemas.workforceListSchema.parse({})
               : schemas.workforceListSchema.parse(req.query);
@@ -216,6 +304,40 @@ export function createWorkforceRouter(): Router {
       } = req.params as Record<string, string>;
       let data: unknown;
       switch (action) {
+        case "aftercare":
+          data = await new OrderAftercareService().workforceList(
+            actor,
+            schemas.workforceAftercareQuerySchema.parse(req.query),
+            ctx,
+          );
+          break;
+        case "aftercareRequest":
+          data = await new OrderAftercareService().workforceRequest(actor, id, ctx);
+          break;
+        case "aftercareDecision":
+          data = await new OrderAftercareService().workforceDecision(
+            actor,
+            id,
+            schemas.workforceAftercareDecisionSchema.parse(body),
+            ctx,
+          );
+          break;
+        case "directory":
+          data = await new WorkforceDirectoryService().list(
+            actor,
+            schemas.workforceDirectoryQuerySchema.parse(req.query),
+          );
+          break;
+        case "enquiryDeliveryDismiss":
+        case "complaintDeliveryDismiss":
+          data = await work.dismissDeliveryNotices(
+            actor,
+            action === "enquiryDeliveryDismiss" ? "enquiries" : "complaints",
+            id,
+            body,
+            ctx,
+          );
+          break;
         case "jobAssignees":
           data = await work.assignees(
             actor,
@@ -234,6 +356,15 @@ export function createWorkforceRouter(): Router {
             schemas.workforceEnquiryAssigneesQuerySchema.parse(req.query),
           );
           break;
+        case "complaintAssignees":
+          data = await work.careAssignees(
+            actor,
+            id,
+            ctx,
+            "COMPLAINT",
+            schemas.workforceEnquiryAssigneesQuerySchema.parse(req.query),
+          );
+          break;
         case "complaintReply":
           data = await work.complaintReply(
             actor,
@@ -247,6 +378,14 @@ export function createWorkforceRouter(): Router {
             actor,
             id,
             schemas.workforceEnquiryAssignmentSchema.parse(body),
+            ctx,
+          );
+          break;
+        case "complaintAssignment":
+          data = await work.assignComplaint(
+            actor,
+            id,
+            schemas.workforceComplaintAssignmentSchema.parse(body),
             ctx,
           );
           break;
@@ -275,6 +414,17 @@ export function createWorkforceRouter(): Router {
           break;
         case "enquiry":
           data = await work.enquiry(actor, id, query, ctx);
+          break;
+        case "booking":
+          data = await work.booking(actor, id, ctx);
+          break;
+        case "bookingConfirmation":
+          data = await new ServiceOperationsService().confirmWorkforceBooking(
+            actor,
+            id,
+            schemas.workforceBookingConfirmationSchema.parse(body),
+            ctx,
+          );
           break;
         case "job":
           data = await work.job(actor, id, ctx);
@@ -354,6 +504,14 @@ export function createWorkforceRouter(): Router {
         case "inspect":
           data = await access.inspect(actor, userId, ctx);
           break;
+        case "accessPreview":
+          data = await access.preview(
+            actor,
+            userId,
+            schemas.workforceAccessPreviewSchema.parse(body),
+            ctx,
+          );
+          break;
         case "enroll":
           data = await access.enroll(
             actor,
@@ -388,7 +546,15 @@ export function createWorkforceRouter(): Router {
           );
           break;
       }
-      res.status(200).json(successResponse("Workspace request completed", req.id, data));
+      res
+        .status(200)
+        .json(
+          successResponse(
+            "Workspace request completed",
+            req.id,
+            projectWorkforceMutationReceipt(action, data, body?.receiptVersion),
+          ),
+        );
     };
     router[method](
       path,

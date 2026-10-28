@@ -1,6 +1,7 @@
 "use client";
-import { browseEnquiriesOnly } from "@/lib/public-launch";
+import { browseEnquiriesOnly, catalogueOnly } from "@/lib/public-launch";
 import { PublicEnquiryActions } from "./public-enquiry-actions";
+import { vehicleEnquiryHref } from "@/lib/catalogue-enquiry";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import {
@@ -52,6 +53,7 @@ type Review =
 
 type VehicleActionsProps = {
   listingId: string;
+  enquiryHref?: string;
   listingTitle: string;
   branchName: string;
   gallery: ReactNode;
@@ -60,35 +62,45 @@ type VehicleActionsProps = {
 };
 
 export function VehicleActions(props: VehicleActionsProps) {
-  if (browseEnquiriesOnly())
+  if (catalogueOnly())
     return (
       <div className="vd-top-grid">
         {props.gallery}
         <aside className="vd-summary" aria-label="Price and vehicle enquiries">
           {props.summary}
-          <PublicEnquiryActions subject={props.listingTitle} />
+          <PublicEnquiryActions
+            subject={props.listingTitle}
+            enquiryHref={
+              props.enquiryHref ??
+              vehicleEnquiryHref(new URLSearchParams(), props.listingId)
+            }
+          />
           <p>Contact our team to discuss availability and arrange a viewing.</p>
         </aside>
         {props.children}
       </div>
     );
-  return <VehicleCustomerActions {...props} />;
+  return <VehicleCustomerActions {...props} enquiriesOnly={browseEnquiriesOnly()} />;
 }
 
 function VehicleCustomerActions({
   listingId,
+  enquiryHref,
   listingTitle,
   branchName,
   gallery,
   summary,
   children,
+  enquiriesOnly,
 }: {
   listingId: string;
+  enquiryHref?: string;
   listingTitle: string;
   branchName: string;
   gallery: ReactNode;
   summary: ReactNode;
   children: ReactNode;
+  enquiriesOnly: boolean;
 }) {
   const [result, setResult] = useState<Result>();
   const [receipts, setReceipts] = useState<Partial<Record<"top" | "inspect", Result>>>(
@@ -238,6 +250,7 @@ function VehicleCustomerActions({
 
   async function submit(action: Action, retry?: VehicleCreationIntent) {
     if (busy || (uncertain[action] && !retry) || access !== "customer") return;
+    if (enquiriesOnly && action !== "save") return;
     if (action !== "save" && !retry && review?.action !== action) return;
     if (retry && (retry.action !== action || !canRetryVehicleCreation(retry))) {
       setRecovery((value) => ({ ...value, [action]: { kind: "history" } }));
@@ -524,7 +537,9 @@ function VehicleCustomerActions({
           {access === "checking"
             ? "Checking your account…"
             : access === "anonymous"
-              ? "A customer account is required to save or send requests."
+              ? enquiriesOnly
+                ? "Sign in to a customer account to save this vehicle."
+                : "A customer account is required to save or send requests."
               : access === "restricted"
                 ? "Customer requests are unavailable on work accounts. Contact our team for help."
                 : "We could not check your account. Please try again."}
@@ -737,6 +752,46 @@ function VehicleCustomerActions({
       </section>
     );
   }
+  const saveButton = (
+    <button
+      type="button"
+      className="button secondary"
+      disabled={busy || saved || !!review || !!uncertain.save}
+      onClick={() => void submit("save")}
+    >
+      <Heart size={17} aria-hidden="true" />
+      {busy && active === "save"
+        ? "Saving vehicle…"
+        : saved
+          ? "Vehicle saved"
+          : "Save vehicle"}
+    </button>
+  );
+  if (enquiriesOnly)
+    return (
+      <div className="vd-top-grid">
+        {gallery}
+        <aside className="vd-summary" aria-label="Price and vehicle enquiries">
+          {summary}
+          <PublicEnquiryActions
+            subject={listingTitle}
+            enquiryHref={
+              enquiryHref ?? vehicleEnquiryHref(new URLSearchParams(), listingId)
+            }
+          />
+          <div ref={accountNotice} tabIndex={operation.sessionChanged ? -1 : undefined}>
+            <AccountChangeNotice visible={operation.sessionChanged} />
+          </div>
+          {feedback("top")}
+          {accessMessage()}
+          {access === "customer" && <div className="vd-action-buttons">{saveButton}</div>}
+          <p className="vd-account-note">
+            Saving a vehicle does not reserve it. Contact our team to arrange a viewing.
+          </p>
+        </aside>
+        {children}
+      </div>
+    );
   return (
     <>
       <div className="vd-top-grid">
@@ -772,19 +827,7 @@ function VehicleCustomerActions({
                     <ArrowRight size={17} aria-hidden="true" />
                   </button>
                 )}
-                <button
-                  type="button"
-                  className="button secondary"
-                  disabled={busy || saved || !!review || !!uncertain.save}
-                  onClick={() => void submit("save")}
-                >
-                  <Heart size={17} aria-hidden="true" />
-                  {busy && active === "save"
-                    ? "Saving vehicle…"
-                    : saved
-                      ? "Vehicle saved"
-                      : "Save vehicle"}
-                </button>
+                {saveButton}
               </div>
               <p className="vd-account-note">Requests use your customer account.</p>
               <a
@@ -805,9 +848,9 @@ function VehicleCustomerActions({
               <Phone size={17} aria-hidden="true" />
               Call our team
             </a>
-            <a href={business.whatsapp} target="_blank" rel="noreferrer">
+            <a href={business.whatsapp} target="_blank" rel="noopener noreferrer">
               <MessageCircle size={17} aria-hidden="true" />
-              WhatsApp
+              Whatsapp
             </a>
           </div>
         </aside>

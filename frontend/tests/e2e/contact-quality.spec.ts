@@ -57,7 +57,14 @@ async function fixture(page: Page) {
       return ok({
         items: state.empty
           ? []
-          : [{ id: branchId, name: "Port Harcourt test branch", code: "TEST" }],
+          : [
+              { id: branchId, name: "Port Harcourt test branch", code: "TEST" },
+              {
+                id: "f6000000-0000-4000-8000-000000000099",
+                name: "Second synthetic workshop",
+                code: "TEST2",
+              },
+            ],
       });
     }
     if (endpoint.endsWith("/public/catalog/products"))
@@ -106,6 +113,101 @@ async function draft(page: Page, kind = "enquiry") {
   await branch.click();
   await branch.fill("Port Harcourt");
   await page.getByRole("option", { name: "Port Harcourt test branch" }).click();
+}
+
+test("Visit preference errors identify the field that needs correction", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/contact");
+  await draft(page);
+  await page.getByLabel("Enquiry type", { exact: true }).selectOption("SERVICE");
+  const picker = page.getByRole("combobox", { name: "Related record" });
+  await picker.click();
+  await picker.fill("Test service");
+  await page.getByRole("option", { name: "Test service", exact: true }).click();
+  await page.getByLabel("Include my preferred date and time").check();
+  await page.getByLabel("Preferred date (Nigeria time)").fill("2099-01-10");
+  await page.getByRole("button", { name: "Review enquiry", exact: true }).click();
+  await expect(page.locator("#support-visit-time")).toBeFocused();
+  await expect(page.locator("#support-visit-time")).toHaveAttribute(
+    "aria-invalid",
+    "true",
+  );
+  await expect(page.locator("#support-visit-date")).toHaveAttribute(
+    "aria-invalid",
+    "false",
+  );
+  await expect(page.locator("#support-visit-error")).toContainText(
+    "Choose your preferred date and time.",
+  );
+  await page.getByLabel("Preferred time (Nigeria time)").fill("09:30");
+  await expect(page.locator("#support-visit-error")).toBeEmpty();
+
+  await page.getByLabel("Your message", { exact: true }).fill("x".repeat(4000));
+  await page.getByRole("button", { name: "Review enquiry", exact: true }).click();
+  await expect(page.locator("#support-opening")).toBeFocused();
+  await expect(page.locator("#support-opening")).toHaveAttribute("aria-invalid", "true");
+  await expect(page.locator("#support-visit-error")).toContainText(
+    "Shorten your message",
+  );
+  await page.getByLabel("Your message", { exact: true }).fill("A short message.");
+  await expect(page.locator("#support-visit-error")).toBeEmpty();
+  expect(state.writes).toHaveLength(0);
+});
+
+for (const [type, record, width] of [
+  ["SERVICE", "Test service", 390],
+  ["VEHICLE", "Test vehicle", 1440],
+] as const) {
+  test(`Request-only ${type} includes preferences in reviewed support submission`, async ({
+    page,
+  }) => {
+    const state = await fixture(page);
+    const errors: string[] = [];
+    page.on("pageerror", (error) => errors.push(error.message));
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/contact");
+    await expect(page).toHaveTitle(/Contact & customer care/);
+    await draft(page);
+    await page.getByLabel("Enquiry type", { exact: true }).selectOption(type);
+    const picker = page.getByRole("combobox", { name: "Related record" });
+    await picker.click();
+    await picker.fill(record);
+    await page.getByRole("option", { name: record, exact: true }).click();
+    await page.getByLabel("Include my preferred date and time").check();
+    await page.getByLabel("Preferred date (Nigeria time)").fill("2099-01-10");
+    await page.getByLabel("Preferred time (Nigeria time)").fill("09:30");
+    await expect(
+      page.getByRole("link", { name: "privacy notice (opens in a new tab)" }),
+    ).toHaveAttribute("href", "/privacy");
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+    await page.locator("#support-visit-date").scrollIntoViewIfNeeded();
+    await page.screenshot({
+      path: path.join(os.tmpdir(), `allied-visit-request-${width}.png`),
+    });
+    await page.getByRole("button", { name: "Review enquiry", exact: true }).click();
+    await expect(page.getByRole("dialog")).toContainText(
+      "2099-01-10 09:30 (Africa/Lagos, UTC+01:00)",
+    );
+    await expect(page.getByRole("dialog")).toContainText("Staff confirmation required");
+    expect(state.writes).toHaveLength(0);
+    await page
+      .getByRole("dialog")
+      .getByRole("button", { name: "Send enquiry", exact: true })
+      .click();
+    await expect(page.getByRole("heading", { name: "Enquiry received" })).toBeVisible();
+    expect(state.writes).toHaveLength(1);
+    expect(state.writes[0].message).toContain("Staff confirmation required");
+    expect(state.writes[0].message).toContain("An isolated test of customer care.");
+    expect(state.writes[0][type === "SERVICE" ? "serviceId" : "vehicleListingId"]).toBe(
+      sourceId,
+    );
+    expect(errors).toEqual([]);
+  });
 }
 
 for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536]) {

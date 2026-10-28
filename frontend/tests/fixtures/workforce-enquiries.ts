@@ -1,4 +1,5 @@
 import type { Page } from "@playwright/test";
+import type { SupportEmailPage } from "@/lib/api/support-email-schemas";
 import { workforceNotificationsFixture } from "./workforce-notifications";
 
 export const enquiryFixtureId = (n: number) =>
@@ -8,8 +9,9 @@ export async function workforceEnquiriesFixture(
   page: Page,
   template:
     "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" = "SALES_SUPERVISOR",
+  role: "STAFF" | "ADMIN" = "STAFF",
 ) {
-  const base = await workforceNotificationsFixture(page, template);
+  const base = await workforceNotificationsFixture(page, template, role);
   const branchId = base.access.assignments[0].branchId;
   const items = [
     {
@@ -80,6 +82,7 @@ export async function workforceEnquiriesFixture(
     candidateMismatch: false,
     lostResponse: false,
     malformedReceipt: false,
+    emailDeliveries: { items: [] } as SupportEmailPage,
   };
   const generatedAt = "2026-10-19T10:00:00.000Z";
   await page.route("**/api/v1/staff/workforce/enquiries**", async (route) => {
@@ -115,6 +118,17 @@ export async function workforceEnquiriesFixture(
       const body = request.postDataJSON();
       state.writes.push({ path: url.pathname, body });
       if (!row) return fail(404);
+      if (url.pathname.endsWith("/email-deliveries/dismiss")) {
+        state.emailDeliveries.items = state.emailDeliveries.items.map((item) => ({
+          ...item,
+          noticeDismissed:
+            body.notices.some(
+              (n: { id: string; revision: string }) =>
+                n.id === item.id && n.revision === item.noticeRevision,
+            ) || item.noticeDismissed,
+        }));
+        return ok(state.emailDeliveries);
+      }
       if (
         body.expectedVersion !== row.version ||
         !["OPEN", "IN_PROGRESS"].includes(row.status)
@@ -207,6 +221,17 @@ export async function workforceEnquiriesFixture(
     if (state.detailFailure) return fail(503);
     return ok({
       ...row,
+      ...(template === "CUSTOMER_SERVICE"
+        ? {
+            contact: {
+              name: "Synthetic customer",
+              email: "care-fixture@example.test",
+              phone: null,
+              customerId: null,
+            },
+          }
+        : {}),
+      emailDeliveries: state.emailDeliveries,
       access: base.access,
       generatedAt,
       latestMessageId,

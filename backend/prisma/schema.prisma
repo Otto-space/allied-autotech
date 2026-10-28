@@ -438,6 +438,15 @@ enum FuelType {
 enum VehicleCondition {
   NEW
   USED
+  FOREIGN_USED
+  LOCALLY_USED
+}
+
+enum Powertrain {
+  BEV
+  HEV
+  PHEV
+  ICE
 }
 
 enum BodyType {
@@ -494,6 +503,9 @@ enum AuditAction {
 }
 
 enum AuditEntityType {
+  FITMENT_MAKE
+  FITMENT_MODEL
+  PRODUCT_FITMENT
   USER
   BRANCH
   PRIVILEGED_INVITATION
@@ -559,14 +571,20 @@ enum OutboxStatus {
 }
 
 model User {
-  workforceAccess   WorkforceAccess?
-  mediaUploads      MediaUpload[]    @relation("MediaUploadActor")
-  ownedMediaUploads MediaUpload[]    @relation("MediaUploadOwner")
-  id                String           @id @default(uuid()) @db.Uuid
-  email             String           @unique @db.Citext
-  passwordHash      String
-  role              UserRole         @default(CUSTOMER)
-  status            UserStatus       @default(ACTIVE)
+  supportNoticeDismissals SupportDeliveryNoticeDismissal[]
+  fitmentCreated          ProductCompatibility[]           @relation("FitmentCreated")
+  fitmentEdited           ProductCompatibility[]           @relation("FitmentEdited")
+  fitmentReviewed         ProductCompatibility[]           @relation("FitmentReviewed")
+  fitmentHistory          ProductCompatibilityHistory[]
+  pushSubscriptions       PushSubscription[]
+  workforceAccess         WorkforceAccess?
+  mediaUploads            MediaUpload[]                    @relation("MediaUploadActor")
+  ownedMediaUploads       MediaUpload[]                    @relation("MediaUploadOwner")
+  id                      String                           @id @default(uuid()) @db.Uuid
+  email                   String                           @unique @db.Citext
+  passwordHash            String
+  role                    UserRole                         @default(CUSTOMER)
+  status                  UserStatus                       @default(ACTIVE)
 
   emailVerifiedAt     DateTime?
   passwordChangedAt   DateTime?
@@ -642,21 +660,22 @@ model User {
 }
 
 model Session {
-  id            String    @id @default(uuid()) @db.Uuid
-  userId        String    @db.Uuid
-  tokenHash     String    @unique @db.VarChar(128)
-  csrfTokenHash String?   @db.Char(64)
-  expiresAt     DateTime
-  idleExpiresAt DateTime  @default(now())
-  lastUsedAt    DateTime?
-  lastRotatedAt DateTime  @default(now())
-  revokedAt     DateTime?
-  mfaRequired   Boolean   @default(false)
-  mfaVerifiedAt DateTime?
-  ipAddress     String?   @db.Inet
-  userAgent     String?   @db.Text
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  pushSubscriptions PushSubscription[]
+  id                String             @id @default(uuid()) @db.Uuid
+  userId            String             @db.Uuid
+  tokenHash         String             @unique @db.VarChar(128)
+  csrfTokenHash     String?            @db.Char(64)
+  expiresAt         DateTime
+  idleExpiresAt     DateTime           @default(now())
+  lastUsedAt        DateTime?
+  lastRotatedAt     DateTime           @default(now())
+  revokedAt         DateTime?
+  mfaRequired       Boolean            @default(false)
+  mfaVerifiedAt     DateTime?
+  ipAddress         String?            @db.Inet
+  userAgent         String?            @db.Text
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
 
   user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   mfaChallenges MfaChallenge[]
@@ -851,20 +870,21 @@ model CustomerProfile {
 }
 
 model Branch {
+  fitmentRules         ProductCompatibility[]
   workforceAssignments WorkforceAssignment[]
-  id                   String                @id @default(uuid()) @db.Uuid
-  code                 String                @unique @db.Citext
+  id                   String                 @id @default(uuid()) @db.Uuid
+  code                 String                 @unique @db.Citext
   name                 String
-  phone                String?               @db.VarChar(32)
-  email                String?               @db.Citext
+  phone                String?                @db.VarChar(32)
+  email                String?                @db.Citext
   address              String
   city                 String
   state                String
-  country              String                @default("Nigeria")
-  timezone             String                @default("Africa/Lagos") @db.VarChar(64)
-  isActive             Boolean               @default(true)
-  createdAt            DateTime              @default(now())
-  updatedAt            DateTime              @updatedAt
+  country              String                 @default("Nigeria")
+  timezone             String                 @default("Africa/Lagos") @db.VarChar(64)
+  isActive             Boolean                @default(true)
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
 
   staff                 StaffProfile[]
   enquiries             Enquiry[]
@@ -906,6 +926,19 @@ model PrivilegedInvitation {
 }
 
 model CustomerVehicle {
+  nickname           String?         @db.VarChar(80)
+  defaultSlot        Int?
+  vehicleModelId     String?         @db.Uuid
+  vehicleModel       VehicleModel?   @relation(fields: [vehicleModelId], references: [id], onDelete: Restrict)
+  trim               String?         @db.VarChar(100)
+  engineCode         String?         @db.VarChar(100)
+  market             String?         @db.VarChar(100)
+  brakeSystem        String?         @db.VarChar(100)
+  brakeDiameterMm    String?         @db.VarChar(100)
+  bodyType           String?         @db.VarChar(100)
+  transmission       String?         @db.VarChar(100)
+  generation         String?         @db.VarChar(100)
+  chassisCode        String?         @db.VarChar(100)
   mediaVersion       Int             @default(0)
   mediaImages        ResourceImage[]
   id                 String          @id @default(uuid()) @db.Uuid
@@ -923,6 +956,7 @@ model CustomerVehicle {
   customer CustomerProfile @relation(fields: [customerId], references: [id], onDelete: Cascade)
   bookings Booking[]
 
+  @@unique([customerId, defaultSlot])
   @@index([customerId])
   @@index([registrationNumber])
   @@index([make, model])
@@ -1189,37 +1223,58 @@ model WorkOrderItem {
   @@index([productId])
 }
 
+enum ProductFamily {
+  REPLACEMENT_PART
+  ENGINE_OIL
+}
+
 model Category {
-  id          String   @id @default(uuid()) @db.Uuid
+  family      ProductFamily?
+  parentId    String?        @db.Uuid
+  parent      Category?      @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: Restrict)
+  children    Category[]     @relation("CategoryHierarchy")
+  id          String         @id @default(uuid()) @db.Uuid
   name        String
-  slug        String   @unique
+  slug        String         @unique
   description String?
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  isActive    Boolean        @default(true)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
 
   products Product[]
 
+  @@index([parentId])
   @@index([isActive])
 }
 
 model Product {
-  mediaVersion           Int      @default(0)
-  id                     String   @id @default(uuid()) @db.Uuid
-  categoryId             String   @db.Uuid
+  brandKey               String?                @db.Text
+  searchCore             String                 @default("") @db.Text
+  searchDocument         String                 @default("") @db.Text
+  searchNames            String[]               @default([])
+  searchIdentifiers      String[]               @default([])
+  family                 ProductFamily?
+  oilViscosityGrade      String?                @db.VarChar(12)
+  packVolumeMl           Int?
+  condition              ProductCondition?
+  classification         ProductClassification?
+  productType            String?                @db.VarChar(80)
+  mediaVersion           Int                    @default(0)
+  id                     String                 @id @default(uuid()) @db.Uuid
+  categoryId             String                 @db.Uuid
   name                   String
-  slug                   String   @unique
-  sku                    String   @unique
+  slug                   String                 @unique
+  sku                    String                 @unique
   brand                  String?
-  manufacturerPartNumber String?  @unique
+  manufacturerPartNumber String?                @unique
   description            String?
   priceKobo              BigInt
   compareAtPriceKobo     BigInt?
-  currency               String   @default("NGN") @db.Char(3)
-  isActive               Boolean  @default(true)
-  featured               Boolean  @default(false)
-  createdAt              DateTime @default(now())
-  updatedAt              DateTime @updatedAt
+  currency               String                 @default("NGN") @db.Char(3)
+  isActive               Boolean                @default(true)
+  featured               Boolean                @default(false)
+  createdAt              DateTime               @default(now())
+  updatedAt              DateTime               @updatedAt
 
   category        Category               @relation(fields: [categoryId], references: [id], onDelete: Restrict)
   images          ProductImage[]
@@ -1233,6 +1288,11 @@ model Product {
   reviews         Review[]
   compatibilities ProductCompatibility[]
 
+  @@index([condition, classification])
+  @@index([family, isActive])
+  @@index([brandKey, categoryId], map: "Product_brand_key_category_idx")
+  @@index([searchDocument(ops: raw("gin_trgm_ops"))], type: Gin, map: "Product_search_document_idx")
+  @@index([searchIdentifiers], type: Gin, map: "Product_search_identifiers_idx")
   @@index([categoryId, isActive])
   @@index([name])
   @@index([brand])
@@ -1240,18 +1300,55 @@ model Product {
 }
 
 model ProductCompatibility {
-  id        String   @id @default(uuid()) @db.Uuid
-  productId String   @db.Uuid
-  make      String
-  model     String?
-  yearFrom  Int?
-  yearTo    Int?
-  notes     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  vehicleModelId       String?                       @db.Uuid
+  vehicleModel         VehicleModel?                 @relation(fields: [vehicleModelId], references: [id], onDelete: Restrict)
+  branchId             String?                       @db.Uuid
+  branch               Branch?                       @relation(fields: [branchId], references: [id], onDelete: Restrict)
+  scope                FitmentScope                  @default(MODEL)
+  effect               FitmentEffect                 @default(INCLUDE)
+  reviewStatus         FitmentReviewStatus           @default(DRAFT)
+  safetyCritical       Boolean                       @default(true)
+  allVariantsConfirmed Boolean                       @default(false)
+  requiredQualifiers   String[]                      @default([])
+  trim                 String?                       @db.VarChar(100)
+  engineCode           String?                       @db.VarChar(100)
+  market               String?                       @db.VarChar(100)
+  position             String?                       @db.VarChar(100)
+  brakeSystem          String?                       @db.VarChar(100)
+  brakeDiameterMm      String?                       @db.VarChar(100)
+  bodyType             String?                       @db.VarChar(100)
+  transmission         String?                       @db.VarChar(100)
+  generation           String?                       @db.VarChar(100)
+  chassisCode          String?                       @db.VarChar(100)
+  sourceReference      String?                       @db.VarChar(500)
+  evidenceNotes        String?                       @db.VarChar(2000)
+  reviewNote           String?                       @db.VarChar(1000)
+  createdByUserId      String?                       @db.Uuid
+  createdBy            User?                         @relation("FitmentCreated", fields: [createdByUserId], references: [id], onDelete: Restrict)
+  updatedByUserId      String?                       @db.Uuid
+  updatedBy            User?                         @relation("FitmentEdited", fields: [updatedByUserId], references: [id], onDelete: Restrict)
+  reviewedByUserId     String?                       @db.Uuid
+  reviewedBy           User?                         @relation("FitmentReviewed", fields: [reviewedByUserId], references: [id], onDelete: Restrict)
+  reviewedAt           DateTime?
+  submittedAt          DateTime?
+  version              Int                           @default(0)
+  fingerprint          String?                       @db.Char(64)
+  history              ProductCompatibilityHistory[]
+  id                   String                        @id @default(uuid()) @db.Uuid
+  productId            String                        @db.Uuid
+  make                 String
+  model                String?
+  yearFrom             Int?
+  yearTo               Int?
+  notes                String?
+  createdAt            DateTime                      @default(now())
+  updatedAt            DateTime                      @updatedAt
 
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
+  @@unique([productId, fingerprint])
+  @@index([vehicleModelId, reviewStatus, yearFrom, yearTo])
+  @@index([productId, reviewStatus, effect])
   @@index([productId])
   @@index([make, model])
 }
@@ -1543,11 +1640,13 @@ model PaymentAttempt {
   anomalies           PaymentAnomaly[]
   ledgerEntries       PaymentLedgerEntry[]
   reconciliationItems PaymentReconciliationItem[]
+  reconciliationDue   PaymentReconciliationDue?
 
   @@unique([paymentId, attemptNumber])
   @@unique([provider, providerReference])
   @@index([paymentId, status])
   @@index([provider, gatewayTransactionId])
+  @@index([provider, initiatedAt, id], map: "PaymentAttempt_reconciliation_due_idx")
   // SQL migration additionally enforces one SUCCESSFUL online attempt per
   // provider/gatewayTransactionId with a partial unique index.
   @@index([provider, status, initiatedAt])
@@ -1782,6 +1881,7 @@ model PaymentLedgerEntry {
 model PaymentReconciliationRun {
   id                String               @id @default(uuid()) @db.Uuid
   provider          PaymentProvider
+  attemptNumber     Int                  @default(1)
   status            ReconciliationStatus @default(RUNNING)
   periodStart       DateTime
   periodEnd         DateTime
@@ -1792,11 +1892,14 @@ model PaymentReconciliationRun {
   startedAt         DateTime             @default(now())
   completedAt       DateTime?
   failureMessage    String?
+  leaseToken        String?              @db.Uuid
+  leaseUntil        DateTime?
   createdAt         DateTime             @default(now())
 
   items PaymentReconciliationItem[]
 
-  @@unique([provider, periodStart, periodEnd])
+  @@unique([provider, periodStart, periodEnd, attemptNumber], map: "ReconciliationRun_period_attempt_key")
+  @@index([provider, periodStart, periodEnd])
   @@index([status, startedAt])
 }
 
@@ -1822,37 +1925,61 @@ model PaymentReconciliationItem {
   @@index([runId, status])
   @@index([runId, providerGatewayTransactionId], map: "ReconciliationItem_provider_receipt_idx")
   @@index([paymentAttemptId])
+  @@index([paymentAttemptId, createdAt(sort: Desc), id(sort: Desc)], map: "ReconciliationItem_latest_attempt_idx")
   @@index([refundId])
   @@index([disputeId])
 }
 
+// A derived scheduling projection. Reconciliation items and runs remain the
+// financial evidence; this row only makes the next due lookup indexable.
+model PaymentReconciliationDue {
+  paymentAttemptId       String                    @id @db.Uuid
+  provider               PaymentProvider
+  initiatedAt            DateTime
+  nextDueAt              DateTime?
+  latestItemStatus       ReconciliationItemStatus?
+  latestCompletedAt      DateTime?
+  latestItemCreatedAt    DateTime?
+  latestRunStartedAt     DateTime?
+  latestRunAttemptNumber Int?
+  latestItemId           String?                   @db.Uuid
+
+  paymentAttempt PaymentAttempt @relation(fields: [paymentAttemptId], references: [id], onDelete: Restrict)
+
+  @@index([provider, nextDueAt, initiatedAt, paymentAttemptId], map: "ReconciliationDue_next_idx")
+}
+
 model Vehicle {
-  id                  String           @id @default(uuid()) @db.Uuid
-  branchId            String           @db.Uuid
-  stockNumber         String           @unique @db.VarChar(40)
-  make                String
-  model               String
-  trim                String?
-  year                Int
-  mileageKm           Int?
-  transmission        Transmission?
-  fuelType            FuelType?
-  condition           VehicleCondition @default(USED)
-  bodyType            BodyType?
-  engineSize          String?
-  driveType           DriveType?
-  color               String?
-  doors               Int?
-  seats               Int?
-  vin                 String?          @unique @db.VarChar(17)
-  chassisNumber       String?          @unique @db.VarChar(80)
-  registrationNumber  String?
-  acquisitionCostKobo BigInt?
-  acquisitionCurrency String           @default("NGN") @db.Char(3)
-  acquiredAt          DateTime?
-  version             Int              @default(0)
-  createdAt           DateTime         @default(now())
-  updatedAt           DateTime         @updatedAt
+  id                     String           @id @default(uuid()) @db.Uuid
+  branchId               String           @db.Uuid
+  stockNumber            String           @unique @db.VarChar(40)
+  make                   String
+  model                  String
+  trim                   String?
+  year                   Int
+  mileageKm              Int?
+  transmission           Transmission?
+  fuelType               FuelType?
+  condition              VehicleCondition @default(USED)
+  bodyType               BodyType?
+  manufactureCountryCode String?          @db.Char(2)
+  powertrain             Powertrain?
+  engineCapacityCc       Int?
+  features               String[]         @default([])
+  engineSize             String?
+  driveType              DriveType?
+  color                  String?
+  doors                  Int?
+  seats                  Int?
+  vin                    String?          @unique @db.VarChar(17)
+  chassisNumber          String?          @unique @db.VarChar(80)
+  registrationNumber     String?
+  acquisitionCostKobo    BigInt?
+  acquisitionCurrency    String           @default("NGN") @db.Char(3)
+  acquiredAt             DateTime?
+  version                Int              @default(0)
+  createdAt              DateTime         @default(now())
+  updatedAt              DateTime         @updatedAt
 
   branch           Branch                   @relation(fields: [branchId], references: [id], onDelete: Restrict)
   listings         VehicleListing[]
@@ -1863,27 +1990,32 @@ model Vehicle {
   @@index([branchId])
   @@index([make, model])
   @@index([year])
+  @@index([manufactureCountryCode, powertrain, condition])
+  @@index([mileageKm, id])
   @@index([createdAt], map: "Vehicle_overview_created_idx")
 }
 
 model VehicleListing {
-  id          String               @id @default(uuid()) @db.Uuid
-  vehicleId   String               @db.Uuid
-  branchId    String               @db.Uuid
-  title       String
-  slug        String               @unique
-  priceKobo   BigInt
-  currency    String               @default("NGN") @db.Char(3)
-  description String?
-  status      VehicleListingStatus @default(DRAFT)
-  featured    Boolean              @default(false)
-  publishedAt DateTime?
-  reservedAt  DateTime?
-  soldAt      DateTime?
-  archivedAt  DateTime?
-  version     Int                  @default(0)
-  createdAt   DateTime             @default(now())
-  updatedAt   DateTime             @updatedAt
+  searchCore     String               @default("") @db.Text
+  searchDocument String               @default("") @db.Text
+  searchNames    String[]             @default([])
+  id             String               @id @default(uuid()) @db.Uuid
+  vehicleId      String               @db.Uuid
+  branchId       String               @db.Uuid
+  title          String
+  slug           String               @unique
+  priceKobo      BigInt
+  currency       String               @default("NGN") @db.Char(3)
+  description    String?
+  status         VehicleListingStatus @default(DRAFT)
+  featured       Boolean              @default(false)
+  publishedAt    DateTime?
+  reservedAt     DateTime?
+  soldAt         DateTime?
+  archivedAt     DateTime?
+  version        Int                  @default(0)
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
 
   vehicle          Vehicle               @relation(fields: [vehicleId], references: [id], onDelete: Restrict)
   branch           Branch                @relation(fields: [branchId], references: [id], onDelete: Restrict)
@@ -1896,6 +2028,7 @@ model VehicleListing {
   @@index([branchId, status])
   @@index([vehicleId])
   @@index([status, priceKobo])
+  @@index([searchDocument(ops: raw("gin_trgm_ops"))], type: Gin, map: "VehicleListing_search_document_idx")
   @@index([status, priceKobo, id], map: "VehicleListing_discovery_price_asc_idx")
   @@index([status, createdAt(sort: Desc), id(sort: Desc)], map: "VehicleListing_discovery_newest_idx")
   @@index([featured, status])
@@ -2162,28 +2295,34 @@ model Review {
   @@index([moderatedByUserId])
 }
 
+enum VehicleEnquiryIntent {
+  LISTING
+  REQUIREMENTS
+}
+
 model Enquiry {
-  id               String        @id @default(uuid()) @db.Uuid
-  customerId       String?       @db.Uuid
-  branchId         String?       @db.Uuid
-  productId        String?       @db.Uuid
-  serviceId        String?       @db.Uuid
-  bookingId        String?       @db.Uuid
-  quoteId          String?       @db.Uuid
-  vehicleListingId String?       @db.Uuid
-  assignedStaffId  String?       @db.Uuid
-  type             EnquiryType
-  status           EnquiryStatus @default(OPEN)
-  subject          String
-  message          String
-  name             String
-  email            String        @db.Citext
-  phone            String?       @db.VarChar(32)
-  resolvedAt       DateTime?
-  closedAt         DateTime?
-  version          Int           @default(0)
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @updatedAt
+  id                   String                @id @default(uuid()) @db.Uuid
+  customerId           String?               @db.Uuid
+  branchId             String?               @db.Uuid
+  productId            String?               @db.Uuid
+  serviceId            String?               @db.Uuid
+  bookingId            String?               @db.Uuid
+  quoteId              String?               @db.Uuid
+  vehicleListingId     String?               @db.Uuid
+  vehicleEnquiryIntent VehicleEnquiryIntent?
+  assignedStaffId      String?               @db.Uuid
+  type                 EnquiryType
+  status               EnquiryStatus         @default(OPEN)
+  subject              String
+  message              String
+  name                 String
+  email                String                @db.Citext
+  phone                String?               @db.VarChar(32)
+  resolvedAt           DateTime?
+  closedAt             DateTime?
+  version              Int                   @default(0)
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
 
   customer             CustomerProfile?    @relation(fields: [customerId], references: [id], onDelete: SetNull)
   branch               Branch?             @relation(fields: [branchId], references: [id], onDelete: Restrict)
@@ -2254,15 +2393,26 @@ model Complaint {
   @@index([customerId, id], map: "Complaint_directory_idx")
 }
 
+enum SupportMessageKind {
+  LEGACY
+  REPLY
+  INTERNAL_NOTE
+  STATUS_CHANGE
+}
+
 model SupportMessage {
-  id           String                   @id @default(uuid()) @db.Uuid
-  enquiryId    String?                  @db.Uuid
-  complaintId  String?                  @db.Uuid
-  authorUserId String?                  @db.Uuid
-  authorType   SupportMessageAuthorType
-  visibility   SupportMessageVisibility @default(CUSTOMER)
-  body         String
-  createdAt    DateTime                 @default(now())
+  id            String                   @id @default(uuid()) @db.Uuid
+  enquiryId     String?                  @db.Uuid
+  complaintId   String?                  @db.Uuid
+  authorUserId  String?                  @db.Uuid
+  kind          SupportMessageKind       @default(LEGACY)
+  fromStatus    String?                  @db.VarChar(32)
+  toStatus      String?                  @db.VarChar(32)
+  notifications Notification[]
+  authorType    SupportMessageAuthorType
+  visibility    SupportMessageVisibility @default(CUSTOMER)
+  body          String
+  createdAt     DateTime                 @default(now())
 
   enquiry   Enquiry?   @relation(fields: [enquiryId], references: [id], onDelete: Restrict)
   complaint Complaint? @relation(fields: [complaintId], references: [id], onDelete: Restrict)
@@ -2350,6 +2500,8 @@ model Invoice {
 }
 
 model Notification {
+  supportMessageId String?              @db.Uuid
+  supportMessage   SupportMessage?      @relation(fields: [supportMessageId], references: [id], onDelete: Restrict)
   id               String               @id @default(uuid()) @db.Uuid
   userId           String               @db.Uuid
   type             NotificationType
@@ -2369,6 +2521,23 @@ model Notification {
   @@index([userId, readAt, createdAt])
   @@index([expiresAt])
   @@index([userId, category, createdAt])
+  @@index([supportMessageId])
+}
+
+model PushSubscription {
+  id                    String    @id @default(uuid()) @db.Uuid
+  userId                String    @db.Uuid
+  sessionId             String    @db.Uuid
+  endpointHash          String    @unique @db.Char(64)
+  encryptedSubscription Json
+  disabledAt            DateTime?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  session               Session   @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([userId, disabledAt])
+  @@index([sessionId])
 }
 
 model NotificationPreference {
@@ -2430,20 +2599,21 @@ model IdempotencyRecord {
 }
 
 model OutboxEvent {
-  id            String       @id @default(uuid()) @db.Uuid
-  eventId       String       @unique @db.Uuid
-  aggregateType String       @db.VarChar(100)
-  aggregateId   String       @db.VarChar(120)
-  eventType     String       @db.VarChar(120)
-  payload       Json
-  status        OutboxStatus @default(PENDING)
-  attempts      Int          @default(0)
-  availableAt   DateTime     @default(now())
-  lockedAt      DateTime?
-  publishedAt   DateTime?
-  lastError     String?
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+  supportNoticeDismissals SupportDeliveryNoticeDismissal[]
+  id                      String                           @id @default(uuid()) @db.Uuid
+  eventId                 String                           @unique @db.Uuid
+  aggregateType           String                           @db.VarChar(100)
+  aggregateId             String                           @db.VarChar(120)
+  eventType               String                           @db.VarChar(120)
+  payload                 Json
+  status                  OutboxStatus                     @default(PENDING)
+  attempts                Int                              @default(0)
+  availableAt             DateTime                         @default(now())
+  lockedAt                DateTime?
+  publishedAt             DateTime?
+  lastError               String?
+  createdAt               DateTime                         @default(now())
+  updatedAt               DateTime                         @updatedAt
 
   notificationDelivery NotificationDelivery?
 
@@ -2452,6 +2622,18 @@ model OutboxEvent {
 }
 
 // Append-only versions: approval creates a new version, never changes old terms.
+model SupportDeliveryNoticeDismissal {
+  userId     String      @db.Uuid
+  deliveryId String      @db.Uuid
+  revision   String      @db.Char(64)
+  createdAt  DateTime    @default(now())
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  delivery   OutboxEvent @relation(fields: [deliveryId], references: [id], onDelete: Cascade)
+
+  @@id([userId, deliveryId, revision])
+  @@index([deliveryId])
+}
+
 model BusinessPolicyVersion {
   vehicleReservations                   VehicleTransaction[] @relation("VehicleReservationTerms")
   id                                    String               @id @default(uuid()) @db.Uuid
@@ -2478,21 +2660,23 @@ model BusinessPolicyVersion {
 
 // Explicit enrollment preserves approved legacy access until an operator reviews it.
 model WorkforceAccess {
-  userId             String                @id @db.Uuid
-  position           String                @db.VarChar(80)
-  enabledAt          DateTime              @default(now())
-  updatedByUserId    String                @db.Uuid
-  version            Int                   @default(0)
-  delegatedTemplates String[]              @default([])
-  delegatedBranchIds String[]              @default([]) @db.Uuid
-  user               User                  @relation(fields: [userId], references: [id], onDelete: Restrict)
-  assignments        WorkforceAssignment[]
+  userId                  String                @id @db.Uuid
+  position                String                @db.VarChar(80)
+  enabledAt               DateTime              @default(now())
+  updatedByUserId         String                @db.Uuid
+  version                 Int                   @default(0)
+  delegatedTemplates      String[]              @default([])
+  delegatedBranchIds      String[]              @default([]) @db.Uuid
+  delegationPolicyVersion Int                   @default(1)
+  user                    User                  @relation(fields: [userId], references: [id], onDelete: Restrict)
+  assignments             WorkforceAssignment[]
 }
 
 model WorkforceAssignment {
   id               String          @id @default(uuid()) @db.Uuid
   userId           String          @db.Uuid
   template         String          @db.VarChar(80)
+  templateVersion  Int             @default(1)
   branchId         String          @db.Uuid
   scope            String          @db.VarChar(20)
   temporary        Boolean         @default(false)
@@ -2523,6 +2707,74 @@ model UserCapability {
   userIdRelation User @relation("Owner_UserCapability_userId", fields: [userId], references: [id], onDelete: Restrict, onUpdate: NoAction)
 
   @@index([userId, capability, revokedAt])
+}
+
+enum AssistantAudience {
+  PUBLIC
+  CUSTOMER
+  WORK
+}
+
+enum AssistantTurnStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+// Short-lived automated-help state, separate from canonical Customer Care records.
+// ownerKey is a purpose-separated keyed hash of the verified current session.
+model AssistantGuestSession {
+  id        String   @id @default(uuid()) @db.Uuid
+  tokenHash String   @unique @db.Char(64)
+  csrfHash  String   @db.Char(64)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([expiresAt])
+}
+
+model AssistantConversation {
+  id                String            @id @default(uuid()) @db.Uuid
+  ownerKey          String            @db.Char(64)
+  audience          AssistantAudience
+  accessKey         String            @db.Char(64)
+  sourceSet         String            @db.Char(64)
+  encryptedState    Json?
+  version           Int               @default(1)
+  expiresAt         DateTime
+  absoluteExpiresAt DateTime
+  closedAt          DateTime?
+  createdAt         DateTime          @default(now())
+  turns             AssistantTurn[]
+
+  @@index([ownerKey, closedAt, expiresAt])
+  @@index([expiresAt])
+}
+
+model AssistantTurn {
+  id              String                @id @default(uuid()) @db.Uuid
+  conversationId  String                @db.Uuid
+  operationId     String                @db.Uuid
+  inputHash       String                @db.Char(64)
+  status          AssistantTurnStatus   @default(PENDING)
+  quotaKey        String                @db.Char(64)
+  reservedTokens  Int
+  leaseExpiresAt  DateTime
+  encryptedResult Json?
+  failureCode     String?               @db.VarChar(40)
+  model           String?               @db.VarChar(120)
+  inputTokens     Int?
+  outputTokens    Int?
+  totalTokens     Int?
+  durationMs      Int?
+  createdAt       DateTime              @default(now())
+  completedAt     DateTime?
+  conversation    AssistantConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@unique([conversationId, operationId])
+  @@index([status, leaseExpiresAt])
+  @@index([conversationId, createdAt])
 }
 
 model RateLimitBucket {
@@ -2727,4 +2979,76 @@ model MediaCleanupJob {
   createdAt     DateTime  @default(now())
 
   @@index([completedAt, availableAt])
+}
+
+enum ProductCondition {
+  NEW
+  USED
+  REFURBISHED
+}
+
+enum ProductClassification {
+  GENUINE_OEM
+  AFTERMARKET
+}
+
+enum FitmentReviewStatus {
+  DRAFT
+  PENDING
+  APPROVED
+  REJECTED
+  RETIRED
+}
+
+enum FitmentScope {
+  MODEL
+  UNIVERSAL
+}
+
+enum FitmentEffect {
+  INCLUDE
+  EXCLUDE
+}
+
+model VehicleMake {
+  id        String         @id @default(uuid()) @db.Uuid
+  name      String         @db.VarChar(100)
+  key       String         @unique @db.VarChar(100)
+  isActive  Boolean        @default(true)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  models    VehicleModel[]
+}
+
+model VehicleModel {
+  id               String                 @id @default(uuid()) @db.Uuid
+  makeId           String                 @db.Uuid
+  name             String                 @db.VarChar(100)
+  key              String                 @db.VarChar(100)
+  yearFrom         Int
+  yearTo           Int
+  isActive         Boolean                @default(true)
+  sourceReference  String                 @db.VarChar(500)
+  createdAt        DateTime               @default(now())
+  updatedAt        DateTime               @updatedAt
+  make             VehicleMake            @relation(fields: [makeId], references: [id], onDelete: Restrict)
+  compatibilities  ProductCompatibility[]
+  customerVehicles CustomerVehicle[]
+
+  @@unique([makeId, key])
+}
+
+model ProductCompatibilityHistory {
+  id              String               @id @default(uuid()) @db.Uuid
+  compatibilityId String               @db.Uuid
+  actorUserId     String               @db.Uuid
+  action          String               @db.VarChar(40)
+  version         Int
+  snapshot        Json
+  createdAt       DateTime             @default(now())
+  compatibility   ProductCompatibility @relation(fields: [compatibilityId], references: [id], onDelete: Restrict)
+  actor           User                 @relation(fields: [actorUserId], references: [id], onDelete: Restrict)
+
+  @@unique([compatibilityId, version])
+  @@index([createdAt, id])
 }

@@ -87,6 +87,25 @@ describe.skipIf(!runDatabaseTests)("Phase 3 customer and organization flow", () 
 
   it("enforces ownership, privileged provisioning, MFA, authority changes, and auditability", async () => {
     const app = createApp({ checkReadiness: async () => undefined });
+    const staffRevision = async (userId: string, cookie: string) => {
+      const response = await request(app)
+        .get(`/api/v1/admin/staff/${userId}`)
+        .set("Cookie", cookie)
+        .expect(200);
+      const member = response.body.data as {
+        updatedAt: string;
+        role: string;
+        status: string;
+        staffProfile: { updatedAt: string; branchId: string | null } | null;
+      };
+      return [
+        member.updatedAt,
+        member.role,
+        member.status,
+        member.staffProfile?.updatedAt,
+        member.staffProfile?.branchId,
+      ].join(":");
+    };
     const customerA = await createUser("CUSTOMER");
     const customerB = await createUser("CUSTOMER");
     const customerASession = await createSession(customerA.id, customerA.role);
@@ -305,12 +324,56 @@ describe.skipIf(!runDatabaseTests)("Phase 3 customer and organization flow", () 
         state: "Lagos",
       },
     });
+    const beforeAssignment = await prisma.staffProfile.findUniqueOrThrow({
+      where: { userId: invited.id },
+    });
+    await request(app)
+      .patch(`/api/v1/admin/staff/${invited.id}/branch`)
+      .set("Origin", origin)
+      .set("Cookie", adminSession.cookie)
+      .set("X-CSRF-Token", adminSession.csrfToken)
+      .send({ branchId: secondBranch.id })
+      .expect(422);
+    await request(app)
+      .patch(`/api/v1/admin/staff/${invited.id}/status`)
+      .set("Origin", origin)
+      .set("Cookie", adminSession.cookie)
+      .set("X-CSRF-Token", adminSession.csrfToken)
+      .send({ status: "SUSPENDED" })
+      .expect(422);
+    expect(
+      (await prisma.staffProfile.findUniqueOrThrow({ where: { userId: invited.id } }))
+        .branchId,
+    ).toBe(beforeAssignment.branchId);
+    expect(
+      (await prisma.user.findUniqueOrThrow({ where: { id: invited.id } })).status,
+    ).toBe("ACTIVE");
+    const raceTarget = await createUser("STAFF");
+    const raceRevision = await staffRevision(raceTarget.id, adminSession.cookie);
+    const competing = await Promise.all([
+      request(app)
+        .patch(`/api/v1/admin/staff/${raceTarget.id}/status`)
+        .set("Origin", origin)
+        .set("Cookie", adminSession.cookie)
+        .set("X-CSRF-Token", adminSession.csrfToken)
+        .send({ status: "SUSPENDED", expectedRevision: raceRevision }),
+      request(app)
+        .patch(`/api/v1/admin/staff/${raceTarget.id}/branch`)
+        .set("Origin", origin)
+        .set("Cookie", adminSession.cookie)
+        .set("X-CSRF-Token", adminSession.csrfToken)
+        .send({ branchId: secondBranch.id, expectedRevision: raceRevision }),
+    ]);
+    expect(competing.map((response) => response.status).sort()).toEqual([200, 409]);
     const assigned = await request(app)
       .patch(`/api/v1/admin/staff/${invited.id}/branch`)
       .set("Origin", origin)
       .set("Cookie", adminSession.cookie)
       .set("X-CSRF-Token", adminSession.csrfToken)
-      .send({ branchId: secondBranch.id });
+      .send({
+        branchId: secondBranch.id,
+        expectedRevision: await staffRevision(invited.id, adminSession.cookie),
+      });
     expect(assigned.status).toBe(200);
     expect(
       (await prisma.session.findUniqueOrThrow({ where: { id: staffSession.id } }))
@@ -330,7 +393,7 @@ describe.skipIf(!runDatabaseTests)("Phase 3 customer and organization flow", () 
       .set("Origin", origin)
       .set("Cookie", superSession.cookie)
       .set("X-CSRF-Token", superSession.csrfToken)
-      .send({ branchId });
+      .send({ branchId, expectedRevision: "stale-revision" });
     expect(superCannotAssignAdmin.status).toBe(409);
 
     const selfAdministration = await request(app)
@@ -338,7 +401,7 @@ describe.skipIf(!runDatabaseTests)("Phase 3 customer and organization flow", () 
       .set("Origin", origin)
       .set("Cookie", superSession.cookie)
       .set("X-CSRF-Token", superSession.csrfToken)
-      .send({ status: "SUSPENDED" });
+      .send({ status: "SUSPENDED", expectedRevision: "stale-revision" });
     expect(selfAdministration.status).toBe(403);
 
     const beforeRoleChange = await createSession(invited.id, "STAFF");
@@ -397,12 +460,23 @@ describe.skipIf(!runDatabaseTests)("Phase 3 customer and organization flow", () 
         .branchId,
     ).toBeNull();
 
+    await request(app)
+      .patch(`/api/v1/admin/staff/${invited.id}/role`)
+      .set("Origin", origin)
+      .set("Cookie", superSession.cookie)
+      .set("X-CSRF-Token", superSession.csrfToken)
+      .send({ role: "STAFF", branchId: secondBranch.id })
+      .expect(422);
+    expect(
+      (await prisma.user.findUniqueOrThrow({ where: { id: invited.id } })).role,
+    ).toBe("ADMIN");
+
     const adminCannotSuspendAdmin = await request(app)
       .patch(`/api/v1/admin/staff/${invited.id}/status`)
       .set("Origin", origin)
       .set("Cookie", adminSession.cookie)
       .set("X-CSRF-Token", adminSession.csrfToken)
-      .send({ status: "SUSPENDED" });
+      .send({ status: "SUSPENDED", expectedRevision: "stale-revision" });
     expect(adminCannotSuspendAdmin.status).toBe(403);
 
     const invitedAdminSession = await createSession(invited.id, "ADMIN");
@@ -411,7 +485,10 @@ describe.skipIf(!runDatabaseTests)("Phase 3 customer and organization flow", () 
       .set("Origin", origin)
       .set("Cookie", superSession.cookie)
       .set("X-CSRF-Token", superSession.csrfToken)
-      .send({ status: "SUSPENDED" });
+      .send({
+        status: "SUSPENDED",
+        expectedRevision: await staffRevision(invited.id, superSession.cookie),
+      });
     expect(suspended.status).toBe(200);
     expect(
       (await prisma.session.findUniqueOrThrow({ where: { id: invitedAdminSession.id } }))
@@ -422,14 +499,20 @@ describe.skipIf(!runDatabaseTests)("Phase 3 customer and organization flow", () 
       .set("Origin", origin)
       .set("Cookie", superSession.cookie)
       .set("X-CSRF-Token", superSession.csrfToken)
-      .send({ status: "SUSPENDED" });
+      .send({
+        status: "SUSPENDED",
+        expectedRevision: await staffRevision(invited.id, superSession.cookie),
+      });
     expect(repeatedSuspension.status).toBe(409);
     const reactivated = await request(app)
       .patch(`/api/v1/admin/staff/${invited.id}/status`)
       .set("Origin", origin)
       .set("Cookie", superSession.cookie)
       .set("X-CSRF-Token", superSession.csrfToken)
-      .send({ status: "ACTIVE" });
+      .send({
+        status: "ACTIVE",
+        expectedRevision: await staffRevision(invited.id, superSession.cookie),
+      });
     expect(reactivated.status).toBe(200);
 
     const auditActions = await prisma.auditLog.findMany({

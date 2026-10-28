@@ -80,8 +80,37 @@ export function pendingMigrations(
 }
 
 /** Conservative gate; it is not a substitute for reviewing migration SQL. */
-export function assertNonDestructiveMigration(sql: string): void {
-  const text = sql.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/--[^\r\n]*/g, " ");
+export function assertNonDestructiveMigration(sql: string, migrationName?: string): void {
+  // Exact, source-reviewed derived-field backfills, with a preservation/rehearsal
+  // plan in docs/shop-vehicles-search-r2.md. No environment flag can approve SQL.
+  // A changed byte or renamed migration must undergo a new review. All ordinary
+  // migration history, target, backup and post-migration checks still apply.
+  const reviewed: Record<string, string> = {
+    "20261025132000_catalogue_word_search":
+      "4740f38e0d45255a3b1c1eaf7977970a07434f87a8f0584f21ce8af4e249e0e1",
+    "20261025133000_catalogue_brand_options":
+      "d097ca56e11f4b044743e3981f58f6dfe25e7904adda337e088116c43ef349db",
+    "20261025134000_preserve_alphabetic_search_codes":
+      "3ea93d2f4a86628b59b81eda9c35048ec6d8e6c6c31a087abd4300c57d131c32",
+  };
+  const approved = migrationName && reviewed[migrationName];
+  if (approved) {
+    if (createHash("sha256").update(sql).digest("hex") !== approved)
+      throw new Error(
+        "Reviewed derived-field migration changed. Stop for a new SQL and preservation-plan review.",
+      );
+    return;
+  }
+  const text = sql
+    .replace(/\/\*[\s\S]*?\*\//g, " ")
+    .replace(/--[^\r\n]*/g, " ")
+    // Registering a statement trigger for TRUNCATE does not execute TRUNCATE.
+    // Recognize only complete, argument-free DDL. Executable commands and
+    // function bodies still pass through the destructive-operation checks.
+    .replace(
+      /\bCREATE\s+TRIGGER\s+(?:"(?:[^";]|"")+"|[a-z_][a-z0-9_]*)\s+(?:BEFORE|AFTER)\s+TRUNCATE\s+ON\s+(?:(?:"(?:[^";]|"")+"|[a-z_][a-z0-9_]*)\s*\.\s*)?(?:"(?:[^";]|"")+"|[a-z_][a-z0-9_]*)\s+FOR\s+EACH\s+STATEMENT\s+EXECUTE\s+FUNCTION\s+(?:(?:"(?:[^";]|"")+"|[a-z_][a-z0-9_]*)\s*\.\s*)?(?:"(?:[^";]|"")+"|[a-z_][a-z0-9_]*)\s*\(\s*\)\s*;/gi,
+      " ",
+    );
   if (
     /\b(?:DROP\s+(?:TABLE|DATABASE|SCHEMA|TYPE)|DROP\s+(?:COLUMN\s+)?(?:IF\s+EXISTS\s+)?\w+\s+CASCADE|TRUNCATE\b|DELETE\s+FROM|ALTER\s+COLUMN\b|DROP\s+COLUMN\b|DO\s+\$|EXECUTE\s+(?:FORMAT\b|['"]))/i.test(
       text,

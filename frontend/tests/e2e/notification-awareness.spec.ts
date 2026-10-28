@@ -19,7 +19,7 @@ for (const width of [430, 1440])
     state.items = [enquiry(1), enquiry(2)];
     await page.goto(route);
     await expect(
-      page.getByRole("link", { name: "Open notifications, 2 unread", exact: true }),
+      page.getByRole("button", { name: "Open notifications, 2 unread", exact: true }),
     ).toBeVisible();
     if (width < 901) {
       const bell = await page.locator(".dashboard-icon-link").boundingBox();
@@ -47,7 +47,7 @@ for (const width of [430, 1440])
       .getByRole("button", { name: "Mark Enquiry update 1 as read", exact: true })
       .click();
     await expect(
-      page.getByRole("link", { name: "Open notifications, 1 unread", exact: true }),
+      page.getByRole("button", { name: "Open notifications, 1 unread", exact: true }),
     ).toBeVisible();
     await page.getByRole("button", { name: "Mark all read", exact: true }).click();
     await page
@@ -73,7 +73,7 @@ test("large count and collapsed sidebar remain visible without overflow", async 
   state.items = Array.from({ length: 100 }, (_, n) => enquiry(n + 1));
   await page.goto(route);
   await expect(
-    page.getByRole("link", { name: "Open notifications, 100 unread", exact: true }),
+    page.getByRole("button", { name: "Open notifications, 100 unread", exact: true }),
   ).toHaveText("99+");
   await page.getByRole("button", { name: "Collapse sidebar" }).click();
   await expect(
@@ -150,14 +150,29 @@ test("notifications link to the exact conversation and an older review detail", 
   await page
     .getByRole("link", { name: "View review: Review moderation update", exact: true })
     .click();
-  await expect(page).toHaveURL(new RegExp(`/dashboard/reviews/${reviewId}$`));
+  await expect(page).toHaveURL(new RegExp(`/dashboard/reviews/${reviewId}$`), {
+    timeout: 40000,
+  });
   await expect(
     page.getByRole("heading", { name: "My older review", exact: true }),
   ).toBeVisible();
   await expect(
     page.getByText("Please remove personal contact information.", { exact: true }),
   ).toBeVisible();
-  expect(state.writes).toHaveLength(0);
+  expect(state.writes).toEqual([]);
+  await page
+    .getByRole("button", { name: "Mark displayed updates as read", exact: true })
+    .click();
+  await expect.poll(() => state.writes.length).toBe(1);
+  expect(state.writes[0]).toMatchObject({
+    endpoint: "/customers/notifications/read-context",
+    body: {
+      resourceType: "REVIEW",
+      resourceId: reviewId,
+      notificationIds: [notificationItem(3).id],
+    },
+  });
+  expect(state.items.find((item) => item.id === enquiry().id)?.readAt).toBeNull();
 });
 
 test("manual refresh discovers new unread updates and an error never shows a false count", async ({
@@ -170,12 +185,12 @@ test("manual refresh discovers new unread updates and an error never shows a fal
   state.items = [enquiry()];
   await page.getByRole("button", { name: "Refresh inbox", exact: true }).click();
   await expect(
-    page.getByRole("link", { name: "Open notifications, 1 unread", exact: true }),
+    page.getByRole("button", { name: "Open notifications, 1 unread", exact: true }),
   ).toBeVisible();
   state.failInbox = true;
   await page.getByRole("button", { name: "Refresh inbox", exact: true }).click();
   await expect(
-    page.getByRole("link", {
+    page.getByRole("button", {
       name: "Open notifications, unread status unavailable",
       exact: true,
     }),

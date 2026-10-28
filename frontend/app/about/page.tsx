@@ -1,9 +1,8 @@
-import Image from "next/image";
+import { CampaignArtwork } from "../components/campaign-artwork";
 import Link from "next/link";
 import {
   ArrowRight,
   ArrowUpRight,
-  ChevronDown,
   ChevronRight,
   Mail,
   MapPin,
@@ -15,6 +14,7 @@ import { SiteHeader } from "../components/site-header";
 import { SiteFooter } from "../components/site-footer";
 import { EquipmentGallery } from "../components/equipment-gallery";
 import { TrustPrinciples } from "../components/brand-editorial";
+import { Brand } from "../components/brand";
 import "./about.css";
 
 export const metadata = publicMetadata(
@@ -66,15 +66,14 @@ export default function AboutPage() {
               </div>
               <figure className="about-hero-figure">
                 <div className="about-hero-photo">
-                  <Image
-                    src="/images/allied-autotech/technician-original.webp"
-                    alt="Allied AutoTech technician in the original company campaign photograph"
-                    fill
+                  <CampaignArtwork
+                    artwork="precision-autocare"
+                    alt="Allied AutoTech Precision Autocare You Can Trust campaign, with a person in a red branded uniform"
                     sizes="(max-width: 760px) calc(100vw - 40px), (max-width: 1023px) 36vw, 380px"
-                    preload
+                    priority
                   />
                 </div>
-                <figcaption>From the Allied AutoTech workshop wall.</figcaption>
+                <figcaption>Precision Autocare You Can Trust.</figcaption>
               </figure>
             </div>
           </div>
@@ -126,7 +125,10 @@ export default function AboutPage() {
           aria-labelledby="about-principles-title"
         >
           <div className="about-section-heading">
-            <h2 id="about-principles-title">Built on Trust, Driven by Quality.</h2>
+            <div className="about-brand">
+              <Brand monochrome />
+            </div>
+            <h2 id="about-principles-title">Built on trust driven by quality</h2>
             <p>
               Inspect carefully. Diagnose the issue. Explain the next step. Our approach
               keeps practical expertise and clear communication at the centre of vehicle
@@ -134,56 +136,6 @@ export default function AboutPage() {
             </p>
           </div>
           <TrustPrinciples complete />
-          <details className="about-archive">
-            <summary>
-              <span>
-                <strong>From our workshop walls</strong>
-                <span>Explore the original brand campaigns.</span>
-              </span>
-              <ChevronDown size={18} aria-hidden="true" />
-            </summary>
-            <div className="about-archive-content">
-              <p>
-                Our original campaigns reflect the principles and everyday journeys behind
-                Allied AutoTech. Pictured campaign vehicles are lifestyle inspiration;
-                current availability is shown in the marketplace.
-              </p>
-              <div className="about-archive-grid">
-                {[
-                  ["lifestyle-campaign", "Which car fits your lifestyle?"],
-                  ["executive-campaign", "Executive presence"],
-                  ["family-campaign", "Family comfort"],
-                  ["operating-principles", "Our original operating principles"],
-                ].map(([src, caption]) => (
-                  <figure key={src}>
-                    <a
-                      href={`/images/allied-autotech/${src}.webp`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={`Open full-size poster: ${caption} (new tab)`}
-                    >
-                      <Image
-                        src={`/images/allied-autotech/${src}.webp`}
-                        alt={`Original Allied AutoTech campaign: ${caption}`}
-                        width={1200}
-                        height={1594}
-                        sizes="(max-width: 760px) calc(50vw - 40px), 270px"
-                      />
-                      <span>
-                        View full-size poster{" "}
-                        <ArrowUpRight size={14} aria-hidden="true" />
-                      </span>
-                    </a>
-                    <figcaption>{caption}</figcaption>
-                  </figure>
-                ))}
-              </div>
-              <Link href="/vehicles" className="text-link">
-                Explore current vehicle listings{" "}
-                <ArrowRight size={16} aria-hidden="true" />
-              </Link>
-            </div>
-          </details>
         </section>
         <section
           className="about-equipment"
@@ -226,12 +178,9 @@ export default function AboutPage() {
             </div>
             <div className="about-contact-options">
               <div className="about-contact-links">
-                <a href={`tel:${business.internationalPhone}`}>
+                <a href={business.whatsapp} target="_blank" rel="noopener noreferrer">
                   <Phone size={18} aria-hidden="true" />
-                  <span>
-                    <small>Phone</small>
-                    {business.phone}
-                  </span>
+                  <span>Whatsapp</span>
                 </a>
                 <a href={`mailto:${business.email}`}>
                   <Mail size={18} aria-hidden="true" />
@@ -260,7 +209,7 @@ export default function AboutPage() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                WhatsApp the team <ArrowUpRight size={16} aria-hidden="true" />
+                Whatsapp <ArrowUpRight size={16} aria-hidden="true" />
               </a>
             </div>
           </div>

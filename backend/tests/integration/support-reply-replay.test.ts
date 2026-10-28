@@ -37,8 +37,10 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
     async function counts(f: Fixture) {
       const notes = await prisma.notification.findMany({
         where: { resourceId: f.recordId },
-        select: { id: true },
+        select: { id: true, userId: true },
       });
+      expect(new Set(notes.map((note) => note.userId)).size).toBe(notes.length);
+      const assigned = notes.filter((note) => note.userId === f.staffUserId);
       return {
         messages: await prisma.supportMessage.count({ where: target(f) }),
         audits: await prisma.auditLog.count({
@@ -47,13 +49,13 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         receipts: await prisma.idempotencyRecord.count({
           where: { scope: `support-reply:${f.kind}:${f.recordId}:${f.user.id}` },
         }),
-        notifications: notes.length,
+        notifications: assigned.length,
         deliveries: await prisma.notificationDelivery.count({
-          where: { notificationId: { in: notes.map((n) => n.id) } },
+          where: { notificationId: { in: assigned.map((n) => n.id) } },
         }),
         outbox: await prisma.outboxEvent.count({
           where: {
-            aggregateId: { in: notes.map((n) => n.id) },
+            aggregateId: { in: assigned.map((n) => n.id) },
             aggregateType: "Notification",
           },
         }),
@@ -65,6 +67,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       receipts: 1,
       notifications: 1,
       deliveries: 1,
+      // A disabled provider retains one dead-letter delivery intent for recovery.
       outbox: 1,
     };
     const empty = {
@@ -106,7 +109,17 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         expect(replay.status).toBe(201);
         expect(replay.body.data).toEqual({ ...original.body.data, replayed: true });
         expect(Object.keys(replay.body.data).sort()).toEqual(
-          ["id", "authorType", "visibility", "body", "createdAt", "replayed"].sort(),
+          [
+            "id",
+            "kind",
+            "fromStatus",
+            "toStatus",
+            "authorType",
+            "visibility",
+            "body",
+            "createdAt",
+            "replayed",
+          ].sort(),
         );
         expect(replay.headers["cache-control"]).toContain("no-store");
         expect((await post(f)).status).toBe(409);

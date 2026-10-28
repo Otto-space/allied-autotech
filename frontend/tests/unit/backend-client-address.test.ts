@@ -5,17 +5,22 @@ import { NextRequest } from "next/server";
 import { proxy } from "../../proxy";
 import { validateDeploymentConfig } from "@/lib/deployment-config";
 afterEach(() => vi.unstubAllEnvs());
-it("requires the forwarding key for a connected production browsing launch", () => {
-  vi.stubEnv("VERCEL", "1");
-  vi.stubEnv("VERCEL_ENV", "production");
-  vi.stubEnv("NEXT_PUBLIC_PUBLIC_LAUNCH_MODE", "browse_enquiries");
-  vi.stubEnv("BACKEND_ORIGIN", "https://api.example.com");
-  vi.stubEnv("SITE_ORIGIN", "https://example.com");
-  vi.stubEnv("FRONTEND_PROXY_SECRET", "");
-  expect(() => validateDeploymentConfig()).toThrow("verified backend client forwarding");
-  vi.stubEnv("FRONTEND_PROXY_SECRET", Buffer.alloc(32, 31).toString("base64"));
-  expect(() => validateDeploymentConfig()).not.toThrow();
-});
+it.each(["browse_enquiries", "catalogue"])(
+  "requires the forwarding key for a connected production %s launch",
+  (mode) => {
+    vi.stubEnv("VERCEL", "1");
+    vi.stubEnv("VERCEL_ENV", "production");
+    vi.stubEnv("NEXT_PUBLIC_PUBLIC_LAUNCH_MODE", mode);
+    vi.stubEnv("BACKEND_ORIGIN", "https://api.example.com");
+    vi.stubEnv("SITE_ORIGIN", "https://example.com");
+    vi.stubEnv("FRONTEND_PROXY_SECRET", "");
+    expect(() => validateDeploymentConfig()).toThrow(
+      "verified backend client forwarding",
+    );
+    vi.stubEnv("FRONTEND_PROXY_SECRET", Buffer.alloc(32, 31).toString("base64"));
+    expect(() => validateDeploymentConfig()).not.toThrow();
+  },
+);
 it("keeps unconfigured/local deployments unchanged", () => {
   vi.stubEnv("FRONTEND_PROXY_SECRET", "");
   expect(backendClientAddress(new Headers(), "GET", "/api/v1/public/services")).toEqual(

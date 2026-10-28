@@ -175,7 +175,7 @@ test("assignment supports complete paging, search and retained selection with ex
   await expect(page.locator(".wjd-options input")).toHaveCount(25);
   await page.getByRole("button", { name: "Next technicians", exact: true }).click();
   await expect(page.locator(".wjd-options input")).toHaveCount(2);
-  await page.getByRole("radio", { name: /^Zara Okafor Staff reference:/ }).check();
+  await page.getByRole("radio", { name: /^Zara Okafor\s*Staff reference:/ }).check();
   await page.getByRole("button", { name: "Previous page", exact: true }).click();
   await expect(page.locator(".wjd-options input")).toHaveCount(25);
   await page
@@ -184,7 +184,7 @@ test("assignment supports complete paging, search and retained selection with ex
   await page.getByRole("button", { name: "Search", exact: true }).click();
   await expect(page.locator(".wjd-options input")).toHaveCount(1);
   await expect(
-    page.getByRole("radio", { name: /^Zara Okafor Staff reference:/ }),
+    page.getByRole("radio", { name: /^Zara Okafor\s*Staff reference:/ }),
   ).toBeChecked();
   await page
     .getByLabel("Assignment reason", { exact: true })
@@ -444,8 +444,12 @@ test("temporary responsibility expiry hides the job and unsent notes automatical
   state.base.access.assignments = [];
   state.base.access.permissions = [];
   await page.clock.fastForward(10100);
+  await expect(page).toHaveURL(/\/admin\?workAccess=updated$/);
   await expect(
-    page.getByRole("heading", { name: "Access unavailable", exact: true }),
+    page.getByText(
+      "Your current responsibilities do not permit that page. You can continue with the tools available here.",
+      { exact: true },
+    ),
   ).toBeVisible();
   await expect(page.getByLabel("Diagnosis", { exact: true })).toHaveCount(0);
   await expect(

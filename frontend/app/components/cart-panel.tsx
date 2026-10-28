@@ -256,6 +256,9 @@ export function CartPanel() {
       const parsed = z
         .object({ order: orderSchema, replayed: z.boolean() })
         .parse(response.data);
+      document
+        .getElementById("cart-checkout-form")
+        ?.dispatchEvent(new Event("reset", { bubbles: true }));
       setResult(parsed);
       setUncertain(false);
       setDirtyProducts([]);
@@ -328,7 +331,14 @@ export function CartPanel() {
           }
           await apiRequest("/customers/cart", {
             method: "DELETE",
-            body: {},
+            body: {
+              expectedItems: current.items.map((item) => ({
+                id: item.id,
+                productId: item.product.id,
+                quantity: item.quantity,
+                unitPriceKobo: item.unitPriceKobo,
+              })),
+            },
             csrf: true,
             signal: controller.signal,
           });
@@ -350,7 +360,7 @@ export function CartPanel() {
         <div>
           <h1>Your cart</h1>
           <p>
-            Review your parts, then choose collection or delivery. Prices and branch stock
+            Review your parts, then choose your collection branch. Prices and branch stock
             are checked when your order is created.
           </p>
         </div>
@@ -364,7 +374,7 @@ export function CartPanel() {
           <span>01</span>Review items
         </li>
         <li aria-current={reviewing && !order ? "step" : undefined}>
-          <span>02</span>Collection or delivery
+          <span>02</span>Collection
         </li>
         <li aria-current={order ? "step" : undefined}>
           <span>03</span>Order &amp; payment

@@ -1,4 +1,5 @@
-import { browseEnquiriesOnly } from "@/lib/public-launch";
+import { browseEnquiriesOnly, catalogueOnly } from "@/lib/public-launch";
+import { CatalogueContact } from "../components/catalogue-contact";
 import { publicPageMetadata, type SearchParameters } from "@/lib/seo";
 import type { Metadata } from "next";
 import Image from "next/image";
@@ -16,7 +17,8 @@ import {
 import { business } from "@/lib/business";
 import { SiteHeader } from "../components/site-header";
 import { SiteFooter } from "../components/site-footer";
-import { PublicEnquiryForm } from "../components/public-enquiry-form";
+import { ContactPartsEnquiry } from "../components/contact-parts-enquiry";
+import { Suspense } from "react";
 import { ContactAccountLink } from "./contact-account-link";
 import { ContactAnchor } from "./contact-anchor";
 import "./contact.css";
@@ -28,7 +30,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   return publicPageMetadata(
     "Contact & customer care",
-    "Send an enquiry, contact customer care or visit Allied AutoTech at 133 Stadium Road, beside Kilimanjaro, Port Harcourt.",
+    `Send an enquiry, contact customer care or visit Allied AutoTech at ${business.address}.`,
     "/contact",
     searchParams,
   );
@@ -38,6 +40,7 @@ const mapsLink = `https://www.google.com/maps/search/?api=1&query=${encodeURICom
 const directionsLink = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(locationQuery)}`;
 
 export default function ContactPage() {
+  if (catalogueOnly()) return <CatalogueContact />;
   const mapsKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY?.trim();
   const mapsEmbed = mapsKey
     ? `https://www.google.com/maps/embed/v1/place?key=${encodeURIComponent(mapsKey)}&q=${encodeURIComponent(locationQuery)}`
@@ -94,15 +97,14 @@ export default function ContactPage() {
               <Phone size={20} aria-hidden="true" />
               <span>
                 <small>Call</small>
-                <strong>{business.phone}</strong>
+                <strong>Call our team</strong>
               </span>
             </a>
             <a href={business.whatsapp} target="_blank" rel="noopener noreferrer">
               <MessageCircle size={20} aria-hidden="true" />
               <span>
-                <small>WhatsApp</small>
                 <strong>
-                  Start a conversation <ArrowUpRight size={14} aria-hidden="true" />
+                  Whatsapp <ArrowUpRight size={14} aria-hidden="true" />
                 </strong>
               </span>
             </a>
@@ -117,7 +119,7 @@ export default function ContactPage() {
               <MapPin size={20} aria-hidden="true" />
               <span>
                 <small>Visit</small>
-                <strong>133 Stadium Road, beside Kilimanjaro</strong>
+                <strong>{business.address}</strong>
               </span>
             </ContactAnchor>
           </section>
@@ -180,7 +182,9 @@ export default function ContactPage() {
                 </aside>
               </div>
               <div className="contact-form-panel">
-                <PublicEnquiryForm presentation="contact" />
+                <Suspense fallback={<p>Preparing enquiry form...</p>}>
+                  <ContactPartsEnquiry />
+                </Suspense>
               </div>
             </section>
           </div>
@@ -218,14 +222,14 @@ export default function ContactPage() {
                   href={`tel:${business.internationalPhone}`}
                 >
                   <Phone size={18} aria-hidden="true" />
-                  {business.phone}
+                  Call our team
                 </a>
               </div>
               <div className="contact-map">
                 {mapsEmbed ? (
                   <iframe
                     src={mapsEmbed}
-                    title="Allied AutoTech workshop location at 133 Stadium Road, Port Harcourt"
+                    title={`Allied AutoTech workshop location at ${business.address}`}
                     loading="lazy"
                     allowFullScreen
                     referrerPolicy="strict-origin-when-cross-origin"
