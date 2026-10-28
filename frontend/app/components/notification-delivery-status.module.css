@@ -1,0 +1,47 @@
+.status {
+  display: grid;
+  justify-items: start;
+  gap: 8px;
+  margin-top: 8px;
+}
+.status p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.badge {
+  display: inline-block;
+  border: 1px solid #c8d3dc;
+  border-radius: 5px;
+  padding: 4px 8px;
+  background: #f2f5f7;
+  color: #334957;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+.details {
+  margin-block: 16px;
+  color: var(--text-muted, #4b626f);
+  font-size: 14px;
+  line-height: 1.65;
+}
+.details summary {
+  cursor: pointer;
+  min-height: 44px;
+  padding-block: 10px;
+  color: var(--link);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.details summary:hover {
+  color: var(--link-hover, #8f101b);
+}
+.details summary:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+.details p {
+  margin: 8px 0;
+  max-width: 75ch;
+}

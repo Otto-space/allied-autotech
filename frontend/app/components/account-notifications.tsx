@@ -32,6 +32,11 @@ import {
 } from "@/lib/api/notification-schemas";
 import { usePreferenceWrite } from "@/lib/notifications/use-preference-write";
 import { PreferenceRecovery } from "./preference-recovery";
+import { deliveryAvailability } from "@/lib/notifications/delivery-availability";
+import {
+  NotificationDeliveryDetails,
+  NotificationDeliveryStatus,
+} from "./notification-delivery-status";
 import { useNotificationWrite } from "@/lib/notifications/use-notification-write";
 import { formatBusinessDate } from "@/lib/format/date";
 import { CursorPagination, useCursorPage } from "./cursor-pagination";
@@ -126,7 +131,7 @@ export function AccountNotificationPreferences({
       title: `${enabled ? "Enable" : "Disable"} ${label(category)} ${channel === "EMAIL" ? "email" : "SMS"}?`,
       description:
         category === "MARKETING" && enabled
-          ? "By confirming, you consent to receive marketing messages through this channel. You can turn this preference off later. Marketing delivery is not available yet."
+          ? `By confirming, you consent to receive marketing messages through this channel. You can turn this preference off later. ${deliveryAvailability(category, channel, records.data?.channels).detail}`
           : "This changes optional messages before delivery. It does not recall messages already sent or change your in-app inbox.",
       facts: [
         { label: "Category", value: label(category) },
@@ -147,7 +152,10 @@ export function AccountNotificationPreferences({
     <section className="cn-preferences" aria-labelledby="notification-preferences-title">
       <header className="cn-preferences-heading">
         <h2 id="notification-preferences-title">Delivery preferences</h2>
-        <p>Choose optional delivery. Each change is reviewed before it is saved.</p>
+        <p>
+          Choose optional messages. Your preference and delivery availability are shown
+          separately.
+        </p>
       </header>
       <div className="cn-preferences-body">
         <BrowserPushSettings role={role} userId={userId} />
@@ -203,6 +211,7 @@ export function AccountNotificationPreferences({
                 );
                 const enabled = preferenceEnabled(category, preference);
                 const title = `${category === "OPERATIONAL" ? "Service updates by" : "Marketing by"} ${channel === "EMAIL" ? "email" : "SMS"}`;
+                const statusId = `delivery-${category}-${channel}`;
                 return (
                   <article
                     className="cn-preference"
@@ -211,26 +220,23 @@ export function AccountNotificationPreferences({
                   >
                     <div>
                       <h3>{title}</h3>
-                      <p>
-                        {enabled ? "On" : "Off"}
-                        {!preference ? " (default)" : ""}
-                      </p>
-                      <p>
-                        {category === "MARKETING"
-                          ? "Not sending yet. This records a future preference only."
-                          : records.data?.channels?.[
-                                channel === "EMAIL" ? "email" : "sms"
-                              ] === false
-                            ? "Delivery is currently unavailable. Your preference is still saved."
-                            : "Optional updates about your service and account activity."}
-                      </p>
+                      <NotificationDeliveryStatus
+                        id={statusId}
+                        category={category}
+                        channel={channel}
+                        channels={records.data?.channels}
+                        enabled={enabled}
+                        isDefault={!preference}
+                        stale={records.refreshing || !!records.refreshError}
+                      />
                     </div>
                     <button
                       className="button secondary"
                       role="switch"
                       aria-checked={enabled}
-                      disabled={guard.disabled}
+                      disabled={guard.disabled || !!proposal}
                       aria-label={title}
+                      aria-describedby={statusId}
                       onClick={() => review(category, channel, !enabled)}
                     >
                       {enabled ? "On" : "Off"}
@@ -241,15 +247,7 @@ export function AccountNotificationPreferences({
             )}
           </div>
         )}
-        <div className="cn-preference-notes">
-          <p>
-            Required security and transaction messages follow the existing delivery
-            policy. These optional choices do not change them. Your in-app inbox stays
-            available.
-          </p>
-          <p>Marketing delivery is not available yet. You can record your preference.</p>
-          <p>Enabled preferences do not guarantee delivery.</p>
-        </div>
+        <NotificationDeliveryDetails />
         <button
           className="button secondary"
           disabled={records.loading || records.refreshing || guard.busy}

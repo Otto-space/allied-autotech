@@ -37,9 +37,9 @@ for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536])
       page.getByRole("button", { name: "Mark Older update as read" }),
     ).toHaveCount(0);
     await expect(
-      page.getByText(
-        "Marketing delivery is not available yet. You can record your preference.",
-      ),
+      page
+        .getByRole("article", { name: "Marketing by email", exact: true })
+        .getByText("Delivery unavailable", { exact: true }),
     ).toBeVisible();
     await expect(
       page.getByRole("heading", { name: "Notifications", exact: true }),

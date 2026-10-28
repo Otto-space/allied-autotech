@@ -1,4 +1,5 @@
 import type { Page, Route } from "@playwright/test";
+import type { DeliveryChannels } from "@/lib/notifications/delivery-availability";
 import type {
   InboxNotification,
   NotificationPreference,
@@ -40,6 +41,7 @@ export async function notificationsFixture(page: Page, role = "CUSTOMER") {
     role,
     items: [notificationItem()],
     preferences: [] as NotificationPreference[],
+    channels: { email: true, sms: false, marketing: false } as DeliveryChannels,
     failInbox: false,
     failStatus: 503,
     sessionUserId: id(20),
@@ -106,6 +108,7 @@ export async function notificationsFixture(page: Page, role = "CUSTOMER") {
           ? fail(route)
           : reply(route, {
               immutableCategories: ["SECURITY", "TRANSACTIONAL"],
+              channels: state.channels,
               preferences: state.preferences,
             });
       if (state.failInbox) return fail(route, state.failStatus);

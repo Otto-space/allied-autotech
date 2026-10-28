@@ -2,6 +2,11 @@
 import { useState } from "react";
 import { usePreferenceWrite } from "@/lib/notifications/use-preference-write";
 import { PreferenceRecovery } from "./preference-recovery";
+import { deliveryAvailability } from "@/lib/notifications/delivery-availability";
+import {
+  NotificationDeliveryDetails,
+  NotificationDeliveryStatus,
+} from "./notification-delivery-status";
 import { useAccountSession } from "./dashboard-shell";
 import type { PreferenceIntent } from "@/lib/notifications/preference-recovery";
 import { useResource } from "@/lib/api/use-resource";
@@ -64,7 +69,7 @@ function OwnedPreferences({
       title: `${enabled ? "Enable" : "Disable"} ${category.toLowerCase()} ${channel === "EMAIL" ? "email" : "SMS"}?`,
       description:
         category === "MARKETING" && enabled
-          ? "By confirming, you consent to receive marketing messages through this channel. You can turn this preference off later."
+          ? `By confirming, you consent to receive marketing messages through this channel. You can turn this preference off later. ${deliveryAvailability(category, channel, records.data?.channels).detail}`
           : "This changes your preference for future optional messages. It does not recall messages already queued for delivery or change in-app notifications.",
       facts: [
         { label: "Category", value: category.toLowerCase() },
@@ -89,8 +94,8 @@ function OwnedPreferences({
         apply to optional email and SMS messages; in-app updates remain available.
       </p>
       <p>
-        Operational delivery is enabled by default. Marketing delivery requires your
-        consent for each channel. Enabled preferences do not guarantee delivery.
+        Service-update preferences are on by default. Your preference and delivery
+        availability are shown separately.
       </p>
       <Feedback message={records.error} />
       <Feedback
@@ -134,14 +139,22 @@ function OwnedPreferences({
                   aria-label={title}
                 >
                   <h3>{title}</h3>
-                  <p>
-                    {enabled ? "Enabled" : "Disabled"}
-                    {!preference ? " (default)" : ""}
-                  </p>
+                  <NotificationDeliveryStatus
+                    id={`delivery-${category}-${channel}`}
+                    category={category}
+                    channel={channel}
+                    channels={records.data?.channels}
+                    enabled={enabled}
+                    isDefault={!preference}
+                    stale={
+                      records.refreshing || !!records.error || !!records.refreshError
+                    }
+                  />
                   <button
                     className="button secondary"
                     disabled={disabled}
                     aria-label={`${enabled ? "Disable" : "Enable"} ${title.toLowerCase()}`}
+                    aria-describedby={`delivery-${category}-${channel}`}
                     onClick={() => review(category, channel, !enabled)}
                   >
                     {enabled ? "Disable" : "Enable"}
@@ -152,6 +165,7 @@ function OwnedPreferences({
           )}
         </div>
       )}
+      <NotificationDeliveryDetails />
       {proposal && (
         <MutationReview
           proposal={proposal}
