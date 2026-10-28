@@ -354,6 +354,10 @@ test("Guide mobile controls, responsive transition, pause/resume, completion, ha
   await page.getByRole("button", { name: "Retry guide" }).click();
   await expect(g).toContainText("Find the right part");
   await g.getByRole("button", { name: "Exit guide" }).click();
+  await page.goto("/parts#learn=missing-guide");
+  await page.getByRole("link", { name: "Available learning", exact: true }).click();
+  await expect(page).toHaveURL(/\/learn$/);
+  await expect(g).toHaveCount(0);
   expect(c.errors).toEqual([]);
 });
 test("Practice feedback, deliberate replacement, reset, errors and return", async ({

@@ -59,7 +59,9 @@ export function LearningGuideRunner({
           ) : (
             <aside className="learning-guide-panel" aria-label="Optional guide">
               <p>This guide is unavailable under your current access.</p>
-              <Link href="/learn">Available learning</Link>
+              <Link href="/learn" onNavigate={onClose}>
+                Available learning
+              </Link>
               <button onClick={onClose}>Exit guide</button>
             </aside>
           )}
