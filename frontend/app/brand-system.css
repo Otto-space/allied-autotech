@@ -117,10 +117,8 @@
   line-height: 1.5;
 }
 .site-header {
+  /* Stable geometry prevents scroll anchoring from toggling the scrolled state. */
   --header-height: 78px;
-}
-.site-header.site-header--scrolled {
-  --header-height: 68px;
 }
 .site-header__inner,
 .site-footer__inner {

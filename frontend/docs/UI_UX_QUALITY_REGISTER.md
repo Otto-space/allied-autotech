@@ -1,5 +1,36 @@
 # UI and UX quality register
 
+## 28 October 2026: Stable navbar through Help to Learn navigation
+
+Reproduced the owner's exact anonymous journey on deployed source `09efa694`:
+Help → Explore Help & Learn. Desktop frame samples repeatedly alternated header
+height 78px/68px and scrollY 20px/10px. The brand stylesheet shortened the sticky
+header when scrollY exceeded 12px; browser scroll anchoring then crossed that same
+threshold in the opposite direction, creating a continuous feedback loop. Mobile
+390px retained its 68px header and did not exhibit that height loop in this probe.
+Before receipts: `%TEMP%/aat-navshake-before-390.json` and
+`aat-navshake-before-1440.json`.
+
+Removed the scrolled-state height override. Header geometry now remains stable at
+its existing responsive height: 78px above 700px and 68px at/below 700px. Existing
+scroll elevation/background treatment and navigation behavior remain. The source
+change is limited to the brand stylesheet; the preceding focus, Help, customer
+history and saved-item releases are preserved. No permissions, data, flags or
+backend changes.
+
+Browser plugin unavailable; reused Playwright/Edge. All seven pre-publication
+regression cases passed at 390, 700, 701, 768, 1024, 1280 and 1440 pixels, using the
+real optimized production stylesheet with only the offending height declaration
+removed in intercepted asset responses. Checks sample header/brand geometry during
+the actual link transition and loading/results states, verify settled scroll
+position, visible destination breadcrumbs, scroll positions 0/10/13/20/35/200,
+retained scrolled shadow, and Back/Forward navigation. APIs were intercepted
+read-only synthetic responses; no real writes. Receipt:
+`%TEMP%/aat-navbar-prepublication`; screenshots `aat-navbar-stable-390.png` and
+`aat-navbar-stable-1440.png`. These are pre-publication probes; exact deployed-CSS
+acceptance is recorded below after release. Real signed-in account changes,
+physical-device browser behavior and other inaccessible states are not claimed.
+
 ## 28 October 2026: All automatically focused containers
 
 The owner confirmed that the dark automatic-focus border must be removed from all

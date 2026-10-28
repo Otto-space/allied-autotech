@@ -1,5 +1,18 @@
 # Allied AutoTech completion tracker
 
+## 28 October 2026 current navbar stability follow-up
+
+Owner's Help → Explore Help & Learn journey reproduced on current production
+`09efa694` / `dpl_9us8TLTvZJxzA8KNvdKNqFMqjg8F`. The sticky header's scroll-state
+height change caused 78/68px and scrollY 20/10px oscillation on desktop. Removed
+that height change while retaining responsive geometry and scrolled elevation.
+Reused the clean contact-validation worktree on
+`fix/stable-navbar-navigation-20261028`, based on `7fe53063` (documentation-only
+descendant of the current runtime). Seven rendered pre-publication viewport cases
+passed; exact evidence and remaining acceptance limits are in the quality register's
+matching navbar entry. Prior published focus/Help and customer-history changes,
+permissions, flags, data and unrelated main edits are preserved.
+
 ## 28 October 2026 current automatic container-focus follow-up
 
 The owner's follow-up applies to all automatically focused containers, beyond
