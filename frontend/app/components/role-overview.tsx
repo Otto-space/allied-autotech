@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useRef, useState, type ComponentProps } from "react";
+import { useRef, useState, type ReactNode, type ComponentProps } from "react";
 import {
   ArrowUpRight,
   CalendarDays,
@@ -163,6 +163,23 @@ function SummaryCards({
   );
 }
 
+function OverviewHistory({
+  customer,
+  children,
+}: {
+  customer: boolean;
+  children: ReactNode;
+}) {
+  return customer ? (
+    <details className="customer-history">
+      <summary>Activity history</summary>
+      {children}
+    </details>
+  ) : (
+    <>{children}</>
+  );
+}
+
 export function RoleOverview({
   customerDesign = false,
   workDesign = false,
@@ -304,17 +321,6 @@ export function RoleOverview({
       </div>
       {customerDesign && (
         <>
-          {limited && (
-            <p className="overview-release-note">
-              Send enquiries and service requests while the team confirms arrangements.
-              Online checkout, paid reservations and payment collection are unavailable.
-              Existing record summaries remain below;{" "}
-              <Link href="/dashboard/support">
-                contact customer care for record details
-              </Link>
-              .
-            </p>
-          )}
           {overviewFeedback}
           {visible?.care && <CustomerCareSummary care={visible.care} />}
           {!visible && !error && (
@@ -322,263 +328,288 @@ export function RoleOverview({
               Loading your current vehicle care…
             </div>
           )}
+        </>
+      )}
+      <OverviewHistory customer={customerDesign}>
+        {customerDesign && (
           <div className="customer-activity-heading">
             <h2>Activity in a period</h2>
-            <p>Date filters apply to this activity summary only.</p>
-          </div>
-        </>
-      )}
-      <form
-        data-draft-key="role-overview:1"
-        className="overview-range"
-        onSubmit={(event) => {
-          event.preventDefault();
-          if (!validOverviewDates(draft.from, draft.to)) {
-            setDateError("Choose a valid range of 1 to 90 days, from 2000 onward.");
-            endDate.current?.focus();
-            return;
-          }
-          setDateError(null);
-          setRange(draft);
-        }}
-      >
-        {customerDesign && <div className="customer-period-preset">{datePreset}</div>}
-        {workDesign && (
-          <div className="work-period-preset">
-            <label htmlFor="overview-preset">Period</label>
-            {datePreset}
+            <p>
+              Date filters apply to this history only. Current vehicle care stays above.
+            </p>
           </div>
         )}
-        <label>
-          From
-          <input
-            type="date"
-            min="2000-01-01"
-            value={draft.from}
-            aria-invalid={!!dateError}
-            aria-describedby={dateError ? "overview-date-error" : undefined}
-            required
-            onChange={(event) => setDraft({ ...draft, from: event.target.value })}
-          />
-        </label>
-        <label>
-          To
-          <input
-            type="date"
-            min="2000-01-01"
-            value={draft.to}
-            ref={endDate}
-            aria-invalid={!!dateError}
-            aria-describedby={dateError ? "overview-date-error" : undefined}
-            required
-            onChange={(event) => setDraft({ ...draft, to: event.target.value })}
-          />
-        </label>
-        <button type="submit" className="button secondary">
-          Apply dates
-        </button>
-        <span>Inclusive dates · Africa/Lagos · Up to 90 days</span>
-      </form>
-      {dateError && (
-        <p id="overview-date-error" role="alert" className="form-error">
-          {dateError}
-        </p>
-      )}
-      {!customerDesign && overviewFeedback}
-      {!visible && !error && (
-        <div className="overview-skeleton" aria-hidden="true">
-          <div className="overview-metrics">
-            {[0, 1, 2, 3, 4].map((key) => (
-              <div key={key} className={`overview-metric tint-${key}`}>
-                <span />
-                <strong />
-                <span />
-              </div>
-            ))}
-          </div>
-          <div className="overview-grid">
-            <div className="overview-panel" />
-            <div className="overview-panel" />
-          </div>
-        </div>
-      )}
-      {visible && (
-        <>
-          <SummaryCards data={visible} base={base} />
-          <div className="overview-grid">
-            <section className="overview-panel">
-              <OverviewActivity
-                key={`${range.from}:${range.to}`}
-                rows={visible.activity}
-              />
-            </section>
-            <section className="overview-panel overview-status-panel">
-              <div className="overview-panel-heading">
-                <div>
-                  <h2>Booking progress</h2>
-                  <p>Current status of bookings created in this period</p>
+        {customerDesign && limited && (
+          <p className="overview-release-note">
+            Online booking, checkout and payment are unavailable. Existing summaries
+            remain readable;{" "}
+            <Link href="/dashboard/support">ask Customer Care about a record</Link>.
+          </p>
+        )}
+        <form
+          data-draft-key="role-overview:1"
+          className="overview-range"
+          onSubmit={(event) => {
+            event.preventDefault();
+            if (!validOverviewDates(draft.from, draft.to)) {
+              setDateError("Choose a valid range of 1 to 90 days, from 2000 onward.");
+              endDate.current?.focus();
+              return;
+            }
+            setDateError(null);
+            setRange(draft);
+          }}
+        >
+          {customerDesign && <div className="customer-period-preset">{datePreset}</div>}
+          {workDesign && (
+            <div className="work-period-preset">
+              <label htmlFor="overview-preset">Period</label>
+              {datePreset}
+            </div>
+          )}
+          <label>
+            From
+            <input
+              type="date"
+              min="2000-01-01"
+              value={draft.from}
+              aria-invalid={!!dateError}
+              aria-describedby={dateError ? "overview-date-error" : undefined}
+              required
+              onChange={(event) => setDraft({ ...draft, from: event.target.value })}
+            />
+          </label>
+          <label>
+            To
+            <input
+              type="date"
+              min="2000-01-01"
+              value={draft.to}
+              ref={endDate}
+              aria-invalid={!!dateError}
+              aria-describedby={dateError ? "overview-date-error" : undefined}
+              required
+              onChange={(event) => setDraft({ ...draft, to: event.target.value })}
+            />
+          </label>
+          <button type="submit" className="button secondary">
+            Apply dates
+          </button>
+          <span>Inclusive dates · Africa/Lagos · Up to 90 days</span>
+        </form>
+        {dateError && (
+          <p id="overview-date-error" role="alert" className="form-error">
+            {dateError}
+          </p>
+        )}
+        {!customerDesign && overviewFeedback}
+        {!visible && !error && (
+          <div className="overview-skeleton" aria-hidden="true">
+            <div className="overview-metrics">
+              {[0, 1, 2, 3, 4].map((key) => (
+                <div key={key} className={`overview-metric tint-${key}`}>
+                  <span />
+                  <strong />
+                  <span />
                 </div>
-              </div>
-              {visible.bookingStatuses.length ? (
-                <ul className="overview-status-list">
-                  {visible.bookingStatuses.map((row) => (
-                    <li key={row.status}>
-                      <div>
-                        <Status value={row.status} />
-                        <strong>{row.count.toLocaleString("en-NG")}</strong>
-                      </div>
-                      <meter
-                        min="0"
-                        max={Math.max(1, visible.counts.bookings)}
-                        value={row.count}
-                        aria-label={`${statusLabel(row.status)} bookings`}
-                      />
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="overview-empty">No bookings in this period.</p>
-              )}
-              <OverviewLink
-                className="text-link overview-panel-link"
-                href={`${base}/bookings`}
-              >
-                View all bookings <ArrowUpRight size={15} aria-hidden="true" />
-              </OverviewLink>
-            </section>
+              ))}
+            </div>
+            <div className="overview-grid">
+              <div className="overview-panel" />
+              <div className="overview-panel" />
+            </div>
           </div>
-          <div className="overview-grid">
-            <section className="overview-panel overview-records">
-              <div className="overview-panel-heading">
-                <div>
-                  <h2>Recent bookings</h2>
-                  <p>Latest five created in the selected period</p>
-                </div>
-                <OverviewLink className="text-link" href={`${base}/bookings`}>
-                  View all
-                </OverviewLink>
-              </div>
-              {visible.recentBookings.length ? (
-                <div
-                  className="table-region"
-                  role="region"
-                  aria-label="Recent bookings"
-                  tabIndex={0}
-                >
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Service</th>
-                        <th>Appointment (Lagos)</th>
-                        <th>Status</th>
-                        <th>
-                          <span className="sr-only">Booking details</span>
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {visible.recentBookings.map((booking) => (
-                        <tr key={booking.id}>
-                          <td>
-                            <strong>{booking.serviceName}</strong>
-                            <small>#{booking.id.slice(0, 8)}</small>
-                          </td>
-                          <td>
-                            {formatBusinessDate(booking.scheduledAt).replace(
-                              " (Lagos time)",
-                              "",
-                            )}
-                          </td>
-                          <td>
-                            <Status value={booking.status} />
-                          </td>
-                          <td>
-                            <OverviewLink
-                              className="overview-record-link"
-                              href={`${base}/bookings/${booking.id}`}
-                              aria-label={`View booking ${booking.id.slice(0, 8)} for ${booking.serviceName}`}
-                            >
-                              <ArrowUpRight size={18} />
-                            </OverviewLink>
-                          </td>
-                        </tr>
+        )}
+        {visible &&
+          (customerDesign &&
+          Object.values(visible.counts).every((count) => count === 0) &&
+          !visible.recentBookings.length &&
+          !visible.recentOrders.length &&
+          !visible.bookingStatuses.some((row) => row.count > 0) &&
+          !visible.activity.some((row) => row.bookings > 0 || row.orders > 0) ? (
+            <p className="overview-empty">
+              No recorded activity in this period. Choose another date range to check
+              earlier history.
+            </p>
+          ) : (
+            <>
+              <SummaryCards data={visible} base={base} />
+              <div className="overview-grid">
+                <section className="overview-panel">
+                  <OverviewActivity
+                    key={`${range.from}:${range.to}`}
+                    rows={visible.activity}
+                  />
+                </section>
+                <section className="overview-panel overview-status-panel">
+                  <div className="overview-panel-heading">
+                    <div>
+                      <h2>Booking progress</h2>
+                      <p>Current status of bookings created in this period</p>
+                    </div>
+                  </div>
+                  {visible.bookingStatuses.length ? (
+                    <ul className="overview-status-list">
+                      {visible.bookingStatuses.map((row) => (
+                        <li key={row.status}>
+                          <div>
+                            <Status value={row.status} />
+                            <strong>{row.count.toLocaleString("en-NG")}</strong>
+                          </div>
+                          <meter
+                            min="0"
+                            max={Math.max(1, visible.counts.bookings)}
+                            value={row.count}
+                            aria-label={`${statusLabel(row.status)} bookings`}
+                          />
+                        </li>
                       ))}
-                    </tbody>
-                  </table>
-                </div>
-              ) : (
-                <p className="overview-empty">
-                  Bookings will appear here when they fall within this period.
-                </p>
-              )}
-            </section>
-            <section className="overview-panel overview-orders">
-              <div className="overview-panel-heading">
-                <div>
-                  <h2>Recent orders</h2>
-                  <p>Latest four in this period</p>
-                </div>
+                    </ul>
+                  ) : (
+                    <p className="overview-empty">No bookings in this period.</p>
+                  )}
+                  <OverviewLink
+                    className="text-link overview-panel-link"
+                    href={`${base}/bookings`}
+                  >
+                    View all bookings <ArrowUpRight size={15} aria-hidden="true" />
+                  </OverviewLink>
+                </section>
               </div>
-              {visible.recentOrders.length ? (
-                <ul>
-                  {visible.recentOrders.map((order) => (
-                    <li key={order.id}>
-                      <Package size={21} aria-hidden="true" />
-                      <div>
-                        <OverviewLink
-                          summaryWhenRestricted="inline"
-                          href={`${base}/orders/${order.id}`}
-                        >
-                          {order.orderNumber}
-                        </OverviewLink>
-                        <small>
-                          {overviewMoney(order.totalKobo, order.currency)} · order value
-                        </small>
-                        <Status value={order.status} />
-                      </div>
-                      <ArrowUpRight size={16} aria-hidden="true" />
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="overview-empty">No parts orders in this period.</p>
-              )}
-              <OverviewLink
-                className="text-link overview-panel-link"
-                href={`${base}/orders`}
-              >
-                View all orders <ArrowUpRight size={15} aria-hidden="true" />
-              </OverviewLink>
-            </section>
-          </div>
-          <details className="overview-definitions">
-            <summary>How these figures are calculated</summary>
-            <p>
-              Bookings, orders, inspections and vehicle additions use their creation date.
-              Quotations use their issue date; unpublished drafts are excluded. Counts
-              include all statuses in your permitted scope. Charts count records, and
-              booking progress shows their current status. Recent lists are previews; the
-              summary counts cover the entire selected period.
-            </p>
-            {administrator && (
-              <p>
-                Payments collected includes successful payment requests with a verified
-                settled attempt, dated by successful settlement. Refunds completed
-                includes successfully processed refunds, dated by completion. These
-                amounts are shown separately for each currency and are not net revenue.
-                Order value is not proof of payment.
-              </p>
-            )}
-            <p>
-              Dates run from midnight on the first date through the end of the last date
-              in Africa/Lagos. Automatic refresh pauses while hidden or offline and slows
-              after errors. Available links open permitted record lists; their filters are
-              independent of this overview. In an enquiries release, restricted record
-              details remain unavailable online.
-            </p>
-          </details>
-        </>
-      )}
+              <div className="overview-grid">
+                <section className="overview-panel overview-records">
+                  <div className="overview-panel-heading">
+                    <div>
+                      <h2>Recent bookings</h2>
+                      <p>Latest five created in the selected period</p>
+                    </div>
+                    <OverviewLink className="text-link" href={`${base}/bookings`}>
+                      View all
+                    </OverviewLink>
+                  </div>
+                  {visible.recentBookings.length ? (
+                    <div
+                      className="table-region"
+                      role="region"
+                      aria-label="Recent bookings"
+                      tabIndex={0}
+                    >
+                      <table>
+                        <thead>
+                          <tr>
+                            <th>Service</th>
+                            <th>Appointment (Lagos)</th>
+                            <th>Status</th>
+                            <th>
+                              <span className="sr-only">Booking details</span>
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {visible.recentBookings.map((booking) => (
+                            <tr key={booking.id}>
+                              <td>
+                                <strong>{booking.serviceName}</strong>
+                                <small>#{booking.id.slice(0, 8)}</small>
+                              </td>
+                              <td>
+                                {formatBusinessDate(booking.scheduledAt).replace(
+                                  " (Lagos time)",
+                                  "",
+                                )}
+                              </td>
+                              <td>
+                                <Status value={booking.status} />
+                              </td>
+                              <td>
+                                <OverviewLink
+                                  className="overview-record-link"
+                                  href={`${base}/bookings/${booking.id}`}
+                                  aria-label={`View booking ${booking.id.slice(0, 8)} for ${booking.serviceName}`}
+                                >
+                                  <ArrowUpRight size={18} />
+                                </OverviewLink>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    <p className="overview-empty">
+                      Bookings will appear here when they fall within this period.
+                    </p>
+                  )}
+                </section>
+                <section className="overview-panel overview-orders">
+                  <div className="overview-panel-heading">
+                    <div>
+                      <h2>Recent orders</h2>
+                      <p>Latest four in this period</p>
+                    </div>
+                  </div>
+                  {visible.recentOrders.length ? (
+                    <ul>
+                      {visible.recentOrders.map((order) => (
+                        <li key={order.id}>
+                          <Package size={21} aria-hidden="true" />
+                          <div>
+                            <OverviewLink
+                              summaryWhenRestricted="inline"
+                              href={`${base}/orders/${order.id}`}
+                            >
+                              {order.orderNumber}
+                            </OverviewLink>
+                            <small>
+                              {overviewMoney(order.totalKobo, order.currency)} · order
+                              value
+                            </small>
+                            <Status value={order.status} />
+                          </div>
+                          <ArrowUpRight size={16} aria-hidden="true" />
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="overview-empty">No parts orders in this period.</p>
+                  )}
+                  <OverviewLink
+                    className="text-link overview-panel-link"
+                    href={`${base}/orders`}
+                  >
+                    View all orders <ArrowUpRight size={15} aria-hidden="true" />
+                  </OverviewLink>
+                </section>
+              </div>
+              <details className="overview-definitions">
+                <summary>How these figures are calculated</summary>
+                <p>
+                  Bookings, orders, inspections and vehicle additions use their creation
+                  date. Quotations use their issue date; unpublished drafts are excluded.
+                  Counts include all statuses in your permitted scope. Charts count
+                  records, and booking progress shows their current status. Recent lists
+                  are previews; the summary counts cover the entire selected period.
+                </p>
+                {administrator && (
+                  <p>
+                    Payments collected includes successful payment requests with a
+                    verified settled attempt, dated by successful settlement. Refunds
+                    completed includes successfully processed refunds, dated by
+                    completion. These amounts are shown separately for each currency and
+                    are not net revenue. Order value is not proof of payment.
+                  </p>
+                )}
+                <p>
+                  Dates run from midnight on the first date through the end of the last
+                  date in Africa/Lagos. Automatic refresh pauses while hidden or offline
+                  and slows after errors. Available links open permitted record lists;
+                  their filters are independent of this overview. In an enquiries release,
+                  restricted record details remain unavailable online.
+                </p>
+              </details>
+            </>
+          ))}
+      </OverviewHistory>
     </div>
   );
 }

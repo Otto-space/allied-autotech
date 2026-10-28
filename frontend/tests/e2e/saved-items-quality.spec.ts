@@ -87,7 +87,7 @@ test("tabs use arrow, Home and End keys without reading privileged collections",
 }) => {
   const state = await savedFixture(page);
   await visit(page);
-  const parts = page.getByRole("tab", { name: "Favourite parts" });
+  const parts = page.getByRole("tab", { name: "Favourite products" });
   await parts.focus();
   await page.keyboard.press("ArrowRight");
   await expect(page.getByRole("tab", { name: "Saved vehicles" })).toBeFocused();
@@ -127,7 +127,7 @@ for (const vehicles of [false, true])
     ]);
     await expect(
       page.getByRole("heading", {
-        name: vehicles ? "Saved vehicles" : "Favourite parts",
+        name: vehicles ? "Saved vehicles" : "Favourite products",
         exact: true,
       }),
     ).toBeFocused();
@@ -162,11 +162,17 @@ test("empty collections provide real discovery links", async ({ page }) => {
     page.getByRole("heading", { name: "Your shortlist starts here" }),
   ).toBeVisible();
   await expect(page.locator(".saved-empty a")).toHaveAttribute("href", "/parts");
+  await expect(page.getByRole("link", { name: "Browse Shop", exact: true })).toHaveCount(
+    1,
+  );
   await page.getByRole("tab", { name: "Saved vehicles" }).click();
   await expect(
     page.getByRole("heading", { name: "No available saved vehicles" }),
   ).toBeVisible();
   await expect(page.locator(".saved-empty a")).toHaveAttribute("href", "/vehicles");
+  await expect(
+    page.getByRole("link", { name: "Browse vehicles", exact: true }),
+  ).toHaveCount(1);
 });
 test("failed refresh retains cards and disables removal until a successful read", async ({
   page,
@@ -175,7 +181,7 @@ test("failed refresh retains cards and disables removal until a successful read"
   await visit(page);
   await expect(page.getByRole("heading", { name: "Engine oil filter" })).toBeVisible();
   state.partError = true;
-  await page.getByRole("button", { name: "Refresh favourite parts" }).click();
+  await page.getByRole("button", { name: "Refresh favourite products" }).click();
   await expect(page.locator('.saved-page [role="alert"]')).toBeVisible();
   await expect(page.getByRole("heading", { name: "Engine oil filter" })).toBeVisible();
   await expect(
@@ -256,20 +262,20 @@ test("parts pagination preserves its cursor when switching collections", async (
   state.nextCursor = id(103);
   await visit(page);
   await page
-    .getByRole("navigation", { name: "Favourite parts pages" })
+    .getByRole("navigation", { name: "Favourite products pages" })
     .getByRole("button", { name: "Next", exact: true })
     .click();
   await expect
     .poll(() => state.reads.some((x) => x.includes(`cursor=${id(103)}`)))
     .toBe(true);
   await switchVehicles(page);
-  await page.getByRole("tab", { name: "Favourite parts" }).click();
+  await page.getByRole("tab", { name: "Favourite products" }).click();
   await expect(page.getByText("Page 2", { exact: true })).toBeVisible();
   state.nextCursor = undefined;
   state.parts = [];
-  await page.getByRole("button", { name: "Refresh favourite parts" }).click();
+  await page.getByRole("button", { name: "Refresh favourite products" }).click();
   await expect(
-    page.getByRole("heading", { name: "No favourite parts on this page" }),
+    page.getByRole("heading", { name: "No favourite products on this page" }),
   ).toBeVisible();
   await expect(page.getByRole("button", { name: "Previous", exact: true })).toBeEnabled();
 });
@@ -296,7 +302,7 @@ test("vehicles use bounded server pages, retain position across tabs and recover
     "/customers/saved-vehicles/page?limit=12",
     `/customers/saved-vehicles/page?limit=12&cursor=${id(811)}_${"a".repeat(64)}`,
   ]);
-  await page.getByRole("tab", { name: "Favourite parts" }).click();
+  await page.getByRole("tab", { name: "Favourite products" }).click();
   await page.getByRole("tab", { name: "Saved vehicles" }).click();
   await expect(page.getByText("Page 2", { exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Saved vehicle 13" })).toBeVisible();

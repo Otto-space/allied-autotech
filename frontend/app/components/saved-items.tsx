@@ -52,7 +52,7 @@ const savedVehiclesSchema = z
 const parseFavourites = (value: unknown) => favouritesSchema.parse(value);
 const parseSavedVehicles = (value: unknown) => savedVehiclesSchema.parse(value);
 type Collection = "parts" | "vehicles";
-const labels = { parts: "Favourite parts", vehicles: "Saved vehicles" };
+const labels = { parts: "Favourite products", vehicles: "Saved vehicles" };
 const human = (value: string) =>
   value
     .toLowerCase()
@@ -286,13 +286,15 @@ function SavedCollections() {
             </p>
           </div>
           <div className="saved-tools">
-            <Link
-              className="button"
-              href={collection === "parts" ? "/parts" : "/vehicles"}
-            >
-              Browse {collection}
-              <ArrowRight size={16} aria-hidden="true" />
-            </Link>
+            {(stale || !empty) && (
+              <Link
+                className="button"
+                href={collection === "parts" ? "/parts" : "/vehicles"}
+              >
+                {collection === "parts" ? "Browse Shop" : "Browse vehicles"}
+                <ArrowRight size={16} aria-hidden="true" />
+              </Link>
+            )}
             <button
               type="button"
               className="button secondary saved-refresh"
@@ -392,7 +394,7 @@ function SavedCollections() {
                 )}
                 <div className="saved-card-actions">
                   <Link className="button secondary" href={`/${collection}/${item.id}`}>
-                    View {collection === "parts" ? "part" : "vehicle"}
+                    View {collection === "parts" ? "product" : "vehicle"}
                     <ArrowRight size={16} aria-hidden="true" />
                   </Link>
                   <button
@@ -420,21 +422,21 @@ function SavedCollections() {
               {collection === "parts" && pagination.page === 1
                 ? "Your shortlist starts here"
                 : collection === "parts"
-                  ? "No favourite parts on this page"
+                  ? "No favourite products on this page"
                   : vehiclePagination.page > 1
                     ? "No saved vehicles on this page"
                     : "No available saved vehicles"}
             </h3>
             <p>
               {collection === "parts"
-                ? "Save parts from the shop to find them here."
+                ? "Save products from the Shop to find them here."
                 : "Save a vehicle from the marketplace to keep it in view while it is available."}
             </p>
             <Link
               className="button"
               href={collection === "parts" ? "/parts" : "/vehicles"}
             >
-              Browse {collection}
+              {collection === "parts" ? "Browse Shop" : "Browse vehicles"}
               <ArrowRight size={16} aria-hidden="true" />
             </Link>
           </div>
@@ -444,7 +446,7 @@ function SavedCollections() {
             pagination={pagination}
             nextCursor={parts.data?.nextCursor}
             disabled={stale || !!proposal}
-            label="Favourite parts"
+            label="Favourite products"
           />
         )}
         {collection === "vehicles" &&
