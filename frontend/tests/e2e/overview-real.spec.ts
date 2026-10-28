@@ -34,6 +34,7 @@ for (const role of ["CUSTOMER", "STAFF", "ADMIN", "SUPER_ADMIN"])
     const response = page.waitForResponse((value) => value.url().includes("/overview?"));
     await page.goto(role === "CUSTOMER" ? "/dashboard" : "/admin");
     const received = await response;
+    if (role === "CUSTOMER") await page.locator(".customer-history > summary").click();
     expect(received.status()).toBe(200);
     expect(received.headers()["cache-control"]).toContain("no-store");
     const body = await received.json();
@@ -57,6 +58,11 @@ for (const role of ["CUSTOMER", "STAFF", "ADMIN", "SUPER_ADMIN"])
     await page.getByLabel("To", { exact: true }).fill("2000-01-01");
     await page.getByRole("button", { name: "Apply dates", exact: true }).click();
     await expect(
-      page.getByText("No new bookings or orders in this period.", { exact: true }),
+      page.getByText(
+        role === "CUSTOMER"
+          ? "No recorded activity in this period. Choose another date range to check earlier history."
+          : "No new bookings or orders in this period.",
+        { exact: true },
+      ),
     ).toBeVisible();
   });
