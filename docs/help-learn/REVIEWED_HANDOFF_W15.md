@@ -182,3 +182,23 @@ dependency install was created. C: postflight measured23.34GiB free. Read-only D
 review retained91 image references,200 cache records,13 stopped containers and14
 volumes; current/rollback/other-task usefulness was not inferred away. No deletion
 or new image build. These are point-in-time measurements, not an OS quota.
+
+### 28 October: merged-release contention regression
+
+Fresh merged-source testing exposed a real contention limit. PostgreSQL recorded
+two Session serialization failures and one Enquiry failure on the same connection;
+the existing three-attempt budget was exhausted and the request returned 500.
+A deterministic three-abort HTTP test reproduced that outcome before the fix.
+Handoff submission now permits at most five database-aborted attempts. Exhaustion
+returns a recoverable DATABASE_UNAVAILABLE/503 response; unknown outcomes are not
+retried. Other callers retain their existing three-attempt budget and isolation.
+Idempotency, consent, current ownership and review are checked on every attempt.
+
+Eight retry-boundary units and all 29 native handoff cases pass. The latter include
+six duplicate HTTP races, a real lock-controlled actor-row version change while
+both serializable submissions wait, three-abort recovery, five-abort exhaustion,
+receipt lookup and safe retry using the original operation. Separate workforce
+fixtures avoid the different protected-owner password used by security suites;
+their 207-case run passed without changing that owner, grants or production rules.
+The complete merged-source regression set is revalidated after the latest live
+frontend is incorporated. No production migration or promotion has run.

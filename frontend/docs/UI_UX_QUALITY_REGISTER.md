@@ -1921,7 +1921,6 @@ shared staffed/gated transport and all106 exact route-learning decisions. W9 all
 exhausted; new Care guidance has no actual-provider re-evaluation. Exact-lock16.4.3,
 hosted/actual-role/device/screen-reader gates stay open. Useful Docker/caches retained.
 
-
 ## Revision 4 W15: reviewed Customer Care handoff
 
 Verified customer Allie now opens an editable queued-message flow without requiring AI attempts. Exact destination/audience review, selected excerpts, cancel/edit, loss/reload recovery, independent drafts and canonical history/operator visibility are implemented. Full 1,161 frontend tests, 32 distinct Allie/handoff browser fixtures at 320-1440px and one real browser/API/restricted-CI-DB composition pass; scoped Axe and keyboard/focus checks are recorded. Backend ownership/privacy and transactional acceptance remain distinct from real delivery. Evidence and screenshots: `../../docs/help-learn/REVIEWED_HANDOFF_W15.md`. No provider call, production seed, publication or live-chat staffing claim. Two exact customer-support matrix entries contain partial evidence; all 106 complete route decisions remain open. Physical devices, complete screen readers, current hosted roles, new-source real-provider quality and shared staffed transport remain unverified.

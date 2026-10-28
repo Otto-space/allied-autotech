@@ -3,7 +3,10 @@ import type { AuthenticatedActor } from "../../common/contracts/actor.js";
 import type { RequestSecurityContext } from "../../common/contracts/request-security.js";
 import { AppError } from "../../common/errors/app-error.js";
 import { hashToken } from "../../common/security/session-tokens.js";
-import { withTransactionRetry } from "../../common/database/transaction-retry.js";
+import {
+  isTransactionConflict,
+  withTransactionRetry,
+} from "../../common/database/transaction-retry.js";
 import { prisma } from "../../config/database.js";
 import { Prisma } from "../../generated/prisma/client.js";
 import { appendAuditEvent } from "../audit/audit.service.js";
@@ -310,8 +313,18 @@ export async function submitCustomerHandoff(
       await forgetHandoffDraft(tx, actor, key);
       return saved;
     },
-    { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
-  );
+    { isolationLevel: Prisma.TransactionIsolationLevel.Serializable, maxAttempts: 5 },
+  ).catch((error: unknown) => {
+    if (!isTransactionConflict(error)) throw error;
+    throw new AppError({
+      code: "DATABASE_UNAVAILABLE",
+      statusCode: 503,
+      message:
+        "Your message could not be completed right now. Check your handoff before retrying the same reviewed message.",
+      retryable: true,
+      cause: error,
+    });
+  });
 }
 export async function customerHandoffReceipt(actor: AuthenticatedActor, key: string) {
   return prisma.$transaction(async (tx) => {

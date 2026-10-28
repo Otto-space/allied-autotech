@@ -6,6 +6,14 @@ import { createApp } from "../../src/app.js";
 import { prisma } from "../../src/config/database.js";
 import { env } from "../../src/config/env.js";
 import { hashToken } from "../../src/common/security/session-tokens.js";
+import { logger } from "../../src/common/observability/logger.js";
+import * as transactions from "../../src/common/database/transaction-retry.js";
+import {
+  previewCustomerHandoff,
+  submitCustomerHandoff,
+} from "../../src/modules/support/support-handoff.js";
+import type { AuthenticatedActor } from "../../src/common/contracts/actor.js";
+import { Prisma } from "../../src/generated/prisma/client.js";
 import { encodeAllieState } from "../../src/modules/learning/allie.storage.js";
 import { allieSourceSet } from "../../src/modules/learning/allie.retrieval.js";
 import * as provider from "../../src/modules/learning/allie.provider.js";
@@ -32,7 +40,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
     const key = () => `handoff-v1.${Date.now()}.${randomUUID()}`;
     const draft = () => ({
       target: {
-        kind: "NEW_ENQUIRY",
+        kind: "NEW_ENQUIRY" as const,
         branchId: f.home.id,
         subject: "Synthetic reviewed handoff",
       },
@@ -100,71 +108,115 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         ]),
       ).toEqual(counts);
     });
-    it("persists one session-owned General enquiry and returns the same receipt on explicit retries", async () => {
-      const input = draft(),
-        review = await preview(input);
-      expect(review.status).toBe(200);
-      const body = { draft: input, review: review.body.data.review, consent: true },
-        operationKey = key();
-      const [a, b] = await Promise.all([
-        send(body, operationKey),
-        send(body, operationKey),
-      ]);
-      expect([a.status, b.status]).toEqual([201, 201]);
-      expect(a.body.data.reference).toEqual(b.body.data.reference);
-      expect([a.body.data.replayed, b.body.data.replayed].sort()).toEqual([false, true]);
-      const ref = a.body.data.reference;
-      const record = await prisma.enquiry.findUniqueOrThrow({ where: { id: ref.id } });
-      expect(record).toMatchObject({
-        customerId: f.customer.user.profile!.id,
-        branchId: f.home.id,
-        type: "GENERAL",
-        message: review.body.data.body,
-      });
-      expect(record.email).toBe(f.customer.user.email);
-      expect(
-        await prisma.auditLog.count({
-          where: { userId: f.customer.user.id, entityId: ref.id, action: "CREATE" },
-        }),
-      ).toBe(1);
-      expect(
-        (
-          await request(app)
-            .get(root + "/receipts/" + operationKey)
-            .set(f.customer.headers)
-        ).body.data.reference,
-      ).toEqual(ref);
-      expect(
-        (
-          await request(app)
-            .get(root + "/receipts/" + operationKey)
-            .set(f.stranger.headers)
-        ).status,
-      ).toBe(404);
-      const customer = await request(app)
-        .get("/api/v1/customers/support/enquiries/" + ref.id)
-        .set(f.customer.headers);
-      expect(customer.status).toBe(200);
-      const care = await request(app)
-        .get("/api/v1/staff/workforce/enquiries/" + ref.id)
-        .set(f.care.headers);
-      expect(care.status).toBe(200);
-      expect(care.body.data.message).toBe(review.body.data.body);
-      expect(
-        (
-          await send(
-            {
-              ...body,
-              draft: {
-                ...input,
-                summary: "A different request must not reuse that operation.",
+    it.each([1, 2, 3, 4, 5, 6])(
+      "persists one session-owned General enquiry and returns the same receipt on explicit retries (race %i)",
+      async () => {
+        const failures = vi.spyOn(logger, "error");
+        const transactionErrors: { code?: string; model?: string; fields?: unknown }[] =
+          [];
+        const originalRetry = transactions.withTransactionRetry;
+        const retry = vi
+          .spyOn(transactions, "withTransactionRetry")
+          .mockImplementation((database, work, options) =>
+            originalRetry(
+              database,
+              async (tx) => {
+                try {
+                  return await work(tx);
+                } catch (error) {
+                  const failure = error as {
+                    code?: string;
+                    meta?: { modelName?: string; target?: unknown };
+                  };
+                  transactionErrors.push({
+                    code: failure.code,
+                    model: failure.meta?.modelName,
+                    fields: failure.meta?.target,
+                  });
+                  throw error;
+                }
               },
-            },
-            operationKey,
-          )
-        ).status,
-      ).toBe(409);
-    });
+              options,
+            ),
+          );
+        const input = draft(),
+          review = await preview(input);
+        expect(review.status).toBe(200);
+        const body = { draft: input, review: review.body.data.review, consent: true },
+          operationKey = key();
+        const [a, b] = await Promise.all([
+          send(body, operationKey),
+          send(body, operationKey),
+        ]);
+        const diagnostics = failures.mock.calls.map(([record]) =>
+          typeof record === "object" && record !== null && "err" in record
+            ? record.err
+            : null,
+        );
+        failures.mockRestore();
+        retry.mockRestore();
+        expect(
+          [a.status, b.status],
+          JSON.stringify({ diagnostics, transactionErrors }),
+        ).toEqual([201, 201]);
+        expect(a.body.data.reference).toEqual(b.body.data.reference);
+        expect([a.body.data.replayed, b.body.data.replayed].sort()).toEqual([
+          false,
+          true,
+        ]);
+        const ref = a.body.data.reference;
+        const record = await prisma.enquiry.findUniqueOrThrow({ where: { id: ref.id } });
+        expect(record).toMatchObject({
+          customerId: f.customer.user.profile!.id,
+          branchId: f.home.id,
+          type: "GENERAL",
+          message: review.body.data.body,
+        });
+        expect(record.email).toBe(f.customer.user.email);
+        expect(
+          await prisma.auditLog.count({
+            where: { userId: f.customer.user.id, entityId: ref.id, action: "CREATE" },
+          }),
+        ).toBe(1);
+        expect(
+          (
+            await request(app)
+              .get(root + "/receipts/" + operationKey)
+              .set(f.customer.headers)
+          ).body.data.reference,
+        ).toEqual(ref);
+        expect(
+          (
+            await request(app)
+              .get(root + "/receipts/" + operationKey)
+              .set(f.stranger.headers)
+          ).status,
+        ).toBe(404);
+        const customer = await request(app)
+          .get("/api/v1/customers/support/enquiries/" + ref.id)
+          .set(f.customer.headers);
+        expect(customer.status).toBe(200);
+        const care = await request(app)
+          .get("/api/v1/staff/workforce/enquiries/" + ref.id)
+          .set(f.care.headers);
+        expect(care.status).toBe(200);
+        expect(care.body.data.message).toBe(review.body.data.body);
+        expect(
+          (
+            await send(
+              {
+                ...body,
+                draft: {
+                  ...input,
+                  summary: "A different request must not reuse that operation.",
+                },
+              },
+              operationKey,
+            )
+          ).status,
+        ).toBe(409);
+      },
+    );
     for (const kind of ["ENQUIRY", "COMPLAINT"] as const)
       it(`adds a reviewed message to the selected owned ${kind}, preserving its identity and original content`, async () => {
         const source = kind === "ENQUIRY" ? f.enquiry : complaint;
@@ -761,6 +813,144 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       expect(
         (await send({ ...body, review: fresh.body.data.review }, replacement)).status,
       ).toBe(201);
+    });
+    it("finishes a reviewed handoff after three database-aborted serialization attempts", async () => {
+      const input = draft(),
+        review = await preview(input),
+        operationKey = key();
+      const conflict = new Prisma.PrismaClientKnownRequestError(
+        "Synthetic aborted transaction",
+        { code: "P2034", clientVersion: "7.10.0" },
+      );
+      const transaction = vi
+        .spyOn(prisma, "$transaction")
+        .mockRejectedValueOnce(conflict)
+        .mockRejectedValueOnce(conflict)
+        .mockRejectedValueOnce(conflict);
+      const response = await send(
+        { draft: input, review: review.body.data.review, consent: true },
+        operationKey,
+      );
+      transaction.mockRestore();
+      expect(response.status).toBe(201);
+      expect(
+        await prisma.enquiry.count({ where: { id: response.body.data.reference.id } }),
+      ).toBe(1);
+    });
+    it("returns recoverable temporary unavailability when the bounded conflict budget is exhausted", async () => {
+      const input = draft(),
+        reviewed = await preview(input),
+        operationKey = key();
+      const before = await prisma.enquiry.count(),
+        body = { draft: input, review: reviewed.body.data.review, consent: true };
+      const conflict = new Prisma.PrismaClientKnownRequestError(
+        "Synthetic aborted transaction",
+        { code: "P2034", clientVersion: "7.10.0" },
+      );
+      const transaction = vi.spyOn(prisma, "$transaction").mockRejectedValue(conflict);
+      const response = await send(body, operationKey),
+        attempts = transaction.mock.calls.length;
+      transaction.mockRestore();
+      expect(response.status).toBe(503);
+      expect(response.body.error.code).toBe("DATABASE_UNAVAILABLE");
+      expect(attempts).toBe(5);
+      expect(await prisma.enquiry.count()).toBe(before);
+      expect(
+        (
+          await request(app)
+            .get(root + "/receipts/" + operationKey)
+            .set(f.customer.headers)
+        ).status,
+      ).toBe(404);
+      const saved = await send(body, operationKey);
+      expect(saved.status).toBe(201);
+      expect(await prisma.enquiry.count()).toBe(before + 1);
+      expect((await send(body, operationKey)).body.data.reference).toEqual(
+        saved.body.data.reference,
+      );
+    });
+    it("recovers two serializable snapshots started before either duplicate submission commits", async () => {
+      const actor: AuthenticatedActor = {
+        userId: f.customer.user.id,
+        sessionId: f.customer.record.id,
+        email: f.customer.user.email,
+        role: "CUSTOMER",
+        mfaRequired: false,
+        mfaVerifiedAt: null,
+      };
+      const input = draft(),
+        reviewed = await previewCustomerHandoff(actor, input),
+        operationKey = key();
+      const body = { draft: input, review: reviewed.review, consent: true as const };
+      const before = await prisma.enquiry.count();
+      let release!: () => void, ready!: () => void;
+      const held = new Promise<void>((resolve) => {
+          release = resolve;
+        }),
+        locked = new Promise<void>((resolve) => {
+          ready = resolve;
+        });
+      const holder = prisma.$transaction(
+        async (tx) => {
+          await tx.$queryRaw`SELECT "id" FROM "User" WHERE "id"=${actor.userId}::uuid FOR UPDATE`;
+          // Force an actual actor-row version change after both submitters take
+          // their serializable snapshots, as a concurrent account update can.
+          await tx.user.update({
+            where: { id: actor.userId },
+            data: { updatedAt: new Date() },
+          });
+          ready();
+          await held;
+        },
+        { timeout: 15000 },
+      );
+      await locked;
+      const outcomes = Promise.allSettled(
+        [1, 2].map(() =>
+          submitCustomerHandoff(actor, body, operationKey, {
+            requestId: "synthetic-handoff-snapshot",
+            ipAddress: null,
+            userAgent: null,
+          }),
+        ),
+      );
+      try {
+        let waiting = 0;
+        for (let attempt = 0; attempt < 100; attempt++) {
+          const [row] = await prisma.$queryRaw<
+            { waiting: number }[]
+          >`SELECT count(*)::int AS waiting FROM pg_stat_activity WHERE datname=current_database() AND usename=current_user AND wait_event_type='Lock' AND query LIKE ${'%FROM "User"%FOR UPDATE%'}`;
+          waiting = row!.waiting;
+          if (waiting >= 2) break;
+          await new Promise((resolve) => setTimeout(resolve, 25));
+        }
+        expect(waiting).toBeGreaterThanOrEqual(2);
+      } finally {
+        release();
+        await holder;
+      }
+      const results = await outcomes;
+      const failures = results.flatMap((result) =>
+        result.status === "rejected"
+          ? [
+              {
+                code: result.reason.code,
+                model: result.reason.meta?.modelName,
+                fields: result.reason.meta?.target,
+                sqlState: result.reason.meta?.code,
+                originalCode: result.reason.meta?.driverAdapterError?.cause?.originalCode,
+              },
+            ]
+          : [],
+      );
+      expect(failures).toEqual([]);
+      const saved = results.flatMap((result) =>
+        result.status === "fulfilled" ? [result.value] : [],
+      );
+      expect(saved).toHaveLength(2);
+      expect(saved[0]!.reference).toEqual(saved[1]!.reference);
+      expect(saved.map((result) => result.replayed).sort()).toEqual([false, true]);
+      expect(await prisma.enquiry.count()).toBe(before + 1);
     });
     it("lets a customer clear an expired operation without extending its write window", async () => {
       const input = draft(),

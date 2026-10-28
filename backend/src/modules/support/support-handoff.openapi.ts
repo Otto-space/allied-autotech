@@ -59,7 +59,7 @@ export function registerSupportHandoffOpenApi(registry: OpenAPIRegistry) {
     tags: ["Support"],
     summary: "Persist an explicitly reviewed customer handoff in canonical support",
     description:
-      "Creates one General enquiry or adds one public customer message to the explicitly selected owned enquiry/complaint. Session-derived identity, active branch, expected version, current excerpts and exact review are revalidated transactionally. Selected AI context ends after success. Owner/payload-bound operation receipts prevent duplicates and permit replay after transient help expires. Queued/Saved does not establish email delivery or human reading. Requires compatible backend before frontend exposure; no new schema.",
+      "Creates one General enquiry or adds one public customer message to the explicitly selected owned enquiry/complaint. Session-derived identity, active branch, expected version, current excerpts and exact review are revalidated transactionally. Selected AI context ends after success. Owner/payload-bound operation receipts prevent duplicates and permit replay after transient help expires. Database-aborted conflicts have a bounded five-attempt budget; exhaustion returns the existing 503 error contract, and the customer checks the operation before retrying. Unknown outcomes are never retried automatically. Queued/Saved does not establish email delivery or human reading. Requires compatible backend before frontend exposure; no new schema.",
     security: [{ sessionCookie: [] }],
     request: {
       headers: csrf.extend(handoffHeadersSchema.shape),

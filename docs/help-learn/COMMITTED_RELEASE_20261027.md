@@ -38,3 +38,34 @@ database rollback. The preceding backend checker expects history 72; do not blin
 redeploy it after migration 73. Prepare a forward-compatible recovery composition.
 Retain predecessor images/releases and backup/restore evidence. Full Revision 4,
 shared staffed transport and all 106 route completion decisions remain open.
+
+## 28 October: verification corrections before publication
+
+The first merged-source run mixed security fixtures and workforce fixtures that
+use the same protected singleton owner with different password proofs. Fifteen
+workforce write expectations therefore correctly received 403. No owner password,
+permission or production rule was relaxed. A separate newly created isolated
+workforce target with its own verified synthetic proof passed all 207 cases across
+17 suites; the security cases retain their separate evidence. Future combined
+runners must preserve that isolation.
+
+One handoff request also exhausted three serialization retries: the PostgreSQL
+error log records two Session conflicts followed by an Enquiry conflict on the same
+connection. A deterministic three-abort test reproduced the 500. Handoff now has
+a bounded five-attempt budget for database-aborted conflicts and returns a
+recoverable 503 if that budget is exhausted. Unknown outcomes are never retried;
+all other callers retain three attempts. Six HTTP duplicate races, an actual
+row-version/lock-controlled snapshot race, forced exhaustion/recovery and the full
+29 handoff cases pass, as do eight retry-boundary units. No schema change.
+
+Frontend CI passed all 1,161 units and the locked build, then rejected one blank
+line in the merged quality register. Formatting is corrected. The candidate is
+being refreshed against the newer live frontend `fbb6565a`; do not publish the
+older candidate merely because its images are built. Production still uses the
+preceding backend; migration 73 and domain promotion have not run.
+
+The 27 October rehearsal actually restored all original production tables into a
+new isolated database, applied migration 73 through the guarded runner, verified
+all original row hashes and four new validated constraints, and checked three
+empty new tables. The original app-only firewall was restored. That receipt is
+now older than 24 hours and must be refreshed before production migration.
