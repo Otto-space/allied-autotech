@@ -92,9 +92,9 @@ test("preferences derive defaults and require explicit marketing consent", async
   await showNotificationSettings(page);
   await expect(
     page.getByRole("article", { name: "Service updates by email" }),
-  ).toContainText("On (default)");
+  ).toContainText("Default preference: On");
   await expect(page.getByRole("article", { name: "Marketing by email" })).toContainText(
-    "Off (default)",
+    "Default preference: Off",
   );
   await page.getByRole("switch", { name: "Marketing by email", exact: true }).click();
   await expect(page.getByText(/you consent to receive marketing/)).toBeVisible();
