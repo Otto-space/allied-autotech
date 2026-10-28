@@ -31,6 +31,42 @@ read-only synthetic responses; no real writes. Receipt:
 acceptance is recorded below after release. Real signed-in account changes,
 physical-device browser behavior and other inaccessible states are not claimed.
 
+### Navbar production release and hosted acceptance
+
+Runtime `4aafaebb5ab3f42bf8fd6c99c0e4fa7bdb0df42e` was built READY and promoted
+as `dpl_F5XnU2aiSxhtK78P8dnbvrffYCR5`, confirmed on apex/www after acceptance.
+The guard verified project/source, green exact-source checks and inclusion of both
+previous alias sources. Prior `dpl_9us8TLTvZJxzA8KNvdKNqFMqjg8F` is retained for
+rollback. No backend deployment or application data write was initiated by this
+task. A concurrent backend release was observed ACTIVE as
+`8fd37e1c-d2e2-4e2f-bbe4-3e9acb8c5650`; it was preserved and the real public
+journey was verified against it.
+
+Exact-source [frontend release checks](https://github.com/Otto-space/allied-autotech/actions/runs/40702876484),
+[secret guard](https://github.com/Otto-space/allied-autotech/actions/runs/40702876575)
+and [database safety CI](https://github.com/Otto-space/allied-autotech/actions/runs/40702876589)
+passed. Frontend checks include locked install/runtime audit, lint, typecheck, full
+unit suite, optimized production build and formatting. The only runtime diff from
+the prior release is the four-line brand stylesheet change.
+
+All seven browser regression cases passed against actual deployed CSS with the
+asset override disabled: `%TEMP%/aat-navbar-live-tests`. These use intercepted
+read-only API fixtures. Separately, the exact Help → Explore Help & Learn → open
+an answer journey passed against real public content at 390 and 1440px, with
+Playwright's scrollbar hiding disabled. Header/brand geometry remained stable
+through 183 mobile and 174 desktop frame samples; heights stayed 68px and 78px,
+and settled scrollY stayed 8px and 20px. No page errors; the article focus outline
+and shadow remained absent. Receipt `%TEMP%/aat-navbar-live-acceptance.json`, frame
+traces `aat-navbar-after-390.json` / `aat-navbar-after-1440.json`. Screenshots
+`aat-navbar-live-390.png` / `aat-navbar-live-1440.png` were inspected. The separate
+pre-publication classic-scrollbar/loading probe also kept desktop header width
+1425px and brand x=52.5px across the transition.
+
+Private signed-in account-state changes and physical Safari/Android devices remain
+unverified. No dependency installation, duplicate local build, new worktree or
+Docker resources were required. Final disk preflight passed at 26.53 GiB free;
+this is a point-in-time check. Unrelated main checkout changes were preserved.
+
 ## 28 October 2026: All automatically focused containers
 
 The owner confirmed that the dark automatic-focus border must be removed from all

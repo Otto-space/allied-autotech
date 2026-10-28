@@ -13,6 +13,16 @@ passed; exact evidence and remaining acceptance limits are in the quality regist
 matching navbar entry. Prior published focus/Help and customer-history changes,
 permissions, flags, data and unrelated main edits are preserved.
 
+Released navbar fix: runtime `4aafaebb5ab3f42bf8fd6c99c0e4fa7bdb0df42e`,
+frontend `dpl_F5XnU2aiSxhtK78P8dnbvrffYCR5`, confirmed on apex/www. Frontend CI
+`40702876484`, secret guard `40702876575` and database safety `40702876589` passed.
+All seven viewport cases passed on deployed CSS, plus real-content mobile/desktop
+frame sampling with visible scrollbars and article focus-border regression checks.
+Prior `dpl_9us8TLTvZJxzA8KNvdKNqFMqjg8F` is retained for rollback. No backend
+release was initiated here; externally published backend
+`8fd37e1c-d2e2-4e2f-bbe4-3e9acb8c5650` was observed ACTIVE and preserved.
+The quality register contains receipts, exact scope and native/private-state limits.
+
 ## 28 October 2026 current automatic container-focus follow-up
 
 The owner's follow-up applies to all automatically focused containers, beyond
