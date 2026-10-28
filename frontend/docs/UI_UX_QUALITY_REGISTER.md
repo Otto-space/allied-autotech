@@ -43,7 +43,13 @@ Evidence: local types/lint; 23 focused state/regression cases; Home fixtures at
 published reviews, broken/long media, doubled text, menu/keyboard, and scoped
 Axe at 390/1440px. First failures included stale fixture stock/refresh assumptions,
 missing fixture detail data and a mobile hero contrast regression, corrected.
-Read-only public-data layout/interaction coverage and publication remain pending.
+Read-only public-data layout/interaction coverage passed all five pages at five
+widths. Published bee7ed8f / dpl_Akw8ic1B6NQFGgL7tDDrm3pskZZ3 on both domains
+with all three exact-source CI gates successful. Hosted acceptance passed 12
+recorded checks at 390/1440px, including www refresh/scroll, Allie launcher/focus,
+contextual vehicle enquiry and equipment anchor. Final current-tree fixture
+recheck passed six responsive/state/Axe cases; counts 0/1/3 and pricing selection
+also passed isolated browser fixtures. See the linked handoff for evidence/limits.
 No real stock/reviews, backend, permissions or commerce/AI/chat flags changed.
 Outstanding editorial copy/photo/reviewer dependencies are recorded separately;
 physical devices, full screen-reader and signed-in journeys are outside this cycle.
