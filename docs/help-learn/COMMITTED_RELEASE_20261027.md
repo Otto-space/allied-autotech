@@ -69,3 +69,30 @@ new isolated database, applied migration 73 through the guarded runner, verified
 all original row hashes and four new validated constraints, and checked three
 empty new tables. The original app-only firewall was restored. That receipt is
 now older than 24 hours and must be refreshed before production migration.
+
+## 28 October: current publication and disk checkpoint
+
+Published frontend 9f9311cf on READY dpl_68bNV74wNajB9vW1Ly85nzmmdEvU
+was verified on both domains. Release merge 2d96b1e3 preserves its parts-enquiry
+wording and the preceding fbb6565a Home, navigation, Privacy and mobile support
+changes. Review memory, session revocation and explicit handoff privacy notices
+are retained alongside the scrollable dialog body. No production migration, image
+push or domain promotion has occurred. Exact-source backend and frontend checks
+passed: frontend 40671516921, backend 40671641294 and secret guard 40671516782.
+
+Local packaging and browser replay are paused: C: dropped to approximately
+19.4-20.0 GiB free, below the mandatory operation allowance and sometimes below
+the 20 GiB reserve. The task frontend typecheck process was stopped; its partial
+run is not acceptance. Backend source typecheck/lint and nine session-label units
+passed. Automatic approval review rejected deletion of the four previously
+approved obsolete .next/dev directories with "blocked by policy"; no alternate
+deletion method was attempted. Manual space recovery is pending.
+
+A fresh read-only production inspection verified 72 applied history checksums,
+strict TLS, the sole additive migration 73 pending, and the migration owner's
+default four DML rights for runtime. The original app-only firewall was restored
+and independently checked. The backup role is not a member of pg_read_all_data; a second read-only inspection
+verified its existing effective default SELECT grants for future migration-owned
+tables and zero unreadable current tables. No grants were changed. Today's
+managed backup is 2026-10-28T05:22:10Z; the separate populated Oct27 rehearsal
+remains genuine evidence but needs refreshing before production migration.
