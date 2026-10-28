@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, type RefObject } from "react";
 import { catalogueSchema, type LearningCatalogue } from "./contracts";
 import { clearLearningProgress } from "./progress";
 import { WORKFORCE_ACCESS_CHANGED, workforceReadGuard } from "../workforce-invalidation";
@@ -45,7 +45,17 @@ export async function readLearning(
   }
   throw new LearningReadError(404);
 }
-export function useLearningCatalogue(active = true) {
+export function useLearningCatalogue(
+  active = true,
+  contentRef?: RefObject<HTMLDivElement | null>,
+) {
+  const verified = useRef<LearningCatalogue | null>(null);
+  const interaction = useRef(0);
+  const recovery = useRef<{
+    element: HTMLElement;
+    accessKey: string;
+    interaction: number;
+  } | null>(null);
   const [state, setState] = useState<{
     data: LearningCatalogue | null;
     error: string;
@@ -57,11 +67,26 @@ export function useLearningCatalogue(active = true) {
     let alive = true,
       pending: AbortController | undefined,
       generation = 0;
+    function interacted() {
+      interaction.current++;
+    }
     async function load() {
       const current = ++generation;
       pending?.abort();
       const controller = new AbortController();
       pending = controller;
+      const focused = document.activeElement;
+      if (
+        focused instanceof HTMLElement &&
+        contentRef?.current?.contains(focused) &&
+        verified.current
+      ) {
+        recovery.current = {
+          element: focused,
+          accessKey: verified.current.accessKey,
+          interaction: interaction.current,
+        };
+      }
       // Hide all previously authorised content while access is being revalidated.
       setState((previous) => ({ ...previous, error: "", loading: true }));
       const timeout = setTimeout(() => controller.abort(), 10000);
@@ -69,10 +94,14 @@ export function useLearningCatalogue(active = true) {
         const data = catalogueSchema.parse(
           await readLearning("catalogue", undefined, controller.signal),
         );
-        if (alive && current === generation)
+        if (alive && current === generation) {
+          verified.current = data;
           setState({ data, error: "", loading: false });
+        }
       } catch (error) {
-        if (alive && current === generation)
+        if (alive && current === generation) {
+          verified.current = null;
+          recovery.current = null;
           setState({
             data: null,
             error:
@@ -81,11 +110,14 @@ export function useLearningCatalogue(active = true) {
                 : "Learning information could not be verified. Retry, or use the Help Centre. Your live work has not changed.",
             loading: false,
           });
+        }
       } finally {
         clearTimeout(timeout);
       }
     }
     function changed() {
+      verified.current = null;
+      recovery.current = null;
       clearLearningProgress();
       setState({ data: null, error: "", loading: true });
       void load();
@@ -99,6 +131,10 @@ export function useLearningCatalogue(active = true) {
     }, 30000);
     window.addEventListener(LEARNING_SESSION_CHANGED, changed);
     window.addEventListener(WORKFORCE_ACCESS_CHANGED, changed);
+    document.addEventListener("pointerdown", interacted, true);
+    document.addEventListener("keydown", interacted, true);
+    window.addEventListener("wheel", interacted, { passive: true });
+    window.addEventListener("touchstart", interacted, { passive: true });
     window.addEventListener("focus", visible);
     window.addEventListener("online", visible);
     document.addEventListener("visibilitychange", visible);
@@ -112,7 +148,28 @@ export function useLearningCatalogue(active = true) {
       window.removeEventListener("focus", visible);
       window.removeEventListener("online", visible);
       document.removeEventListener("visibilitychange", visible);
+      document.removeEventListener("pointerdown", interacted, true);
+      document.removeEventListener("keydown", interacted, true);
+      window.removeEventListener("wheel", interacted);
+      window.removeEventListener("touchstart", interacted);
     };
-  }, [active, revision]);
+  }, [active, revision, contentRef]);
+  useEffect(() => {
+    if (state.loading) return;
+    const saved = recovery.current;
+    recovery.current = null;
+    // Restore after React has removed inert, only for the same verified access.
+    if (
+      saved &&
+      saved.accessKey === state.data?.accessKey &&
+      saved.interaction === interaction.current &&
+      saved.element.isConnected &&
+      contentRef?.current?.contains(saved.element) &&
+      !saved.element.closest("[inert], [hidden]") &&
+      (document.activeElement === document.body ||
+        document.activeElement === saved.element)
+    )
+      saved.element.focus({ preventScroll: true });
+  }, [state, contentRef]);
   return { ...state, refresh: () => setRevision((v) => v + 1) };
 }

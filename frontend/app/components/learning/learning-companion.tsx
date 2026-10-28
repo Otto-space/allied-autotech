@@ -35,6 +35,7 @@ export function LearningCompanion() {
     [guide, setGuide] = useState<string | null>(null);
   const restoreFocus = useRef(true);
   const openedOn = useRef(path);
+  const hashGuide = useRef<string | null>(null);
   function close(restore = true) {
     restoreFocus.current = restore;
     dialog.current?.close();
@@ -69,12 +70,19 @@ export function LearningCompanion() {
       const id = (event as CustomEvent<unknown>).detail;
       if (typeof id === "string" && /^[a-z][a-z0-9-]{0,63}$/.test(id)) {
         close(false);
+        hashGuide.current = null;
         setGuide(id);
       }
     }
     function hash() {
       const match = /^#learn=([a-z][a-z0-9-]{0,63})$/.exec(location.hash);
-      if (match) setGuide(match[1]);
+      if (match) {
+        hashGuide.current = location.pathname;
+        setGuide(match[1]);
+      } else if (hashGuide.current === location.pathname) {
+        hashGuide.current = null;
+        setGuide(null);
+      }
     }
     function invalidate() {
       setHandoffMemory(null);
@@ -96,6 +104,7 @@ export function LearningCompanion() {
     if (consumeLearningOpen()) show();
     window.addEventListener(START_LEARNING_GUIDE, start);
     window.addEventListener("hashchange", hash);
+    window.addEventListener("popstate", hash);
     window.addEventListener(LEARNING_SESSION_CHANGED, invalidate);
     window.addEventListener(WORKFORCE_ACCESS_CHANGED, invalidate);
     window.addEventListener("keydown", escape);
@@ -103,6 +112,7 @@ export function LearningCompanion() {
       window.removeEventListener(OPEN_LEARNING, show);
       window.removeEventListener(START_LEARNING_GUIDE, start);
       window.removeEventListener("hashchange", hash);
+      window.removeEventListener("popstate", hash);
       window.removeEventListener(LEARNING_SESSION_CHANGED, invalidate);
       window.removeEventListener(WORKFORCE_ACCESS_CHANGED, invalidate);
       window.removeEventListener("keydown", escape);
@@ -167,8 +177,13 @@ export function LearningCompanion() {
               setGuide(null);
               if (location.hash.startsWith("#learn="))
                 history.replaceState(null, "", location.pathname + location.search);
-              if (launcher.current?.isConnected)
-                launcher.current.focus({ preventScroll: true });
+              requestAnimationFrame(() => {
+                if (
+                  openedOn.current === location.pathname &&
+                  launcher.current?.isConnected
+                )
+                  launcher.current.focus({ preventScroll: true });
+              });
             }}
           />
         </Suspense>

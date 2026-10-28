@@ -1,5 +1,48 @@
 # Allied AutoTech completion tracker
 
+## 28 October 2026 current notification-preview cycle
+
+The exact live frontend before this cycle is `09efa694` /
+`dpl_9us8TLTvZJxzA8KNvdKNqFMqjg8F` on both domains. The bell's mixed
+read/unread preview could hide an older unread update behind newer read rows.
+The shared preview now prefers unread rows when its opening badge is positive,
+with recent-history fallback if another tab already read them. The separate
+`allied-notification-preview-20261028` worktree preserves that live source;
+the P0 backend candidate and unrelated dirty worktrees remain untouched.
+Focused four-case unit, type, scoped lint and nine rendered role/viewport
+fixtures pass. See `frontend/docs/UI_UX_QUALITY_REGISTER.md` for evidence and
+limits. Exact-source CI, staged frontend promotion and hosted acceptance are
+pending. No notification read, message, payment or production data write was
+made; live authenticated-role and physical-device checks remain open. During
+release preparation, both domains advanced to navbar runtime `4aafaebb` /
+`dpl_F5XnU2aiSxhtK78P8dnbvrffYCR5`. Both domains then advanced to the
+favourites runtime `ef06efb7` / `dpl_FAJ8oVhecCNTGac2XAyufAgg7hvv`.
+Both released sources are ancestors of this candidate. On the merged source,
+36/37 header and notification browser cases passed with Help & Learn enabled;
+the remaining historical-commerce case passed when the local launch mode was
+set to production's `browse_enquiries`. No application defect was found in that
+fixture mismatch. Exact-source CI passed on `ddfab325`. Production then
+advanced to Learn/Allie runtime `072e0509` / `dpl_Bov9FbKyy4yPMRqWnJG3CpX6MMQz`,
+which is being merged before notification staging. A fresh exact-source check
+and disk preflight are required.
+
+## 28 October 2026 current Learn, Allie and guide audit
+
+Owner requested interaction of every Learn/Allie/walkthrough control and repairs.
+Reused the clean contact-validation worktree, branch
+fix/learning-interaction-audit-20261028 from dfd79d91. Verified and repaired search
+mode disagreement, submit/clear focus, Allie relevance/repeated question feedback,
+access-check geometry/focus loss, ineffective mobile guide toggle, same-page guide
+fragment cleanup and unrevealed practice feedback. Prior permissions, eligibility,
+content versions, target contracts and local simulation boundaries remain intact.
+
+A concurrent frontend favourites release ef06efb7 / dpl_FAJ8oVhecCNTGac2XAyufAgg7hvv
+was observed and will be integrated before rollout. Backend 8fd37e1c remains ACTIVE
+with no pending release. Focused units pass; final combined browser tests, locked
+CI and actual public-content acceptance are pending. Full scope, evidence and
+physical-device/private-role limits are in the matching quality-register entry.
+No backend/schema/provider write or real support/account operation initiated.
+
 ## 28 October 2026 current navbar stability follow-up
 
 Owner's Help → Explore Help & Learn journey reproduced on current production
@@ -12,6 +55,16 @@ descendant of the current runtime). Seven rendered pre-publication viewport case
 passed; exact evidence and remaining acceptance limits are in the quality register's
 matching navbar entry. Prior published focus/Help and customer-history changes,
 permissions, flags, data and unrelated main edits are preserved.
+
+Released navbar fix: runtime `4aafaebb5ab3f42bf8fd6c99c0e4fa7bdb0df42e`,
+frontend `dpl_F5XnU2aiSxhtK78P8dnbvrffYCR5`, confirmed on apex/www. Frontend CI
+`40702876484`, secret guard `40702876575` and database safety `40702876589` passed.
+All seven viewport cases passed on deployed CSS, plus real-content mobile/desktop
+frame sampling with visible scrollbars and article focus-border regression checks.
+Prior `dpl_9us8TLTvZJxzA8KNvdKNqFMqjg8F` is retained for rollback. No backend
+release was initiated here; externally published backend
+`8fd37e1c-d2e2-4e2f-bbe4-3e9acb8c5650` was observed ACTIVE and preserved.
+The quality register contains receipts, exact scope and native/private-state limits.
 
 ## 28 October 2026 current automatic container-focus follow-up
 

@@ -23,6 +23,23 @@
   line-height: 1.6;
   overflow-wrap: anywhere;
 }
+.learning-content,
+.allie-content {
+  position: relative;
+}
+.learning-access-content[aria-busy="true"] {
+  visibility: hidden;
+  pointer-events: none;
+}
+.learning-check-status {
+  position: absolute;
+  inset: 0 auto auto 0;
+  margin: 0;
+  padding: 16px;
+}
+.allie-content .learning-check-status {
+  top: auto;
+}
 .learning-content h2,
 .learning-practice-session h2 {
   font-size: 1.4rem;
@@ -119,7 +136,7 @@
 }
 .learning-modes {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 14px;
   margin: 20px 0 28px;
 }
@@ -1026,6 +1043,9 @@ body:has(.learning-guide-panel) .support-controls {
   box-shadow: var(--focus-shadow);
 }
 @media (max-width: 1023px) {
+  .learning-modes {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
   .learning-topics {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -1131,6 +1151,7 @@ body:has(.learning-guide-panel) .support-controls {
   text-underline-offset: 3px;
 }
 .learning-detail,
+.learning-content [role="tabpanel"],
 #help-results {
   scroll-margin-top: var(--viewport-header-offset, 96px);
 }

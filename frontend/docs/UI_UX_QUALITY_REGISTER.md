@@ -22,6 +22,100 @@ the test. Corrected rendered acceptance and publication remain pending.
 ### Historical merged-branch checkpoint
 
 The following dated observation is retained from origin/feat/visual-identity-audit-20261027; it is not a claim of current production identity.
+## 28 October 2026: Notification bell preview prioritizes unread updates
+
+The initial live frontend `09efa694` / `dpl_9us8TLTvZJxzA8KNvdKNqFMqjg8F`
+showed an unread badge, but its five-row bell preview requested the newest rows
+without an unread filter. A newer read item could displace an older unread item
+from that preview. The shared customer and workforce bell now fetches up to five
+unread rows when the opening count is positive. If another tab has already read
+those rows, it fetches recent history instead of showing a misleading empty
+preview. Opening the bell does not change read state; row links still route
+through the currently authorized notification target.
+
+The focused four-case jsdom suite passed. TypeScript and scoped lint passed.
+Rendered Playwright/Edge fixtures passed the mixed read/unread case and all eight
+customer, staff, admin and super-admin journeys at 390/1440px (9/9); the first
+browser attempt used `127.0.0.1` and Next blocked its development resources,
+then the same test passed on the server's `localhost` origin. Fixtures do not
+prove live authenticated-role behavior. No customer record, read state, message,
+backend, schema or provider was changed. Exact-source CI, staged deployment and
+hosted acceptance remain before publication; physical-device and full
+screen-reader acceptance remain open. During release preparation, both domains
+advanced to navbar runtime `4aafaebb` / `dpl_F5XnU2aiSxhtK78P8dnbvrffYCR5`.
+Both domains then advanced to favourites runtime `ef06efb7` /
+`dpl_FAJ8oVhecCNTGac2XAyufAgg7hvv`. Both published sources are merged into
+the notification branch. On that source, 36/37 integrated header and
+notification browser cases passed with Help & Learn enabled. The remaining
+historical-commerce case passed after setting the local launch mode to the
+production `browse_enquiries` value; the default `full` fixture had exposed a
+test-environment mismatch. Exact-source GitHub frontend, secret and backend
+safety checks passed on `ddfab325`. Production then advanced to Learn/Allie
+runtime `072e0509` / `dpl_Bov9FbKyy4yPMRqWnJG3CpX6MMQz`; that source is being
+merged before staging, so fresh checks remain. A local full check was stopped
+after the disk preflight fell below the owner's 20 GiB reserve; the shortfall
+later cleared without any cleanup. The product-favourite browser fixture
+requires server-side product data and cannot run on this standalone server.
+
+## 28 October 2026: Learn, Allie and walkthrough interaction audit
+
+Owner requested exhaustive interaction of /learn, Allie and optional walkthroughs.
+Finite cycle covers anonymous public journeys, synthetic delayed/error/access changes,
+keyboard controls and narrow/desktop layouts. Reused the contact-validation worktree
+on fix/learning-interaction-audit-20261028, initially from dfd79d91 (same runtime
+as published 4aafaebb). A later favourites release ef06efb7 was observed during
+verification and must be included before publication. Other dirty work is preserved.
+
+Verified P1/P2 issues and fixes:
+
+- Learn selected Find an answer while showing guides/practice. Explicit All help
+  selection, matching panel label and keyboard Home/End/arrow handling now agree.
+  Search submission reveals/focuses results; Clear search restores the input.
+  Text-field blur does not interpret aria-controls as a navigation instruction.
+- Allie ranked the broad homepage overview above the specific parts task. Exact
+  normalized task-title matches now rank ahead without using unrestricted content.
+  Repeated questions/intents reveal the answer; whitespace gets actionable feedback.
+- Periodic/focus access verification collapsed Allie and dropped input focus.
+  Content remains invisible, aria-hidden and inert during checks, retaining geometry.
+  Focus restores after the React commit only when the access key is unchanged and
+  no intervening interaction selected another destination. Denial/malformed data
+  removes previous content; identity changes clear inputs/progress as before.
+- Mobile Try page controls silently returned to written mode. The ineffective action
+  is absent on compact screens; responsive highlights resume on expansion unless
+  written mode was deliberately chosen. Missing/obscured controls offer an immediate
+  written fallback. Step changes reset panel scroll, completion retains a focus
+  destination, and removing/changing the same-page guide fragment closes the guide.
+  Cross-page pause remains supported. Guide exit restores an available same-page
+  launcher after the floating dock becomes visible again.
+- Practice search/review results are focused and revealed. Existing local-only inputs,
+  explicit sample replacement, errors, choices, reset and exit boundaries remain.
+
+No backend content definition, semantic target, business rule, permission, feature
+flag, transaction or database change. Reviewed catalogue and eligibility remain
+server-owned. Generative AI remains off. No actual support or account write.
+
+Browser plugin unavailable; existing Playwright/Edge and dependencies reused.
+Fifteen focused learning units pass, scoped lint and TypeScript pass. New ten-case
+browser suite exercises search/empty recovery/disclosures at 320/390/768/1440px,
+Allie repeated questions/alternatives/context/intents/keyboard close, delayed access
+geometry/focus, denial/retry/identity changes, responsive guide pause/resume/restart/
+completion/hash/error recovery, and practice errors/replacement/review/reset/return.
+The first delayed-focus run exposed a React commit timing race; restoration moved
+from a requestAnimationFrame into the post-commit effect and both focused cases
+passed. Final combined regression and exact-source CI/hosted acceptance are pending.
+Evidence remains in %TEMP%/aat-learning-* and the maintained e2e/unit tests.
+
+Disk preflight initially passed at 26.74 GiB free with a 1 GiB budget. A later
+measurement fell to 19.15 GiB; task-owned dev/browser/test processes were stopped.
+Read-only inventory preserved all source, caches, dependencies, other tasks and
+Docker/data resources. Free space subsequently returned to 25.74 GiB without any
+agent deletion. A fresh preflight is required before resuming substantial writes;
+this records point-in-time measurements, not a machine-wide quota guarantee.
+
+Acceptance limits: intercepted data is synthetic, not real authenticated-role
+acceptance. Physical Safari/Android phones, mobile OS keyboards, full screen-reader
+acceptance and inaccessible private guides remain unverified. No claim of complete
+WCAG conformance or absence of every possible site defect.
 
 ## 28 October 2026: Stable navbar through Help to Learn navigation
 
@@ -53,6 +147,42 @@ read-only synthetic responses; no real writes. Receipt:
 `aat-navbar-stable-1440.png`. These are pre-publication probes; exact deployed-CSS
 acceptance is recorded below after release. Real signed-in account changes,
 physical-device browser behavior and other inaccessible states are not claimed.
+
+### Navbar production release and hosted acceptance
+
+Runtime `4aafaebb5ab3f42bf8fd6c99c0e4fa7bdb0df42e` was built READY and promoted
+as `dpl_F5XnU2aiSxhtK78P8dnbvrffYCR5`, confirmed on apex/www after acceptance.
+The guard verified project/source, green exact-source checks and inclusion of both
+previous alias sources. Prior `dpl_9us8TLTvZJxzA8KNvdKNqFMqjg8F` is retained for
+rollback. No backend deployment or application data write was initiated by this
+task. A concurrent backend release was observed ACTIVE as
+`8fd37e1c-d2e2-4e2f-bbe4-3e9acb8c5650`; it was preserved and the real public
+journey was verified against it.
+
+Exact-source [frontend release checks](https://github.com/Otto-space/allied-autotech/actions/runs/40702876484),
+[secret guard](https://github.com/Otto-space/allied-autotech/actions/runs/40702876575)
+and [database safety CI](https://github.com/Otto-space/allied-autotech/actions/runs/40702876589)
+passed. Frontend checks include locked install/runtime audit, lint, typecheck, full
+unit suite, optimized production build and formatting. The only runtime diff from
+the prior release is the four-line brand stylesheet change.
+
+All seven browser regression cases passed against actual deployed CSS with the
+asset override disabled: `%TEMP%/aat-navbar-live-tests`. These use intercepted
+read-only API fixtures. Separately, the exact Help → Explore Help & Learn → open
+an answer journey passed against real public content at 390 and 1440px, with
+Playwright's scrollbar hiding disabled. Header/brand geometry remained stable
+through 183 mobile and 174 desktop frame samples; heights stayed 68px and 78px,
+and settled scrollY stayed 8px and 20px. No page errors; the article focus outline
+and shadow remained absent. Receipt `%TEMP%/aat-navbar-live-acceptance.json`, frame
+traces `aat-navbar-after-390.json` / `aat-navbar-after-1440.json`. Screenshots
+`aat-navbar-live-390.png` / `aat-navbar-live-1440.png` were inspected. The separate
+pre-publication classic-scrollbar/loading probe also kept desktop header width
+1425px and brand x=52.5px across the transition.
+
+Private signed-in account-state changes and physical Safari/Android devices remain
+unverified. No dependency installation, duplicate local build, new worktree or
+Docker resources were required. Final disk preflight passed at 26.53 GiB free;
+this is a point-in-time check. Unrelated main checkout changes were preserved.
 
 ## 28 October 2026: All automatically focused containers
 

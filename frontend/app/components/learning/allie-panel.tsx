@@ -29,7 +29,8 @@ export function AlliePanel({
   const [localMemory, setLocalMemory] = useState<HandoffMemory>(null);
   const memory = handoffMemory === undefined ? localMemory : handoffMemory;
   const onMemoryChange = onHandoffMemoryChange ?? setLocalMemory;
-  const resource = useLearningCatalogue();
+  const contentRef = useRef<HTMLDivElement>(null);
+  const resource = useLearningCatalogue(true, contentRef);
   useEffect(() => {
     if (resource.data && memory && memory.owner !== resource.data.accessKey)
       onMemoryChange(null);
@@ -54,7 +55,13 @@ export function AlliePanel({
         </div>
       )}
       {resource.data && (
-        <div hidden={resource.loading} inert={resource.loading}>
+        <div
+          ref={contentRef}
+          className="learning-access-content"
+          aria-busy={resource.loading}
+          aria-hidden={resource.loading || undefined}
+          inert={resource.loading}
+        >
           <Assistance
             key={JSON.stringify(resource.data)}
             data={resource.data}
@@ -193,13 +200,15 @@ function Answers({
   const [intent, setIntent] = useState<
     "answer" | "guide" | "practice" | "context" | null
   >(null);
+  const [submission, setSubmission] = useState(0);
+  const [questionError, setQuestionError] = useState("");
   const response = useRef<HTMLDivElement>(null);
   const questionInput = useRef<HTMLInputElement>(null);
   useEffect(() => {
     if (!intent) return;
     response.current?.focus({ preventScroll: true });
-    response.current?.scrollIntoView({ block: "nearest", behavior: "instant" });
-  }, [intent, asked, selected]);
+    response.current?.scrollIntoView({ block: "start", behavior: "instant" });
+  }, [intent, asked, selected, submission]);
   const matches = asked ? assistantArticles(data, asked) : [];
   const article =
     data.articles.find((a) => a.id === selected) ??
@@ -221,9 +230,11 @@ function Answers({
     )
     .slice(0, 3);
   function selectIntent(next: typeof intent) {
+    setQuestionError("");
     setIntent(next);
     setSelected(null);
     setAsked("");
+    setSubmission((value) => value + 1);
   }
   function start(id: string) {
     onNavigate();
@@ -236,10 +247,13 @@ function Answers({
         onSubmit={(e) => {
           e.preventDefault();
           if (!question.trim()) {
+            setQuestionError("Enter a question or choose a suggested topic.");
             questionInput.current?.focus();
             return;
           }
           setAsked(question.trim());
+          setQuestionError("");
+          setSubmission((value) => value + 1);
           setSelected(null);
           setIntent("answer");
         }}
@@ -252,7 +266,12 @@ function Answers({
             value={question}
             maxLength={120}
             required
-            onChange={(e) => setQuestion(e.target.value)}
+            onChange={(e) => {
+              setQuestion(e.target.value);
+              setQuestionError("");
+            }}
+            aria-invalid={!!questionError}
+            aria-describedby={questionError ? uid + "-question-error" : undefined}
             placeholder="For example: find a part"
           />
           <button
@@ -263,6 +282,11 @@ function Answers({
             <Search size={18} aria-hidden="true" />
           </button>
         </div>
+        {questionError && (
+          <p id={uid + "-question-error"} role="alert">
+            {questionError}
+          </p>
+        )}
       </form>
       <div className="allie-prompts" role="group" aria-label="Suggested help">
         {(path === "/learn" || relevant.length > 0) && (
@@ -300,6 +324,7 @@ function Answers({
               className="allie-topic"
               key={a.id}
               onClick={() => {
+                setQuestionError("");
                 setSelected(a.id);
                 setIntent("answer");
               }}
@@ -318,6 +343,7 @@ function Answers({
             setSelected(null);
             setAsked("");
             setQuestion("");
+            setQuestionError("");
             questionInput.current?.focus({ preventScroll: true });
             questionInput.current?.scrollIntoView({
               block: "nearest",

@@ -14,7 +14,8 @@ export function LearningGuideRunner({
   id: string;
   onClose: () => void;
 }) {
-  const resource = useLearningCatalogue(),
+  const contentRef = useRef<HTMLDivElement>(null);
+  const resource = useLearningCatalogue(true, contentRef),
     path = usePathname();
   const definition = resource.data?.flags.guides
     ? resource.data.guides.find((g) => g.id === id)
@@ -28,7 +29,7 @@ export function LearningGuideRunner({
         </aside>
       )}
       {resource.error && (
-        <aside className="learning-guide-panel">
+        <aside className="learning-guide-panel" aria-label="Optional guide">
           <p role="alert">{resource.error}</p>
           <button className="button secondary" onClick={resource.refresh}>
             Retry guide
@@ -37,7 +38,13 @@ export function LearningGuideRunner({
         </aside>
       )}
       {resource.data && (
-        <div hidden={resource.loading} inert={resource.loading}>
+        <div
+          ref={contentRef}
+          className="learning-access-content"
+          aria-busy={resource.loading}
+          aria-hidden={resource.loading || undefined}
+          inert={resource.loading}
+        >
           {definition ? (
             <Guide
               key={
@@ -50,9 +57,11 @@ export function LearningGuideRunner({
               onClose={onClose}
             />
           ) : (
-            <aside className="learning-guide-panel">
+            <aside className="learning-guide-panel" aria-label="Optional guide">
               <p>This guide is unavailable under your current access.</p>
-              <Link href="/learn">Available learning</Link>
+              <Link href="/learn" onNavigate={onClose}>
+                Available learning
+              </Link>
               <button onClick={onClose}>Exit guide</button>
             </aside>
           )}
@@ -89,7 +98,8 @@ function Guide({
   );
   const [ready, setReady] = useState(false),
     [missing, setMissing] = useState(false),
-    [written, setWritten] = useState(false),
+    [preferWritten, setWritten] = useState(false),
+    [compact, setCompact] = useState(false),
     [side, setSide] = useState("right"),
     [edge, setEdge] = useState("bottom"),
     [storage, setStorage] = useState(true);
@@ -98,6 +108,14 @@ function Guide({
   const [waiting, setWaiting] = useState(false);
   const panel = useRef<HTMLElement>(null),
     current = guide.steps[step];
+  const written = preferWritten || compact;
+  useEffect(() => {
+    const media = matchMedia("(max-width: 767px)");
+    const update = () => setCompact(media.matches);
+    update();
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
   useEffect(() => {
     panel.current?.focus({ preventScroll: true });
   }, []);
@@ -135,7 +153,6 @@ function Guide({
     function attach() {
       if (disposed) return;
       if (narrow.matches) {
-        setWritten(true);
         return;
       }
       const found = document.querySelector<HTMLElement>(
@@ -244,6 +261,11 @@ function Guide({
       dispose();
     };
   }, [checking, current, guide.page, page, status, written]);
+  useEffect(() => {
+    if (panel.current) panel.current.scrollTop = 0;
+    if (status !== "active" && document.activeElement === document.body)
+      panel.current?.focus({ preventScroll: true });
+  }, [step, status]);
   function persist(
     nextStatus: "active" | "paused" | "completed" | "dismissed",
     nextStep = step,
@@ -312,14 +334,27 @@ function Guide({
             {current.text}
           </p>
           {missing && (
-            <p role="status">
-              This control is unavailable or cannot be highlighted without covering it.
-              Use the written steps; no other control will be highlighted.
-            </p>
+            <div>
+              <p role="status">
+                This control is unavailable or cannot be highlighted without covering it.
+                Use the written steps; no other control will be highlighted.
+              </p>
+              <button
+                className="button secondary"
+                onClick={() => {
+                  setWritten(true);
+                  setMissing(false);
+                }}
+              >
+                Use written steps
+              </button>
+            </div>
           )}
           {written && (
             <p className="learning-scope">
               Written mode. Mark steps as read; this does not certify a live action.
+              {compact &&
+                " Page controls remain available outside the guide. Use a larger screen for highlights."}
             </p>
           )}
           {!written && !missing && !ready && (
@@ -406,15 +441,17 @@ function Guide({
           >
             Restart guide
           </button>
-          <button
-            className="button secondary"
-            onClick={() => {
-              setWritten((v) => !v);
-              setMissing(false);
-            }}
-          >
-            {written ? "Try page controls" : "Use written steps"}
-          </button>
+          {!compact && (!missing || written) && (
+            <button
+              className="button secondary"
+              onClick={() => {
+                setWritten((v) => !v);
+                setMissing(false);
+              }}
+            >
+              {written ? "Try page controls" : "Use written steps"}
+            </button>
+          )}
         </div>
       </details>
       {page !== guide.page && (
