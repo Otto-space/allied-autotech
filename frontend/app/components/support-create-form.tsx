@@ -51,6 +51,7 @@ export function SupportCreateForm({
   serviceId,
   serviceName,
   presentation,
+  labelledBy,
   userId,
   guard,
   onReviewChange,
@@ -81,6 +82,7 @@ export function SupportCreateForm({
   vehicleListingId?: string;
   vehicleListingTitle?: string;
   presentation?: "contact" | "dashboard";
+  labelledBy?: string;
   userId?: string;
   guard?: ReturnType<typeof useSupportCreateWrite>;
   onReviewChange?: (open: boolean) => void;
@@ -344,11 +346,13 @@ export function SupportCreateForm({
   return (
     <section
       className={isDashboard ? "cc-form" : "detail-section"}
-      aria-labelledby="support-create-heading"
+      aria-labelledby={labelledBy ?? "support-create-heading"}
     >
-      <h2 id="support-create-heading" tabIndex={isDashboard ? -1 : undefined}>
-        {kind === "enquiries" ? "Send an enquiry" : "Raise a complaint"}
-      </h2>
+      {!labelledBy && (
+        <h2 id="support-create-heading" tabIndex={isDashboard ? -1 : undefined}>
+          {kind === "enquiries" ? "Send an enquiry" : "Raise a complaint"}
+        </h2>
+      )}
       <p>
         {isContact || isDashboard
           ? "Keep passwords, card details and private documents out of your message."
