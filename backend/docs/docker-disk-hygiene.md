@@ -6,6 +6,21 @@ The database-preservation rules in `AGENTS.md` always take precedence.
 
 ## Before creating anything
 
+Owner's reserve: keep at least **20 GiB free on C:**. Before substantial local
+writes, run the shared read-only checker:
+
+```powershell
+powershell -NoProfile -File C:/Users/PC/.codex/scripts/assert-disk-space.ps1
+```
+
+The default requires 25 GiB free (20 GiB reserve plus 5 GiB anticipated growth).
+Set `-ExpectedGrowthGiB` to a justified estimate when different; check every drive
+that will receive substantial writes with `-Path`. Stop if the check fails or the
+target cannot be inspected. Recheck between large stages and at completion. Do not
+create worktrees or reinstall dependencies by default: reuse an appropriate
+existing environment first. The checker is an agent preflight, not a Windows quota;
+it cannot prevent unrelated apps or concurrent operations consuming the reserve.
+
 1. Read the site-completion tracker and inspect the current worktrees and workflow.
    Check `docker context show`, `docker ps -a`, `docker image ls`, `docker system df`,
    registered builders, and available host disk space. Never dump container environment
@@ -75,6 +90,30 @@ and report the uncertainty instead of guessing.
   `docker compose down -v`, forced removal, factory reset, or direct Docker/WSL/VHDX
   deletion. Do not stop Docker or all WSL distributions to force disk compaction
   during an unrelated workflow. Use supported maintenance only after checking impact.
+
+## Local worktree and editor-test artifacts
+
+- Reuse suitable dependencies and existing worktrees. Do not clone a complete editor
+  extension tree, cached installer collection or user profile for routine UI checks.
+  Use the smallest task-scoped configuration needed. Do not create large archives
+  merely to retain disposable output.
+- Keep source worktrees and uncommitted edits. Before cleaning generated output,
+  verify the absolute path, ignored/generated file type, links, running consumers,
+  current release, rollback needs and other active tasks. A worktree's age or clean
+  Git status alone does not establish that its cache is redundant.
+- Retain useful current/rollback/dependency caches. Superseded compiler-cache packs
+  in inactive worktrees can be removed after the checks above; preserve application
+  source and compiled runtime when only cache removal is authorized or verified.
+- Treat sandbox runtime binaries/state, credentials, Codex session/history databases,
+  settings, editor recovery data, application databases and backups as protected.
+  Do not reset, compact or delete them as generic cache cleanup.
+- Use bounded native cleanup. If automatic approval review rejects an action,
+  narrow it to independently verified disposable file classes where genuinely safer.
+  Never evade a rejection through another shell, filesystem API or tool. If exact
+  user approval still does not permit a folder deletion, report it and retain it.
+- Record removed file bytes separately from measured host free-space changes, keep
+  small evidence receipts, and verify source/status preservation. Do not rerun builds
+  merely to validate cache deletion and immediately recreate the discarded output.
 
 ## Evidence and completion
 
