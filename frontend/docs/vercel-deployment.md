@@ -125,7 +125,7 @@ recovery. Verify these separately and capture timestamps/results in the
 incident record:
 
 1. Wait for `vercel rollback status allied-autotech --scope
-   michael-enochs-projects-3da06943` to show completion with no pending rollback.
+michael-enochs-projects-3da06943` to show completion with no pending rollback.
 2. Inspect the pinned deployment using the Vercel CLI/dashboard. Confirm its
    exact ID, project, source SHA and `READY` state. Confirm the deployment API
    reports `aliasAssigned` true and lists both `alliedautotech.com` and

@@ -51,6 +51,14 @@ caches and rollback images were preserved. Host free space barely changed at
 that cleanup; it must not be reported as equivalent reclaimed Windows disk space.
 A later preflight measured 28.2 GiB free. Narrow cache pruning reclaimed nothing.
 
+The merged composition passed 210 native integration cases across 17 separated
+workforce, support, replay, learning and Allie suites using the newly created
+restricted-runtime `_ci` target. No existing protected owner's password or
+permission was altered. Frontend source types and lint passed after removing an
+obsolete CommonJS lint suppression; imported rollback-runbook table formatting
+was normalised. The rollback guard's mocked PowerShell entrypoint tests passed;
+they made no provider mutation. Exact-source hosted and CI gates remain pending.
+
 The dated observations below describe earlier candidates and must not override
 the current combined-source checkpoint.
 
