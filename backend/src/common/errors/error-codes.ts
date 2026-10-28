@@ -47,6 +47,7 @@ export const errorCodes = {
   rateLimited: "RATE_LIMITED",
   databaseUnavailable: "DATABASE_UNAVAILABLE",
   providerUnavailable: "PROVIDER_UNAVAILABLE",
+  supportLiveUnavailable: "SUPPORT_LIVE_UNAVAILABLE",
   requestTimeout: "REQUEST_TIMEOUT",
   internalError: "INTERNAL_ERROR",
 } as const;

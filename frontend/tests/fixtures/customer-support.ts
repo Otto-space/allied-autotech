@@ -132,6 +132,20 @@ export async function customerSupportFixture(page: Page, role = "CUSTOMER") {
       /^\/(customers|staff|public)\/support\/(enquiries|complaints)(?:\/([^/]+))?(?:\/(messages|assignment|status|priority))?$/,
     );
     if (request.method() === "GET") {
+      const channelLookup = endpoint.match(
+        /^\/customers\/support\/live\/channels\/by-case\/(ENQUIRY|COMPLAINT)\/([^/]+)$/,
+      );
+      if (channelLookup) {
+        const record =
+          state.records[channelLookup[1] === "ENQUIRY" ? "enquiries" : "complaints"];
+        return channelLookup[2] === record.id
+          ? ok(route, {
+              channel: null,
+              caseVersion: record.version,
+              latestPublicMessageId: state.messages.at(-1)?.id ?? null,
+            })
+          : fail(route, 404, "NOT_FOUND");
+      }
       state.reads.push(endpoint + url.search);
       if (endpoint === "/public/branches" || endpoint === "/admin/branches")
         return state.failBranch ? fail(route) : ok(route, { items: [branch] });

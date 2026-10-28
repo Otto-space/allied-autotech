@@ -94,6 +94,7 @@ const environmentSchema = z.object({
   HELP_LEARN_GUIDES_ENABLED: booleanValue(false),
   HELP_LEARN_PRACTICE_ENABLED: booleanValue(false),
   HELP_LEARN_AI_ENABLED: booleanValue(false),
+  SUPPORT_LIVE_CHAT_ENABLED: booleanValue(false),
   OPENAI_API_KEY: optionalNonEmptyString,
   ALLIE_OPENAI_MODEL: optionalNonEmptyString,
   ALLIE_AI_DAILY_TOKEN_LIMIT: z.coerce.number().int().min(0).max(10000000).default(0),

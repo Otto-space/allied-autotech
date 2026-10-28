@@ -4,6 +4,7 @@ import { supportDeliveryDismissSchema } from "./customer-email.js";
 import { supportService } from "./support.service.js";
 import { successResponse } from "../../common/http/api-response.js";
 import { Router } from "express";
+import { customerSupportLiveRouter } from "./support-live.routes.js";
 import { authenticate } from "../../common/middleware/authenticate.js";
 import {
   requireAdministrator,
@@ -91,6 +92,7 @@ export function createCustomerSupportRouter(): Router {
   const controller = new SupportController();
   router.use(authenticate(), requireCustomer);
   router.use("/handoff", customerHandoffRouter());
+  router.use("/live", customerSupportLiveRouter());
   router.get(
     "/review-sources",
     validate({ query: reviewSourceListQuerySchema }),
