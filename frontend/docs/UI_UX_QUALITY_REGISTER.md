@@ -52,6 +52,43 @@ recheck passed, and the route wait allows development compilation. Production
 checks and hosted receipts are appended below when complete. Physical iPhone/Safari/Android and real authenticated roles
 remain untested; browser emulation is not their acceptance.
 
+### Production acceptance
+
+Runtime `0d4dd9921d28c7b9c87020c5c045496874473de2` is deployed as
+`dpl_DAgy9emEabtd3H58kWjoBw35EUUc` to both alliedautotech.com and
+www.alliedautotech.com. The guarded promotion re-read both previous aliases and
+verified their source was included. Rollback is the preserved preceding deployment
+`dpl_79uCiatbRsCvM2jtPJkwsx53efpP` (`552ee418`). No backend was redeployed.
+
+Exact-source checks passed:
+[frontend production checks](https://github.com/Otto-space/allied-autotech/actions/runs/40678376969)
+(locked install, runtime audit, lint, typecheck, full unit suite, production build,
+formatting), [secret guard](https://github.com/Otto-space/allied-autotech/actions/runs/40678377082)
+and [database safety CI](https://github.com/Otto-space/allied-autotech/actions/runs/40678376941).
+The Vercel production build is READY. No application database writes or migrations
+were made. Read-only operational preflight found eight managed backup entries,
+latest 28 October 05:22:10 UTC, and the existing successful separate restore receipt
+from 26 October; this task did not perform a new restore rehearsal.
+
+Live Edge acceptance passed at 390 and 1440 pixels: three actual reload/immediate
+trusted touch gestures per viewport, Help search/result focus, full hub navigation,
+public guide written-mode completion/exit, Allie unmatched-search/topic recovery,
+another-question focus and Escape return. The six settled positions remained below
+the preceding position rather than returning to the top. No page errors or real API
+writes were observed. Receipt: `%TEMP%/aat-live-acceptance.json`. This touch check
+replaces an unsuitable programmatic-scroll probe: native reload restoration may
+replace a script-issued scroll, so that probe is not counted as user touch evidence.
+The hosted login/MFA focus checks also passed (two intercepted synthetic cases,
+`%TEMP%/aat-live-auth-focus`). The www learning page returned 200 with its new
+breadcrumb and no horizontal overflow. Screenshots inspected:
+`%TEMP%/aat-live-allie-390.png`, `aat-live-guide-390.png`, `aat-live-allie-1440.png`.
+
+No Docker resources, dependencies or duplicate worktrees were created. Existing
+suitable dependencies/worktree were reused. Final disk reserve preflight passed at
+21.74 GiB free; this is a point-in-time check. Next acceptance priority is physical
+mobile browser/keyboard behavior and genuine permitted/denied account journeys;
+these are not certified by the synthetic authentication or Edge emulation checks.
+
 ## 27 October 2026: Workshop address and Whatsapp labels
 
 Updated the public address to "133 Stadium Road, beside Kilimanjaro Pizza Jungle

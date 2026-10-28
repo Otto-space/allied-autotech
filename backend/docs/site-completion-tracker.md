@@ -9,8 +9,16 @@ unrelated main, production-sync and visual-audit changes. Current scope is share
 scroll/focus stability, Help search and Learn/Allie/guide interaction recovery.
 Details and test limits: `frontend/docs/UI_UX_QUALITY_REGISTER.md`, 28 October entry.
 No backend/schema, policy, permission, provider flag or transaction-mode changes.
-Final runtime source, CI, provider IDs and hosted acceptance are recorded below
-when complete. Physical mobile browsers and real-account acceptance remain open.
+Released runtime: `0d4dd9921d28c7b9c87020c5c045496874473de2`; frontend
+`dpl_DAgy9emEabtd3H58kWjoBw35EUUc`, verified on both apex/www aliases.
+Frontend production checks `40678376969`, secret guard `40678377082` and database
+safety CI `40678376941` passed. Live 390/1440 reload/touch and Help/guide/Allie
+acceptance passed without real API writes or page errors. Hosted mocked login/MFA
+focus passed separately. Backend remains active deployment
+`79d7a0ac-4e83-4b73-ae46-40af4731a604` / source `0fd68980`.
+Prior frontend `dpl_79uCiatbRsCvM2jtPJkwsx53efpP` is retained for rollback.
+Full receipts/limitations are in the quality register. Physical mobile browsers and
+real-account acceptance remain open.
 
 ## Working agreement
 
