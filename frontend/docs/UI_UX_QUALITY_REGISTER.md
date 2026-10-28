@@ -2233,3 +2233,23 @@ inside the browser; this does not claim an authenticated operator test or
 production data change. Public Home/Help/Parts responded 200 after promotion,
 `/shop` resolved to `/parts`, and `/demo` remained 404. Wider role/device and
 manual screen-reader acceptance remain in the prioritized backlog.
+
+### Historical merged-branch checkpoint
+
+The following dated observation is retained from origin/fix/parts-enquiry-copy-current-20261028; it is not a claim of current production identity.
+
+28 October 2026 - P1 public Parts detail enquiry copy released. The only live
+oil filter had no branch availability, yet its detail told visitors to arrange
+collection from a listed branch and repeatedly described ordering. Runtime
+9f9311cf builds on fbb6565a and uses the existing launch-mode gate to require
+staff confirmation of stock and collection arrangements before visiting.
+Full-commerce wording remains separate. Price, availability, fitment and the
+product-specific enquiry destination are unchanged. Exact-source frontend CI
+40668317540 and secret guard 40668317916 passed. A preview without
+BACKEND_ORIGIN returned 503 on dynamic detail; the protected production-target
+deployment returned the corrected page, then was promoted as
+dpl_68bNV74wNajB9vW1Ly85nzmmdEvU. Both apex and www serve that ID. Live Edge
+at 390/1440px passed product-detail heading, corrected copy, collection FAQ,
+product-specific Contact navigation, no horizontal overflow and no page errors.
+No customer form, payment or inventory action was submitted. Native devices,
+screen readers and authenticated-role acceptance remain outside this check.
