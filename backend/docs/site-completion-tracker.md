@@ -1,5 +1,42 @@
 # Allied AutoTech completion tracker
 
+## 28 October 2026 consolidation checkpoint
+
+Authoritative checkout: C:/Users/PC/.codex/worktrees/allied-home-restoration-20261025,
+integration branch master. The owner authorized tested integration, production
+publication and retirement of completed branches, and has paused other releases.
+The older branch-specific release notes below are retained as dated evidence.
+
+Production backend 8fd37e1c-d2e2-4e2f-bbe4-3e9acb8c5650 is ACTIVE on four
+4fbc9cbb images. The guarded forward migration completed all 76 migrations;
+read-only schema verification, non-owning runtime privilege checks and six worker
+heartbeats passed. A separate populated restore and forward migration rehearsal
+passed before that rollout. This is not a physical managed PITR rehearsal.
+Production frontend most recently resolved on both domains to 1a33815c /
+dpl_71G8rw7VmXo7WZZCDJpvTb5eCMib. These runtime changes are incorporated here.
+No commerce, provider AI or live-human-chat flag has been enabled.
+
+All initial remote heads and unique local history have been reconciled, including
+current payment-session evidence checks, favourites refresh, navbar/container
+focus, learning interactions, unread notification preview and compact customer
+care. Current integration testing found and corrected two conflicts in Allie:
+the Learn catalogue now retains its eligible guide/practice entry points, and
+access revalidation retains dialog geometry while content stays hidden/inert.
+The workforce invalidation listener and conversation/handoff lifecycle remain.
+The focused combined five-file frontend run passed 41 cases after these fixes.
+The earlier combined candidate passed 27 hosted gallery/handoff/workforce cases,
+23 public read-only checks and 41 packaged image/spec checks. Final corrected
+candidate, exact-source GitHub gates and promotion are still pending at this
+checkpoint; private release receipts preserve their eventual actual results.
+
+The complete Revision 4 goal remains open: gated shared human-chat implementation,
+all 106 exact-route decisions, final bounded provider re-evaluation and real-role,
+physical-device and full screen-reader acceptance remain. Queued Customer Care is
+the truthful current handoff. Do not count this consolidation as full completion.
+Missing/dirty/active worktrees and provider-connected release branches must remain
+protected during branch retirement. Never prune the metadata of the three source
+worktrees the owner reported deleting without completing recovery review.
+
 ## 28 October 2026 current notification-preview cycle
 
 The exact live frontend before this cycle is `09efa694` /

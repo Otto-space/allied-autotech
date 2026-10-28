@@ -1,7 +1,13 @@
 // @vitest-environment jsdom
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-const fixture = vi.hoisted(() => ({ path: "/", hasHome: true }));
+const fixture = vi.hoisted(() => ({
+  path: "/",
+  hasHome: true,
+  learning: false,
+  guidesEnabled: true,
+  practiceEnabled: true,
+}));
 vi.mock("next/navigation", () => ({ usePathname: () => fixture.path }));
 vi.mock("@/lib/learning/read", () => ({
   useLearningCatalogue: () => ({
@@ -10,9 +16,17 @@ vi.mock("@/lib/learning/read", () => ({
       accessKey: "public-fixture",
       audience: "public",
       contentVersion: 1,
-      flags: { guides: true, practice: true, ai: false },
-      guides: [],
-      scenarios: [],
+      flags: {
+        guides: fixture.guidesEnabled,
+        practice: fixture.practiceEnabled,
+        ai: false,
+      },
+      guides: fixture.learning
+        ? [{ id: "parts-find", title: "Part discovery", page: "parts", href: "/parts" }]
+        : [],
+      scenarios: fixture.learning
+        ? [{ id: "sample", title: "Part practice", articleId: "parts-fitment" }]
+        : [],
       articles: fixture.hasHome
         ? [
             {
@@ -42,9 +56,34 @@ beforeEach(() => {
   HTMLElement.prototype.scrollIntoView = vi.fn();
   fixture.path = "/";
   fixture.hasHome = true;
+  fixture.learning = false;
+  fixture.guidesEnabled = true;
+  fixture.practiceEnabled = true;
 });
 afterEach(cleanup);
 describe("reviewed route context", () => {
+  it("offers eligible guide and practice journeys from the learning catalogue", () => {
+    fixture.path = "/learn";
+    fixture.learning = true;
+    render(<AlliePanel onNavigate={vi.fn()} />);
+    fireEvent.click(screen.getByRole("button", { name: "Show me the steps" }));
+    expect(
+      screen.getByRole("link", { name: "Part discovery" }).getAttribute("href"),
+    ).toBe("/parts#learn=parts-find");
+    fireEvent.click(screen.getByRole("button", { name: "Let me practise" }));
+    expect(screen.getByRole("link", { name: "Part practice" }).getAttribute("href")).toBe(
+      "/learn/practice/sample",
+    );
+  });
+  it.each(["disabled", "unrelated"])("does not offer %s catalogue journeys", (state) => {
+    fixture.learning = true;
+    fixture.path = state === "disabled" ? "/learn" : "/vehicles";
+    fixture.guidesEnabled = state !== "disabled";
+    fixture.practiceEnabled = state !== "disabled";
+    render(<AlliePanel onNavigate={vi.fn()} />);
+    expect(screen.queryByRole("button", { name: "Show me the steps" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Let me practise" })).toBeNull();
+  });
   it("explains the homepage immediately and offers a real service journey", () => {
     render(<AlliePanel onNavigate={vi.fn()} />);
     fireEvent.click(screen.getByRole("button", { name: "Explain this page" }));

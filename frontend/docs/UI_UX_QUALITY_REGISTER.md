@@ -1,5 +1,22 @@
 # UI and UX quality register
 
+## 28 October 2026: combined Allie integration regression correction
+
+The held consolidated 8e6aab3b candidate reproduced two integration defects at
+390/1440px: the newer explicit Learn page classification removed guide/practice
+suggestions from Allie, and the merged loading message added about 42px during
+access checks. Learn now offers only the guide/practice definitions already
+present in its verified catalogue and permitted by its feature flags. Unrelated
+page filtering remains in place. The existing positioned loading treatment is
+retained while verified content is hidden and inert, with guarded focus recovery.
+Conversation/handoff state boundaries, workforce invalidation and security-page
+restrictions remain unchanged. Three new focused route/flag cases and the adjacent
+access/conversation/handoff/search cases passed (41 tests in five files). The
+failed hosted run is retained; final rendered rechecks and publication are pending.
+Browser plugin unavailable: hosted checks use existing Playwright with Edge and
+isolated API fixtures. They do not send support messages, seed inventory, upload to
+real storage or call an AI provider. Physical-device and real-role limits remain.
+
 ## 28 October 2026: deployment-aware API image URLs
 
 The integrated held candidate `4fbc9cbb` exposed a real framework/API mismatch.

@@ -45,7 +45,11 @@ export function AlliePanel({
           details, passwords and codes out of questions.
         </p>
       )}
-      {resource.loading && <p role="status">Checking available help…</p>}
+      {resource.loading && (
+        <p className={resource.data ? "learning-check-status" : undefined} role="status">
+          Checking available help…
+        </p>
+      )}
       {resource.error && (
         <div role="alert">
           <p>{resource.error}</p>
@@ -217,14 +221,16 @@ function Answers({
   const guides = data.guides
     .filter(
       (g) =>
-        data.flags.guides && (page === "other" || page === "home" || g.page === page),
+        data.flags.guides &&
+        (path === "/learn" || page === "other" || page === "home" || g.page === page),
     )
     .slice(0, 3);
   const scenarios = data.scenarios
     .filter(
       (s) =>
         data.flags.practice &&
-        (page === "other" ||
+        (path === "/learn" ||
+          page === "other" ||
           page === "home" ||
           relevant.some((a) => a.id === s.articleId)),
     )
