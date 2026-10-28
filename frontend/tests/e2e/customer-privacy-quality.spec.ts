@@ -231,7 +231,7 @@ test("pending confirmation suppresses duplicates and prevents closing", async ({
   await expect(page.getByRole("button", { name: /Submitting/ })).toBeDisabled();
   await page.keyboard.press("Escape");
   await expect(page.getByRole("dialog")).toBeVisible();
-  expect(s.writes).toHaveLength(1);
+  await expect.poll(() => s.writes.length).toBe(1);
   s.outcome = "normal";
   s.release?.();
   await expect(page.getByRole("dialog")).toHaveCount(0);
