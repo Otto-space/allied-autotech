@@ -1,5 +1,36 @@
 # UI and UX quality register
 
+## 28 October 2026: Stable navbar through Help to Learn navigation
+
+Reproduced the owner's exact anonymous journey on deployed source `09efa694`:
+Help → Explore Help & Learn. Desktop frame samples repeatedly alternated header
+height 78px/68px and scrollY 20px/10px. The brand stylesheet shortened the sticky
+header when scrollY exceeded 12px; browser scroll anchoring then crossed that same
+threshold in the opposite direction, creating a continuous feedback loop. Mobile
+390px retained its 68px header and did not exhibit that height loop in this probe.
+Before receipts: `%TEMP%/aat-navshake-before-390.json` and
+`aat-navshake-before-1440.json`.
+
+Removed the scrolled-state height override. Header geometry now remains stable at
+its existing responsive height: 78px above 700px and 68px at/below 700px. Existing
+scroll elevation/background treatment and navigation behavior remain. The source
+change is limited to the brand stylesheet; the preceding focus, Help, customer
+history and saved-item releases are preserved. No permissions, data, flags or
+backend changes.
+
+Browser plugin unavailable; reused Playwright/Edge. All seven pre-publication
+regression cases passed at 390, 700, 701, 768, 1024, 1280 and 1440 pixels, using the
+real optimized production stylesheet with only the offending height declaration
+removed in intercepted asset responses. Checks sample header/brand geometry during
+the actual link transition and loading/results states, verify settled scroll
+position, visible destination breadcrumbs, scroll positions 0/10/13/20/35/200,
+retained scrolled shadow, and Back/Forward navigation. APIs were intercepted
+read-only synthetic responses; no real writes. Receipt:
+`%TEMP%/aat-navbar-prepublication`; screenshots `aat-navbar-stable-390.png` and
+`aat-navbar-stable-1440.png`. These are pre-publication probes; exact deployed-CSS
+acceptance is recorded below after release. Real signed-in account changes,
+physical-device browser behavior and other inaccessible states are not claimed.
+
 ## 28 October 2026: All automatically focused containers
 
 The owner confirmed that the dark automatic-focus border must be removed from all
@@ -36,6 +67,41 @@ Receipts: `%TEMP%/aat-container-focus-patched-final`,
 Protected-role completion/error states have source/policy coverage plus
 representative synthetic panels; no real private records or transactions were used.
 Physical Safari/Android and actual staff-account acceptance remain unverified.
+
+### Published follow-up and actual hosted acceptance
+
+Runtime `09efa694603ea7b1fcb3312974543a7e262cdf6d` is READY and assigned to both
+apex/www as `dpl_9us8TLTvZJxzA8KNvdKNqFMqjg8F`. The guarded promotion verified
+exact project/source, all required CI results and that both then-current production
+sources are ancestors of the candidate. Prior `dpl_GWDKwqj3Gs7uT8o1qNt4ce2jdLno`
+(`0b5a9b76`) remains the rollback target. Backend deployment remains unchanged.
+
+Exact-source [frontend release checks](https://github.com/Otto-space/allied-autotech/actions/runs/40685951828),
+[secret guard](https://github.com/Otto-space/allied-autotech/actions/runs/40685951914)
+and [database safety CI](https://github.com/Otto-space/allied-autotech/actions/runs/40685952202)
+passed. Frontend checks include locked install, runtime audit, lint, typecheck,
+full unit suite, optimized production build and formatting. No local duplicate
+build, dependency installation, worktree or Docker resources were created.
+
+After deployment, all five regression cases passed on the real optimized CSS,
+with the asset override disabled. The first run's desktop/panel cases encountered
+connection resets; a sequential recheck passed all three without a code change.
+Receipt directories: `%TEMP%/aat-container-focus-live` and
+`aat-container-focus-live-recheck`. The complete real-content, read-only 19-route
+public audit then passed without overrides or page errors:
+`%TEMP%/aat-container-surface-live.json`. An earlier concurrent audit's navigation
+timeout is retained as an infrastructure/connection observation, not counted as
+passing acceptance. No application API writes were sent.
+
+The owner's exact article was also refreshed repeatedly using actual public
+content: its focused container has `outline-style: none` and `box-shadow: none`.
+The www article passed the same check. Before and after screenshots were inspected:
+`%TEMP%/aat-reading-border-before.png` and `aat-reading-border-after.png`.
+Authored prerequisite/error/dialog borders remain; focus stays on the intended
+destination and controls retain keyboard indicators. Real authenticated private
+states and physical-device/browser acceptance remain unverified as recorded above.
+Final disk preflight passed at 27 GiB free, a point-in-time check; unrelated main
+checkout changes were preserved.
 
 ## 28 October 2026: Refresh scrolling, reading focus and Help & Learn
 
