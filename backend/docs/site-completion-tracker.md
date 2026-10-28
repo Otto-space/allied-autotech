@@ -1823,3 +1823,16 @@ reconciliation, payment-flow, type and lint steps; secret guard 40677044459
 passed. Local typecheck, lint, formatting and seven focused unit cases passed.
 No production database, provider or deployment was changed. The production
 recovery, migration-role, populated backfill and real-role gates above remain.
+
+28 October 2026 - P0 customer payment session boundary. Candidate f156f880
+locks and rechecks the customer account/session in the intent, online checkout
+preparation/finalization and manual-attempt write transactions; an idempotent
+manual replay also rechecks the session before returning a record. Verified
+provider outcomes still settle through the independent provider path. Isolated
+payment fixtures now create real sessions. A first expanded CI run exposed a
+fixture MFA timestamp constraint, corrected in 4a3284f0. Exact backend
+database-safety run 40680567495 passed all 11 files and 91 cases in the expanded
+payment/refund step, plus migration replay and all other safety jobs; secret
+guard 40680567554 passed. Local typecheck, scoped lint and formatting passed.
+No production database, provider or deployment was changed. The recovery,
+migration-role, populated financial backfill and real-role gates remain.
