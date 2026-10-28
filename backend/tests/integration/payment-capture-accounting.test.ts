@@ -8,6 +8,7 @@ import type {
   PaymentProviderPort,
   VerifiedPayment,
 } from "../../src/providers/payments/payment-provider.port.js";
+import { paymentTestSession } from "../helpers/payment-session.js";
 
 const context = () => ({ requestId: randomUUID(), ipAddress: null, userAgent: null });
 async function fixture(paymentProvider: "PAYSTACK" | "MONNIFY" = "PAYSTACK") {
@@ -26,7 +27,7 @@ async function fixture(paymentProvider: "PAYSTACK" | "MONNIFY" = "PAYSTACK") {
     userId: user.id,
     email: user.email,
     role: "CUSTOMER",
-    sessionId: randomUUID(),
+    sessionId: await paymentTestSession(user.id),
     mfaRequired: false,
     mfaVerifiedAt: null,
   };

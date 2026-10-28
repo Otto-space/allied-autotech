@@ -434,7 +434,7 @@ describe.skipIf(!runDatabaseTests)("Phase 8 payment flow", () => {
     const context = { requestId: randomUUID(), ipAddress: null, userAgent: null };
     const customerActor = {
       userId: customer.id,
-      sessionId: randomUUID(),
+      sessionId: customerSession.id,
       email: "customer@example.test",
       role: "CUSTOMER" as const,
       mfaRequired: false,

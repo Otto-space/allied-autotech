@@ -4,6 +4,7 @@ import { afterAll, afterEach, describe, expect, it, vi } from "vitest";
 import { prisma } from "../../src/config/database.js";
 import type { AuthenticatedActor } from "../../src/common/contracts/actor.js";
 import { VehicleSalesService } from "../../src/modules/vehicle-sales/vehicle-sales.service.js";
+import { paymentTestSession } from "../helpers/payment-session.js";
 
 const context = () => ({ requestId: randomUUID(), ipAddress: null, userAgent: null });
 async function account(role: "CUSTOMER" | "ADMIN"): Promise<AuthenticatedActor> {
@@ -30,7 +31,7 @@ async function account(role: "CUSTOMER" | "ADMIN"): Promise<AuthenticatedActor> 
     userId: user.id,
     email: user.email,
     role,
-    sessionId: randomUUID(),
+    sessionId: await paymentTestSession(user.id, role),
     mfaRequired: role !== "CUSTOMER",
     mfaVerifiedAt: role === "CUSTOMER" ? null : new Date(),
   };
