@@ -13,6 +13,18 @@ normal error/dialog borders. See the quality register's matching entry for exact
 verification, role/device limitations and final release receipts. No data, schema,
 permissions, business policy or production feature-flag changes.
 
+Released automatic-focus follow-up: runtime
+`09efa694603ea7b1fcb3312974543a7e262cdf6d`, frontend
+`dpl_9us8TLTvZJxzA8KNvdKNqFMqjg8F`, confirmed on apex/www. Frontend CI
+`40685951828`, secret guard `40685951914` and database safety `40685952202` passed.
+Actual deployed-CSS acceptance passed all five container/control regression cases
+and the 19-route public audit; the exact reported article was refreshed repeatedly
+on apex/www without the dark focus outline. Network resets/timeouts in the first
+concurrent run passed sequential rechecks without code changes. Preserve the
+preceding `dpl_GWDKwqj3Gs7uT8o1qNt4ce2jdLno` as rollback. Real-account/private
+states and physical-device testing remain open. Complete evidence is in the
+quality register's "All automatically focused containers" entry.
+
 ## 28 October 2026 current refresh and help cycle
 
 Reproduced the owner's homepage refresh/scroll jump on both-domain production

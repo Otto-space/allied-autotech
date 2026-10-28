@@ -37,6 +37,41 @@ Protected-role completion/error states have source/policy coverage plus
 representative synthetic panels; no real private records or transactions were used.
 Physical Safari/Android and actual staff-account acceptance remain unverified.
 
+### Published follow-up and actual hosted acceptance
+
+Runtime `09efa694603ea7b1fcb3312974543a7e262cdf6d` is READY and assigned to both
+apex/www as `dpl_9us8TLTvZJxzA8KNvdKNqFMqjg8F`. The guarded promotion verified
+exact project/source, all required CI results and that both then-current production
+sources are ancestors of the candidate. Prior `dpl_GWDKwqj3Gs7uT8o1qNt4ce2jdLno`
+(`0b5a9b76`) remains the rollback target. Backend deployment remains unchanged.
+
+Exact-source [frontend release checks](https://github.com/Otto-space/allied-autotech/actions/runs/40685951828),
+[secret guard](https://github.com/Otto-space/allied-autotech/actions/runs/40685951914)
+and [database safety CI](https://github.com/Otto-space/allied-autotech/actions/runs/40685952202)
+passed. Frontend checks include locked install, runtime audit, lint, typecheck,
+full unit suite, optimized production build and formatting. No local duplicate
+build, dependency installation, worktree or Docker resources were created.
+
+After deployment, all five regression cases passed on the real optimized CSS,
+with the asset override disabled. The first run's desktop/panel cases encountered
+connection resets; a sequential recheck passed all three without a code change.
+Receipt directories: `%TEMP%/aat-container-focus-live` and
+`aat-container-focus-live-recheck`. The complete real-content, read-only 19-route
+public audit then passed without overrides or page errors:
+`%TEMP%/aat-container-surface-live.json`. An earlier concurrent audit's navigation
+timeout is retained as an infrastructure/connection observation, not counted as
+passing acceptance. No application API writes were sent.
+
+The owner's exact article was also refreshed repeatedly using actual public
+content: its focused container has `outline-style: none` and `box-shadow: none`.
+The www article passed the same check. Before and after screenshots were inspected:
+`%TEMP%/aat-reading-border-before.png` and `aat-reading-border-after.png`.
+Authored prerequisite/error/dialog borders remain; focus stays on the intended
+destination and controls retain keyboard indicators. Real authenticated private
+states and physical-device/browser acceptance remain unverified as recorded above.
+Final disk preflight passed at 27 GiB free, a point-in-time check; unrelated main
+checkout changes were preserved.
+
 ## 28 October 2026: Refresh scrolling, reading focus and Help & Learn
 
 Owner-reported cross-phone homepage jumps were reproduced on production
