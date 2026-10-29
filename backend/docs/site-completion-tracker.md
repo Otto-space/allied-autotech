@@ -2505,3 +2505,41 @@ the original 13 stopped containers and 14 volumes remain. The four new current
 release images and useful warm build cache are retained; no Docker cleanup or
 physical-byte reclamation is claimed. Final disk preflight and temporary server
 shutdown are part of this task closeout. Preserve Item 6 and the settled queue.
+
+
+28 October 2026 - Shop visual-audit release in final verification. Branch feat/visual-identity-audit-20261027 at 552ee418 preserves currently published frontend 9f9311cf and earlier fbb6565a mobile navigation. Candidate dpl_79uCiatbRsCvM2jtPJkwsx53efpP is staged; no custom-domain promotion yet. Coordinate future frontend source against this committed Shop batch to avoid replacing it. Backend is unchanged by this task. Current evidence/checkpoint: frontend/docs/VISUAL_IDENTITY_AUDIT_CHECKPOINT.md.
+
+
+28 October 2026 - Shop visual-audit frontend released. Runtime 552ee418,
+Vercel dpl_79uCiatbRsCvM2jtPJkwsx53efpP READY on both apex/www after promotion
+and 14 live public checks. Preserves 9f9311cf collection guidance and fbb6565a
+mobile navigation. Locked frontend CI 40673723280: 1072 units plus build/types/
+lint/format passed; secret guard 40673723234 passed. Eight final hosted Shop/
+product cases passed; ten retained-navigation cases passed on earlier candidate.
+Backend 79d7a0ac unchanged, ACTIVE/readiness200. No local/shared DB test or write.
+V20 initial mobile spacing and V23 wider vocabulary remain partial; full V01-V55
+goal remains active. Evidence/limitations/rollback and disk-preflight incident:
+backend/docs/shop-audit-production-20261028.md. Other tasks/dirty work preserved.
+
+
+28 October 2026 - Customer history/Saved batch awaiting production promotion. Runtime candidate 0b5a9b76 in allied-shop-vehicles-r2-20261025 preserves published Help/navigation source 0d4dd992 and Shop source 552ee418. Original customer batch passed hosted and CI checks; merged-source verification is running. Coordinate any next frontend release against this candidate to avoid replacing its reviewed changes. This task does not deploy backend changes.
+
+
+28 October 2026 - Customer history and Saved items released. Runtime 0b5a9b76, Vercel dpl_GWDKwqj3Gs7uT8o1qNt4ce2jdLno READY on both domains after 14 public checks. Preserves published Help/Allie/navigation 0d4dd992 and Shop 552ee418. Exact frontend CI 40680419648 passed 1074 units, lint/types/format/build and production audit; secret guard 40680419233 and isolated backend safety 40680419675 passed. Eighteen final hosted journeys plus two native keyboard/focus/hover cases passed. Backend 79d7a0ac unchanged, ACTIVE/readiness200; no local/shared database write. V42/V52 released with sampled evidence; V41 remains partial for current-care empty cards. Full V01-V55 goal stays active. Evidence, recovery, harness failure and limitations: backend/docs/customer-history-production-20261028.md. Other tasks and dirty files preserved.
+
+
+28 October 2026 - Favourites refresh fix 91a4cd25 is in final production checks, preserving live 0b5a9b76. Product detail now reads persisted favourites after reload, follows collection pagination, and keeps failed reads distinct from unsaved state. 1080 exact-source CI units and four hosted mobile/desktop product cases pass. Coordinate next frontend source against this commit before replacing production. Backend unchanged.
+
+
+28 October 2026 - Owner-reported product favourites refresh defect released. Runtime ef06efb7, Vercel dpl_FAJ8oVhecCNTGac2XAyufAgg7hvv READY on both domains after 14 production public checks. Product detail now reads persisted favourites with pagination and explicit loading/error/retry states. Final CI 40704788016 passed 1080 tests, lint/types/format/build and zero production audit vulnerabilities; secret guard 40704788037 and isolated backend safety 40704788003 passed. Sixteen hosted fixture cases passed, including save-refresh/removal/retry at 390/1440 and retained focus/navbar behavior. Concurrent published sources 09efa694 and 4aafaebb are preserved. Backend independently advanced to 8fd37e1c (image 4fbc9cbb), ACTIVE/readiness200 with the favourites API unchanged; this task made no backend/database write. Evidence and precise limits: backend/docs/favourite-refresh-production-20261028.md. Wider V01-V55 goal stays active; next current-care empty-card and notification-availability clarity work. Existing dirty files and other worktrees preserved.
+
+
+28 October 2026 - V41 current-care density candidate 0fb7723d is committed/pushed and built as READY dpl_3SBNcmEUCiohs3oZV6fSXEkEnVuB (https://allied-autotech-dewq4t10d-michael-enochs-projects-3da06943.vercel.app), without custom-domain promotion. Exact frontend CI 40709862132 passed 1090 tests, lint/types/format/build; production audit zero findings (installation audit retains 3 development-inclusive findings). Secret guard 40709863030 passed. 22 focused units and scoped lint/types pass. Fresh live 390px fixture baseline failed as expected on three empty card containers; screenshot/receipt in %TEMP%/allied-care-density-20261028/baseline-results. Final hosted browser checks remain unrun: C: repeatedly fell below 20 GiB, and preflights stopped each attempt before browser/upload work. One upload ran only after a passing 25.23 GiB preflight. Other builds/test processes exist; none were stopped or deleted. No database writes or new production rollout. Resume at prepare-hosted.cjs, then hosted.config.cjs (19 intended cases; inspect --list), public-smoke.cjs and frozen promote.cjs in the same temporary evidence folder after disk reserve passes. Existing production favourites fix ef06efb7 remains the expected prior alias; revalidate concurrent releases before promotion. Browser plugin unavailable; reused Playwright/Edge is the intended hosted verification path.
+
+Backend audit evidence refreshed during this batch: published API image revision 4fbc9cbb uses sessionClientLabel in the session-list path and its formatter matches this audit branch. GET /api/v1/public/learning/catalogue returned 200 and the home-next-step article on 28 October; guides/practice true, AI false. Earlier source-only V04/V54 notes are historical. V04 rendered Explain this page acceptance and V54 actual signed-in session rendering still need verification; do not claim real-role acceptance from source correspondence. V48 notification-channel clarity and the full V01-V55 goal remain open.
+
+
+28 October 2026 - Compact customer-care release candidate is now ee757291, preserving currently published Help/Learn source 072e0509 and favourites source ef06efb7. Prior candidate passed all 19 hosted dashboard cases. Final combined build/CI and 29-case dashboard plus learning regression run are in progress before promotion. Coordinate subsequent frontend releases against this source to retain the compact-care work. Backend is not changed by this task.
+
+
+28 October 2026 - Compact customer-care release completed. Runtime 73436a31, Vercel dpl_J3Yv5aJwRGrzwZe6fiUPyeNdd81t READY on both domains after 14 public production checks. Empty care is compact; recorded cards, history drafts, permissions and error/session boundaries remain intact. Preserves published Help/Learn 072e0509, notification preview 1a33815c and favourites ef06efb7. Final-source CI 40715112526 passed 1092 tests plus types/lint/format/build and zero production audit findings; secret guard 40715112493 and isolated backend safety 40715112523 passed. Twenty-five final hosted dashboard/notification cases passed; ten unchanged-source learning cases passed on the preceding candidate. Two actual public homepage explanation cases passed at 390/1440 with three valid destinations, reviewed article, honest AI label and focus return. Initial extra-test heading expectation was corrected to the actual summary-then-topic sequence, without runtime changes. V41 density/V04 public explanation have released sampled evidence; full V01-V55 remains active. Backend 8fd37e1c unchanged by this task, ACTIVE/readiness200. No shared DB/customer writes. Evidence, rollback, disk interruptions and limitations: backend/docs/customer-care-density-production-20261028.md. V48 notification preference/channel distinction is next; preserve other worktrees.
