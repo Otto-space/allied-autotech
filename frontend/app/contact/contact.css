@@ -226,61 +226,16 @@
   font: inherit;
   text-decoration: underline;
 }
-.contact-preparation {
+.contact-care-context > .contact-next-step {
   margin-top: 24px;
-  padding: 22px;
-  background: var(--ink);
-  color: #fff;
-  border-radius: 5px;
-}
-.contact-page .contact-preparation h3 {
-  margin: 0 0 12px;
-  font:
-    650 17px/1.4 var(--font-quicksand),
-    sans-serif;
-  color: #fff;
-}
-.contact-preparation ul {
-  margin: 0;
-  padding-left: 18px;
-  color: #d6dfe6;
-  font-size: 14px;
-  line-height: 1.8;
-}
-.contact-preparation li + li {
-  margin-top: 8px;
-}
-.contact-next {
-  padding: 0;
-  margin: 28px 0 0;
-  list-style: none;
-}
-.contact-next li {
-  display: flex;
-  gap: 16px;
-  padding-block: 22px;
+  padding-top: 20px;
   border-top: 1px solid var(--contact-rule);
 }
-.contact-next li > span {
-  width: 28px;
-  height: 28px;
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
-  border: 1px solid var(--contact-focus);
-  color: var(--contact-focus);
-  border-radius: 50%;
-  font-size: 13px;
-  font-weight: 700;
-}
-.contact-page .contact-next h3 {
-  font-size: 16px;
-  margin: 0 0 8px;
-}
-.contact-next p {
-  font-size: 14px;
-  line-height: 1.7;
-  margin: 0;
+.contact-fixed-choice {
+  display: block;
+  font-weight: 650;
+  color: var(--ink);
+  overflow-wrap: anywhere;
 }
 .contact-form-panel {
   border: 1px solid var(--contact-rule);
@@ -785,17 +740,12 @@
     order: 2;
     font-size: 13px;
   }
-  .contact-preparation {
-    order: 4;
-    margin: 0;
-    width: 100%;
-  }
   .contact-form-panel {
     order: 1;
     width: 100%;
     padding: 20px;
   }
-  .contact-next {
+  .contact-care-context > .contact-next-step {
     order: 3;
     margin: 0;
     width: 100%;

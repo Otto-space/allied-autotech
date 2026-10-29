@@ -3056,3 +3056,35 @@ Vehicle release follow-up: the inherited staff location query now applies city/s
 filtering after assigned-branch scope. A focused persistence regression covers a
 matching branch, a non-matching location and foreign-branch staff; no permission or
 responsibility was granted. Schema and the populated restore rehearsal are unchanged.
+
+## 29 October 2026 - service enquiry clarity and inline privacy link
+
+V28/V29: one accessible enquiry heading and an uncropped equipment photo. V30's
+existing request-only journey is verified and preserved. The shared intake privacy
+link now has a non-colour cue; keyboard focus remains visible while hovering.
+Service, Contact, registration, catalogue and favourites pass 19 hosted fixtures
+on the integrated candidate; 20 public checks pass. Initial fixture failures and
+the real Axe finding are retained, corrected and distinguished in the
+[visual audit checkpoint](VISUAL_IDENTITY_AUDIT_CHECKPOINT.md).
+
+Source is merged with concurrent Care/vehicle work. Publication still requires its
+compatible guarded backend rollout; all three exact-source gates passed on
+2586c61b. The held candidate is not
+on the public domains. No real account/message/shared-database mutations by this
+audit. Business-authored service wording, physical devices, real roles, full
+screen-reader coverage and remaining V01-V55 findings remain open.
+
+## Favourites refresh live recheck - 29 October 2026
+
+Rechecked the owner's Engine Oil Filter URL without changing account data. Both
+production domains resolve to READY deployment dpl_AzXytZPjJgVb93kjfcb79KsuZtVH,
+source 060dba8d; Git ancestry confirms the ef06efb7 persistence repair is included.
+The two existing hosted Playwright cases pass at 390/1440: save, reload, later-page
+lookup, simulated external removal, failed read and retry. All identity/collection
+reads and mutations were intercepted fixtures, with unmatched API requests denied.
+Six focused product-favourite unit tests also pass. The mobile saved-after-refresh
+screenshot was inspected. Evidence: C:/Users/PC/AppData/Local/Temp/allied-favourite-recheck-20261029/.
+Browser plugin was unavailable; existing Playwright/Edge was reused. These checks
+verify current rendered frontend behavior, not the owner's private account or a
+new real database write. No runtime patch or deployment was necessary. Existing
+tracker conflict and unrelated edits were preserved. Postflight free C: 22.2 GiB.
