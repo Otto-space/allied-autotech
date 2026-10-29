@@ -1,3 +1,7 @@
+### 29 October 2026 mobile dashboard navigation released
+
+The 390px dashboard drawer now exposes one Administration navigation region; the obsolete expanded sidebar rule was removed. Source `e1dbef27` is on master and remains an ancestor of `aff31956`. A production build from reviewed compatible source `034b9309` was promoted as `dpl_EBwxTjnoP845eTcvgFR11pFkbJoP` to both apex and www. The actual-domain mobile drawer was visually reviewed; the API readiness and `/parts` returned 200. The protected preview was checked with an ADMIN fixture, including one navigation region and no visible legacy navigation. Focused rendered navigation/customer-care checks and frontend unit, type, lint and format checks passed. Real-role and physical-device acceptance remain open. This frontend-only release does not publish the newer W16E support-coverage backend or change database state. The W16F native local acceptance and Docker release dependency below remain current.
+
 ### 29 October 2026 catalogue redesign published
 
 Frontend source 93f2f3444a1403b19ebeeb38ba49d37ad800f186 is live on both apex/www, deployment dpl_H2xRQcNT8ELpAniX7eHDM6P6Lafv. Promotion verified at 2026-10-29T05:33:04.295Z, preserving the intervening Contact release 35c314c6. Exact-source Frontend 40821653858, Backend safety 40820904020 and secret 40821651216 CI passed. A newer master push cancelled the first frontend run; the immutable integrated release source passed on release/catalogue-redesign-20261029.

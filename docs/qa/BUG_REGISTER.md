@@ -1,5 +1,7 @@
 # Bug register (in progress)
 
+**QA-012 (P1, fixed and deployed 29 October):** At 390px, opening the admin dashboard drawer exposed a second Administration navigation through an obsolete sidebar CSS rule. The rule was removed in `e1dbef27`; focused 320/390/901px checks passed, and the live mobile drawer was visually reviewed on production deployment `dpl_EBwxTjnoP845eTcvgFR11pFkbJoP`. Real-role and physical-device acceptance remain open.
+
 Checked 23 October 2026 against source `098b580c` and the current public domain. A historical note is not counted as a current bug without reproduction.
 
 | ID     | Priority | Classification                                              | Evidence and impact                                                                                                                                                                                                       | Next action                                                                                                                          |

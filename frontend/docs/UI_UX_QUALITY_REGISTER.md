@@ -1,3 +1,7 @@
+### 29 October 2026 mobile dashboard drawer
+
+The obsolete 390px expanded-sidebar rule made two Administration navigation regions accessible when the dashboard drawer opened. Removing the rule leaves one modal navigation. Focused rendered checks passed at 320, 390 and 901px, and the live 390px drawer screenshot was inspected after deployment `dpl_EBwxTjnoP845eTcvgFR11pFkbJoP` reached both domains. The customer-care browser fixture was updated to open the collapsed creation form before filling it and its focused rerun passed. Real staff roles, physical devices and full screen-reader acceptance remain separate checks.
+
 ### 29 October 2026 catalogue redesign published
 
 Frontend source 93f2f3444a1403b19ebeeb38ba49d37ad800f186 is live on both apex/www, deployment dpl_H2xRQcNT8ELpAniX7eHDM6P6Lafv. Promotion verified at 2026-10-29T05:33:04.295Z, preserving the intervening Contact release 35c314c6. Exact-source Frontend 40821653858, Backend safety 40820904020 and secret 40821651216 CI passed. A newer master push cancelled the first frontend run; the immutable integrated release source passed on release/catalogue-redesign-20261029.
