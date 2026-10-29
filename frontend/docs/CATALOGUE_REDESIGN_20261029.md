@@ -4,7 +4,7 @@
 
 Owner brief: `C:/Users/PC/.codex/attachments/74c816df-b4e3-463a-a5c1-c89129f44346/pasted-text-1.txt`, read completely. Its implementation brief is the requested scope. Illustrative listings and proposed specifications are not inventory facts. Existing Next.js/React/TypeScript, Allied branding, business policies and API contracts remain authoritative.
 
-Current source and both production domains: 060dba8d, deployment dpl_AzXytZPjJgVb93kjfcb79KsuZtVH. Reuse allied-contact-validation-20261027 and its existing dependencies; preserve the pending continuity-document changes. Backend runtime is still 2586c61b. The three catalogue implementations are in local rendered verification; the redesign has not yet been published. Remote master has since advanced with compatible Contact and managed Care changes, which must be integrated and rechecked before publication.
+Released frontend source and both production domains: 93f2f344, deployment dpl_H2xRQcNT8ELpAniX7eHDM6P6Lafv, promoted at 2026-10-29T05:33:04.295Z. Reused allied-contact-validation-20261027 and existing verified dependencies. Backend runtime remains 2586c61b on 9c91eeff. The release includes current Contact behavior; later master owner-coverage/About changes are preserved as separate work and are not part of this deployment.
 
 Anonymous production GET checks return one vehicle, one product and one service. The BMW listing is `83b356f8-c3a6-401e-8d88-41d974d11a2b`, NGN 3,000,000, with all seven reviewed WebP images returning HTTP 200. Its AC fault is public, engine capacity is 2000 cc, mileage/transmission are null, and no condition report is asserted. The Engine Oil Filter has no uploaded image. Tyre Change has a published image and requires a quotation. Preserve these facts; do not create illustrative catalogue records or replacement stock photography.
 
@@ -86,3 +86,27 @@ The audit found and fixed a remaining Shop desktop Apply path that still closed 
 Discovery query units pass 54 assertions. Scoped lint and formatting pass; full integrated compiler/release CI and hosted immutable-candidate checks are the next gate. Existing shared backend runtime 2586c61b has the necessary API contracts and no catalogue backend/schema/API change is needed. The only backend runtime-source difference inherited from newer master is the compatible managed Care learning article v3 copy; its backend publication remains a separate batch, not a catalogue requirement or a claimed deployment here.
 
 Acceptance limits: headless Edge mobile emulation is not a physical iOS/Android acceptance test. Available fitment, large result sets/pagination and exceptional states use labelled isolated browser responses because current public data contains one record per catalogue and no vehicle choices. Actual photos, prices/disclosures and read-only public navigation are separately checked. Protected/admin/commerce permissions and restricted feature flags are unchanged; the full historical site-quality register remains active.
+
+## Production acceptance and final delivery
+
+Frontend source 93f2f3444a1403b19ebeeb38ba49d37ad800f186 is live on both apex/www, deployment dpl_H2xRQcNT8ELpAniX7eHDM6P6Lafv. Promotion verified at 2026-10-29T05:33:04.295Z, preserving the intervening Contact release 35c314c6. Exact-source Frontend 40821653858, Backend safety 40820904020 and secret 40821651216 CI passed. A newer master push cancelled the first frontend run; the immutable integrated release source passed on release/catalogue-redesign-20261029.
+
+Final production-candidate acceptance: 57/57 clean catalogue/Learn/Allie/guide/practice cases plus 2/2 original refresh/touch cases, with zero unexpected/skipped/flaky results. Actual public post-promotion acceptance passes all 12 route/domain/width combinations for Vehicles, Shop and Services at 390/1440. Screenshots were visually reviewed. Local query units pass 54 assertions; full integrated compiler, scoped lint and formatting passed. Eight-width coverage is 320/375/390/430/768/1024/1280/1440; real physical iOS/Android and every protected role remain separate acceptance.
+
+Runtime backend remains 9c91eeff-b191-4de5-b9d5-0e6d06134d42 from 2586c61b, ready/ACTIVE, with matching four-image digests, no pending rollout, eight managed off-device backups (latest 29 October) and the successful separate 94-table/78-migration restore evidence rechecked. No database write, schema, permission, flag or real test enquiry changed. Compatible W16D frontend controls are included; backend Care article v3 publication remains separate. Later owner-coverage/About changes on master are preserved and are not claimed by this frontend deployment.
+
+Public BMW remains one listing with seven real photos, NGN 3,000,000 and the full AC fault disclosure. Product photography and vehicle-choice data remain honestly unavailable where absent. Release evidence is under backend/ops/digitalocean/.private/catalogue-redesign-20261029-*.json; full audit/design/acceptance report is frontend/docs/CATALOGUE_REDESIGN_20261029.md. C: reserve passes around 28.6 GiB free; no additional agent cleanup ran.
+
+The first candidate requests reached Vercel protection, so those reports are explicitly not app acceptance. The existing authorised Vercel CLI issued candidate-only provider access; no application login cookie or deployment-protection setting was changed. One initial desktop Reset/Apply observation did not reproduce in three direct event traces. The regression now explicitly waits for the visibly cleared price before Apply; the subsequent complete 57-case hosted run passes cleanly against the unchanged application artifact. This is a stronger test contract, not a claimed application race fix. Earlier diagnostics are retained separately.
+
+Primary changed files:
+
+- Shared behavior: `lib/use-catalogue-filter-panel.ts`, `lib/use-filter-match-preview.ts`, `app/components/catalogue-redesign.css`.
+- Vehicles: `app/vehicles/page.tsx`, `vehicle-filters.tsx`, `vehicles.css`, `app/components/vehicle-catalogue.tsx`.
+- Shop: `app/parts/page.tsx`, `product-filters.tsx`, `app/components/parts-catalogue.tsx`.
+- Services: `app/services/page.tsx`, `app/components/services-catalogue.tsx`.
+- Shared card/photo/disclosure treatment: `app/components/catalogue-cards.tsx` and the scoped known-fault strong-text rule in `app/globals.css`.
+- Browser acceptance: three new `tests/e2e/catalogue-redesign*.spec.ts` files; current fitment/Shop/saved-vehicle/action selectors and legacy catalogue opening assumptions updated.
+- Continuity: this report, UI_UX_QUALITY_REGISTER.md and the backend completion/vehicle implementation records.
+
+No catalogue backend/API work is required for these presentation improvements. Actual missing product photos and fitment choices require approved catalogue content, not fabricated records. All existing enquiry/inspection, collection-only, quotation, staff-confirmed appointment, pricing, fitment and permission rules remain authoritative.
