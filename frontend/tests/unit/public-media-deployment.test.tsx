@@ -35,6 +35,10 @@ it.each([
   expect(url.pathname + url.search).toBe(props.src);
   expect(image.getAttribute("loading")).toBe("lazy");
   fireEvent.error(image);
+  if (props.src.startsWith("/api/v1/public/")) {
+    expect(image.getAttribute("srcset")).toBeNull();
+    fireEvent.error(image);
+  }
   expect(screen.queryByRole("img")).toBeNull();
   expect(screen.getByText("Image unavailable")).toBeTruthy();
 });

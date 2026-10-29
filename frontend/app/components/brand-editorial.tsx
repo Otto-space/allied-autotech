@@ -1,7 +1,7 @@
 import { browseEnquiriesOnly } from "@/lib/public-launch";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, ChevronDown } from "lucide-react";
 import {
   operatingPrinciples,
   serviceJourney,
@@ -78,20 +78,28 @@ export function ServiceJourney({ showStartLink = true }: { showStartLink?: boole
   );
 }
 
-export function TrustPrinciples({ complete = false }: { complete?: boolean }) {
-  const principles = complete
-    ? operatingPrinciples
-    : [
-        operatingPrinciples[0],
-        operatingPrinciples[2],
-        operatingPrinciples[4],
-        operatingPrinciples[5],
-      ];
+const primaryPrinciples: readonly (typeof operatingPrinciples)[number][] = [
+  operatingPrinciples[0],
+  operatingPrinciples[2],
+  operatingPrinciples[4],
+  operatingPrinciples[5],
+];
+const additionalPrinciples = operatingPrinciples.filter(
+  (principle) => !primaryPrinciples.includes(principle),
+);
+
+function PrinciplesList({
+  principles,
+  start = 1,
+}: {
+  principles: readonly (typeof operatingPrinciples)[number][];
+  start?: number;
+}) {
   return (
-    <ol className="principles-list">
+    <ol className="principles-list" start={start}>
       {principles.map(([title, copy], index) => (
         <li key={title}>
-          <span aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
+          <span aria-hidden="true">{String(index + start).padStart(2, "0")}</span>
           <div>
             <h3>{title}</h3>
             <p>{copy}</p>
@@ -99,6 +107,22 @@ export function TrustPrinciples({ complete = false }: { complete?: boolean }) {
         </li>
       ))}
     </ol>
+  );
+}
+
+export function TrustPrinciples({ complete = false }: { complete?: boolean }) {
+  return (
+    <>
+      <PrinciplesList principles={primaryPrinciples} />
+      {complete && (
+        <details className="principles-more">
+          <summary>
+            More about our approach <ChevronDown size={18} aria-hidden="true" />
+          </summary>
+          <PrinciplesList principles={additionalPrinciples} start={5} />
+        </details>
+      )}
+    </>
   );
 }
 

@@ -1,0 +1,7 @@
+# Catalogue guidance checkpoint — 29 October 2026
+
+Parts compatibility article v3, vehicle enquiry article v4 and parts-find guide v3 describe the refined explicit-Apply panel model. Opening and breakpoint changes copy committed values; edits remain pending. Clear selections clears pending values only. Clear all filters commits a facet reset while keeping search/sort. Reset search clears the full discovery state. Independent facet values combine with AND; condition and powertrain multi-select values combine with OR within their facet. Used covers USED, FOREIGN_USED and LOCALLY_USED; unknown origin remains distinct. Assembly is not use history.
+
+The parts walkthrough's semantic targets and input/read checkpoints remain unchanged. Guidance continues to separate unknown compatibility from a verified fit and owner statements from inspection evidence. No guide sends an enquiry, grants permissions, publishes inventory, charges money or enables a restricted feature.
+
+These versioned backend content changes require the backend's separate reviewed release. Frontend catalogue publication does not claim these versions are hosted. The previously hosted public guide remains compatible with the preserved search/results targets. Source tests cover versions, instructions and provider source references; rendered walkthrough regression checks are recorded in the catalogue report. Production flags remain unchanged.

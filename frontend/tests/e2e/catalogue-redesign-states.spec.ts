@@ -78,7 +78,7 @@ for (const width of [390, 1440]) {
       phase = "populated";
       await page
         .getByRole("button", {
-          name: kind === "services" ? "Clear filter" : "Clear filters",
+          name: kind === "services" ? "Clear filter" : "Reset search",
           exact: true,
         })
         .click();
@@ -122,6 +122,7 @@ test("failed service photography keeps a labelled image area", async ({ page }) 
       : route.fallback(),
   );
   await page.goto("/services");
+  await page.locator(".services-row-media").first().scrollIntoViewIfNeeded();
   await expect(
     page.getByRole("img", { name: "Service image unavailable", exact: true }),
   ).toBeVisible();

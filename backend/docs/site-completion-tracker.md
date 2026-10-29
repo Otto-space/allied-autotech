@@ -1,32 +1,57 @@
-# Allied AutoTech completion tracker
+### 29 October 2026 expanded catalogue refinement — verification checkpoint
 
-## 29 October 2026 customer navigation and care regression cycle
+Current item: CAT-EXP-20261029, owner-supplied expanded brief plus all-image-card moderation. Shop, Services, Vehicles, Home previews and About equipment now favour authentic photographs, useful copy and restrained shadows. SKU/internal labels and redundant card metadata are removed. Pending filter edits are explicit on desktop/mobile; clearing applied facets preserves search/sort. Vehicle identity/specs are shared and whole-naira display retains real kobo. Public image variants recheck publication on every request; private media, business permissions and original photos remain intact.
 
-The customer-care browser fixture had stale steps after the creation form
-became a disclosure and record actions gained explicit `View` names. Its
-fixture now opens the disclosure before editing and follows the rendered
-link names. The complete Edge/Playwright run passed 36/37; the sole remaining
-locator case passed on its focused rerun. Customer overview and navigation
-checks passed for empty-account routing, late-response invalidation, permitted
-links and sidebar collapse. A 390px admin navigation check reproduced two
-accessible `Administration` regions when the mobile drawer opened: legacy CSS
-exposed the desktop sidebar navigation as well. Removing that conflicting
-rule yielded 4/4 focused navigation cases at 320/390/901px and customer
-search; the 390px screenshot shows one drawer. Lint, TypeScript, 1,240 unit
-tests and frontend formatting passed. The local optimized build was stopped
-when C: fell below the 25 GiB preflight. Exact-source CI, production release,
-authenticated real-role and physical-device acceptance remain open. Backend,
-auth and data contracts did not change.
+Worktree: allied-contact-validation-20261027, based on master bc6f59c7; baseline live frontend 034b9309 / dpl_EBwxTjnoP845eTcvgFR11pFkbJoP on apex/www. Backend remains ACTIVE 9c91eeff-b191-4de5-b9d5-0e6d06134d42 from 2586c61b, with no pending deployment. The normal authorised admin workflow corrected both Tyre Change description fields; the owner confirmed their separate fixed NGN 1,000,000 pricing change, which is preserved. No direct database, schema, permission, flag or test-business write was made.
 
-## 29 October 2026 staff vehicle-filter source review
+Focused frontend checks pass 30 cases; backend guidance/provider checks pass 53. Type checking/scoped lint pass. Final frozen rendered matrix, compatible source integration, exact-source CI and production-candidate acceptance remain publication gates. The original mobile drawer release and pending owner-coverage work are preserved; owner-coverage APIs remain outside this frontend rollout. Updated backend articles/guides are source-only until their separate reviewed backend release. Physical-device, true 200% zoom and full screen-reader acceptance are not claimed. See frontend/docs/CATALOGUE_EXPANDED_20261029.md and docs/help-learn/CATALOGUE_REFINEMENT_20261029.md for findings, photo/security decisions and measured 49.7–79.3% image-transfer reductions. C: reserve rechecked around 20.8 GiB; bounded existing dependencies, no new worktree/build/image/profile copies or cache deletion.
 
-QA-004's historical ignored-filter claim does not match current source. The
-staff vehicle route and OpenAPI use the same validated query schema, and the
-repository applies shared vehicle attributes plus location, listing, search,
-branch, sort and cursor constraints. This is a source review only: no database
-write, isolated integration run or authenticated hosted acceptance was done.
-The current customer workspace/session-recovery priority and independently
-tracked provider and real-role gates remain open.
+### 29 October 2026 mobile dashboard navigation released
+
+The 390px dashboard drawer now exposes one Administration navigation region; the obsolete expanded sidebar rule was removed. Source `e1dbef27` is on master and remains an ancestor of `aff31956`. A production build from reviewed compatible source `034b9309` was promoted as `dpl_EBwxTjnoP845eTcvgFR11pFkbJoP` to both apex and www. The actual-domain mobile drawer was visually reviewed; the API readiness and `/parts` returned 200. The protected preview was checked with an ADMIN fixture, including one navigation region and no visible legacy navigation. Focused rendered navigation/customer-care checks and frontend unit, type, lint and format checks passed. Real-role and physical-device acceptance remain open. This frontend-only release does not publish the newer W16E support-coverage backend or change database state. The W16F native local acceptance and Docker release dependency below remain current.
+
+### 29 October 2026 catalogue redesign published
+
+Frontend source 93f2f3444a1403b19ebeeb38ba49d37ad800f186 is live on both apex/www, deployment dpl_H2xRQcNT8ELpAniX7eHDM6P6Lafv. Promotion verified at 2026-10-29T05:33:04.295Z, preserving the intervening Contact release 35c314c6. Exact-source Frontend 40821653858, Backend safety 40820904020 and secret 40821651216 CI passed. A newer master push cancelled the first frontend run; the immutable integrated release source passed on release/catalogue-redesign-20261029.
+
+Final production-candidate acceptance: 57/57 clean catalogue/Learn/Allie/guide/practice cases plus 2/2 original refresh/touch cases, with zero unexpected/skipped/flaky results. Actual public post-promotion acceptance passes all 12 route/domain/width combinations for Vehicles, Shop and Services at 390/1440. Screenshots were visually reviewed. Local query units pass 54 assertions; full integrated compiler, scoped lint and formatting passed. Eight-width coverage is 320/375/390/430/768/1024/1280/1440; real physical iOS/Android and every protected role remain separate acceptance.
+
+Runtime backend remains 9c91eeff-b191-4de5-b9d5-0e6d06134d42 from 2586c61b, ready/ACTIVE, with matching four-image digests, no pending rollout, eight managed off-device backups (latest 29 October) and the successful separate 94-table/78-migration restore evidence rechecked. No database write, schema, permission, flag or real test enquiry changed. Compatible W16D frontend controls are included; backend Care article v3 publication remains separate. Later owner-coverage/About changes on master are preserved and are not claimed by this frontend deployment.
+
+Public BMW remains one listing with seven real photos, NGN 3,000,000 and the full AC fault disclosure. Product photography and vehicle-choice data remain honestly unavailable where absent. Release evidence is under backend/ops/digitalocean/.private/catalogue-redesign-20261029-*.json; full audit/design/acceptance report is frontend/docs/CATALOGUE_REDESIGN_20261029.md. C: reserve passes around 28.6 GiB free; no additional agent cleanup ran.
+
+Allied AutoTech completion tracker
+
+## 29 October 2026: W16F native coverage composition
+
+The integrated W16E source `f9a7b7ce` passed all three exact-source GitHub checks;
+its READY frontend candidate remains held off public domains. Native browser/API/
+restricted-database coverage acceptance now passes three actual browser cases with
+real CSRF and two bounded transport failures. The owner journey confirms three
+audited saves, durable cancellation and no duplicate changes; Admin/Staff exclusion
+is checked against actual endpoints. Both isolated targets replayed all 78 migrations.
+Types/lint, scoped Axe/overflow and inspected 390/1440px screenshots pass. No production
+write, live enablement or provider call. See
+../../docs/help-learn/SUPPORT_COVERAGE_COMPOSITION_W16F.md for actual results and
+limits. Docker Continue and protected-candidate test access await owner responses;
+independent implementation/verification continues. Full Revision 4 remains active.
+
+## 29 October 2026: W16E owner coverage continuation
+
+Owner-only support coverage editing and reference-only durable recovery are locally
+implemented. The established PUT shape is preserved; optional operation keys and
+owner/current-session/MFA/active-branch guarded GET/DELETE recovery use existing
+receipt storage, CAS and audit. No schema change or live enablement. Eleven new
+native, 60 Care/session/handoff and 20 availability cases pass on a newly created
+isolated 78-migration CI target. 28 backend and 52 combined frontend units pass,
+including 15 new coverage contracts. Final types, scoped lint and secret guard pass.
+Eight final rendered cases pass at 390/1440px, including keyboard focus and
+access-removal. Screenshots were inspected.
+See ../../docs/help-learn/SUPPORT_OWNER_COVERAGE_W16E.md.
+W16D is integrated on master 427202e7 with all three exact-source GitHub checks
+passed; publication is waiting for Docker's engine. W16E publication and exact-source
+release acceptance remain pending. The full goal, exact-route matrix, staffing/connection readiness and
+bounded real-provider re-evaluation remain active. No extra paid calls are allowed.
 
 ## 29 October 2026 catalogue verification completed locally
 
@@ -3853,3 +3878,21 @@ passed locally. No payment/provider/schema/production write was made. Exact-sour
 CI passed for runtime commit 7b1c552b: backend database safety 40685222582
 and redacted secret guard 40685222451 both completed successfully. The
 production recovery/migration/real-role gates remain.
+
+29 October 2026 - Contact clarity V34/V35/V36 released: runtime 35c314c6,
+READY dpl_CXXM8WeyShRAKrZZNRCCEBvrKY2i verified on apex/www. Labelled sole
+workshop output, field-specific required errors and concise preparation preserve
+review, drafts, routing and privacy. Final test-only review f2b74819 CI passed
+1,256 tests (12 optional skipped), lint/types/format/build and zero production
+audit findings; backend safety 40819714453 and secret guard 40819657385 passed.
+All 68 hosted cases have passing evidence (52 initial plus 16 corrected reruns);
+4 Contact fixture journeys and 20 public checks passed after promotion. Initial
+Axe, fixture, Prettier and Vercel 403 failures are retained with corrections.
+Backend 9c91eeff remains ACTIVE, unchanged; CSO help article version 3 is still
+unpublished backend content, with no API/schema dependency for this frontend.
+No real customer/enquiry/database writes. Current source, both stashes and dirty
+worktree records were preserved. Evidence/rollback/limits:
+backend/docs/contact-clarity-production-20261029.md. Whole V01-V55 goal remains
+active; next About principles and accessible equipment preview, grounded in
+360/390/768/1440 live baseline. Disk postflight: 28.75 GiB free. Docker daemon
+unavailable, no task Docker resources created/deleted.

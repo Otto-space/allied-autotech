@@ -1,3 +1,4 @@
+import { engineLitres, vehiclePresentation } from "@/lib/vehicle-presentation";
 import { VehicleOwnerDisclosure } from "../../components/vehicle-owner-disclosure";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -59,10 +60,10 @@ export async function generateMetadata({
   try {
     const listing = await getListing((await params).listingId);
     return publicPageMetadata(
-      listing.title,
+      vehiclePresentation(listing.vehicle).title,
       (
         listing.description ??
-        `Explore ${listing.title} at Allied AutoTech and request an inspection.`
+        `Explore ${vehiclePresentation(listing.vehicle).title} at Allied AutoTech and request an inspection.`
       ).slice(0, 160),
       `/vehicles/${listing.id}`,
       searchParams,
@@ -149,6 +150,7 @@ export default async function ListingPage({
     listing.id,
   );
   const vehicle = listing.vehicle;
+  const presentation = vehiclePresentation(vehicle);
   const label = (value: string | null | undefined) =>
     value ? vehicleLabel(value) : "Not listed";
   const specs = {
@@ -165,7 +167,9 @@ export default async function ListingPage({
     Powertrain: label(vehicle.powertrain),
     ...(vehicle.engineCapacityCc == null
       ? {}
-      : { "Engine capacity": `${vehicle.engineCapacityCc.toLocaleString("en-NG")} cc` }),
+      : {
+          "Engine capacity": `${engineLitres(vehicle.engineCapacityCc)} (${vehicle.engineCapacityCc.toLocaleString("en-NG")} cc)`,
+        }),
     ...(vehicle.features?.length
       ? { "Recorded features": vehicle.features.join(", ") }
       : {}),
@@ -242,8 +246,8 @@ export default async function ListingPage({
               </li>
               <li>
                 <ChevronRight size={14} aria-hidden="true" />
-                <span aria-current="page" title={listing.title}>
-                  {listing.title}
+                <span aria-current="page" title={presentation.title}>
+                  {presentation.title}
                 </span>
               </li>
             </ol>
@@ -253,9 +257,12 @@ export default async function ListingPage({
               {vehicle.year} &middot; {label(vehicle.condition)} &middot;{" "}
               {listing.branch.city}
             </p>
-            <h1>{listing.title}</h1>
+            <h1>{presentation.title}</h1>
+            {presentation.subtitle && <p>{presentation.subtitle}</p>}
             <p>Published listing &middot; Confirm current availability with our team.</p>
-            <p className="vd-mobile-price">{formatKobo(listing.priceKobo)}</p>
+            <p className="vd-mobile-price">
+              {formatKobo(listing.priceKobo, { hideZeroDecimals: true })}
+            </p>
           </header>
           <nav className="vd-section-nav" aria-label="Vehicle sections">
             <a href="#vehicle-overview">Overview</a>
@@ -267,11 +274,11 @@ export default async function ListingPage({
             enquiryHref={enquiryHref}
             key={listing.id}
             listingId={listing.id}
-            listingTitle={listing.title}
+            listingTitle={presentation.title}
             branchName={listing.branch.name}
             gallery={
               <div className="vd-gallery-column" id="vehicle-overview">
-                <VehicleGallery images={vehicle.images} title={listing.title} />
+                <VehicleGallery images={vehicle.images} title={presentation.title} />
                 <dl className="vd-highlights">
                   <div>
                     <dt>Body type</dt>
@@ -293,7 +300,9 @@ export default async function ListingPage({
             summary={
               <>
                 <p className="vd-price-label">Listed price</p>
-                <p className="vd-price">{formatKobo(listing.priceKobo)}</p>
+                <p className="vd-price">
+                  {formatKobo(listing.priceKobo, { hideZeroDecimals: true })}
+                </p>
                 <dl className="vd-quick-facts">
                   {Object.entries({
                     Mileage: mileageLabel(vehicle.mileageKm),

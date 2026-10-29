@@ -1,0 +1,132 @@
+.trigger {
+  position: relative;
+  display: block;
+  padding: 0;
+  background: #fff;
+  color: var(--ink);
+  cursor: pointer;
+}
+.trigger:hover {
+  border-color: var(--brand-red-dark);
+}
+.trigger:focus-visible,
+.dialog button:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
+}
+.hint {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  right: 3px;
+  bottom: 3px;
+  padding: 3px 5px;
+  background: var(--ink);
+  color: #fff;
+  border-radius: 3px;
+  font-size: 12px;
+  line-height: 1.3;
+  font-weight: 650;
+}
+.thumbnailError {
+  display: block;
+  padding: 6px 6px 28px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.dialog {
+  width: min(900px, calc(100vw - 32px));
+  height: min(820px, calc(100dvh - 32px));
+  max-width: none;
+  max-height: none;
+  margin: auto;
+  padding: 20px;
+  border: 1px solid #82939f;
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ink);
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+.dialog[open] {
+  display: grid;
+  grid-template-rows: auto minmax(100px, 1fr) auto;
+  gap: 16px;
+}
+.dialog::backdrop {
+  background: #081014b8;
+}
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.dialog .header h2 {
+  flex: 1 1 240px;
+  font-family: var(--font-quicksand), sans-serif;
+  font-size: 20px;
+  line-height: 1.4;
+  letter-spacing: normal;
+  overflow-wrap: anywhere;
+}
+.close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid #82939f;
+  border-radius: 5px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 650;
+  cursor: pointer;
+}
+.close:hover {
+  background: #fff0f1;
+  border-color: var(--brand-red-dark);
+}
+.preview {
+  position: relative;
+  min-height: 100px;
+  background: #f2f5f7;
+  border-radius: 4px;
+}
+.preview img {
+  object-fit: contain;
+}
+.loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #445662;
+  padding: 16px;
+}
+.failure {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 16px;
+  text-align: center;
+}
+.description {
+  color: #445662;
+  font-size: 14px;
+  line-height: 1.6;
+}
+@media (max-width: 480px) {
+  .dialog {
+    padding: 16px;
+  }
+}

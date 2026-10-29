@@ -1,3 +1,4 @@
+import { CatalogueBanner } from "../components/catalogue-banner";
 import { loadPublicSeed } from "@/lib/api/public-seed-server";
 import { parseServiceDiscovery } from "@/lib/api/public-schemas";
 import { publicPageMetadata, type SearchParameters } from "@/lib/seo";
@@ -63,17 +64,11 @@ export default async function ServicesPage({
             </li>
           </ol>
         </nav>
-        <section className="services-hero" aria-labelledby="services-title">
-          <div className="public-wrap services-hero-inner">
-            <div className="services-hero-copy">
-              <h1 id="services-title">Find the service your vehicle needs</h1>
-              <p>
-                Browse published services or tell the team what you have noticed about
-                your vehicle.
-              </p>
-            </div>
-          </div>
-        </section>
+        <CatalogueBanner
+          kind="services"
+          title="Find the service your vehicle needs"
+          description="Browse published services or tell the team what you have noticed about your vehicle."
+        />
         <nav
           className="public-wrap services-discovery-paths"
           aria-label="Find service help"

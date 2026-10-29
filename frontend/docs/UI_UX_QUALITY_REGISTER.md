@@ -1,21 +1,53 @@
-# UI and UX quality register
+### 29 October 2026 expanded catalogue refinement — verification checkpoint
 
-## 29 October 2026: customer care and mobile dashboard navigation
+Current item: CAT-EXP-20261029, owner-supplied expanded brief plus all-image-card moderation. Shop, Services, Vehicles, Home previews and About equipment now favour authentic photographs, useful copy and restrained shadows. SKU/internal labels and redundant card metadata are removed. Pending filter edits are explicit on desktop/mobile; clearing applied facets preserves search/sort. Vehicle identity/specs are shared and whole-naira display retains real kobo. Public image variants recheck publication on every request; private media, business permissions and original photos remain intact.
 
-The customer-care rendered fixture was aligned with the current closed `New
-enquiry` disclosure and explicit `View [record]` link names. Thirty-six of 37
-cases passed in the complete run; the last locator case passed in one focused
-rerun. An additional five-case overview/navigation sample passed four cases,
-including empty-account routing, late-response privacy and customer link scope.
-At 390px, opening the admin drawer exposed both the modal and legacy sidebar
-`Administration` navigation. Removing the old mobile `display: block` override
-leaves the modal as the single visible/accessibility navigation. Focused
-320/390/901px and customer-search browser checks passed 4/4, with a 390px drawer
-screenshot, no page exceptions and Axe in the responsive navigation checks.
-Browser plugin unavailable; installed Edge/Playwright used. Lint, typecheck,
-1,240 units and frontend formatting passed; the local optimized build was
-stopped when C: fell below the 25 GiB preflight. Hosted, authenticated real-role, native
-keyboard and screen-reader acceptance remain open.
+Worktree: allied-contact-validation-20261027, based on master bc6f59c7; baseline live frontend 034b9309 / dpl_EBwxTjnoP845eTcvgFR11pFkbJoP on apex/www. Backend remains ACTIVE 9c91eeff-b191-4de5-b9d5-0e6d06134d42 from 2586c61b, with no pending deployment. The normal authorised admin workflow corrected both Tyre Change description fields; the owner confirmed their separate fixed NGN 1,000,000 pricing change, which is preserved. No direct database, schema, permission, flag or test-business write was made.
+
+Focused frontend checks pass 30 cases; backend guidance/provider checks pass 53. Type checking/scoped lint pass. Final frozen rendered matrix, compatible source integration, exact-source CI and production-candidate acceptance remain publication gates. The original mobile drawer release and pending owner-coverage work are preserved; owner-coverage APIs remain outside this frontend rollout. Updated backend articles/guides are source-only until their separate reviewed backend release. Physical-device, true 200% zoom and full screen-reader acceptance are not claimed. See frontend/docs/CATALOGUE_EXPANDED_20261029.md and docs/help-learn/CATALOGUE_REFINEMENT_20261029.md for findings, photo/security decisions and measured 49.7–79.3% image-transfer reductions. C: reserve rechecked around 20.8 GiB; bounded existing dependencies, no new worktree/build/image/profile copies or cache deletion.
+
+### 29 October 2026 mobile dashboard drawer
+
+The obsolete 390px expanded-sidebar rule made two Administration navigation regions accessible when the dashboard drawer opened. Removing the rule leaves one modal navigation. Focused rendered checks passed at 320, 390 and 901px, and the live 390px drawer screenshot was inspected after deployment `dpl_EBwxTjnoP845eTcvgFR11pFkbJoP` reached both domains. The customer-care browser fixture was updated to open the collapsed creation form before filling it and its focused rerun passed. Real staff roles, physical devices and full screen-reader acceptance remain separate checks.
+
+### 29 October 2026 catalogue redesign published
+
+Frontend source 93f2f3444a1403b19ebeeb38ba49d37ad800f186 is live on both apex/www, deployment dpl_H2xRQcNT8ELpAniX7eHDM6P6Lafv. Promotion verified at 2026-10-29T05:33:04.295Z, preserving the intervening Contact release 35c314c6. Exact-source Frontend 40821653858, Backend safety 40820904020 and secret 40821651216 CI passed. A newer master push cancelled the first frontend run; the immutable integrated release source passed on release/catalogue-redesign-20261029.
+
+Final production-candidate acceptance: 57/57 clean catalogue/Learn/Allie/guide/practice cases plus 2/2 original refresh/touch cases, with zero unexpected/skipped/flaky results. Actual public post-promotion acceptance passes all 12 route/domain/width combinations for Vehicles, Shop and Services at 390/1440. Screenshots were visually reviewed. Local query units pass 54 assertions; full integrated compiler, scoped lint and formatting passed. Eight-width coverage is 320/375/390/430/768/1024/1280/1440; real physical iOS/Android and every protected role remain separate acceptance.
+
+Runtime backend remains 9c91eeff-b191-4de5-b9d5-0e6d06134d42 from 2586c61b, ready/ACTIVE, with matching four-image digests, no pending rollout, eight managed off-device backups (latest 29 October) and the successful separate 94-table/78-migration restore evidence rechecked. No database write, schema, permission, flag or real test enquiry changed. Compatible W16D frontend controls are included; backend Care article v3 publication remains separate. Later owner-coverage/About changes on master are preserved and are not claimed by this frontend deployment.
+
+Public BMW remains one listing with seven real photos, NGN 3,000,000 and the full AC fault disclosure. Product photography and vehicle-choice data remain honestly unavailable where absent. Release evidence is under backend/ops/digitalocean/.private/catalogue-redesign-20261029-*.json; full audit/design/acceptance report is frontend/docs/CATALOGUE_REDESIGN_20261029.md. C: reserve passes around 28.6 GiB free; no additional agent cleanup ran.
+
+UI and UX quality register
+
+## 29 October 2026: W16F native owner coverage acceptance
+
+The actual local owner browser/CSRF/API/restricted database composition passes,
+including committed and unsaved transport failures, reviewed cancellation and
+reference-only recovery after navigation. Actual Admin/Staff sessions cannot see
+the owner editor or read its endpoint. Three native cases pass, with scoped Axe,
+overflow and inspected 390/1440px screenshots. A tall screenshot's fixed-link capture
+artifact was distinguished from actual focus/visibility using DOM geometry and
+fresh viewport captures. Shared CSS and permissions are unchanged. This is isolated
+native acceptance, not hosted or real-role production acceptance. See
+../../docs/help-learn/SUPPORT_COVERAGE_COMPOSITION_W16F.md. Exact-route completion,
+broader channel composition and shared live-readiness evidence remain open.
+
+## 29 October 2026: W16E owner coverage editor
+
+The owner can configure explicit Lagos support windows, capacity and policy state
+through a review step without copying workshop hours or enabling live chat. Empty
+coverage stays empty. Both branch drafts are retained in memory; stale revisions
+require deliberate adoption. Unknown saves retain only an opaque browser reference
+and require server recovery or reviewed cancellation. Staff/Admin do not see or read
+this owner interface. Eight final browser cases passed at 390/1440px, including
+populated midnight windows, stale/draft/reload states, overflow and Axe. Keyboard
+Add/Remove focus and access-removal checks also pass; screenshots were inspected.
+This is isolated
+Playwright/Edge on reused Next 16.3.8; exact-lock, real-role and hosted acceptance
+remain separate. See ../../docs/help-learn/SUPPORT_OWNER_COVERAGE_W16E.md.
 
 ## 29 October 2026 catalogue verification completed locally
 
@@ -3145,3 +3177,27 @@ Browser plugin was unavailable; existing Playwright/Edge was reused. These check
 verify current rendered frontend behavior, not the owner's private account or a
 new real database write. No runtime patch or deployment was necessary. Existing
 tracker conflict and unrelated edits were preserved. Postflight free C: 22.2 GiB.
+
+## Contact clarity release - 29 October 2026
+
+V34/V35/V36: sole verified branch uses labelled read-only output; field-specific
+subject/message errors preserve first-error focus; concise preparation/next-step
+guidance replaces repeated instructions/headings. Request review, drafts, privacy,
+approved hours, acknowledgement/resolution distinction and branch routing remain.
+The duplicate named region detected by scoped Axe was fixed before release.
+
+Production runtime 35c314c6 / dpl_CXXM8WeyShRAKrZZNRCCEBvrKY2i is verified on both
+domains. Final review f2b74819 changes only test files. CI: 1,256 passed, 12 optional
+skipped; types/lint/format/build and production audit pass. Backend safety and secret
+guard pass. Hosted evidence covers all 68 distinct cases (52 initial passes plus
+16 corrected reruns), with 4 focused Contact journeys and 20 public checks passing
+after publication. Desktop/mobile screenshots, keyboard/hover, review/Escape/focus
+and scoped Axe are recorded; real account/message/device acceptance remains open.
+Known preload warnings are verified against their actual assets and declarations,
+retained as performance limitations. No blanket console suppression.
+
+Evidence and exact limitations: backend/docs/contact-clarity-production-20261029.md;
+%TEMP%/allied-contact-clarity-20261029/. Backend unchanged; reviewed CSO guide version 3
+requires its separate backend publication. Existing dirty files/worktrees preserved.
+About baseline confirms V31/V32 remain unfinished: 11 expanded principles and small
+non-interactive equipment thumbnails. Whole-site audit remains active.

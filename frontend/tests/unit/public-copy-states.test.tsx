@@ -92,6 +92,8 @@ it("retains authoritative unknown and out-of-stock states on eligible real-media
   const image = screen.getAllByRole("img")[0];
   expect(screen.queryByText("Image unavailable")).toBeNull();
   fireEvent.error(image);
+  // A failed derivative retries the preserved original before the calm fallback.
+  fireEvent.error(image);
   expect(screen.getByText("Image unavailable")).toBeTruthy();
 });
 

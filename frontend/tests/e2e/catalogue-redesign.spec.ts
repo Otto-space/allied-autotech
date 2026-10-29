@@ -14,7 +14,7 @@ test.beforeEach(async ({ page }) => {
   );
 });
 
-for (const width of [320, 375, 390, 430, 768, 1024, 1280, 1440]) {
+for (const width of [320, 390, 700, 701, 768, 1023, 1024, 1366, 1440]) {
   test(`Vehicles inventory hierarchy and filter layout at ${width}`, async ({ page }) => {
     const errors: string[] = [];
     page.on("pageerror", (error) => errors.push(error.message));
@@ -83,7 +83,7 @@ for (const width of [320, 375, 390, 430, 768, 1024, 1280, 1440]) {
   });
 }
 
-test("Filter drawer to desktop transition restores page scrolling and preserves drafts", async ({
+test("Filter drawer to desktop transition restores scrolling and discards uncommitted drafts", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
@@ -98,9 +98,7 @@ test("Filter drawer to desktop transition restores page scrolling and preserves 
     .poll(() => page.evaluate(() => document.body.style.overflow))
     .not.toBe("hidden");
   expect(await panel.evaluate((el) => el.matches(":modal"))).toBe(false);
-  await expect(page.getByLabel("Maximum price (NGN)", { exact: true })).toHaveValue(
-    "4000000",
-  );
+  await expect(page.getByLabel("Maximum price (NGN)", { exact: true })).toHaveValue("");
   await expect(
     panel.getByRole("button", { name: "Apply filters", exact: true }),
   ).toBeInViewport();
@@ -176,7 +174,7 @@ for (const width of [390, 1440]) {
       page.getByRole("heading", { name: "No matching vehicles", exact: true }),
     ).toBeVisible();
     if (width < 1024) await trigger.click();
-    await panel.getByRole("button", { name: "Reset draft", exact: true }).click();
+    await panel.getByRole("button", { name: "Clear selections", exact: true }).click();
     await expect(maximum).toHaveValue("");
     await expect(page).toHaveURL(/maxPriceKobo=100000000/);
     await panel.getByRole("button", { name: "Apply filters", exact: true }).click();
