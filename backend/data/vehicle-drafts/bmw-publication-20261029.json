@@ -1,0 +1,74 @@
+{
+  "format": "allied-vehicle-publication-preparation-v1",
+  "status": "READY_FOR_AUTHORISED_AUTHORING",
+  "productionWritten": false,
+  "stockImport": "bmw-120i-2007.json",
+  "stockNumber": "OWNER-BMW120I-2007-01",
+  "branch": {
+    "id": "f6afa5a4-49c8-4d22-9c2a-b0d45b073ff6",
+    "code": "PHC",
+    "name": "Allied AutoTech — Port Harcourt",
+    "confirmedAddress": "133 Stadium Road, beside Kilimanjaro Pizza Jungle Restaurant, Port Harcourt, Rivers State, Nigeria",
+    "source": "Owner confirmed this location on 29 October 2026; active branch identity verified through the public branches API."
+  },
+  "stockCreate": {
+    "branchId": "f6afa5a4-49c8-4d22-9c2a-b0d45b073ff6",
+    "stockNumber": "OWNER-BMW120I-2007-01",
+    "make": "BMW",
+    "model": "120i",
+    "year": 2007,
+    "engineCapacityCc": 2000,
+    "engineCode": "N46",
+    "cylinders": 4,
+    "bodyType": "HATCHBACK",
+    "doors": 5,
+    "driveType": "RWD",
+    "ownerReportedCondition": "The owner describes the engine, transmission, interior and exterior as being in excellent condition.",
+    "ownerReportedIssues": "AC not working. Owner reports a leak. Diagnosis and repair required.",
+    "condition": "USED"
+  },
+  "listing": {
+    "title": "2007 BMW 120i — 2.0L, 5-door hatchback",
+    "slug": "2007-bmw-120i-2-0l-5-door-hatchback",
+    "priceKobo": "300000000",
+    "description": "2007 BMW 120i compact five-door hatchback with a 2.0-litre four-cylinder N46 engine and rear-wheel drive. The owner describes the engine, transmission, interior and exterior as being in excellent condition.\n\nKnown issue: the air conditioning is currently not working. The owner reports a leak; diagnosis and repair are required.",
+    "featured": false
+  },
+  "pricing": {
+    "currency": "NGN",
+    "askingPriceNaira": 3000000,
+    "authority": "Owner explicitly delegated selection of a reasonable asking price on 29 October 2026 and requested publication.",
+    "basis": "Selected asking price informed by comparable advertised 2007 BMW 1 Series/116i prices; it is not an independent valuation, completed-sale price or repair-cost estimate. AC fault remains disclosed.",
+    "reviewedOn": "2026-10-29",
+    "comparables": [
+      {
+        "url": "https://jiji.ng/abuja/cars/bmw-1-series",
+        "model": "BMW 1 Series 2007",
+        "advertisedPriceNaira": 2450000,
+        "qualification": "Distress-sale advertisement; not a confirmed transaction or exact 120i match."
+      },
+      {
+        "url": "https://jiji.ng/ifako-ijaiye/cars/bmw-116i-2007-white-C5wizzDL4MnqYBmNH5gWo7SR.html",
+        "model": "BMW 116i 2007",
+        "advertisedPriceNaira": 3600000,
+        "qualification": "Related 1 Series variant, not an exact 120i match."
+      }
+    ]
+  },
+  "classification": "USED means used with origin unspecified. Foreign/Nigerian use is not asserted.",
+  "photos": {
+    "preparedDirectory": "%TEMP%/aat-bmw-20261028-prepared",
+    "manifest": "gallery.json",
+    "selectedViewsInOrder": [13, 10, 4, 9, 12, 1, 5],
+    "count": 7
+  },
+  "workflow": [
+    "Search OWNER-BMW120I-2007-01 first; resume any existing stock record and listing rather than duplicating.",
+    "Use the existing Add vehicle record workflow and selected PHC branch; review the validated stock import.",
+    "Upload the seven prepared full-size WebP files through Vehicle photos; preserve manifest cover/order/alt. Do not upload all three derivative sizes as separate gallery views.",
+    "Create or resume the single draft listing using the prepared title, description and NGN asking price; leave featured false.",
+    "Review saved content and owner disclosures, then use the existing publication action with the latest version.",
+    "Verify the actual public listing, gallery, known issue, enquiry context and automatic homepage eligibility."
+  ],
+  "remainingDependency": "Authenticated vehicle-management session with required existing role/MFA/CSRF. No browser is exposed to the agent; do not bypass authentication or write directly to the database."
+}

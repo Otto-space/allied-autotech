@@ -75,9 +75,14 @@ export function ViewportNavigation() {
     previousPath.current = pathname;
     const historyRestore = restoring.current === pathname;
     restoring.current = null;
-    // Hydration must never reset an already scrolling/restored document. The browser
-    // owns initial positioning; only an explicit fragment needs an entry adjustment.
-    if (historyRestore || (initial && (!location.hash || scrollY > 0))) return;
+    const historyEntry =
+      initial &&
+      performance
+        .getEntriesByType("navigation")
+        .some((entry) => (entry as PerformanceNavigationTiming).type === "back_forward");
+    // Preserve native history and ordinary refresh positions. A refreshed fragment
+    // may need one correction after fonts/load if its heading sits behind the header.
+    if (historyRestore || historyEntry || (initial && !location.hash)) return;
     let frame = 0;
     let cancelled = false;
     let observer: MutationObserver | undefined;
@@ -96,21 +101,38 @@ export function ViewportNavigation() {
         ) ??
         main;
       if (!target || !visible(target)) return false;
+      // A visitor already reading away from the fragment keeps that position.
+      // Only correct a restored heading that is partially behind the sticky header.
+      if (initial && scrollY > 0) {
+        const box = target.getBoundingClientRect();
+        if (box.top < 0 || box.top >= headerOffset()) return true;
+      }
       // The optional walkthrough owns focus when opened by its reserved hash.
       reveal(target, !location.hash.startsWith("#learn="));
       return true;
     };
-    // Wait for the destination DOM and its layout, including streamed route content.
-    frame = requestAnimationFrame(() => {
+    // Native reload restoration and font metrics can settle after hydration. Wait
+    // for those only on initial fragment entry; explicit navigation stays immediate.
+    const schedule = () => {
+      if (cancelled) return;
       frame = requestAnimationFrame(() => {
-        if (!enter()) {
-          observer = new MutationObserver(() => {
-            if (enter()) observer?.disconnect();
-          });
-          observer.observe(document.body, { childList: true, subtree: true });
-        }
+        frame = requestAnimationFrame(() => {
+          if (!enter()) {
+            observer = new MutationObserver(() => {
+              if (enter()) observer?.disconnect();
+            });
+            observer.observe(document.body, { childList: true, subtree: true });
+          }
+        });
       });
-    });
+    };
+    const loaded = () => {
+      void document.fonts.ready.then(schedule);
+    };
+    if (initial) {
+      if (document.readyState === "complete") loaded();
+      else window.addEventListener("load", loaded, { once: true });
+    } else schedule();
     const timeout = window.setTimeout(() => observer?.disconnect(), 3000);
     // A visitor's new interaction takes priority over a pending entry adjustment.
     document.addEventListener("pointerdown", cancelEntry, { capture: true, once: true });
@@ -124,6 +146,7 @@ export function ViewportNavigation() {
       window.removeEventListener("wheel", cancelEntry);
       window.removeEventListener("touchstart", cancelEntry);
       clearTimeout(timeout);
+      window.removeEventListener("load", loaded);
     };
   }, [pathname]);
 

@@ -1,5 +1,31 @@
 # UI and UX quality register
 
+## 29 October 2026: refreshed workshop fragment candidate
+
+P1 navigation/focus, anonymous `/contact#workshop`, 1440x844. A hosted fixture
+20-case Learn/Allie/guide/viewport audit passed 19 cases and reproduced the
+refreshed workshop heading at y=44.98 beneath the 78px navbar (two repeat runs).
+The initial-fragment path skipped every restored nonzero scroll position, so
+native reload restoration could leave a partly hidden heading after layout settled.
+
+Bounded fix waits for load/font metrics for initial fragments and corrects only a
+heading partly under the sticky header. Back/Forward, normal refresh and visitors
+already reading away from the fragment remain browser-owned; pointer/key/wheel/
+touch cancel the pending correction. No CSS repaint, permission or business flow
+change. Validation covers repeated hash reloads, real wheel input, ordinary early
+touch refresh, links/breadcrumbs, Allie and walkthroughs. Initial extra assertions
+incorrectly compared absolute scroll pixels while form/font hydration changed
+layout; corrected to assert the actual heading visibility and retained manual
+offset. A separate local run lacked the public Help/Learn flag; its unavailable
+screen was a harness configuration issue, corrected to the released local mode.
+Exact-source CI, candidate and hosted acceptance remain pending.
+
+Local acceptance now passed six focused cases in the released browse/enquiries
+mode: repeated fragment reload/manual-wheel checks, navigation/breadcrumbs and
+ordinary refresh/touch reading at 390/1440. Scoped lint/format passed. An initial
+typecheck overlapped Next dev type generation; the server was stopped and route
+types regenerated before the final compiler check. No database or role changes.
+
 ## 29 October 2026: vehicle disclosures production acceptance
 
 Released master runtime 2586c61b, Vercel dpl_H4Qy6RjQQXxfYmD9mGXGTG6i5TL9

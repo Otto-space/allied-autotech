@@ -275,3 +275,44 @@ for (const width of [390, 1440]) {
     expect(errors).toEqual([]);
   });
 }
+
+for (const width of [390, 1440]) {
+  test(`Fragment refresh respects the header and immediate manual scrolling at ${width}`, async ({
+    page,
+  }) => {
+    const errors = await fixture(page);
+    await page.setViewportSize({ width, height: 844 });
+    for (let round = 0; round < 3; round++) {
+      await page.goto("/contact#workshop");
+      await page.reload();
+      await expect
+        .poll(() =>
+          page.locator("#workshop").evaluate((el) => {
+            const box = el.getBoundingClientRect();
+            return (
+              box.top >=
+                document.querySelector(".site-header")!.getBoundingClientRect().bottom &&
+              box.bottom < innerHeight
+            );
+          }),
+        )
+        .toBe(true);
+    }
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await page.mouse.wheel(0, -350);
+    await page.waitForTimeout(120);
+    await page.waitForTimeout(1000);
+    // Form/font layout may change document pixels during hydration. The manual
+    // upward scroll must still leave the fragment below its automatic entry offset.
+    expect(
+      await page
+        .locator("#workshop")
+        .evaluate(
+          (el) =>
+            el.getBoundingClientRect().top -
+            document.querySelector(".site-header")!.getBoundingClientRect().bottom,
+        ),
+    ).toBeGreaterThan(100);
+    expect(errors).toEqual([]);
+  });
+}

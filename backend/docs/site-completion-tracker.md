@@ -1,5 +1,30 @@
 # Allied AutoTech completion tracker
 
+## 29 October 2026 active continuation: publication and refreshed fragment
+
+Owner explicitly requested publication, delegated BMW asking-price selection and
+confirmed the Stadium Road workshop. NGN 3,000,000 asking price was selected from
+qualified same-year related Nigerian advertisements, retaining the AC fault and
+unknown facts. Active PHC branch verified. Stock/listing schemas and all seven
+photo manifest hashes/sizes pass validation. Prepared publication manifest is
+backend/data/vehicle-drafts/bmw-publication-20261029.json. No production BMW has
+been written: owner is signed in, but Computer Use exposes no browser and reports
+its native pipe unavailable. Connected authorised authoring is the remaining
+publication dependency; do not bypass role/MFA/CSRF or create duplicate stock.
+
+The continuing rendered audit passed 19/20 hosted fixture cases, reproducing a
+desktop `/contact#workshop` reload with the heading at y=44.98 behind the 78px
+sticky header. Initial-fragment handling now waits for load/fonts, corrects only
+a partially obscured heading and preserves history and manual reading intent.
+Normal no-fragment refresh remains browser-owned. Current focused rendered and
+release validation is in progress; backend runtime/schema/flags remain unchanged.
+
+Local acceptance now passed six focused cases in the released browse/enquiries
+mode: repeated fragment reload/manual-wheel checks, navigation/breadcrumbs and
+ordinary refresh/touch reading at 390/1440. Scoped lint/format passed. An initial
+typecheck overlapped Next dev type generation; the server was stopped and route
+types regenerated before the final compiler check. No database or role changes.
+
 ## 29 October 2026 vehicle requirements released
 
 Current application runtime is master `2586c61bd8608edd4e3626ba6d3cad0899521f7d`.
