@@ -1,0 +1,29 @@
+{
+  "environment": "production",
+  "appName": "allied-autotech-production",
+  "databaseClusterName": "allied-autotech-staging-db",
+  "databaseName": "allied_autotech_production",
+  "region": "lon",
+  "databaseRegion": "lon1",
+  "registry": "allied-autotech-staging-5ae8fa4d",
+  "bucket": "allied-autotech-production-5ae8fa4d",
+  "launchMode": "browse_enquiries",
+  "values": {
+    "FRONTEND_PROXY_SECRET": "",
+    "DB_HOST": "",
+    "DB_PORT": "",
+    "DB_PASSWORD": "",
+    "MIGRATION_DB_PASSWORD": "",
+    "DB_SSL_CA_BASE64": "",
+    "OBJECT_STORAGE_ACCESS_KEY_ID": "",
+    "OBJECT_STORAGE_SECRET_ACCESS_KEY": "",
+    "RESEND_API_KEY": "",
+    "PRIVATE_TESTING_PASSWORD": ""
+  },
+  "purchaseApproval": {
+    "additionalRecurringUsd": 0,
+    "temporaryRestoreMaxUsd": 1,
+    "approved": false,
+    "note": "Example only: operator must verify the recorded approval and archive staging before allocating production compute. Existing database server is reused; no second server purchase."
+  }
+}

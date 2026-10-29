@@ -3115,6 +3115,7 @@ address {
   align-items: center;
   gap: 14px;
   min-width: 0;
+  flex-shrink: 0;
 }
 .dashboard-icon-link,
 .dashboard-avatar {
@@ -3203,10 +3204,11 @@ address {
     gap: 8px;
   }
   .dashboard-account-controls .dashboard-icon-link {
-    display: none;
+    display: flex;
   }
   .dashboard-mobile-logout {
     display: flex;
+    flex-shrink: 0;
     align-items: center;
     justify-content: center;
     background: transparent;
@@ -3226,5 +3228,56 @@ address {
   .dashboard-search-results {
     width: min(300px, calc(100vw - 40px));
     right: auto;
+  }
+}
+.notification-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  padding: 0 0.3rem;
+  border-radius: 999px;
+  background: #c90000;
+  color: #fff;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.notification-badge-dot {
+  min-width: 0.5rem;
+  width: 0.5rem;
+  height: 0.5rem;
+  padding: 0;
+}
+.dashboard-icon-link,
+.dashboard-nav-compact,
+.dashboard .side-nav > a {
+  position: relative;
+}
+.dashboard-icon-link > .notification-badge {
+  position: absolute;
+  top: -0.25rem;
+  right: -0.35rem;
+  border: 2px solid #fff;
+  min-width: 1.35rem;
+  height: 1.35rem;
+}
+.dashboard .side-nav .notification-badge {
+  margin-left: auto;
+  flex: 0 0 auto;
+}
+.dashboard .side-nav .notification-badge-dot {
+  background: #ff6b6b;
+}
+@media (min-width: 901px) {
+  .dashboard[data-sidebar-collapsed="true"] .side-nav > a > .notification-badge,
+  .dashboard-nav-compact > .notification-badge {
+    display: inline-flex;
+    position: absolute;
+    top: 0.4rem;
+    right: 0.4rem;
   }
 }

@@ -1,4 +1,6 @@
 "use client";
+import { browseEnquiriesOnly } from "@/lib/public-launch";
+import { PublicEnquiryActions } from "./public-enquiry-actions";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import {
@@ -48,7 +50,32 @@ type Result = {
 type Review =
   { action: "enquire" } | { action: "inspect"; localTime: string; notes: string };
 
-export function VehicleActions({
+type VehicleActionsProps = {
+  listingId: string;
+  listingTitle: string;
+  branchName: string;
+  gallery: ReactNode;
+  summary: ReactNode;
+  children: ReactNode;
+};
+
+export function VehicleActions(props: VehicleActionsProps) {
+  if (browseEnquiriesOnly())
+    return (
+      <div className="vd-top-grid">
+        {props.gallery}
+        <aside className="vd-summary" aria-label="Price and vehicle enquiries">
+          {props.summary}
+          <PublicEnquiryActions subject={props.listingTitle} />
+          <p>Contact our team to discuss availability and arrange a viewing.</p>
+        </aside>
+        {props.children}
+      </div>
+    );
+  return <VehicleCustomerActions {...props} />;
+}
+
+function VehicleCustomerActions({
   listingId,
   listingTitle,
   branchName,

@@ -26,6 +26,15 @@ export async function workThreadFixture(
         acknowledgedAt: null,
       } as MutableRecord,
       messages: [0, 1, 2].map(threadMessage),
+      emailDeliveries: {
+        items: [] as {
+          id: string;
+          status: string;
+          reason: string | null;
+          createdAt: string;
+          sentAt: string | null;
+        }[],
+      },
       mode: "normal",
       messagesMode: "normal",
       writeMode: "normal",
@@ -51,6 +60,8 @@ export async function workThreadFixture(
       u = new URL(req.url()),
       parts = u.pathname.split("/");
     if (parts.length < 7) return route.fallback();
+    if (u.pathname.endsWith("/email-deliveries"))
+      return route.fulfill(ok(detail.emailDeliveries));
     const isMessages = u.pathname.endsWith("/messages");
     if (req.method() === "GET") {
       const mode = isMessages ? detail.messagesMode : detail.mode;

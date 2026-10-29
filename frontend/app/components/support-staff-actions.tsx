@@ -90,7 +90,7 @@ export function SupportStaffActions({
       title: "Apply this support change?",
       description:
         values.action === "status"
-          ? "Status changes and any resolution text are visible to the customer and can trigger notifications. Closing prevents further replies from both customers and staff; no reopening action is available here."
+          ? "The status change and any resolution text produce one customer update. Do not send the same resolution again through Reply. Check Customer email delivery after saving. Closing prevents further replies from both customers and staff; no reopening action is available here."
           : "This updates the handling of the record. Branch and staff eligibility remain subject to the server's checks.",
       facts: [
         { label: "Subject", value: record.subject },

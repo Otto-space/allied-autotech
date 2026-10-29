@@ -367,7 +367,9 @@ function OrdersTable({ orders }: { orders: WorkOrder[] }) {
               <span className="work-order-mobile-label" aria-hidden="true">
                 Fulfilment
               </span>
-              <span className="work-order-status">{orderStatusLabels[order.status]}</span>
+              <span className="work-order-status" data-status={order.status}>
+                {orderStatusLabels[order.status]}
+              </span>
             </td>
             <td>
               <span className="work-order-mobile-label" aria-hidden="true">

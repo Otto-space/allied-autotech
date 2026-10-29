@@ -235,7 +235,10 @@ export function WorkforceComplaints({
                   </td>
                   <td data-label="Branch">{row.branch?.name ?? "Branch not recorded"}</td>
                   <td data-label="Status">
-                    <span className={`wfc-status is-${row.status.toLowerCase()}`}>
+                    <span
+                      className={`wfc-status is-${row.status.toLowerCase()}`}
+                      data-status={row.status}
+                    >
                       {complaintStatusLabels[row.status]}
                     </span>
                   </td>

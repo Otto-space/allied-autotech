@@ -310,7 +310,10 @@ function SlotWorkspace({ admin }: { admin: boolean }) {
                       {slot.staff.firstName} {slot.staff.lastName}
                     </td>
                     <td data-label="Status">
-                      <span className={`work-slot-status ${slot.status.toLowerCase()}`}>
+                      <span
+                        className={`work-slot-status ${slot.status.toLowerCase()}`}
+                        data-status={slot.status}
+                      >
                         {slot.status === "OPEN" ? "Open" : "Closed"}
                       </span>
                     </td>

@@ -231,6 +231,7 @@ export function OrdersPanel() {
                     <td data-label="Status">
                       <span
                         className={`order-state ${order.status === "CANCELLED" ? "closed" : ""}`}
+                        data-status={order.status}
                       >
                         {orderLabel(order.status)}
                       </span>

@@ -649,7 +649,9 @@ function HandlingWorkspace({
                             : "Manual"}
                       </span>
                       <h3>{v.providerDisputeId}</h3>
-                      <span className="wh-badge">{label(v.status)}</span>
+                      <span className="wh-badge" data-status={v.status}>
+                        {label(v.status)}
+                      </span>
                     </div>
                     <div>
                       <span className="wh-label">Disputed amount</span>
@@ -737,7 +739,9 @@ function HandlingWorkspace({
                         {row.provider} · {label(row.category)}
                       </p>
                       <h3>{row.providerDisputeId}</h3>
-                      <span className="wh-badge">{label(row.status)}</span>
+                      <span className="wh-badge" data-status={row.status}>
+                        {label(row.status)}
+                      </span>
                     </div>
                     <HandlingFacts row={row} compact />
                     <button

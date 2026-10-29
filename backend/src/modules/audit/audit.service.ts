@@ -182,6 +182,7 @@ export class AuditOperationsService {
       ["identity-outbox", 600_000],
       ["notification-delivery", 600_000],
       ["department-email", 600_000],
+      ["support-customer-email", 600_000],
       ["payment-webhook-retry", 600_000],
       ["booking-reminders", 600_000],
       ["refunds", 600_000],

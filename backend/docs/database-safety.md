@@ -69,6 +69,16 @@ disposable development project/database, then review and add the forward migrati
 Using a different Prisma config or administrator SQL can bypass local protections;
 least-privilege credentials and the mandatory repository policy are still necessary.
 
+The separately approved [initial production recovery](production-initial-migration-recovery.md)
+uses `npm run db:recover:initial` and a dedicated config. It permits only recording
+the first migration's proven citext first-statement failure as rolled back, after
+the permission cause is fixed, an exact-target backup is verified, and a fresh
+inspection proves zero business objects/steps and unchanged SQL. Production is
+restricted to the approved hostname/database/migration identity; isolated
+rehearsals require the dedicated loopback `initial_recovery_<hex>_ci` namespace.
+The normal config still blocks all resolve calls. This is not a general recovery
+or bypass facility. Never use it for another failure, populated schema or target.
+
 ## Release and recovery requirements
 
 - Commit schema and new migration files together; never edit applied migrations.

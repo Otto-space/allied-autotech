@@ -5767,6 +5767,7 @@ Parameters:
 | --- | --- | --- | --- | --- |
 | `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
 | `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+| `reviewId` | query | string (uuid) | No | Review Id used to constrain this request. |
 | `status` | query | PENDING / APPROVED / REJECTED | No | Status used to constrain this request. |
 
 Success: HTTP 200.
@@ -5862,6 +5863,40 @@ Success: HTTP 201.
 ```
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/customers/notifications/summary`
+
+- Operation ID: `getCustomersNotificationsSummary`
+- Purpose: Count all own unexpired unread notifications by related resource. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: CUSTOMER
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Count all own unexpired unread notifications by related resource",
+  "data": {
+    "unreadCount": 0,
+    "groups": [
+      {
+        "resourceType": "synthetic-resourcetype",
+        "type": "BOOKING",
+        "category": "SECURITY",
+        "count": 1
+      }
+    ]
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/customers/notifications`
 
@@ -9860,6 +9895,86 @@ Success: HTTP 200.
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required provider or database is temporarily unavailable.
 
+### GET `/staff/support/complaints/{supportId}/email-deliveries`
+
+- Operation ID: `getStaffSupportComplaintsBySupportIdEmailDeliveries`
+- Purpose: Staff/admin only, branch scoped, private/no-store. Latest 20 updates, newest first. SENT means the provider accepted the email, not confirmed inbox delivery. RETRYING will retry automatically; FAILED needs manual follow-up. NOT_SENT explains disabled delivery, opt-out or missing destination. No recipient, message content, provider payload or internal error is exposed. Historical updates before this feature are not backfilled. Read the latest customer email delivery attempts for this conversation. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `supportId` | path | string (uuid) | Yes | Identifier selecting the support resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Read the latest customer email delivery attempts for this conversation",
+  "data": {
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "status": "QUEUED",
+        "reason": "CHANNEL_DISABLED",
+        "createdAt": "2030-01-15T10:00:00.000Z",
+        "sentAt": "2030-01-15T10:00:00.000Z"
+      }
+    ]
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/staff/support/enquiries/{supportId}/email-deliveries`
+
+- Operation ID: `getStaffSupportEnquiriesBySupportIdEmailDeliveries`
+- Purpose: Staff/admin only, branch scoped, private/no-store. Latest 20 updates, newest first. SENT means the provider accepted the email, not confirmed inbox delivery. RETRYING will retry automatically; FAILED needs manual follow-up. NOT_SENT explains disabled delivery, opt-out or missing destination. No recipient, message content, provider payload or internal error is exposed. Historical updates before this feature are not backfilled. Read the latest customer email delivery attempts for this conversation. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `supportId` | path | string (uuid) | Yes | Identifier selecting the support resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Read the latest customer email delivery attempts for this conversation",
+  "data": {
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "status": "QUEUED",
+        "reason": "CHANNEL_DISABLED",
+        "createdAt": "2030-01-15T10:00:00.000Z",
+        "sentAt": "2030-01-15T10:00:00.000Z"
+      }
+    ]
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
 ### GET `/staff/support/enquiries/{supportId}/messages`
 
 - Operation ID: `getStaffSupportEnquiriesBySupportIdMessages`
@@ -10562,6 +10677,40 @@ Success: HTTP 200.
 ```
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/staff/notifications/summary`
+
+- Operation ID: `getStaffNotificationsSummary`
+- Purpose: Count all own unexpired unread notifications by related resource. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Count all own unexpired unread notifications by related resource",
+  "data": {
+    "unreadCount": 0,
+    "groups": [
+      {
+        "resourceType": "synthetic-resourcetype",
+        "type": "BOOKING",
+        "category": "SECURITY",
+        "count": 1
+      }
+    ]
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/staff/notifications`
 
@@ -13431,6 +13580,17 @@ Success: HTTP 200.
         }
       ],
       "nextCursor": "00000000-0000-4000-8000-000000000001"
+    },
+    "emailDeliveries": {
+      "items": [
+        {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "status": "QUEUED",
+          "reason": "CHANNEL_DISABLED",
+          "createdAt": "2030-01-15T10:00:00.000Z",
+          "sentAt": "2030-01-15T10:00:00.000Z"
+        }
+      ]
     }
   },
   "meta": {
@@ -14167,6 +14327,17 @@ Success: HTTP 200.
         }
       ],
       "nextCursor": "00000000-0000-4000-8000-000000000001"
+    },
+    "emailDeliveries": {
+      "items": [
+        {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "status": "QUEUED",
+          "reason": "CHANNEL_DISABLED",
+          "createdAt": "2030-01-15T10:00:00.000Z",
+          "sentAt": "2030-01-15T10:00:00.000Z"
+        }
+      ]
     }
   },
   "meta": {

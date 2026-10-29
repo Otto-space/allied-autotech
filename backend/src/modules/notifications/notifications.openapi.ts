@@ -2,6 +2,7 @@ import type { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import { z } from "zod";
 import {
   notificationListQuerySchema,
+  notificationSummarySchema,
   notificationParamsSchema,
   preferenceUpdateBodySchema,
   preferenceRequestHeadersSchema,
@@ -19,6 +20,23 @@ const csrf = z.object({ "x-csrf-token": z.string().min(32) });
 
 export function registerNotificationsOpenApi(registry: OpenAPIRegistry): void {
   for (const prefix of ["/customers/notifications", "/staff/notifications"] as const) {
+    registry.registerPath({
+      method: "get",
+      path: `${prefix}/summary`,
+      tags: ["Notifications"],
+      summary: "Count all own unexpired unread notifications by related resource",
+      security: [{ sessionCookie: [] }],
+      responses: {
+        "200": {
+          description: "Account-scoped unread counts, independent of inbox pagination",
+          content: {
+            "application/json": {
+              schema: response.extend({ data: notificationSummarySchema }),
+            },
+          },
+        },
+      },
+    });
     registry.registerPath({
       method: "get",
       path: prefix,

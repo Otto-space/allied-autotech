@@ -65,7 +65,7 @@ export function createOpenApiDocument(options: OpenApiDocumentOptions) {
         title: "Allied AutoTech API",
         version: "1.0.0",
         description:
-          "Versioned REST API contracts for Allied AutoTech. Runtime schemas will be registered alongside each domain route.",
+          "Versioned REST API contracts for Allied AutoTech. When PUBLIC_LAUNCH_MODE=browse_enquiries, customer transaction writes return 403 while public catalogue reads, enquiries and existing authentication remain available. Staff and administrator operations retain their normal permission checks.",
       },
       servers: [{ url: "/api/v1", description: "Current API version" }],
     }),

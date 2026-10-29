@@ -194,6 +194,7 @@ function StaffAccountWorkspace({
                     <dd>
                       <span
                         className={`wsad-status wsad-status-${member.status.toLowerCase()}`}
+                        data-status={member.status}
                       >
                         {staffLabels[member.status]}
                       </span>

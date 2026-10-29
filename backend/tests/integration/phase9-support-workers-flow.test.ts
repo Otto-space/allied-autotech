@@ -651,6 +651,7 @@ describe.skipIf(!runDatabaseTests)("Phase 9 support and worker flow", () => {
     const operationsSession = await prisma.session.create({
       data: {
         userId: administrator.id,
+        createdAt: new Date(Date.now() - 1000),
         tokenHash: hashToken("session", randomUUID()),
         csrfTokenHash: hashToken("csrf", randomUUID()),
         expiresAt,

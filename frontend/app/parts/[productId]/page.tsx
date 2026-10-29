@@ -1,3 +1,4 @@
+import { browseEnquiriesOnly } from "@/lib/public-launch";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { cache, Suspense } from "react";
@@ -307,6 +308,7 @@ export default async function ProductPage({
               <ProductActions
                 key={product.id}
                 productId={product.id}
+                productName={product.name}
                 available={available}
               />
             </section>
@@ -397,17 +399,31 @@ export default async function ProductPage({
                 <li>
                   <span aria-hidden="true">02</span>
                   <div>
-                    <h3>Review your cart</h3>
+                    <h3>
+                      {browseEnquiriesOnly()
+                        ? "Ask about availability"
+                        : "Review your cart"}
+                    </h3>
                     <p>
-                      Save the total quantity you need. Cart items do not reserve stock.
+                      {browseEnquiriesOnly()
+                        ? "Tell our team which part and quantity you need."
+                        : "Save the total quantity you need. Cart items do not reserve stock."}
                     </p>
                   </div>
                 </li>
                 <li>
                   <span aria-hidden="true">03</span>
                   <div>
-                    <h3>Choose fulfilment</h3>
-                    <p>Review collection or available delivery options at checkout.</p>
+                    <h3>
+                      {browseEnquiriesOnly()
+                        ? "Discuss collection or delivery"
+                        : "Choose fulfilment"}
+                    </h3>
+                    <p>
+                      {browseEnquiriesOnly()
+                        ? "Our team will confirm the available options and charges."
+                        : "Review collection or available delivery options at checkout."}
+                    </p>
                   </div>
                 </li>
               </ol>
@@ -420,8 +436,10 @@ export default async function ProductPage({
                   <ChevronDown size={18} aria-hidden="true" />
                 </summary>
                 <p>
-                  {business.address}. Follow the collection instructions in your order
-                  before visiting.
+                  {business.address}.{" "}
+                  {browseEnquiriesOnly()
+                    ? "Contact our team before visiting to confirm availability and collection arrangements."
+                    : "Follow the collection instructions in your order before visiting."}
                 </p>
               </details>
               <details>
@@ -430,8 +448,9 @@ export default async function ProductPage({
                   <ChevronDown size={18} aria-hidden="true" />
                 </summary>
                 <p>
-                  Checkout shows the currently available delivery areas and charges. If
-                  your area is not listed, contact our team for help.
+                  {browseEnquiriesOnly()
+                    ? "Contact our team to confirm whether delivery is available to your area and request the delivery charge."
+                    : "Checkout shows the currently available delivery areas and charges. If your area is not listed, contact our team for help."}
                 </p>
                 <Link className="pd-link" href="/contact#enquiry">
                   Ask about delivery <ArrowRight size={17} aria-hidden="true" />

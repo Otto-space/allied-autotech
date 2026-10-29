@@ -316,7 +316,10 @@ function DisputeOverviewRecord({
                   : "Manual"}
             </h3>
             <p className="wd-provider-ref">{row.providerDisputeId}</p>
-            <span className={`wd-badge wd-badge-${row.status.toLowerCase()}`}>
+            <span
+              className={`wd-badge wd-badge-${row.status.toLowerCase()}`}
+              data-status={row.status}
+            >
               {disputeLabels[row.status]}
             </span>
             <p className="wd-category">{disputeLabels[row.category]}</p>

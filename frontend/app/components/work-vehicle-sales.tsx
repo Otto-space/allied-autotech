@@ -360,7 +360,9 @@ function SaleRecord({ sale }: { sale: WorkVehicleSale }) {
         <div>
           <dt>Purchase status</dt>
           <dd>
-            <span className="status">{purchaseLabels[sale.status]}</span>
+            <span className="status" data-status={sale.status}>
+              {purchaseLabels[sale.status]}
+            </span>
           </dd>
         </div>
         <div>

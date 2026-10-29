@@ -43,7 +43,7 @@ Required now refers to the existing private hosted staging setup, scoped per com
 | `AAT_DO_CONTEXT` | Conditional: isolated tests/operator tooling | No | See source; unset unless its feature/tool is used. Source: `backend/scripts/deployment/release.mjs`. |
 | `AAT_FRONTEND_TEST_ENV` | Conditional: isolated tests/operator tooling | No | See source; unset unless its feature/tool is used. Source: `frontend/scripts/check-hosted-backend.mjs`. |
 | `AAT_FRONTEND_TEST_IMAGE` | Conditional: isolated tests/operator tooling | No | See source; unset unless its feature/tool is used. Source: `frontend/scripts/check-hosted-backend.mjs`. |
-| `AAT_IMAGE_TEST_REVISION` | Conditional: isolated tests/operator tooling | No | See source; unset unless its feature/tool is used. Source: `backend/scripts/deployment/images.test.mjs`. |****
+| `AAT_IMAGE_TEST_REVISION` | Conditional: isolated tests/operator tooling | No | See source; unset unless its feature/tool is used. Source: `backend/scripts/deployment/images.test.mjs`. |
 | `AAT_IMAGE_TEST_TAG` | Conditional: isolated tests/operator tooling | No | See source; unset unless its feature/tool is used. Source: `backend/scripts/deployment/images.test.mjs`. |
 | `AAT_MIGRATION_TEST_IMAGE` | Conditional: isolated tests/operator tooling | No | See source; unset unless its feature/tool is used. Source: `backend/scripts/deployment/database-release.test.mjs`. |
 | `AFTERCARE_SESSION_FILE` | Conditional: isolated tests/operator tooling | No | See source; unset unless its feature/tool is used. Source: `backend/tests/helpers/aftercare-api-server.ts`. |

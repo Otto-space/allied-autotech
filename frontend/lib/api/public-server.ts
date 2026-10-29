@@ -1,4 +1,6 @@
 import "server-only";
+import { headers as requestHeaders } from "next/headers";
+import { backendClientAddress, frontendProxySecret } from "../backend-client-address";
 import { backendOrigin } from "../backend-origin";
 import { privateTestingAuthorization } from "../private-testing";
 import { isRecord } from "./errors";
@@ -17,6 +19,13 @@ export async function publicData<T>(
   const origin = backendOrigin();
   if (!origin) throw new PublicApiError(503);
   const authorization = privateTestingAuthorization();
+  const clientHeaders = frontendProxySecret()
+    ? backendClientAddress(
+        await requestHeaders(),
+        "GET",
+        new URL(`/api/v1${path}`, origin).pathname,
+      )
+    : {};
   const response = await fetch(`${origin}/api/v1${path}`, {
     cache: "no-store",
     credentials: "omit",
@@ -26,6 +35,7 @@ export async function publicData<T>(
       : AbortSignal.timeout(6000),
     headers: {
       Accept: "application/json",
+      ...clientHeaders,
       ...(authorization ? { Authorization: authorization } : {}),
     },
   });

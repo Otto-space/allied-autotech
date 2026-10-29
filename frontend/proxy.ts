@@ -1,3 +1,5 @@
+import { browseEnquiriesOnly, restrictedLaunchPage } from "./lib/public-launch";
+import { backendClientAddress, clientProofHeaders } from "./lib/backend-client-address";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { publicMediaHosts } from "./lib/media";
@@ -97,6 +99,12 @@ export function proxy(request: NextRequest) {
     }
     return response;
   }
+  if (browseEnquiriesOnly() && restrictedLaunchPage(request.nextUrl.pathname)) {
+    const response = NextResponse.redirect(new URL("/contact#enquiry", request.url));
+    response.headers.set("Cache-Control", "private, no-store");
+    response.headers.set("X-Robots-Tag", "noindex, nofollow");
+    return rememberAccess(response);
+  }
   // Gate API rewrites, prefetches and assets too, but keep the established CSP
   // handling limited to page responses. Authorization passes through the rewrite.
   if (
@@ -111,13 +119,36 @@ export function proxy(request: NextRequest) {
     // the browser presents its signed proof. These are internal REQUEST headers,
     // never response headers or client-side configuration.
     let forwardedHeaders: Headers | undefined;
+    if (/^\/api\/v1(?:\/|$)/.test(request.nextUrl.pathname)) {
+      try {
+        const proof = backendClientAddress(
+          request.headers,
+          request.method,
+          request.nextUrl.pathname,
+        );
+        if (
+          Object.keys(proof).length ||
+          clientProofHeaders.some((name) => request.headers.has(name))
+        ) {
+          forwardedHeaders = new Headers(request.headers);
+          for (const name of clientProofHeaders) forwardedHeaders.delete(name);
+          for (const [key, value] of Object.entries(proof))
+            forwardedHeaders.set(key, value);
+        }
+      } catch {
+        return new NextResponse("Request routing is temporarily unavailable.", {
+          status: 503,
+          headers: { "Cache-Control": "private, no-store" },
+        });
+      }
+    }
     if (
       authorization &&
       cookieAllowed &&
       !basicAllowed &&
       /^\/api\/v1(?:\/|$)/.test(request.nextUrl.pathname)
     ) {
-      forwardedHeaders = new Headers(request.headers);
+      forwardedHeaders ??= new Headers(request.headers);
       forwardedHeaders.set("authorization", authorization);
     }
     const response = NextResponse.next(

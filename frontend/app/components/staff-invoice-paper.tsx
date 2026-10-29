@@ -20,6 +20,7 @@ export function StaffInvoicePaper({
         <div className="wid-paper-reference">
           <strong
             className={`wid-paper-status wid-paper-status-${p.status.toLowerCase()}`}
+            data-status={p.status}
           >
             {p.status === "DRAFT"
               ? "DRAFT — NOT ISSUED"

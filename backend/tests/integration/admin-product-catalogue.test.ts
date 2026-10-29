@@ -116,7 +116,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         data: {
           productId: row.id,
           url: "https://media.example.test/qa.jpg",
-        publicId: `qa-internal-${randomUUID()}`,
+          publicId: `qa-internal-${randomUUID()}`,
           altText: "QA part",
           isPrimary: true,
         },

@@ -1,3 +1,4 @@
+import { browseEnquiriesOnly } from "@/lib/public-launch";
 import { publicPageMetadata, type SearchParameters } from "@/lib/seo";
 import type { Metadata } from "next";
 import Image from "next/image";
@@ -131,6 +132,8 @@ export default function ContactPage() {
                 <p>
                   Ask about services, bookings, quotations, orders, payments or vehicles.
                 </p>
+                <p>{business.customerCareHours}</p>
+                <p>{business.customerCareResponse}</p>
                 <ContactAccountLink />
                 <ol className="contact-next">
                   <li>
@@ -276,7 +279,10 @@ export default function ContactPage() {
                   <p>
                     An enquiry starts a conversation. It does not confirm an appointment,
                     price or resolution. To request a service visit, use{" "}
-                    <Link href="/services">Book a Service</Link>.
+                    <Link href="/services">
+                      {browseEnquiriesOnly() ? "Explore services" : "Book a Service"}
+                    </Link>
+                    .
                   </p>
                 </details>
                 <details>

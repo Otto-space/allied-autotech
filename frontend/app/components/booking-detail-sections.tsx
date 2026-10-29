@@ -1,3 +1,4 @@
+import { WorkflowProgress } from "./status-progress";
 import Link from "next/link";
 import { CalendarDays, CarFront, MapPin, NotebookPen } from "lucide-react";
 import type { CustomerBookingDetail } from "@/lib/api/customer-booking-detail-schema";
@@ -18,7 +19,9 @@ export function BookingAppointment({ booking }: { booking: CustomerBookingDetail
     <section className="booking-appointment" aria-labelledby="appointment-title">
       <div className="booking-section-heading">
         <h2 id="appointment-title">{booking.service.name}</h2>
-        <span className="booking-detail-status">{bookingLabel(booking.status)}</span>
+        <span className="booking-detail-status" data-status={booking.status}>
+          {bookingLabel(booking.status)}
+        </span>
       </div>
       <dl className="booking-facts">
         <div>
@@ -72,7 +75,10 @@ export function BookingDeposit({ booking }: { booking: CustomerBookingDetail }) 
       <div className="booking-section-heading">
         <h2 id="deposit-title">Deposit</h2>
         {booking.depositPayment && (
-          <span className="booking-detail-status">
+          <span
+            className="booking-detail-status"
+            data-status={booking.depositPayment.status}
+          >
             {bookingLabel(booking.depositPayment.status)}
           </span>
         )}
@@ -116,6 +122,7 @@ export function BookingProgress({ booking }: { booking: CustomerBookingDetail })
       aria-labelledby="progress-title"
     >
       <h2 id="progress-title">Service progress</h2>
+      <WorkflowProgress workflow="booking" status={booking.status} />
       {events.length ? (
         <ol className="booking-timeline">
           {events.map((event) => (
@@ -132,10 +139,14 @@ export function BookingProgress({ booking }: { booking: CustomerBookingDetail })
         <div className="booking-work-order">
           <div className="booking-section-heading">
             <h3>{booking.workOrder.workOrderNumber}</h3>
-            <span className="booking-detail-status">
+            <span
+              className="booking-detail-status"
+              data-status={booking.workOrder.status}
+            >
               {bookingLabel(booking.workOrder.status)}
             </span>
           </div>
+          <WorkflowProgress workflow="workOrder" status={booking.workOrder.status} />
           {booking.workOrder.diagnosis && <p>{booking.workOrder.diagnosis}</p>}
         </div>
       ) : (
@@ -171,9 +182,12 @@ export function BookingQuotations({
         >
           <div className="booking-section-heading">
             <h3 id={`quote-${quote.id}`}>{quote.quoteNumber}</h3>
-            <span className="booking-detail-status">{bookingLabel(quote.status)}</span>
+            <span className="booking-detail-status" data-status={quote.status}>
+              {bookingLabel(quote.status)}
+            </span>
             <span className="booking-revision">Revision {quote.revision}</span>
           </div>
+          <WorkflowProgress workflow="quote" status={quote.status} />
           {quote.expiresAt && <p>Expires {formatBusinessDate(quote.expiresAt)}</p>}
           <table className="booking-quote-items">
             <caption className="sr-only">Items in quotation {quote.quoteNumber}</caption>
