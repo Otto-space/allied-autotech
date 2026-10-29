@@ -343,3 +343,30 @@ principle through concise primary themes and optional detail, existing equipment
 groups/descriptions, genuine images, native disclosure interaction and anchors.
 Verify keyboard preview/dismiss/focus return, responsive full-image inspection,
 image failure and reduced motion. The entire 18-section/V01-V55 goal stays active.
+
+## About principles and equipment candidate - 29 October 2026
+
+Previous goal turn made progress: Contact V34/V35/V36 was released and checked on
+both production domains. All 18 sections and V01-V55 remain in scope. Current
+About work starts from integrated master f9a7b7ce, preserving the concurrent
+catalogue redesign and owner-coverage implementation. The latter adds backend
+contracts not yet in the live 2586c61b API; do not promote this integrated frontend
+until its compatible backend release is verified.
+
+V31: four existing primary principles stay visible; a native optional disclosure
+retains all seven remaining approved principles without rewriting promises.
+V32: existing genuine equipment photos gain a native modal preview, explicit close,
+Escape/focus return, body-scroll restoration and recoverable image failure. Original
+image links remain available without JavaScript and with modified-click navigation.
+Group disclosures, descriptions and all existing fragment destinations remain.
+V33: current source has already removed the repeated portrait from Home/Services;
+retain About's approved intact campaign and verify the different page compositions.
+
+Acceptance cases precede the implementation: four widths test concise/expanded
+content, keyboard disclosure, two equipment groups, full-image fit, modal focus,
+Escape/close, hover, overflow and scoped Axe; two cases exercise image failure and
+retry. Existing About tests retain broad widths, fragment focus, all equipment,
+public role boundaries, no-JavaScript content/navigation and untrusted query text.
+Baseline: %TEMP%/allied-contact-clarity-20261029/about-baseline/. The initial typecheck
+and scoped lint pass; final runtime browser/CI acceptance remains pending. No
+production, policy, schema, workflow or private customer write belongs to this batch.

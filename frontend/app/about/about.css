@@ -242,6 +242,30 @@
   line-height: 1.7;
   margin-top: 6px;
 }
+.principles-more {
+  margin-top: 24px;
+  border: 1px solid var(--about-border);
+  border-radius: 5px;
+  padding: 0 20px;
+}
+.principles-more > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 52px;
+  padding-block: 12px;
+  list-style: none;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 650;
+}
+.principles-more > summary:hover {
+  color: var(--brand-red-dark);
+}
+.principles-more[open] {
+  padding-bottom: 16px;
+}
 .about-page summary::-webkit-details-marker {
   display: none;
 }
