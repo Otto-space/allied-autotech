@@ -31,7 +31,9 @@ for (const width of [360, 390, 768, 1440]) {
       if (endpoint.endsWith("/public/branches") && request.method() === "GET")
         return ok({ items: [{ id: branchId, name: "Port Harcourt test branch" }] });
       if (
-        endpoint.endsWith(`/public/${kind === "enquiry" ? "enquiries" : "complaints"}`) &&
+        endpoint.endsWith(
+          `/public/support/${kind === "enquiry" ? "enquiries" : "complaints"}`,
+        ) &&
         request.method() === "POST"
       ) {
         writes.push(request.postDataJSON());
