@@ -160,3 +160,49 @@ for (const width of [390, 1440]) {
     await expect(trigger).toBeFocused();
   });
 }
+
+test("A slow equipment photo keeps Close available on a short screen", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 320, height: 568 });
+  await page.goto("/about#equipment");
+  const trigger = page.getByRole("link", {
+    name: "View photo of 3D alignment machine",
+    exact: true,
+  });
+  await expect
+    .poll(() =>
+      trigger.locator("img").evaluate((img) => (img as HTMLImageElement).naturalWidth),
+    )
+    .toBeGreaterThan(0);
+  let release!: () => void;
+  const delayed = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  await page.route("**/*", async (route) => {
+    const url = new URL(route.request().url());
+    if ((url.searchParams.get("url") ?? url.pathname).endsWith("/3d-alignment.jpg"))
+      await delayed;
+    await route.fallback();
+  });
+  try {
+    await trigger.click();
+    const dialog = page.getByRole("dialog", {
+      name: "3D alignment machine",
+      exact: true,
+    });
+    await expect(dialog.getByText("Loading photo…")).toBeVisible();
+    const close = dialog.getByRole("button", { name: "Close photo", exact: true });
+    const box = (await close.boundingBox())!;
+    expect(box.y).toBeGreaterThanOrEqual(0);
+    expect(box.y + box.height).toBeLessThanOrEqual(568);
+    await close.press("Tab");
+    await expect(close).toBeFocused();
+    await page.keyboard.press("Escape");
+    await expect(dialog).not.toBeVisible();
+    await expect(trigger).toBeFocused();
+    expect(await page.evaluate(() => document.body.style.overflow)).not.toBe("hidden");
+  } finally {
+    release();
+  }
+});

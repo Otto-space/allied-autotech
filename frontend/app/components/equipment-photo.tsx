@@ -19,6 +19,7 @@ export function EquipmentPhoto({
   const [open, setOpen] = useState(false);
   const [thumbnailFailed, setThumbnailFailed] = useState(false);
   const [previewFailed, setPreviewFailed] = useState(false);
+  const [loaded, setLoaded] = useState(false);
   const [attempt, setAttempt] = useState(0);
   const trigger = useRef<HTMLAnchorElement>(null);
   const dialog = useRef<HTMLDialogElement>(null);
@@ -55,6 +56,7 @@ export function EquipmentPhoto({
           if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
           event.preventDefault();
           setPreviewFailed(false);
+          setLoaded(false);
           setOpen(true);
         }}
       >
@@ -79,6 +81,21 @@ export function EquipmentPhoto({
           className={styles.dialog}
           aria-labelledby={titleId}
           aria-describedby={descriptionId}
+          onKeyDown={(event) => {
+            if (event.key !== "Tab") return;
+            const controls = event.currentTarget.querySelectorAll<HTMLButtonElement>(
+              "button:not(:disabled)",
+            );
+            const first = controls[0];
+            const last = controls[controls.length - 1];
+            if (event.shiftKey && document.activeElement === first) {
+              event.preventDefault();
+              last?.focus();
+            } else if (!event.shiftKey && document.activeElement === last) {
+              event.preventDefault();
+              first?.focus();
+            }
+          }}
           onCancel={(event) => {
             event.preventDefault();
             setOpen(false);
@@ -96,6 +113,11 @@ export function EquipmentPhoto({
             </button>
           </div>
           <div className={styles.preview}>
+            {!loaded && !previewFailed && (
+              <p className={styles.loading} role="status">
+                Loading photo…
+              </p>
+            )}
             {previewFailed ? (
               <div className={styles.failure} role="status">
                 <p>This photo could not load.</p>
@@ -105,6 +127,7 @@ export function EquipmentPhoto({
                   onClick={() => {
                     setAttempt((value) => value + 1);
                     setPreviewFailed(false);
+                    setLoaded(false);
                     closeButton.current?.focus();
                   }}
                 >
@@ -119,6 +142,7 @@ export function EquipmentPhoto({
                 fill
                 sizes="(max-width: 940px) calc(100vw - 72px), 860px"
                 loading="eager"
+                onLoad={() => setLoaded(true)}
                 onError={() => setPreviewFailed(true)}
               />
             )}
