@@ -1,5 +1,15 @@
 # Allied AutoTech completion tracker
 
+## 29 October 2026 staff vehicle-filter source review
+
+QA-004's historical ignored-filter claim does not match current source. The
+staff vehicle route and OpenAPI use the same validated query schema, and the
+repository applies shared vehicle attributes plus location, listing, search,
+branch, sort and cursor constraints. This is a source review only: no database
+write, isolated integration run or authenticated hosted acceptance was done.
+The current customer workspace/session-recovery priority and independently
+tracked provider and real-role gates remain open.
+
 ## 29 October 2026 active continuation: publication and refreshed fragment
 
 Owner explicitly requested publication, delegated BMW asking-price selection and
