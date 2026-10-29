@@ -1,5 +1,26 @@
 # Revision 4 implementation checkpoint
 
+## 29 October 2026: W16D managed Care integration
+
+Managed enquiries and complaints now integrate canonical channel controls, managed
+queue destinations, explicit public-update navigation and draft/focus retention
+during background reads. Same-branch Care viewing and linked customer identity gate
+the panel; current server eligibility still governs each channel action. Missing
+Customer table headers and widths were corrected after rendered reproduction.
+46 focused frontend and ten role-guidance units pass. Twelve distinct rendered
+cases pass across corrected runs, including granular viewers and assignment/duty
+revocation regressions. This is isolated local evidence on reused Next 16.3.8,
+not exact-lock 16.4.3, actual-role or hosted acceptance. See
+[W16D evidence](SUPPORT_MANAGED_CHANNELS_W16D.md).
+
+The previous W16 foundation is now mapped to production backend 9c91eeff /
+2586c61b, with the other authorized release's 76-to-78 verification receipt.
+Frontend aliases serve newer 060dba8d. This batch still needs source integration,
+exact-source release gates and guarded publication. Owner coverage editing,
+approved staffing, composed/hosted/reconnect/load acceptance, all 106 route
+decisions and the bounded real-provider evaluation gate remain unfinished.
+No AI/live enablement or new provider allowance is inferred.
+
 W16 source checkpoint `c098a484` is committed. Remote vehicle-disclosure changes were
 then reviewed and merged without losing the Care implementation; combined source
 has 78 migrations. A new isolated replay/native run and exact-source CI are pending.
@@ -85,8 +106,8 @@ release. Other worktrees and their uncommitted work remain preserved.
 | W7 owned encrypted conversations and shared admission controls                                                                  | Implemented locally; native provider-mocked acceptance passed                          | Migration 73 fresh replay/schema/db:check; 36 native and 139 unit cases; server-owned state, CSRF, shared quotas, replay/cancellation/retention. ALLIE_CONVERSATIONS_W7.md                                                    |
 | Canonical conversational retrieval and actual AI provider                                                                       | Implemented and evaluated locally; full journey/hosted gates open                      | W9 real provider baseline/rechecks and actual guest/customer browser composition; W8 UI/W7 state. All routes, reviewed persisted handoff and gated shared transport remain required.                                          |
 | All-dashboard reviewed topics, guides and isolated practice                                                                     | Incomplete                                                                             | Preserve current working content; extend and verify per-page decisions and actual task states                                                                                                                                 |
-| Reviewed persisted human handoff                                                                                                | W15 implemented locally; native and browser acceptance passed; publication pending      | Canonical records, explicit review/sharing, encrypted recovery and uncertain-result safeguards; REVIEWED_HANDOFF_W15.md. Shared staffed transport remains incomplete                                                                                                                           |
-| Gated live transport, availability, takeover and replay                                                                         | W16 implemented locally; UI/hosted acceptance remains open                              | W16A/B/C contracts, lifecycle, scoped queue, recovery and quiet worker pass native checks. Staffing, support schedule and multi-instance/deploy acceptance remain unverified; live mode stays off.                              |
+| Reviewed persisted human handoff                                                                                                | W15 implemented locally; native and browser acceptance passed; publication pending     | Canonical records, explicit review/sharing, encrypted recovery and uncertain-result safeguards; REVIEWED_HANDOFF_W15.md. Shared staffed transport remains incomplete                                                          |
+| Gated live transport, availability, takeover and replay                                                                         | W16 implemented locally; UI/hosted acceptance remains open                             | W16A/B/C contracts, lifecycle, scoped queue, recovery and quiet worker pass native checks. Staffing, support schedule and multi-instance/deploy acceptance remain unverified; live mode stays off.                            |
 | At least 100 reviewed AI evaluation cases and critical security checks                                                          | W9 bounded checkpoint; limitations explicit                                            | 100 real baseline, ten local negatives, 12 targeted rechecks; 80 focused units and 39 native cases. Baseline quality issues corrected; not a second complete final 100-case run or hosted acceptance. ALLIE_EVALUATION_W9.md. |
 
 Run from backend:
@@ -259,9 +280,7 @@ preservation and responsive/native browser acceptance. Preview3167 is W14C only.
 See docs/help-learn/REVIEWED_HANDOFF_W15.md. FullRevision4/shared staffed transport/
 all106 route gates remain active; W9 provider allowance stays exhausted.
 
-
 27 October 2026 - Revision 4 W15 reviewed Customer Care handoff checkpoint: customer review/edit, explicit selected help sharing, canonical new/existing support persistence and encrypted session-bound recovery are implemented locally. Browser storage retains only an operation ID; uncertain results block a new operation, and cancellation preserves a case already saved. AI-off/guest/workforce boundaries and separate drafts remain intact. Accepted evidence: 116 distinct native cases across seven suites (115 broad plus the revised 11-case learning run), 84 Allie backend units, full 1,161 frontend tests in 173 files, 32 distinct browser fixtures and one actual browser/CSRF/API/restricted-CI-DB composition. That composition saved one enquiry and one complaint reply, two audits, preserved an internal note and left inventory/bookings unchanged. OpenAPI 385 paths / 450 operations plus 4 infrastructure routes, generated contracts, types/lint/secret guard and optimized build pass. See docs/help-learn/REVIEWED_HANDOFF_W15.md. No schema, provider call, real delivery or publication. Temporary native sessions revoked/cookie removed; C: measured 23.34 GiB free; useful Docker/cache resources retained. Full Revision 4 remains active: shared staffed/gated transport, operational readiness and all 106 exact-route acceptance decisions remain open. The owner authorised a reviewed committed release before the session limit; reconcile newer live frontend/backend fixes and complete the migration-73/backup/restore/exact-lock/hosted gates before publication.
-
 
 28 October 2026 - W16 transport discovery checkpoint. The existing customer message
 API already provides cursor-based bounded pages, stable message IDs and a five-second

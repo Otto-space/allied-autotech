@@ -22,13 +22,16 @@ const parseBranches = (value: unknown) =>
 export function SupportChannelWorkspace({
   kind,
   branchId,
+  managed = false,
 }: {
   kind: "enquiries" | "complaints";
   branchId?: string | null;
+  managed?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   return (
     <details
+      id="care-conversation-workspace"
       className={styles.panel}
       onToggle={(event) => setOpen(event.currentTarget.open)}
     >
@@ -38,6 +41,7 @@ export function SupportChannelWorkspace({
           key={`${kind}:${branchId ?? "all"}`}
           kind={kind}
           branchId={branchId}
+          managed={managed}
         />
       )}
     </details>
@@ -46,9 +50,11 @@ export function SupportChannelWorkspace({
 function ChannelWorkspace({
   kind,
   branchId,
+  managed,
 }: {
   kind: "enquiries" | "complaints";
   branchId?: string | null;
+  managed: boolean;
 }) {
   const presence = useResource(presencePath, carePresenceSchema.parse);
   const branches = useResource("/public/branches", parseBranches);
@@ -363,7 +369,11 @@ function ChannelWorkspace({
             {queue.data?.items.map((channel) => (
               <li key={channel.id}>
                 <Link
-                  href={`/admin/support/${channel.target.kind === "ENQUIRY" ? "enquiries" : "complaints"}/${channel.target.id}`}
+                  href={
+                    managed
+                      ? `/admin/workforce/${channel.target.kind === "ENQUIRY" ? "enquiries" : "complaints"}?selected=${channel.target.id}`
+                      : `/admin/support/${channel.target.kind === "ENQUIRY" ? "enquiries" : "complaints"}/${channel.target.id}`
+                  }
                 >
                   {channel.target.kind === "ENQUIRY" ? "Enquiry" : "Complaint"}{" "}
                   {channel.target.id.slice(0, 8)}

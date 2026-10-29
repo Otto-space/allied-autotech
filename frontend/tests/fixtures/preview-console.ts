@@ -4,7 +4,7 @@ export async function verifyConsole(page: Page, errors: string[], warnings: stri
   expect(errors).toEqual([]);
   for (const warning of warnings) {
     const match =
-      /^The resource (http:\/\/(?:127\.0\.0\.1|localhost):\d+\/_next\/static\/css\/[a-f0-9]+\.css) was preloaded using link preload but not used/.exec(
+      /^The resource (http:\/\/(?:127\.0\.0\.1|localhost):\d+\/_next\/static\/css\/(?:[a-f0-9]+\.css|app\/not-found\.css\?v=\d+)) was preloaded using link preload but not used/.exec(
         warning,
       );
     expect(match, warning).not.toBeNull();
@@ -12,11 +12,11 @@ export async function verifyConsole(page: Page, errors: string[], warnings: stri
     expect(url.origin).toBe(new URL(page.url()).origin);
     const css = await page.request.get(url.href);
     expect(css.ok()).toBe(true);
-    expect(await css.text()).toContain(".missing-page{");
+    expect(await css.text()).toMatch(/\.missing-page\s*\{/);
     test.info().annotations.push({
       type: "known-preview-warning",
       description:
-        "Built Next not-found fallback stylesheet was preloaded but unused; no operational stylesheet exception.",
+        "Next not-found fallback stylesheet was preloaded but unused; verified its same-origin response and fallback selector. No operational stylesheet exception.",
     });
   }
 }

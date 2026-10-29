@@ -76,6 +76,7 @@ export async function workforceComplaintsFixture(
     listFailure: false,
     detailFailure: false,
     detailDenied: false,
+    customerId: null as string | null,
     listMismatch: false,
     lostResponse: false,
     malformedReceipt: false,
@@ -185,6 +186,16 @@ export async function workforceComplaintsFixture(
     if (state.detailFailure) return fail(503);
     return ok({
       ...row,
+      ...(state.customerId
+        ? {
+            contact: {
+              name: "Synthetic customer",
+              email: "care-fixture@example.test",
+              phone: null,
+              customerId: state.customerId,
+            },
+          }
+        : {}),
       access: base.access,
       generatedAt,
       latestMessageId,
