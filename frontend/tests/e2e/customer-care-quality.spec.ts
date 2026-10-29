@@ -9,12 +9,18 @@ const refresh = (page: Page) =>
   page.getByRole("button", { name: "Refresh support records", exact: true });
 const acknowledge = (page: Page) =>
   page.getByRole("button", { name: "I have checked my records", exact: true });
+async function openCreate(page: Page) {
+  const disclosure = page.locator(".care-create");
+  if ((await disclosure.getAttribute("open")) === null)
+    await disclosure.locator("summary").click();
+}
 
 test("related-record draft restores type, source and text then clears after success", async ({
   page,
 }) => {
   const state = await customerSupportFixture(page);
   await page.goto("/dashboard/support");
+  await openCreate(page);
   await page.getByLabel("Enquiry type").selectOption("BOOKING");
   await page
     .getByLabel("Related record", { exact: true })
@@ -31,6 +37,7 @@ test("related-record draft restores type, source and text then clears after succ
   await expect(page.getByLabel("Your message", { exact: true })).toHaveValue(
     "Please check my selected booking.",
   );
+  await openCreate(page);
   await opener(page).click();
   await send(page);
   await expect(page).toHaveURL(/\/dashboard\/support\/enquiries\//);
@@ -45,6 +52,7 @@ test("loading does not announce empty history", async ({ page }) => {
   const state = await customerSupportFixture(page);
   state.delayList = true;
   await page.goto("/dashboard/support");
+  await openCreate(page);
   await expect(
     page.getByText("Checking support records…", { exact: true }),
   ).toBeAttached();
@@ -53,7 +61,7 @@ test("loading does not announce empty history", async ({ page }) => {
   state.delayList = false;
   state.releaseList.forEach((release) => release());
   await expect(
-    page.getByRole("link", { name: "Test enquiry", exact: true }),
+    page.getByRole("link", { name: "View Test enquiry", exact: true }),
   ).toBeVisible();
 });
 
@@ -77,7 +85,10 @@ test("long records and confirmation fit a short narrow viewport with reduced mot
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/dashboard/support");
   await expect(
-    page.getByRole("link", { name: state.records.enquiries.subject, exact: true }),
+    page.getByRole("link", {
+      name: `View ${state.records.enquiries.subject}`,
+      exact: true,
+    }),
   ).toBeVisible();
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
@@ -91,9 +102,7 @@ test("long records and confirmation fit a short narrow viewport with reduced mot
   await expect(opener(page)).toBeFocused();
 });
 async function compose(page: Page) {
-  const disclosure = page.locator(".care-create");
-  if ((await disclosure.getAttribute("open")) === null)
-    await disclosure.locator("summary").click();
+  await openCreate(page);
   await page
     .getByLabel("Handling branch")
     .selectOption("d5000000-0000-4000-8000-000000000002");
@@ -120,12 +129,14 @@ async function uncertain(page: Page) {
   // Exercise migration-compatible history reconciliation for legacy markers.
   await page.evaluate((key) => sessionStorage.setItem(key, "pending"), marker);
   await page.reload();
+  await openCreate(page);
   return state;
 }
 
 test("stale selected source blocks sending until its read recovers", async ({ page }) => {
   const state = await customerSupportFixture(page);
   await page.goto("/dashboard/support");
+  await openCreate(page);
   await page.getByLabel("Enquiry type").selectOption("BOOKING");
   await page
     .getByLabel("Related record", { exact: true })
@@ -159,6 +170,7 @@ test("another customer's recovery marker does not lock this account", async ({
     ),
   );
   await page.goto("/dashboard/support");
+  await openCreate(page);
   await expect(opener(page)).toBeEnabled();
   await expect(page.getByRole("region", { name: "Submission recovery" })).toHaveCount(0);
 });
@@ -225,11 +237,13 @@ test("unknown creation survives reload, category switches and explicit history r
     "pending",
   );
   await page.getByLabel("Record category").selectOption("complaints");
+  await openCreate(page);
   await expect(
     page.getByRole("button", { name: "Review complaint", exact: true }),
   ).toBeEnabled();
   await page.getByLabel("Record category").selectOption("enquiries");
   await page.reload();
+  await openCreate(page);
   await expect(opener(page)).toBeDisabled();
   await expect(acknowledge(page)).toBeDisabled();
   await page.evaluate(() => window.dispatchEvent(new Event("online")));
@@ -251,7 +265,7 @@ test("failed manual recovery cannot be replaced with background success", async 
   state.failList = false;
   await page.evaluate(() => window.dispatchEvent(new Event("online")));
   await expect(
-    page.getByRole("link", { name: "Test enquiry", exact: true }),
+    page.getByRole("link", { name: "View Test enquiry", exact: true }),
   ).toBeVisible();
   await expect(acknowledge(page)).toBeDisabled();
   await refresh(page).click();
@@ -338,7 +352,7 @@ test("stale history preserves rows and blocks the open confirmation", async ({
   expect(state.writes).toHaveLength(0);
   await page.keyboard.press("Escape");
   await expect(
-    page.getByRole("link", { name: "Test enquiry", exact: true }),
+    page.getByRole("link", { name: "View Test enquiry", exact: true }),
   ).toBeVisible();
   await expect(opener(page)).toBeDisabled();
 });
@@ -354,7 +368,7 @@ test("failed later page still permits previous navigation", async ({ page }) => 
   state.failList = false;
   await pages.getByRole("button", { name: "Previous", exact: true }).click();
   await expect(
-    page.getByRole("link", { name: "Test enquiry", exact: true }),
+    page.getByRole("link", { name: "View Test enquiry", exact: true }),
   ).toBeVisible();
   await expect(pages).toContainText("Page 1");
 });
