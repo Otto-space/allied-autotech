@@ -126,7 +126,7 @@ export default function ContactPage() {
         </div>
         <div className="contact-care-band">
           <div className="contact-wrap">
-            <section className="contact-care" aria-labelledby="enquiry">
+            <div className="contact-care">
               <div className="contact-care-context">
                 <h2 id="enquiry" tabIndex={-1}>
                   Tell us how we can help.
@@ -148,7 +148,7 @@ export default function ContactPage() {
                   <ContactPartsEnquiry labelledBy="enquiry" />
                 </Suspense>
               </div>
-            </section>
+            </div>
           </div>
         </div>
         <div className="contact-wrap">
