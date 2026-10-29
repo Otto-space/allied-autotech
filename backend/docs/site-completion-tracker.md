@@ -1,5 +1,24 @@
 # Allied AutoTech completion tracker
 
+## 29 October 2026: W16D managed Care channel continuation
+
+Managed enquiry/complaint pages now integrate the shared canonical channel controls
+and queue, with managed destinations, explicit update navigation and retained
+editing during background reads. Current same-branch Care authority and linked
+customer identity gate the controls; the server remains authoritative. Final 46
+focused frontend and ten role-guidance units pass. Twelve distinct final rendered
+cases pass across corrected runs, including granular viewers, 390/768/1440px channel
+journeys and existing assignment/revocation regressions. Missing Customer headers
+and column widths were fixed after visual reproduction. Reused local Next is 16.3.8;
+exact-lock 16.4.3 and hosted acceptance
+remain separate. See ../../docs/help-learn/SUPPORT_MANAGED_CHANNELS_W16D.md.
+No schema, real message, provider call, live enablement or production change is
+claimed by this batch. Full Revision 4 and all 106 route decisions remain active.
+Provider/manifest reconciliation confirms the earlier W16 foundation is already in
+ACTIVE backend 9c91eeff from 2586c61b; the other release's 76-to-78 verification is
+retained rather than rerun. Both frontend aliases now serve 060dba8d, whose fragment
+fix must be preserved. This new W16D UI/guidance batch is not yet published.
+
 ## 28 October 2026 current vehicle requirements cycle
 
 Owner supplied the vehicle-filter Word document, 14 BMW photographs and an explicit

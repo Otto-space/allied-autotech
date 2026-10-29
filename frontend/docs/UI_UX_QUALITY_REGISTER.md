@@ -1,5 +1,19 @@
 # UI and UX quality register
 
+## 29 October 2026: W16D managed Care channels
+
+Managed enquiry/complaint queues and linked-case channel controls now use current
+same-branch Care gates, managed destinations, preserved URL context and retained
+draft/focus on background reads. Final 46 focused frontend cases pass. Initial
+Staff/Admin and granular view-only fixtures were extended to twelve distinct final
+rendered cases across corrected runs: 390/768/1440px channel journeys and existing
+assignment/revocation regressions. Header/body mismatches reproduced in both tables
+are fixed, with explicit column checks. Known development preload warnings require
+resource and applied-style verification; unexpected warnings/errors remain failures.
+Reused local Next
+is 16.3.8; the lock's 16.4.3 and hosted/real-role acceptance are not implied. See
+[`SUPPORT_MANAGED_CHANNELS_W16D.md`](../../docs/help-learn/SUPPORT_MANAGED_CHANNELS_W16D.md).
+
 ## 28 October 2026: catalogue cards reflect vehicle-choice availability
 
 The released Parts catalogue at 390/1440px had one published Engine Oil Filter.

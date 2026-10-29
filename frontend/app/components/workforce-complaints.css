@@ -174,22 +174,22 @@
   padding-bottom: 12px;
 }
 .workforce-complaints thead th:nth-child(1) {
-  width: 18%;
+  width: 27%;
 }
 .workforce-complaints thead th:nth-child(2) {
-  width: 18%;
-}
-.workforce-complaints thead th:nth-child(3) {
-  width: 18%;
-}
-.workforce-complaints thead th:nth-child(4) {
-  width: 13%;
-}
-.workforce-complaints thead th:nth-child(5) {
   width: 20%;
 }
+.workforce-complaints thead th:nth-child(3) {
+  width: 12%;
+}
+.workforce-complaints thead th:nth-child(4) {
+  width: 17%;
+}
+.workforce-complaints thead th:nth-child(5) {
+  width: 12%;
+}
 .workforce-complaints thead th:nth-child(6) {
-  width: 13%;
+  width: 12%;
 }
 .workforce-complaints tbody tr {
   border-bottom: 1px solid var(--wfc-line);

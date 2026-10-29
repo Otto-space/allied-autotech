@@ -16,6 +16,8 @@ import {
 } from "@/lib/admin/workforce-complaints";
 import { formatBusinessDate } from "@/lib/format/date";
 import { WorkforceComplaintDetail } from "./workforce-complaint-detail";
+import { SupportChannelWorkspace } from "./support-channel-workspace";
+import { careCaseAllows } from "@/lib/workforce-care";
 import "./workforce-complaints.css";
 
 export function WorkforceComplaints({
@@ -33,7 +35,8 @@ export function WorkforceComplaints({
   const busy = record.loading || record.refreshing;
   const failure = record.error || record.refreshError;
   const mismatch = !!record.data && !sameWorkforceScope(access, record.data.access);
-  const data = !query.invalid && !busy && !failure && !mismatch ? record.data : undefined;
+  const data =
+    !query.invalid && !record.loading && !failure && !mismatch ? record.data : undefined;
   const selected = query.params.get("selected");
   const filtered = ["q", "priority", "status"].some((name) => query.params.has(name));
   const navigate = (params: URLSearchParams) =>
@@ -92,6 +95,10 @@ export function WorkforceComplaints({
           )}
         </div>
       </header>
+      {data &&
+        access.assignments.some((assignment) =>
+          careCaseAllows(access, "COMPLAINT", "view", { branchId: assignment.branchId }),
+        ) && <SupportChannelWorkspace kind="complaints" managed />}
       <form
         key={search.toString()}
         className="wfc-filters"
@@ -208,11 +215,13 @@ export function WorkforceComplaints({
             </caption>
             <thead>
               <tr>
-                {["Complaint", "Priority", "Branch", "Status", "Open"].map((label) => (
-                  <th scope="col" key={label}>
-                    {label}
-                  </th>
-                ))}
+                {["Complaint", "Customer", "Priority", "Branch", "Status", "Open"].map(
+                  (label) => (
+                    <th scope="col" key={label}>
+                      {label}
+                    </th>
+                  ),
+                )}
               </tr>
             </thead>
             <tbody>

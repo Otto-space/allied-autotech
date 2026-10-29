@@ -34,6 +34,7 @@ type Props = {
   disabled?: boolean;
   closed?: boolean;
   hasBranch?: boolean;
+  availabilityHref?: string;
   onCaseChanged: () => void;
   onPublicUpdate?: (id: string) => void;
 };
@@ -57,6 +58,7 @@ function ChannelControls({
   disabled = false,
   closed = false,
   hasBranch = true,
+  availabilityHref = "/admin/support",
   onCaseChanged,
   onPublicUpdate,
 }: Props & { role: string }) {
@@ -507,7 +509,7 @@ function ChannelControls({
           Refresh status
         </button>
         {staff && !channel?.canClaim && channel?.state === "QUEUED" && (
-          <Link href="/admin/support">Check Care availability</Link>
+          <Link href={availabilityHref}>Check Care availability</Link>
         )}
       </div>
       {choosing && channel?.canTransfer && (
