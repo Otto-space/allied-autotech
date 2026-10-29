@@ -19,6 +19,58 @@ ACTIVE backend 9c91eeff from 2586c61b; the other release's 76-to-78 verification
 retained rather than rerun. Both frontend aliases now serve 060dba8d, whose fragment
 fix must be preserved. This new W16D UI/guidance batch is not yet published.
 
+## 29 October 2026 active continuation: publication and refreshed fragment
+
+Owner explicitly requested publication, delegated BMW asking-price selection and
+confirmed the Stadium Road workshop. NGN 3,000,000 asking price was selected from
+qualified same-year related Nigerian advertisements, retaining the AC fault and
+unknown facts. Active PHC branch verified. Stock/listing schemas and all seven
+photo manifest hashes/sizes pass validation. Prepared publication manifest is
+backend/data/vehicle-drafts/bmw-publication-20261029.json. No production BMW has
+been written: owner is signed in, but Computer Use exposes no browser and reports
+its native pipe unavailable. Connected authorised authoring is the remaining
+publication dependency; do not bypass role/MFA/CSRF or create duplicate stock.
+
+The continuing rendered audit passed 19/20 hosted fixture cases, reproducing a
+desktop `/contact#workshop` reload with the heading at y=44.98 behind the 78px
+sticky header. Initial-fragment handling now waits for load/fonts, corrects only
+a partially obscured heading and preserves history and manual reading intent.
+Normal no-fragment refresh remains browser-owned. Current focused rendered and
+release validation is in progress; backend runtime/schema/flags remain unchanged.
+
+Local acceptance now passed six focused cases in the released browse/enquiries
+mode: repeated fragment reload/manual-wheel checks, navigation/breadcrumbs and
+ordinary refresh/touch reading at 390/1440. Scoped lint/format passed. An initial
+typecheck overlapped Next dev type generation; the server was stopped and route
+types regenerated before the final compiler check. No database or role changes.
+
+## 29 October 2026 vehicle requirements released
+
+Current application runtime is master `2586c61bd8608edd4e3626ba6d3cad0899521f7d`.
+Exact-source Frontend 40789879047, Backend database safety 40789879135 and secret
+40789879195 checks passed. Compatible four-image backend deployment
+`9c91eeff-b191-4de5-b9d5-0e6d06134d42` is ACTIVE/readiness 200 with seven successful
+worker heartbeats. Frontend `dpl_H4Qy6RjQQXxfYmD9mGXGTG6i5TL9` is READY on both
+apex/www, verified after backend readiness. Current copy, garage/privacy, fitment,
+service-enquiry and approved Care foundation changes were preserved.
+
+Both pending additive migrations passed empty replay, fresh full populated restore
+(94 prior tables, unchanged original-row hashes), guarded production migration and
+78-migration db:check. Managed off-device backups/PITR evidence and runtime role
+separation were verified; temporary DB access removed. Restricted flags unchanged.
+Final live anonymous acceptance passed 12 page/domain cases and two supplemental
+journeys at 390/1440, including refresh scroll, Allie focus, enquiry/equipment
+anchors, Help/Learn navigation, noninteractive focus outline, location/body filter,
+scoped Axe and anonymous staff denial. No real enquiry or stock write for testing.
+
+BMW is a validated private import with seven reviewed privacy derivatives; no
+production record/listing created. Genuine branch/price, classification and owner
+review remain dependencies. Public VIN search remains a privacy decision. Next
+Item 6 action is real authorised stock/photo/listing acceptance after those facts
+are supplied; wider Care/visual backlog remains open. Detailed matrix, changed
+files, exact receipts and honest acceptance limits:
+[vehicle implementation handoff](vehicle-marketplace-implementation-20261028.md).
+
 ## 28 October 2026 current vehicle requirements cycle
 
 Owner supplied the vehicle-filter Word document, 14 BMW photographs and an explicit
