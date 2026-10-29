@@ -179,6 +179,7 @@ jobs:
             -e HELP_LEARN_AI_ENABLED=false -e SUPPORT_LIVE_CHAT_ENABLED=false \
             node:24.13.0 node node_modules/vitest/vitest.mjs run \
             tests/integration/support-live-availability.test.ts \
+            tests/integration/support-coverage-recovery.test.ts \
             tests/integration/support-channel.test.ts \
             tests/integration/support-channel-discovery.test.ts \
             tests/unit/support-live-contracts.test.ts \

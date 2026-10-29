@@ -1178,23 +1178,34 @@
     "/admin/support": {
       "source": "app/admin/support/page.tsx",
       "audience": "work",
-      "accessPredicate": "server-enforced role and capability; per-route confirmation required",
+      "accessPredicate": "Existing staff support role/current branch and record scope. Coverage additionally requires current SUPER_ADMIN session and MFA on the server. Managed Care uses its existing separate adapters.",
       "decision": "pending",
-      "purpose": null,
-      "contextualAnswer": null,
-      "articleIds": [],
+      "purpose": "Review existing enquiry/complaint queues within current support scope; owners can separately prepare explicit support coverage.",
+      "contextualAnswer": "Choose the permitted enquiry or complaint queue and open its canonical case. Conversation availability is explicit; policy hours alone do not establish staffing or enable live chat.",
+      "articleIds": ["care-triage", "support-coverage"],
       "guideIds": [],
       "practiceIds": [],
       "statusDefinitions": [],
       "recovery": [],
       "releaseRestrictions": "Review actual route and PUBLIC_LAUNCH_MODE before accepting coverage.",
       "fixture": "Identify the permitted role/scope and realistic state for this route.",
-      "verification": "pending",
-      "evidence": [],
-      "gaps": [
-        "Exact page purpose, effective access, contextual instructions, modes and rendered acceptance are not verified for Revision 4."
+      "verification": "source-only",
+      "evidence": [
+        "docs/help-learn/SUPPORT_CHANNEL_DISCOVERY_W16C.md",
+        "docs/help-learn/SUPPORT_OWNER_COVERAGE_W16E.md",
+        "backend/tests/integration/support-coverage-recovery.test.ts",
+        "frontend/tests/e2e/support-coverage.spec.ts"
       ],
-      "subviews": []
+      "gaps": [
+        "Full parent queue/state acceptance, real-role/hosted checks and the exact-route completion decision remain open. Coverage subview has separate isolated evidence; approved business staffing/hours and live-readiness acceptance are not supplied by fixtures."
+      ],
+      "subviews": [
+        {
+          "pattern": "/admin/support#care-support-coverage",
+          "task": "Owner prepares explicit Lagos coverage and reviews or recovers one canonical configuration change",
+          "verification": "11 restricted native + 15 contract cases and eight final mocked rendered cases accepted, including keyboard focus and access removal; actual owner, exact-lock and hosted acceptance open."
+        }
+      ]
     },
     "/admin/vehicle-sales/[transactionId]": {
       "source": "app/admin/vehicle-sales/[transactionId]/page.tsx",
@@ -1362,7 +1373,8 @@
         "docs/help-learn/WORKFORCE_AFTERCARE_W13.md",
         "backend/tests/integration/workforce-aftercare.test.ts",
         "frontend/tests/e2e/workforce-aftercare.spec.ts",
-        "frontend/tests/e2e/workforce-aftercare-native.spec.ts"
+        "frontend/tests/e2e/workforce-aftercare-native.spec.ts",
+        "docs/help-learn/SUPPORT_MANAGED_CHANNELS_W16D.md"
       ],
       "gaps": [
         "Full independent-grant/baseline composition and real chat subscription authorisation remain open; W5 verifies the managed-workforce registry and HTTP/session invalidation only.",
@@ -1408,12 +1420,12 @@
         {
           "pattern": "/admin/workforce/enquiries",
           "task": "Scoped sales/care enquiry queue",
-          "verification": "W14C:14 native branch/action/handler/race/expiry/privacy cases,61 workforce/session/learning regressions,36 responsive Care fixtures,50 legacy browser cases and1 actual browser/CSRF/API/CI-DB composition pass. Read-only help and reply-practice gates verified. Full route learning modes/hosted/device acceptance remain open."
+          "verification": "W14C:14 native branch/action/handler/race/expiry/privacy cases,61 workforce/session/learning regressions,36 responsive Care fixtures,50 legacy browser cases and1 actual browser/CSRF/API/CI-DB composition pass. Read-only help and reply-practice gates verified. Full route learning modes/hosted/device acceptance remain open. W16D adds managed channel controls, same-branch Care intersections, retained drafts and explicit updates; see SUPPORT_MANAGED_CHANNELS_W16D.md. Full route acceptance remains open."
         },
         {
           "pattern": "/admin/workforce/complaints",
           "task": "Scoped complaint queue",
-          "verification": "W14C:14 native branch/action/handler/race/expiry/privacy cases,61 workforce/session/learning regressions,36 responsive Care fixtures,50 legacy browser cases and1 actual browser/CSRF/API/CI-DB composition pass. Read-only help and reply-practice gates verified. Full route learning modes/hosted/device acceptance remain open."
+          "verification": "W14C:14 native branch/action/handler/race/expiry/privacy cases,61 workforce/session/learning regressions,36 responsive Care fixtures,50 legacy browser cases and1 actual browser/CSRF/API/CI-DB composition pass. Read-only help and reply-practice gates verified. Full route learning modes/hosted/device acceptance remain open. W16D adds managed channel controls, same-branch Care intersections, retained drafts and explicit updates; see SUPPORT_MANAGED_CHANNELS_W16D.md. Full route acceptance remains open."
         },
         {
           "pattern": "/admin/workforce/orders",

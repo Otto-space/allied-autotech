@@ -44,6 +44,7 @@ import { redactReviewRecoveries } from "../reviews/review-recovery";
 import { redactHandoffPending } from "../learning/handoff-pending";
 import { redactSupportCreateRecoveries } from "../support/support-recovery";
 import { redactChannelPending } from "../support/channel-pending";
+import { redactCoveragePending } from "../support/coverage-pending";
 import {
   captureDraftSubmission,
   clearAccountDrafts,
@@ -259,6 +260,7 @@ export function invalidateSession(reason?: "password-changed"): void {
   redactReviewRecoveries();
   redactHandoffPending();
   redactChannelPending();
+  redactCoveragePending();
   redactSupportCreateRecoveries();
   redactSupportCreationRecoveries();
   redactSupportReplyRecoveries();

@@ -1,0 +1,69 @@
+.editor {
+  display: grid;
+  gap: 1rem;
+  min-width: 0;
+}
+.editor label {
+  display: grid;
+  gap: 0.4rem;
+  font-weight: 600;
+}
+.editor input:not([type="checkbox"]),
+.editor select,
+.editor textarea {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  border: 1px solid #8ba6b8;
+  border-radius: 8px;
+  background: #fff;
+  color: #102c3e;
+  font: inherit;
+  padding: 0.65rem;
+}
+.editor textarea {
+  resize: vertical;
+}
+.editor fieldset {
+  min-width: 0;
+  display: grid;
+  gap: 1rem;
+  border: 1px solid #cbd9e3;
+  border-radius: 10px;
+  padding: 1rem;
+  margin: 0 0 1rem;
+}
+.editor legend {
+  font-weight: 600;
+  padding-inline: 0.3rem;
+}
+.editor .check {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  min-height: 44px;
+}
+.check input {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+  margin-top: 0.2rem;
+}
+.editor .window {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+  align-items: end;
+}
+.editor small {
+  font-weight: 400;
+  line-height: 1.6;
+}
+@media (max-width: 900px) {
+  .editor .window {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (max-width: 480px) {
+  .editor .window {
+    grid-template-columns: 1fr;
+  }
+}

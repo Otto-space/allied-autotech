@@ -361,6 +361,28 @@ export const learningArticles: LearningArticle[] = [
     "SALES_ENQUIRIES and ENQUIRIES_ASSIGN contracts",
     "cashier sales supervisor sales representative quotation quote",
   ),
+  {
+    ...article(
+      "support-coverage",
+      "owner",
+      "staff-care",
+      "Configure explicit Customer Care support coverage",
+      "Approved support hours are separate from workshop hours. Coverage does not release live chat or make representatives available.",
+      [
+        "Open Customer Care, then Conversation queue and your availability and Branch support coverage (owner). Choose an active branch.",
+        "Enter only approved support windows in Africa/Lagos, using 24-hour time. Split overnight coverage into two days; an end may be 24:00. No support hours are supplied automatically.",
+        "Review the coverage policy, windows, maximum concurrent conversations per representative and private audit reason before confirming. Current server-side owner and MFA checks still apply.",
+        "If coverage changes while you edit, retain your draft and explicitly review the current configuration before adopting its revision. Changing branches keeps unsaved drafts in this page's memory; signing out discards protected work.",
+        "For an unconfirmed result, check the saved action instead of repeating the command. Reviewed cancellation blocks an unsaved operation and preserves a change already committed. The browser reminder contains only an operation reference, not hours or the audit reason.",
+        "A configured policy never substitutes for current live duties, explicit session-bound availability, branch support hours, shared capacity and separately verified delivery readiness.",
+      ],
+      "/admin/support",
+      "Support live owner/current-session guards, coverage CAS/audit/reference receipts and OwnerSupportCoverage",
+      "owner customer care support hours coverage availability midnight timezone audit recovery",
+    ),
+    version: 1,
+    reviewedAt: "2026-10-29",
+  },
   article(
     "product-photos",
     "admin",

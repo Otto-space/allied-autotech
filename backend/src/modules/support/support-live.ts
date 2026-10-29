@@ -22,6 +22,10 @@ import {
 } from "../organization/workforce.policy.js";
 import { assertSupportCustomer, assertSupportOperator } from "./support.policy.js";
 import {
+  supportCoverageOutcome,
+  supportCoverageReceipt,
+} from "./support-coverage-receipt.js";
+import {
   supportCoverageOpen,
   supportCoverageScheduleSchema,
   supportCoverageSchema,
@@ -157,40 +161,74 @@ export function updateSupportCoverage(
   branchId: string,
   input: z.infer<typeof supportCoverageUpdateSchema>,
   context: RequestSecurityContext,
+  operationKey?: string,
 ) {
   const value = supportCoverageUpdateSchema.parse(input);
   return withTransactionRetry(prisma, async (tx) => {
     await owner(tx, actor);
     await activeBranch(tx, branchId);
-    const previous = await coverage(tx, branchId);
-    if (previous.version !== value.expectedVersion) workforceConflict();
-    const data = {
-      enabled: value.enabled,
-      schedule: value.schedule,
-      maxConcurrentPerAgent: value.maxConcurrentPerAgent,
-      version: previous.version + 1,
-      updatedByUserId: actor.userId,
-    };
-    await tx.supportLiveCoverage.upsert({
-      where: { branchId },
-      create: { branchId, ...data },
-      update: data,
-    });
-    await appendAuditEvent(tx, {
-      actorUserId: actor.userId,
-      action: "UPDATE",
-      entityType: "BRANCH",
-      entityId: branchId,
-      oldValues: { ...previous, schedule: JSON.stringify(previous.schedule) },
-      newValues: {
-        resource: "SUPPORT_LIVE_COVERAGE",
-        ...data,
-        schedule: JSON.stringify(data.schedule),
-        reason: value.reason,
-      },
-      context,
-    });
-    return coverage(tx, branchId);
+    if (operationKey)
+      return supportCoverageReceipt(
+        tx,
+        actor.userId,
+        branchId,
+        operationKey,
+        value,
+        (command) => saveCoverage(tx, actor, branchId, command, context),
+        () => coverage(tx, branchId),
+      );
+    return saveCoverage(tx, actor, branchId, value, context);
+  });
+}
+async function saveCoverage(
+  tx: Tx,
+  actor: AuthenticatedActor,
+  branchId: string,
+  value: z.infer<typeof supportCoverageUpdateSchema>,
+  context: RequestSecurityContext,
+) {
+  const previous = await coverage(tx, branchId);
+  if (previous.version !== value.expectedVersion) workforceConflict();
+  const data = {
+    enabled: value.enabled,
+    schedule: value.schedule,
+    maxConcurrentPerAgent: value.maxConcurrentPerAgent,
+    version: previous.version + 1,
+    updatedByUserId: actor.userId,
+  };
+  await tx.supportLiveCoverage.upsert({
+    where: { branchId },
+    create: { branchId, ...data },
+    update: data,
+  });
+  await appendAuditEvent(tx, {
+    actorUserId: actor.userId,
+    action: "UPDATE",
+    entityType: "BRANCH",
+    entityId: branchId,
+    oldValues: { ...previous, schedule: JSON.stringify(previous.schedule) },
+    newValues: {
+      resource: "SUPPORT_LIVE_COVERAGE",
+      ...data,
+      schedule: JSON.stringify(data.schedule),
+      reason: value.reason,
+    },
+    context,
+  });
+  return coverage(tx, branchId);
+}
+export function recoverSupportCoverage(
+  actor: AuthenticatedActor,
+  branchId: string,
+  key: string,
+  cancel = false,
+) {
+  return withTransactionRetry(prisma, async (tx) => {
+    await owner(tx, actor);
+    await activeBranch(tx, branchId);
+    return supportCoverageOutcome(tx, actor.userId, branchId, key, cancel, () =>
+      coverage(tx, branchId),
+    );
   });
 }
 export function getSupportPresence(actor: AuthenticatedActor) {

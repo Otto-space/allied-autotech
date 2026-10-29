@@ -28,6 +28,23 @@ write, isolated integration run or authenticated hosted acceptance was done.
 The current customer workspace/session-recovery priority and independently
 tracked provider and real-role gates remain open.
 
+## 29 October 2026: W16E owner coverage continuation
+
+Owner-only support coverage editing and reference-only durable recovery are locally
+implemented. The established PUT shape is preserved; optional operation keys and
+owner/current-session/MFA/active-branch guarded GET/DELETE recovery use existing
+receipt storage, CAS and audit. No schema change or live enablement. Eleven new
+native, 60 Care/session/handoff and 20 availability cases pass on a newly created
+isolated 78-migration CI target. 28 backend and 52 combined frontend units pass,
+including 15 new coverage contracts. Final types, scoped lint and secret guard pass.
+Eight final rendered cases pass at 390/1440px, including keyboard focus and
+access-removal. Screenshots were inspected.
+See ../../docs/help-learn/SUPPORT_OWNER_COVERAGE_W16E.md.
+W16D is integrated on master 427202e7 with all three exact-source GitHub checks
+passed; publication is waiting for Docker's engine. W16E publication and exact-source
+release acceptance remain pending. The full goal, exact-route matrix, staffing/connection readiness and
+bounded real-provider re-evaluation remain active. No extra paid calls are allowed.
+
 ## 29 October 2026 catalogue verification completed locally
 
 Vehicles, Shop and Services redesign is integrated with current Contact/Care source. 57 distinct rendered cases pass across corrected runs, including eight widths, draft/count/Apply/history, native drawer focus and short-screen actions, error/empty/retry/image failure, progressive fitment and ten Learn/Allie/guide/practice cases. Discovery units pass 54 assertions. The final Shop fix keeps the desktop rail open after Apply while closing the mobile drawer. No real test enquiry, catalogue write, permission/schema or flag change. Exact-source CI and held production candidate verification remain required before promotion. See frontend/docs/CATALOGUE_REDESIGN_20261029.md (repository root) for evidence, deviations and physical-device/fixture limits. The retained backend is 2586c61b; inherited Care article v3 copy is a separate unpublished backend content change.
@@ -3853,3 +3870,22 @@ passed locally. No payment/provider/schema/production write was made. Exact-sour
 CI passed for runtime commit 7b1c552b: backend database safety 40685222582
 and redacted secret guard 40685222451 both completed successfully. The
 production recovery/migration/real-role gates remain.
+
+
+29 October 2026 - Contact clarity V34/V35/V36 released: runtime 35c314c6,
+READY dpl_CXXM8WeyShRAKrZZNRCCEBvrKY2i verified on apex/www. Labelled sole
+workshop output, field-specific required errors and concise preparation preserve
+review, drafts, routing and privacy. Final test-only review f2b74819 CI passed
+1,256 tests (12 optional skipped), lint/types/format/build and zero production
+audit findings; backend safety 40819714453 and secret guard 40819657385 passed.
+All 68 hosted cases have passing evidence (52 initial plus 16 corrected reruns);
+4 Contact fixture journeys and 20 public checks passed after promotion. Initial
+Axe, fixture, Prettier and Vercel 403 failures are retained with corrections.
+Backend 9c91eeff remains ACTIVE, unchanged; CSO help article version 3 is still
+unpublished backend content, with no API/schema dependency for this frontend.
+No real customer/enquiry/database writes. Current source, both stashes and dirty
+worktree records were preserved. Evidence/rollback/limits:
+backend/docs/contact-clarity-production-20261029.md. Whole V01-V55 goal remains
+active; next About principles and accessible equipment preview, grounded in
+360/390/768/1440 live baseline. Disk postflight: 28.75 GiB free. Docker daemon
+unavailable, no task Docker resources created/deleted.

@@ -1,5 +1,23 @@
 # Revision 4 implementation checkpoint
 
+## 29 October 2026: W16E owner coverage continuation
+
+Owner-only coverage editing now preserves branch drafts, reviews explicit Lagos
+windows and capacity, and handles stale revisions and uncertain saves. Optional
+keyed PUT and owner-only GET/DELETE recovery use existing durable receipts and
+current server authority. No schema, staffing, live release or provider allowance
+changes. Eleven new native, 60 Care/session/handoff and 20 availability cases pass
+on an isolated 78-migration target. Eight final intercepted browser cases pass,
+including keyboard focus and access removal, with inspected 390/1440px screenshots.
+See [W16E evidence](SUPPORT_OWNER_COVERAGE_W16E.md) for static checks and limits.
+
+W16D is integrated on master 427202e7 with all three exact-source GitHub gates
+passed. W16E integration and publication remain pending. Docker's missing engine
+currently blocks backend packaging. Full route acceptance, actual browser/API
+composition, hosted shared-connection readiness, approved staffing and the final
+bounded provider evaluation remain open. The 106-route matrix preserves pending
+completion decisions; no new paid provider calls are authorized.
+
 ## 29 October 2026: W16D managed Care integration
 
 Managed enquiries and complaints now integrate canonical channel controls, managed
