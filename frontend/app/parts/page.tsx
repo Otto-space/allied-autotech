@@ -1,3 +1,4 @@
+import { CatalogueBanner } from "../components/catalogue-banner";
 import { loadPublicSeed } from "@/lib/api/public-seed-server";
 import { parseProductDiscovery } from "@/lib/api/commerce-schemas";
 import { publicPageMetadata, type SearchParameters } from "@/lib/seo";
@@ -68,17 +69,11 @@ export default async function PartsPage({
             </li>
           </ol>
         </nav>
-        <section className="product-hero" aria-labelledby="product-title">
-          <div className="public-wrap product-hero-inner">
-            <div className="product-hero-copy">
-              <h1 id="product-title">Find the right parts</h1>
-              <p>
-                Browse replacement parts, engine oils and automotive essentials. Check
-                product specifications and collection availability with our team.
-              </p>
-            </div>
-          </div>
-        </section>
+        <CatalogueBanner
+          kind="shop"
+          title="Parts, oils & automotive essentials"
+          description="Browse replacement parts, engine oils and automotive essentials. Check specifications and collection availability with our team."
+        />
         <section
           className="public-wrap product-inventory"
           id="products"

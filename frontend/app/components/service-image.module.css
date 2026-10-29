@@ -3,7 +3,7 @@
   width: 100%;
   height: auto;
   aspect-ratio: 3 / 2;
-  object-fit: cover;
+  object-fit: contain;
   border-radius: 12px;
   background: var(--surface-muted, #f1f3f5);
 }

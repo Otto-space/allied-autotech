@@ -195,22 +195,26 @@ export const learningArticles: LearningArticle[] = [
     "readFinancePolicy and publishPolicy FINANCE branch, FinancePolicy current/version/review",
     "financial policy finance VAT invoice terms effective scheduled approval version",
   ),
-  article(
-    "parts-fitment",
-    "public",
-    "parts",
-    "Find a part and understand compatibility",
-    "Matching a name is not proof that a part fits your vehicle.",
-    [
-      "Open Parts. Search by product name, brand or part number.",
-      "Use the vehicle make, model and year fields where available; check any engine, trim or technical requirements.",
-      "Read the compatibility evidence. Compatible, incompatible and not confirmed have different meanings.",
-      "For unknown fitment or missing stock, send an enquiry with the details you actually know. Collection is the launch fulfilment option; do not assume delivery.",
-    ],
-    "/parts",
-    "Parts discovery, fitment evidence and approved collection-only launch",
-    "shop brake pads compatible compatibility vehicle car",
-  ),
+  {
+    ...article(
+      "parts-fitment",
+      "public",
+      "parts",
+      "Find a part and understand compatibility",
+      "Matching a name is not proof that a part fits your vehicle.",
+      [
+        "Open Parts. Search by product name, brand or part number.",
+        "Use the vehicle make, model and year fields where available; check engine, trim and technical requirements. In Filters, edit pending selections, then choose Apply filters. Clear selections only resets the panel; Clear all filters preserves the search and sort. Reset search clears the full discovery state.",
+        "Read the compatibility evidence. Compatible, incompatible and not confirmed have different meanings.",
+        "For unknown fitment or missing stock, send an enquiry with the details you actually know. Collection is the launch fulfilment option; do not assume delivery.",
+      ],
+      "/parts",
+      "Parts discovery, fitment evidence and approved collection-only launch",
+      "shop brake pads compatible compatibility vehicle car",
+    ),
+    version: 3,
+    reviewedAt: "2026-10-29",
+  },
   {
     ...article(
       "vehicle-enquiry",
@@ -219,7 +223,7 @@ export const learningArticles: LearningArticle[] = [
       "Enquire about a vehicle or inspection",
       "An enquiry or preferred inspection time is not a reservation or confirmed appointment.",
       [
-        "Open Vehicles and use the available filters.",
+        "Open Vehicles. Edit pending preferences in Filters, then choose Apply filters. Used includes unspecified, foreign and Nigerian use; refine the recorded history when known. Assembly location is separate. Clear all filters preserves search and sort; Reset search clears the full discovery state.",
         "Open a listing and read the owner-reported condition and known issues beside the enquiry action. These statements are separate from a recorded inspection; missing information does not mean fault-free. Use the requirements enquiry if no listing suits you.",
         "Review the enquiry before sending. The team confirms any inspection separately.",
       ],
@@ -227,8 +231,8 @@ export const learningArticles: LearningArticle[] = [
       "Vehicle discovery and listing-less enquiry contracts",
       "car sale inspection reservation known issues condition owner reported",
     ),
-    version: 3,
-    reviewedAt: "2026-10-28",
+    version: 4,
+    reviewedAt: "2026-10-29",
   },
   article(
     "service-request",
@@ -547,7 +551,7 @@ export interface LearningGuide {
 export const learningGuides: LearningGuide[] = [
   {
     id: "parts-find",
-    version: 2,
+    version: 3,
     title: "Find the right part",
     articleId: "parts-fitment",
     page: "parts",
@@ -563,7 +567,7 @@ export const learningGuides: LearningGuide[] = [
       {
         id: "evidence",
         target: "parts-results",
-        text: "Read the available results and compatibility evidence. Missing results or unknown fitment need an enquiry; the guide never adds a live item to a cart.",
+        text: "Read the available results and compatibility evidence. Filters remain pending until Apply filters. Clear selections resets pending values; Clear all filters preserves search and sort. Unknown compatibility needs an enquiry; this guide never adds a live item to a cart.",
         event: "read",
       },
     ],

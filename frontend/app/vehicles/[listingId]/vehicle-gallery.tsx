@@ -1,11 +1,18 @@
 "use client";
 
-import Image from "next/image";
+import { ResponsivePublicImage } from "../../components/responsive-public-image";
 import { useEffect, useRef, useState } from "react";
 import { CarFront, ChevronLeft, ChevronRight, Expand, X } from "lucide-react";
 import { isPublicMediaUrl, publicMediaHosts } from "@/lib/media";
 
-type Photo = { id: string; url: string; altText?: string | null; isPrimary: boolean };
+type Photo = {
+  id: string;
+  url: string;
+  altText?: string | null;
+  isPrimary: boolean;
+  width?: number | null;
+  height?: number | null;
+};
 const hosts = publicMediaHosts(process.env.NEXT_PUBLIC_MEDIA_HOSTS);
 
 function VehiclePhoto({
@@ -23,11 +30,11 @@ function VehiclePhoto({
   return (
     <div className="vd-photo">
       {photo && !failed ? (
-        <Image
+        <ResponsivePublicImage
           src={photo.url}
+          width={photo.width ?? undefined}
+          height={photo.height ?? undefined}
           alt={small ? "" : photo.altText || title}
-          fill
-          unoptimized
           priority={priority}
           sizes={small ? "100px" : "(max-width: 899px) 100vw, 65vw"}
           onError={() => setFailed(true)}

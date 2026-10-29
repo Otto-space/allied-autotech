@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import Image from "next/image";
+import { ResponsivePublicImage } from "./responsive-public-image";
 import { Wrench } from "lucide-react";
 import styles from "./service-image.module.css";
 
@@ -25,9 +25,9 @@ export function ServicePhoto({
       <Wrench size={32} aria-hidden="true" />
     </div>
   ) : (
-    <Image
-      unoptimized
+    <ResponsivePublicImage
       src={url}
+      sizes="(max-width: 767px) 90vw, (max-width: 1023px) 44vw, 360px"
       alt={alt}
       width={width}
       height={height}

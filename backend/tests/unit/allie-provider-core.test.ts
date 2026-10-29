@@ -58,7 +58,7 @@ function output() {
     answer: "A name match does not confirm compatibility.",
     steps: ["Check the compatibility evidence in Parts."],
     caveat: null,
-    sourceIds: ["parts-fitment@v2"],
+    sourceIds: ["parts-fitment@v3"],
     actionIds: ["read:parts-fitment"],
   };
 }
@@ -289,7 +289,7 @@ describe("reviewed retrieval, follow-ups and current-source validation", () => {
           {
             question: "Find a part",
             answer: "Check compatibility.",
-            sourceIds: ["parts-fitment@v2"],
+            sourceIds: ["parts-fitment@v3"],
           },
         ],
       };
@@ -351,7 +351,7 @@ describe("reviewed retrieval, follow-ups and current-source validation", () => {
     { answer: "Visit https://attacker.example" },
     { answer: "I have queued your message." },
     { answer: "My password is synthetic-secret." },
-    { sourceIds: ["parts-fitment@v2", "parts-fitment@v2"] },
+    { sourceIds: ["parts-fitment@v3", "parts-fitment@v3"] },
   ])(
     "rejects forged sources/actions, active output and unperformed success claims",
     (override) => {

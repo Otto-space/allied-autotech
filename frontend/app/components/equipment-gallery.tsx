@@ -7,7 +7,10 @@ function EquipmentItems({ group }: { group: (typeof equipmentGroups)[number] }) 
     <div className="equipment-grid">
       {group.items.map((item) => (
         <figure key={item.slug}>
-          <EquipmentPhoto {...item} sizes="(max-width: 760px) 90px, 110px" />
+          <EquipmentPhoto
+            {...item}
+            sizes="(max-width: 760px) 85vw, (max-width: 1200px) 36vw, 320px"
+          />
           <figcaption>
             <h4>{item.name}</h4>
             <p>{item.description}</p>

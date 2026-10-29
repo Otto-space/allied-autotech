@@ -90,17 +90,14 @@ export function ServiceList({
                   key={service.image.id}
                   url={service.image.url}
                   alt={service.image.altText || service.name}
-                  width={288}
-                  height={192}
+                  width={service.image.width}
+                  height={service.image.height}
                 />
               </div>
             ) : (
               <Wrench className="service-discovery__icon" size={22} aria-hidden="true" />
             )}
             <div className="service-discovery__body">
-              {service.pricingType === "FIXED" && (
-                <p className="service-discovery__type">Fixed price</p>
-              )}
               <CardHeading className="service-discovery__title">
                 {service.name}
               </CardHeading>
@@ -115,7 +112,7 @@ export function ServiceList({
                   <strong>
                     {service.pricingType === "QUOTE_REQUIRED"
                       ? "Quotation required"
-                      : formatKobo(service.priceKobo)}
+                      : formatKobo(service.priceKobo, { hideZeroDecimals: true })}
                   </strong>
                 </div>
                 <Link

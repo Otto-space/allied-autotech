@@ -15,7 +15,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 for (const route of ["/parts", "/services"]) {
-  for (const width of [320, 375, 390, 430, 768, 1024, 1280, 1440]) {
+  for (const width of [320, 390, 700, 701, 768, 1023, 1024, 1366, 1440]) {
     test(`${route} image-led catalogue at ${width}`, async ({ page }) => {
       const errors: string[] = [];
       page.on("pageerror", (error) => errors.push(error.message));
@@ -23,7 +23,7 @@ for (const route of ["/parts", "/services"]) {
       await page.goto(route);
       await expect(page.locator("main h1")).toHaveText(
         route === "/parts"
-          ? "Find the right parts"
+          ? "Parts, oils & automotive essentials"
           : "Find the service your vehicle needs",
       );
       const card = page
@@ -66,7 +66,10 @@ for (const route of ["/parts", "/services"]) {
         await expect(
           page.getByRole("link", { name: /Describe a vehicle problem/ }),
         ).toHaveAttribute("href", "/contact#enquiry");
-        await expect(card.getByText("Quotation required", { exact: true })).toBeVisible();
+        // Actual owner-managed pricing may change independently of a UI release.
+        await expect(card.locator(".services-row-price strong")).toHaveText(
+          /^(Quotation required|₦[\d,]+(?:\.\d{2})?)$/,
+        );
       }
       expect(
         await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
@@ -123,7 +126,7 @@ for (const width of [390, 1440]) {
       page.getByRole("heading", { name: "No matching products", exact: true }),
     ).toBeVisible();
     if (width < 1024) await page.locator(".product-filter-trigger").click();
-    await panel.getByRole("button", { name: "Reset draft", exact: true }).click();
+    await panel.getByRole("button", { name: "Clear selections", exact: true }).click();
     await expect(maximum).toHaveValue("");
     await expect(page).toHaveURL(/maxPriceKobo=1(?:&|$)/);
     await panel.getByRole("button", { name: "Apply filters", exact: true }).click();

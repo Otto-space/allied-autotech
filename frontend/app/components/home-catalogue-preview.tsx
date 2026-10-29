@@ -2,7 +2,8 @@
 import { VehicleOwnerDisclosure } from "./vehicle-owner-disclosure";
 import type { PublicSeed } from "@/lib/api/public-seed";
 import Link from "next/link";
-import { ArrowUpRight, CarFront, Fuel, Gauge, MapPin, Settings2 } from "lucide-react";
+import { ArrowUpRight, CarFront, MapPin, Settings2 } from "lucide-react";
+import { vehiclePresentation } from "@/lib/vehicle-presentation";
 import { useResource } from "@/lib/api/use-resource";
 import { parseProducts } from "@/lib/api/commerce-schemas";
 import { parseListings } from "@/lib/api/vehicle-schemas";
@@ -86,7 +87,9 @@ export function HomePartsPreview({
                 <h3>
                   <Link href={`/parts/${part.id}`}>{part.name}</Link>
                 </h3>
-                <p className="home-card__price">{formatKobo(part.priceKobo)}</p>
+                <p className="home-card__price">
+                  {formatKobo(part.priceKobo, { hideZeroDecimals: true })}
+                </p>
                 <p className="home-card__stock">{availability.label}</p>
                 <Link
                   className="text-link home-card__link"
@@ -187,8 +190,12 @@ export function HomeVehiclesPreview({
             )}
             {listings.loading && <p role="status">Loading vehicle listings…</p>}
             {listings.loading && !listings.data && <PreviewLoading vehicles />}
-            <div className="home-vehicle-grid">
+            <div
+              className="home-vehicle-grid"
+              data-single={listings.data?.items.length === 1}
+            >
               {(!listings.error ? listings.data : undefined)?.items.map((listing) => {
+                const presentation = vehiclePresentation(listing.vehicle);
                 const media =
                   listing.vehicle.images.find((item) => item.isPrimary) ??
                   listing.vehicle.images[0];
@@ -197,44 +204,37 @@ export function HomeVehiclesPreview({
                     <PublicMedia
                       key={media?.url ?? "empty"}
                       src={media?.url}
+                      width={media?.width}
+                      height={media?.height}
                       alt={media?.altText ?? listing.title}
                       fallbackIcon={<CarFront size={32} strokeWidth={1.3} />}
-                      sizes="(max-width: 540px) 90vw, (max-width: 1000px) 45vw, 20vw"
+                      sizes={
+                        listings.data?.items.length === 1
+                          ? "(max-width: 800px) 90vw, 760px"
+                          : "(max-width: 700px) 90vw, 44vw"
+                      }
                     />
                     <div className="home-card__body">
                       <h3>
-                        <Link href={`/vehicles/${listing.id}`}>{listing.title}</Link>
+                        <Link href={`/vehicles/${listing.id}`}>{presentation.title}</Link>
                       </h3>
-                      <p className="home-card__meta">
-                        {listing.vehicle.year} · {listing.vehicle.make}{" "}
-                        {listing.vehicle.model}
+                      <p className="home-card__meta">{presentation.subtitle}</p>
+                      <p className="home-card__price">
+                        {formatKobo(listing.priceKobo, { hideZeroDecimals: true })}
                       </p>
-                      <p className="home-card__price">{formatKobo(listing.priceKobo)}</p>
-                      <ul
-                        className="home-vehicle-specs"
-                        aria-label="Vehicle specifications"
-                      >
-                        {listing.vehicle.mileageKm != null && (
-                          <li>
-                            <Gauge size={15} aria-hidden="true" />
-                            <span>
-                              {listing.vehicle.mileageKm.toLocaleString("en-NG")} km
-                            </span>
-                          </li>
-                        )}
-                        {listing.vehicle.transmission && (
-                          <li>
-                            <Settings2 size={15} aria-hidden="true" />
-                            <span>{listing.vehicle.transmission}</span>
-                          </li>
-                        )}
-                        {listing.vehicle.fuelType && (
-                          <li>
-                            <Fuel size={15} aria-hidden="true" />
-                            <span>{listing.vehicle.fuelType}</span>
-                          </li>
-                        )}
-                      </ul>
+                      {presentation.specs.length > 0 && (
+                        <ul
+                          className="home-vehicle-specs"
+                          aria-label="Vehicle specifications"
+                        >
+                          {presentation.specs.map((spec) => (
+                            <li key={spec}>
+                              <Settings2 size={15} aria-hidden="true" />
+                              <span>{spec}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
                       <VehicleOwnerDisclosure vehicle={listing.vehicle} compact />
                       <p className="home-card__location">
                         <MapPin size={15} aria-hidden="true" />

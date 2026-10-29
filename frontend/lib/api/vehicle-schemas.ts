@@ -7,6 +7,8 @@ const image = z.object({
   url: z.string(),
   altText: z.string().nullable(),
   isPrimary: z.boolean(),
+  width: z.number().int().positive().nullable().optional(),
+  height: z.number().int().positive().nullable().optional(),
 });
 export const listingSchema = z.object({
   id: z.string().uuid(),
@@ -30,6 +32,8 @@ export const listingSchema = z.object({
     powertrain: z.enum(["BEV", "HEV", "PHEV", "ICE"]).nullable().optional(),
     engineCapacityCc: z.number().int().nullable().optional(),
     engineCode: z.string().nullable().optional(),
+    doors: z.number().int().nullable().optional(),
+    driveType: z.string().nullable().optional(),
     cylinders: z.number().int().nullable().optional(),
     ownerReportedCondition: z.string().nullable().optional(),
     ownerReportedIssues: z.string().nullable().optional(),

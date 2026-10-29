@@ -1,4 +1,5 @@
 "use client";
+import { VehicleConditionField } from "./vehicle-condition-field";
 
 import { useEffect, useRef, useState } from "react";
 import { useHydrated } from "@/lib/use-hydrated";
@@ -172,9 +173,10 @@ export function VehicleFilters({
   const hydrated = useHydrated();
   const [values, setValues] = useState<Record<string, string>>(readValues);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [previousQuery, setPreviousQuery] = useState(query);
-  if (previousQuery !== query) {
-    setPreviousQuery(query);
+  const binding = `${query}:${panel.discardVersion}`;
+  const [previousQuery, setPreviousQuery] = useState(binding);
+  if (previousQuery !== binding) {
+    setPreviousQuery(binding);
     setValues(readValues());
     setErrors({});
   }
@@ -328,9 +330,7 @@ export function VehicleFilters({
           <div className="vehicle-filter-header">
             <div>
               <h3 id="vehicle-filter-heading">Filter vehicles</h3>
-              <p>
-                Choose any details you know, then apply. Blank fields match any value.
-              </p>
+              <p>Choose your preferences, then apply filters.</p>
             </div>
             <button
               type="button"
@@ -345,22 +345,18 @@ export function VehicleFilters({
             {[
               ["Budget", ["minPriceKobo", "maxPriceKobo"]],
               ["Make and model", ["make", "model"]],
-              ["Listing location", ["location"]],
               ["Condition", ["conditions"]],
-              ["Model year and body", ["minYear", "maxYear", "bodyType"]],
               [
-                "Specifications",
-                [
-                  "transmission",
-                  "minMileageKm",
-                  "maxMileageKm",
-                  "powertrains",
-                  "fuelType",
-                  "driveType",
-                ],
+                "Year and mileage",
+                ["minYear", "maxYear", "minMileageKm", "maxMileageKm"],
+              ],
+              ["Body and transmission", ["bodyType", "transmission"]],
+              [
+                "More specifications",
+                ["location", "powertrains", "fuelType", "driveType"],
               ],
               [
-                "Advanced: vehicle details",
+                "More vehicle details",
                 [
                   "minEngineCapacityCc",
                   "maxEngineCapacityCc",
@@ -370,37 +366,31 @@ export function VehicleFilters({
                   "inspected",
                 ],
               ],
-              [
-                "Advanced: assembly location",
-                ["manufactureCountryCode", "manufactureRegion"],
-              ],
+              ["Final assembly", ["manufactureCountryCode", "manufactureRegion"]],
             ].map(([heading, keys]) => (
               <details
                 className="vehicle-filter-group"
                 key={heading as string}
                 open={
-                  (!(heading as string).startsWith("Advanced:") &&
-                    heading !== "Specifications") ||
+                  (!(heading as string).startsWith("More ") &&
+                    heading !== "Final assembly") ||
                   (keys as string[]).some((key) => !!values[key])
                 }
               >
                 <summary>{heading}</summary>
                 {heading === "Condition" && (
                   <p className="vehicle-filter-hint">
-                    Used with unspecified origin remains separate from foreign used and
-                    Nigerian used. Condition does not describe assembly location.
+                    Choose the recorded use history when known.
                   </p>
                 )}
-                {heading === "Specifications" && (
+                {heading === "More specifications" && (
                   <p className="vehicle-filter-hint">
-                    Powertrain describes the propulsion system; fuel type is the listing’s
-                    recorded energy source. Combining them narrows results.
+                    Choose the specifications that matter to you.
                   </p>
                 )}
-                {heading === "Advanced: assembly location" && (
+                {heading === "Final assembly" && (
                   <p className="vehicle-filter-hint">
-                    Final assembly location does not establish import condition or vehicle
-                    quality. Unrecorded locations remain unspecified.
+                    Where the vehicle was assembled, separate from its use history.
                   </p>
                 )}
                 <div className="vehicle-filter-fields">
@@ -409,63 +399,18 @@ export function VehicleFilters({
                       {!["conditions", "powertrains"].includes(key) && (
                         <label htmlFor={`filter-${key}`}>{labels[key]}</label>
                       )}
-                      {key === "conditions" || key === "powertrains" ? (
+                      {key === "conditions" ? (
+                        <VehicleConditionField
+                          value={values.conditions}
+                          onChange={(value) =>
+                            setValues((previous) => ({ ...previous, conditions: value }))
+                          }
+                        />
+                      ) : key === "powertrains" ? (
                         <fieldset className="vehicle-multiple-options">
                           <legend>{labels[key]}</legend>
                           <p>Choose any that apply. Leave all unchecked for any.</p>
-                          {key === "conditions" && (
-                            <label>
-                              <input
-                                type="checkbox"
-                                checked={["USED", "FOREIGN_USED", "LOCALLY_USED"].every(
-                                  (condition) =>
-                                    values.conditions.split(",").includes(condition),
-                                )}
-                                ref={(element) => {
-                                  if (element) {
-                                    const count = [
-                                      "USED",
-                                      "FOREIGN_USED",
-                                      "LOCALLY_USED",
-                                    ].filter((condition) =>
-                                      values.conditions.split(",").includes(condition),
-                                    ).length;
-                                    element.indeterminate = count > 0 && count < 3;
-                                  }
-                                }}
-                                onChange={(event) => {
-                                  const checked = event.target.checked;
-                                  setValues((previous) => {
-                                    const selected = new Set(
-                                      previous.conditions.split(",").filter(Boolean),
-                                    );
-                                    for (const condition of [
-                                      "USED",
-                                      "FOREIGN_USED",
-                                      "LOCALLY_USED",
-                                    ]) {
-                                      if (checked) selected.add(condition);
-                                      else selected.delete(condition);
-                                    }
-                                    return {
-                                      ...previous,
-                                      conditions: [...selected].join(","),
-                                    };
-                                  });
-                                }}
-                              />
-                              <span>
-                                Any used vehicle{" "}
-                                <small>
-                                  Includes unspecified, foreign and Nigerian use. Refine
-                                  the recorded origin below.
-                                </small>
-                              </span>
-                            </label>
-                          )}
-                          {vehicleChoices[
-                            key === "conditions" ? "condition" : "powertrain"
-                          ].map((option) => (
+                          {vehicleChoices["powertrain"].map((option) => (
                             <label key={option}>
                               <input
                                 type="checkbox"
@@ -619,7 +564,7 @@ export function VehicleFilters({
                       )}
                       {["make", "model"].includes(key) && (
                         <small id={`filter-${key}-hint`}>
-                          Choose a published suggestion, or enter the full {key} name.
+                          Choose a suggestion or type a {key}.
                         </small>
                       )}
                       {errors[key] && (
@@ -659,7 +604,7 @@ export function VehicleFilters({
                 setErrors({});
               }}
             >
-              Reset draft
+              Clear selections
             </button>
             <button className="button" type="submit" data-scroll-target="vehicle-results">
               Apply filters
