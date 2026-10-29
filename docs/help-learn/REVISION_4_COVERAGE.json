@@ -1194,7 +1194,9 @@
         "docs/help-learn/SUPPORT_CHANNEL_DISCOVERY_W16C.md",
         "docs/help-learn/SUPPORT_OWNER_COVERAGE_W16E.md",
         "backend/tests/integration/support-coverage-recovery.test.ts",
-        "frontend/tests/e2e/support-coverage.spec.ts"
+        "frontend/tests/e2e/support-coverage.spec.ts",
+        "docs/help-learn/SUPPORT_COVERAGE_COMPOSITION_W16F.md",
+        "frontend/tests/e2e/support-coverage-native.spec.ts"
       ],
       "gaps": [
         "Full parent queue/state acceptance, real-role/hosted checks and the exact-route completion decision remain open. Coverage subview has separate isolated evidence; approved business staffing/hours and live-readiness acceptance are not supplied by fixtures."
@@ -1203,7 +1205,7 @@
         {
           "pattern": "/admin/support#care-support-coverage",
           "task": "Owner prepares explicit Lagos coverage and reviews or recovers one canonical configuration change",
-          "verification": "11 restricted native + 15 contract cases and eight final mocked rendered cases accepted, including keyboard focus and access removal; actual owner, exact-lock and hosted acceptance open."
+          "verification": "11 restricted native API + 15 contract cases, eight intercepted browser cases and three actual browser/CSRF/API/isolated-DB cases accepted. Actual production owner, exact-route and hosted acceptance remain open."
         }
       ]
     },

@@ -1,5 +1,18 @@
 # UI and UX quality register
 
+## 29 October 2026: W16F native owner coverage acceptance
+
+The actual local owner browser/CSRF/API/restricted database composition passes,
+including committed and unsaved transport failures, reviewed cancellation and
+reference-only recovery after navigation. Actual Admin/Staff sessions cannot see
+the owner editor or read its endpoint. Three native cases pass, with scoped Axe,
+overflow and inspected 390/1440px screenshots. A tall screenshot's fixed-link capture
+artifact was distinguished from actual focus/visibility using DOM geometry and
+fresh viewport captures. Shared CSS and permissions are unchanged. This is isolated
+native acceptance, not hosted or real-role production acceptance. See
+../../docs/help-learn/SUPPORT_COVERAGE_COMPOSITION_W16F.md. Exact-route completion,
+broader channel composition and shared live-readiness evidence remain open.
+
 ## 29 October 2026: W16E owner coverage editor
 
 The owner can configure explicit Lagos support windows, capacity and policy state

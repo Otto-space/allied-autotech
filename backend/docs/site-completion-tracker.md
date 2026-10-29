@@ -1,5 +1,19 @@
 # Allied AutoTech completion tracker
 
+## 29 October 2026: W16F native coverage composition
+
+The integrated W16E source `f9a7b7ce` passed all three exact-source GitHub checks;
+its READY frontend candidate remains held off public domains. Native browser/API/
+restricted-database coverage acceptance now passes three actual browser cases with
+real CSRF and two bounded transport failures. The owner journey confirms three
+audited saves, durable cancellation and no duplicate changes; Admin/Staff exclusion
+is checked against actual endpoints. Both isolated targets replayed all 78 migrations.
+Types/lint, scoped Axe/overflow and inspected 390/1440px screenshots pass. No production
+write, live enablement or provider call. See
+../../docs/help-learn/SUPPORT_COVERAGE_COMPOSITION_W16F.md for actual results and
+limits. Docker Continue and protected-candidate test access await owner responses;
+independent implementation/verification continues. Full Revision 4 remains active.
+
 ## 29 October 2026: W16E owner coverage continuation
 
 Owner-only support coverage editing and reference-only durable recovery are locally
