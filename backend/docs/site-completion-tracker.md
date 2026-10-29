@@ -1,5 +1,23 @@
 # Allied AutoTech completion tracker
 
+## 29 October 2026 customer navigation and care regression cycle
+
+The customer-care browser fixture had stale steps after the creation form
+became a disclosure and record actions gained explicit `View` names. Its
+fixture now opens the disclosure before editing and follows the rendered
+link names. The complete Edge/Playwright run passed 36/37; the sole remaining
+locator case passed on its focused rerun. Customer overview and navigation
+checks passed for empty-account routing, late-response invalidation, permitted
+links and sidebar collapse. A 390px admin navigation check reproduced two
+accessible `Administration` regions when the mobile drawer opened: legacy CSS
+exposed the desktop sidebar navigation as well. Removing that conflicting
+rule yielded 4/4 focused navigation cases at 320/390/901px and customer
+search; the 390px screenshot shows one drawer. Lint and TypeScript completed,
+then the chained frontend check was stopped before unit/build when C: fell
+below the 25 GiB preflight. Exact-source CI, production release,
+authenticated real-role and physical-device acceptance remain open. Backend,
+auth and data contracts did not change.
+
 ## 29 October 2026 staff vehicle-filter source review
 
 QA-004's historical ignored-filter claim does not match current source. The

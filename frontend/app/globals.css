@@ -3366,9 +3366,6 @@ html {
     padding-bottom: 0;
     overflow: visible;
   }
-  .dashboard .sidebar[data-menu-open="true"] .dashboard-navigation-container {
-    display: block;
-  }
   .dashboard .side-nav {
     margin: 20px 0 8px;
   }

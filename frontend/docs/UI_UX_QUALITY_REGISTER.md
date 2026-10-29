@@ -1,5 +1,22 @@
 # UI and UX quality register
 
+## 29 October 2026: customer care and mobile dashboard navigation
+
+The customer-care rendered fixture was aligned with the current closed `New
+enquiry` disclosure and explicit `View [record]` link names. Thirty-six of 37
+cases passed in the complete run; the last locator case passed in one focused
+rerun. An additional five-case overview/navigation sample passed four cases,
+including empty-account routing, late-response privacy and customer link scope.
+At 390px, opening the admin drawer exposed both the modal and legacy sidebar
+`Administration` navigation. Removing the old mobile `display: block` override
+leaves the modal as the single visible/accessibility navigation. Focused
+320/390/901px and customer-search browser checks passed 4/4, with a 390px drawer
+screenshot, no page exceptions and Axe in the responsive navigation checks.
+Browser plugin unavailable; installed Edge/Playwright used. Lint and typecheck
+passed; unit/build/format stages were interrupted before execution because C:
+fell below the 25 GiB build preflight. Hosted, authenticated real-role, native
+keyboard and screen-reader acceptance remain open.
+
 ## 29 October 2026: refreshed workshop fragment candidate
 
 P1 navigation/focus, anonymous `/contact#workshop`, 1440x844. A hosted fixture
