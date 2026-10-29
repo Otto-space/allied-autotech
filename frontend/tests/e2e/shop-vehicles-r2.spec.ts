@@ -98,11 +98,7 @@ test.beforeEach(async ({ page }) => {
 async function contactDetails(page: Page) {
   await page.getByLabel("Your name", { exact: true }).fill("Synthetic Test Customer");
   await page.getByLabel("Email address", { exact: true }).fill("synthetic@example.test");
-  await expect(
-    page.getByText("Your request goes to this workshop. No branch selection is needed.", {
-      exact: true,
-    }),
-  ).toBeVisible();
+  await expect(page.locator("output#support-branch")).toBeVisible();
 }
 async function healthy(page: Page, name: string, width: number) {
   await page.evaluate(() => document.fonts.ready);

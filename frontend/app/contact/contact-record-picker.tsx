@@ -173,12 +173,9 @@ export function ContactRecordPicker({
       </select>
       <div className="contact-choice">
         {onlyBranch ? (
-          <input
-            id={id}
-            readOnly
-            value={onlyBranch.label}
-            aria-describedby={`${id}-help`}
-          />
+          <output id={id} className="contact-fixed-choice">
+            {onlyBranch.label}
+          </output>
         ) : (
           <>
             <input
@@ -268,15 +265,15 @@ export function ContactRecordPicker({
           </>
         )}
       </div>
-      <p className="contact-field-help" id={`${id}-help`}>
-        {records.loading
-          ? "Loading choices…"
-          : records.error
-            ? "Choices could not be loaded. Please retry."
-            : onlyBranch
-              ? "Your request goes to this workshop. No branch selection is needed."
+      {!onlyBranch && (
+        <p className="contact-field-help" id={`${id}-help`}>
+          {records.loading
+            ? "Loading choices…"
+            : records.error
+              ? "Choices could not be loaded. Please retry."
               : "Type to find a choice on this page."}
-      </p>
+        </p>
+      )}
       {error && (
         <p id={`${id}-error`} className="field-error" role="alert">
           {error}

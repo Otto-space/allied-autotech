@@ -114,11 +114,15 @@ export function parseSupportMessages(staff: boolean, value: unknown) {
     throw new Error("Invalid message page");
   return result;
 }
-export const supportText = (max: number, required = true) =>
+export const supportText = (
+  max: number,
+  required = true,
+  requiredMessage = "Enter the required information.",
+) =>
   z
     .string()
     .trim()
-    .min(required ? 1 : 0, "Enter the required information.")
+    .min(required ? 1 : 0, requiredMessage)
     .max(max)
     .refine(
       (value) =>
@@ -129,8 +133,8 @@ export const supportText = (max: number, required = true) =>
       "Remove unsupported control characters.",
     );
 export const supportCreateSchema = z.object({
-  subject: supportText(160),
-  message: supportText(4000),
+  subject: supportText(160, true, "Enter a subject for your request."),
+  message: supportText(4000, true, "Enter a message with the details of your request."),
   name: supportText(120, false),
   email: z.string().trim(),
   phone: z.string().trim().max(32),

@@ -132,58 +132,20 @@ export default function ContactPage() {
                   Tell us how we can help.
                 </h2>
                 <p>
-                  Ask about services, bookings, quotations, orders, payments or vehicles.
+                  Include your vehicle or product details and any booking or order
+                  reference that helps explain your question.
                 </p>
                 <p>{business.customerCareHours}</p>
                 <p>{business.customerCareResponse}</p>
                 <ContactAccountLink />
-                <ol className="contact-next">
-                  <li>
-                    <span>1</span>
-                    <div>
-                      <h3>Share the details</h3>
-                      <p>
-                        Tell us what you need help with. Include useful references in your
-                        message.
-                      </p>
-                    </div>
-                  </li>
-                  <li>
-                    <span>2</span>
-                    <div>
-                      <h3>Review before sending</h3>
-                      <p>
-                        Check your contact details and message before creating your
-                        request.
-                      </p>
-                    </div>
-                  </li>
-                  <li>
-                    <span>3</span>
-                    <div>
-                      <h3>Keep your reference</h3>
-                      <p>
-                        After your request is received, save the reference for
-                        conversations with our team.
-                      </p>
-                    </div>
-                  </li>
-                </ol>
-                <aside
-                  className="contact-preparation"
-                  aria-labelledby="contact-preparation-title"
-                >
-                  <h3 id="contact-preparation-title">Helpful details</h3>
-                  <ul>
-                    <li>Your vehicle and the issue</li>
-                    <li>A booking or order reference, if relevant</li>
-                    <li>What you would like us to help with</li>
-                  </ul>
-                </aside>
+                <p className="contact-next-step">
+                  Review your details before sending. Once your request is received, keep
+                  the reference so our team can follow up.
+                </p>
               </div>
               <div className="contact-form-panel">
                 <Suspense fallback={<p>Preparing enquiry form...</p>}>
-                  <ContactPartsEnquiry />
+                  <ContactPartsEnquiry labelledBy="enquiry" />
                 </Suspense>
               </div>
             </section>

@@ -20,7 +20,13 @@ const parseListing = (value: unknown) => listingSchema.parse(value);
 const uuid = (value: string | null) => (z.uuid().safeParse(value).success ? value! : "");
 
 /** Transfer values are editable context, never identity, permissions or redirects. */
-export function ContactPartsEnquiry({ onlyParts = false }: { onlyParts?: boolean }) {
+export function ContactPartsEnquiry({
+  onlyParts = false,
+  labelledBy,
+}: {
+  onlyParts?: boolean;
+  labelledBy?: string;
+}) {
   const input = useSearchParams();
   const params = new URLSearchParams(input.toString());
   if (onlyParts && params.get("parts") !== "1" && params.get("vehicle") !== "1")
@@ -35,15 +41,21 @@ export function ContactPartsEnquiry({ onlyParts = false }: { onlyParts?: boolean
             key={context.id}
             params={selected}
             contextKey={context.contextKey}
+            labelledBy={labelledBy}
           />
         ) : selected.get("parts") === "1" ? (
           <ProductEnquiryContext
             key={context.id}
             params={selected}
             contextKey={context.contextKey}
+            labelledBy={labelledBy}
           />
         ) : (
-          <PublicEnquiryForm key={context.id} presentation="contact" />
+          <PublicEnquiryForm
+            key={context.id}
+            presentation="contact"
+            labelledBy={labelledBy}
+          />
         );
       }}
     </CatalogueEnquiryDrafts>
@@ -53,9 +65,11 @@ export function ContactPartsEnquiry({ onlyParts = false }: { onlyParts?: boolean
 function VehicleEnquiryContext({
   params,
   contextKey,
+  labelledBy,
 }: {
   params: URLSearchParams;
   contextKey?: string;
+  labelledBy?: string;
 }) {
   const listingRequested = params.has("vehicle_listingId");
   const id = uuid(params.get("vehicle_listingId"));
@@ -93,6 +107,7 @@ function VehicleEnquiryContext({
       <PublicEnquiryForm
         presentation="contact"
         initialEnquiryType="VEHICLE"
+        labelledBy={labelledBy}
         initialVehicleEnquiryIntent={listingRequested ? "LISTING" : "REQUIREMENTS"}
         initialSubject={draft.subject}
         initialMessage={draft.message}
@@ -107,9 +122,11 @@ function VehicleEnquiryContext({
 function ProductEnquiryContext({
   params,
   contextKey,
+  labelledBy,
 }: {
   params: URLSearchParams;
   contextKey?: string;
+  labelledBy?: string;
 }) {
   const modelId = uuid(params.get("part_vehicleModelId"));
   const productId = uuid(params.get("part_productId"));
@@ -162,6 +179,7 @@ function ProductEnquiryContext({
       <PublicEnquiryForm
         presentation="contact"
         initialEnquiryType="PRODUCT"
+        labelledBy={labelledBy}
         initialSubject={draft.subject}
         initialMessage={draft.message}
         initialContextKey={contextKey}

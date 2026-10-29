@@ -281,3 +281,34 @@ checkpoint is retained on the audit branch while that runtime is the checked
 integration source. Next audit batch: Contact V34/V35/V36, preserving public
 request-only policy, drafts, branch routing and form focus. Recheck source and
 provider deployment before any release; the full visual goal remains active.
+
+## Contact clarity candidate - 29 October 2026
+
+The previous goal turn made progress by verifying the existing favourites repair on
+current production at 390/1440 and recording the evidence. All 18 sections and
+V01-V55 remain in scope. The service V28/V29/V30 runtime is now included in published
+060dba8d, Vercel dpl_AzXytZPjJgVb93kjfcb79KsuZtVH on both domains, verified 29 October.
+The earlier service publication hold is superseded by the compatible vehicle/backend
+release recorded in backend/docs/vehicle-marketplace-implementation-20261028.md.
+
+Current batch V34/V35/V36: sole verified workshop becomes labelled read-only output;
+multiple/paginated/failed choices retain the picker. Subject/message required errors
+identify the field without changing limits or public identity checks. Contact retains
+its two columns, channels, approved hours/acknowledgement distinction, privacy note,
+review step and receipt. Repeated instruction cards and a redundant form heading are
+replaced with concise preparation/next-step guidance. Draft and branch contracts are
+unchanged; no learning target, workflow, permission or business policy changes.
+
+Live isolated baseline reproduced INPUT workshop context, generic subject error and
+three repeated instruction steps at 390/1440. An initial baseline fixture omitted the
+required envelope metadata; corrected before the successful baseline. Nineteen focused
+schema/source/draft tests and initial TypeScript/scoped lint passed. Four new hosted
+cases cover automatic branch payload, field-specific errors and first-error focus,
+review/Escape/draft preservation, keyboard/hover, receipt, overflow and scoped Axe at
+360/390/768/1440. Hosted final-source acceptance and exact CI are pending. Evidence:
+C:/Users/PC/AppData/Local/Temp/allied-contact-clarity-20261029/.
+
+The audit tracker stash conflict was resolved by retaining both upstream publication
+notes and every stashed audit note; tracker remains unstaged and the stash retained.
+Other dirty asset records and the active W16D master worktree remain preserved. No
+local preview, shared database/customer write or production promotion in this batch.

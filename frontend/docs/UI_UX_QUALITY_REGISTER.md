@@ -3059,3 +3059,18 @@ compatible guarded backend rollout; all three exact-source gates passed on
 on the public domains. No real account/message/shared-database mutations by this
 audit. Business-authored service wording, physical devices, real roles, full
 screen-reader coverage and remaining V01-V55 findings remain open.
+
+## Favourites refresh live recheck - 29 October 2026
+
+Rechecked the owner's Engine Oil Filter URL without changing account data. Both
+production domains resolve to READY deployment dpl_AzXytZPjJgVb93kjfcb79KsuZtVH,
+source 060dba8d; Git ancestry confirms the ef06efb7 persistence repair is included.
+The two existing hosted Playwright cases pass at 390/1440: save, reload, later-page
+lookup, simulated external removal, failed read and retry. All identity/collection
+reads and mutations were intercepted fixtures, with unmatched API requests denied.
+Six focused product-favourite unit tests also pass. The mobile saved-after-refresh
+screenshot was inspected. Evidence: C:/Users/PC/AppData/Local/Temp/allied-favourite-recheck-20261029/.
+Browser plugin was unavailable; existing Playwright/Edge was reused. These checks
+verify current rendered frontend behavior, not the owner's private account or a
+new real database write. No runtime patch or deployment was necessary. Existing
+tracker conflict and unrelated edits were preserved. Postflight free C: 22.2 GiB.
