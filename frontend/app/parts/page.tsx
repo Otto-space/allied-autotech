@@ -2,7 +2,6 @@ import { loadPublicSeed } from "@/lib/api/public-seed-server";
 import { parseProductDiscovery } from "@/lib/api/commerce-schemas";
 import { publicPageMetadata, type SearchParameters } from "@/lib/seo";
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { ChevronRight, ArrowUpRight, CarFront, FileSearch, MapPin } from "lucide-react";
 import { business } from "@/lib/business";
@@ -16,6 +15,7 @@ import { SiteFooter } from "../components/site-footer";
 import { PartsCatalogue } from "../components/parts-catalogue";
 import "./parts.css";
 import "../components/catalogue-discovery.css";
+import "../components/catalogue-redesign.css";
 
 async function listingPath(searchParams: SearchParameters) {
   const query = new URLSearchParams();
@@ -71,20 +71,11 @@ export default async function PartsPage({
         <section className="product-hero" aria-labelledby="product-title">
           <div className="public-wrap product-hero-inner">
             <div className="product-hero-copy">
-              <h1 id="product-title">Parts, oils &amp; automotive essentials</h1>
+              <h1 id="product-title">Find the right parts</h1>
               <p>
                 Browse replacement parts, engine oils and automotive essentials. Check
                 product specifications and collection availability with our team.
               </p>
-            </div>
-            <div className="product-hero-media">
-              <Image
-                src="/images/allied-autotech/parts-editorial.webp"
-                alt=""
-                fill
-                sizes="(max-width: 767px) 100vw, 50vw"
-                preload
-              />
             </div>
           </div>
         </section>

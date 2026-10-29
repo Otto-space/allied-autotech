@@ -2,7 +2,6 @@ import { loadPublicSeed } from "@/lib/api/public-seed-server";
 import { parseVehicleDiscovery } from "@/lib/api/vehicle-schemas";
 import { publicPageMetadata, type SearchParameters } from "@/lib/seo";
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { ChevronRight, ArrowUpRight } from "lucide-react";
 import { business } from "@/lib/business";
@@ -15,6 +14,7 @@ import { SiteFooter } from "../components/site-footer";
 import { VehicleCatalogue } from "../components/vehicle-catalogue";
 import "./vehicles.css";
 import "../components/catalogue-discovery.css";
+import "../components/catalogue-redesign.css";
 
 async function listingPath(searchParams: SearchParameters) {
   const query = new URLSearchParams();
@@ -84,16 +84,6 @@ export default async function VehiclesPage({
                   ? "Share your budget, preferred make and requirements. Our team can discuss your options."
                   : "Compare published specifications and contact our team about a vehicle."}
               </p>
-            </div>
-            <div className="vehicle-hero-media">
-              <Image
-                src="/images/allied-autotech/showroom-neutral-editorial.webp"
-                alt=""
-                fill
-                sizes="(max-width: 767px) 100vw, 55vw"
-                preload
-              />
-              <span>Editorial showroom illustration. See listings for availability.</span>
             </div>
           </div>
         </section>

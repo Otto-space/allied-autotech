@@ -3581,6 +3581,12 @@ html {
   flex-shrink: 0;
   margin-top: 0.15rem;
 }
+.vehicle-owner-issue-preview strong {
+  display: inline;
+  font: inherit;
+  font-weight: 700;
+  color: inherit;
+}
 .vehicle-owner-issue-preview span {
   display: -webkit-box;
   -webkit-box-orient: vertical;
