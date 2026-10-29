@@ -39,6 +39,7 @@ import { formatBusinessDate } from "@/lib/format/date";
 import { careCaseAllows } from "@/lib/workforce-care";
 import { MutationReview, type MutationProposal } from "./mutation-review";
 import { Feedback } from "./feedback";
+import { SupportChannelPanel } from "./support-channel-panel";
 import { EnquiryCandidates } from "./workforce-enquiry-candidates";
 
 type Draft = {
@@ -85,6 +86,7 @@ export function WorkforceEnquiryDetail({
     { refreshKey },
   );
   const [draft, setDraft] = useState<Draft>();
+  const [publicUpdate, setPublicUpdate] = useState<string>();
   const retainedDraft = useRef<Partial<Omit<Draft, "base">>>({});
   const [expanded, setExpanded] = useState(false);
   const [pending, setPending] = useState<WorkforceEnquiryPending>();
@@ -107,13 +109,17 @@ export function WorkforceEnquiryDetail({
     !!record.data &&
     (record.data.id !== id || !sameWorkforceScope(access, record.data.access));
   const row =
-    enabled && !denied && !busy && !failure && !mismatch ? record.data : undefined;
+    enabled && !denied && !record.loading && !record.error && !mismatch
+      ? record.data
+      : undefined;
   const stale =
     !!row &&
     !!draft &&
     (enquiryRevision(row) !== enquiryRevision(draft.base) ||
       !sameWorkforceScope(access, draft.base.access));
-  const blocked = !row || !storageReady || !!pending || !!proposal || stale || recovering;
+  const editingBlocked =
+    !row || !storageReady || !!pending || !!proposal || recovering || !!failure;
+  const blocked = editingBlocked || busy || stale;
   useEffect(() => {
     let active = true;
     queueMicrotask(() => {
@@ -555,6 +561,20 @@ export function WorkforceEnquiryDetail({
               </dd>
             </div>
           </dl>
+          {row.contact?.customerId && careCaseAllows(access, "ENQUIRY", "view", row) && (
+            <SupportChannelPanel
+              userId={access.userId}
+              kind="enquiries"
+              id={id}
+              staff
+              disabled={blocked}
+              closed={row.status === "CLOSED"}
+              hasBranch={!!row.branchId}
+              availabilityHref={`/admin/workforce/enquiries?${params}#care-conversation-workspace`}
+              onCaseChanged={record.revalidate}
+              onPublicUpdate={setPublicUpdate}
+            />
+          )}
           {stale && (
             <section className="wfe-recovery">
               <h3>The conversation has changed</h3>
@@ -587,6 +607,25 @@ export function WorkforceEnquiryDetail({
               aria-labelledby="wfe-conversation-title"
             >
               <h3 id="wfe-conversation-title">Conversation</h3>
+              {publicUpdate && (
+                <div className="notice" role="status">
+                  A new customer-visible update is available.{" "}
+                  <button
+                    className="button secondary"
+                    disabled={busy || !!failure || !!proposal || recovering}
+                    onClick={() => {
+                      const target = new URLSearchParams(params);
+                      target.delete("messageCursor");
+                      target.delete("_messageTrail");
+                      target.set("messageId", publicUpdate);
+                      navigate(target);
+                      setPublicUpdate(undefined);
+                    }}
+                  >
+                    View latest update
+                  </button>
+                </div>
+              )}
               <div className="wfe-original">
                 <h4>Original enquiry</h4>
                 <p>{row.message}</p>
@@ -650,7 +689,7 @@ export function WorkforceEnquiryDetail({
                         value={draft?.body ?? ""}
                         maxLength={5000}
                         rows={5}
-                        readOnly={blocked}
+                        readOnly={editingBlocked}
                         onChange={(e) => edit("body", e.target.value)}
                         aria-invalid={invalidField === "body"}
                         aria-describedby={`wfe-body-hint${invalidField === "body" && errorId ? ` ${errorId}` : ""}`}

@@ -77,6 +77,7 @@ export async function workforceEnquiriesFixture(
     listFailure: false,
     detailFailure: false,
     detailDenied: false,
+    customerId: null as string | null,
     listMismatch: false,
     candidateFailure: false,
     candidateMismatch: false,
@@ -227,7 +228,7 @@ export async function workforceEnquiriesFixture(
               name: "Synthetic customer",
               email: "care-fixture@example.test",
               phone: null,
-              customerId: null,
+              customerId: state.customerId,
             },
           }
         : {}),

@@ -12,10 +12,24 @@ At 390px, opening the admin drawer exposed both the modal and legacy sidebar
 leaves the modal as the single visible/accessibility navigation. Focused
 320/390/901px and customer-search browser checks passed 4/4, with a 390px drawer
 screenshot, no page exceptions and Axe in the responsive navigation checks.
-Browser plugin unavailable; installed Edge/Playwright used. Lint and typecheck
-passed; unit/build/format stages were interrupted before execution because C:
-fell below the 25 GiB build preflight. Hosted, authenticated real-role, native
+Browser plugin unavailable; installed Edge/Playwright used. Lint, typecheck,
+1,240 units and frontend formatting passed; the local optimized build was
+stopped when C: fell below the 25 GiB preflight. Hosted, authenticated real-role, native
 keyboard and screen-reader acceptance remain open.
+
+## 29 October 2026: W16D managed Care channels
+
+Managed enquiry/complaint queues and linked-case channel controls now use current
+same-branch Care gates, managed destinations, preserved URL context and retained
+draft/focus on background reads. Final 46 focused frontend cases pass. Initial
+Staff/Admin and granular view-only fixtures were extended to twelve distinct final
+rendered cases across corrected runs: 390/768/1440px channel journeys and existing
+assignment/revocation regressions. Header/body mismatches reproduced in both tables
+are fixed, with explicit column checks. Known development preload warnings require
+resource and applied-style verification; unexpected warnings/errors remain failures.
+Reused local Next
+is 16.3.8; the lock's 16.4.3 and hosted/real-role acceptance are not implied. See
+[`SUPPORT_MANAGED_CHANNELS_W16D.md`](../../docs/help-learn/SUPPORT_MANAGED_CHANNELS_W16D.md).
 
 ## 29 October 2026: refreshed workshop fragment candidate
 
@@ -3059,3 +3073,35 @@ Vehicle release follow-up: the inherited staff location query now applies city/s
 filtering after assigned-branch scope. A focused persistence regression covers a
 matching branch, a non-matching location and foreign-branch staff; no permission or
 responsibility was granted. Schema and the populated restore rehearsal are unchanged.
+
+## 29 October 2026 - service enquiry clarity and inline privacy link
+
+V28/V29: one accessible enquiry heading and an uncropped equipment photo. V30's
+existing request-only journey is verified and preserved. The shared intake privacy
+link now has a non-colour cue; keyboard focus remains visible while hovering.
+Service, Contact, registration, catalogue and favourites pass 19 hosted fixtures
+on the integrated candidate; 20 public checks pass. Initial fixture failures and
+the real Axe finding are retained, corrected and distinguished in the
+[visual audit checkpoint](VISUAL_IDENTITY_AUDIT_CHECKPOINT.md).
+
+Source is merged with concurrent Care/vehicle work. Publication still requires its
+compatible guarded backend rollout; all three exact-source gates passed on
+2586c61b. The held candidate is not
+on the public domains. No real account/message/shared-database mutations by this
+audit. Business-authored service wording, physical devices, real roles, full
+screen-reader coverage and remaining V01-V55 findings remain open.
+
+## Favourites refresh live recheck - 29 October 2026
+
+Rechecked the owner's Engine Oil Filter URL without changing account data. Both
+production domains resolve to READY deployment dpl_AzXytZPjJgVb93kjfcb79KsuZtVH,
+source 060dba8d; Git ancestry confirms the ef06efb7 persistence repair is included.
+The two existing hosted Playwright cases pass at 390/1440: save, reload, later-page
+lookup, simulated external removal, failed read and retry. All identity/collection
+reads and mutations were intercepted fixtures, with unmatched API requests denied.
+Six focused product-favourite unit tests also pass. The mobile saved-after-refresh
+screenshot was inspected. Evidence: C:/Users/PC/AppData/Local/Temp/allied-favourite-recheck-20261029/.
+Browser plugin was unavailable; existing Playwright/Edge was reused. These checks
+verify current rendered frontend behavior, not the owner's private account or a
+new real database write. No runtime patch or deployment was necessary. Existing
+tracker conflict and unrelated edits were preserved. Postflight free C: 22.2 GiB.

@@ -43,6 +43,7 @@ import {
 } from "@/lib/admin/workforce-enquiries";
 import { ComplaintCandidates } from "./workforce-enquiry-candidates";
 import { Feedback } from "./feedback";
+import { SupportChannelPanel } from "./support-channel-panel";
 
 type Draft = {
   base: WorkforceComplaint;
@@ -88,6 +89,7 @@ export function WorkforceComplaintDetail({
     { refreshKey },
   );
   const [draft, setDraft] = useState<Draft>();
+  const [publicUpdate, setPublicUpdate] = useState<string>();
   const retainedDraft = useRef<Partial<Omit<Draft, "base">>>({});
   const [expanded, setExpanded] = useState(false);
   const [reviewAction, setReviewAction] = useState<"reply" | "assignment">("reply");
@@ -111,13 +113,17 @@ export function WorkforceComplaintDetail({
     !!record.data &&
     (record.data.id !== id || !sameWorkforceScope(access, record.data.access));
   const row =
-    enabled && !denied && !busy && !failure && !mismatch ? record.data : undefined;
+    enabled && !denied && !record.loading && !record.error && !mismatch
+      ? record.data
+      : undefined;
   const stale =
     !!row &&
     !!draft &&
     (complaintRevision(row) !== complaintRevision(draft.base) ||
       !sameWorkforceScope(access, draft.base.access));
-  const blocked = !row || !storageReady || !!pending || !!proposal || stale || recovering;
+  const editingBlocked =
+    !row || !storageReady || !!pending || !!proposal || recovering || !!failure;
+  const blocked = editingBlocked || busy || stale;
   useEffect(() => {
     let active = true;
     queueMicrotask(() => {
@@ -567,6 +573,21 @@ export function WorkforceComplaintDetail({
               </dd>
             </div>
           </dl>
+          {row.contact?.customerId &&
+            careCaseAllows(access, "COMPLAINT", "view", row) && (
+              <SupportChannelPanel
+                userId={access.userId}
+                kind="complaints"
+                id={id}
+                staff
+                disabled={blocked}
+                closed={row.status === "CLOSED"}
+                hasBranch={!!row.branchId}
+                availabilityHref={`/admin/workforce/complaints?${params}#care-conversation-workspace`}
+                onCaseChanged={record.revalidate}
+                onPublicUpdate={setPublicUpdate}
+              />
+            )}
           {stale && (
             <section className="wfc-recovery">
               <h3>The conversation has changed</h3>
@@ -599,6 +620,25 @@ export function WorkforceComplaintDetail({
               aria-labelledby="wfc-conversation-title"
             >
               <h3 id="wfc-conversation-title">Conversation</h3>
+              {publicUpdate && (
+                <div className="notice" role="status">
+                  A new customer-visible update is available.{" "}
+                  <button
+                    className="button secondary"
+                    disabled={busy || !!failure || !!proposal || recovering}
+                    onClick={() => {
+                      const target = new URLSearchParams(params);
+                      target.delete("messageCursor");
+                      target.delete("_messageTrail");
+                      target.set("messageId", publicUpdate);
+                      navigate(target);
+                      setPublicUpdate(undefined);
+                    }}
+                  >
+                    View latest update
+                  </button>
+                </div>
+              )}
               <div className="wfc-original">
                 <h4>Original complaint</h4>
                 <p>{row.description}</p>
@@ -662,7 +702,7 @@ export function WorkforceComplaintDetail({
                         value={draft?.body ?? ""}
                         maxLength={5000}
                         rows={5}
-                        readOnly={blocked}
+                        readOnly={editingBlocked}
                         onChange={(e) => edit("body", e.target.value)}
                         aria-invalid={invalidField === "body"}
                         aria-describedby={`wfc-body-hint${invalidField === "body" && errorId ? ` ${errorId}` : ""}`}

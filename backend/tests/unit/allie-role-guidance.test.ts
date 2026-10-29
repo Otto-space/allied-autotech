@@ -32,6 +32,15 @@ describe("provider-observed role guidance regressions", () => {
       const article = view.articles.find((a) => a.id === "care-triage")!;
       expect(article.summary).toContain("do not permit customer replies");
       expect(article.steps.join(" ")).toContain("do not establish staffed live chat");
+      expect(article.version).toBe(3);
+      expect(article.steps.join(" ")).toContain("does not create another inbox");
+      expect(article.steps.join(" ")).toContain("does not mark a notification as read");
+      expect(article.steps.join(" ")).toContain(
+        "current live duty, explicit availability",
+      );
+      expect(article.steps.join(" ")).toContain(
+        "cancellation cannot undo a change already saved",
+      );
       expect(view.guides.some((g) => g.id === "care-queue")).toBe(true);
       expect(view.scenarios.some((s) => s.id === "care-triage")).toBe(false);
       const permitted = catalogue({
