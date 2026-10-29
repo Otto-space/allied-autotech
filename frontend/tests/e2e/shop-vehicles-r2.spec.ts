@@ -7,6 +7,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { discoveryResponse } from "../fixtures/discovery-response.mjs";
 import { demoId } from "../fixtures/discovery-demo.mjs";
 import { workProductsFixture, productCategories } from "../fixtures/work-products";
+import { verifyConsole } from "../fixtures/preview-console";
 
 // Rendering/interaction fixtures only. PostgreSQL integration tests establish
 // actual search, validation, routing, persistence and permission behaviour.
@@ -50,6 +51,15 @@ test.beforeEach(async ({ page }) => {
   await page.route("**/api/v1/**", async (route) => {
     const req = route.request(),
       url = new URL(req.url());
+    // Initial hosted SSR may include genuine public imagery. Allow only its GET;
+    // account data and every mutation remain inside the isolated fixture.
+    if (
+      req.method() === "GET" &&
+      /^\/api\/v1\/public\/(?:vehicles\/images|media\/images)\/[a-f0-9-]{36}$/.test(
+        url.pathname,
+      )
+    )
+      return route.continue();
     if (url.pathname.endsWith("/auth/session"))
       return account === "customer"
         ? route.fulfill({
@@ -134,8 +144,13 @@ for (const width of [360, 390, 768, 1024, 1440]) {
   test(`Shop and Vehicles render and operate at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     const errors: string[] = [];
+    const warnings: string[] = [];
     page.on("pageerror", (error) => errors.push(error.message));
     page.on("console", (message) => {
+      if (message.type() === "warning") {
+        warnings.push(message.text());
+        return;
+      }
       if (
         ["error", "warning"].includes(message.type()) &&
         !(
@@ -154,7 +169,7 @@ for (const width of [360, 390, 768, 1024, 1440]) {
     await page.goto("/parts");
     await expect(
       page.getByRole("heading", {
-        name: "Auto Parts & Automotive Essentials",
+        name: "Parts, oils & automotive essentials",
         exact: true,
       }),
     ).toBeVisible();
@@ -231,7 +246,7 @@ for (const width of [360, 390, 768, 1024, 1440]) {
     );
     await expect(page.locator(".vehicle-card")).toHaveCount(1);
     await healthy(page, "vehicles", width);
-    expect(errors).toEqual([]);
+    await verifyConsole(page, errors, warnings);
   });
 }
 test("oil preferences retain both budgets through review and the submission contract", async ({
@@ -401,10 +416,21 @@ test("empty, no-match and API error states stay distinct and retry recovers", as
 }) => {
   mode = "empty";
   await page.goto("/parts");
+  // Hosted SSR reads the real public catalogue. A client query must trigger the
+  // intercepted empty fixture before asserting a synthetic global-empty state.
+  await page
+    .getByRole("searchbox", { name: "Search products", exact: true })
+    .fill("SyntheticEmptyCatalogue");
+  await page
+    .getByRole("searchbox", { name: "Search products", exact: true })
+    .press("Enter");
   await expect(
     page.getByRole("heading", { name: "No products are published yet", exact: true }),
   ).toBeVisible();
   mode = "populated";
+  // A newly populated catalogue is a separate dataset, so reload its global
+  // availability check before asserting a filtered no-match response.
+  await page.reload();
   await page
     .getByRole("searchbox", { name: "Search products", exact: true })
     .fill("NoSyntheticMatch");
