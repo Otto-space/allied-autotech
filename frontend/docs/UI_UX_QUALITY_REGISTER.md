@@ -1,5 +1,18 @@
 # UI and UX quality register
 
+## 29 October 2026: requested catalogue redesign, rendered verification
+
+Scope: anonymous Vehicles, Shop and Services at eight requested widths. Owner's
+new complete implementation brief is read and its source/API/reference audit is
+recorded in CATALOGUE_REDESIGN_20261029.md. Verified source gaps: no desktop
+vehicle filter sidebar, no draft matching count, small Shop photo beside identity,
+dense four-column product grid, horizontal service rows and a late problem-help
+path. Existing validation, query/history, fitment, error recovery and publication
+semantics are reusable. Primary references were retrieved except YourMechanic
+(403); structural research is not rendered third-party acceptance.
+
+Public BMW listing remains verified, with price/disclosure and seven healthy photo endpoints. Four concepts and a fresh 390/1440 baseline are retained. Vehicles, Shop and Services now use image-above-copy cards, desktop filter rails/mobile drawers where appropriate and improved discovery paths. Catalogue query units pass 54 assertions; eight-width rendered, exceptional-state and learning regressions are underway. C: preflight now passes around 29 GiB after owner cleanup. No schema, permission, transaction or flag changes. Remote Contact/Care source changes must be integrated and verified before release.
+
 ## 29 October 2026: refreshed workshop fragment candidate
 
 P1 navigation/focus, anonymous `/contact#workshop`, 1440x844. A hosted fixture
@@ -18,13 +31,36 @@ incorrectly compared absolute scroll pixels while form/font hydration changed
 layout; corrected to assert the actual heading visibility and retained manual
 offset. A separate local run lacked the public Help/Learn flag; its unavailable
 screen was a harness configuration issue, corrected to the released local mode.
-Exact-source CI, candidate and hosted acceptance remain pending.
+Exact-source 060dba8d CI passed: Frontend 40805931087, Backend safety 40805931425
+and secrets 40805931038. The tested production-environment build
+dpl_AzXytZPjJgVb93kjfcb79KsuZtVH was promoted to both domains at 04:00:55 Lagos
+time. Complete JSON reports now cover 24/24 passing cases: 12 viewport/navigation,
+two original refresh/touch and ten Learn/Allie/guide/practice cases. The temporary
+adapted touch harness was unnecessary; original tests inherit configured context
+options. Its import failure was a harness error before any application test ran.
 
 Local acceptance now passed six focused cases in the released browse/enquiries
 mode: repeated fragment reload/manual-wheel checks, navigation/breadcrumbs and
 ordinary refresh/touch reading at 390/1440. Scoped lint/format passed. An initial
 typecheck overlapped Next dev type generation; the server was stopped and route
 types regenerated before the final compiler check. No database or role changes.
+
+After owner cleanup, bounded browser preflights pass at 20.16 GiB free. Automatic
+review had rejected the agent's cache deletion; no files from that attempt were
+removed. Production is now 060dba8d on both domains. Live public mobile acceptance
+passes at 390/1440: repeated workshop fragment refresh, manual reading, both-domain Home
+refresh, article outline/shadow, Help-to-Learn header geometry and Allie bounds/
+focus return, with no page exceptions or horizontal overflow. Header horizontal
+shift is zero at both widths; workshop/Learn screenshots were visually inspected.
+An initial desktop assertion assumed a fixed native restored starting position.
+Event tracing showed the actual 350px wheel movement persisted, with no subsequent
+application scrollTo; corrected live assertions compare that movement. Both final
+public journeys pass. Evidence: TEMP/aat-fragment-bmw-live-final-20261029.json and
+its four screenshots. Disk postflight is 20.15 GiB free.
+Signed-in Chrome briefly exposed the real BMW stock record, with no photos or sale
+listing; subsequent UI automation stopped because the browser URL could not be
+verified. Real BMW publication remains unverified. Physical-device and full
+screen-reader coverage remain open.
 
 ## 29 October 2026: vehicle disclosures production acceptance
 

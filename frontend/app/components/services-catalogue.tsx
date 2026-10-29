@@ -88,7 +88,7 @@ export function ServicesCatalogue({
       </noscript>
       <div className="services-discovery-panel">
         <div className="services-results-heading">
-          <h2 id="service-results-heading" tabIndex={-1}>
+          <h2 id="service-results-heading" className="sr-only" tabIndex={-1}>
             Find your service
           </h2>
           <p role="status" aria-live="polite">

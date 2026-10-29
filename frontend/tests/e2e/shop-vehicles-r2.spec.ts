@@ -158,15 +158,15 @@ for (const width of [360, 390, 768, 1024, 1440]) {
     await page.goto("/parts");
     await expect(
       page.getByRole("heading", {
-        name: "Auto Parts & Automotive Essentials",
+        name: "Find the right parts",
         exact: true,
       }),
     ).toBeVisible();
     await expect(
-      page.getByRole("radio", { name: "Search all products", exact: true }),
+      page.getByRole("radio", { name: "Search by part name or number", exact: true }),
     ).toBeChecked();
     const modeBounds = await page
-      .getByRole("radio", { name: "Search all products", exact: true })
+      .getByRole("radio", { name: "Search by part name or number", exact: true })
       .boundingBox();
     expect(modeBounds?.height).toBeLessThanOrEqual(24);
     expect(modeBounds?.width).toBeLessThanOrEqual(24);

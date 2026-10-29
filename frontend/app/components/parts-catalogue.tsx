@@ -68,11 +68,6 @@ export function PartsCatalogue({
     category.data &&
     category.data.parentId !== rootId
   );
-  const finderUnavailable =
-    !makes.loading &&
-    !makes.error &&
-    !makes.refreshError &&
-    makes.data?.items.length === 0;
   const vehicleChoicesAvailable =
     !makes.loading && !makes.error && !makes.refreshError && !!makes.data?.items.length;
   const selected = [...new Set(productFilterKeys)].filter(
@@ -154,7 +149,7 @@ export function PartsCatalogue({
       ?.scrollIntoView({ behavior: "instant", block: "start" });
   }
   return (
-    <>
+    <div className="product-browse-layout">
       <noscript>
         <p className="notice">
           Enable JavaScript to filter, load more results or refresh this list. You can
@@ -163,7 +158,7 @@ export function PartsCatalogue({
       </noscript>
       <div className="product-search-panel">
         <div className="product-inventory-heading">
-          <h2 id="product-results-heading" tabIndex={-1}>
+          <h2 id="product-results-heading" className="sr-only" tabIndex={-1}>
             Explore automotive products
           </h2>
           <p role="status" aria-live="polite">
@@ -189,37 +184,33 @@ export function PartsCatalogue({
             update={update}
           />
         </div>
-        {finderUnavailable && intent !== "vehicle" ? (
-          <p className="parts-finder-help">
-            Need help finding a suitable product?{" "}
-            <Link href={partsEnquiryHref(params)}>Ask our team</Link>
-          </p>
-        ) : (
-          <fieldset className="parts-intent">
-            <legend>How would you like to find products?</legend>
-            <label>
-              <input
-                type="radio"
-                name="product-discovery-mode"
-                checked={intent === "part"}
-                onChange={() => {
-                  setIntent("part");
-                  update(clearVehicleSelection);
-                }}
-              />
-              Search all products
-            </label>
-            <label>
-              <input
-                type="radio"
-                name="product-discovery-mode"
-                checked={intent === "vehicle"}
-                onChange={() => setIntent("vehicle")}
-              />
-              Find products for my vehicle
-            </label>
-          </fieldset>
-        )}
+        <fieldset className="parts-intent">
+          <legend className="sr-only">How would you like to find products?</legend>
+          <label>
+            <input
+              type="radio"
+              name="product-discovery-mode"
+              value="vehicle"
+              checked={intent === "vehicle"}
+              data-scroll-target="parts-vehicle-finder"
+              onChange={() => setIntent("vehicle")}
+            />
+            Find Parts for My Car
+          </label>
+          <label>
+            <input
+              type="radio"
+              name="product-discovery-mode"
+              value="part"
+              checked={intent === "part"}
+              onChange={() => {
+                setIntent("part");
+                update(clearVehicleSelection);
+              }}
+            />
+            Search by part name or number
+          </label>
+        </fieldset>
         <div className="catalogue-controls">
           <div className="product-toolbar">
             {(categories.items.length > 0 ||
@@ -269,8 +260,8 @@ export function PartsCatalogue({
                 (params.has("vehicleModelId") ? 1 : 0)
               }
               update={update}
-              clear={clear}
               scope={params.toString()}
+              totalMatches={products.data?.totalMatches}
             />
             <div className="product-sort" hidden={noCatalogue}>
               <label htmlFor="product-sort">Sort by</label>
@@ -295,7 +286,11 @@ export function PartsCatalogue({
             </div>
           </div>
         </div>
-        <div hidden={intent !== "vehicle"}>
+        <div
+          id="parts-vehicle-finder"
+          className="parts-finder-region"
+          hidden={intent !== "vehicle"}
+        >
           <FindPartsForCar
             makes={makes}
             query={vehicleQuery}
@@ -304,260 +299,269 @@ export function PartsCatalogue({
           />
         </div>
       </div>
-      {mismatchedCategory && (
-        <p className="notice" role="status">
-          The selected subcategory does not belong to this category. Choose a subcategory
-          or remove it.
-        </p>
-      )}
-      {params.has("vehicleModelId") &&
-        !products.loading &&
-        !products.error &&
-        products.data?.verifiedMatches === 0 && (
-          <aside className="parts-fitment-help" role="status">
-            <h3>No verified match for these details</h3>
-            <p>
-              {products.data.totalMatches
-                ? "The products below are candidates requiring verification. Our team can check the missing specifications."
-                : "We could not confirm a matching part. Send your vehicle details to our team."}{" "}
-              Collection only; delivery is unavailable.
-            </p>
-            <Link className="button secondary" href={partsEnquiryHref(params)}>
-              Request the right part
-            </Link>
-          </aside>
+      <div className="product-catalogue-results">
+        {mismatchedCategory && (
+          <p className="notice" role="status">
+            The selected subcategory does not belong to this category. Choose a
+            subcategory or remove it.
+          </p>
         )}
-      <div className="product-active-filters" aria-label="Active product filters">
-        {selected.length || params.has("vehicleModelId") ? (
-          <>
-            {params.has("vehicleModelId") && (
-              <button
-                type="button"
-                className="product-chip"
-                onClick={() => update(clearVehicleSelection)}
-                aria-label="Remove selected vehicle"
-              >
-                Selected vehicle - {params.get("year")} <X size={14} aria-hidden="true" />
-              </button>
-            )}
-            {selected.map((key) => {
-              const value = params.get(key)!;
-              const label =
-                key === "parentCategoryId"
-                  ? `Category: ${categories.selected?.name ?? "Loading category"}`
-                  : key === "categoryId"
-                    ? `${childId ? "Subcategory" : "Category"}: ${(childId ? subcategories.selected : categories.selected)?.name ?? (category.error ? "Unavailable category" : "Loading category")}`
-                    : key === "family"
-                      ? `Product family: ${familyLabels[value as keyof typeof familyLabels]}`
-                      : key === "oilViscosityGrade"
-                        ? `Viscosity grade: ${value}`
-                        : key === "packVolumeMl"
-                          ? `Pack volume: ${packVolumeLabel(Number(value))}`
-                          : key === "productType"
-                            ? `Product type: ${productTypeLabel(value)}`
-                            : key === "featured"
-                              ? value === "true"
-                                ? "Featured only"
-                                : "Non-featured only"
-                              : key === "minPriceKobo"
-                                ? `Minimum price: ${formatKobo(value)}`
-                                : key === "maxPriceKobo"
-                                  ? `Maximum price: ${formatKobo(value)}`
-                                  : key === "availability"
-                                    ? value === "in_stock"
-                                      ? "In stock"
-                                      : "Out of stock"
-                                    : `${key[0].toUpperCase()}${key.slice(1)}: ${value}`;
-              return (
+        {params.has("vehicleModelId") &&
+          !products.loading &&
+          !products.error &&
+          products.data?.verifiedMatches === 0 && (
+            <aside className="parts-fitment-help" role="status">
+              <h3>No verified match for these details</h3>
+              <p>
+                {products.data.totalMatches
+                  ? "The products below are candidates requiring verification. Our team can check the missing specifications."
+                  : "We could not confirm a matching part. Send your vehicle details to our team."}{" "}
+                Collection only; delivery is unavailable.
+              </p>
+              <Link className="button secondary" href={partsEnquiryHref(params)}>
+                Request the right part
+              </Link>
+            </aside>
+          )}
+        <div
+          className="product-active-filters"
+          aria-label="Active product filters"
+          hidden={!selected.length && !params.has("vehicleModelId")}
+        >
+          {selected.length || params.has("vehicleModelId") ? (
+            <>
+              {params.has("vehicleModelId") && (
                 <button
                   type="button"
-                  key={key}
                   className="product-chip"
-                  aria-label={`Remove ${label}`}
-                  title={label}
-                  onClick={() =>
-                    update((next) => {
-                      next.delete(key);
-                      if (
-                        key === "family" ||
-                        key === "categoryId" ||
-                        key === "parentCategoryId"
-                      )
-                        clearProductFamilyFilters(next);
-                      if (key === "parentCategoryId") next.delete("categoryId");
-                      if (key === "make") next.delete("model");
-                    })
-                  }
+                  onClick={() => update(clearVehicleSelection)}
+                  aria-label="Remove selected vehicle"
                 >
-                  <span>
-                    {key in fitmentLabels
-                      ? `${fitmentLabels[key as keyof typeof fitmentLabels]}: ${value}`
-                      : key === "fitment"
-                        ? value === "verified"
-                          ? "Verified matches only"
-                          : "Fitment candidates"
-                        : label}
-                  </span>
+                  Selected vehicle - {params.get("year")}{" "}
                   <X size={14} aria-hidden="true" />
                 </button>
-              );
-            })}
-            <button type="button" className="product-clear" onClick={clear}>
-              Clear all
-            </button>
-          </>
-        ) : (
-          <span>
-            {noCatalogue
-              ? "Your product preferences can be included in an enquiry."
-              : "Search by name, brand or part number, or choose a category."}
-          </span>
-        )}
-      </div>
-      {products.refreshError && !!products.data?.items.length && (
-        <div className="notice">
-          <Feedback message={products.refreshError} />
-          <button type="button" className="button secondary" onClick={products.refresh}>
-            Retry products
-          </button>
+              )}
+              {selected.map((key) => {
+                const value = params.get(key)!;
+                const label =
+                  key === "parentCategoryId"
+                    ? `Category: ${categories.selected?.name ?? "Loading category"}`
+                    : key === "categoryId"
+                      ? `${childId ? "Subcategory" : "Category"}: ${(childId ? subcategories.selected : categories.selected)?.name ?? (category.error ? "Unavailable category" : "Loading category")}`
+                      : key === "family"
+                        ? `Product family: ${familyLabels[value as keyof typeof familyLabels]}`
+                        : key === "oilViscosityGrade"
+                          ? `Viscosity grade: ${value}`
+                          : key === "packVolumeMl"
+                            ? `Pack volume: ${packVolumeLabel(Number(value))}`
+                            : key === "productType"
+                              ? `Product type: ${productTypeLabel(value)}`
+                              : key === "featured"
+                                ? value === "true"
+                                  ? "Featured only"
+                                  : "Non-featured only"
+                                : key === "minPriceKobo"
+                                  ? `Minimum price: ${formatKobo(value)}`
+                                  : key === "maxPriceKobo"
+                                    ? `Maximum price: ${formatKobo(value)}`
+                                    : key === "availability"
+                                      ? value === "in_stock"
+                                        ? "In stock"
+                                        : "Out of stock"
+                                      : `${key[0].toUpperCase()}${key.slice(1)}: ${value}`;
+                return (
+                  <button
+                    type="button"
+                    key={key}
+                    className="product-chip"
+                    aria-label={`Remove ${label}`}
+                    title={label}
+                    onClick={() =>
+                      update((next) => {
+                        next.delete(key);
+                        if (
+                          key === "family" ||
+                          key === "categoryId" ||
+                          key === "parentCategoryId"
+                        )
+                          clearProductFamilyFilters(next);
+                        if (key === "parentCategoryId") next.delete("categoryId");
+                        if (key === "make") next.delete("model");
+                      })
+                    }
+                  >
+                    <span>
+                      {key in fitmentLabels
+                        ? `${fitmentLabels[key as keyof typeof fitmentLabels]}: ${value}`
+                        : key === "fitment"
+                          ? value === "verified"
+                            ? "Verified matches only"
+                            : "Fitment candidates"
+                          : label}
+                    </span>
+                    <X size={14} aria-hidden="true" />
+                  </button>
+                );
+              })}
+              <button type="button" className="product-clear" onClick={clear}>
+                Clear all
+              </button>
+            </>
+          ) : (
+            <span>
+              {noCatalogue
+                ? "Your product preferences can be included in an enquiry."
+                : "Search by name, brand or part number, or choose a category."}
+            </span>
+          )}
         </div>
-      )}
-      <div
-        className="product-results"
-        data-learning-target="parts-results"
-        aria-busy={products.loading || products.refreshing}
-      >
-        {products.error || (products.refreshError && !products.data?.items.length) ? (
-          <div className="product-empty">
-            <h3>Products could not be loaded.</h3>
-            <Feedback message={products.error ?? products.refreshError} />
-            <button
-              className="button secondary"
-              onClick={products.refresh}
-              disabled={products.loading}
-            >
+        {products.refreshError && !!products.data?.items.length && (
+          <div className="notice">
+            <Feedback message={products.refreshError} />
+            <button type="button" className="button secondary" onClick={products.refresh}>
               Retry products
             </button>
-            {params.has("cursor") && (
-              <button className="button secondary" onClick={() => update(() => {})}>
-                Start from first page
+          </div>
+        )}
+        <div
+          id="product-results"
+          className="product-results"
+          data-learning-target="parts-results"
+          aria-busy={products.loading || products.refreshing}
+        >
+          {products.error || (products.refreshError && !products.data?.items.length) ? (
+            <div className="product-empty">
+              <h3>Products could not be loaded.</h3>
+              <Feedback message={products.error ?? products.refreshError} />
+              <button
+                className="button secondary"
+                onClick={products.refresh}
+                disabled={products.loading}
+              >
+                Retry products
               </button>
-            )}
-          </div>
-        ) : products.loading ? (
-          <div className="product-results-grid" aria-hidden="true">
-            {[0, 1, 2, 3].map((i) => (
-              <div className="product-skeleton" key={i}>
-                <div />
-                <span />
-                <span />
-                <span />
-                <span />
-              </div>
-            ))}
-          </div>
-        ) : products.data?.items.length ? (
-          <div className="product-results-grid">
-            {products.data.items.map((product) => (
-              <PartCard
-                key={product.id}
-                product={product}
-                params={params}
-                vehicleChoicesAvailable={vehicleChoicesAvailable}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="product-empty">
-            <PackageSearch size={30} strokeWidth={1.4} aria-hidden="true" />
-            <h3>
-              {params.has("cursor")
-                ? "No products on this page"
-                : filtered
-                  ? noCatalogue
-                    ? "No products are published yet"
-                    : categoryOnly
-                      ? "No products in this category"
-                      : "No matching products"
-                  : "No products are published yet"}
-            </h3>
-            <p>
-              {noCatalogue
-                ? "Our online product catalogue has no published listings. Tell us the product, quantity and specifications you need. Add vehicle details when relevant."
-                : filtered
-                  ? categoryOnly
-                    ? "No online products are listed in this category. Choose another category or ask our team about what you need."
-                    : "No results for these details. Try a broader search or remove a filter."
-                  : "Contact our team to ask about the product you need."}
-            </p>
-            <div className="actions">
               {params.has("cursor") && (
                 <button className="button secondary" onClick={() => update(() => {})}>
-                  Return to first page
+                  Start from first page
                 </button>
               )}
-              {filtered && !noCatalogue && (
-                <button className="button secondary" onClick={clear}>
-                  Clear filters
-                </button>
-              )}
-              <Link className="button" href={partsEnquiryHref(params)}>
-                Ask about a product
-              </Link>
             </div>
-          </div>
-        )}
-      </div>
-      {!!products.data?.items.length &&
-        !products.error &&
-        (params.has("cursor") || products.data.nextCursor) && (
-          <nav className="product-pagination" aria-label="Shop pages">
-            <button
-              className="button secondary"
-              disabled={!params.has("cursor") || products.loading}
-              onClick={() => {
-                const next = new URLSearchParams(params),
-                  previous = trail.at(-1);
-                next.delete("cursor");
-                next.delete("_trail");
-                if (previous && previous !== "start") {
-                  next.set("cursor", previous);
-                  if (trail.length > 1) next.set("_trail", trail.slice(0, -1).join(","));
+          ) : products.loading ? (
+            <div className="product-results-grid" aria-hidden="true">
+              {[0, 1, 2, 3].map((i) => (
+                <div className="product-skeleton" key={i}>
+                  <div />
+                  <span />
+                  <span />
+                  <span />
+                  <span />
+                </div>
+              ))}
+            </div>
+          ) : products.data?.items.length ? (
+            <div className="product-results-grid">
+              {products.data.items.map((product) => (
+                <PartCard
+                  key={product.id}
+                  product={product}
+                  params={params}
+                  vehicleChoicesAvailable={vehicleChoicesAvailable}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="product-empty">
+              <PackageSearch size={30} strokeWidth={1.4} aria-hidden="true" />
+              <h3>
+                {params.has("cursor")
+                  ? "No products on this page"
+                  : filtered
+                    ? noCatalogue
+                      ? "No products are published yet"
+                      : categoryOnly
+                        ? "No products in this category"
+                        : "No matching products"
+                    : "No products are published yet"}
+              </h3>
+              <p>
+                {noCatalogue
+                  ? "Our online product catalogue has no published listings. Tell us the product, quantity and specifications you need. Add vehicle details when relevant."
+                  : filtered
+                    ? categoryOnly
+                      ? "No online products are listed in this category. Choose another category or ask our team about what you need."
+                      : "No results for these details. Try a broader search or remove a filter."
+                    : "Contact our team to ask about the product you need."}
+              </p>
+              <div className="actions">
+                {params.has("cursor") && (
+                  <button className="button secondary" onClick={() => update(() => {})}>
+                    Return to first page
+                  </button>
+                )}
+                {filtered && !noCatalogue && (
+                  <button className="button secondary" onClick={clear}>
+                    Clear filters
+                  </button>
+                )}
+                <Link className="button" href={partsEnquiryHref(params)}>
+                  Ask about a product
+                </Link>
+              </div>
+            </div>
+          )}
+        </div>
+        {!!products.data?.items.length &&
+          !products.error &&
+          (params.has("cursor") || products.data.nextCursor) && (
+            <nav className="product-pagination" aria-label="Shop pages">
+              <button
+                className="button secondary"
+                disabled={!params.has("cursor") || products.loading}
+                onClick={() => {
+                  const next = new URLSearchParams(params),
+                    previous = trail.at(-1);
+                  next.delete("cursor");
+                  next.delete("_trail");
+                  if (previous && previous !== "start") {
+                    next.set("cursor", previous);
+                    if (trail.length > 1)
+                      next.set("_trail", trail.slice(0, -1).join(","));
+                  }
+                  navigate(next);
+                  focusResults();
+                }}
+              >
+                <ArrowLeft size={16} aria-hidden="true" />
+                {params.has("cursor") && !trail.length ? "First page" : "Previous"}
+              </button>
+              <span>
+                {!params.has("cursor")
+                  ? "Page 1"
+                  : trail.length
+                    ? `Page ${trail.length + 1}`
+                    : "More products"}
+              </span>
+              <button
+                className="button secondary"
+                disabled={
+                  !products.data?.nextCursor || products.loading || !!products.error
                 }
-                navigate(next);
-                focusResults();
-              }}
-            >
-              <ArrowLeft size={16} aria-hidden="true" />
-              {params.has("cursor") && !trail.length ? "First page" : "Previous"}
-            </button>
-            <span>
-              {!params.has("cursor")
-                ? "Page 1"
-                : trail.length
-                  ? `Page ${trail.length + 1}`
-                  : "More products"}
-            </span>
-            <button
-              className="button secondary"
-              disabled={
-                !products.data?.nextCursor || products.loading || !!products.error
-              }
-              onClick={() => {
-                const next = new URLSearchParams(params);
-                next.set("cursor", products.data!.nextCursor!);
-                const previous = params.get("cursor");
-                if (!previous || (trail.length && trail.length < 50))
-                  next.set("_trail", [...trail, previous ?? "start"].join(","));
-                else next.delete("_trail");
-                navigate(next);
-                focusResults();
-              }}
-            >
-              Next <ArrowRight size={16} aria-hidden="true" />
-            </button>
-          </nav>
-        )}
-    </>
+                onClick={() => {
+                  const next = new URLSearchParams(params);
+                  next.set("cursor", products.data!.nextCursor!);
+                  const previous = params.get("cursor");
+                  if (!previous || (trail.length && trail.length < 50))
+                    next.set("_trail", [...trail, previous ?? "start"].join(","));
+                  else next.delete("_trail");
+                  navigate(next);
+                  focusResults();
+                }}
+              >
+                Next <ArrowRight size={16} aria-hidden="true" />
+              </button>
+            </nav>
+          )}
+      </div>
+    </div>
   );
 }

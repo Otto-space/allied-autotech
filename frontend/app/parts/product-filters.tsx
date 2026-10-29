@@ -1,12 +1,14 @@
 ﻿"use client";
 
 import { useEffect, useRef, useState } from "react";
-import { containDialogFocus } from "@/lib/dialog-focus";
+import { useCatalogueFilterPanel } from "@/lib/use-catalogue-filter-panel";
+import { useFilterMatchPreview } from "@/lib/use-filter-match-preview";
 import { ChevronDown, Search, SlidersHorizontal, X } from "lucide-react";
 import {
   advancedProductKeys,
   validProductText,
   clearProductFamilyFilters,
+  normalizeProductQuery,
 } from "@/lib/product-discovery";
 import { ProductNameField } from "./product-name-field";
 import { ProductOptionField } from "./product-option-field";
@@ -116,18 +118,17 @@ export function ProductFilters({
   query,
   count,
   update,
-  clear,
   scope,
+  totalMatches,
 }: {
   query: string;
   scope: string;
   count: number;
-  clear: () => void;
+  totalMatches?: number;
   update: UpdateProductQuery;
 }) {
-  const dialog = useRef<HTMLDialogElement>(null);
-  const trigger = useRef<HTMLButtonElement>(null);
-  const [open, setOpen] = useState(false);
+  const panel = useCatalogueFilterPanel();
+  const { dialog, trigger, open, close } = panel;
   function readValues() {
     const params = new URLSearchParams(query);
     return Object.fromEntries(
@@ -159,19 +160,178 @@ export function ProductFilters({
     setValues(readValues());
     setErrors({});
   }
-  useEffect(() => {
-    const media = window.matchMedia("(max-width: 767px)");
-    const resize = () => dialog.current?.close();
-    media.addEventListener("change", resize);
-    const prior = document.body.style.overflow;
-    if (open && media.matches) document.body.style.overflow = "hidden";
-    return () => {
-      media.removeEventListener("change", resize);
-      document.body.style.overflow = prior;
-    };
-  }, [open]);
-  function close() {
-    dialog.current?.close();
+  const draft = new URLSearchParams(scope);
+  let validDraft = true;
+  for (const key of advancedProductKeys) {
+    draft.delete(key);
+    if (!values[key].trim()) continue;
+    try {
+      draft.set(
+        key,
+        key.endsWith("Kobo")
+          ? nairaToKobo(values[key])
+          : key === "oilViscosityGrade"
+            ? normalizeOilGrade(values[key])
+            : values[key].trim(),
+      );
+    } catch {
+      validDraft = false;
+    }
+  }
+  const normalized = normalizeProductQuery(draft);
+  validDraft = validDraft && !normalized.invalid;
+  const draftQuery = normalized.params;
+  const appliedQuery = normalizeProductQuery(new URLSearchParams(scope)).params;
+  for (const params of [draftQuery, appliedQuery]) {
+    for (const key of ["cursor", "_trail", "sort"]) params.delete(key);
+    params.set("limit", "1");
+  }
+  const changed = draftQuery.toString() !== appliedQuery.toString();
+  const preview = useFilterMatchPreview(
+    open && validDraft && changed
+      ? `/public/catalog/products/discovery?${draftQuery}`
+      : null,
+  );
+  const matches = changed ? preview.count : totalMatches;
+  function renderField(key: (typeof advancedProductKeys)[number]) {
+    return (
+      <div className="product-field" key={key}>
+        <label htmlFor={`product-filter-${key}`}>{labels[key]}</label>
+        {key === "family" ||
+        key === "brand" ||
+        key === "productType" ||
+        key === "oilViscosityGrade" ||
+        key === "packVolumeMl" ? (
+          <ProductOptionField
+            field={key}
+            value={values[key]}
+            scope={optionScope.toString()}
+            open={open}
+            error={errors[key]}
+            onChange={(value) => {
+              setValues((previous) => ({
+                ...previous,
+                [key]: value,
+                ...(key === "family"
+                  ? {
+                      condition: "",
+                      classification: "",
+                      oilViscosityGrade: "",
+                      packVolumeMl: "",
+                      productType: "",
+                    }
+                  : {}),
+              }));
+              setErrors({});
+            }}
+          />
+        ) : key === "condition" || key === "classification" ? (
+          <select
+            id={`product-filter-${key}`}
+            value={values[key]}
+            onChange={(event) =>
+              setValues((previous) => ({
+                ...previous,
+                [key]: event.target.value,
+              }))
+            }
+          >
+            <option value="">Any</option>
+            {(key === "condition"
+              ? [
+                  ["NEW", "New"],
+                  ["USED", "Used"],
+                  ["REFURBISHED", "Refurbished"],
+                ]
+              : [
+                  ["GENUINE_OEM", "Genuine OEM"],
+                  ["AFTERMARKET", "Aftermarket"],
+                ]
+            ).map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </select>
+        ) : key === "featured" || key === "availability" ? (
+          <div className="product-select">
+            <select
+              id={`product-filter-${key}`}
+              value={values[key]}
+              onChange={(e) => setValues((v) => ({ ...v, [key]: e.target.value }))}
+            >
+              <option value="">Any</option>
+              {key === "featured" ? (
+                <>
+                  <option value="true">Featured only</option>
+                  <option value="false">Non-featured only</option>
+                </>
+              ) : (
+                <>
+                  <option value="in_stock">In stock</option>
+                  <option value="out_of_stock">Out of stock</option>
+                </>
+              )}
+            </select>
+            <ChevronDown size={16} aria-hidden="true" />
+          </div>
+        ) : key === "make" || key === "model" ? (
+          <ProductNameField
+            kind={key}
+            error={errors[key]}
+            value={values[key]}
+            make={values.make}
+            open={open}
+            onChange={(value) => {
+              setValues((v) => ({
+                ...v,
+                [key]: value,
+                ...(key === "make" ? { model: "" } : {}),
+              }));
+              setErrors((v) => ({ ...v, [key]: "" }));
+            }}
+          />
+        ) : (
+          <input
+            id={`product-filter-${key}`}
+            value={values[key]}
+            maxLength={key === "year" ? 4 : 20}
+            inputMode={key === "year" ? "numeric" : "decimal"}
+            aria-invalid={!!errors[key]}
+            aria-describedby={
+              errors[key]
+                ? `product-filter-${key}-error`
+                : key.endsWith("Kobo")
+                  ? `product-filter-${key}-hint`
+                  : key === "year"
+                    ? "product-year-hint"
+                    : undefined
+            }
+            onChange={(e) => {
+              setValues((v) => ({ ...v, [key]: e.target.value }));
+              setErrors((v) => ({ ...v, [key]: "" }));
+            }}
+          />
+        )}
+        {key.endsWith("Kobo") && (
+          <small id={`product-filter-${key}-hint`}>
+            Naira, for example 25000 or 25000.50. Leave blank for no limit.
+          </small>
+        )}
+        {key === "year" && (
+          <small id="product-year-hint">Enter a year between 1886 and 2200.</small>
+        )}
+        {errors[key] && (
+          <p
+            className="product-field-error"
+            role="alert"
+            id={`product-filter-${key}-error`}
+          >
+            {errors[key]}
+          </p>
+        )}
+      </div>
+    );
   }
   return (
     <>
@@ -183,10 +343,9 @@ export function ProductFilters({
         aria-controls="product-filter-panel"
         onClick={() => {
           if (open) return close();
-          if (window.matchMedia("(max-width: 767px)").matches)
-            dialog.current?.showModal();
-          else dialog.current?.show();
-          setOpen(true);
+          setValues(readValues());
+          setErrors({});
+          panel.show();
         }}
       >
         <SlidersHorizontal size={17} aria-hidden="true" /> Filters{" "}
@@ -197,19 +356,11 @@ export function ProductFilters({
         ref={dialog}
         id="product-filter-panel"
         className="product-filter-panel"
+        data-layout-ready={panel.ready}
+        role={panel.desktop ? "region" : undefined}
         aria-labelledby="product-filter-heading"
-        onClose={() => {
-          setOpen(false);
-          trigger.current?.focus({ preventScroll: true });
-        }}
-        onKeyDown={(event) => {
-          if (event.key === "Escape") {
-            event.preventDefault();
-            close();
-            return;
-          }
-          if (event.currentTarget.matches(":modal")) containDialogFocus(event);
-        }}
+        onClose={panel.onClose}
+        onKeyDown={panel.onKeyDown}
         onClick={(event) => {
           if (event.target !== event.currentTarget) return;
           const r = event.currentTarget.getBoundingClientRect();
@@ -219,7 +370,7 @@ export function ProductFilters({
             event.clientY < r.top ||
             event.clientY > r.bottom
           )
-            close();
+            panel.applied();
         }}
       >
         <form
@@ -356,148 +507,16 @@ export function ProductFilters({
                       (!values.family && !!values[key])
                     : true,
               )
-              .map((key) => (
-                <div className="product-field" key={key}>
-                  <label htmlFor={`product-filter-${key}`}>{labels[key]}</label>
-                  {key === "family" ||
-                  key === "brand" ||
-                  key === "productType" ||
-                  key === "oilViscosityGrade" ||
-                  key === "packVolumeMl" ? (
-                    <ProductOptionField
-                      field={key}
-                      value={values[key]}
-                      scope={optionScope.toString()}
-                      open={open}
-                      error={errors[key]}
-                      onChange={(value) => {
-                        setValues((previous) => ({
-                          ...previous,
-                          [key]: value,
-                          ...(key === "family"
-                            ? {
-                                condition: "",
-                                classification: "",
-                                oilViscosityGrade: "",
-                                packVolumeMl: "",
-                                productType: "",
-                              }
-                            : {}),
-                        }));
-                        setErrors({});
-                      }}
-                    />
-                  ) : key === "condition" || key === "classification" ? (
-                    <select
-                      id={`product-filter-${key}`}
-                      value={values[key]}
-                      onChange={(event) =>
-                        setValues((previous) => ({
-                          ...previous,
-                          [key]: event.target.value,
-                        }))
-                      }
-                    >
-                      <option value="">Any</option>
-                      {(key === "condition"
-                        ? [
-                            ["NEW", "New"],
-                            ["USED", "Used"],
-                            ["REFURBISHED", "Refurbished"],
-                          ]
-                        : [
-                            ["GENUINE_OEM", "Genuine OEM"],
-                            ["AFTERMARKET", "Aftermarket"],
-                          ]
-                      ).map(([value, label]) => (
-                        <option key={value} value={value}>
-                          {label}
-                        </option>
-                      ))}
-                    </select>
-                  ) : key === "featured" || key === "availability" ? (
-                    <div className="product-select">
-                      <select
-                        id={`product-filter-${key}`}
-                        value={values[key]}
-                        onChange={(e) =>
-                          setValues((v) => ({ ...v, [key]: e.target.value }))
-                        }
-                      >
-                        <option value="">Any</option>
-                        {key === "featured" ? (
-                          <>
-                            <option value="true">Featured only</option>
-                            <option value="false">Non-featured only</option>
-                          </>
-                        ) : (
-                          <>
-                            <option value="in_stock">In stock</option>
-                            <option value="out_of_stock">Out of stock</option>
-                          </>
-                        )}
-                      </select>
-                      <ChevronDown size={16} aria-hidden="true" />
-                    </div>
-                  ) : key === "make" || key === "model" ? (
-                    <ProductNameField
-                      kind={key}
-                      error={errors[key]}
-                      value={values[key]}
-                      make={values.make}
-                      open={open}
-                      onChange={(value) => {
-                        setValues((v) => ({
-                          ...v,
-                          [key]: value,
-                          ...(key === "make" ? { model: "" } : {}),
-                        }));
-                        setErrors((v) => ({ ...v, [key]: "" }));
-                      }}
-                    />
-                  ) : (
-                    <input
-                      id={`product-filter-${key}`}
-                      value={values[key]}
-                      maxLength={key === "year" ? 4 : 20}
-                      inputMode={key === "year" ? "numeric" : "decimal"}
-                      aria-invalid={!!errors[key]}
-                      aria-describedby={
-                        errors[key]
-                          ? `product-filter-${key}-error`
-                          : key.endsWith("Kobo")
-                            ? `product-filter-${key}-hint`
-                            : key === "year"
-                              ? "product-year-hint"
-                              : undefined
-                      }
-                      onChange={(e) => {
-                        setValues((v) => ({ ...v, [key]: e.target.value }));
-                        setErrors((v) => ({ ...v, [key]: "" }));
-                      }}
-                    />
-                  )}
-                  {key.endsWith("Kobo") && (
-                    <small id={`product-filter-${key}-hint`}>
-                      Naira, for example 25000 or 25000.50. Leave blank for no limit.
-                    </small>
-                  )}
-                  {key === "year" && (
-                    <small id="product-year-hint">
-                      Enter a year between 1886 and 2200.
-                    </small>
-                  )}
-                  {errors[key] && (
-                    <p
-                      className="product-field-error"
-                      role="alert"
-                      id={`product-filter-${key}-error`}
-                    >
-                      {errors[key]}
-                    </p>
-                  )}
-                </div>
-              ))}
+
+              .filter((key) => !["productType", "featured"].includes(key))
+              .map(renderField)}
+            <details
+              className="product-technical"
+              open={!!(values.productType || values.featured)}
+            >
+              <summary>Technical details</summary>
+              <div>{(["productType", "featured"] as const).map(renderField)}</div>
+            </details>
             <p className="product-fitment-note">
               {values.family === "ENGINE_OIL"
                 ? "Grades and pack volumes describe the recorded product. They do not establish manufacturer approval or vehicle suitability."
@@ -505,6 +524,17 @@ export function ProductFilters({
             </p>
           </div>
           <div className="product-filter-actions">
+            <p className="catalogue-match-preview" role="status" aria-live="polite">
+              {!validDraft
+                ? "Review the entered filter values."
+                : preview.pending
+                  ? "Checking matches…"
+                  : preview.error
+                    ? "Count unavailable. You can still apply filters."
+                    : matches === undefined
+                      ? "Apply to check matching products."
+                      : `${matches.toLocaleString("en-NG")} matching product${matches === 1 ? "" : "s"}`}
+            </p>
             <button
               type="button"
               className="button secondary"
@@ -513,12 +543,11 @@ export function ProductFilters({
                   Object.fromEntries(advancedProductKeys.map((key) => [key, ""])),
                 );
                 setErrors({});
-                clear();
               }}
             >
-              Clear filters
+              Reset draft
             </button>
-            <button type="submit" className="button">
+            <button type="submit" className="button" data-scroll-target="product-results">
               Apply filters
             </button>
           </div>
