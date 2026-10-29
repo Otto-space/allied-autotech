@@ -1,5 +1,55 @@
 # UI and UX quality register
 
+## 29 October 2026: refreshed workshop fragment candidate
+
+P1 navigation/focus, anonymous `/contact#workshop`, 1440x844. A hosted fixture
+20-case Learn/Allie/guide/viewport audit passed 19 cases and reproduced the
+refreshed workshop heading at y=44.98 beneath the 78px navbar (two repeat runs).
+The initial-fragment path skipped every restored nonzero scroll position, so
+native reload restoration could leave a partly hidden heading after layout settled.
+
+Bounded fix waits for load/font metrics for initial fragments and corrects only a
+heading partly under the sticky header. Back/Forward, normal refresh and visitors
+already reading away from the fragment remain browser-owned; pointer/key/wheel/
+touch cancel the pending correction. No CSS repaint, permission or business flow
+change. Validation covers repeated hash reloads, real wheel input, ordinary early
+touch refresh, links/breadcrumbs, Allie and walkthroughs. Initial extra assertions
+incorrectly compared absolute scroll pixels while form/font hydration changed
+layout; corrected to assert the actual heading visibility and retained manual
+offset. A separate local run lacked the public Help/Learn flag; its unavailable
+screen was a harness configuration issue, corrected to the released local mode.
+Exact-source CI, candidate and hosted acceptance remain pending.
+
+Local acceptance now passed six focused cases in the released browse/enquiries
+mode: repeated fragment reload/manual-wheel checks, navigation/breadcrumbs and
+ordinary refresh/touch reading at 390/1440. Scoped lint/format passed. An initial
+typecheck overlapped Next dev type generation; the server was stopped and route
+types regenerated before the final compiler check. No database or role changes.
+
+## 29 October 2026: vehicle disclosures production acceptance
+
+Released master runtime 2586c61b, Vercel dpl_H4Qy6RjQQXxfYmD9mGXGTG6i5TL9
+verified on both domains after compatible API/workers became healthy. Exact-source
+Frontend/Backend safety/secret CI all passed (40789879047/40789879135/40789879195).
+66 focused frontend units, 78 focused isolated persistence checks, ten distinct
+mocked browser cases and 45 packaged checks underpin this cycle. Final hosted
+read-only acceptance passed 12 page/domain cases plus two supplemental journeys
+at 390/1440: meaningful pages/no overflow or exceptions, Allie launcher focus,
+context enquiry/equipment anchors, refresh scroll, help navigation/header sampling,
+parts-fitment focus without black outline, location/CROSSOVER query, anonymous
+staff 401, revision-3 guidance and scoped vehicle Axe with zero violations.
+Browser plugin unavailable; installed Playwright/Edge fallback. Actual selected
+BMW views were used only in isolated fixtures, never seeded into production.
+
+Owner notes remain separate from inspection, known faults visible beside actions,
+unknowns retained, publication requires active branch/positive price/photo and CAS.
+BMW remains an unpublished private validated import, waiting for genuine branch,
+price and owner review. No real customer enquiry, availability or transaction write.
+Physical devices, real private roles, full screen-reader and independent BMW
+inspection remain unverified. Existing transient dock/content overlap review and
+broader Care/visual backlog remain open. See backend/docs/vehicle-marketplace-
+implementation-20261028.md for matrix, receipt identities and screenshot paths.
+
 ## 28 October 2026: catalogue cards reflect vehicle-choice availability
 
 The released Parts catalogue at 390/1440px had one published Engine Oil Filter.
