@@ -18,6 +18,18 @@ function catalogue(overrides: Partial<LearningAccess>) {
   }
 }
 describe("provider-observed role guidance regressions", () => {
+  it("restricts coverage preparation and recovery guidance to the owner without promising live staffing", () => {
+    const article = catalogue({ role: "SUPER_ADMIN" }).articles.find(
+      (value) => value.id === "support-coverage",
+    );
+    expect(article?.version).toBe(1);
+    expect(article?.steps.join(" ")).toContain("not hours or the audit reason");
+    expect(article?.summary).toContain("does not release live chat");
+    for (const role of ["PUBLIC", "CUSTOMER", "STAFF", "ADMIN"] as const)
+      expect(
+        catalogue({ role }).articles.some((value) => value.id === "support-coverage"),
+      ).toBe(false);
+  });
   it("keeps new Care viewing and same-branch reply eligibility distinct in sources and practice", () => {
     const previous = [env.HELP_LEARN_GUIDES_ENABLED, env.HELP_LEARN_PRACTICE_ENABLED];
     env.HELP_LEARN_GUIDES_ENABLED = env.HELP_LEARN_PRACTICE_ENABLED = true;

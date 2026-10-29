@@ -15,6 +15,7 @@ import {
 } from "./support-channel.routes.js";
 import {
   supportCoverageUpdateSchema,
+  supportCoverageOperationParamsSchema,
   supportLiveBranchSchema,
   supportLiveAvailabilityQuerySchema,
   supportPresenceHeartbeatSchema,
@@ -26,8 +27,10 @@ import {
   getSupportPresence,
   heartbeatSupportPresence,
   updateSupportCoverage,
+  recoverSupportCoverage,
   updateSupportPresence,
 } from "./support-live.js";
+import { supportReplyKeySchema } from "./support.schemas.js";
 
 const empty = z.strictObject({});
 const context = (req: Request) => ({
@@ -107,6 +110,7 @@ export function workforceSupportLiveRouter() {
       params: supportLiveBranchSchema,
       query: empty,
       body: supportCoverageUpdateSchema,
+      headers: z.object({ "idempotency-key": supportReplyKeySchema.optional() }),
     }),
     async (req, res) => {
       res.json(
@@ -118,11 +122,37 @@ export function workforceSupportLiveRouter() {
             supportLiveBranchSchema.parse(req.params).branchId,
             supportCoverageUpdateSchema.parse(req.body),
             context(req),
+            req.get("Idempotency-Key"),
           ),
         ),
       );
     },
   );
+  for (const method of ["get", "delete"] as const) {
+    router[method](
+      adminPath + "/operations/:key",
+      authenticate(),
+      requireSuperAdministrator,
+      noStore,
+      ...(method === "delete" ? [requireCsrf] : []),
+      createSensitiveRateLimit(method === "get" ? 120 : 30, 60_000),
+      validate({
+        params: supportCoverageOperationParamsSchema,
+        query: empty,
+        ...(method === "delete" ? { body: empty.optional() } : {}),
+      }),
+      async (req, res) => {
+        const { branchId, key } = supportCoverageOperationParamsSchema.parse(req.params);
+        res.json(
+          successResponse(
+            "Coverage operation checked",
+            req.id,
+            await recoverSupportCoverage(req.actor!, branchId, key, method === "delete"),
+          ),
+        );
+      },
+    );
+  }
   router.get(
     staffPath,
     authenticate(),

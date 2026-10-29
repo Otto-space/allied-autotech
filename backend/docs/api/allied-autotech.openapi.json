@@ -106289,6 +106289,1022 @@
         "x-idempotency-required": false
       }
     },
+    "/admin/workforce/support-chat/coverage/{branchId}/operations/{key}": {
+      "get": {
+        "summary": "Owner recovers the saved coverage reference without resending its command",
+        "tags": [
+          "Support"
+        ],
+        "description": "Gated additive availability foundation. No chat claim, message delivery or queue-position promise. Current branch duties and session are checked server-side. Customer responses contain no staff identities; the channel remains queued Customer Care until lifecycle and transport acceptance. Default feature flag is off. Owner recovers the saved coverage reference without resending its command. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Identifier of the branch resource; ownership is resolved server-side."
+            },
+            "required": true,
+            "name": "branchId",
+            "in": "path",
+            "description": "Identifier selecting the branch resource.",
+            "example": "00000000-0000-4000-8000-000000000001"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^support-reply-v1\\.\\d{13}\\.[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "description": "Key validated by this operation's strict request contract."
+            },
+            "required": true,
+            "name": "key",
+            "in": "path",
+            "description": "Identifier selecting the key resource.",
+            "example": "synthetic-key"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success: Owner recovers the saved coverage reference without resending its command.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "description": "Success validated by this operation's strict request contract."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                    },
+                    "data": {
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "state": {
+                              "type": "string",
+                              "enum": [
+                                "UNKNOWN"
+                              ],
+                              "description": "State validated by this operation's strict request contract."
+                            },
+                            "coverage": {
+                              "type": "object",
+                              "properties": {
+                                "branchId": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "description": "Identifier of the branch resource; ownership is resolved server-side."
+                                },
+                                "enabled": {
+                                  "type": "boolean",
+                                  "description": "Enabled validated by this operation's strict request contract."
+                                },
+                                "schedule": {
+                                  "type": "object",
+                                  "properties": {
+                                    "timezone": {
+                                      "type": "string",
+                                      "enum": [
+                                        "Africa/Lagos"
+                                      ],
+                                      "description": "ISO 8601 timestamp interpreted and validated by the server."
+                                    },
+                                    "windows": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "object",
+                                        "properties": {
+                                          "day": {
+                                            "type": "integer",
+                                            "minimum": 0,
+                                            "maximum": 6,
+                                            "description": "Day validated by this operation's strict request contract."
+                                          },
+                                          "startMinute": {
+                                            "type": "integer",
+                                            "minimum": 0,
+                                            "maximum": 1439,
+                                            "description": "Start Minute validated by this operation's strict request contract."
+                                          },
+                                          "endMinute": {
+                                            "type": "integer",
+                                            "minimum": 1,
+                                            "maximum": 1440,
+                                            "description": "End Minute validated by this operation's strict request contract."
+                                          }
+                                        },
+                                        "required": [
+                                          "day",
+                                          "startMinute",
+                                          "endMinute"
+                                        ],
+                                        "additionalProperties": false,
+                                        "description": "Windows Item validated by this operation's strict request contract."
+                                      },
+                                      "maxItems": 28,
+                                      "description": "Windows validated by this operation's strict request contract."
+                                    }
+                                  },
+                                  "required": [
+                                    "timezone",
+                                    "windows"
+                                  ],
+                                  "additionalProperties": false,
+                                  "description": "Schedule validated by this operation's strict request contract."
+                                },
+                                "maxConcurrentPerAgent": {
+                                  "type": "integer",
+                                  "minimum": 1,
+                                  "maximum": 5,
+                                  "description": "Max Concurrent Per Agent validated by this operation's strict request contract."
+                                },
+                                "version": {
+                                  "type": "integer",
+                                  "minimum": 0,
+                                  "description": "Version validated by this operation's strict request contract."
+                                }
+                              },
+                              "required": [
+                                "branchId",
+                                "enabled",
+                                "schedule",
+                                "maxConcurrentPerAgent",
+                                "version"
+                              ],
+                              "additionalProperties": false,
+                              "description": "Coverage validated by this operation's strict request contract."
+                            }
+                          },
+                          "required": [
+                            "state",
+                            "coverage"
+                          ],
+                          "additionalProperties": false,
+                          "description": "Data validated by this operation's strict request contract."
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "state": {
+                              "type": "string",
+                              "enum": [
+                                "CANCELLED"
+                              ],
+                              "description": "State validated by this operation's strict request contract."
+                            },
+                            "coverage": {
+                              "type": "object",
+                              "properties": {
+                                "branchId": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "description": "Identifier of the branch resource; ownership is resolved server-side."
+                                },
+                                "enabled": {
+                                  "type": "boolean",
+                                  "description": "Enabled validated by this operation's strict request contract."
+                                },
+                                "schedule": {
+                                  "type": "object",
+                                  "properties": {
+                                    "timezone": {
+                                      "type": "string",
+                                      "enum": [
+                                        "Africa/Lagos"
+                                      ],
+                                      "description": "ISO 8601 timestamp interpreted and validated by the server."
+                                    },
+                                    "windows": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "object",
+                                        "properties": {
+                                          "day": {
+                                            "type": "integer",
+                                            "minimum": 0,
+                                            "maximum": 6,
+                                            "description": "Day validated by this operation's strict request contract."
+                                          },
+                                          "startMinute": {
+                                            "type": "integer",
+                                            "minimum": 0,
+                                            "maximum": 1439,
+                                            "description": "Start Minute validated by this operation's strict request contract."
+                                          },
+                                          "endMinute": {
+                                            "type": "integer",
+                                            "minimum": 1,
+                                            "maximum": 1440,
+                                            "description": "End Minute validated by this operation's strict request contract."
+                                          }
+                                        },
+                                        "required": [
+                                          "day",
+                                          "startMinute",
+                                          "endMinute"
+                                        ],
+                                        "additionalProperties": false,
+                                        "description": "Windows Item validated by this operation's strict request contract."
+                                      },
+                                      "maxItems": 28,
+                                      "description": "Windows validated by this operation's strict request contract."
+                                    }
+                                  },
+                                  "required": [
+                                    "timezone",
+                                    "windows"
+                                  ],
+                                  "additionalProperties": false,
+                                  "description": "Schedule validated by this operation's strict request contract."
+                                },
+                                "maxConcurrentPerAgent": {
+                                  "type": "integer",
+                                  "minimum": 1,
+                                  "maximum": 5,
+                                  "description": "Max Concurrent Per Agent validated by this operation's strict request contract."
+                                },
+                                "version": {
+                                  "type": "integer",
+                                  "minimum": 0,
+                                  "description": "Version validated by this operation's strict request contract."
+                                }
+                              },
+                              "required": [
+                                "branchId",
+                                "enabled",
+                                "schedule",
+                                "maxConcurrentPerAgent",
+                                "version"
+                              ],
+                              "additionalProperties": false,
+                              "description": "Coverage validated by this operation's strict request contract."
+                            }
+                          },
+                          "required": [
+                            "state",
+                            "coverage"
+                          ],
+                          "additionalProperties": false,
+                          "description": "Data validated by this operation's strict request contract."
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "state": {
+                              "type": "string",
+                              "enum": [
+                                "SAVED"
+                              ],
+                              "description": "State validated by this operation's strict request contract."
+                            },
+                            "savedVersion": {
+                              "type": "integer",
+                              "exclusiveMinimum": 0,
+                              "description": "Saved Version validated by this operation's strict request contract."
+                            },
+                            "coverage": {
+                              "type": "object",
+                              "properties": {
+                                "branchId": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "description": "Identifier of the branch resource; ownership is resolved server-side."
+                                },
+                                "enabled": {
+                                  "type": "boolean",
+                                  "description": "Enabled validated by this operation's strict request contract."
+                                },
+                                "schedule": {
+                                  "type": "object",
+                                  "properties": {
+                                    "timezone": {
+                                      "type": "string",
+                                      "enum": [
+                                        "Africa/Lagos"
+                                      ],
+                                      "description": "ISO 8601 timestamp interpreted and validated by the server."
+                                    },
+                                    "windows": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "object",
+                                        "properties": {
+                                          "day": {
+                                            "type": "integer",
+                                            "minimum": 0,
+                                            "maximum": 6,
+                                            "description": "Day validated by this operation's strict request contract."
+                                          },
+                                          "startMinute": {
+                                            "type": "integer",
+                                            "minimum": 0,
+                                            "maximum": 1439,
+                                            "description": "Start Minute validated by this operation's strict request contract."
+                                          },
+                                          "endMinute": {
+                                            "type": "integer",
+                                            "minimum": 1,
+                                            "maximum": 1440,
+                                            "description": "End Minute validated by this operation's strict request contract."
+                                          }
+                                        },
+                                        "required": [
+                                          "day",
+                                          "startMinute",
+                                          "endMinute"
+                                        ],
+                                        "additionalProperties": false,
+                                        "description": "Windows Item validated by this operation's strict request contract."
+                                      },
+                                      "maxItems": 28,
+                                      "description": "Windows validated by this operation's strict request contract."
+                                    }
+                                  },
+                                  "required": [
+                                    "timezone",
+                                    "windows"
+                                  ],
+                                  "additionalProperties": false,
+                                  "description": "Schedule validated by this operation's strict request contract."
+                                },
+                                "maxConcurrentPerAgent": {
+                                  "type": "integer",
+                                  "minimum": 1,
+                                  "maximum": 5,
+                                  "description": "Max Concurrent Per Agent validated by this operation's strict request contract."
+                                },
+                                "version": {
+                                  "type": "integer",
+                                  "minimum": 0,
+                                  "description": "Version validated by this operation's strict request contract."
+                                }
+                              },
+                              "required": [
+                                "branchId",
+                                "enabled",
+                                "schedule",
+                                "maxConcurrentPerAgent",
+                                "version"
+                              ],
+                              "additionalProperties": false,
+                              "description": "Coverage validated by this operation's strict request contract."
+                            }
+                          },
+                          "required": [
+                            "state",
+                            "savedVersion",
+                            "coverage"
+                          ],
+                          "additionalProperties": false,
+                          "description": "Data validated by this operation's strict request contract."
+                        }
+                      ],
+                      "description": "Data validated by this operation's strict request contract."
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string",
+                          "description": "Identifier of the request resource; ownership is resolved server-side."
+                        }
+                      },
+                      "required": [
+                        "requestId"
+                      ],
+                      "description": "Meta validated by this operation's strict request contract."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "data",
+                    "meta"
+                  ],
+                  "description": "Response validated by this operation's strict request contract."
+                },
+                "example": {
+                  "success": true,
+                  "message": "Owner recovers the saved coverage reference without resending its command",
+                  "data": {
+                    "state": "UNKNOWN",
+                    "coverage": {
+                      "branchId": "00000000-0000-4000-8000-000000000001",
+                      "enabled": true,
+                      "schedule": {
+                        "timezone": "Africa/Lagos",
+                        "windows": [
+                          {
+                            "day": 0,
+                            "startMinute": 0,
+                            "endMinute": 1
+                          }
+                        ]
+                      },
+                      "maxConcurrentPerAgent": 1,
+                      "version": 0
+                    }
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is malformed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request is malformed.",
+                  "error": {
+                    "code": "BAD_REQUEST"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Current session required"
+          },
+          "403": {
+            "description": "Current identity, MFA, responsibilities or CSRF denied"
+          },
+          "404": {
+            "description": "Active branch unavailable"
+          },
+          "409": {
+            "description": "Stale revision, expired lease or changed coverage"
+          },
+          "422": {
+            "description": "Strict bounded input invalid"
+          },
+          "429": {
+            "description": "Rate limit reached"
+          },
+          "500": {
+            "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                  "error": {
+                    "code": "INTERNAL_ERROR"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Live feature or explicit coverage unavailable; ordinary queued Care remains"
+          }
+        },
+        "operationId": "getAdminWorkforceSupportChatCoverageByBranchIdOperationsByKey",
+        "x-access-boundary": "mfa-verified-admin",
+        "x-required-roles": [
+          "ADMIN",
+          "SUPER_ADMIN"
+        ],
+        "x-csrf-required": false,
+        "x-idempotency-required": false
+      },
+      "delete": {
+        "summary": "Owner cancels an unsaved coverage reference while preserving a committed change",
+        "tags": [
+          "Support"
+        ],
+        "description": "Gated additive availability foundation. No chat claim, message delivery or queue-position promise. Current branch duties and session are checked server-side. Customer responses contain no staff identities; the channel remains queued Customer Care until lifecycle and transport acceptance. Default feature flag is off. Owner cancels an unsaved coverage reference while preserving a committed change. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Identifier of the branch resource; ownership is resolved server-side."
+            },
+            "required": true,
+            "name": "branchId",
+            "in": "path",
+            "description": "Identifier selecting the branch resource.",
+            "example": "00000000-0000-4000-8000-000000000001"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^support-reply-v1\\.\\d{13}\\.[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "description": "Key validated by this operation's strict request contract."
+            },
+            "required": true,
+            "name": "key",
+            "in": "path",
+            "description": "Identifier selecting the key resource.",
+            "example": "synthetic-key"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+            },
+            "required": true,
+            "name": "x-csrf-token",
+            "in": "header",
+            "description": "Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.",
+            "example": "synthetic-token-value-not-a-real-secret"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success: Owner cancels an unsaved coverage reference while preserving a committed change.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "description": "Success validated by this operation's strict request contract."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                    },
+                    "data": {
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "state": {
+                              "type": "string",
+                              "enum": [
+                                "UNKNOWN"
+                              ],
+                              "description": "State validated by this operation's strict request contract."
+                            },
+                            "coverage": {
+                              "type": "object",
+                              "properties": {
+                                "branchId": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "description": "Identifier of the branch resource; ownership is resolved server-side."
+                                },
+                                "enabled": {
+                                  "type": "boolean",
+                                  "description": "Enabled validated by this operation's strict request contract."
+                                },
+                                "schedule": {
+                                  "type": "object",
+                                  "properties": {
+                                    "timezone": {
+                                      "type": "string",
+                                      "enum": [
+                                        "Africa/Lagos"
+                                      ],
+                                      "description": "ISO 8601 timestamp interpreted and validated by the server."
+                                    },
+                                    "windows": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "object",
+                                        "properties": {
+                                          "day": {
+                                            "type": "integer",
+                                            "minimum": 0,
+                                            "maximum": 6,
+                                            "description": "Day validated by this operation's strict request contract."
+                                          },
+                                          "startMinute": {
+                                            "type": "integer",
+                                            "minimum": 0,
+                                            "maximum": 1439,
+                                            "description": "Start Minute validated by this operation's strict request contract."
+                                          },
+                                          "endMinute": {
+                                            "type": "integer",
+                                            "minimum": 1,
+                                            "maximum": 1440,
+                                            "description": "End Minute validated by this operation's strict request contract."
+                                          }
+                                        },
+                                        "required": [
+                                          "day",
+                                          "startMinute",
+                                          "endMinute"
+                                        ],
+                                        "additionalProperties": false,
+                                        "description": "Windows Item validated by this operation's strict request contract."
+                                      },
+                                      "maxItems": 28,
+                                      "description": "Windows validated by this operation's strict request contract."
+                                    }
+                                  },
+                                  "required": [
+                                    "timezone",
+                                    "windows"
+                                  ],
+                                  "additionalProperties": false,
+                                  "description": "Schedule validated by this operation's strict request contract."
+                                },
+                                "maxConcurrentPerAgent": {
+                                  "type": "integer",
+                                  "minimum": 1,
+                                  "maximum": 5,
+                                  "description": "Max Concurrent Per Agent validated by this operation's strict request contract."
+                                },
+                                "version": {
+                                  "type": "integer",
+                                  "minimum": 0,
+                                  "description": "Version validated by this operation's strict request contract."
+                                }
+                              },
+                              "required": [
+                                "branchId",
+                                "enabled",
+                                "schedule",
+                                "maxConcurrentPerAgent",
+                                "version"
+                              ],
+                              "additionalProperties": false,
+                              "description": "Coverage validated by this operation's strict request contract."
+                            }
+                          },
+                          "required": [
+                            "state",
+                            "coverage"
+                          ],
+                          "additionalProperties": false,
+                          "description": "Data validated by this operation's strict request contract."
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "state": {
+                              "type": "string",
+                              "enum": [
+                                "CANCELLED"
+                              ],
+                              "description": "State validated by this operation's strict request contract."
+                            },
+                            "coverage": {
+                              "type": "object",
+                              "properties": {
+                                "branchId": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "description": "Identifier of the branch resource; ownership is resolved server-side."
+                                },
+                                "enabled": {
+                                  "type": "boolean",
+                                  "description": "Enabled validated by this operation's strict request contract."
+                                },
+                                "schedule": {
+                                  "type": "object",
+                                  "properties": {
+                                    "timezone": {
+                                      "type": "string",
+                                      "enum": [
+                                        "Africa/Lagos"
+                                      ],
+                                      "description": "ISO 8601 timestamp interpreted and validated by the server."
+                                    },
+                                    "windows": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "object",
+                                        "properties": {
+                                          "day": {
+                                            "type": "integer",
+                                            "minimum": 0,
+                                            "maximum": 6,
+                                            "description": "Day validated by this operation's strict request contract."
+                                          },
+                                          "startMinute": {
+                                            "type": "integer",
+                                            "minimum": 0,
+                                            "maximum": 1439,
+                                            "description": "Start Minute validated by this operation's strict request contract."
+                                          },
+                                          "endMinute": {
+                                            "type": "integer",
+                                            "minimum": 1,
+                                            "maximum": 1440,
+                                            "description": "End Minute validated by this operation's strict request contract."
+                                          }
+                                        },
+                                        "required": [
+                                          "day",
+                                          "startMinute",
+                                          "endMinute"
+                                        ],
+                                        "additionalProperties": false,
+                                        "description": "Windows Item validated by this operation's strict request contract."
+                                      },
+                                      "maxItems": 28,
+                                      "description": "Windows validated by this operation's strict request contract."
+                                    }
+                                  },
+                                  "required": [
+                                    "timezone",
+                                    "windows"
+                                  ],
+                                  "additionalProperties": false,
+                                  "description": "Schedule validated by this operation's strict request contract."
+                                },
+                                "maxConcurrentPerAgent": {
+                                  "type": "integer",
+                                  "minimum": 1,
+                                  "maximum": 5,
+                                  "description": "Max Concurrent Per Agent validated by this operation's strict request contract."
+                                },
+                                "version": {
+                                  "type": "integer",
+                                  "minimum": 0,
+                                  "description": "Version validated by this operation's strict request contract."
+                                }
+                              },
+                              "required": [
+                                "branchId",
+                                "enabled",
+                                "schedule",
+                                "maxConcurrentPerAgent",
+                                "version"
+                              ],
+                              "additionalProperties": false,
+                              "description": "Coverage validated by this operation's strict request contract."
+                            }
+                          },
+                          "required": [
+                            "state",
+                            "coverage"
+                          ],
+                          "additionalProperties": false,
+                          "description": "Data validated by this operation's strict request contract."
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "state": {
+                              "type": "string",
+                              "enum": [
+                                "SAVED"
+                              ],
+                              "description": "State validated by this operation's strict request contract."
+                            },
+                            "savedVersion": {
+                              "type": "integer",
+                              "exclusiveMinimum": 0,
+                              "description": "Saved Version validated by this operation's strict request contract."
+                            },
+                            "coverage": {
+                              "type": "object",
+                              "properties": {
+                                "branchId": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "description": "Identifier of the branch resource; ownership is resolved server-side."
+                                },
+                                "enabled": {
+                                  "type": "boolean",
+                                  "description": "Enabled validated by this operation's strict request contract."
+                                },
+                                "schedule": {
+                                  "type": "object",
+                                  "properties": {
+                                    "timezone": {
+                                      "type": "string",
+                                      "enum": [
+                                        "Africa/Lagos"
+                                      ],
+                                      "description": "ISO 8601 timestamp interpreted and validated by the server."
+                                    },
+                                    "windows": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "object",
+                                        "properties": {
+                                          "day": {
+                                            "type": "integer",
+                                            "minimum": 0,
+                                            "maximum": 6,
+                                            "description": "Day validated by this operation's strict request contract."
+                                          },
+                                          "startMinute": {
+                                            "type": "integer",
+                                            "minimum": 0,
+                                            "maximum": 1439,
+                                            "description": "Start Minute validated by this operation's strict request contract."
+                                          },
+                                          "endMinute": {
+                                            "type": "integer",
+                                            "minimum": 1,
+                                            "maximum": 1440,
+                                            "description": "End Minute validated by this operation's strict request contract."
+                                          }
+                                        },
+                                        "required": [
+                                          "day",
+                                          "startMinute",
+                                          "endMinute"
+                                        ],
+                                        "additionalProperties": false,
+                                        "description": "Windows Item validated by this operation's strict request contract."
+                                      },
+                                      "maxItems": 28,
+                                      "description": "Windows validated by this operation's strict request contract."
+                                    }
+                                  },
+                                  "required": [
+                                    "timezone",
+                                    "windows"
+                                  ],
+                                  "additionalProperties": false,
+                                  "description": "Schedule validated by this operation's strict request contract."
+                                },
+                                "maxConcurrentPerAgent": {
+                                  "type": "integer",
+                                  "minimum": 1,
+                                  "maximum": 5,
+                                  "description": "Max Concurrent Per Agent validated by this operation's strict request contract."
+                                },
+                                "version": {
+                                  "type": "integer",
+                                  "minimum": 0,
+                                  "description": "Version validated by this operation's strict request contract."
+                                }
+                              },
+                              "required": [
+                                "branchId",
+                                "enabled",
+                                "schedule",
+                                "maxConcurrentPerAgent",
+                                "version"
+                              ],
+                              "additionalProperties": false,
+                              "description": "Coverage validated by this operation's strict request contract."
+                            }
+                          },
+                          "required": [
+                            "state",
+                            "savedVersion",
+                            "coverage"
+                          ],
+                          "additionalProperties": false,
+                          "description": "Data validated by this operation's strict request contract."
+                        }
+                      ],
+                      "description": "Data validated by this operation's strict request contract."
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string",
+                          "description": "Identifier of the request resource; ownership is resolved server-side."
+                        }
+                      },
+                      "required": [
+                        "requestId"
+                      ],
+                      "description": "Meta validated by this operation's strict request contract."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "data",
+                    "meta"
+                  ],
+                  "description": "Response validated by this operation's strict request contract."
+                },
+                "example": {
+                  "success": true,
+                  "message": "Owner cancels an unsaved coverage reference while preserving a committed change",
+                  "data": {
+                    "state": "UNKNOWN",
+                    "coverage": {
+                      "branchId": "00000000-0000-4000-8000-000000000001",
+                      "enabled": true,
+                      "schedule": {
+                        "timezone": "Africa/Lagos",
+                        "windows": [
+                          {
+                            "day": 0,
+                            "startMinute": 0,
+                            "endMinute": 1
+                          }
+                        ]
+                      },
+                      "maxConcurrentPerAgent": 1,
+                      "version": 0
+                    }
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is malformed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request is malformed.",
+                  "error": {
+                    "code": "BAD_REQUEST"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Current session required"
+          },
+          "403": {
+            "description": "Current identity, MFA, responsibilities or CSRF denied"
+          },
+          "404": {
+            "description": "Active branch unavailable"
+          },
+          "409": {
+            "description": "Stale revision, expired lease or changed coverage"
+          },
+          "422": {
+            "description": "Strict bounded input invalid"
+          },
+          "429": {
+            "description": "Rate limit reached"
+          },
+          "500": {
+            "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                  "error": {
+                    "code": "INTERNAL_ERROR"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Live feature or explicit coverage unavailable; ordinary queued Care remains"
+          }
+        },
+        "operationId": "deleteAdminWorkforceSupportChatCoverageByBranchIdOperationsByKey",
+        "x-access-boundary": "mfa-verified-admin",
+        "x-required-roles": [
+          "ADMIN",
+          "SUPER_ADMIN"
+        ],
+        "x-csrf-required": true,
+        "x-idempotency-required": false
+      }
+    },
     "/customers/support/live/availability/{branchId}": {
       "get": {
         "summary": "Check current staffed eligibility without promising live transport",
@@ -106759,7 +107775,7 @@
         "tags": [
           "Support"
         ],
-        "description": "Gated additive availability foundation. No chat claim, message delivery or queue-position promise. Current branch duties and session are checked server-side. Customer responses contain no staff identities; the channel remains queued Customer Care until lifecycle and transport acceptance. Default feature flag is off. Owner updates audited support coverage using its current revision. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.",
+        "description": "Gated additive availability foundation. No chat claim, message delivery or queue-position promise. Current branch duties and session are checked server-side. Customer responses contain no staff identities; the channel remains queued Customer Care until lifecycle and transport acceptance. Default feature flag is off. Owner updates audited support coverage using its current revision. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. Supports an optional Idempotency-Key; see the header contract for compatibility, replay and retention rules.",
         "security": [
           {
             "sessionCookie": []
@@ -106789,6 +107805,18 @@
             "in": "header",
             "description": "Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.",
             "example": "synthetic-token-value-not-a-real-secret"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^support-reply-v1\\.\\d{13}\\.[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "description": "Idempotency Key validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "idempotency-key",
+            "in": "header",
+            "description": "Unique retry key for this logical mutation. Reuse it only with the identical request.",
+            "example": "synthetic-idempotency-key"
           }
         ],
         "requestBody": {

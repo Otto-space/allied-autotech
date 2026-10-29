@@ -15,7 +15,8 @@ const conflict = () =>
     message: "This request key does not match the original support submission",
   });
 
-async function locateSupportReceipt(
+/** Call only inside a transaction after current actor and target authorization. */
+export async function locateSupportReceipt(
   tx: Prisma.TransactionClient,
   scope: string,
   key: string,

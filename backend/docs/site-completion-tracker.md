@@ -1,5 +1,22 @@
 # Allied AutoTech completion tracker
 
+## 29 October 2026: W16E owner coverage continuation
+
+Owner-only support coverage editing and reference-only durable recovery are locally
+implemented. The established PUT shape is preserved; optional operation keys and
+owner/current-session/MFA/active-branch guarded GET/DELETE recovery use existing
+receipt storage, CAS and audit. No schema change or live enablement. Eleven new
+native, 60 Care/session/handoff and 20 availability cases pass on a newly created
+isolated 78-migration CI target. 28 backend and 52 combined frontend units pass,
+including 15 new coverage contracts. Final types, scoped lint and secret guard pass.
+Eight final rendered cases pass at 390/1440px, including keyboard focus and
+access-removal. Screenshots were inspected.
+See ../../docs/help-learn/SUPPORT_OWNER_COVERAGE_W16E.md.
+W16D is integrated on master 427202e7 with all three exact-source GitHub checks
+passed; publication is waiting for Docker's engine. W16E publication and exact-source
+release acceptance remain pending. The full goal, exact-route matrix, staffing/connection readiness and
+bounded real-provider re-evaluation remain active. No extra paid calls are allowed.
+
 ## 29 October 2026: W16D managed Care channel continuation
 
 Managed enquiry/complaint pages now integrate the shared canonical channel controls

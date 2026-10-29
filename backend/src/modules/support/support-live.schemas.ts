@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { supportReplyKeySchema } from "./support.schemas.js";
 
 export const supportCoverageWindowSchema = z
   .strictObject({
@@ -70,6 +71,19 @@ export const supportCoverageSchema = z.strictObject({
   maxConcurrentPerAgent: z.number().int().min(1).max(5),
   version: z.number().int().nonnegative(),
 });
+export const supportCoverageOperationParamsSchema = z.strictObject({
+  branchId: z.uuid(),
+  key: supportReplyKeySchema,
+});
+export const supportCoverageRecoverySchema = z.discriminatedUnion("state", [
+  z.strictObject({ state: z.literal("UNKNOWN"), coverage: supportCoverageSchema }),
+  z.strictObject({ state: z.literal("CANCELLED"), coverage: supportCoverageSchema }),
+  z.strictObject({
+    state: z.literal("SAVED"),
+    savedVersion: z.number().int().positive(),
+    coverage: supportCoverageSchema,
+  }),
+]);
 export const supportPresenceSchema = z.strictObject({
   enabled: z.boolean(),
   version: z.number().int().nonnegative(),

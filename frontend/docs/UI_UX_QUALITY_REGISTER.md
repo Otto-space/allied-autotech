@@ -1,5 +1,19 @@
 # UI and UX quality register
 
+## 29 October 2026: W16E owner coverage editor
+
+The owner can configure explicit Lagos support windows, capacity and policy state
+through a review step without copying workshop hours or enabling live chat. Empty
+coverage stays empty. Both branch drafts are retained in memory; stale revisions
+require deliberate adoption. Unknown saves retain only an opaque browser reference
+and require server recovery or reviewed cancellation. Staff/Admin do not see or read
+this owner interface. Eight final browser cases passed at 390/1440px, including
+populated midnight windows, stale/draft/reload states, overflow and Axe. Keyboard
+Add/Remove focus and access-removal checks also pass; screenshots were inspected.
+This is isolated
+Playwright/Edge on reused Next 16.3.8; exact-lock, real-role and hosted acceptance
+remain separate. See ../../docs/help-learn/SUPPORT_OWNER_COVERAGE_W16E.md.
+
 ## 29 October 2026: W16D managed Care channels
 
 Managed enquiry/complaint queues and linked-case channel controls now use current
