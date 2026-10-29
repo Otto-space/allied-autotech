@@ -7,6 +7,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { discoveryResponse } from "../fixtures/discovery-response.mjs";
 import { demoId } from "../fixtures/discovery-demo.mjs";
 import { workProductsFixture, productCategories } from "../fixtures/work-products";
+import { verifyConsole } from "../fixtures/preview-console";
 
 // Rendering/interaction fixtures only. PostgreSQL integration tests establish
 // actual search, validation, routing, persistence and permission behaviour.
@@ -50,6 +51,15 @@ test.beforeEach(async ({ page }) => {
   await page.route("**/api/v1/**", async (route) => {
     const req = route.request(),
       url = new URL(req.url());
+    // Initial hosted SSR may include genuine public imagery. Allow only its GET;
+    // account data and every mutation remain inside the isolated fixture.
+    if (
+      req.method() === "GET" &&
+      /^\/api\/v1\/public\/(?:vehicles\/images|media\/images)\/[a-f0-9-]{36}$/.test(
+        url.pathname,
+      )
+    )
+      return route.continue();
     if (url.pathname.endsWith("/auth/session"))
       return account === "customer"
         ? route.fulfill({
@@ -130,12 +140,22 @@ async function healthy(page: Page, name: string, width: number) {
     fullPage: true,
   });
 }
+async function openProductFilters(page: Page) {
+  const panel = page.locator("#product-filter-panel");
+  if (!(await panel.isVisible())) await page.locator(".product-filter-trigger").click();
+  await expect(panel).toBeVisible();
+}
 for (const width of [360, 390, 768, 1024, 1440]) {
   test(`Shop and Vehicles render and operate at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     const errors: string[] = [];
+    const warnings: string[] = [];
     page.on("pageerror", (error) => errors.push(error.message));
     page.on("console", (message) => {
+      if (message.type() === "warning") {
+        warnings.push(message.text());
+        return;
+      }
       if (
         ["error", "warning"].includes(message.type()) &&
         !(
@@ -154,15 +174,15 @@ for (const width of [360, 390, 768, 1024, 1440]) {
     await page.goto("/parts");
     await expect(
       page.getByRole("heading", {
-        name: "Auto Parts & Automotive Essentials",
+        name: "Find the right parts",
         exact: true,
       }),
     ).toBeVisible();
     await expect(
-      page.getByRole("radio", { name: "Search all products", exact: true }),
+      page.getByRole("radio", { name: "Search by part name or number", exact: true }),
     ).toBeChecked();
     const modeBounds = await page
-      .getByRole("radio", { name: "Search all products", exact: true })
+      .getByRole("radio", { name: "Search by part name or number", exact: true })
       .boundingBox();
     expect(modeBounds?.height).toBeLessThanOrEqual(24);
     expect(modeBounds?.width).toBeLessThanOrEqual(24);
@@ -175,7 +195,7 @@ for (const width of [360, 390, 768, 1024, 1440]) {
       .getByRole("searchbox", { name: "Search products", exact: true })
       .press("Enter");
     await expect(page.locator(".shop-product-card")).toHaveCount(12);
-    await page.getByRole("button", { name: /^Filters/ }).click();
+    await openProductFilters(page);
     await page.getByLabel("Product family", { exact: true }).selectOption("ENGINE_OIL");
     await expect(page.getByLabel("Viscosity grade", { exact: true })).toBeVisible();
     await expect(page.getByLabel("Part condition", { exact: true })).not.toBeVisible();
@@ -204,7 +224,7 @@ for (const width of [360, 390, 768, 1024, 1440]) {
     );
     expect(whatsapp.searchParams.get("text")).toMatch(/Maximum budget:.*50,000/);
     await healthy(page, "shop", width);
-    await page.getByRole("button", { name: /^Filters/ }).click();
+    await openProductFilters(page);
     await page
       .getByLabel("Product family", { exact: true })
       .selectOption("REPLACEMENT_PART");
@@ -212,10 +232,7 @@ for (const width of [360, 390, 768, 1024, 1440]) {
     await page.getByRole("button", { name: "Apply filters", exact: true }).click();
     await expect(page).not.toHaveURL(/oilViscosityGrade|packVolumeMl/);
     await page.goto("/vehicles");
-    // Populated local SSR opens the filters; empty hosted SSR leaves them closed.
-    const controls = page.locator(".catalogue-controls");
-    if ((await controls.getAttribute("open")) === null)
-      await page.getByText("Search and vehicle preferences", { exact: true }).click();
+    // Search stays visible independently of the responsive filter panel.
     await page
       .getByRole("searchbox", { name: "Search vehicles", exact: true })
       .fill("Toyota Corolla");
@@ -231,7 +248,7 @@ for (const width of [360, 390, 768, 1024, 1440]) {
     );
     await expect(page.locator(".vehicle-card")).toHaveCount(1);
     await healthy(page, "vehicles", width);
-    expect(errors).toEqual([]);
+    await verifyConsole(page, errors, warnings);
   });
 }
 test("oil preferences retain both budgets through review and the submission contract", async ({
@@ -401,10 +418,21 @@ test("empty, no-match and API error states stay distinct and retry recovers", as
 }) => {
   mode = "empty";
   await page.goto("/parts");
+  // Hosted SSR reads the real public catalogue. A client query must trigger the
+  // intercepted empty fixture before asserting a synthetic global-empty state.
+  await page
+    .getByRole("searchbox", { name: "Search products", exact: true })
+    .fill("SyntheticEmptyCatalogue");
+  await page
+    .getByRole("searchbox", { name: "Search products", exact: true })
+    .press("Enter");
   await expect(
     page.getByRole("heading", { name: "No products are published yet", exact: true }),
   ).toBeVisible();
   mode = "populated";
+  // A newly populated catalogue is a separate dataset, so reload its global
+  // availability check before asserting a filtered no-match response.
+  await page.reload();
   await page
     .getByRole("searchbox", { name: "Search products", exact: true })
     .fill("NoSyntheticMatch");

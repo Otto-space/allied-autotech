@@ -40,15 +40,15 @@ Published batches and their exact evidence are recorded below. Open and partial 
 | V25 | P2       | Product section navigation says Delivery, but the section is Collection and ordering and explicitly says delivery is unavailable                             | Rename the visible tab to Collection or Collection & enquiry while retaining compatible old anchors                                                                                       | Released; sampled evidence |
 | V26 | P2       | Product action card has enquiry, WhatsApp, a large red Sign in to continue action, and repeated Ask our team links                                           | Make enquiry the primary product action. Reduce saving/sign-in to a clearly secondary utility and consolidate redundant contact links                                                     | Released; sampled evidence |
 | V27 | P3       | Catalogue says 1 matching services; description says technical equipments                                                                                    | Correct pluralisation and use equipment. Review catalogue copy as authored content as well as component labels                                                                            | Partial; see evidence      |
-| V28 | P3       | Enquiry column repeats Tell us what you need, Send an enquiry and supporting introductions in close succession                                               | Use one section heading and a concise contextual line, then start the fields                                                                                                              | Verified; release pending  |
-| V29 | P3       | Portrait tyre equipment photography is cropped into a wide hero composition                                                                                  | Use a deliberate uncropped equipment presentation or a suitable approved landscape image; retain useful context                                                                           | Verified; release pending  |
-| V30 | P2       | The six-step services journey describes choosing an available appointment and following a booking, while the sampled service's actionable flow is an enquiry | Distinguish request, human confirmation and any actual account tracking. Align wording to the enabled release without enabling commerce/booking features just for consistency             | Verified; release pending  |
+| V28 | P3       | Enquiry column repeats Tell us what you need, Send an enquiry and supporting introductions in close succession                                               | Use one section heading and a concise contextual line, then start the fields                                                                                                              | Released; sampled evidence |
+| V29 | P3       | Portrait tyre equipment photography is cropped into a wide hero composition                                                                                  | Use a deliberate uncropped equipment presentation or a suitable approved landscape image; retain useful context                                                                           | Released; sampled evidence |
+| V30 | P2       | The six-step services journey describes choosing an available appointment and following a booking, while the sampled service's actionable flow is an enquiry | Distinguish request, human confirmation and any actual account tracking. Align wording to the enabled release without enabling commerce/booking features just for consistency             | Released; sampled evidence |
 | V31 | P3       | Eleven principles form a long repeated two-column section, with several related trust/commitment messages                                                    | Group into fewer memorable themes or provide concise primary principles with optional expanded detail                                                                                     | Open                       |
 | V32 | P3       | Equipment images are small thumbnails with no evident enlarge/inspect action in the sampled groups                                                           | Add an accessible lightweight preview or better image/detail layout if detailed equipment proof is intended                                                                               | Open                       |
 | V33 | P3       | The same portrait campaign appears on Home, About and service-support content                                                                                | Retain useful reuse, but vary section composition and supporting evidence so pages do not feel like repeated poster placements                                                            | Open                       |
-| V34 | P3       | A single Handling branch is displayed as an input-like field plus explanatory text even though no choice is needed                                           | Present the workshop as concise read-only context, reserving form controls for actual choices                                                                                             | Open                       |
-| V35 | P2       | Blank-form validation gives specific name/email errors but generic Enter the required information for subject/message                                        | Use field-specific instructions and preserve the working first-error focus behaviour                                                                                                      | Open                       |
-| V36 | P3       | Hero actions, channel strip, left instruction steps, helpful-details panel and form explanations all precede/support one enquiry                             | Keep the two-column layout but reduce repeated guidance; make the required fields and next action more immediate                                                                          | Open                       |
+| V34 | P3       | A single Handling branch is displayed as an input-like field plus explanatory text even though no choice is needed                                           | Present the workshop as concise read-only context, reserving form controls for actual choices                                                                                             | Released; sampled evidence |
+| V35 | P2       | Blank-form validation gives specific name/email errors but generic Enter the required information for subject/message                                        | Use field-specific instructions and preserve the working first-error focus behaviour                                                                                                      | Released; sampled evidence |
+| V36 | P3       | Hero actions, channel strip, left instruction steps, helpful-details panel and form explanations all precede/support one enquiry                             | Keep the two-column layout but reduce repeated guidance; make the required fields and next action more immediate                                                                          | Released; sampled evidence |
 | V37 | Review   | Published hours are Monday–Saturday 8am–6pm, with a 30-minute acknowledgement target                                                                         | Confirm these are current approved support commitments. Earlier supplied workshop hours differed on Saturday; that does not prove the current page is wrong                               | Policy verified            |
 | V38 | P3       | Help alternates dark hero, light Allie card, dark search band, then light categories                                                                         | Combine related orientation/search content into a smoother hierarchy so the page feels less segmented                                                                                     | Open                       |
 | V39 | P2       | Practice dropdowns display text-entry instructions such as Use 1–30 characters and Use 4–4 characters                                                        | Generate help by control type: Choose a make, Choose a model and Choose a year; retain dependency explanations only where useful                                                          | Released; sampled evidence |
@@ -312,3 +312,34 @@ The audit tracker stash conflict was resolved by retaining both upstream publica
 notes and every stashed audit note; tracker remains unstaged and the stash retained.
 Other dirty asset records and the active W16D master worktree remain preserved. No
 local preview, shared database/customer write or production promotion in this batch.
+
+## Contact acceptance and production release - 29 October 2026
+
+V34/V35/V36 are live on both domains: runtime 35c314c6, deployment
+dpl_CXXM8WeyShRAKrZZNRCCEBvrKY2i. The tested runtime is unchanged by the final
+test-only review f2b74819. Nineteen focused units, types/lint, 1,256 CI tests
+(12 optional skipped), production build/format and zero production audit findings
+passed. Secret guard and isolated backend safety passed. All 68 hosted cases have
+passing evidence: initial 52 plus all 16 originally failing cases after reviewed
+fixture corrections, matched by exact identity. The earlier failures are retained.
+Four focused Contact cases and 20 public checks passed again after promotion.
+
+First promotion received HTTP 403; identity/project checks then passed and all gates
+were rechecked before successful promotion. No application or database writes were
+made by browser fixtures. Backend 9c91eeff is unchanged; CSO guide version 3 remains
+a committed but unpublished backend content update. Preload performance warnings,
+physical-device/private-role/screen-reader acceptance and remaining ledger items
+are not closed by this release. Service V28/V29/V30 was already published in 060dba8d;
+the earlier release-pending ledger is now reconciled to that evidence.
+
+Full evidence, CI links, failed attempts, backup/restore qualification, rollback
+and source preservation: backend/docs/contact-clarity-production-20261029.md.
+Docker inspection found its daemon unavailable; no resource deletion was attempted.
+
+Next bounded batch: About V31/V32 and current-composition review V33. Live baseline
+at 360/390/768/1440 confirms 11 expanded principles (about 1,650px at 390px) and
+90px/110px equipment thumbnails without preview controls. Preserve every approved
+principle through concise primary themes and optional detail, existing equipment
+groups/descriptions, genuine images, native disclosure interaction and anchors.
+Verify keyboard preview/dismiss/focus return, responsive full-image inspection,
+image failure and reduced motion. The entire 18-section/V01-V55 goal stays active.

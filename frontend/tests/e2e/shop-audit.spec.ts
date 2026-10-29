@@ -61,23 +61,24 @@ for (const width of [390, 1440]) {
       page.getByRole("radio", { name: "Get help choosing a product" }),
     ).toHaveCount(0);
     await expect(
-      page.getByRole("radio", { name: "Find products for my vehicle" }),
-    ).toHaveCount(0);
-    const help = page.locator(".parts-finder-help a");
+      page.getByRole("radio", { name: "Find Parts for My Car" }),
+    ).toBeVisible();
+    await page.getByRole("radio", { name: "Find Parts for My Car" }).check();
+    const help = page.locator(".parts-finder-unavailable a");
     await expect(help).toHaveAttribute("href", /part_search=DEMO/);
+    await page.getByRole("radio", { name: "Search by part name or number" }).check();
     const search = await page
       .getByRole("searchbox", { name: "Search products" })
       .boundingBox();
-    const toolbar = await page.locator(".product-toolbar").boundingBox();
-    expect(search!.y).toBeLessThan(toolbar!.y);
-    expect(
-      await page
-        .locator(".product-search-panel")
-        .evaluate((el) => el.getBoundingClientRect().height),
-    ).toBeLessThan(width < 768 ? 420 : 310);
+    const toolbar = await page.locator(".product-filter-trigger").boundingBox();
+    expect(search!.y).toBeLessThan(toolbar!.y + toolbar!.height);
     await expect(page.getByRole("group", { name: "Category shortcuts" })).toHaveCount(0);
     const trigger = page.getByRole("button", { name: /^Filters/ });
     await trigger.focus();
+    if (width >= 1024) {
+      await page.keyboard.press("Enter");
+      await expect(page.locator("#product-filter-panel")).not.toBeVisible();
+    }
     await page.keyboard.press("Enter");
     const brand = page.getByRole("textbox", { name: "Brand", exact: true });
     await expect(brand).toBeVisible();
@@ -88,6 +89,7 @@ for (const width of [390, 1440]) {
       ),
     ).toBeVisible();
     await brand.fill("Unlisted brand");
+    await page.locator(".product-technical summary").click();
     await page.getByLabel("Product type", { exact: true }).selectOption("BRAKE_PADS");
     await expect(
       page.getByRole("option", { name: "Brake pads", exact: true }),
@@ -98,9 +100,18 @@ for (const width of [390, 1440]) {
     await expect(
       page.getByRole("button", { name: "Remove Product type: Brake pads" }),
     ).toBeVisible();
+    if (width >= 1024) {
+      await expect(page.locator("#product-filter-panel")).toBeVisible();
+      await page.getByRole("button", { name: "Close filters", exact: true }).click();
+    }
     await expect(trigger).toBeFocused();
     await trigger.click();
-    await page.keyboard.press("Escape");
+    if (width < 1024) await page.keyboard.press("Escape");
+    else await page.getByRole("button", { name: "Close filters", exact: true }).click();
+    await expect(trigger).toBeFocused();
+    // Pointer-close need not draw a keyboard ring. Real keyboard navigation must.
+    await page.keyboard.press("Tab");
+    await page.keyboard.press("Shift+Tab");
     await expect(trigger).toBeFocused();
     await trigger.hover();
     await expect(trigger).toBeFocused();
@@ -120,7 +131,7 @@ for (const width of [390, 1440]) {
     ).toEqual([]);
     expect(state.writes).toEqual([]);
     await page
-      .locator(".product-search-panel")
+      .locator(".product-browse-layout")
       .screenshot({ path: info.outputPath(`shop-controls-${width}.png`) });
   });
 
@@ -130,7 +141,7 @@ for (const width of [390, 1440]) {
     await page.setViewportSize({ width, height: 936 });
     const state = await fixture(page);
     const mode = page.getByRole("radio", {
-      name: "Find products for my vehicle",
+      name: "Find Parts for My Car",
       exact: true,
     });
     await mode.check();
@@ -145,10 +156,13 @@ for (const width of [390, 1440]) {
     await expect(
       page.getByRole("heading", { name: "No verified match for these details" }),
     ).toBeVisible();
-    await page.getByRole("radio", { name: "Search all products", exact: true }).check();
+    await page
+      .getByRole("radio", { name: "Search by part name or number", exact: true })
+      .check();
     await expect(page).not.toHaveURL(/vehicleModelId=/);
     await expect(page).toHaveURL(/search=DEMO/);
     await page.goBack();
+    await expect(page).toHaveURL(/vehicleModelId=/);
     await expect(mode).toBeChecked();
     await expect(page.getByLabel("Model year", { exact: true })).toHaveValue("2018");
     expect(state.writes).toEqual([]);
@@ -160,9 +174,7 @@ test("vehicle-choice errors stay distinct from an empty catalogue and recover", 
 }) => {
   const options = { failedMakes: true };
   const state = await fixture(page, options);
-  await page
-    .getByRole("radio", { name: "Find products for my vehicle", exact: true })
-    .check();
+  await page.getByRole("radio", { name: "Find Parts for My Car", exact: true }).check();
   await expect(
     page.getByText(
       "Vehicle choices could not be checked. Retry or ask our team for help.",

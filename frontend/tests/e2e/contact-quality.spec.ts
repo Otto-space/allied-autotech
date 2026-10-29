@@ -355,7 +355,7 @@ test("Contact searchable choices support keyboard, Escape, long names and viewpo
   await page.setViewportSize({ width: 360, height: 740 });
   await page.goto("/contact");
   await page.getByLabel("Enquiry type").selectOption("PRODUCT");
-  const source = page.getByRole("combobox", { name: "Related record" });
+  const source = page.getByRole("combobox", { name: "Related product (optional)" });
   await source.focus();
   await page.keyboard.press("ArrowDown");
   await source.fill("long synthetic");
@@ -382,7 +382,11 @@ for (const type of ["PRODUCT", "SERVICE", "VEHICLE"] as const) {
     await page.goto("/contact");
     await draft(page);
     await page.getByLabel("Enquiry type").selectOption(type);
-    await page.getByRole("combobox", { name: "Related record" }).click();
+    await page
+      .getByRole("combobox", {
+        name: type === "PRODUCT" ? "Related product (optional)" : "Related record",
+      })
+      .click();
     await page.getByRole("listbox").getByRole("option").first().click();
     if (type === "VEHICLE") {
       await expect(page.getByRole("combobox", { name: "Handling branch" })).toHaveCount(
@@ -412,7 +416,7 @@ for (const type of ["PRODUCT", "SERVICE", "VEHICLE"] as const) {
           : type === "SERVICE"
             ? "serviceId"
             : "vehicleListingId"]: sourceId,
-        ...(type === "VEHICLE" ? {} : { branchId }),
+        ...(type === "VEHICLE" ? { vehicleEnquiryIntent: "LISTING" } : { branchId }),
       },
     ]);
   });
@@ -630,7 +634,7 @@ test("Contact reduced-motion anchor and direct channels use verified destination
     page.locator('.contact-channels a[href="https://wa.me/2348136075567"]'),
   ).toBeVisible();
   await expect(
-    page.locator('.contact-channels a[href="mailto:alliedautotech26@gmail.com"]'),
+    page.locator('.contact-channels a[href="mailto:support@alliedautotech.com"]'),
   ).toBeVisible();
   const url = new URL(
     (await page
@@ -638,7 +642,7 @@ test("Contact reduced-motion anchor and direct channels use verified destination
       .getAttribute("href")) as string,
   );
   expect(url.searchParams.get("destination")).toBe(
-    "Allied AutoTech, 133 Stadium Road, beside Kilimanjaro, Port Harcourt, Rivers State, Nigeria",
+    "Allied AutoTech, 133 Stadium Road, beside Kilimanjaro Pizza Jungle Restaurant, Port Harcourt, Rivers State, Nigeria",
   );
   const question = page.locator(".contact-faq summary").first();
   await question.focus();
