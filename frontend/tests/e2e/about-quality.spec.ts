@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 
 const address =
-  "133 Stadium Road, beside Kilimanjaro, Port Harcourt, Rivers State, Nigeria";
+  "133 Stadium Road, beside Kilimanjaro Pizza Jungle Restaurant, Port Harcourt, Rivers State, Nigeria";
 async function session(page: Page, role = "anonymous") {
   const requests: string[] = [];
   page.on("request", (request) => {
@@ -39,7 +39,7 @@ async function open(page: Page) {
   expect(response?.status()).toBe(200);
   await expect(page).toHaveTitle(/About Allied AutoTech/);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(
-    "Precision AutocareYou Can Trust.",
+    "Automotive care in Port Harcourt",
   );
   await page.evaluate(() => document.fonts.ready);
 }
@@ -62,6 +62,7 @@ for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536]) {
     await expect(
       page.getByRole("heading", { name: "Authentic parts", exact: true }),
     ).toBeVisible();
+    await page.locator(".principles-more > summary").click();
     await expect(
       page.getByRole("heading", { name: "Always learning", exact: true }),
     ).toBeVisible();
@@ -150,7 +151,10 @@ test("every equipment item and the current campaign image have readable labels",
           ),
         )
         .toBe(true);
-      expect(await img.getAttribute("alt")).toBeTruthy();
+      const figure = img.locator("xpath=ancestor::figure");
+      await expect(figure.getByRole("link")).toHaveAccessibleName(
+        `View photo of ${await figure.locator("h4").innerText()}`,
+      );
     }
   }
   await expect(page.locator(".about-archive")).toHaveCount(0);
@@ -167,10 +171,9 @@ test("contact links use the confirmed address and safe public destinations", asy
   await open(page);
   const visit = page.locator("#visit");
   await expect(visit).toContainText(address);
-  await expect(visit.locator('a[href^="tel:"]')).toHaveAttribute(
-    "href",
-    "tel:+2348136075567",
-  );
+  await expect(
+    visit.locator('.about-contact-links a[href="https://wa.me/2348136075567"]'),
+  ).toBeVisible();
   await expect(visit.locator('a[href^="mailto:"]')).toHaveAttribute(
     "href",
     "mailto:support@alliedautotech.com",
@@ -182,7 +185,9 @@ test("contact links use the confirmed address and safe public destinations", asy
   expect(url.searchParams.has("destination_place_id")).toBe(false);
   await expect(directions).toHaveAttribute("rel", "noopener noreferrer");
   await expect(
-    visit.getByRole("link", { name: "WhatsApp the team", exact: false }),
+    visit
+      .locator(".about-contact-links")
+      .getByRole("link", { name: "Whatsapp", exact: true }),
   ).toHaveAttribute("href", "https://wa.me/2348136075567");
   await visit.getByRole("link", { name: "Contact customer care", exact: false }).click();
   await expect(page).toHaveURL(/\/contact$/);
@@ -240,6 +245,15 @@ test("About content and disclosures work with JavaScript disabled", async ({
       engine.getByRole("heading", { name: "Smoke leak detector", exact: true }),
     ).toBeVisible();
     await expect(page.locator(".about-archive")).toHaveCount(0);
+    await page.locator(".principles-more > summary").click();
+    await expect(
+      page.getByRole("heading", { name: "Always learning", exact: true }),
+    ).toBeVisible();
+    await page
+      .getByRole("link", { name: "View photo of 3D alignment machine", exact: true })
+      .click();
+    await expect(page).toHaveURL(/\/images\/equipment\/3d-alignment\.jpg$/);
+    await page.goBack();
     await page
       .getByRole("main")
       .getByRole("link", { name: "Contact the team", exact: false })
@@ -258,7 +272,7 @@ test("untrusted query text cannot alter the About page or contact destinations",
     "/about?next=javascript%3Aalert(1)&title=%3Cscript%3Ewindow.pwned%3D1%3C%2Fscript%3E",
   );
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(
-    "Precision AutocareYou Can Trust.",
+    "Automotive care in Port Harcourt",
   );
   await expect(page.getByRole("main")).not.toContainText("window.pwned");
   await expect(page.getByRole("main").locator('a[href^="javascript:"]')).toHaveCount(0);

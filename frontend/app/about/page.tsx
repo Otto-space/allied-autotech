@@ -150,8 +150,8 @@ export default function AboutPage() {
                 investigation of your vehicle’s needs.
               </p>
               <p className="about-equipment-note">
-                Explore the equipment groups. Suitable checks depend on your vehicle and
-                the issue reported.
+                Open an equipment group and select a photo for a closer look. Suitable
+                checks depend on your vehicle and the issue reported.
               </p>
             </div>
             <EquipmentGallery collapsible />
