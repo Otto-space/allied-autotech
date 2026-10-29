@@ -2,7 +2,6 @@ import { loadPublicSeed } from "@/lib/api/public-seed-server";
 import { parseServiceDiscovery } from "@/lib/api/public-schemas";
 import { publicPageMetadata, type SearchParameters } from "@/lib/seo";
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight, ChevronDown, ChevronRight } from "lucide-react";
 import { business } from "@/lib/business";
@@ -13,6 +12,7 @@ import { SiteHeader } from "../components/site-header";
 import { SiteFooter } from "../components/site-footer";
 import { ServicesCatalogue } from "../components/services-catalogue";
 import "./services.css";
+import "../components/catalogue-redesign.css";
 
 async function listingPath(searchParams: SearchParameters) {
   const query = new URLSearchParams();
@@ -72,17 +72,26 @@ export default async function ServicesPage({
                 your vehicle.
               </p>
             </div>
-            <div className="services-hero-media">
-              <Image
-                src="/images/allied-autotech/workshop-editorial.webp"
-                alt=""
-                fill
-                sizes="(max-width: 767px) 100vw, 50vw"
-                preload
-              />
-            </div>
           </div>
         </section>
+        <nav
+          className="public-wrap services-discovery-paths"
+          aria-label="Find service help"
+        >
+          <Link href="#service-catalogue">
+            <strong>Browse a service</strong>
+            <span>Review published services and their details.</span>
+            <ArrowUpRight size={20} aria-hidden="true" />
+          </Link>
+          <Link href="/contact#enquiry">
+            <strong>Describe a vehicle problem</strong>
+            <span>
+              Tell the team what you have noticed. An enquiry does not confirm an
+              appointment.
+            </span>
+            <ArrowUpRight size={20} aria-hidden="true" />
+          </Link>
+        </nav>
         <section
           className="public-wrap services-catalogue"
           id="service-catalogue"

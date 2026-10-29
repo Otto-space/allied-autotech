@@ -52,7 +52,7 @@ export function PartCard({
             src={photo?.url}
             alt={photo?.altText ?? product.name}
             fallbackIcon={<Package size={28} strokeWidth={1.4} />}
-            sizes="(max-width: 767px) 35vw, 150px"
+            sizes="(max-width: 374px) 100vw, (max-width: 767px) 50vw, (max-width: 1100px) 50vw, 33vw"
           />
 
           <div className="shop-product-identity">
@@ -139,14 +139,17 @@ export function PartCard({
 export function VehicleCard({
   listing,
   href,
+  priority = false,
 }: {
   listing: VehicleListing;
   href?: string;
+  priority?: boolean;
 }) {
   return (
     <article className="product-card vehicle-card">
       <Link href={href ?? `/vehicles/${listing.id}`}>
         <PublicMedia
+          priority={priority}
           key={
             (
               listing.vehicle.images.find((image) => image.isPrimary) ??
@@ -195,35 +198,52 @@ export function VehicleCard({
             <div>
               <dt>
                 <Settings2 size={15} aria-hidden="true" />
-                Transmission
+                {listing.vehicle.transmission || listing.vehicle.engineCapacityCc == null
+                  ? "Transmission"
+                  : "Engine"}
               </dt>
               <dd>
                 {listing.vehicle.transmission
                   ? vehicleLabel(listing.vehicle.transmission)
-                  : "Not listed"}
+                  : listing.vehicle.engineCapacityCc != null
+                    ? `${listing.vehicle.engineCapacityCc.toLocaleString("en-NG")} cc`
+                    : "Not listed"}
               </dd>
             </div>
             <div>
               <dt>
-                <Fuel size={15} aria-hidden="true" />
-                Fuel
+                {!listing.vehicle.fuelType && listing.vehicle.cylinders != null ? (
+                  <Settings2 size={15} aria-hidden="true" />
+                ) : (
+                  <Fuel size={15} aria-hidden="true" />
+                )}
+                {!listing.vehicle.fuelType && listing.vehicle.cylinders != null
+                  ? "Cylinders"
+                  : "Fuel"}
               </dt>
               <dd>
                 {listing.vehicle.fuelType
                   ? vehicleLabel(listing.vehicle.fuelType)
-                  : "Not listed"}
+                  : listing.vehicle.cylinders != null
+                    ? listing.vehicle.cylinders.toLocaleString("en-NG")
+                    : "Not listed"}
               </dd>
             </div>
           </dl>
-          <p className="vehicle-card-specification">
-            {vehicleLabel(listing.vehicle.condition)}
-            {listing.vehicle.powertrain
-              ? ` · ${vehicleLabel(listing.vehicle.powertrain)}`
-              : ""}
-            {listing.vehicle.manufactureCountryCode
-              ? ` · Assembled in ${vehicleLabel(listing.vehicle.manufactureCountryCode)}`
-              : ""}
-          </p>
+          {(listing.vehicle.powertrain || listing.vehicle.manufactureCountryCode) && (
+            <p className="vehicle-card-specification">
+              {[
+                listing.vehicle.powertrain
+                  ? vehicleLabel(listing.vehicle.powertrain)
+                  : null,
+                listing.vehicle.manufactureCountryCode
+                  ? `Assembled in ${vehicleLabel(listing.vehicle.manufactureCountryCode)}`
+                  : null,
+              ]
+                .filter(Boolean)
+                .join(" · ")}
+            </p>
+          )}
           <VehicleOwnerDisclosure vehicle={listing.vehicle} compact />
           <div className="vehicle-card-location">
             <MapPin size={15} aria-hidden="true" />

@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useHydrated } from "@/lib/use-hydrated";
-import { containDialogFocus } from "@/lib/dialog-focus";
+import { useCatalogueFilterPanel } from "@/lib/use-catalogue-filter-panel";
+import { useFilterMatchPreview } from "@/lib/use-filter-match-preview";
 import { ChevronDown, Search, SlidersHorizontal, X } from "lucide-react";
 import { CountryField } from "../components/country-field";
 import { countryCodes, europeanCountryCodes } from "@/lib/reference/countries";
@@ -13,6 +14,7 @@ import {
   nairaToKobo,
   vehicleChoices,
   vehicleLabel,
+  normalizeVehicleQuery,
 } from "@/lib/vehicle-discovery";
 
 export type UpdateVehicleQuery = (change: (params: URLSearchParams) => void) => void;
@@ -133,14 +135,17 @@ export function VehicleFilters({
   query,
   update,
   count,
+  previewQuery,
+  totalMatches,
 }: {
   query: string;
   update: UpdateVehicleQuery;
   count: number;
+  previewQuery: string;
+  totalMatches?: number;
 }) {
-  const dialog = useRef<HTMLDialogElement>(null);
-  const trigger = useRef<HTMLButtonElement>(null);
-  const [open, setOpen] = useState(false);
+  const panel = useCatalogueFilterPanel();
+  const { dialog, trigger, open, close } = panel;
   function readValues() {
     const params = new URLSearchParams(query);
     // Legacy exact-year links remain supported; editing uses a single year range.
@@ -173,22 +178,27 @@ export function VehicleFilters({
     setValues(readValues());
     setErrors({});
   }
-  useEffect(() => {
-    const media = window.matchMedia("(max-width: 767px)");
-    function resize() {
-      dialog.current?.close();
-    }
-    media.addEventListener("change", resize);
-    const prior = document.body.style.overflow;
-    if (open && media.matches) document.body.style.overflow = "hidden";
-    return () => {
-      media.removeEventListener("change", resize);
-      document.body.style.overflow = prior;
-    };
-  }, [open]);
-  function close() {
-    dialog.current?.close();
+  const draft = new URLSearchParams(previewQuery);
+  let validDraft = true;
+  for (const key of advancedVehicleKeys) {
+    draft.delete(key);
+    const value = key.endsWith("Kobo") ? nairaToKobo(values[key]) : values[key].trim();
+    if (value === undefined) validDraft = false;
+    else if (value) draft.set(key, value);
   }
+  const normalizedDraft = normalizeVehicleQuery(draft);
+  validDraft = validDraft && !normalizedDraft.invalid;
+  const draftQuery = normalizedDraft.params;
+  for (const key of ["cursor", "_trail", "sort"]) draftQuery.delete(key);
+  draftQuery.set("limit", "1");
+  const appliedQuery = normalizeVehicleQuery(new URLSearchParams(previewQuery)).params;
+  for (const key of ["cursor", "_trail", "sort"]) appliedQuery.delete(key);
+  appliedQuery.set("limit", "1");
+  const changed = draftQuery.toString() !== appliedQuery.toString();
+  const preview = useFilterMatchPreview(
+    open && validDraft && changed ? `/public/vehicles/discovery?${draftQuery}` : null,
+  );
+  const matches = changed ? preview.count : totalMatches;
   function apply(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const nextErrors: Record<string, string> = {};
@@ -267,7 +277,7 @@ export function VehicleFilters({
         if (value) params.set(key, value);
       }
     });
-    close();
+    panel.applied();
   }
   return (
     <>
@@ -285,10 +295,7 @@ export function VehicleFilters({
           }
           setValues(readValues());
           setErrors({});
-          if (window.matchMedia("(max-width: 767px)").matches)
-            dialog.current?.showModal();
-          else dialog.current?.show();
-          setOpen(true);
+          panel.show();
         }}
       >
         <SlidersHorizontal size={17} aria-hidden="true" /> Filters{" "}
@@ -299,14 +306,11 @@ export function VehicleFilters({
         ref={dialog}
         id="vehicle-filter-panel"
         className="vehicle-filter-panel"
+        data-layout-ready={panel.ready}
+        role={panel.desktop ? "region" : undefined}
         aria-labelledby="vehicle-filter-heading"
-        onKeyDown={(event) => {
-          if (event.currentTarget.matches(":modal")) containDialogFocus(event);
-        }}
-        onClose={() => {
-          setOpen(false);
-          trigger.current?.focus({ preventScroll: true });
-        }}
+        onKeyDown={panel.onKeyDown}
+        onClose={panel.onClose}
         onClick={(event) => {
           if (event.target === event.currentTarget) {
             const r = event.currentTarget.getBoundingClientRect();
@@ -345,7 +349,7 @@ export function VehicleFilters({
               ["Condition", ["conditions"]],
               ["Model year and body", ["minYear", "maxYear", "bodyType"]],
               [
-                "Advanced: driving and equipment",
+                "Specifications",
                 [
                   "transmission",
                   "minMileageKm",
@@ -353,6 +357,11 @@ export function VehicleFilters({
                   "powertrains",
                   "fuelType",
                   "driveType",
+                ],
+              ],
+              [
+                "Advanced: vehicle details",
+                [
                   "minEngineCapacityCc",
                   "maxEngineCapacityCc",
                   "seats",
@@ -370,7 +379,8 @@ export function VehicleFilters({
                 className="vehicle-filter-group"
                 key={heading as string}
                 open={
-                  !(heading as string).startsWith("Advanced:") ||
+                  (!(heading as string).startsWith("Advanced:") &&
+                    heading !== "Specifications") ||
                   (keys as string[]).some((key) => !!values[key])
                 }
               >
@@ -381,7 +391,7 @@ export function VehicleFilters({
                     Nigerian used. Condition does not describe assembly location.
                   </p>
                 )}
-                {heading === "Advanced: driving and equipment" && (
+                {heading === "Specifications" && (
                   <p className="vehicle-filter-hint">
                     Powertrain describes the propulsion system; fuel type is the listing’s
                     recorded energy source. Combining them narrows results.
@@ -628,6 +638,17 @@ export function VehicleFilters({
             ))}
           </div>
           <div className="vehicle-filter-actions">
+            <p className="catalogue-match-preview" role="status" aria-live="polite">
+              {!validDraft
+                ? "Review the entered filter values."
+                : preview.pending
+                  ? "Checking matches…"
+                  : preview.error
+                    ? "Count unavailable. You can still apply filters."
+                    : matches === undefined
+                      ? "Apply to check matching vehicles."
+                      : `${matches.toLocaleString("en-NG")} matching vehicle${matches === 1 ? "" : "s"}`}
+            </p>
             <button
               type="button"
               className="button secondary"
@@ -636,15 +657,11 @@ export function VehicleFilters({
                   Object.fromEntries(advancedVehicleKeys.map((key) => [key, ""])),
                 );
                 setErrors({});
-                update((params) => {
-                  for (const key of advancedVehicleKeys) params.delete(key);
-                  params.delete("search");
-                });
               }}
             >
-              Clear filters
+              Reset draft
             </button>
-            <button className="button" type="submit">
+            <button className="button" type="submit" data-scroll-target="vehicle-results">
               Apply filters
             </button>
           </div>

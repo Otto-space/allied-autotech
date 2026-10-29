@@ -26,14 +26,27 @@ authorisation. The original portable stock import remains compatible. Seven
 prepared gallery originals were rechecked against their manifest size/SHA-256;
 cover/order/alt and derivative privacy masks remain unchanged.
 
-**Current status: publication authorised but not yet executed.** The owner reported
-being signed in, but both Computer Use entry points returned "native pipe is
-unavailable" and no browser/apps were exposed. No usable authenticated staff
-session is available to the agent. No account, permission, MFA, CSRF, audit, media
-or publication guard was bypassed; no direct database stock write was performed.
-The remaining dependency is the connected authorised session, not asking price or
-branch. Resume by searching `OWNER-BMW120I-2007-01` before creating anything, then
-use existing stock authoring, managed media, listing preview and publication.
+**Current status: publication verified in actual public state.** Anonymous GET of
+`/api/v1/public/vehicles/83b356f8-c3a6-401e-8d88-41d974d11a2b` and public discovery
+return the BMW at NGN 3,000,000 with seven approved gallery views and the explicit
+AC fault. All seven image HEAD checks return 200/image-webp. Engine capacity is
+2000 cc; mileage/transmission remain null; there is no condition report. The
+intervening publication was observed, not performed by this read-only verification.
+Do not create another stock record or listing.
+
+Earlier in the signed-in
+Chrome admin UI exposed stock `1f114426-f15b-4996-81d0-c260f0c16c57`, with stock
+number `OWNER-BMW120I-2007-01`, PHC branch and the expected owner disclosures. It
+showed version 0, created 29 October at 03:49:54 Lagos time, with no photos and no
+sale listings at that time. A confirmed-create recovery screen led to this existing record;
+the agent did not submit another creation. Resume this ID and check current state
+before attaching the seven photos and creating the priced draft.
+
+Computer Use subsequently stopped because Chrome's current URL could not be
+verified reliably. No account, permission, MFA, CSRF, audit, media or publication
+guard was bypassed; no direct database stock write was performed. The remaining
+publication was later confirmed publicly as recorded above; no further authoring is
+needed for this BMW.
 
 ## Authority and source
 
@@ -47,8 +60,11 @@ The price bands, countries, makes and locations are generic examples, not BMW fa
 The 14 JPEGs in `Images.zip` were path/resource/signature/dimension checked and
 visually inspected individually. No software from either attachment was executed.
 
-Application runtime is the integrated and released master commit
-`2586c61bd8608edd4e3626ba6d3cad0899521f7d`. The current public-copy,
+Frontend runtime is released commit `060dba8d69eeb747ecd8694aefd04dc36ef4c379`;
+backend runtime remains `2586c61bd8608edd4e3626ba6d3cad0899521f7d`. The 060dba8d
+fragment correction passed 24 candidate browser cases and live public acceptance
+at 390/1440; both apex/www serve dpl_AzXytZPjJgVb93kjfcb79KsuZtVH. Backend
+runtime/schema, launch flags and role permissions were unchanged. The current public-copy,
 garage/privacy, service-enquiry and fitment releases were preserved. Concurrent
 approved master Care channel foundation changes were integrated before freezing
 this source, including their additive migration and CI acceptance. This vehicle
@@ -328,12 +344,16 @@ remains in the quality backlog, without an unverified global change in this cycl
 
 ### Final handoff and remaining dependencies
 
-BMW stays **unpublished; no production stock or listing ID**. The validated import
+BMW is **published and publicly verified**, with existing stock ID
+`1f114426-f15b-4996-81d0-c260f0c16c57` and listing
+`83b356f8-c3a6-401e-8d88-41d974d11a2b`. Preserve these records and avoid a duplicate.
+The validated import
 and seven selected full-size/640/320 WebP derivatives are prepared privately under
 `%TEMP%/aat-bmw-20261028-prepared`, with `gallery.json` and `stock-draft.json`.
-Originals remain protected and unchanged. Confirm the genuine branch/location,
-asking price/currency and classification/owner review before creating the priced
-draft through existing authoring. Remaining unknown specifications may stay unknown;
+Originals remain protected and unchanged. The owner confirmed the PHC location,
+delegated the NGN 3,000,000 asking price and authorised publication. Use those
+prepared values through existing authoring; USED leaves origin unspecified.
+Remaining unknown specifications may stay unknown;
 no invented mileage, availability, inspection, repair or finance claim is needed.
 Any public VIN search requires an explicit privacy/business decision.
 

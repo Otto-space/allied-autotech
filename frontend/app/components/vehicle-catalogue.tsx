@@ -95,7 +95,7 @@ export function VehicleCatalogue({
       ?.scrollIntoView({ behavior: "instant", block: "start" });
   }
   return (
-    <>
+    <div className="vehicle-browse-layout">
       <noscript>
         <p className="notice">
           Enable JavaScript to filter, load more results or refresh this list. You can
@@ -104,7 +104,7 @@ export function VehicleCatalogue({
       </noscript>
       <div className="vehicle-search-panel">
         <div className="vehicle-inventory-heading">
-          <h2 id="vehicle-results-heading" tabIndex={-1}>
+          <h2 id="vehicle-results-heading" className="sr-only" tabIndex={-1}>
             Explore current listings
           </h2>
           <p role="status" aria-live="polite">
@@ -123,45 +123,10 @@ export function VehicleCatalogue({
             filters below.
           </p>
         )}
-        <details
-          className="catalogue-controls"
-          open={!noCatalogue || selected.length > 0}
-        >
-          <summary>Search and vehicle preferences</summary>
+        <div className="vehicle-catalogue-search">
           <div className="vehicle-toolbar">
             <VehicleSearch value={params.get("search") ?? ""} update={update} />
-            <VehicleFilters
-              query={advanced}
-              count={selected.filter((key) => key !== "search").length}
-              update={update}
-            />
-            <div className="vehicle-sort" hidden={noCatalogue}>
-              <label htmlFor="vehicle-sort">Sort by</label>
-              <div className="vehicle-select">
-                <select
-                  id="vehicle-sort"
-                  value={
-                    params.get("sort") ?? (params.has("search") ? "best_match" : "newest")
-                  }
-                  onChange={(e) => update((next) => next.set("sort", e.target.value))}
-                >
-                  {params.has("search") && <option value="best_match">Best match</option>}
-                  <option value="newest">Newest listings</option>
-                  <option value="price_asc">Price: low to high</option>
-                  <option value="price_desc">Price: high to low</option>
-                  <option value="year_desc">Newest model year</option>
-                  <option value="year_asc">Oldest model year</option>
-                  <option value="mileage_asc">Mileage: low to high</option>
-                  <option value="mileage_desc">Mileage: high to low</option>
-                </select>
-                <ChevronDown size={16} aria-hidden="true" />
-              </div>
-            </div>
           </div>
-          <p className="vehicle-search-guidance">
-            Search by listing title or vehicle details. Use Filters for condition, price
-            and specifications; choose Apply filters to update the results.
-          </p>
           <fieldset className="vehicle-body-shortcuts">
             <legend>Body type</legend>
             <div>
@@ -185,9 +150,40 @@ export function VehicleCatalogue({
               <span>More types in Filters.</span>
             </div>
           </fieldset>
-        </details>
+        </div>
       </div>
-      <div className="vehicle-active-filters" aria-label="Active vehicle filters">
+      <VehicleFilters
+        query={advanced}
+        previewQuery={params.toString()}
+        totalMatches={listings.data?.totalMatches}
+        count={selected.filter((key) => key !== "search").length}
+        update={update}
+      />
+      <div className="vehicle-sort" hidden={noCatalogue}>
+        <label htmlFor="vehicle-sort">Sort by</label>
+        <div className="vehicle-select">
+          <select
+            id="vehicle-sort"
+            value={params.get("sort") ?? (params.has("search") ? "best_match" : "newest")}
+            onChange={(e) => update((next) => next.set("sort", e.target.value))}
+          >
+            {params.has("search") && <option value="best_match">Best match</option>}
+            <option value="newest">Newest listings</option>
+            <option value="price_asc">Price: low to high</option>
+            <option value="price_desc">Price: high to low</option>
+            <option value="year_desc">Newest model year</option>
+            <option value="year_asc">Oldest model year</option>
+            <option value="mileage_asc">Mileage: low to high</option>
+            <option value="mileage_desc">Mileage: high to low</option>
+          </select>
+          <ChevronDown size={16} aria-hidden="true" />
+        </div>
+      </div>
+      <div
+        className="vehicle-active-filters"
+        aria-label="Active vehicle filters"
+        hidden={!selected.length}
+      >
         {selected.length ? (
           <>
             {selected
@@ -258,6 +254,7 @@ export function VehicleCatalogue({
         </div>
       )}
       <div
+        id="vehicle-results"
         className="vehicle-results"
         aria-busy={listings.loading || listings.refreshing}
       >
@@ -292,10 +289,11 @@ export function VehicleCatalogue({
           </div>
         ) : listings.data?.items.length ? (
           <div className="vehicle-results-grid">
-            {listings.data.items.map((listing) => (
+            {listings.data.items.map((listing, index) => (
               <VehicleCard
                 key={listing.id}
                 listing={listing}
+                priority={index === 0}
                 href={`/vehicles/${listing.id}?${new URLSearchParams([...params].filter(([key]) => !["cursor", "_trail", "limit", "sort"].includes(key)))}`}
               />
             ))}
@@ -390,6 +388,6 @@ export function VehicleCatalogue({
             </button>
           </nav>
         )}
-    </>
+    </div>
   );
 }

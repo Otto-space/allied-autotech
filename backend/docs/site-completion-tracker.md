@@ -28,6 +28,31 @@ write, isolated integration run or authenticated hosted acceptance was done.
 The current customer workspace/session-recovery priority and independently
 tracked provider and real-role gates remain open.
 
+## 29 October 2026 catalogue verification completed locally
+
+Vehicles, Shop and Services redesign is integrated with current Contact/Care source. 57 distinct rendered cases pass across corrected runs, including eight widths, draft/count/Apply/history, native drawer focus and short-screen actions, error/empty/retry/image failure, progressive fitment and ten Learn/Allie/guide/practice cases. Discovery units pass 54 assertions. The final Shop fix keeps the desktop rail open after Apply while closing the mobile drawer. No real test enquiry, catalogue write, permission/schema or flag change. Exact-source CI and held production candidate verification remain required before promotion. See frontend/docs/CATALOGUE_REDESIGN_20261029.md (repository root) for evidence, deviations and physical-device/fixture limits. The retained backend is 2586c61b; inherited Care article v3 copy is a separate unpublished backend content change.
+
+## 29 October 2026 active item: catalogue redesign
+
+Owner supplied the complete Vehicles/Shop/Services redesign implementation brief
+in attachments/74c816df-b4e3-463a-a5c1-c89129f44346/pasted-text-1.txt. It was
+read fully. Current source/runtime remains 060dba8d on both public domains.
+Source/API and primary-reference audit is recorded in
+frontend/docs/CATALOGUE_REDESIGN_20261029.md. Implementation order is Vehicles,
+Shop, Services. Preserve real photos, fitment approvals, enquiries, collection-only
+launch, staff-confirmed appointments, URL/history semantics and permissions.
+Four visual concepts are retained privately. Vehicles, Shop and Services code is implemented in this worktree; rendered acceptance and integration/release are in progress. Discovery units pass 54 assertions. Preserve the newer remote Contact/Care changes when integrating.
+
+The prior BMW publication dependency is resolved in actual public state:
+listing `83b356f8-c3a6-401e-8d88-41d974d11a2b` returns 200, NGN 3,000,000,
+seven correctly described WebP photos (all seven HEAD checks 200), expected PHC
+branch and explicit AC leak/failure disclosure. Public discovery includes this one
+listing. Mileage/transmission remain null and no inspection report is claimed.
+The verification made no stock/listing/media mutation and does not identify who
+completed the intervening publication. Do not create a duplicate.
+
+C: preflight now passes at approximately 29 GiB free following owner cleanup. Reuse existing dependencies and preview; no further agent cleanup ran. Docker is unavailable. Other dirty work and all application/database/recovery resources remain preserved.
+
 ## 29 October 2026: W16D managed Care channel continuation
 
 Managed enquiry/complaint pages now integrate the shared canonical channel controls
@@ -54,10 +79,13 @@ confirmed the Stadium Road workshop. NGN 3,000,000 asking price was selected fro
 qualified same-year related Nigerian advertisements, retaining the AC fault and
 unknown facts. Active PHC branch verified. Stock/listing schemas and all seven
 photo manifest hashes/sizes pass validation. Prepared publication manifest is
-backend/data/vehicle-drafts/bmw-publication-20261029.json. No production BMW has
-been written: owner is signed in, but Computer Use exposes no browser and reports
-its native pipe unavailable. Connected authorised authoring is the remaining
-publication dependency; do not bypass role/MFA/CSRF or create duplicate stock.
+backend/data/vehicle-drafts/bmw-publication-20261029.json. The signed-in Chrome
+admin UI now confirms existing stock `1f114426-f15b-4996-81d0-c260f0c16c57`,
+stock number `OWNER-BMW120I-2007-01`, at PHC, created 29 October at 03:49:54
+Lagos time. It displayed version 0, the expected owner disclosures, no photos and
+no sale listings. Resume this record; do not create another. Computer Use later
+stopped because it could not verify Chrome's current URL reliably. Publication
+remains pending; do not bypass role/MFA/CSRF, media or publication safeguards.
 
 The continuing rendered audit passed 19/20 hosted fixture cases, reproducing a
 desktop `/contact#workshop` reload with the heading at y=44.98 behind the 78px
@@ -71,6 +99,39 @@ mode: repeated fragment reload/manual-wheel checks, navigation/breadcrumbs and
 ordinary refresh/touch reading at 390/1440. Scoped lint/format passed. An initial
 typecheck overlapped Next dev type generation; the server was stopped and route
 types regenerated before the final compiler check. No database or role changes.
+
+Exact-source `060dba8d` Frontend 40805931087, Backend safety 40805931425 and
+secret 40805931038 CI passed. The production-environment candidate
+`dpl_AzXytZPjJgVb93kjfcb79KsuZtVH` passed all 24 browser cases, with complete
+JSON reports: 12 viewport, two original refresh/touch and ten Learn/Allie/guide/
+practice cases. The original Playwright tests correctly inherit configured context
+options; the temporary adapted touch harness is unnecessary. Its earlier module
+loading failure did not exercise application behavior.
+
+At 04:00:55 Lagos time, the existing tested candidate was promoted without a
+rebuild. Fresh provider reads confirm both apex/www now serve 060dba8d on
+`dpl_AzXytZPjJgVb93kjfcb79KsuZtVH`. Backend remains
+`9c91eeff-b191-4de5-b9d5-0e6d06134d42` ACTIVE; runtime/schema are unchanged.
+Promotion rechecked exact source, CI, project/team, both prior alias ancestries,
+backend digests, no pending rollout, readiness 200, eight managed backups and the
+successful separate 94-table restore with unchanged prior rows. No database write
+or flag/access change was made. Protected `fragment-bmw-20261029-*` receipts retain
+the candidate QA and promotion identity.
+
+Owner reported freeing space. New bounded preflights pass at 20.16 GiB free;
+no additional agent cleanup ran after automatic review rejected the two cache
+deletions. Docker remains stopped and its resources were preserved. Live mobile
+acceptance now passes at 390/1440 with actual public GET responses: three workshop
+fragment reloads per width, immediate manual scrolling, Home refresh on both
+domains, refreshed parts-fitment article with no outline/shadow, Help-to-Learn
+header geometry (zero horizontal shift), Allie viewport fit/focus return, no page
+exceptions and no horizontal overflow. Screenshots were visually inspected.
+One first desktop assertion wrongly assumed a fixed restored starting position;
+event tracing proved the wheel moved the heading 350px without any subsequent
+application scrollTo. Final checks compare the actual manual movement rather than
+assuming an absolute offset. Evidence is in TEMP/aat-fragment-bmw-live-final-
+20261029.json and its workshop/Learn screenshots. Postflight: 20.15 GiB free.
+No physical-device, real-role publication or full screen-reader acceptance claimed.
 
 ## 29 October 2026 vehicle requirements released
 
@@ -172,7 +233,6 @@ No full-site, real-role, physical-device or screen-reader acceptance is claimed.
 Local preview stopped; existing dependencies, generated evidence and Docker
 resources retained. C: postflight 29.31 GiB free at measurement, above the 20 GiB
 reserve; this is a point-in-time check, not an OS quota.
-
 
 ## Current implementation item — W16 shared human chat
 
@@ -500,7 +560,6 @@ or deployment; never deploy the older checkout merely because it is the cwd.
   Recheck provider state before further changes. Full notification evidence:
   `backend/docs/notifications-experience-20261025.md` in that worktree.
 
-
 ### Historical merged-branch checkpoint
 
 The following dated observation is retained from origin/release/audit-copy-current-20261024; it is not a claim of current production identity.
@@ -532,7 +591,6 @@ The following dated observation is retained from origin/release/audit-copy-curre
   production source. Authenticated production staff-filter acceptance remains
   open; local isolated integration tests and live anonymous boundary passed.
 
-
 ### Historical merged-branch checkpoint
 
 The following dated observation is retained from origin/fix/staff-vehicle-filters-20261024; it is not a claim of current production identity.
@@ -540,7 +598,6 @@ The following dated observation is retained from origin/fix/staff-vehicle-filter
 - Current stock-query audit worktree: `C:/Users/PC/.codex/worktrees/allied-staff-vehicle-filters-20261024`,
   branch `fix/staff-vehicle-filters-20261024`, based on `c3f4076f`. Its backend
   changes are local until release checks and a matching backend rollout complete.
-
 
 ### Historical merged-branch checkpoint
 
@@ -1309,7 +1366,6 @@ backup, payment-disabled, enquiry-only and collection policies remain in force.
 All earlier Item 6 staff-media/real-publication and operational decisions retain
 their recorded scope. Other worktrees' pending audit/copy edits were preserved.
 
-
 ## Current frontend handoff - dashboards and managed workforce, 24 October 2026
 
 The owner's page-by-page UI directive is now applied to the dashboard/workforce
@@ -1395,7 +1451,6 @@ had already built READY from the reviewed source and both production aliases
 remained on `dpl_CMG2vPpWCQMvQdCWMZYsxbwproTZ` after the branch push. A
 verified signing/identity workflow is a separate release-pipeline follow-up.
 
-
 24 October 2026, 23:17 Lagos - scoped catalogue/customer-care design release:
 runtime `1aacb6af5ffbe72c23e1f0f7d35b78fadf5f4447` on
 `C:/Users/PC/.codex/worktrees/allied-catalogue-care-ux-20261024`, branch
@@ -1434,7 +1489,6 @@ was provider READY/actual alias identity; browser checks used local synthetic
 fixtures. Payments stay disabled. Dependencies and Docker resources were retained;
 preview port 3155 stopped. Original main-checkout edits remain untouched except
 the guarded documentation handoff. Item 6 and owner dependencies retain scope.
-
 
 25 October 2026 - Home/Parts/Vehicles implementation checkpoint (not released):
 `C:/Users/PC/.codex/worktrees/allied-home-discovery-20261025`, branch
@@ -1753,7 +1807,6 @@ Kept private backups, native recovery database, current/rollback/base/tool image
 warm dependencies/builds, source and all unrelated work. Final C: reserve reading
 was approximately 23.74 GiB free, a point-in-time observation rather than an OS quota.
 
-
 25 October 2026 - notification-only local implementation checkpoint.
 Source branch feat/notifications-experience-20261025 in the reused
 C:/Users/PC/.codex/worktrees/allied-home-restoration-20261025. Initial checkpoint
@@ -1796,7 +1849,6 @@ No Docker resource was created or deleted; retained 42 images, 14 containers,
 14 volumes and 96 cache entries, including the unrelated active compatibility DB.
 Source, histories, secrets, databases/backups and current/rollback resources retained.
 
-
 25 October 2026 - notification build blocker resolved.
 Owner confirmed manual cleanup; all four approved redundant installer files were
 verified absent (1,147,739,384 measured prior file bytes, approximately 1.07 GiB).
@@ -1812,7 +1864,6 @@ and optimized hosted browser acceptance remain release checks. Native device
 subscription/delivery/click acceptance retains its documented permission-denied
 limit. No notification production deployment occurred; API/general worker must
 precede frontend rollout. All previous fixture/live evidence distinctions remain.
-
 
 ## Production notification release - 25 October 2026, 17:26 UTC
 
@@ -1921,7 +1972,6 @@ identities, backups, current/rollback/tool/base images and other tasks retained.
 C: postflight 28.77 GiB free at measurement. Existing main-checkout content was
 preserved by append-only continuity updates; no unrelated source was overwritten.
 
-
 25 October 2026, 19:44 UTC - final customer-detail refinement released.
 Frontend fd19aabc9d0a0843857821cf2eb12651f2ce505c /
 dpl_BVUgeibwBeTL3EvTZPiiCM9nMNgf is READY on main/www; backend remains
@@ -2012,7 +2062,6 @@ remains separate. See backend/docs/fitment-product-media-20261026.md and
 all containers/volumes and useful caches retained; C: 29.82 GiB free. Unrelated
 Help/Learn, customer-table and staff-revision work not bundled. Main tracker existing
 bytes preserved by append-only update. Broader Item 6 remains open.
-
 
 26 October 2026 - Help, Learn and Practice production deployment completed.
 Owner explicitly authorised publication after the original local/test milestone.
@@ -2270,7 +2319,6 @@ types and targeted lint/format passed. Backend runtime release is pending;
 real-role/device acceptance and sign-in challenge failure recovery remain open.
 See release-worktree backend/docs/password-change-atomicity-20261026.md.
 
-
 26 October 2026 - Revision 4 W4A local checkpoint: server-derived responsibility
 capabilities/branch/scope/provenance and assign/revoke added/removed/retained preview.
 Delegated hidden-source and maximum-scope redaction retained; optional impact digest
@@ -2349,7 +2397,6 @@ WebAuthn browser acceptance remain open. Previous backend 96ffc790 is the
 immediate rollback candidate subject to compatibility review. Detail in
 compatibility release worktree backend/docs/mfa-challenge-atomicity-20261026.md.
 
-
 26 October 2026 - colour and brand assets Revision 2 local checkpoint.
 Branch feat/brand-assets-r2-20261026 in allied-shop-vehicles-r2-20261025, based on
 ce3121b8 / released d6d8534d. All nine supplied files inspected and original hashes
@@ -2368,7 +2415,6 @@ See frontend/docs/BRAND_ASSETS_R2_REPORT.md and brand-assets-r2-coverage.json fo
 exact evidence, missing clean recaptures, platform limits and reused dependency
 version discrepancy. Both live domains still dpl_9YTq9gSNUnb3XuHKry5MgCVvigdD.
 Other worktrees and unrelated edits preserved; broader Item 6 remains open.
-
 
 26 October 2026 - Revision 4 W5 local checkpoint: canonical managed-workforce
 navigation/page/action predicates, scoped revision metadata and server-relative
@@ -2395,7 +2441,6 @@ space recovered without deletion. Reviewed obsolete dev-output deletion was bloc
 by automatic approval review; no alternate removal attempted. Browser batches kept
 at least 27.074 GiB in accepted receipts. No Docker resources created/pruned.
 
-
 27 October 2026 - Revision 4 W6 local backend dependency: actual configurable
 Responses HTTP adapter, bounded reviewed eligible retrieval and follow-up context,
 plain-text/source/action validation, secret screening and current access/content
@@ -2412,7 +2457,6 @@ review remain required. Reviewed persisted Customer Care handoff, gated staffed
 chat and complete route learning remain open. No deployment, install, Docker or
 cleanup operation. Preview 3167 retains W5 frontend; C: approximately 27.10 GiB free.
 Full Revision 4 and broader Item 6 remain open; unrelated worktrees preserved.
-
 
 27 October 2026 - brand assets and mobile support placement deployed.
 Final frontend source 8433ff57, Vercel dpl_A8CLYwBc6h4tYAwNqconFJTXfQFZ
@@ -2632,8 +2676,7 @@ migration safety tests and exact-source GitHub safety/secret checks. All four im
 were promoted by changing only their immutable digests in the existing app spec.
 DigitalOcean deployment 71c5e9a7-bd3c-46c4-a503-cef24761837e is ACTIVE with
 all four manifest digests matched; its read-only pre-deploy check succeeded and
-API live/ready each returned 200. `/shop` redirects to `/parts`, which returned
-200. No production migration, customer inventory write, provider payment call or
+API live/ready each returned 200. `/shop` redirects to `/parts`, which returned 200. No production migration, customer inventory write, provider payment call or
 frontend deployment was made. A controlled real-role replay remains unverified.
 Private prior/candidate app specs and provider receipts are retained for rollback.
 See the hotfix branch's backend/docs/inventory-reservation-production-20261027.md.
@@ -2802,7 +2845,6 @@ backend safety 40453684995 and secret guard 40453684938. Due-scan scaling,
 provider sandbox, hold resolution, legacy RUNNING inspection and guarded rollout
 stay open.
 
-
 27 October 2026 - Revision4 W14A contact boundary: Staff/Admin mixed-branch
 Care authority no longer supplies contacts for a Sales-only case in another branch.
 Natural expiry after a blocked record read is rechecked; inaccessible cases fail
@@ -2833,7 +2875,6 @@ production backend remains inventory-hotfix-only;
 current populated restore rehearsal, legacy RUNNING/holds inspection, runtime
 grants, provider sandbox and protected compatible rollout remain open. See the
 candidate backend/docs/payment-reconciliation-recovery-20261027.md.
-
 
 27 October 2026 - Revision4 W14B local foundation checkpoint: immutable version1
 retained; reviewed version2 adds independent Care view/reply/assign/live duties.
@@ -2867,7 +2908,6 @@ provider, payment, release or existing grant changed. The 26 October archive has
 no financial rows and is not a fresh pre-cutover snapshot; current managed backup/
 PITR, runtime DML grants, legacy RUNNING/holds, provider sandbox and compatible
 guarded rollout remain open. See the candidate reconciliation recovery record.
-
 
 27 October 2026 - Active Revision4 W14C operational Care adapters, branch
 feat/workforce-care-case-adapters-20261027 based on W14B daaa2e2a. Initial8 native
@@ -2930,12 +2970,10 @@ Requester-bound replay, branch checks, independent approval and refund worker
 remain intact. Revoked-session units first reproduced the gap and then passed.
 The Phase 8 and Monnify direct-service fixtures now use real isolated sessions.
 Exact runtime e74d4ae7 passed GitHub backend safety 40465987685, including
-two real-database payment flows plus five focused refund units, and secret guard
-40465987682. Local combined session/approval units passed 10/10; types, scoped
+two real-database payment flows plus five focused refund units, and secret guard 40465987682. Local combined session/approval units passed 10/10; types, scoped
 lint and formatting passed. No production database, provider, payment/refund or
 release changed. Provider sandbox, production-role acceptance, legacy holds,
 managed recovery checks and compatible guarded rollout remain open.
-
 
 27 October 2026 - Revision4 W14C local checkpoint: operational Care view/reply/assign
 intersect on the actual branch. General enquiries and complaints use canonical
@@ -2971,7 +3009,6 @@ application/production DB, provider, payment or deployment action occurred.
 Provider sandbox, live financial backfill/holds, current recovery/grants and
 guarded compatible rollout remain open.
 
-
 27 October 2026 - Revision4 W15A backend-only checkpoint: reviewed canonical
 asynchronous handoff contracts implemented. Current customer identity/CSRF, exact
 keyed review, selected owned customer help excerpts, branch/target/version and
@@ -2985,10 +3022,7 @@ preservation and responsive/native browser acceptance. Preview3167 is W14C only.
 See docs/help-learn/REVIEWED_HANDOFF_W15.md. FullRevision4/shared staffed transport/
 all106 route gates remain active; W9 provider allowance stays exhausted.
 
-
 27 October 2026 - Revision 4 W15 reviewed Customer Care handoff checkpoint: customer review/edit, explicit selected help sharing, canonical new/existing support persistence and encrypted session-bound recovery are implemented locally. Browser storage retains only an operation ID; uncertain results block a new operation, and cancellation preserves a case already saved. AI-off/guest/workforce boundaries and separate drafts remain intact. Accepted evidence: 116 distinct native cases across seven suites (115 broad plus the revised 11-case learning run), 84 Allie backend units, full 1,161 frontend tests in 173 files, 32 distinct browser fixtures and one actual browser/CSRF/API/restricted-CI-DB composition. That composition saved one enquiry and one complaint reply, two audits, preserved an internal note and left inventory/bookings unchanged. OpenAPI 385 paths / 450 operations plus 4 infrastructure routes, generated contracts, types/lint/secret guard and optimized build pass. See docs/help-learn/REVIEWED_HANDOFF_W15.md. No schema, provider call, real delivery or publication. Temporary native sessions revoked/cookie removed; C: measured 23.34 GiB free; useful Docker/cache resources retained. Full Revision 4 remains active: shared staffed/gated transport, operational readiness and all 106 exact-route acceptance decisions remain open. The owner authorised a reviewed committed release before the session limit; reconcile newer live frontend/backend fixes and complete the migration-73/backup/restore/exact-lock/hosted gates before publication.
-
-
 
 ### Historical merged-branch checkpoint
 
@@ -3187,9 +3221,7 @@ fixed mobile support dock, Allie scrollbar treatment, breadcrumb/anchor page
 entry and linked selection targets. This is a separate finite shared-UX cycle;
 no claim of exhaustive role/device acceptance.
 
-
 27 October 2026 - Revision 4 W15 reviewed Customer Care handoff checkpoint: customer review/edit, explicit selected help sharing, canonical new/existing support persistence and encrypted session-bound recovery are implemented locally. Browser storage retains only an operation ID; uncertain results block a new operation, and cancellation preserves a case already saved. AI-off/guest/workforce boundaries and separate drafts remain intact. Accepted evidence: 116 distinct native cases across seven suites (115 broad plus the revised 11-case learning run), 84 Allie backend units, full 1,161 frontend tests in 173 files, 32 distinct browser fixtures and one actual browser/CSRF/API/restricted-CI-DB composition. That composition saved one enquiry and one complaint reply, two audits, preserved an internal note and left inventory/bookings unchanged. OpenAPI 385 paths / 450 operations plus 4 infrastructure routes, generated contracts, types/lint/secret guard and optimized build pass. See docs/help-learn/REVIEWED_HANDOFF_W15.md. No schema, provider call, real delivery or publication. Temporary native sessions revoked/cookie removed; C: measured 23.34 GiB free; useful Docker/cache resources retained. Full Revision 4 remains active: shared staffed/gated transport, operational readiness and all 106 exact-route acceptance decisions remain open. The owner authorised a reviewed committed release before the session limit; reconcile newer live frontend/backend fixes and complete the migration-73/backup/restore/exact-lock/hosted gates before publication.
-
 
 27 October 2026 - visual-audit frontend batch released. Runtime a1b8ce45 preserves
 concurrent Contact/location source 42855c0d and publishes customer clarity and sparse
@@ -3204,7 +3236,6 @@ Session-label and new homepage-help backend changes remain committed, not releas
 Full V01-V55 goal remains active; next Shop discovery/detail and empty overview.
 Evidence/rollback: backend/docs/visual-audit-frontend-production-20261027.md and
 frontend/docs/VISUAL_IDENTITY_AUDIT_CHECKPOINT.md. Existing other-task edits preserved.
-
 
 27 October 2026 - Shared support/viewport UX released. Concurrent frontend source
 a1b8ce45 went live while the earlier candidate was gated. The ancestry guard
@@ -3244,17 +3275,16 @@ release images and useful warm build cache are retained; no Docker cleanup or
 physical-byte reclamation is claimed. Final disk preflight and temporary server
 shutdown are part of this task closeout. Preserve Item 6 and the settled queue.
 
-
 ## Historical master notes retained during 28 October reconciliation
 
 These are prior observations from the merged master history, not current deployment
 claims. Current provider identity must be checked before any rollout.
 
 Main/www frontend: `dpl_37Wd7HsDbxGiqpaZw8qL1oZuDpG3` (READY);
-  backend: `1876e3d1-ab99-4e26-8a58-1ea4fcb0d46a` (ACTIVE), 25 October 2026.
-  Preserves preferred Home, reviews, R2, audit fixes and all 70 migrations.
-  Recheck actual provider state before another rollout. Detailed evidence is
-  `backend/docs/notifications-experience-20261025.md` in that worktree.
+backend: `1876e3d1-ab99-4e26-8a58-1ea4fcb0d46a` (ACTIVE), 25 October 2026.
+Preserves preferred Home, reviews, R2, audit fixes and all 70 migrations.
+Recheck actual provider state before another rollout. Detailed evidence is
+`backend/docs/notifications-experience-20261025.md` in that worktree.
 
 - Earlier backend observed: `5c1ea9a7-6211-46d2-995f-c45e504bf9e9` (ACTIVE)
   from the discovery/fitment release.
@@ -3309,7 +3339,6 @@ Existing code and pending work were preserved. Small, secret-free before/after a
 removal receipts are in `%TEMP%/allied-docker-cleanup-20261024`. Documentation diff
 checks passed. No application tests, database writes, migrations, backup/restore
 tests, deployments or remote registry deletions were performed for this maintenance.
-
 
 ## Latest production handoff - discovery/fitment, 24 October 2026
 
@@ -3523,7 +3552,6 @@ Documentation-only follow-up commit ea52d6a3 records the release; runtime remain
 76377d43. Item 6 and wider operational acceptance remain open. Main-checkout
 uncommitted work and other worktrees were preserved.
 
-
 26 October 2026 - customer table/sidebar responsive correction implemented locally.
 Branch fix/customer-table-responsive-20261026 reuses allied-shop-vehicles-r2-20261025
 from released 76377d43. Expanded/collapsed rows now keep matching compact actions;
@@ -3641,7 +3669,6 @@ gates. Read-only SQL probes are recorded in
 backend/docs/payment-reconciliation-recovery-20261027.md; they have not been run
 on production. Recheck actual deployment and backup state before any rollout.
 
-
 ### Historical merged-branch checkpoint
 
 The following dated observation is retained from origin/fix/compatibility-release-20261025; it is not a claim of current production identity.
@@ -3683,7 +3710,6 @@ review blocked removal of the task-created ignored Vercel `.env.local` token fil
 it remains local and untracked. No alternative deletion path was attempted.
 Item 6 and the full site-completion goal remain open.
 
-
 ### Historical merged-branch checkpoint
 
 The following dated observation is retained from origin/fix/parts-enquiry-copy-current-20261028; it is not a claim of current production identity.
@@ -3706,7 +3732,6 @@ the product detail, collection FAQ and exact-product Contact navigation with no
 horizontal overflow or page exception. No form, inventory, provider, payment,
 database or backend change was made. Physical devices, screen readers and
 authenticated-role acceptance remain open; P0 backend release gates are unchanged.
-
 
 ### Historical merged-branch checkpoint
 
@@ -3743,7 +3768,6 @@ Docker resource or production deployment/database/provider action. The original
 vehicle-payment API-first release and live role checks remain open, along with
 wider public-form/physical-device acceptance. See the frontend quality register.
 
-
 ### Historical merged-branch checkpoint
 
 The following dated observation is retained from origin/fix/staff-vehicle-filters-20261024; it is not a claim of current production identity.
@@ -3753,7 +3777,6 @@ removed. No application database or production backend was written. Backend
 promotion still requires the current target's read-only database check,
 backup/restore evidence and deployment verification. Item 6 remains open for
 real catalogue publication and authenticated staff acceptance.
-
 
 ### Historical merged-branch checkpoint
 
@@ -3770,7 +3793,6 @@ reconciliation, payment-flow, type and lint steps; secret guard 40677044459
 passed. Local typecheck, lint, formatting and seven focused unit cases passed.
 No production database, provider or deployment was changed. The production
 recovery, migration-role, populated backfill and real-role gates above remain.
-
 
 ### Historical merged-branch checkpoint
 
@@ -3803,7 +3825,6 @@ source (355 API paths, 415 documented operations). The combined rendered editor
 suite and release checks remain open. No production mutation, migration or deployment has
 occurred for this correction yet. Hosted authenticated acceptance needs a real
 authorised QA session. Item 6 and the broader goal remain open.
-
 
 ### Historical merged-branch checkpoint
 
