@@ -3088,3 +3088,27 @@ Browser plugin was unavailable; existing Playwright/Edge was reused. These check
 verify current rendered frontend behavior, not the owner's private account or a
 new real database write. No runtime patch or deployment was necessary. Existing
 tracker conflict and unrelated edits were preserved. Postflight free C: 22.2 GiB.
+
+## Contact clarity release - 29 October 2026
+
+V34/V35/V36: sole verified branch uses labelled read-only output; field-specific
+subject/message errors preserve first-error focus; concise preparation/next-step
+guidance replaces repeated instructions/headings. Request review, drafts, privacy,
+approved hours, acknowledgement/resolution distinction and branch routing remain.
+The duplicate named region detected by scoped Axe was fixed before release.
+
+Production runtime 35c314c6 / dpl_CXXM8WeyShRAKrZZNRCCEBvrKY2i is verified on both
+domains. Final review f2b74819 changes only test files. CI: 1,256 passed, 12 optional
+skipped; types/lint/format/build and production audit pass. Backend safety and secret
+guard pass. Hosted evidence covers all 68 distinct cases (52 initial passes plus
+16 corrected reruns), with 4 focused Contact journeys and 20 public checks passing
+after publication. Desktop/mobile screenshots, keyboard/hover, review/Escape/focus
+and scoped Axe are recorded; real account/message/device acceptance remains open.
+Known preload warnings are verified against their actual assets and declarations,
+retained as performance limitations. No blanket console suppression.
+
+Evidence and exact limitations: backend/docs/contact-clarity-production-20261029.md;
+%TEMP%/allied-contact-clarity-20261029/. Backend unchanged; reviewed CSO guide version 3
+requires its separate backend publication. Existing dirty files/worktrees preserved.
+About baseline confirms V31/V32 remain unfinished: 11 expanded principles and small
+non-interactive equipment thumbnails. Whole-site audit remains active.
