@@ -124,6 +124,7 @@ for (const width of [390, 1440]) {
     ).toBeVisible();
     if (width < 1024) await page.locator(".product-filter-trigger").click();
     await panel.getByRole("button", { name: "Reset draft", exact: true }).click();
+    await expect(maximum).toHaveValue("");
     await expect(page).toHaveURL(/maxPriceKobo=1(?:&|$)/);
     await panel.getByRole("button", { name: "Apply filters", exact: true }).click();
     await expect(page).toHaveURL(/\/parts$/);
