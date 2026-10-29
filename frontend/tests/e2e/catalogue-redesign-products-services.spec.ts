@@ -116,6 +116,8 @@ for (const width of [390, 1440]) {
     await expect(maximum).toHaveValue("");
     await maximum.fill("0.01");
     await panel.getByRole("button", { name: "Apply filters", exact: true }).click();
+    if (width >= 1024) await expect(panel).toBeVisible();
+    else await expect(panel).not.toBeVisible();
     await expect(page).toHaveURL(/maxPriceKobo=1(?:&|$)/);
     await expect(
       page.getByRole("heading", { name: "No matching products", exact: true }),

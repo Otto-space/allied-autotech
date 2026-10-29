@@ -140,6 +140,11 @@ async function healthy(page: Page, name: string, width: number) {
     fullPage: true,
   });
 }
+async function openProductFilters(page: Page) {
+  const panel = page.locator("#product-filter-panel");
+  if (!(await panel.isVisible())) await page.locator(".product-filter-trigger").click();
+  await expect(panel).toBeVisible();
+}
 for (const width of [360, 390, 768, 1024, 1440]) {
   test(`Shop and Vehicles render and operate at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
@@ -190,7 +195,7 @@ for (const width of [360, 390, 768, 1024, 1440]) {
       .getByRole("searchbox", { name: "Search products", exact: true })
       .press("Enter");
     await expect(page.locator(".shop-product-card")).toHaveCount(12);
-    await page.getByRole("button", { name: /^Filters/ }).click();
+    await openProductFilters(page);
     await page.getByLabel("Product family", { exact: true }).selectOption("ENGINE_OIL");
     await expect(page.getByLabel("Viscosity grade", { exact: true })).toBeVisible();
     await expect(page.getByLabel("Part condition", { exact: true })).not.toBeVisible();
@@ -219,7 +224,7 @@ for (const width of [360, 390, 768, 1024, 1440]) {
     );
     expect(whatsapp.searchParams.get("text")).toMatch(/Maximum budget:.*50,000/);
     await healthy(page, "shop", width);
-    await page.getByRole("button", { name: /^Filters/ }).click();
+    await openProductFilters(page);
     await page
       .getByLabel("Product family", { exact: true })
       .selectOption("REPLACEMENT_PART");
@@ -227,10 +232,7 @@ for (const width of [360, 390, 768, 1024, 1440]) {
     await page.getByRole("button", { name: "Apply filters", exact: true }).click();
     await expect(page).not.toHaveURL(/oilViscosityGrade|packVolumeMl/);
     await page.goto("/vehicles");
-    // Populated local SSR opens the filters; empty hosted SSR leaves them closed.
-    const controls = page.locator(".catalogue-controls");
-    if ((await controls.getAttribute("open")) === null)
-      await page.getByText("Search and vehicle preferences", { exact: true }).click();
+    // Search stays visible independently of the responsive filter panel.
     await page
       .getByRole("searchbox", { name: "Search vehicles", exact: true })
       .fill("Toyota Corolla");

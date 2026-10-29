@@ -1,5 +1,9 @@
 # UI and UX quality register
 
+## 29 October 2026 catalogue verification completed locally
+
+Vehicles, Shop and Services redesign is integrated with current Contact/Care source. 57 distinct rendered cases pass across corrected runs, including eight widths, draft/count/Apply/history, native drawer focus and short-screen actions, error/empty/retry/image failure, progressive fitment and ten Learn/Allie/guide/practice cases. Discovery units pass 54 assertions. The final Shop fix keeps the desktop rail open after Apply while closing the mobile drawer. No real test enquiry, catalogue write, permission/schema or flag change. Exact-source CI and held production candidate verification remain required before promotion. See frontend/docs/CATALOGUE_REDESIGN_20261029.md (repository root) for evidence, deviations and physical-device/fixture limits. The retained backend is 2586c61b; inherited Care article v3 copy is a separate unpublished backend content change.
+
 ## 29 October 2026: requested catalogue redesign, rendered verification
 
 Scope: anonymous Vehicles, Shop and Services at eight requested widths. Owner's

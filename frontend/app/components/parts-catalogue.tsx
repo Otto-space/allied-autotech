@@ -203,6 +203,7 @@ export function PartsCatalogue({
               name="product-discovery-mode"
               value="part"
               checked={intent === "part"}
+              data-scroll-target="product-search"
               onChange={() => {
                 setIntent("part");
                 update(clearVehicleSelection);

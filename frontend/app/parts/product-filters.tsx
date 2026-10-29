@@ -431,7 +431,7 @@ export function ProductFilters({
                   );
               }
             });
-            close();
+            panel.applied();
           }}
         >
           <div className="product-filter-header">

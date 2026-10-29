@@ -111,6 +111,30 @@ test("Filter drawer to desktop transition restores page scrolling and preserves 
     .not.toBe("hidden");
 });
 
+test("short mobile drawers keep actions visible and contain keyboard focus", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 320, height: 568 });
+  for (const kind of ["vehicle", "product"] as const) {
+    await page.goto(kind === "vehicle" ? "/vehicles" : "/parts");
+    const trigger = page.locator(`.${kind}-filter-trigger`);
+    const panel = page.locator(`#${kind}-filter-panel`);
+    expect((await trigger.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+    await trigger.click();
+    const close = panel.getByRole("button", { name: "Close filters", exact: true });
+    const apply = panel.getByRole("button", { name: "Apply filters", exact: true });
+    await expect(apply).toBeInViewport();
+    expect((await apply.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+    await close.focus();
+    await page.keyboard.press("Shift+Tab");
+    await expect(apply).toBeFocused();
+    await page.keyboard.press("Tab");
+    await expect(close).toBeFocused();
+    await page.keyboard.press("Escape");
+    await expect(trigger).toBeFocused();
+  }
+});
+
 for (const width of [390, 1440]) {
   test(`Vehicle drafts preview, cancel, reset, apply and history at ${width}`, async ({
     page,

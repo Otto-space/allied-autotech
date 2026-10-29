@@ -94,12 +94,10 @@ for (const width of [390, 1440]) {
           .first(),
       ).toBeVisible();
       if (kind === "parts") {
-        await page.getByRole("button", { name: /Next/, exact: false }).last().click();
+        const pagination = page.getByRole("navigation", { name: "Shop pages" });
+        await pagination.getByRole("button", { name: "Next", exact: true }).click();
         await expect(page).toHaveURL(/cursor=/);
-        await page
-          .getByRole("button", { name: /Previous/, exact: false })
-          .last()
-          .click();
+        await pagination.getByRole("button", { name: "Previous", exact: true }).click();
         await expect(page).not.toHaveURL(/cursor=/);
       }
       await page.goBack();
@@ -131,7 +129,7 @@ test("failed service photography keeps a labelled image area", async ({ page }) 
     page
       .locator(".services-row")
       .first()
-      .getByRole("link", { name: /View service/ }),
+      .getByRole("link", { name: /^View / }),
   ).toBeVisible();
 });
 

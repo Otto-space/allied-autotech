@@ -109,6 +109,10 @@ for (const width of [390, 1440]) {
     if (width < 1024) await page.keyboard.press("Escape");
     else await page.getByRole("button", { name: "Close filters", exact: true }).click();
     await expect(trigger).toBeFocused();
+    // Pointer-close need not draw a keyboard ring. Real keyboard navigation must.
+    await page.keyboard.press("Tab");
+    await page.keyboard.press("Shift+Tab");
+    await expect(trigger).toBeFocused();
     await trigger.hover();
     await expect(trigger).toBeFocused();
     expect(await trigger.evaluate((el) => getComputedStyle(el).outlineStyle)).not.toBe(
@@ -158,6 +162,7 @@ for (const width of [390, 1440]) {
     await expect(page).not.toHaveURL(/vehicleModelId=/);
     await expect(page).toHaveURL(/search=DEMO/);
     await page.goBack();
+    await expect(page).toHaveURL(/vehicleModelId=/);
     await expect(mode).toBeChecked();
     await expect(page.getByLabel("Model year", { exact: true })).toHaveValue("2018");
     expect(state.writes).toEqual([]);
