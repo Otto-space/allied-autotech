@@ -12,6 +12,7 @@ import { WORKFORCE_ACCESS_CHANGED } from "@/lib/workforce-invalidation";
 import { formatBusinessDate } from "@/lib/format/date";
 import { MutationReview, type MutationProposal } from "./mutation-review";
 import { Feedback } from "./feedback";
+import { OwnerSupportCoverage } from "./support-coverage-editor";
 import styles from "./support-channel-panel.module.css";
 
 const presencePath = "/staff/workforce/support-chat/presence";
@@ -232,6 +233,7 @@ function ChannelWorkspace({
   }
   return (
     <div className={styles.workspace}>
+      <OwnerSupportCoverage />
       <section aria-labelledby="care-your-availability">
         <h2 id="care-your-availability">Your availability</h2>
         <p>

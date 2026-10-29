@@ -5000,6 +5000,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/admin/workforce/support-chat/coverage/{branchId}/operations/{key}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Owner recovers the saved coverage reference without resending its command
+         * @description Gated additive availability foundation. No chat claim, message delivery or queue-position promise. Current branch duties and session are checked server-side. Customer responses contain no staff identities; the channel remains queued Customer Care until lifecycle and transport acceptance. Default feature flag is off. Owner recovers the saved coverage reference without resending its command. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+         */
+        get: operations["getAdminWorkforceSupportChatCoverageByBranchIdOperationsByKey"];
+        put?: never;
+        post?: never;
+        /**
+         * Owner cancels an unsaved coverage reference while preserving a committed change
+         * @description Gated additive availability foundation. No chat claim, message delivery or queue-position promise. Current branch duties and session are checked server-side. Customer responses contain no staff identities; the channel remains queued Customer Care until lifecycle and transport acceptance. Default feature flag is off. Owner cancels an unsaved coverage reference while preserving a committed change. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         */
+        delete: operations["deleteAdminWorkforceSupportChatCoverageByBranchIdOperationsByKey"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/customers/support/live/availability/{branchId}": {
         parameters: {
             query?: never;
@@ -5034,7 +5058,7 @@ export interface paths {
         get: operations["getAdminWorkforceSupportChatCoverageByBranchId"];
         /**
          * Owner updates audited support coverage using its current revision
-         * @description Gated additive availability foundation. No chat claim, message delivery or queue-position promise. Current branch duties and session are checked server-side. Customer responses contain no staff identities; the channel remains queued Customer Care until lifecycle and transport acceptance. Default feature flag is off. Owner updates audited support coverage using its current revision. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         * @description Gated additive availability foundation. No chat claim, message delivery or queue-position promise. Current branch duties and session are checked server-side. Customer responses contain no staff identities; the channel remains queued Customer Care until lifecycle and transport acceptance. Default feature flag is off. Owner updates audited support coverage using its current revision. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. Supports an optional Idempotency-Key; see the header contract for compatibility, replay and retention rules.
          */
         put: operations["putAdminWorkforceSupportChatCoverageByBranchId"];
         post?: never;
@@ -84990,6 +85014,562 @@ export interface operations {
             };
         };
     };
+    getAdminWorkforceSupportChatCoverageByBranchIdOperationsByKey: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description Identifier selecting the branch resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                branchId: string;
+                /**
+                 * @description Identifier selecting the key resource.
+                 * @example synthetic-key
+                 */
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success: Owner recovers the saved coverage reference without resending its command. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Owner recovers the saved coverage reference without resending its command",
+                     *       "data": {
+                     *         "state": "UNKNOWN",
+                     *         "coverage": {
+                     *           "branchId": "00000000-0000-4000-8000-000000000001",
+                     *           "enabled": true,
+                     *           "schedule": {
+                     *             "timezone": "Africa/Lagos",
+                     *             "windows": [
+                     *               {
+                     *                 "day": 0,
+                     *                 "startMinute": 0,
+                     *                 "endMinute": 1
+                     *               }
+                     *             ]
+                     *           },
+                     *           "maxConcurrentPerAgent": 1,
+                     *           "version": 0
+                     *         }
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /**
+                             * @description State validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            state: "UNKNOWN";
+                            /** @description Coverage validated by this operation's strict request contract. */
+                            coverage: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the branch resource; ownership is resolved server-side.
+                                 */
+                                branchId: string;
+                                /** @description Enabled validated by this operation's strict request contract. */
+                                enabled: boolean;
+                                /** @description Schedule validated by this operation's strict request contract. */
+                                schedule: {
+                                    /**
+                                     * @description ISO 8601 timestamp interpreted and validated by the server.
+                                     * @enum {string}
+                                     */
+                                    timezone: "Africa/Lagos";
+                                    /** @description Windows validated by this operation's strict request contract. */
+                                    windows: {
+                                        /** @description Day validated by this operation's strict request contract. */
+                                        day: number;
+                                        /** @description Start Minute validated by this operation's strict request contract. */
+                                        startMinute: number;
+                                        /** @description End Minute validated by this operation's strict request contract. */
+                                        endMinute: number;
+                                    }[];
+                                };
+                                /** @description Max Concurrent Per Agent validated by this operation's strict request contract. */
+                                maxConcurrentPerAgent: number;
+                                /** @description Version validated by this operation's strict request contract. */
+                                version: number;
+                            };
+                        } | {
+                            /**
+                             * @description State validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            state: "CANCELLED";
+                            /** @description Coverage validated by this operation's strict request contract. */
+                            coverage: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the branch resource; ownership is resolved server-side.
+                                 */
+                                branchId: string;
+                                /** @description Enabled validated by this operation's strict request contract. */
+                                enabled: boolean;
+                                /** @description Schedule validated by this operation's strict request contract. */
+                                schedule: {
+                                    /**
+                                     * @description ISO 8601 timestamp interpreted and validated by the server.
+                                     * @enum {string}
+                                     */
+                                    timezone: "Africa/Lagos";
+                                    /** @description Windows validated by this operation's strict request contract. */
+                                    windows: {
+                                        /** @description Day validated by this operation's strict request contract. */
+                                        day: number;
+                                        /** @description Start Minute validated by this operation's strict request contract. */
+                                        startMinute: number;
+                                        /** @description End Minute validated by this operation's strict request contract. */
+                                        endMinute: number;
+                                    }[];
+                                };
+                                /** @description Max Concurrent Per Agent validated by this operation's strict request contract. */
+                                maxConcurrentPerAgent: number;
+                                /** @description Version validated by this operation's strict request contract. */
+                                version: number;
+                            };
+                        } | {
+                            /**
+                             * @description State validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            state: "SAVED";
+                            /** @description Saved Version validated by this operation's strict request contract. */
+                            savedVersion: number;
+                            /** @description Coverage validated by this operation's strict request contract. */
+                            coverage: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the branch resource; ownership is resolved server-side.
+                                 */
+                                branchId: string;
+                                /** @description Enabled validated by this operation's strict request contract. */
+                                enabled: boolean;
+                                /** @description Schedule validated by this operation's strict request contract. */
+                                schedule: {
+                                    /**
+                                     * @description ISO 8601 timestamp interpreted and validated by the server.
+                                     * @enum {string}
+                                     */
+                                    timezone: "Africa/Lagos";
+                                    /** @description Windows validated by this operation's strict request contract. */
+                                    windows: {
+                                        /** @description Day validated by this operation's strict request contract. */
+                                        day: number;
+                                        /** @description Start Minute validated by this operation's strict request contract. */
+                                        startMinute: number;
+                                        /** @description End Minute validated by this operation's strict request contract. */
+                                        endMinute: number;
+                                    }[];
+                                };
+                                /** @description Max Concurrent Per Agent validated by this operation's strict request contract. */
+                                maxConcurrentPerAgent: number;
+                                /** @description Version validated by this operation's strict request contract. */
+                                version: number;
+                            };
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Current session required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Current identity, MFA, responsibilities or CSRF denied */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Active branch unavailable */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Stale revision, expired lease or changed coverage */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Strict bounded input invalid */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Rate limit reached */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Live feature or explicit coverage unavailable; ordinary queued Care remains */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    deleteAdminWorkforceSupportChatCoverageByBranchIdOperationsByKey: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+                 * @example synthetic-token-value-not-a-real-secret
+                 */
+                "x-csrf-token": string;
+            };
+            path: {
+                /**
+                 * @description Identifier selecting the branch resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                branchId: string;
+                /**
+                 * @description Identifier selecting the key resource.
+                 * @example synthetic-key
+                 */
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success: Owner cancels an unsaved coverage reference while preserving a committed change. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Owner cancels an unsaved coverage reference while preserving a committed change",
+                     *       "data": {
+                     *         "state": "UNKNOWN",
+                     *         "coverage": {
+                     *           "branchId": "00000000-0000-4000-8000-000000000001",
+                     *           "enabled": true,
+                     *           "schedule": {
+                     *             "timezone": "Africa/Lagos",
+                     *             "windows": [
+                     *               {
+                     *                 "day": 0,
+                     *                 "startMinute": 0,
+                     *                 "endMinute": 1
+                     *               }
+                     *             ]
+                     *           },
+                     *           "maxConcurrentPerAgent": 1,
+                     *           "version": 0
+                     *         }
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /**
+                             * @description State validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            state: "UNKNOWN";
+                            /** @description Coverage validated by this operation's strict request contract. */
+                            coverage: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the branch resource; ownership is resolved server-side.
+                                 */
+                                branchId: string;
+                                /** @description Enabled validated by this operation's strict request contract. */
+                                enabled: boolean;
+                                /** @description Schedule validated by this operation's strict request contract. */
+                                schedule: {
+                                    /**
+                                     * @description ISO 8601 timestamp interpreted and validated by the server.
+                                     * @enum {string}
+                                     */
+                                    timezone: "Africa/Lagos";
+                                    /** @description Windows validated by this operation's strict request contract. */
+                                    windows: {
+                                        /** @description Day validated by this operation's strict request contract. */
+                                        day: number;
+                                        /** @description Start Minute validated by this operation's strict request contract. */
+                                        startMinute: number;
+                                        /** @description End Minute validated by this operation's strict request contract. */
+                                        endMinute: number;
+                                    }[];
+                                };
+                                /** @description Max Concurrent Per Agent validated by this operation's strict request contract. */
+                                maxConcurrentPerAgent: number;
+                                /** @description Version validated by this operation's strict request contract. */
+                                version: number;
+                            };
+                        } | {
+                            /**
+                             * @description State validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            state: "CANCELLED";
+                            /** @description Coverage validated by this operation's strict request contract. */
+                            coverage: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the branch resource; ownership is resolved server-side.
+                                 */
+                                branchId: string;
+                                /** @description Enabled validated by this operation's strict request contract. */
+                                enabled: boolean;
+                                /** @description Schedule validated by this operation's strict request contract. */
+                                schedule: {
+                                    /**
+                                     * @description ISO 8601 timestamp interpreted and validated by the server.
+                                     * @enum {string}
+                                     */
+                                    timezone: "Africa/Lagos";
+                                    /** @description Windows validated by this operation's strict request contract. */
+                                    windows: {
+                                        /** @description Day validated by this operation's strict request contract. */
+                                        day: number;
+                                        /** @description Start Minute validated by this operation's strict request contract. */
+                                        startMinute: number;
+                                        /** @description End Minute validated by this operation's strict request contract. */
+                                        endMinute: number;
+                                    }[];
+                                };
+                                /** @description Max Concurrent Per Agent validated by this operation's strict request contract. */
+                                maxConcurrentPerAgent: number;
+                                /** @description Version validated by this operation's strict request contract. */
+                                version: number;
+                            };
+                        } | {
+                            /**
+                             * @description State validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            state: "SAVED";
+                            /** @description Saved Version validated by this operation's strict request contract. */
+                            savedVersion: number;
+                            /** @description Coverage validated by this operation's strict request contract. */
+                            coverage: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the branch resource; ownership is resolved server-side.
+                                 */
+                                branchId: string;
+                                /** @description Enabled validated by this operation's strict request contract. */
+                                enabled: boolean;
+                                /** @description Schedule validated by this operation's strict request contract. */
+                                schedule: {
+                                    /**
+                                     * @description ISO 8601 timestamp interpreted and validated by the server.
+                                     * @enum {string}
+                                     */
+                                    timezone: "Africa/Lagos";
+                                    /** @description Windows validated by this operation's strict request contract. */
+                                    windows: {
+                                        /** @description Day validated by this operation's strict request contract. */
+                                        day: number;
+                                        /** @description Start Minute validated by this operation's strict request contract. */
+                                        startMinute: number;
+                                        /** @description End Minute validated by this operation's strict request contract. */
+                                        endMinute: number;
+                                    }[];
+                                };
+                                /** @description Max Concurrent Per Agent validated by this operation's strict request contract. */
+                                maxConcurrentPerAgent: number;
+                                /** @description Version validated by this operation's strict request contract. */
+                                version: number;
+                            };
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Current session required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Current identity, MFA, responsibilities or CSRF denied */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Active branch unavailable */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Stale revision, expired lease or changed coverage */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Strict bounded input invalid */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Rate limit reached */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Live feature or explicit coverage unavailable; ordinary queued Care remains */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     getCustomersSupportLiveAvailabilityByBranchId: {
         parameters: {
             query?: {
@@ -85359,6 +85939,11 @@ export interface operations {
                  * @example synthetic-token-value-not-a-real-secret
                  */
                 "x-csrf-token": string;
+                /**
+                 * @description Unique retry key for this logical mutation. Reuse it only with the identical request.
+                 * @example synthetic-idempotency-key
+                 */
+                "idempotency-key"?: string;
             };
             path: {
                 /**

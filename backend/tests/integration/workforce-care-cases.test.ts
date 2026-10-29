@@ -378,7 +378,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       const article = readOnly.body.data.articles.find(
         (a: { id: string }) => a.id === "care-triage",
       );
-      expect(article.version).toBe(2);
+      expect(article.version).toBe(3);
       expect(article.href).toBe("/admin/workforce/enquiries");
       expect(article.summary).toContain("do not permit customer replies");
       expect(article.steps.join(" ")).toContain("does not provide internal notes");

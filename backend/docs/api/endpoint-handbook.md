@@ -23949,6 +23949,105 @@ Success: HTTP 200.
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
+### GET `/admin/workforce/support-chat/coverage/{branchId}/operations/{key}`
+
+- Operation ID: `getAdminWorkforceSupportChatCoverageByBranchIdOperationsByKey`
+- Purpose: Gated additive availability foundation. No chat claim, message delivery or queue-position promise. Current branch duties and session are checked server-side. Customer responses contain no staff identities; the channel remains queued Customer Care until lifecycle and transport acceptance. Default feature flag is off. Owner recovers the saved coverage reference without resending its command. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `branchId` | path | string (uuid) | Yes | Identifier selecting the branch resource. |
+| `key` | path | string | Yes | Identifier selecting the key resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Owner recovers the saved coverage reference without resending its command",
+  "data": {
+    "state": "UNKNOWN",
+    "coverage": {
+      "branchId": "00000000-0000-4000-8000-000000000001",
+      "enabled": true,
+      "schedule": {
+        "timezone": "Africa/Lagos",
+        "windows": [
+          {
+            "day": 0,
+            "startMinute": 0,
+            "endMinute": 1
+          }
+        ]
+      },
+      "maxConcurrentPerAgent": 1,
+      "version": 0
+    }
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current session required; 403 Current identity, MFA, responsibilities or CSRF denied; 404 Active branch unavailable; 409 Stale revision, expired lease or changed coverage; 422 Strict bounded input invalid; 429 Rate limit reached; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 Live feature or explicit coverage unavailable; ordinary queued Care remains
+
+### DELETE `/admin/workforce/support-chat/coverage/{branchId}/operations/{key}`
+
+- Operation ID: `deleteAdminWorkforceSupportChatCoverageByBranchIdOperationsByKey`
+- Purpose: Gated additive availability foundation. No chat claim, message delivery or queue-position promise. Current branch duties and session are checked server-side. Customer responses contain no staff identities; the channel remains queued Customer Care until lifecycle and transport acceptance. Default feature flag is off. Owner cancels an unsaved coverage reference while preserving a committed change. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `branchId` | path | string (uuid) | Yes | Identifier selecting the branch resource. |
+| `key` | path | string | Yes | Identifier selecting the key resource. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Owner cancels an unsaved coverage reference while preserving a committed change",
+  "data": {
+    "state": "UNKNOWN",
+    "coverage": {
+      "branchId": "00000000-0000-4000-8000-000000000001",
+      "enabled": true,
+      "schedule": {
+        "timezone": "Africa/Lagos",
+        "windows": [
+          {
+            "day": 0,
+            "startMinute": 0,
+            "endMinute": 1
+          }
+        ]
+      },
+      "maxConcurrentPerAgent": 1,
+      "version": 0
+    }
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Current session required; 403 Current identity, MFA, responsibilities or CSRF denied; 404 Active branch unavailable; 409 Stale revision, expired lease or changed coverage; 422 Strict bounded input invalid; 429 Rate limit reached; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 Live feature or explicit coverage unavailable; ordinary queued Care remains
+
 ### GET `/admin/workforce/support-chat/coverage/{branchId}`
 
 - Operation ID: `getAdminWorkforceSupportChatCoverageByBranchId`
@@ -23997,7 +24096,7 @@ Relevant errors: 400 The request is malformed.; 401 Current session required; 40
 ### PUT `/admin/workforce/support-chat/coverage/{branchId}`
 
 - Operation ID: `putAdminWorkforceSupportChatCoverageByBranchId`
-- Purpose: Gated additive availability foundation. No chat claim, message delivery or queue-position promise. Current branch duties and session are checked server-side. Customer responses contain no staff identities; the channel remains queued Customer Care until lifecycle and transport acceptance. Default feature flag is off. Owner updates audited support coverage using its current revision. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: Gated additive availability foundation. No chat claim, message delivery or queue-position promise. Current branch duties and session are checked server-side. Customer responses contain no staff identities; the channel remains queued Customer Care until lifecycle and transport acceptance. Default feature flag is off. Owner updates audited support coverage using its current revision. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. Supports an optional Idempotency-Key; see the header contract for compatibility, replay and retention rules.
 - Roles: ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -24009,6 +24108,7 @@ Parameters:
 | --- | --- | --- | --- | --- |
 | `branchId` | path | string (uuid) | Yes | Identifier selecting the branch resource. |
 | `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| `idempotency-key` | header | string | No | Unique retry key for this logical mutation. Reuse it only with the identical request. |
 
 JSON request fields:
 

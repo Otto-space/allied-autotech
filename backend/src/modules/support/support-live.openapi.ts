@@ -3,6 +3,8 @@ import { z } from "zod";
 import {
   supportCoverageSchema,
   supportCoverageUpdateSchema,
+  supportCoverageOperationParamsSchema,
+  supportCoverageRecoverySchema,
   supportLiveAvailabilityQuerySchema,
   supportLiveAvailabilitySchema,
   supportLiveBranchSchema,
@@ -10,6 +12,7 @@ import {
   supportPresenceSchema,
   supportPresenceUpdateSchema,
 } from "./support-live.schemas.js";
+import { supportReplyKeySchema } from "./support.schemas.js";
 
 export function registerSupportLiveOpenApi(registry: OpenAPIRegistry) {
   const content = (schema: z.ZodType) => ({ "application/json": { schema } });
@@ -40,6 +43,16 @@ export function registerSupportLiveOpenApi(registry: OpenAPIRegistry) {
   );
   const csrf = z.object({ "x-csrf-token": z.string().min(32) });
   const rows = [
+    ...(["get", "delete"] as const).map((method) => ({
+      method,
+      path: "/admin/workforce/support-chat/coverage/{branchId}/operations/{key}",
+      summary:
+        method === "get"
+          ? "Owner recovers the saved coverage reference without resending its command"
+          : "Owner cancels an unsaved coverage reference while preserving a committed change",
+      params: supportCoverageOperationParamsSchema,
+      output: supportCoverageRecoverySchema,
+    })),
     {
       method: "get",
       path: "/customers/support/live/availability/{branchId}",
@@ -95,7 +108,14 @@ export function registerSupportLiveOpenApi(registry: OpenAPIRegistry) {
         "Gated additive availability foundation. No chat claim, message delivery or queue-position promise. Current branch duties and session are checked server-side. Customer responses contain no staff identities; the channel remains queued Customer Care until lifecycle and transport acceptance. Default feature flag is off.",
       security: [{ sessionCookie: [] }],
       request: {
-        ...(row.method !== "get" ? { headers: csrf } : {}),
+        ...(row.method !== "get"
+          ? {
+              headers:
+                row.method === "put" && row.path.includes("/coverage/")
+                  ? csrf.extend({ "idempotency-key": supportReplyKeySchema.optional() })
+                  : csrf,
+            }
+          : {}),
         ...("params" in row ? { params: row.params } : {}),
         query: "query" in row ? row.query : z.strictObject({}),
         ...("body" in row
