@@ -29,13 +29,11 @@ export async function verifyConsole(page: Page, errors: string[], warnings: stri
       }, url.pathname.split("/").at(-1)!);
       expect(families.length, warning).toBeGreaterThan(0);
       expect(families.every((family) => /nippo|quicksand/i.test(family))).toBe(true);
-      test
-        .info()
-        .annotations.push({
-          type: "verified-brand-font-preload-warning",
-          description:
-            "Unused global brand-font preload; same-origin font response and matching Nippo/Quicksand font-face declaration verified. Retained as a performance limitation.",
-        });
+      test.info().annotations.push({
+        type: "verified-brand-font-preload-warning",
+        description:
+          "Unused global brand-font preload; same-origin font response and matching Nippo/Quicksand font-face declaration verified. Retained as a performance limitation.",
+      });
       continue;
     }
     const match =
