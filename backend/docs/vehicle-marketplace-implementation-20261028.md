@@ -12,12 +12,14 @@ The price bands, countries, makes and locations are generic examples, not BMW fa
 The 14 JPEGs in `Images.zip` were path/resource/signature/dimension checked and
 visually inspected individually. No software from either attachment was executed.
 
-Source starts at the verified production copy/imagery release and incorporates
-`origin/master` cfd3fadd, preserving current garage/privacy work. Current master c0790beb service-enquiry and fitment corrections were also
-incorporated, including the catalogue-card change. Both continuity records were
-retained when resolving append-only documentation conflicts. The dirty master
-checkout and its unrelated live-support work are untouched. No production BMW,
-enquiry, appointment, availability or transaction has been created for testing.
+Application runtime is the integrated and released master commit
+`2586c61bd8608edd4e3626ba6d3cad0899521f7d`. The current public-copy,
+garage/privacy, service-enquiry and fitment releases were preserved. Concurrent
+approved master Care channel foundation changes were integrated before freezing
+this source, including their additive migration and CI acceptance. This vehicle
+cycle does not claim completion of the wider Care channel project. The dirty
+Desktop master checkout and unrelated work remain untouched. No production BMW,
+enquiry, appointment, availability or transaction was created for testing.
 
 ## Requirement matrix
 
@@ -183,10 +185,132 @@ landmarks in a staff record plus listing preview. Vehicle decorative navy surfac
 were neutralised; actual vehicle colours, wear and warning symbols were retained.
 The Any used group selects all three recorded use origins and allows refinement.
 
-Final exact-source CI, current-provider reconciliation, backup/restore and production
-rollout are pending. Physical-device, real-role, screen-reader and independent BMW
-inspection acceptance is not established by these fixtures.
+Production publication completed on 29 October 2026. Physical-device, real-role,
+full screen-reader and independent BMW inspection acceptance are not established
+by these fixtures. Populated public BMW rendering and staff creation were tested
+with isolated/mocked data; production catalogue emptiness remains truthful.
 
 Three pre-existing backend format failures in document-snapshot.ts, the booking
 browser helper and public-cutover.test.mjs were normalised without behaviour changes
 so the repository format gate can pass. No billing, booking or cutover logic changed.
+
+### Final coordinated release and safety evidence
+
+- Application source: `2586c61bd8608edd4e3626ba6d3cad0899521f7d`, integrated into
+  `master` without force. Exact-source checks all passed:
+  [Frontend release](https://github.com/Otto-space/allied-autotech/actions/runs/40789879047),
+  [Backend database safety](https://github.com/Otto-space/allied-autotech/actions/runs/40789879135),
+  [Repository secrets](https://github.com/Otto-space/allied-autotech/actions/runs/40789879195).
+  The full native CI includes the newly integrated Care acceptance; focused counts
+  above describe this vehicle cycle and are not the whole CI test count.
+- All four source-matched API, identity-worker, general-worker and migrate images
+  passed 45 packaged image, CA, non-root, entrypoint, migration and contract checks.
+  DigitalOcean deployment `9c91eeff-b191-4de5-b9d5-0e6d06134d42` is ACTIVE;
+  readiness returned 200 and seven worker heartbeats reported successful runs.
+- Frontend `dpl_H4Qy6RjQQXxfYmD9mGXGTG6i5TL9` is READY. Both
+  `alliedautotech.com` and `www.alliedautotech.com` were independently verified
+  against this same deployment and application source after backend readiness.
+  Previous deployments and recovery resources were retained.
+- The actual production database identity, strict TLS and separated migrator,
+  runtime and backup roles were verified. Runtime has no schema modification,
+  ownership, TRUNCATE, superuser or role-creation privileges. No grants changed.
+- Eight managed off-device backups were verified, together with the provider's
+  encrypted storage/transport and seven-day daily-backup/WAL recovery capability.
+  Existing managed restore evidence was retained. A new physical provider PITR
+  restore was not performed in this cycle. A fresh full logical backup at
+  2026-10-28 23:39 UTC was verified and fully restored to a new isolated loopback
+  `_ci` database. All 94 source tables were restored before migration; original
+  column row hashes/counts were unchanged after both pending forward migrations.
+- The combined rehearsal and guarded production `npm run db:migrate` applied
+  `20261028163000_support_live_availability` (incoming approved Care foundation)
+  and `20261028180000_vehicle_owner_disclosures` (this task). Empty replay,
+  populated restore rehearsal and production `db:check` passed with 78 applied
+  migrations. One already-resolved historical ledger row was verified and preserved;
+  no reset, repair, resolve, grant or business-data backfill was performed.
+- Temporary exact-IP database access was removed after migration and again after
+  read-only worker/privilege verification. Existing firewall entries were preserved.
+  All production environment values/resources stayed unchanged except the four
+  image digests. Live chat, AI and restricted commerce remain disabled under the
+  existing release configuration. The integrated quiet Care reconciliation worker
+  runs its existing metadata maintenance; no live channel was activated for QA.
+
+Protected receipts are in the release worktree's ignored
+`backend/ops/digitalocean/.private/`: `vehicle-github-checks.json`,
+`vehicle-image-checks.json`,
+`vehicle-integrated-2586c61b-20261029-production-rehearsal.json`,
+`vehicle-production-migration-verified.json`,
+`vehicle-release-post-health-20261029-verified.json` and
+`vehicle-front-promotion-verified.json`. Credentials, full provider specs, original
+photos and backup archives are excluded from Git and this report.
+
+### Hosted rendered acceptance
+
+Browser plugin not available; installed Playwright with Edge was used. Flow:
+public page -> catalogue/help action -> correct destination/state, with production
+writes intercepted. The final production run passed all 12 recorded page/domain
+cases at 390 and 1440px, plus two supplemental journey cases:
+
+| Check                                           | Result and scope                                                                                                                                    |
+| ----------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Identity, meaningful content, framework overlay | Pass: Home, Services, Parts, Vehicles and About; one main H1 each                                                                                   |
+| Console health and responsive rendering         | Pass: no page exceptions or horizontal overflow across those pages                                                                                  |
+| Allie and anchors                               | Pass: open/close returns launcher focus; vehicle enquiry and equipment anchors enter the viewport                                                   |
+| Refresh scrolling                               | Pass: www Home redirects canonically and immediate refresh/wheel retains scroll position at both widths                                             |
+| New discovery and permissions                   | Pass: location plus CROSSOVER query returns 200; anonymous staff inventory returns 401                                                              |
+| Accessibility                                   | Pass: scoped vehicle main Axe WCAG A/AA checks at both widths, zero detected violations                                                             |
+| Help/Learn regression                           | Pass: Explore Help & Learn reaches Learn with stable sampled header width; refreshed parts-fitment automatic container focus has outline-style none |
+| Guidance                                        | Pass: public vehicle-enquiry article is revision 3 with owner-versus-inspection guidance                                                            |
+| Screenshot review                               | Pass: mobile Vehicles and refreshed Learn captures inspected; editorial showroom remains labelled and is not BMW stock photography                  |
+
+Commands: `node %TEMP%/aat-vehicle-release-production.cjs` and
+`node %TEMP%/aat-vehicle-release-extra.cjs`. Receipts:
+`%TEMP%/aat-vehicle-release-production.json` and
+`%TEMP%/aat-vehicle-release-extra.json`; screenshots use
+`aat-vehicle-release-production-{width}-{page}.png` and
+`aat-vehicle-release-learning-{width}.png`. These are read-only anonymous hosted
+checks, not authenticated production authoring or full browser/device acceptance.
+The fixed support dock can overlap content while that content passes underneath;
+normal scrolling exposes the enquiry action. Earlier broader mobile dock review
+remains in the quality backlog, without an unverified global change in this cycle.
+
+### Relevant changed files
+
+- Data/contracts: `backend/prisma/schema.prisma`, the vehicle forward migration,
+  `backend/src/modules/vehicles/{vehicles.schemas,vehicles.repository,vehicles.service,vehicles.openapi,saved-vehicle.schemas}.ts`,
+  canonical OpenAPI/handbook and `frontend/lib/api/{generated.d.ts,vehicle-schemas.ts,staff-vehicle-schemas.ts}`.
+- Authoring: `frontend/app/components/{vehicle-record-form,vehicle-owner-fields,work-vehicle-create,work-vehicle-detail,vehicle-listing-forms,vehicle-listing-preview}.tsx`,
+  `frontend/lib/forms/{vehicle-record,vehicle-draft-import}.ts`.
+- Public: `frontend/app/components/{catalogue-cards,home-catalogue-preview,vehicle-owner-disclosure}.tsx`,
+  `frontend/app/vehicles/vehicle-filters.tsx`, vehicle detail route/CSS,
+  `frontend/lib/{vehicle-discovery,use-hydrated}.ts` and shared disclosure CSS.
+- Preparation: `backend/data/vehicle-drafts/{bmw-120i-2007,bmw-photo-review}.json`,
+  `backend/scripts/prepare-bmw-photo-draft.ts`.
+- Acceptance: `backend/tests/integration/vehicle-owner-disclosures.test.ts`,
+  the updated phase7 vehicle flow, vehicle learning units;
+  `frontend/tests/{unit/vehicle-draft-import.test.ts,e2e/vehicle-owner-authoring.spec.ts,e2e/vehicle-owner-disclosures.spec.ts}`.
+- Guidance: backend `learning.content.ts`, `docs/help-learn/VEHICLE_DISCLOSURES_20261028.md`,
+  this matrix, completion tracker and UI/UX quality register.
+
+### Final handoff and remaining dependencies
+
+BMW stays **unpublished; no production stock or listing ID**. The validated import
+and seven selected full-size/640/320 WebP derivatives are prepared privately under
+`%TEMP%/aat-bmw-20261028-prepared`, with `gallery.json` and `stock-draft.json`.
+Originals remain protected and unchanged. Confirm the genuine branch/location,
+asking price/currency and classification/owner review before creating the priced
+draft through existing authoring. Remaining unknown specifications may stay unknown;
+no invented mileage, availability, inspection, repair or finance claim is needed.
+Any public VIN search requires an explicit privacy/business decision.
+
+Disk preflight passed with 27.69 GiB free before final browser QA (20.25 GiB
+required for its bounded write budget). Docker consumers/images were reviewed:
+current four 2586c61b images, earlier held candidates, prior release/recovery images,
+warm dependencies/caches and all database resources were retained. No task-created
+persistent Docker test container, installation, worktree or full browser profile was
+created. The task dev server was stopped; source, private photos, backups and
+isolated restore databases remain available. No blanket cleanup ran. Final free
+space is recorded in the release closure below.
+
+Release closure disk postflight: **25.85 GiB free on C:**, above the 20 GiB
+reserve. No Docker resources were deleted; measured Docker reclaimed bytes: 0.
+This is a point-in-time measurement, not a machine-wide disk guarantee.

@@ -1,5 +1,32 @@
 # Allied AutoTech completion tracker
 
+## 29 October 2026 vehicle requirements released
+
+Current application runtime is master `2586c61bd8608edd4e3626ba6d3cad0899521f7d`.
+Exact-source Frontend 40789879047, Backend database safety 40789879135 and secret
+40789879195 checks passed. Compatible four-image backend deployment
+`9c91eeff-b191-4de5-b9d5-0e6d06134d42` is ACTIVE/readiness 200 with seven successful
+worker heartbeats. Frontend `dpl_H4Qy6RjQQXxfYmD9mGXGTG6i5TL9` is READY on both
+apex/www, verified after backend readiness. Current copy, garage/privacy, fitment,
+service-enquiry and approved Care foundation changes were preserved.
+
+Both pending additive migrations passed empty replay, fresh full populated restore
+(94 prior tables, unchanged original-row hashes), guarded production migration and
+78-migration db:check. Managed off-device backups/PITR evidence and runtime role
+separation were verified; temporary DB access removed. Restricted flags unchanged.
+Final live anonymous acceptance passed 12 page/domain cases and two supplemental
+journeys at 390/1440, including refresh scroll, Allie focus, enquiry/equipment
+anchors, Help/Learn navigation, noninteractive focus outline, location/body filter,
+scoped Axe and anonymous staff denial. No real enquiry or stock write for testing.
+
+BMW is a validated private import with seven reviewed privacy derivatives; no
+production record/listing created. Genuine branch/price, classification and owner
+review remain dependencies. Public VIN search remains a privacy decision. Next
+Item 6 action is real authorised stock/photo/listing acceptance after those facts
+are supplied; wider Care/visual backlog remains open. Detailed matrix, changed
+files, exact receipts and honest acceptance limits:
+[vehicle implementation handoff](vehicle-marketplace-implementation-20261028.md).
+
 ## 28 October 2026 current vehicle requirements cycle
 
 Owner supplied the vehicle-filter Word document, 14 BMW photographs and an explicit

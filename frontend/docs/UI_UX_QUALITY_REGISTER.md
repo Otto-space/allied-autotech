@@ -1,5 +1,29 @@
 # UI and UX quality register
 
+## 29 October 2026: vehicle disclosures production acceptance
+
+Released master runtime 2586c61b, Vercel dpl_H4Qy6RjQQXxfYmD9mGXGTG6i5TL9
+verified on both domains after compatible API/workers became healthy. Exact-source
+Frontend/Backend safety/secret CI all passed (40789879047/40789879135/40789879195).
+66 focused frontend units, 78 focused isolated persistence checks, ten distinct
+mocked browser cases and 45 packaged checks underpin this cycle. Final hosted
+read-only acceptance passed 12 page/domain cases plus two supplemental journeys
+at 390/1440: meaningful pages/no overflow or exceptions, Allie launcher focus,
+context enquiry/equipment anchors, refresh scroll, help navigation/header sampling,
+parts-fitment focus without black outline, location/CROSSOVER query, anonymous
+staff 401, revision-3 guidance and scoped vehicle Axe with zero violations.
+Browser plugin unavailable; installed Playwright/Edge fallback. Actual selected
+BMW views were used only in isolated fixtures, never seeded into production.
+
+Owner notes remain separate from inspection, known faults visible beside actions,
+unknowns retained, publication requires active branch/positive price/photo and CAS.
+BMW remains an unpublished private validated import, waiting for genuine branch,
+price and owner review. No real customer enquiry, availability or transaction write.
+Physical devices, real private roles, full screen-reader and independent BMW
+inspection remain unverified. Existing transient dock/content overlap review and
+broader Care/visual backlog remain open. See backend/docs/vehicle-marketplace-
+implementation-20261028.md for matrix, receipt identities and screenshot paths.
+
 ## 28 October 2026: catalogue cards reflect vehicle-choice availability
 
 The released Parts catalogue at 390/1440px had one published Engine Oil Filter.
