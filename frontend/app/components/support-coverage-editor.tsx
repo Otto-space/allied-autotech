@@ -35,7 +35,11 @@ const branchesSchema = z.object({
 export function OwnerSupportCoverage() {
   const session = useAccountSession();
   const [open, setOpen] = useState(false);
-  if (session?.user.role !== "SUPER_ADMIN") return null;
+  if (
+    process.env.NEXT_PUBLIC_OWNER_SUPPORT_COVERAGE_ENABLED !== "true" ||
+    session?.user.role !== "SUPER_ADMIN"
+  )
+    return null;
   return (
     <details
       id="care-support-coverage"
