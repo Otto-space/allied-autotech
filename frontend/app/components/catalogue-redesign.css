@@ -381,7 +381,8 @@
     grid-row: 5 / 6;
     width: 100%;
     margin: 0;
-    max-height: calc(100dvh - var(--viewport-header-offset, 96px) - 20px);
+    height: min(640px, calc(100dvh - var(--viewport-header-offset, 96px) - 20px));
+    max-height: min(640px, calc(100dvh - var(--viewport-header-offset, 96px) - 20px));
     padding: 0;
     overflow: hidden;
     border: 1px solid var(--line);
@@ -397,8 +398,9 @@
   .product-browse-layout .product-filter-panel form {
     display: flex;
     flex-direction: column;
-    height: auto;
-    max-height: inherit;
+    height: 100%;
+    max-height: 100%;
+    min-height: 0;
   }
   .product-browse-layout .product-filter-header {
     flex-shrink: 0;
@@ -714,7 +716,8 @@
     grid-row: 1 / 8;
     width: 100%;
     margin: 0;
-    max-height: calc(100dvh - var(--viewport-header-offset, 96px) - 20px);
+    height: min(640px, calc(100dvh - var(--viewport-header-offset, 96px) - 20px));
+    max-height: min(640px, calc(100dvh - var(--viewport-header-offset, 96px) - 20px));
     padding: 0;
     border: 1px solid var(--line);
     border-radius: 8px;
@@ -726,8 +729,9 @@
   .vehicle-browse-layout .vehicle-filter-panel form {
     display: flex;
     flex-direction: column;
-    height: auto;
-    max-height: inherit;
+    height: 100%;
+    max-height: 100%;
+    min-height: 0;
   }
   .vehicle-browse-layout .vehicle-filter-header {
     flex-shrink: 0;
@@ -741,6 +745,7 @@
     font-size: 12px;
   }
   .vehicle-browse-layout .vehicle-filter-body {
+    flex: 1;
     overflow-y: auto;
     overscroll-behavior: contain;
     scrollbar-width: none;
@@ -853,4 +858,22 @@
   .vehicle-browse-layout .vehicle-card h3 {
     font-size: 19px;
   }
+}
+
+/* Only the fields scroll; the frame and actions must never scroll on focus. */
+.shop-page .product-browse-layout .product-filter-panel[open],
+.vehicles-page .vehicle-browse-layout .vehicle-filter-panel[open] {
+  overflow: clip;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+}
+.product-browse-layout .product-filter-fields,
+.vehicle-browse-layout .vehicle-filter-body {
+  scroll-padding-block: 16px;
+}
+.product-browse-layout .product-filter-fields::-webkit-scrollbar,
+.vehicle-browse-layout .vehicle-filter-body::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
 }
