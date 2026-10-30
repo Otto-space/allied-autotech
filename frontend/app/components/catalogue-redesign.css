@@ -378,10 +378,10 @@
     inset: auto;
     top: var(--viewport-header-offset, 96px);
     grid-column: 1;
-    grid-row: 4 / 6;
+    grid-row: 5 / 6;
     width: 100%;
     margin: 0;
-    max-height: var(--catalogue-panel-height, calc(100dvh - 130px));
+    max-height: calc(100dvh - var(--viewport-header-offset, 96px) - 20px);
     padding: 0;
     overflow: hidden;
     border: 1px solid #d6d8da;
@@ -415,7 +415,8 @@
     flex: 1;
     min-height: 0;
     overflow-y: auto;
-    overscroll-behavior: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: none;
     grid-template-columns: minmax(0, 1fr);
     padding: 16px;
     gap: 16px;
@@ -711,10 +712,7 @@
     grid-row: 1 / 8;
     width: 100%;
     margin: 0;
-    max-height: var(
-      --catalogue-panel-height,
-      calc(100dvh - var(--viewport-header-offset, 96px) - 20px)
-    );
+    max-height: calc(100dvh - var(--viewport-header-offset, 96px) - 20px);
     padding: 0;
     border: 1px solid #d6d8da;
     border-radius: 8px;
@@ -742,7 +740,8 @@
   }
   .vehicle-browse-layout .vehicle-filter-body {
     overflow-y: auto;
-    overscroll-behavior: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: none;
     min-height: 0;
     padding-inline: 16px;
   }

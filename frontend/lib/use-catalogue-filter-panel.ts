@@ -43,34 +43,6 @@ export function useCatalogueFilterPanel() {
     };
   }, [open, desktop]);
 
-  useEffect(() => {
-    if (!desktop || !open) return;
-    let frame = 0;
-    let active = true;
-    const measure = () => {
-      cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(() => {
-        const panel = dialog.current;
-        if (!active || !panel?.open) return;
-        const height = Math.max(
-          220,
-          innerHeight - panel.getBoundingClientRect().top - 20,
-        );
-        panel.style.setProperty("--catalogue-panel-height", `${height}px`);
-      });
-    };
-    measure();
-    void document.fonts.ready.then(measure);
-    window.addEventListener("resize", measure);
-    window.addEventListener("scroll", measure, { passive: true });
-    return () => {
-      active = false;
-      cancelAnimationFrame(frame);
-      window.removeEventListener("resize", measure);
-      window.removeEventListener("scroll", measure);
-    };
-  }, [desktop, open]);
-
   function close() {
     restoreFocus.current = true;
     dialog.current?.close();

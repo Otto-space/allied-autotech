@@ -281,6 +281,35 @@ export function VehicleFilters({
     });
     panel.applied();
   }
+  const filterActions = (
+    <div className="vehicle-filter-actions">
+      <p className="catalogue-match-preview" role="status" aria-live="polite">
+        {!validDraft
+          ? "Review the entered filter values."
+          : preview.pending
+            ? "Checking matches…"
+            : preview.error
+              ? "Count unavailable. You can still apply filters."
+              : matches === undefined
+                ? "Apply to check matching vehicles."
+                : `${matches.toLocaleString("en-NG")} matching vehicle${matches === 1 ? "" : "s"}`}
+      </p>
+      <button
+        type="button"
+        className="button secondary"
+        onClick={() => {
+          setValues(Object.fromEntries(advancedVehicleKeys.map((key) => [key, ""])));
+          setErrors({});
+        }}
+      >
+        Clear selections
+      </button>
+      <button className="button" type="submit" data-scroll-target="vehicle-results">
+        Apply filters
+      </button>
+    </div>
+  );
+
   return (
     <>
       <button
@@ -341,6 +370,7 @@ export function VehicleFilters({
               <X size={20} />
             </button>
           </div>
+          {panel.desktop && filterActions}
           <div className="vehicle-filter-body">
             {[
               ["Budget", ["minPriceKobo", "maxPriceKobo"]],
@@ -582,34 +612,7 @@ export function VehicleFilters({
               </details>
             ))}
           </div>
-          <div className="vehicle-filter-actions">
-            <p className="catalogue-match-preview" role="status" aria-live="polite">
-              {!validDraft
-                ? "Review the entered filter values."
-                : preview.pending
-                  ? "Checking matches…"
-                  : preview.error
-                    ? "Count unavailable. You can still apply filters."
-                    : matches === undefined
-                      ? "Apply to check matching vehicles."
-                      : `${matches.toLocaleString("en-NG")} matching vehicle${matches === 1 ? "" : "s"}`}
-            </p>
-            <button
-              type="button"
-              className="button secondary"
-              onClick={() => {
-                setValues(
-                  Object.fromEntries(advancedVehicleKeys.map((key) => [key, ""])),
-                );
-                setErrors({});
-              }}
-            >
-              Clear selections
-            </button>
-            <button className="button" type="submit" data-scroll-target="vehicle-results">
-              Apply filters
-            </button>
-          </div>
+          {!panel.desktop && filterActions}
         </form>
       </dialog>
     </>

@@ -57,7 +57,92 @@ function hashTarget(hash: string) {
   }
 }
 
+function useCatalogueReturnPosition() {
+  useEffect(() => {
+    const positions = new Map<string, { y: number; href: string }>();
+    const cards =
+      ".shop-product-card a[href], .vehicle-card a[href], .services-row a[href]";
+    let cancelRestore = () => {};
+    const remember = (event: MouseEvent) => {
+      cancelRestore();
+      if (
+        event.button !== 0 ||
+        event.metaKey ||
+        event.ctrlKey ||
+        event.shiftKey ||
+        event.altKey
+      )
+        return;
+      if (!["/parts", "/vehicles", "/services"].includes(location.pathname)) return;
+      const link =
+        event.target instanceof Element
+          ? event.target.closest<HTMLAnchorElement>(cards)
+          : null;
+      if (!link || link.origin !== location.origin) return;
+      const key = location.pathname + location.search;
+      positions.delete(key);
+      positions.set(key, { y: scrollY, href: link.href });
+      if (positions.size > 20) positions.delete(positions.keys().next().value!);
+    };
+    const restore = () => {
+      cancelRestore();
+      if (location.hash) return;
+      const key = location.pathname + location.search;
+      const saved = positions.get(key);
+      if (!saved) return;
+      let frame = 0;
+      let stopped = false;
+      const stop = () => {
+        stopped = true;
+        cancelAnimationFrame(frame);
+        observer.disconnect();
+        clearTimeout(timeout);
+        window.removeEventListener("wheel", stop);
+        window.removeEventListener("touchstart", stop);
+        window.removeEventListener("keydown", stop);
+      };
+      const check = () => {
+        if (stopped || location.pathname + location.search !== key) return;
+        const target = Array.from(
+          document.querySelectorAll<HTMLAnchorElement>(cards),
+        ).find((link) => link.href === saved.href);
+        // Browser restoration can run while the async results are still a short
+        // loading state. Wait for the original result and sufficient page height.
+        if (!target || document.documentElement.scrollHeight < saved.y + innerHeight - 2)
+          return;
+        cancelAnimationFrame(frame);
+        frame = requestAnimationFrame(() => {
+          frame = requestAnimationFrame(() => {
+            if (stopped || location.pathname + location.search !== key) return;
+            window.scrollTo({ top: saved.y, behavior: "instant" });
+            stop();
+          });
+        });
+      };
+      const observer = new MutationObserver(check);
+      const timeout = window.setTimeout(stop, 5000);
+      cancelRestore = stop;
+      observer.observe(document.body, {
+        subtree: true,
+        childList: true,
+        attributes: true,
+      });
+      window.addEventListener("wheel", stop, { passive: true });
+      window.addEventListener("touchstart", stop, { passive: true });
+      window.addEventListener("keydown", stop);
+      check();
+    };
+    document.addEventListener("click", remember, true);
+    window.addEventListener("popstate", restore);
+    return () => {
+      cancelRestore();
+      document.removeEventListener("click", remember, true);
+      window.removeEventListener("popstate", restore);
+    };
+  }, []);
+}
 export function ViewportNavigation() {
+  useCatalogueReturnPosition();
   const pathname = usePathname();
   const previousPath = useRef(pathname);
   const restoring = useRef<string | null>(null);

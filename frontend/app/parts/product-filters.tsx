@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useRef, useState } from "react";
 import { useCatalogueFilterPanel } from "@/lib/use-catalogue-filter-panel";
@@ -334,6 +334,35 @@ export function ProductFilters({
       </div>
     );
   }
+  const filterActions = (
+    <div className="product-filter-actions">
+      <p className="catalogue-match-preview" role="status" aria-live="polite">
+        {!validDraft
+          ? "Review the entered filter values."
+          : preview.pending
+            ? "Checking matches…"
+            : preview.error
+              ? "Count unavailable. You can still apply filters."
+              : matches === undefined
+                ? "Apply to check matching products."
+                : `${matches.toLocaleString("en-NG")} matching product${matches === 1 ? "" : "s"}`}
+      </p>
+      <button
+        type="button"
+        className="button secondary"
+        onClick={() => {
+          setValues(Object.fromEntries(advancedProductKeys.map((key) => [key, ""])));
+          setErrors({});
+        }}
+      >
+        Clear selections
+      </button>
+      <button type="submit" className="button" data-scroll-target="product-results">
+        Apply filters
+      </button>
+    </div>
+  );
+
   return (
     <>
       <button
@@ -449,6 +478,7 @@ export function ProductFilters({
               <X size={20} aria-hidden="true" />
             </button>
           </div>
+          {panel.desktop && filterActions}
           <div className="product-filter-fields">
             <fieldset
               className="product-filter-range"
@@ -519,34 +549,7 @@ export function ProductFilters({
                 : "Compatibility has not been confirmed. Ask our team to check your vehicle and required specifications."}
             </p>
           </div>
-          <div className="product-filter-actions">
-            <p className="catalogue-match-preview" role="status" aria-live="polite">
-              {!validDraft
-                ? "Review the entered filter values."
-                : preview.pending
-                  ? "Checking matches…"
-                  : preview.error
-                    ? "Count unavailable. You can still apply filters."
-                    : matches === undefined
-                      ? "Apply to check matching products."
-                      : `${matches.toLocaleString("en-NG")} matching product${matches === 1 ? "" : "s"}`}
-            </p>
-            <button
-              type="button"
-              className="button secondary"
-              onClick={() => {
-                setValues(
-                  Object.fromEntries(advancedProductKeys.map((key) => [key, ""])),
-                );
-                setErrors({});
-              }}
-            >
-              Clear selections
-            </button>
-            <button type="submit" className="button" data-scroll-target="product-results">
-              Apply filters
-            </button>
-          </div>
+          {!panel.desktop && filterActions}
         </form>
       </dialog>
     </>

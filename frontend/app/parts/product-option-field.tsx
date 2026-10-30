@@ -92,7 +92,7 @@ export function ProductOptionField({
           <>
             <small>
               Choices could not be loaded.
-              {field === "brand" ? " You can still enter the full brand name." : ""}
+              {field === "brand" ? " You can still type a brand name." : ""}
             </small>
             <button type="button" onClick={resource.refresh}>
               Retry choices
@@ -101,11 +101,13 @@ export function ProductOptionField({
         ) : options.length === 0 ? (
           <small>
             {field === "brand"
-              ? "No brand suggestions for this search. You can enter the full brand name."
-              : "No choices for this search."}
+              ? prefix
+                ? "No matching brands. You can type a brand name."
+                : "No brand suggestions yet. You can type a brand name."
+              : "No choices match the current filters."}
           </small>
         ) : field === "brand" ? (
-          <small>Choose a suggestion or enter the full brand name.</small>
+          <small>Choose a brand or type its name.</small>
         ) : null}
         {cursor && (
           <button

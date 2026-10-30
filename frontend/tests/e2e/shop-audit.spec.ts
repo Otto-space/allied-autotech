@@ -84,11 +84,12 @@ for (const width of [390, 1440]) {
     await expect(brand).toBeVisible();
     await expect(brand).not.toHaveAttribute("list", /.+/);
     await expect(
-      page.getByText(
-        "No brand suggestions for this search. You can enter the full brand name.",
-      ),
+      page.getByText("No brand suggestions yet. You can type a brand name."),
     ).toBeVisible();
     await brand.fill("Unlisted brand");
+    await expect(
+      page.getByText("No matching brands. You can type a brand name."),
+    ).toBeVisible();
     await page.locator(".product-technical summary").click();
     await page.getByLabel("Product type", { exact: true }).selectOption("BRAKE_PADS");
     await expect(
@@ -187,3 +188,111 @@ test("vehicle-choice errors stay distinct from an empty catalogue and recover", 
   ).toBeVisible();
   expect(state.writes).toEqual([]);
 });
+
+for (const width of [390, 1440]) {
+  test(`Returning from product details restores results and reading position at ${width}px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 936 });
+    const state = await fixture(page);
+    const publicResponse = await page.request.get(
+      "/api/v1/public/catalog/products?limit=1",
+    );
+    expect(publicResponse.ok()).toBe(true);
+    const publicProduct = (await publicResponse.json()).data.items[0];
+    expect(publicProduct?.id).toBeTruthy();
+    await page.route("**/api/v1/public/catalog/products/discovery?**", async (route) => {
+      const data = discoveryResponse(new URL(route.request().url()), "populated");
+      if (data && "items" in data && Array.isArray(data.items)) {
+        data.items[8] = publicProduct;
+      }
+      await route.fulfill({
+        json: {
+          success: true,
+          message: "Read-only detail fixture",
+          data,
+          meta: { requestId: "return-public-detail" },
+        },
+      });
+    });
+    await page.goto("/parts?search=DEMO");
+    await expect(page.locator(".shop-product-card")).toHaveCount(12);
+    const card = page.locator(".shop-product-card").nth(8);
+    await card.scrollIntoViewIfNeeded();
+    const title = await card.locator("h3").innerText();
+    const before = await page.evaluate(() => scrollY);
+    const resultsUrl = page.url();
+    expect(before).toBeGreaterThan(400);
+    await card.getByRole("link").click();
+    await expect(page.locator("main h1")).toHaveText(title);
+    await page.goBack();
+    await expect(page).toHaveURL(resultsUrl);
+    await expect(page.locator(".shop-product-card")).toHaveCount(12);
+    await expect(card).toBeInViewport();
+    await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(before - 150);
+    await expect.poll(() => page.evaluate(() => scrollY)).toBeLessThan(before + 150);
+    expect(state.writes).toEqual([]);
+  });
+}
+
+for (const route of ["parts", "vehicles"]) {
+  for (const width of [1024, 1440]) {
+    test(`${route} desktop sidebar stays stable and contains scrolling at ${width}px`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: 720 });
+      await fixture(page);
+      if (route === "vehicles") await page.goto("/vehicles");
+      const panel = page.locator(
+        route === "parts" ? "#product-filter-panel" : "#vehicle-filter-panel",
+      );
+      await expect(panel).toBeVisible();
+      const body = panel.locator(
+        route === "parts" ? ".product-filter-fields" : ".vehicle-filter-body",
+      );
+      const initialHeight = (await panel.boundingBox())!.height;
+      await panel.evaluate((el) =>
+        scrollTo(0, scrollY + el.getBoundingClientRect().top - 90),
+      );
+      await expect
+        .poll(async () => (await panel.boundingBox())!.height)
+        .toBeCloseTo(initialHeight, 0);
+      await body.evaluate((el) => {
+        el.scrollTop = 100;
+      });
+      const innerPosition = await body.evaluate((el) => el.scrollTop);
+      await page.evaluate(() => scrollBy(0, 180));
+      await expect
+        .poll(async () => (await panel.boundingBox())!.height)
+        .toBeCloseTo(initialHeight, 0);
+      expect(await body.evaluate((el) => el.scrollTop)).toBe(innerPosition);
+      await panel.evaluate((el) =>
+        scrollTo(0, scrollY + el.getBoundingClientRect().top - 90),
+      );
+      await body.evaluate((el) => {
+        el.scrollTop = el.scrollHeight;
+      });
+      await body.hover();
+      // Browser hover can scroll an element into view. Allow that layout to
+      // paint before measuring whether the subsequent wheel chains to the page.
+      await page.evaluate(
+        () =>
+          new Promise<void>((resolve) => {
+            requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+          }),
+      );
+      const pagePosition = await page.evaluate(() => scrollY);
+      await page.mouse.wheel(0, 600);
+      await page.waitForTimeout(250);
+      expect(Math.abs((await page.evaluate(() => scrollY)) - pagePosition)).toBeLessThan(
+        2,
+      );
+      expect(await body.evaluate((el) => getComputedStyle(el).scrollbarWidth)).toBe(
+        "none",
+      );
+      await expect(
+        panel.getByRole("button", { name: "Apply filters", exact: true }),
+      ).toBeInViewport();
+    });
+  }
+}
