@@ -213,7 +213,7 @@ for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536]) {
     await expect(page.locator(".home-vehicle-card").first().locator("img")).toBeVisible();
     await expect(page.locator(".home-vehicle-card").first().locator("img")).toHaveCSS(
       "object-fit",
-      "cover",
+      "contain",
     );
     const vehicleFrame = (await page
       .locator(".home-vehicle-card .product-media")
@@ -241,6 +241,7 @@ for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536]) {
       page.locator(".home-vehicle-card").nth(1).locator(".home-vehicle-specs li"),
     ).toHaveCount(0);
     for (const selector of [
+      ".home-care",
       ".home-services",
       ".partner-layout",
       ".home-vehicles",
@@ -467,3 +468,31 @@ test("mobile hero remains stable while the menu opens and closes", async ({ page
     page.getByRole("button", { name: "Open navigation", exact: true }),
   ).toBeFocused();
 });
+
+for (const width of [390, 1440]) {
+  test(`homepage care reuses the complete approved About artwork at ${width}px`, async ({
+    page,
+  }, info) => {
+    await page.setViewportSize({ width, height: 900 });
+    await fixture(page);
+    await ready(page);
+    const artwork = page.locator('.home-care [data-artwork="precision-autocare"]');
+    await artwork.scrollIntoViewIfNeeded();
+    const image = artwork.locator("img");
+    await expect(image).toBeVisible();
+    await expect
+      .poll(() => image.evaluate((el) => (el as HTMLImageElement).naturalWidth))
+      .toBeGreaterThan(0);
+    await expect(image).toHaveAttribute("src", "/brand/r2/precision-autocare-800.webp");
+    await expect(image).toHaveCSS("object-fit", "contain");
+    const box = (await artwork.boundingBox())!;
+    expect(box.width / box.height).toBeCloseTo(4 / 5, 2);
+    expect(box.width).toBeLessThanOrEqual(380);
+    expect(await page.locator('.home-care img[src*="technician-original"]').count()).toBe(
+      0,
+    );
+    await page
+      .locator(".home-care")
+      .screenshot({ path: info.outputPath(`approved-care-${width}.png`) });
+  });
+}

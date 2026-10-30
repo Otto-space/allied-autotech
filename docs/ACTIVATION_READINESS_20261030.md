@@ -1,3 +1,13 @@
+### 30 October 2026: completed source package published
+
+Source e8a40784 is integrated into master and published to both domains with matching
+backend c886268a-6929-4053-95b0-7930f054bdb7. Exact-master CI, fresh backup/isolated
+restore, protected forward migration (80 total), runtime privilege checks, seven
+worker heartbeats and six hosted fixture journeys have passing evidence. Capability
+flags remain unchanged. Full brief and actual owner category import remain open.
+See backend/docs/efficient-delivery-production-20261030.md for receipts, failures,
+corrections and acceptance limits.
+
 
 ### 30 October 2026: Allie candidate ranking before limits
 

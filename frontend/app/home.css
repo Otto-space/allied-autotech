@@ -64,8 +64,12 @@
   flex: none;
 }
 .home-page .service-discovery__item img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 340px;
   border-radius: 0;
-  aspect-ratio: 3 / 2;
+  aspect-ratio: auto;
   object-fit: contain;
 }
 .home-page .service-discovery__body {
@@ -116,11 +120,11 @@
   gap: 20px;
 }
 .home-page .home-vehicle-grid[data-single="true"] {
-  grid-template-columns: minmax(0, 640px);
+  grid-template-columns: minmax(0, 480px);
   justify-content: center;
 }
 .home-page .home-vehicle-card .product-media img {
-  object-fit: cover;
+  object-fit: contain;
   object-position: center;
 }
 .home-page .home-product-grid {
@@ -771,4 +775,88 @@
   font-size: 11px;
   line-height: 1.5;
   border-radius: 4px;
+}
+
+.home-care {
+  padding: 48px 0;
+  background: white;
+}
+.home-care-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  align-items: center;
+  gap: 40px;
+}
+.home-care figure {
+  width: 100%;
+  max-width: 380px;
+  margin: 0 auto;
+}
+.home-care-image {
+  position: relative;
+  overflow: hidden;
+  border-radius: 6px;
+  background: var(--ink);
+}
+.home-care figcaption {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 10px;
+}
+.home-page .home-care h2 {
+  font:
+    700 clamp(25px, 2.3vw, 32px)/1.25 var(--font-nippo),
+    sans-serif;
+}
+.home-care p {
+  font-size: 15px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  margin: 0 0 24px;
+}
+.home-care-principles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0 0 20px;
+}
+.home-care-principles > div {
+  padding-inline: 16px;
+  border-left: 1px solid var(--line);
+}
+.home-care-principles > div:first-child {
+  padding-left: 0;
+  border: 0;
+}
+.home-care-principles dt {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.home-care-principles dd {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin: 0;
+}
+
+@media (max-width: 1000px) {
+  .home-care-layout {
+    gap: 28px;
+  }
+  .home-care-principles {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .home-care-principles > div {
+    border: 0;
+    padding-inline: 0;
+  }
+}
+@media (max-width: 700px) {
+  .home-care-layout {
+    grid-template-columns: 1fr;
+  }
+  .home-page .home-care {
+    padding-block: 32px;
+  }
 }

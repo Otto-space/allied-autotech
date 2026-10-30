@@ -1,6 +1,14 @@
+import { CampaignArtwork } from "./campaign-artwork";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight, CarFront, ChevronDown, Package, Wrench } from "lucide-react";
+import {
+  ArrowRight,
+  ArrowUpRight,
+  CarFront,
+  ChevronDown,
+  Package,
+  Wrench,
+} from "lucide-react";
 import { faqs } from "@/lib/business";
 import { loadPublicSeed } from "@/lib/api/public-seed-server";
 import { parseProducts } from "@/lib/api/commerce-schemas";
@@ -86,6 +94,46 @@ export async function PublicHome() {
                   Ask about a service <ArrowUpRight size={16} aria-hidden="true" />
                 </Link>
               </p>
+            </div>
+          </div>
+        </section>
+        <section className="public-section home-care" aria-labelledby="home-care-title">
+          <div className="public-wrap home-care-layout">
+            <figure>
+              <div className="home-care-image">
+                <CampaignArtwork
+                  artwork="precision-autocare"
+                  alt="Allied AutoTech Precision Autocare You Can Trust campaign, with a person in a red branded uniform"
+                  sizes="(max-width: 420px) calc(100vw - 40px), 380px"
+                />
+              </div>
+              <figcaption>Precision Autocare You Can Trust.</figcaption>
+            </figure>
+            <div>
+              <h2 id="home-care-title">Clear advice. Careful workmanship.</h2>
+              <p>
+                We explain the issue, discuss the next steps and prioritise quality
+                workmanship.
+              </p>
+              <dl className="home-care-principles">
+                <div>
+                  <dt>Understand the concern</dt>
+                  <dd>We listen and clarify the issue with you.</dd>
+                </div>
+                <div>
+                  <dt>Discuss the work</dt>
+                  <dd>
+                    We explain the findings and talk through recommended next steps.
+                  </dd>
+                </div>
+                <div>
+                  <dt>Keep you informed</dt>
+                  <dd>Clear communication before and after the work.</dd>
+                </div>
+              </dl>
+              <Link className="text-link" href="/about">
+                Our workshop principles <ArrowRight size={17} aria-hidden="true" />
+              </Link>
             </div>
           </div>
         </section>

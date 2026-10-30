@@ -1144,10 +1144,7 @@ test("service section links, FAQ keyboard states and bounded other services", as
   await expect(page.locator(".sd-more-item").first()).toContainText("Brake assessment");
   await expect(page.locator(".sd-more-item").first()).toContainText("45 minutes");
   await expect(page.locator(".sd-more-item").nth(1)).toContainText("Quotation required");
-  await expect(page.locator(".sd-care-image img")).toHaveAttribute(
-    "alt",
-    /Precision Autocare You Can Trust campaign/,
-  );
+  await expect(page.locator(".sd-care")).toHaveCount(0);
   await page.locator(".sd-more-item").nth(1).click();
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Engine assessment");
   await page.locator(".sd-questions summary").nth(1).click();
@@ -1184,7 +1181,6 @@ test("service context and supporting sections fit narrow and wide layouts", asyn
     ).toBe(false);
     expect((await accessiblePage(page)).violations).toEqual([]);
     for (const [name, selector] of [
-      ["care", ".sd-care"],
       ["questions", ".sd-questions"],
       ["more", ".sd-more"],
     ]) {
@@ -1473,34 +1469,6 @@ test("customer with incomplete MFA must verify before booking", async ({ page })
   ).toHaveCount(0);
   expect(state.writes).toHaveLength(0);
 });
-
-for (const width of [390, 1440]) {
-  test(`service care reuses the complete approved About artwork at ${width}px`, async ({
-    page,
-  }, info) => {
-    await page.setViewportSize({ width, height: 900 });
-    await fixture(page);
-    await page.goto(routePath);
-    const artwork = page.locator('.sd-care [data-artwork="precision-autocare"]');
-    await artwork.scrollIntoViewIfNeeded();
-    const image = artwork.locator("img");
-    await expect(image).toBeVisible();
-    await expect
-      .poll(() => image.evaluate((el) => (el as HTMLImageElement).naturalWidth))
-      .toBeGreaterThan(0);
-    await expect(image).toHaveAttribute("src", "/brand/r2/precision-autocare-800.webp");
-    await expect(image).toHaveCSS("object-fit", "contain");
-    const box = (await artwork.boundingBox())!;
-    expect(box.width / box.height).toBeCloseTo(4 / 5, 2);
-    expect(box.width).toBeLessThanOrEqual(380);
-    expect(await page.locator('.sd-care img[src*="technician-original"]').count()).toBe(
-      0,
-    );
-    await page
-      .locator(".sd-care")
-      .screenshot({ path: info.outputPath(`approved-care-${width}.png`) });
-  });
-}
 
 for (const width of [390, 1440]) {
   for (const composition of ["portrait", "landscape"]) {

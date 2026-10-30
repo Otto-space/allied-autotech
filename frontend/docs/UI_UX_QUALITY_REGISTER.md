@@ -1,3 +1,24 @@
+### 30 October 2026: homepage workshop story and image framing
+
+Moved the approved Precision Autocare / Clear advice section from service details
+to Home, ahead of Inside the workshop. Homepage service images keep intrinsic
+proportions within 340px height; vehicle images use contain within their 4:3 frame,
+with a single vehicle card capped at 480px. No pricing, API or backend runtime changes.
+Six local Edge/Playwright fixture checks passed: 390/1440 Home layouts and complete
+artwork, service navigation/FAQ and narrow/wide supporting sections. Browser plugin
+not available; existing Playwright used. Screenshots reviewed at 390/1440.
+Release pending exact-source CI, held candidate verification and both-domain promotion.
+
+### 30 October 2026: completed source package published
+
+Source e8a40784 is integrated into master and published to both domains with matching
+backend c886268a-6929-4053-95b0-7930f054bdb7. Exact-master CI, fresh backup/isolated
+restore, protected forward migration (80 total), runtime privilege checks, seven
+worker heartbeats and six hosted fixture journeys have passing evidence. Capability
+flags remain unchanged. Full brief and actual owner category import remain open.
+See backend/docs/efficient-delivery-production-20261030.md for receipts, failures,
+corrections and acceptance limits.
+
 ### 30 October 2026: workforce concern classification and final authorization
 
 Concern-only jobs can now be classified during the existing JOBS_ASSIGN workflow.

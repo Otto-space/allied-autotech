@@ -6,7 +6,6 @@ import {
 } from "@/lib/forms/booking-sign-in-draft";
 import { browseEnquiriesOnly } from "@/lib/public-launch";
 import Link from "next/link";
-import { CampaignArtwork } from "./campaign-artwork";
 import { ServicePhoto } from "./service-photo";
 import {
   ArrowDown,
@@ -1261,46 +1260,6 @@ export function ServiceDetail({
         )}
         {current && (
           <>
-            <section className="sd-care" aria-labelledby="sd-care-title">
-              <div className="sd-container sd-care-layout">
-                <figure>
-                  <div className="sd-care-image">
-                    <CampaignArtwork
-                      artwork="precision-autocare"
-                      alt="Allied AutoTech Precision Autocare You Can Trust campaign, with a person in a red branded uniform"
-                      sizes="(max-width: 420px) calc(100vw - 40px), 380px"
-                    />
-                  </div>
-                  <figcaption>Precision Autocare You Can Trust.</figcaption>
-                </figure>
-                <div>
-                  <h2 id="sd-care-title">Clear advice. Careful workmanship.</h2>
-                  <p>
-                    We explain the issue, discuss the next steps and prioritise quality
-                    workmanship.
-                  </p>
-                  <dl className="sd-care-principles">
-                    <div>
-                      <dt>Understand the concern</dt>
-                      <dd>We listen and clarify the issue with you.</dd>
-                    </div>
-                    <div>
-                      <dt>Discuss the work</dt>
-                      <dd>
-                        We explain the findings and talk through recommended next steps.
-                      </dd>
-                    </div>
-                    <div>
-                      <dt>Keep you informed</dt>
-                      <dd>Clear communication before and after the work.</dd>
-                    </div>
-                  </dl>
-                  <Link className="sd-editorial-link" href="/about">
-                    Our workshop principles <ArrowRight size={17} aria-hidden="true" />
-                  </Link>
-                </div>
-              </div>
-            </section>
             <section
               className="sd-questions"
               id="service-questions"

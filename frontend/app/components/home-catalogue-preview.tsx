@@ -210,7 +210,7 @@ export function HomeVehiclesPreview({
                       fallbackIcon={<CarFront size={32} strokeWidth={1.3} />}
                       sizes={
                         listings.data?.items.length === 1
-                          ? "(max-width: 800px) 90vw, 760px"
+                          ? "(max-width: 540px) 90vw, 480px"
                           : "(max-width: 700px) 90vw, 44vw"
                       }
                     />
