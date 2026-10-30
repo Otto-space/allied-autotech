@@ -8,19 +8,19 @@ The all-radio audit found a confirmed colour-only selected state in the gated Co
 
 ## Current requirement acceptance matrix
 
-| Requirement | Implementation location | Verification | Status |
-| --- | --- | --- | --- |
-| Shared 6 px control radius, all five shortcuts | brand-system.css; catalogue-redesign.css | Five widths, all corners, hover/pressed/selected/keyboard focus, stable size | Verified; shortcuts have no disabled variant |
-| Stable sidebar, independent scrolling, reachable actions | catalogue-redesign.css; catalogue components | Nine live sidebar/control cases; drawer/focus cases in prior 96-case hosted suite | Verified on sampled browser widths |
-| Restrained elevation and lighter grouping | shared low/medium/high elevation tokens | Published Shop/Vehicles screenshots; forced-colour checks | Verified |
-| By vehicle / By product radio controls | parts-catalogue.tsx; parts.css | Five widths, pointer and native arrow keys, 44 px minimum rows | Verified |
-| Pending/applied/clear, URL/history, count truth | shared discovery state; three catalogue components | Existing hosted cancellation/history/error cases; All types retains make/year/budget | Verified |
-| Request ordering | use-resource and three catalogue consumers | Six new slow-old/new-fast browser cases | Verified with isolated fixtures |
-| Image-first moderate cards, larger details | shared responsive image and catalogue styles | Six new long-title/three-image-shape cases; prior detail/error/sparse/many cases | Verified with actual read-only inventory and distinct fixtures |
-| Home single vehicle and fault disclosure | homepage vehicles and shared vehicle presentation | Prior published Home/detail tests and live BMW disclosure | Verified; authentic source photo retained |
-| Radio selection beyond colour | Contact reason markup/styles; existing native radio owners | Three forced-colour local cases plus four existing Contact clarity tests | Implemented and locally verified; publication pending; gated form remains gated |
-| Mobile layers, safe areas, refresh and learning interactions | shared overlay/navigation and Help/Learn components | Prior seven hosted refresh/Help/guide/auth-focus cases plus catalogue drawers | Verified by emulation/fixtures, not physical devices or live protected roles |
-| Native 200% zoom, physical phone keyboard, full screen reader | browser/device acceptance | Native tool could not reliably identify active Chrome URL; no substitute claim | Unverified; documented tool/device limits |
+| Requirement                                                   | Implementation location                                    | Verification                                                                         | Status                                                                          |
+| ------------------------------------------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------- |
+| Shared 6 px control radius, all five shortcuts                | brand-system.css; catalogue-redesign.css                   | Five widths, all corners, hover/pressed/selected/keyboard focus, stable size         | Verified; shortcuts have no disabled variant                                    |
+| Stable sidebar, independent scrolling, reachable actions      | catalogue-redesign.css; catalogue components               | Nine live sidebar/control cases; drawer/focus cases in prior 96-case hosted suite    | Verified on sampled browser widths                                              |
+| Restrained elevation and lighter grouping                     | shared low/medium/high elevation tokens                    | Published Shop/Vehicles screenshots; forced-colour checks                            | Verified                                                                        |
+| By vehicle / By product radio controls                        | parts-catalogue.tsx; parts.css                             | Five widths, pointer and native arrow keys, 44 px minimum rows                       | Verified                                                                        |
+| Pending/applied/clear, URL/history, count truth               | shared discovery state; three catalogue components         | Existing hosted cancellation/history/error cases; All types retains make/year/budget | Verified                                                                        |
+| Request ordering                                              | use-resource and three catalogue consumers                 | Six new slow-old/new-fast browser cases                                              | Verified with isolated fixtures                                                 |
+| Image-first moderate cards, larger details                    | shared responsive image and catalogue styles               | Six new long-title/three-image-shape cases; prior detail/error/sparse/many cases     | Verified with actual read-only inventory and distinct fixtures                  |
+| Home single vehicle and fault disclosure                      | homepage vehicles and shared vehicle presentation          | Prior published Home/detail tests and live BMW disclosure                            | Verified; authentic source photo retained                                       |
+| Radio selection beyond colour                                 | Contact reason markup/styles; existing native radio owners | Three forced-colour local cases plus four existing Contact clarity tests             | Implemented and locally verified; publication pending; gated form remains gated |
+| Mobile layers, safe areas, refresh and learning interactions  | shared overlay/navigation and Help/Learn components        | Prior seven hosted refresh/Help/guide/auth-focus cases plus catalogue drawers        | Verified by emulation/fixtures, not physical devices or live protected roles    |
+| Native 200% zoom, physical phone keyboard, full screen reader | browser/device acceptance                                  | Native tool could not reliably identify active Chrome URL; no substitute claim       | Unverified; documented tool/device limits                                       |
 
 ### 30 October 2026 catalogue controls published
 
