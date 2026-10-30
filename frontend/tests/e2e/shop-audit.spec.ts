@@ -60,9 +60,7 @@ for (const width of [390, 1440]) {
     await expect(
       page.getByRole("radio", { name: "Get help choosing a product" }),
     ).toHaveCount(0);
-    await expect(
-      page.getByRole("radio", { name: "By vehicle" }),
-    ).toBeVisible();
+    await expect(page.getByRole("radio", { name: "By vehicle" })).toBeVisible();
     await page.getByRole("radio", { name: "By vehicle" }).check();
     const help = page.locator(".parts-finder-unavailable a");
     await expect(help).toHaveAttribute("href", /part_search=DEMO/);
@@ -157,9 +155,7 @@ for (const width of [390, 1440]) {
     await expect(
       page.getByRole("heading", { name: "No verified match for these details" }),
     ).toBeVisible();
-    await page
-      .getByRole("radio", { name: "By product", exact: true })
-      .check();
+    await page.getByRole("radio", { name: "By product", exact: true }).check();
     await expect(page).not.toHaveURL(/vehicleModelId=/);
     await expect(page).toHaveURL(/search=DEMO/);
     await page.goBack();

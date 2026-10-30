@@ -104,9 +104,7 @@ for (const width of [390, 1440]) {
       "href",
       /\/contact\?/,
     );
-    await page
-      .getByRole("radio", { name: "By product", exact: true })
-      .check();
+    await page.getByRole("radio", { name: "By product", exact: true }).check();
     await expect(page.locator(".parts-finder-region")).not.toBeVisible();
     const panel = page.locator("#product-filter-panel");
     if (width < 1024) await page.locator(".product-filter-trigger").click();
