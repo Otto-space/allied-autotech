@@ -339,8 +339,12 @@ test("Guide mobile controls, responsive transition, pause/resume, completion, ha
   await g.getByRole("button", { name: "Restart guide" }).click();
   await expect(g).toContainText("1 of 2");
   await page.evaluate(() => {
+    // A search commit and an anchor navigation can share one browser task.
+    // The later anchor must win over the router's queued history update.
+    history.pushState(null, "", "/parts?search=oil#learn=parts-find");
     location.hash = "other";
   });
+  await expect(page).toHaveURL(/#other$/);
   await expect(g).toHaveCount(0);
   await page.goto("/parts#learn=parts-find");
   await expect(g).toBeVisible();

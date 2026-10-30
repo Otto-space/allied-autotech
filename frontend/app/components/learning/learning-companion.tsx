@@ -74,7 +74,23 @@ export function LearningCompanion() {
         setGuide(id);
       }
     }
-    function hash() {
+    function hash(event?: Event) {
+      if (event instanceof HashChangeEvent) {
+        // A queued catalogue history update can restore an older fragment before
+        // this event runs. Keep the browser's later anchor navigation authoritative
+        // and synchronize it with the router without adding another history entry.
+        const destination = new URL(event.newURL);
+        if (
+          destination.origin !== location.origin ||
+          destination.pathname !== location.pathname
+        )
+          return;
+        history.replaceState(
+          null,
+          "",
+          location.pathname + location.search + destination.hash,
+        );
+      }
       const match = /^#learn=([a-z][a-z0-9-]{0,63})$/.exec(location.hash);
       if (match) {
         hashGuide.current = location.pathname;
