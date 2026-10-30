@@ -56,7 +56,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
                     answer: "A name match does not confirm compatibility.",
                     steps: ["Read the available compatibility evidence."],
                     caveat: null,
-                    sourceIds: ["parts-fitment@v2"],
+                    sourceIds: ["parts-fitment@v3"],
                     actionIds: ["read:parts-fitment"],
                   }),
                 },
