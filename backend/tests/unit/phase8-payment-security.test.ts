@@ -111,6 +111,7 @@ describe("Phase 8 payment security contracts", () => {
       JSON.stringify({
         event: "charge.success",
         data: {
+          domain: "test",
           id: 42,
           reference: "AAT-ref",
           status: "success",
@@ -197,6 +198,7 @@ describe("Phase 8 payment security contracts", () => {
         JSON.stringify({
           event: "charge.success",
           data: {
+            domain: "test",
             id: 8,
             reference: "minimal",
             status: "success",

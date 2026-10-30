@@ -152,3 +152,24 @@ describe("Separate unsent catalogue drafts", () => {
     );
   });
 });
+
+it("keeps service group enquiry identity without accepting client-supplied names or redirects", () => {
+  const id = "de000000-0000-4000-8000-000000000100";
+  const context = catalogueEnquiryContext(
+    new URLSearchParams({
+      serviceGroup: id,
+      name: "Unverified name",
+      redirect: "https://example.test",
+    }),
+  );
+  expect(context.href).toBe("/contact?serviceGroup=" + id + "#enquiry");
+  expect(context.contextKey).toBe("serviceGroup=" + id);
+  expect(catalogueEnquiryContext(new URLSearchParams("serviceGroup=bad")).href).toBe(
+    "/contact?serviceGroup=invalid#enquiry",
+  );
+  expect(
+    catalogueEnquiryContext(
+      new URLSearchParams("serviceGroup=" + id + "&serviceGroup=" + id),
+    ).href,
+  ).toBe("/contact?serviceGroup=invalid#enquiry");
+});

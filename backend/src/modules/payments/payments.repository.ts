@@ -48,6 +48,22 @@ export const paymentSelect = {
   },
 } satisfies Prisma.PaymentSelect;
 
+// Only existence is needed by customers; internal observation details stay private.
+const customerPaymentSelect = {
+  ...paymentSelect,
+  anomalies: {
+    where: { details: { path: ["observed", "status"], equals: "reversed" } },
+    select: { id: true },
+    take: 1,
+  },
+} satisfies Prisma.PaymentSelect;
+export function customerPaymentView(
+  record: Prisma.PaymentGetPayload<{ select: typeof customerPaymentSelect }>,
+) {
+  const { anomalies = [], ...payment } = record;
+  return { ...payment, reversalReported: anomalies.length > 0 };
+}
+
 // Staff-only fields must not expand the shared customer payment projection.
 export const staffPaymentSelect = {
   ...paymentSelect,
@@ -169,7 +185,10 @@ export class PaymentsRepository {
     });
   }
   owned(id: string, customerId: string, client: DatabaseClient = this.database) {
-    return client.payment.findFirst({ where: { id, customerId }, select: paymentSelect });
+    return client.payment.findFirst({
+      where: { id, customerId },
+      select: customerPaymentSelect,
+    });
   }
   staffGet(id: string, client: DatabaseClient = this.database) {
     return client.payment.findUnique({ where: { id }, select: staffPaymentSelect });
@@ -183,7 +202,7 @@ export class PaymentsRepository {
           ? { vehicleTransactionId: query.vehicleTransactionId }
           : {}),
       },
-      select: paymentSelect,
+      select: customerPaymentSelect,
       orderBy: [{ createdAt: "desc" }, { id: "desc" }],
       take: query.limit + 1,
       ...(query.cursor ? { cursor: { id: query.cursor }, skip: 1 } : {}),

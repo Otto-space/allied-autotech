@@ -45,6 +45,7 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
   const policy = useResource("/public/booking-policy", parseBookingPolicy);
   const [showSlots, setShowSlots] = useState(false);
   const [slot, setSlot] = useState("");
+  const [preferredTime, setPreferredTime] = useState("");
   const [slotTrail, setSlotTrail] = useState<string[]>([]);
   const [reason, setReason] = useState("");
   const [reasonError, setReasonError] = useState<string>();
@@ -56,6 +57,7 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
     setProposal(null);
     setShowSlots(false);
     setSlot("");
+    setPreferredTime("");
     setSlotTrail([]);
     setReason("");
     setReasonError(undefined);
@@ -85,7 +87,6 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
   const hasDeposit = !!current?.depositPayment && !!current.depositPaidAt;
   const canReschedule =
     current?.status === "CONFIRMED" &&
-    !!current.bookingSlotId &&
     !!current.branch &&
     !!verifiedPolicy &&
     current.customerRescheduleCount < verifiedPolicy.customerRescheduleLimit &&
@@ -93,10 +94,10 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
     Date.parse(current.scheduledAt) - now >
       verifiedPolicy.customerRescheduleCutoffHours * 3600000;
   const canChooseSlot =
-    !!current?.branch && !!current.bookingSlotId && (disruption || canReschedule);
+    !!current?.branch && ((!!current.bookingSlotId && disruption) || canReschedule);
   const slotCursor = slotTrail.at(-1);
   const slots = useResource(
-    showSlots && canChooseSlot && current
+    showSlots && canChooseSlot && current?.service
       ? `/public/services/${current.service.id}/slots?branchId=${current.branch!.id}&limit=50${slotCursor ? `&cursor=${encodeURIComponent(slotCursor)}` : ""}`
       : null,
     parseSlots,
@@ -106,22 +107,30 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
       ? (slots.data?.items.filter(
           (item) =>
             item.id !== current?.bookingSlotId &&
-            item.serviceId === current?.service.id &&
+            item.serviceId === current?.service?.id &&
             item.branchId === current?.branch?.id &&
             Date.parse(item.startsAt) > now,
         ) ?? [])
       : [];
   const selectedSlot = alternatives.find((item) => item.id === slot);
+  const preferredDate = preferredTime ? new Date(`${preferredTime}:00+01:00`) : null;
+  const preferredAt =
+    !disruption && preferredDate && Number.isFinite(preferredDate.getTime())
+      ? preferredDate.toISOString()
+      : null;
+  const replacementAt = selectedSlot?.startsAt ?? preferredAt;
   const disabled = !fresh || mutation.busy || !!proposal;
   function refresh() {
     setProposal(null);
     setSlot("");
+    setPreferredTime("");
     setRequiredRevision(booking.settledRevision ?? 0);
     booking.refresh();
   }
   function toggleSlots() {
     setShowSlots((value) => !value);
     setSlot("");
+    setPreferredTime("");
     setSlotTrail([]);
   }
   function ask(value: Decision) {
@@ -135,7 +144,7 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
       title: value.title,
       description: value.description,
       facts: [
-        { label: "Service", value: current.service.name },
+        { label: "Service", value: current.service?.name ?? "Vehicle concern" },
         { label: "Vehicle", value: vehicleName(current) },
         ...value.facts,
       ],
@@ -187,7 +196,7 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
     }
   }
   function reviewQuote(quote: BookingQuote, action: "accept" | "reject") {
-    if (!quoteOpen(quote, Date.now())) return;
+    if (!quoteOpen(quote, now)) return;
     ask({
       title: `${action === "accept" ? "Accept" : "Reject"} this quotation?`,
       description: "Review the quotation total before confirming.",
@@ -216,7 +225,7 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
           </li>
           <li>
             <ChevronRight size={14} aria-hidden="true" />
-            <span aria-current="page">{current?.service.name ?? "Booking details"}</span>
+            <span aria-current="page">{current?.service?.name ?? "Booking details"}</span>
           </li>
         </ol>
       </nav>
@@ -277,6 +286,69 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
           </div>
           <section className="booking-changes" aria-labelledby="booking-changes-title">
             <h2 id="booking-changes-title">Appointment changes</h2>
+            {current.alternativeStartsAt &&
+              ["REQUESTED", "CONFIRMED"].includes(current.status) && (
+                <section
+                  className="booking-detail-notice"
+                  aria-labelledby="customer-alternative-title"
+                >
+                  <h3 id="customer-alternative-title">
+                    The workshop proposed another time
+                  </h3>
+                  <p>{formatBusinessDate(current.alternativeStartsAt)}</p>
+                  <p>{current.alternativeReason}</p>
+                  <p>
+                    Your existing appointment is unchanged. Accepting requests this time
+                    for staff confirmation; it does not reserve capacity, charge a fee or
+                    use your reschedule allowance.
+                  </p>
+                  {current.alternativeVersion !== current.version ? (
+                    <p>
+                      This proposal is out of date. Ask the workshop for an updated
+                      suggestion.
+                    </p>
+                  ) : (
+                    <div className="actions">
+                      {(["ACCEPT", "DECLINE"] as const).map((decision) => (
+                        <button
+                          key={decision}
+                          className="button secondary"
+                          disabled={disabled}
+                          onClick={() =>
+                            ask({
+                              title:
+                                decision === "ACCEPT"
+                                  ? "Request the proposed time?"
+                                  : "Decline the proposed time?",
+                              description:
+                                decision === "ACCEPT"
+                                  ? "Your booking will await staff confirmation at the proposed time. This is not a confirmed appointment and does not use your customer reschedule allowance."
+                                  : "Your current appointment time and status will stay unchanged.",
+                              path: `${path}/alternative-response`,
+                              method: "POST",
+                              body: { decision, expectedVersion: current.version },
+                              facts: [
+                                {
+                                  label: "Proposed time",
+                                  value: formatBusinessDate(current.alternativeStartsAt!),
+                                },
+                                {
+                                  label: "Workshop reason",
+                                  value: current.alternativeReason ?? "Not recorded",
+                                },
+                              ],
+                            })
+                          }
+                        >
+                          {decision === "ACCEPT"
+                            ? "Review proposed time"
+                            : "Decline proposed time"}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </section>
+              )}
             {policy.loading && <p role="status">Checking booking terms...</p>}
             {(policy.error || policy.refreshError) && (
               <div className="booking-detail-warning">
@@ -388,6 +460,7 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
                     className="button secondary"
                     onClick={() => {
                       setSlot("");
+                      setPreferredTime("");
                       slots.refresh();
                     }}
                   >
@@ -403,7 +476,10 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
                       className="booking-slot"
                       disabled={disabled}
                       aria-pressed={slot === item.id}
-                      onClick={() => setSlot(item.id)}
+                      onClick={() => {
+                        setSlot(item.id);
+                        setPreferredTime("");
+                      }}
                       key={item.id}
                     >
                       {formatBusinessDate(item.startsAt)}
@@ -415,9 +491,31 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
                   !slots.refreshError &&
                   !alternatives.length && (
                     <p>
-                      No alternative slots on this page. Contact customer care for help.
+                      No alternative slots on this page. You can request a preferred time
+                      below, or contact customer care for help.
                     </p>
                   )}
+                {!disruption && (
+                  <div className="field">
+                    <label htmlFor="reschedule-preferred">
+                      Or request a preferred time (Lagos time)
+                    </label>
+                    <input
+                      id="reschedule-preferred"
+                      type="datetime-local"
+                      value={preferredTime}
+                      disabled={disabled}
+                      onChange={(event) => {
+                        setPreferredTime(event.target.value);
+                        setSlot("");
+                      }}
+                    />
+                    <p>
+                      This uses your permitted reschedule and returns the booking to
+                      workshop review. Availability is not confirmed.
+                    </p>
+                  </div>
+                )}
                 <div className="actions">
                   {!!slotTrail.length && (
                     <button
@@ -426,6 +524,7 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
                       onClick={() => {
                         setSlotTrail((value) => value.slice(0, -1));
                         setSlot("");
+                        setPreferredTime("");
                       }}
                     >
                       Previous slots
@@ -438,6 +537,7 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
                       onClick={() => {
                         setSlotTrail((value) => [...value, slots.data!.nextCursor!]);
                         setSlot("");
+                        setPreferredTime("");
                       }}
                     >
                       More slots
@@ -445,16 +545,19 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
                   )}
                   <button
                     className="button"
-                    disabled={disabled || !selectedSlot}
+                    disabled={disabled || !replacementAt}
                     onClick={() => {
-                      if (!selectedSlot) return;
+                      if (!replacementAt) return;
                       ask({
                         title: "Request the new appointment time?",
-                        description: "A replacement slot needs workshop confirmation.",
+                        description:
+                          "The new requested time needs workshop confirmation.",
                         path: `${path}/${disruption ? "disruption-resolution" : "schedule"}`,
                         method: disruption ? "POST" : "PATCH",
                         body: {
-                          slotId: selectedSlot.id,
+                          ...(selectedSlot
+                            ? { slotId: selectedSlot.id }
+                            : { preferredAt }),
                           expectedVersion: current.version,
                           ...(disruption ? { resolution: "TRANSFER" } : {}),
                         },
@@ -466,7 +569,7 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
                           },
                           {
                             label: "New appointment",
-                            value: formatBusinessDate(selectedSlot.startsAt),
+                            value: formatBusinessDate(replacementAt),
                           },
                           { label: "Workshop", value: current.branch!.name },
                         ],
@@ -568,6 +671,7 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
             );
             setShowSlots(false);
             setSlot("");
+            setPreferredTime("");
             setReason("");
           }}
         />

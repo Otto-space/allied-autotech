@@ -99,7 +99,7 @@ export function projectWorkforcePayment<T extends FinanceRecord>(
       sources.push({ kind, reference, branch: sourceBranch });
   };
   if (order) add("ORDER", order.orderNumber, order.branch);
-  if (booking) add("BOOKING", booking.service.name, booking.branch);
+  if (booking) add("BOOKING", booking.service?.name ?? "Vehicle concern", booking.branch);
   if (invoice) {
     add("INVOICE", invoice.invoiceNumber, invoice.order?.branch);
     add("INVOICE", invoice.invoiceNumber, invoice.booking?.branch);

@@ -126,9 +126,10 @@ describe("database migration command protection", () => {
 });
 
 describe("forward migration history and SQL review gates", () => {
-  it("accepts only the exact reviewed catalogue backfills and rejects changed or renamed SQL", () => {
+  it("accepts only exact reviewed migrations and rejects changed or renamed SQL", () => {
     const migrations = localMigrations();
     for (const name of [
+      "20261030190000_booking_concern_intake",
       "20261025132000_catalogue_word_search",
       "20261025133000_catalogue_brand_options",
       "20261025134000_preserve_alphabetic_search_codes",
@@ -143,7 +144,7 @@ describe("forward migration history and SQL review gates", () => {
         ),
       ).toThrow("changed");
       expect(() =>
-        assertNonDestructiveMigration(sql.replace("'10s'", "'11s'"), name),
+        assertNonDestructiveMigration(sql + "\n-- changed review bytes", name),
       ).toThrow("changed");
     }
   });

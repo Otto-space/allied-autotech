@@ -1,6 +1,13 @@
 "use client";
 import Link from "next/link";
-import { useCallback, useState } from "react";
+import { createPortal } from "react-dom";
+import { GarageDialog } from "./garage-dialog";
+import { ProfileForm } from "./profile-panel";
+import "../dashboard/profile/profile.css";
+import "./booking-account-details.css";
+import { GarageVehicleEditor } from "./garage-vehicle-editor";
+import "../dashboard/vehicles/garage.css";
+import { useCallback, useState, type MouseEvent } from "react";
 import { z } from "zod";
 import { apiRequest, ApiError } from "@/lib/api/client";
 import { useAccountMutation } from "@/lib/api/use-account-mutation";
@@ -27,12 +34,18 @@ export function BookingAccountDetails({
   vehicle,
   onVehicleChange,
   disabled,
+  onSignIn,
 }: {
   serviceId: string;
   vehicle: CustomerVehicle | null;
   onVehicleChange: (vehicle: CustomerVehicle | null) => void;
   disabled: boolean;
+  onSignIn?: (event: MouseEvent<HTMLAnchorElement>) => void;
 }) {
+  const [editingContact, setEditingContact] = useState(false);
+  const [contactBusy, setContactBusy] = useState(false);
+  const [addingVehicle, setAddingVehicle] = useState(false);
+  const [vehicleSaveUncertain, setVehicleSaveUncertain] = useState(false);
   const [profile, setProfile] = useState<ReturnType<typeof parseProfile>>();
   const [vehicles, setVehicles] = useState<ReturnType<typeof parseCustomerVehicles>>();
   const [cursor, setCursor] = useState<string>();
@@ -40,6 +53,10 @@ export function BookingAccountDetails({
   const [vehicleError, setVehicleError] = useState<string>();
   const [anonymous, setAnonymous] = useState(false);
   const reset = useCallback(() => {
+    setEditingContact(false);
+    setContactBusy(false);
+    setAddingVehicle(false);
+    setVehicleSaveUncertain(false);
     setProfile(undefined);
     setVehicles(undefined);
     setCursor(undefined);
@@ -50,7 +67,7 @@ export function BookingAccountDetails({
   }, [onVehicleChange]);
   const operation = useAccountMutation(reset);
   async function load(nextCursor?: string) {
-    if (disabled) return;
+    if (disabled || addingVehicle) return;
     const controller = operation.begin();
     if (!controller) return;
     setError(undefined);
@@ -90,6 +107,7 @@ export function BookingAccountDetails({
       }
       if (saved.status === "fulfilled") {
         setVehicles(saved.value);
+        setVehicleSaveUncertain(false);
         setCursor(nextCursor);
       } else {
         setVehicles(undefined);
@@ -100,6 +118,40 @@ export function BookingAccountDetails({
       reset();
       if (failure instanceof ApiError && failure.status === 401) setAnonymous(true);
       else setError(readError(failure));
+    } finally {
+      operation.finish(controller);
+    }
+  }
+  async function openEditor(kind: "vehicle" | "contact") {
+    if (
+      disabled ||
+      addingVehicle ||
+      editingContact ||
+      (kind === "vehicle" && vehicleSaveUncertain) ||
+      !profile
+    )
+      return;
+    const controller = operation.begin();
+    if (!controller) return;
+    setError(undefined);
+    try {
+      const response = await apiRequest("/auth/session", {
+        optionalSession: true,
+        signal: controller.signal,
+      });
+      const identity = identitySchema.parse(response.data);
+      if (controller.signal.aborted) return;
+      if (identity.user.role !== "CUSTOMER" || identity.user.id !== profile.user.id) {
+        reset();
+        setError(
+          "Your account changed. Load your details again before editing your account details.",
+        );
+        return;
+      }
+      if (kind === "vehicle") setAddingVehicle(true);
+      else setEditingContact(true);
+    } catch (failure) {
+      if (!controller.signal.aborted) setError(readError(failure));
     } finally {
       operation.finish(controller);
     }
@@ -130,6 +182,7 @@ export function BookingAccountDetails({
           <Link
             className="text-link"
             href={`/login?next=${encodeURIComponent(`/services/${serviceId}`)}`}
+            onClick={onSignIn}
           >
             Sign in to your account
           </Link>
@@ -147,6 +200,14 @@ export function BookingAccountDetails({
             <dt>Phone</dt>
             <dd>{profile.phone}</dd>
           </dl>
+          <button
+            type="button"
+            className="button secondary"
+            disabled={disabled || operation.busy || editingContact}
+            onClick={() => void openEditor("contact")}
+          >
+            Edit contact details
+          </button>
           <Link
             className="text-link"
             href="/dashboard/profile"
@@ -239,6 +300,72 @@ export function BookingAccountDetails({
           </div>
         </>
       )}
+      {profile && (
+        <button
+          type="button"
+          className="button secondary"
+          disabled={disabled || operation.busy || addingVehicle || vehicleSaveUncertain}
+          onClick={() => void openEditor("vehicle")}
+        >
+          Add a vehicle for this booking
+        </button>
+      )}
+      {vehicleSaveUncertain && (
+        <p role="status">
+          The vehicle save could not be confirmed. Refresh your saved vehicles before
+          adding another.
+        </p>
+      )}
+      {editingContact &&
+        profile &&
+        createPortal(
+          <div
+            className="booking-account-editor"
+            onSubmit={(event) => event.stopPropagation()}
+          >
+            <GarageDialog
+              title="Edit booking contact details"
+              closeLabel="Close contact details"
+              busy={contactBusy}
+              onClose={() => {
+                if (!contactBusy) setEditingContact(false);
+              }}
+            >
+              <div className="garage-dialog-body customer-profile">
+                <p>
+                  Saving updates your customer account contact details. It does not submit
+                  your booking.
+                </p>
+                <ProfileForm
+                  profile={profile}
+                  disabled={disabled}
+                  onBusyChange={setContactBusy}
+                  refresh={() => void load()}
+                />
+              </div>
+            </GarageDialog>
+          </div>,
+          document.body,
+        )}
+      {addingVehicle &&
+        createPortal(
+          <div
+            className="booking-account-editor"
+            onSubmit={(event) => event.stopPropagation()}
+          >
+            <GarageVehicleEditor
+              vehicle={null}
+              onClose={() => setAddingVehicle(false)}
+              onUncertain={() => setVehicleSaveUncertain(true)}
+              onSaved={(saved) => {
+                setAddingVehicle(false);
+                setVehicleSaveUncertain(false);
+                onVehicleChange(saved);
+              }}
+            />
+          </div>,
+          document.body,
+        )}
       {vehicle && (
         <p>
           Selected vehicle: <strong>{vehicleLabel(vehicle)}</strong>

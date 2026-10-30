@@ -424,3 +424,16 @@ test("short mobile keyboard controls and filtered empty state are accessible", a
   await expect(filter).toBeFocused();
   await expect(page.locator(".paylist-table tbody tr")).toHaveCount(4);
 });
+
+test("payment history preserves the captured amount but flags a reported reversal", async ({
+  page,
+}) => {
+  const state = await paymentsFixture(page);
+  state.records[3].reversalReported = true;
+  await page.goto("/dashboard/payments");
+  const row = page.locator(".paylist-table tbody tr").nth(3);
+  await expect(row).toContainText("Reversal reported");
+  await expect(row).toContainText("Originally confirmed amount");
+  await expect(row).toContainText("Do not pay again");
+  expect(state.writes).toEqual([]);
+});

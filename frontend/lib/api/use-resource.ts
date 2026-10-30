@@ -18,9 +18,12 @@ export function useResource<T>(
   initialData?: T,
   options?: { initialError?: string; revalidateOnMount?: boolean; refreshKey?: number },
 ) {
-  const skipInitialFetch = useRef(
-    options?.revalidateOnMount === false && initialData !== undefined,
-  );
+  const initialSeed = useRef({
+    skip: options?.revalidateOnMount === false && initialData !== undefined,
+    path,
+    parse,
+    refreshKey: options?.refreshKey,
+  });
   const [state, setState] = useState<ResourceState<T> | null>(() =>
     path && initialData !== undefined
       ? { path, data: initialData, status: "ready", revision: 0 }
@@ -39,13 +42,25 @@ export function useResource<T>(
     setRevision((value) => value + 1);
   }, []);
   useEffect(() => {
-    if (!path) return;
+    if (!path) {
+      initialSeed.current.skip = false;
+      return;
+    }
     const controller = new AbortController();
     let active = true;
-    const shouldFetch = !skipInitialFetch.current;
+    // Effect replay must not consume the server seed. Only a changed resource
+    // identity or an explicit invalidation starts client fetching.
+    const seed = initialSeed.current;
+    const shouldFetch = !(
+      seed.skip &&
+      revision === 0 &&
+      path === seed.path &&
+      parse === seed.parse &&
+      options?.refreshKey === seed.refreshKey
+    );
+    if (shouldFetch) seed.skip = false;
     const background = backgroundRefresh.current;
     backgroundRefresh.current = false;
-    skipInitialFetch.current = false;
     if (shouldFetch) {
       queueMicrotask(() => {
         if (active)
@@ -100,6 +115,7 @@ export function useResource<T>(
         });
     }
     function discard() {
+      initialSeed.current.skip = false;
       active = false;
       controller.abort();
       setState(null);

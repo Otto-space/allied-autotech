@@ -1,4 +1,8 @@
 ﻿"use client";
+import {
+  bookingSignInDestination,
+  clearBookingSignInDraft,
+} from "@/lib/forms/booking-sign-in-draft";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
@@ -103,7 +107,7 @@ export function MfaForm({
   function finished(token: string, newCodes?: string[]) {
     ownRotation.current = true;
     try {
-      announceSessionChange();
+      announceSessionChange("sign-in");
       setCsrfToken(token);
     } finally {
       ownRotation.current = false;
@@ -137,8 +141,11 @@ export function MfaForm({
         return;
       }
       setCodes(undefined);
+      if (fresh.user.role !== "CUSTOMER") clearBookingSignInDraft();
       router.replace(
-        fresh.user.role === "CUSTOMER" ? "/dashboard/security" : "/admin/security",
+        fresh.user.role === "CUSTOMER"
+          ? (bookingSignInDestination() ?? "/dashboard/security")
+          : "/admin/security",
       );
     } catch (value) {
       if (!controller.signal.aborted)

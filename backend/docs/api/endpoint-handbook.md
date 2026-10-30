@@ -28,10 +28,10 @@ List routes use bounded cursor pagination. Pass the returned `nextCursor` as `cu
 ### Branches, services, published slots and booking requests
 
 1. Read public branches, services, published slots and the current booking policy.
-2. Submit the slot, current policy version and an idempotency key. New bookings are REQUESTED with no booking deposit.
+2. Submit either slotId or serviceId, branchId and preferredAt (an ISO timestamp with timezone), plus the current policy version and an idempotency key. Never combine the two scheduling sources. Preferred requests use an active service and branch without inventing a slot, staff assignment or quotation price. New bookings are REQUESTED with no booking deposit; the existing advance window applies.
 3. Staff with BOOKING_CONFIRM records resource review; the server enforces approved branch capacity/calendar and overlaps before confirmation.
 4. One transactional email reminder is enqueued one hour before the appointment. Confirmation less than one hour ahead uses an immediate reminder fallback. GET links only render a screen; the signed POST confirms attendance or cancels free.
-5. Rescheduling invalidates earlier links/reminders and returns the appointment to staff review. No response never auto-cancels or incurs a fee. Historical deposit records remain protected.
+5. Rescheduling accepts either an offered slotId or a preferredAt timestamp, including for an original booking without a slot. The current one-change limit and cutoff apply. Rescheduling invalidates earlier links/reminders and returns the appointment to staff review. No response never auto-cancels or incurs a fee. Historical deposit records remain protected.
 
 ### Orders, invoices, vehicles and payments
 
@@ -1456,6 +1456,7 @@ Success: HTTP 200.
       {
         "categoryId": "00000000-0000-4000-8000-000000000001",
         "category": {
+          "description": "synthetic-description",
           "id": "00000000-0000-4000-8000-000000000001",
           "name": "synthetic-name",
           "slug": "synthetic-slug"
@@ -1518,6 +1519,7 @@ Success: HTTP 200.
   "data": {
     "categoryId": "00000000-0000-4000-8000-000000000001",
     "category": {
+      "description": "synthetic-description",
       "id": "00000000-0000-4000-8000-000000000001",
       "name": "synthetic-name",
       "slug": "synthetic-slug"
@@ -1654,6 +1656,7 @@ Success: HTTP 200.
       {
         "categoryId": "00000000-0000-4000-8000-000000000001",
         "category": {
+          "description": "synthetic-description",
           "id": "00000000-0000-4000-8000-000000000001",
           "name": "synthetic-name",
           "slug": "synthetic-slug"
@@ -1696,7 +1699,7 @@ Relevant errors: 400 The request is malformed.; 422 One or more request fields a
 ### GET `/public/services/categories`
 
 - Operation ID: `getPublicServicesCategories`
-- Purpose: Literal case-insensitive name-prefix search, ascending name/ID order, signed filter-bound cursor. Public options include only active categories with an active service (limit 1–50). Administrator list includes inactive and empty categories and supports isActive (limit 1–100). List active service category options. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Literal case-insensitive name-prefix search, ascending name/ID order, signed filter-bound cursor. Public options include active categories even without individual services, with their maintained descriptions (limit 1–50). Administrator list includes inactive and empty categories and supports isActive (limit 1–100). List active service category options. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: PUBLIC
 - Authentication: None
 - CSRF: Not required
@@ -1719,6 +1722,7 @@ Success: HTTP 200.
   "data": {
     "items": [
       {
+        "description": "synthetic-description",
         "id": "00000000-0000-4000-8000-000000000001",
         "name": "synthetic-name",
         "slug": "synthetic-slug"
@@ -1737,7 +1741,7 @@ Relevant errors: 400 The request is malformed.; 422 One or more request fields a
 ### GET `/public/services/categories/{categoryId}`
 
 - Operation ID: `getPublicServicesCategoriesByCategoryId`
-- Purpose: Get an active category backed by an active service. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Get an active service group, including groups awaiting individual services. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: PUBLIC
 - Authentication: None
 - CSRF: Not required
@@ -1754,8 +1758,9 @@ Success: HTTP 200.
 ```json
 {
   "success": true,
-  "message": "Get an active category backed by an active service",
+  "message": "Get an active service group, including groups awaiting individual services",
   "data": {
+    "description": "synthetic-description",
     "id": "00000000-0000-4000-8000-000000000001",
     "name": "synthetic-name",
     "slug": "synthetic-slug"
@@ -1766,7 +1771,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 404 Inactive, empty or unknown category; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+Relevant errors: 400 The request is malformed.; 404 Inactive or unknown category; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/public/vehicles/discovery`
 
@@ -4832,7 +4837,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### POST `/customers/bookings`
 
 - Operation ID: `postCustomersBookings`
-- Purpose: Request a booking. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
+- Purpose: Accept an offered slot, or a preferred branch/time with either a published service or a customerConcern of 10–2000 characters. Concern requests retain null service and price until staff classification. All requests require staff confirmation. Request a booking. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
 - Roles: CUSTOMER
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -4849,7 +4854,11 @@ JSON request fields:
 
 | Field | Type | Required | Purpose |
 | --- | --- | --- | --- |
-| `slotId` | string (uuid) | Yes | Identifier of the slot resource; ownership is resolved server-side. |
+| `slotId` | string (uuid) | No | Identifier of the slot resource; ownership is resolved server-side. |
+| `serviceId` | string (uuid) | No | Identifier of the service resource; ownership is resolved server-side. |
+| `customerConcern` | string | No | Customer Concern validated by this operation's strict request contract. |
+| `branchId` | string (uuid) | No | Identifier of the branch resource; ownership is resolved server-side. |
+| `preferredAt` | string (date-time) | No | ISO 8601 timestamp interpreted and validated by the server. |
 | `vehicleId` | string (uuid) | No | Identifier of the vehicle resource; ownership is resolved server-side. |
 | `customerNotes` | string / null | No | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
 | `policyVersion` | string | Yes | Policy Version validated by this operation's strict request contract. |
@@ -4859,11 +4868,7 @@ Synthetic request example:
 
 ```json
 {
-  "slotId": "00000000-0000-4000-8000-000000000001",
-  "vehicleId": "00000000-0000-4000-8000-000000000001",
-  "customerNotes": "synthetic-customernotes",
-  "policyVersion": "synthetic-policyversion",
-  "acceptNonRefundableDeposit": true
+  "policyVersion": "synthetic-policyversion"
 }
 ```
 
@@ -4921,7 +4926,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### PATCH `/customers/bookings/{bookingId}/schedule`
 
 - Operation ID: `patchCustomersBookingsByBookingIdSchedule`
-- Purpose: Reschedule a confirmed deposit-backed booking once. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
+- Purpose: Request one permitted reschedule of a confirmed booking. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
 - Roles: CUSTOMER
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -4939,7 +4944,8 @@ JSON request fields:
 
 | Field | Type | Required | Purpose |
 | --- | --- | --- | --- |
-| `slotId` | string (uuid) | Yes | Identifier of the slot resource; ownership is resolved server-side. |
+| `slotId` | string (uuid) | No | Identifier of the slot resource; ownership is resolved server-side. |
+| `preferredAt` | string (date-time) | No | ISO 8601 timestamp interpreted and validated by the server. |
 | `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
 
 Synthetic request example:
@@ -4947,6 +4953,7 @@ Synthetic request example:
 ```json
 {
   "slotId": "00000000-0000-4000-8000-000000000001",
+  "preferredAt": "2030-01-15T10:00:00.000Z",
   "expectedVersion": 0
 }
 ```
@@ -4956,7 +4963,7 @@ Success: HTTP 200.
 ```json
 {
   "success": true,
-  "message": "Reschedule a confirmed deposit-backed booking once",
+  "message": "Request one permitted reschedule of a confirmed booking",
   "data": {
     "id": "00000000-0000-4000-8000-000000000001",
     "status": "synthetic-status"
@@ -5105,6 +5112,56 @@ Success: HTTP 200.
 {
   "success": true,
   "message": "Reject an issued quote",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "status": "synthetic-status"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### POST `/customers/bookings/{bookingId}/alternative-response`
+
+- Operation ID: `postCustomersBookingsByBookingIdAlternativeResponse`
+- Purpose: Accept or decline the current version-bound alternative; acceptance requests staff confirmation without consuming customer reschedule allowance. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: CUSTOMER
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `bookingId` | path | string (uuid) | Yes | Identifier selecting the booking resource. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `decision` | ACCEPT / DECLINE | Yes | Decision validated by this operation's strict request contract. |
+| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+
+Synthetic request example:
+
+```json
+{
+  "decision": "ACCEPT",
+  "expectedVersion": 0
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Accept or decline the current version-bound alternative; acceptance requests staff confirmation without consuming customer reschedule allowance",
   "data": {
     "id": "00000000-0000-4000-8000-000000000001",
     "status": "synthetic-status"
@@ -6110,7 +6167,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### GET `/customers/payments`
 
 - Operation ID: `getCustomersPayments`
-- Purpose: Requires the customer account that owns the payment; server verification remains authoritative. Optional vehicleTransactionId filters within the authenticated customer's payments before pagination. A cursor for another customer, target or selected status is rejected. An empty result does not reveal whether a different customer owns the target. List own payments, optionally for one vehicle purchase. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Requires the customer account that owns the payment; server verification remains authoritative. Customer reads include reversalReported, a boolean indicating a recorded provider reversal observation. Original payment status and capture amounts remain historical facts; internal anomaly identifiers and details are never returned. A reversal report is not proof of a completed refund or permission to repay. Optional vehicleTransactionId filters within the authenticated customer's payments before pagination. A cursor for another customer, target or selected status is rejected. An empty result does not reveal whether a different customer owns the target. List own payments, optionally for one vehicle purchase. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: CUSTOMER
 - Authentication: Opaque session cookie
 - CSRF: Not required
@@ -6195,7 +6252,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### GET `/customers/payments/{paymentId}`
 
 - Operation ID: `getCustomersPaymentsByPaymentId`
-- Purpose: Requires the customer account that owns the payment; server verification remains authoritative. The private no-store detail response includes checkoutProviders, containing only currently enabled online provider names. An empty array means online checkout is unavailable. This is configuration availability, not authorization to charge; initialization independently validates the current payable and competing attempts. No provider credentials or internal configuration are exposed. Get an owned payment. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Requires the customer account that owns the payment; server verification remains authoritative. Customer reads include reversalReported, a boolean indicating a recorded provider reversal observation. Original payment status and capture amounts remain historical facts; internal anomaly identifiers and details are never returned. A reversal report is not proof of a completed refund or permission to repay. The private no-store detail response includes checkoutProviders, containing only currently enabled online provider names. An empty array means online checkout is unavailable. This is configuration availability, not authorization to charge; initialization independently validates the current payable and competing attempts. No provider credentials or internal configuration are exposed. Get an owned payment. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: CUSTOMER
 - Authentication: Opaque session cookie
 - CSRF: Not required
@@ -9486,10 +9543,62 @@ Success: HTTP 200.
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
+### POST `/staff/bookings/{bookingId}/alternative`
+
+- Operation ID: `postStaffBookingsByBookingIdAlternative`
+- Purpose: Branch-authorized workshop operations. Deposit payment records are omitted entirely for STAFF, including operational mutation responses. Booking policy snapshots and scheduling/payment clearance states remain available. Inactive staff branches are denied. Propose a different time without changing the appointment; requires booking confirmation authority. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `bookingId` | path | string (uuid) | Yes | Identifier selecting the booking resource. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `preferredAt` | string (date-time) | Yes | ISO 8601 timestamp interpreted and validated by the server. |
+| `reason` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+
+Synthetic request example:
+
+```json
+{
+  "preferredAt": "2030-01-15T10:00:00.000Z",
+  "reason": "synthetic-reason",
+  "expectedVersion": 0
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Propose a different time without changing the appointment; requires booking confirmation authority",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "status": "synthetic-status"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
 ### PATCH `/staff/bookings/{bookingId}/assignment`
 
 - Operation ID: `patchStaffBookingsByBookingIdAssignment`
-- Purpose: Branch-authorized workshop operations. Deposit payment records are omitted entirely for STAFF, including operational mutation responses. Booking policy snapshots and scheduling/payment clearance states remain available. Inactive staff branches are denied. Assign available branch staff. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: Branch-authorized workshop operations. Deposit payment records are omitted entirely for STAFF, including operational mutation responses. Booking policy snapshots and scheduling/payment clearance states remain available. Inactive staff branches are denied. Assign available branch staff and classify an unassigned concern. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
 - Roles: STAFF, ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -9508,13 +9617,15 @@ JSON request fields:
 | --- | --- | --- | --- |
 | `assignedStaffId` | string (uuid) | Yes | Identifier of the assigned staff resource; ownership is resolved server-side. |
 | `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+| `serviceId` | string (uuid) | No | Identifier of the service resource; ownership is resolved server-side. |
 
 Synthetic request example:
 
 ```json
 {
   "assignedStaffId": "00000000-0000-4000-8000-000000000001",
-  "expectedVersion": 0
+  "expectedVersion": 0,
+  "serviceId": "00000000-0000-4000-8000-000000000001"
 }
 ```
 
@@ -9523,7 +9634,7 @@ Success: HTTP 200.
 ```json
 {
   "success": true,
-  "message": "Assign available branch staff",
+  "message": "Assign available branch staff and classify an unassigned concern",
   "data": {
     "id": "00000000-0000-4000-8000-000000000001",
     "status": "synthetic-status"
@@ -18243,6 +18354,7 @@ Success: HTTP 200.
         "assignedStaffId": "00000000-0000-4000-8000-000000000001",
         "customerNotes": "synthetic-customernotes",
         "service": {
+          "id": "00000000-0000-4000-8000-000000000001",
           "name": "synthetic-name"
         },
         "vehicle": {
@@ -18460,6 +18572,7 @@ Success: HTTP 200.
     "assignedStaffId": "00000000-0000-4000-8000-000000000001",
     "customerNotes": "synthetic-customernotes",
     "service": {
+      "id": "00000000-0000-4000-8000-000000000001",
       "name": "synthetic-name"
     },
     "vehicle": {
@@ -18536,6 +18649,65 @@ Success: HTTP 200.
       "firstName": "synthetic-firstname",
       "lastName": "synthetic-lastname"
     }
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 Current access does not permit this request; 404 Record unavailable in permitted scope; 409 Stale version or invalid state; 422 Invalid fields; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### POST `/staff/workforce/bookings/{id}/alternative`
+
+- Operation ID: `postStaffWorkforceBookingsByIdAlternative`
+- Purpose: Explicit enrollment required for operational queues. Current assignments, branch, field projections and state are enforced in a transaction. Access changes require MFA, current password, target/version review and an owner-configured delegation envelope. No financial execution, exports or collection release authority is conferred by a title. Responsibility-based workspace: bookingAlternative. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `preferredAt` | string (date-time) | Yes | ISO 8601 timestamp interpreted and validated by the server. |
+| `reason` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+
+Synthetic request example:
+
+```json
+{
+  "preferredAt": "2030-01-15T10:00:00.000Z",
+  "reason": "synthetic-reason",
+  "expectedVersion": 0
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Responsibility-based workspace: bookingAlternative",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "branchId": "00000000-0000-4000-8000-000000000001",
+    "status": "REQUESTED",
+    "version": 0,
+    "scheduledAt": "2030-01-15T10:00:00.000Z",
+    "alternativeStartsAt": "2030-01-15T10:00:00.000Z",
+    "alternativeReason": "synthetic-alternativereason",
+    "alternativeVersion": 0,
+    "performedByUserId": "00000000-0000-4000-8000-000000000001"
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -18649,6 +18821,9 @@ Success: HTTP 200.
       "lastName": "synthetic-lastname",
       "phone": "+2348000000000"
     },
+    "alternativeStartsAt": "2030-01-15T10:00:00.000Z",
+    "alternativeReason": "synthetic-alternativereason",
+    "alternativeVersion": "synthetic-alternativeversion",
     "assignedStaff": {
       "id": "00000000-0000-4000-8000-000000000001",
       "firstName": "synthetic-firstname",
@@ -18893,6 +19068,7 @@ Success: HTTP 200.
     "assignedStaffId": "00000000-0000-4000-8000-000000000001",
     "customerNotes": "synthetic-customernotes",
     "service": {
+      "id": "00000000-0000-4000-8000-000000000001",
       "name": "synthetic-name"
     },
     "vehicle": {
@@ -19025,6 +19201,7 @@ Success: HTTP 200.
     "assignedStaffId": "00000000-0000-4000-8000-000000000001",
     "customerNotes": "synthetic-customernotes",
     "service": {
+      "id": "00000000-0000-4000-8000-000000000001",
       "name": "synthetic-name"
     },
     "vehicle": {
@@ -19131,6 +19308,7 @@ JSON request fields:
 | Field | Type | Required | Purpose |
 | --- | --- | --- | --- |
 | `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+| `serviceId` | string (uuid) | No | Identifier of the service resource; ownership is resolved server-side. |
 | `staffId` | string (uuid) | Yes | Identifier of the staff resource; ownership is resolved server-side. |
 | `reason` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
 
@@ -19139,6 +19317,7 @@ Synthetic request example:
 ```json
 {
   "expectedVersion": 0,
+  "serviceId": "00000000-0000-4000-8000-000000000001",
   "staffId": "00000000-0000-4000-8000-000000000001",
   "reason": "synthetic-reason"
 }
@@ -19159,6 +19338,7 @@ Success: HTTP 200.
     "assignedStaffId": "00000000-0000-4000-8000-000000000001",
     "customerNotes": "synthetic-customernotes",
     "service": {
+      "id": "00000000-0000-4000-8000-000000000001",
       "name": "synthetic-name"
     },
     "vehicle": {
@@ -23200,6 +23380,7 @@ Success: HTTP 200.
       {
         "categoryId": "00000000-0000-4000-8000-000000000001",
         "category": {
+          "description": "synthetic-description",
           "id": "00000000-0000-4000-8000-000000000001",
           "name": "synthetic-name",
           "slug": "synthetic-slug"
@@ -23323,6 +23504,7 @@ Success: HTTP 200.
   "data": {
     "categoryId": "00000000-0000-4000-8000-000000000001",
     "category": {
+      "description": "synthetic-description",
       "id": "00000000-0000-4000-8000-000000000001",
       "name": "synthetic-name",
       "slug": "synthetic-slug"
@@ -23416,10 +23598,105 @@ Success: HTTP 200.
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
+### GET `/admin/service-categories/owner-structure`
+
+- Operation ID: `getAdminServiceCategoriesOwnerStructure`
+- Purpose: Verified administrator only. Returns existing identities and a revision for explicit review. Includes inactive categories; no writes. Ambiguous names or an existing conflicting Tyre Change association return 409. Review the eight owner-approved service groups. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Review the eight owner-approved service groups",
+  "data": {
+    "revision": "synthetic-revision",
+    "groups": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "slug": "synthetic-slug",
+        "name": "synthetic-name",
+        "description": "synthetic-description",
+        "sortOrder": 1,
+        "action": "create",
+        "isActive": true
+      }
+    ],
+    "tyre": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "name": "synthetic-name",
+      "version": 1,
+      "categoryId": "00000000-0000-4000-8000-000000000001"
+    }
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 Review existing category or service associations; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### POST `/admin/service-categories/owner-structure`
+
+- Operation ID: `postAdminServiceCategoriesOwnerStructure`
+- Purpose: Verified administrator and CSRF required. Atomic, audited, revision-checked operation creates missing groups, preserves existing category identity/content/visibility, and associates only unassigned Tyre Change without changing pricing or duration. Refetch review after an uncertain result; repeated application makes no duplicate changes. No service is created, and no booking/history record is rewritten. Apply the reviewed owner service structure. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `expectedRevision` | string | Yes | Last server version observed by the client; stale writes are rejected. |
+
+Synthetic request example:
+
+```json
+{
+  "expectedRevision": "synthetic-expectedrevision"
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Apply the reviewed owner service structure",
+  "data": {
+    "created": 1,
+    "reused": 1,
+    "assigned": true,
+    "serviceId": "00000000-0000-4000-8000-000000000001",
+    "categoryIds": [
+      "00000000-0000-4000-8000-000000000001"
+    ]
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 Stale review or conflicting existing records; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
 ### GET `/admin/service-categories`
 
 - Operation ID: `getAdminServiceCategories`
-- Purpose: Literal case-insensitive name-prefix search, ascending name/ID order, signed filter-bound cursor. Public options include only active categories with an active service (limit 1–50). Administrator list includes inactive and empty categories and supports isActive (limit 1–100). List service categories for administration. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Literal case-insensitive name-prefix search, ascending name/ID order, signed filter-bound cursor. Public options include active categories even without individual services, with their maintained descriptions (limit 1–50). Administrator list includes inactive and empty categories and supports isActive (limit 1–100). List service categories for administration. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Not required
@@ -23443,10 +23720,10 @@ Success: HTTP 200.
   "data": {
     "items": [
       {
+        "description": "synthetic-description",
         "id": "00000000-0000-4000-8000-000000000001",
         "name": "synthetic-name",
         "slug": "synthetic-slug",
-        "description": "synthetic-description",
         "isActive": true,
         "version": 0,
         "createdAt": "2030-01-15T10:00:00.000Z",
@@ -23505,10 +23782,10 @@ Success: HTTP 201.
   "success": true,
   "message": "Create a service category",
   "data": {
+    "description": "synthetic-description",
     "id": "00000000-0000-4000-8000-000000000001",
     "name": "synthetic-name",
     "slug": "synthetic-slug",
-    "description": "synthetic-description",
     "isActive": true,
     "version": 0,
     "createdAt": "2030-01-15T10:00:00.000Z",
@@ -23544,10 +23821,10 @@ Success: HTTP 200.
   "success": true,
   "message": "Read a service category for administration",
   "data": {
+    "description": "synthetic-description",
     "id": "00000000-0000-4000-8000-000000000001",
     "name": "synthetic-name",
     "slug": "synthetic-slug",
-    "description": "synthetic-description",
     "isActive": true,
     "version": 0,
     "createdAt": "2030-01-15T10:00:00.000Z",
@@ -23606,10 +23883,10 @@ Success: HTTP 200.
   "success": true,
   "message": "Update or archive a service category",
   "data": {
+    "description": "synthetic-description",
     "id": "00000000-0000-4000-8000-000000000001",
     "name": "synthetic-name",
     "slug": "synthetic-slug",
-    "description": "synthetic-description",
     "isActive": true,
     "version": 0,
     "createdAt": "2030-01-15T10:00:00.000Z",

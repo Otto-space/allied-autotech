@@ -477,3 +477,44 @@ describe("orchestration isolation", () => {
     },
   );
 });
+
+it("retrieves reviewed business facts and invalidates them after a content edit", () => {
+  const data = catalogue();
+  const context = retrieveAllieContext(
+    data,
+    "Where is Allied AutoTech located and when can I contact you?",
+    "contact",
+  );
+  const source = context.sources.find((item) => item.articleId === "business-contact")!;
+  expect(source.passage).toContain("133 Stadium Road");
+  expect(source.passage).toContain(
+    "customer-care hours, not confirmation of workshop availability",
+  );
+  expect(context.actions).toContainEqual(
+    expect.objectContaining({
+      id: "open:business-contact",
+      href: "/contact",
+      sourceId: source.id,
+    }),
+  );
+  const previous = {
+    accessKey: data.accessKey,
+    sourceSet: context.sourceSet,
+    turns: [
+      { question: "Where are you?", answer: "See Contact.", sourceIds: [source.id] },
+    ],
+  };
+  const changed = catalogue();
+  changed.articles = changed.articles.map((item) =>
+    item.id === "business-contact"
+      ? {
+          ...item,
+          summary:
+            "Contact information is being reviewed; use Contact for current details.",
+        }
+      : item,
+  );
+  expect(
+    retrieveAllieContext(changed, "Where are you?", "contact", previous).historyReset,
+  ).toBe(true);
+});

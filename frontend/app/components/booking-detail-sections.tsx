@@ -18,11 +18,14 @@ export function BookingAppointment({ booking }: { booking: CustomerBookingDetail
   return (
     <section className="booking-appointment" aria-labelledby="appointment-title">
       <div className="booking-section-heading">
-        <h2 id="appointment-title">{booking.service.name}</h2>
+        <h2 id="appointment-title">{booking.service?.name ?? "Vehicle concern"}</h2>
         <span className="booking-detail-status" data-status={booking.status}>
           {bookingLabel(booking.status)}
         </span>
       </div>
+      {booking.customerConcern && (
+        <p className="booking-concern-description">{booking.customerConcern}</p>
+      )}
       <dl className="booking-facts">
         <div>
           <dt>

@@ -51,7 +51,11 @@ export const bookingSchema = z.object({
   status: z.string(),
   version: z.number().int(),
   scheduledAt: z.string().nullable(),
-  service: serviceSchema,
+  service: serviceSchema.nullable(),
+  customerConcern: z.string().nullable().optional(),
+  alternativeStartsAt: z.iso.datetime({ offset: true }).nullable().optional(),
+  alternativeReason: z.string().nullable().optional(),
+  alternativeVersion: z.number().int().nonnegative().nullable().optional(),
   branch: branchRef.nullable(),
   vehicle: z
     .object({

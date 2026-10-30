@@ -15,6 +15,10 @@ import {
   type AllieCatalogue,
 } from "./allie.contracts.js";
 import { createAllieProvider } from "./allie.provider.js";
+import {
+  publicKnowledgeRevision,
+  retrievePublicKnowledge,
+} from "./allie.public-knowledge.js";
 import { allieSourceSet } from "./allie.retrieval.js";
 import { containsAllieSecret } from "./allie.safety.js";
 import {
@@ -118,7 +122,10 @@ async function resolveOwner(
         "assistant-owner",
         JSON.stringify([proof.actor.userId, proof.actor.sessionId, proof.actor.role]),
       ),
-      catalogue: learningCatalogue(access),
+      catalogue: {
+        ...learningCatalogue(access),
+        knowledgeRevision: await publicKnowledgeRevision(tx),
+      },
       audience: access.role === "CUSTOMER" ? "CUSTOMER" : "WORK",
       expiresAt: new Date(
         Math.min(session.expiresAt.getTime(), session.idleExpiresAt.getTime()),
@@ -143,7 +150,10 @@ async function resolveOwner(
     });
   return {
     key: hashToken("assistant-owner", "guest:" + proof.token),
-    catalogue: learningCatalogue(publicLearningAccess),
+    catalogue: {
+      ...learningCatalogue(publicLearningAccess),
+      knowledgeRevision: await publicKnowledgeRevision(tx),
+    },
     audience: "PUBLIC",
     expiresAt: guest.expiresAt,
   };
@@ -628,13 +638,20 @@ export async function submitAllieTurn(
       page: page.data,
       previous: claim.value.state.history,
       getCatalogue: async () =>
-        owned(proof, false, async (_tx, owner) => {
+        owned(proof, false, async (tx, owner) => {
           if (
             owner.catalogue.accessKey !== claim.owner.catalogue.accessKey ||
             allieSourceSet(owner.catalogue) !== claim.value.row.sourceSet
           )
             throw new AllieFailure("access_changed");
-          return owner.catalogue;
+          return {
+            ...owner.catalogue,
+            knowledge: await retrievePublicKnowledge(
+              tx,
+              question.data,
+              claim.value.state.history,
+            ),
+          };
         }),
       provider: createAllieProvider({
         apiKey: env.OPENAI_API_KEY!,
@@ -713,9 +730,11 @@ export async function submitAllieTurn(
         tx.assistantConversation.findUnique({ where: { id } }),
       ]);
       if (
-        (currentTurn?.status === "CANCELLED" && currentTurn.failureCode === "access_changed") ||
+        (currentTurn?.status === "CANCELLED" &&
+          currentTurn.failureCode === "access_changed") ||
         currentConversation?.closedAt
-      ) accessLost = true;
+      )
+        accessLost = true;
       const changed = await tx.assistantTurn.updateMany({
         where: { id: claim.turn.id, status: "PENDING" },
         data: {

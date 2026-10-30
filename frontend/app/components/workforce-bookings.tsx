@@ -202,7 +202,7 @@ export function WorkforceBookings({
                       href={`/admin/workforce/bookings/${booking.id}`}
                       prefetch={false}
                     >
-                      {booking.service.name}
+                      {booking.service?.name ?? "Vehicle concern"}
                     </Link>
                   </th>
                   <td data-label="Customer">

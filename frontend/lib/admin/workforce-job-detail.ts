@@ -122,7 +122,13 @@ export type WorkforceJobChange =
   | { kind: "quality"; body: { expectedVersion: number; reason: string } }
   | {
       kind: "assignment";
-      body: { expectedVersion: number; staffId: string; reason: string };
+      body: {
+        expectedVersion: number;
+        staffId: string;
+        reason: string;
+        serviceId?: string;
+      };
+      service?: { id: string; name: string };
       technician: WorkforceJobCandidate;
     };
 export class JobFieldError extends Error {
@@ -198,11 +204,22 @@ export function validateJobReceipt(
     after.branchId !== base.branchId ||
     after.scheduledAt !== base.scheduledAt ||
     after.customerNotes !== base.customerNotes ||
-    JSON.stringify(after.service) !== JSON.stringify(base.service) ||
+    after.customerConcern !== base.customerConcern ||
+    (!(change.kind === "assignment" && change.service) &&
+      JSON.stringify(after.service) !== JSON.stringify(base.service)) ||
     JSON.stringify(after.vehicle) !== JSON.stringify(base.vehicle)
   )
     fail();
   if (change.kind === "assignment") {
+    if (
+      change.service &&
+      (base.service !== null ||
+        base.status !== "REQUESTED" ||
+        change.body.serviceId !== change.service.id ||
+        after.service?.id !== change.service.id ||
+        after.service?.name !== change.service.name)
+    )
+      fail();
     if (
       after.version !== base.version + 1 ||
       after.status !== base.status ||

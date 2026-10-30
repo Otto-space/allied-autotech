@@ -22,10 +22,16 @@ const workforceBookingSchema = z.object({
     ],
   ),
   version: z.number().int().nonnegative(),
-  service: z.object({
-    name: z.string(),
-    durationMinutes: z.number().int().positive().nullable().optional(),
-  }),
+  customerConcern: z.string().nullable().optional(),
+  alternativeStartsAt: z.iso.datetime().nullable().optional(),
+  alternativeReason: z.string().nullable().optional(),
+  alternativeVersion: z.number().int().nonnegative().nullable().optional(),
+  service: z
+    .object({
+      name: z.string(),
+      durationMinutes: z.number().int().positive().nullable().optional(),
+    })
+    .nullable(),
   assignedStaff: z
     .object({ id: z.uuid(), firstName: z.string(), lastName: z.string() })
     .nullable()

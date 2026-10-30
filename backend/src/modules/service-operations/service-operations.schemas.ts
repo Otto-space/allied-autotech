@@ -139,21 +139,61 @@ export const staffBookingListQuerySchema = customerBookingListQuerySchema
   });
 export const bookingCreateBodySchema = z
   .object({
-    slotId: uuid,
+    slotId: uuid.optional(),
+    serviceId: uuid.optional(),
+    customerConcern: cleanText(2000).min(10).optional(),
+    branchId: uuid.optional(),
+    preferredAt: dateTime.optional(),
     vehicleId: uuid.optional(),
     customerNotes: nullableText(2_000),
     policyVersion: cleanText(80),
     acceptNonRefundableDeposit: z.boolean().optional(),
   })
-  .strict();
+  .strict()
+  .superRefine((value, context) => {
+    if (value.serviceId && value.customerConcern)
+      context.addIssue({
+        code: "custom",
+        path: ["customerConcern"],
+        message: "Choose a service or describe a concern, not both.",
+      });
+    const preferred =
+      value.customerConcern !== undefined ||
+      value.serviceId !== undefined ||
+      value.branchId !== undefined ||
+      value.preferredAt !== undefined;
+    if (
+      value.slotId
+        ? preferred
+        : !(
+            (value.serviceId || value.customerConcern) &&
+            value.branchId &&
+            value.preferredAt
+          )
+    )
+      context.addIssue({
+        code: "custom",
+        path: ["preferredAt"],
+        message:
+          "Choose an offered time, or choose a service or describe a concern, with a branch and preferred time.",
+      });
+  });
 export const bookingRescheduleBodySchema = z
-  .object({ slotId: uuid, expectedVersion: version })
-  .strict();
+  .object({
+    slotId: uuid.optional(),
+    preferredAt: dateTime.optional(),
+    expectedVersion: version,
+  })
+  .strict()
+  .refine((value) => (value.slotId !== undefined) !== (value.preferredAt !== undefined), {
+    message: "Choose either an offered time or a preferred time",
+    path: ["preferredAt"],
+  });
 export const bookingCancelBodySchema = z
   .object({ reason: cleanText(500), expectedVersion: version })
   .strict();
 export const bookingAssignmentBodySchema = z
-  .object({ assignedStaffId: uuid, expectedVersion: version })
+  .object({ assignedStaffId: uuid, expectedVersion: version, serviceId: uuid.optional() })
   .strict();
 export const bookingTransitionBodySchema = z
   .object({
@@ -311,3 +351,21 @@ export type QuoteTransitionInput = z.infer<typeof quoteTransitionBodySchema>;
 export type WorkOrderCreateInput = z.infer<typeof workOrderCreateBodySchema>;
 export type WorkOrderUpdateInput = z.infer<typeof workOrderUpdateBodySchema>;
 export type WorkOrderTransitionInput = z.infer<typeof workOrderTransitionBodySchema>;
+
+export const bookingAlternativeBodySchema = z
+  .object({
+    preferredAt: z.iso.datetime({ offset: true }),
+    reason: cleanText(1000).min(10),
+    expectedVersion: version,
+  })
+  .strict();
+export const bookingAlternativeResponseBodySchema = z
+  .object({
+    decision: z.enum(["ACCEPT", "DECLINE"]),
+    expectedVersion: version,
+  })
+  .strict();
+export type BookingAlternativeInput = z.infer<typeof bookingAlternativeBodySchema>;
+export type BookingAlternativeResponseInput = z.infer<
+  typeof bookingAlternativeResponseBodySchema
+>;

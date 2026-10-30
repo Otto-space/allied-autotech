@@ -774,3 +774,259 @@ for (const lostOperation of ["none", "create", "replace"] as const) {
     },
   );
 }
+
+for (const width of [390, 1440]) {
+  test(`unclassified concern requires reviewed service assignment at ${width}px`, async ({
+    page,
+  }, info) => {
+    let classified = false;
+    const writes: unknown[] = [];
+    const chosen = {
+      ...record().service,
+      pricingType: "QUOTE_REQUIRED",
+      priceKobo: null,
+    };
+    await page.setViewportSize({ width, height: 900 });
+    await page.route("**/api/v1/**", async (route) => {
+      const endpoint = new URL(route.request().url()).pathname.replace("/api/v1", "");
+      if (endpoint === "/auth/session")
+        return reply(route, {
+          id: id(8),
+          expiresAt: "2027-01-01T00:00:00Z",
+          idleExpiresAt: "2027-01-01T00:00:00Z",
+          mfaRequired: true,
+          mfaVerifiedAt: "2026-09-24T09:00:00Z",
+          user: { id: id(9), email: "staff@example.test", role: "STAFF" },
+        });
+      if (endpoint === "/auth/csrf")
+        return reply(route, { csrfToken: "isolated-booking-csrf-".repeat(3) });
+      if (endpoint === "/staff/profile")
+        return reply(route, {
+          id: id(9),
+          email: "staff@example.test",
+          role: "STAFF",
+          status: "ACTIVE",
+          capabilities: ["BOOKING_CONFIRM"],
+          staffProfile: {
+            id: id(6),
+            firstName: "Test",
+            lastName: "Technician",
+            branchId: id(5),
+          },
+        });
+      if (endpoint === "/public/services") {
+        expect(new URL(route.request().url()).searchParams.has("pricingType")).toBe(
+          false,
+        );
+        return reply(route, { items: [chosen] });
+      }
+      if (endpoint === `/staff/bookings/${id(1)}`)
+        return reply(route, {
+          ...record(),
+          status: "REQUESTED",
+          version: classified ? 8 : 7,
+          service: classified ? chosen : null,
+          assignedStaff: classified ? record().assignedStaff : null,
+          customerConcern: "The vehicle vibrates when braking",
+          bookingSlotId: null,
+          depositAmountKobo: null,
+          depositPaidAt: null,
+          depositPayment: null,
+        });
+      if (endpoint === `/staff/bookings/${id(1)}/assignment`) {
+        writes.push(route.request().postDataJSON());
+        classified = true;
+        return reply(route, {});
+      }
+      return route.fulfill({
+        status: 404,
+        json: { success: false, error: { code: "NOT_FOUND" } },
+      });
+    });
+    await page.goto(`/admin/bookings/${id(1)}`);
+    await expect(
+      page.getByText("The vehicle vibrates when braking", { exact: true }),
+    ).toBeVisible();
+    await expect(
+      page.getByLabel("Next status").locator('option[value="CONFIRMED"]'),
+    ).toHaveCount(0);
+    await page.getByRole("button", { name: "Review assignment" }).click();
+    await expect(page.getByLabel("Service for this concern")).toBeFocused();
+    expect(writes).toEqual([]);
+    await page.getByLabel("Service for this concern").selectOption(id(4));
+    await page.getByRole("button", { name: "Review assignment" }).click();
+    const dialog = page.getByRole("dialog");
+    await expect(
+      dialog.getByRole("heading", { name: "Classify and assign this concern?" }),
+    ).toBeVisible();
+    await expect(
+      dialog.getByText(/does not confirm the appointment or charge/),
+    ).toBeVisible();
+    expect(writes).toEqual([]);
+    await dialog.getByRole("button", { name: "Confirm change" }).click();
+    await expect(page.getByLabel("Service for this concern")).toHaveCount(0);
+    await expect(
+      page.getByLabel("Next status").locator('option[value="CONFIRMED"]'),
+    ).toHaveCount(1);
+    expect(writes).toEqual([
+      { assignedStaffId: id(6), serviceId: id(4), expectedVersion: 7 },
+    ]);
+    await expect(page.locator(".booking-detail-status")).toHaveText("REQUESTED");
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+    await page.screenshot({ path: info.outputPath("classified-concern.png") });
+  });
+}
+
+for (const decision of ["ACCEPT", "DECLINE"] as const) {
+  for (const width of [390, 1440]) {
+    test(`alternative appointment ${decision} requires both reviews at ${width}px`, async ({
+      page,
+    }, info) => {
+      let role = "STAFF";
+      let version = 7;
+      let alternativeStartsAt: string | null = null;
+      let alternativeReason: string | null = null;
+      let alternativeVersion: number | null = null;
+      let scheduledAt = new Date(Date.now() + 8 * 86400000).toISOString();
+      const originalTime = scheduledAt;
+      const writes: { endpoint: string; body: Record<string, unknown> }[] = [];
+      await page.setViewportSize({ width, height: 900 });
+      await page.route("**/api/v1/**", async (route) => {
+        const req = route.request();
+        const endpoint = new URL(req.url()).pathname.replace("/api/v1", "");
+        if (endpoint === "/auth/session")
+          return reply(route, {
+            id: id(8),
+            expiresAt: "2027-01-01T00:00:00Z",
+            idleExpiresAt: "2027-01-01T00:00:00Z",
+            mfaRequired: role === "STAFF",
+            mfaVerifiedAt: role === "STAFF" ? "2026-10-30T09:00:00Z" : null,
+            user: { id: id(9), email: "test@example.test", role },
+          });
+        if (endpoint === "/auth/csrf") return reply(route, { csrfToken: "s".repeat(64) });
+        if (endpoint === "/staff/profile")
+          return reply(route, {
+            id: id(9),
+            email: "test@example.test",
+            role: "STAFF",
+            status: "ACTIVE",
+            capabilities: ["BOOKING_CONFIRM"],
+            staffProfile: {
+              id: id(6),
+              firstName: "Test",
+              lastName: "Technician",
+              branchId: id(5),
+            },
+          });
+        if (endpoint === "/public/booking-policy")
+          return reply(route, {
+            version: "test",
+            minimumAdvanceHours: 168,
+            maximumAdvanceHours: 336,
+            paymentHoldMinutes: 0,
+            depositBasisPoints: 0,
+            depositRefundableForCustomerCancellation: true,
+            customerRescheduleLimit: 1,
+            customerRescheduleCutoffHours: 24,
+            reminderHoursBeforeAppointment: [24],
+          });
+        if (
+          [`/staff/bookings/${id(1)}`, `/customers/bookings/${id(1)}`].includes(endpoint)
+        )
+          return reply(route, {
+            ...record(),
+            status: "REQUESTED",
+            version,
+            scheduledAt,
+            bookingSlotId: null,
+            alternativeStartsAt,
+            alternativeReason,
+            alternativeVersion,
+            depositAmountKobo: null,
+            depositPaidAt: null,
+            depositPayment: null,
+          });
+        if (endpoint.endsWith("/alternative")) {
+          const body = req.postDataJSON();
+          writes.push({ endpoint, body });
+          alternativeStartsAt = body.preferredAt;
+          alternativeReason = body.reason;
+          version++;
+          alternativeVersion = version;
+          return reply(route, {});
+        }
+        if (endpoint.endsWith("/alternative-response")) {
+          const body = req.postDataJSON();
+          writes.push({ endpoint, body });
+          if (body.decision === "ACCEPT") scheduledAt = alternativeStartsAt!;
+          alternativeStartsAt = null;
+          alternativeReason = null;
+          alternativeVersion = null;
+          version++;
+          return reply(route, {});
+        }
+        return reply(route, { items: [] });
+      });
+      await page.goto(`/admin/bookings/${id(1)}`);
+      const preferred = new Date(Date.now() + 10 * 86400000).toISOString().slice(0, 16);
+      await page.getByLabel("Proposed time (Lagos)", { exact: true }).fill(preferred);
+      await page
+        .getByLabel("Reason shown to customer", { exact: true })
+        .fill("Please review this alternative workshop time.");
+      await page.getByRole("button", { name: "Review alternative time" }).click();
+      await expect(
+        page
+          .getByRole("dialog")
+          .getByRole("heading", { name: "Propose this alternative time?" }),
+      ).toBeVisible();
+      expect(writes).toHaveLength(0);
+      await page
+        .getByRole("dialog")
+        .getByRole("button", { name: "Confirm change" })
+        .click();
+      await expect(page.getByText(/Current proposal:/)).toBeVisible();
+      expect(scheduledAt).toBe(originalTime);
+      expect(writes[0].body.expectedVersion).toBe(7);
+      const proposedTime = alternativeStartsAt;
+      role = "CUSTOMER";
+      await page.goto(`/dashboard/bookings/${id(1)}`);
+      await expect(
+        page.getByRole("heading", { name: "The workshop proposed another time" }),
+      ).toBeVisible();
+      await page
+        .getByRole("heading", { name: "The workshop proposed another time" })
+        .scrollIntoViewIfNeeded();
+      expect(
+        (await new AxeBuilder({ page }).include(".booking-changes").analyze()).violations,
+      ).toEqual([]);
+      await page.screenshot({ path: info.outputPath("alternative-proposal.png") });
+      await page
+        .getByRole("button", {
+          name: decision === "ACCEPT" ? "Review proposed time" : "Decline proposed time",
+          exact: true,
+        })
+        .click();
+      expect(writes).toHaveLength(1);
+      await expect(page.getByRole("dialog")).toContainText(
+        decision === "ACCEPT" ? "not a confirmed appointment" : "stay unchanged",
+      );
+      await page
+        .getByRole("dialog")
+        .getByRole("button", { name: "Confirm change" })
+        .click();
+      await expect(
+        page.getByRole("heading", { name: "The workshop proposed another time" }),
+      ).toHaveCount(0);
+      expect(writes[1].body).toEqual({ decision, expectedVersion: 8 });
+      expect(scheduledAt).toBe(decision === "ACCEPT" ? proposedTime : originalTime);
+      await expect(
+        page.locator(".booking-appointment .booking-detail-status"),
+      ).toHaveText(/Requested/);
+      expect(
+        await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+      ).toBe(true);
+    });
+  }
+}

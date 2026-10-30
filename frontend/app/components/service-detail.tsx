@@ -1,7 +1,12 @@
 "use client";
+import {
+  saveBookingSignInDraft,
+  consumeBookingSignInDraft,
+  clearBookingSignInDraft,
+} from "@/lib/forms/booking-sign-in-draft";
 import { browseEnquiriesOnly } from "@/lib/public-launch";
 import Link from "next/link";
-import Image from "next/image";
+import { CampaignArtwork } from "./campaign-artwork";
 import { ServicePhoto } from "./service-photo";
 import {
   ArrowDown,
@@ -49,9 +54,9 @@ type BookingReview = {
   serviceName: string;
   branchName: string;
   startsAt: string;
-  endsAt: string;
+  endsAt: string | null;
   vehicleName: string;
-  priceKobo: string;
+  priceKobo: string | null;
   terms: ReturnType<typeof parseBookingPolicy>;
 };
 const parseBranches = (value: unknown) =>
@@ -90,53 +95,13 @@ export function ServiceDetail({
   );
   const current = service.data;
   const listedFixed = current?.pricingType === "FIXED";
-  const fixed = listedFixed && !browseEnquiriesOnly();
-  const bookable =
-    fixed && current.priceKobo !== null && current.durationMinutes !== null;
+  const bookable = !!current && !browseEnquiriesOnly();
+  const offeredSlotsSupported =
+    listedFixed && current?.priceKobo !== null && current?.durationMinutes !== null;
   const [access, setAccess] = useState<
-    "checking" | "customer" | "anonymous" | "restricted" | "error"
+    "checking" | "customer" | "anonymous" | "restricted" | "verification" | "error"
   >("checking");
   const [accessRetry, setAccessRetry] = useState(0);
-  useEffect(() => {
-    if (!bookable) return;
-    let pending: AbortController | undefined;
-    async function check() {
-      pending?.abort();
-      const controller = new AbortController();
-      pending = controller;
-      try {
-        const response = await apiRequest("/auth/session", {
-          optionalSession: true,
-          signal: controller.signal,
-        });
-        const identity = z
-          .object({
-            user: z.object({
-              id: z.uuid(),
-              role: z.enum(["CUSTOMER", "STAFF", "ADMIN", "SUPER_ADMIN"]),
-            }),
-          })
-          .parse(response.data);
-        if (!controller.signal.aborted)
-          setAccess(identity.user.role === "CUSTOMER" ? "customer" : "restricted");
-      } catch (failure) {
-        if (!controller.signal.aborted)
-          setAccess(
-            failure instanceof ApiError && failure.status === 401 ? "anonymous" : "error",
-          );
-      }
-    }
-    function changed() {
-      setAccess("checking");
-      void check();
-    }
-    void check();
-    window.addEventListener(SESSION_CHANGED, changed);
-    return () => {
-      pending?.abort();
-      window.removeEventListener(SESSION_CHANGED, changed);
-    };
-  }, [bookable, accessRetry]);
   const policy = useResource(
     bookable ? "/public/booking-policy" : null,
     parseBookingPolicy,
@@ -152,6 +117,9 @@ export function ServiceDetail({
   const [branchName, setBranchName] = useState("");
   const [branch, setBranch] = useState("");
   const [slot, setSlot] = useState("");
+  const [preferredTime, setPreferredTime] = useState("");
+  const [draftRestored, setDraftRestored] = useState(false);
+  const [enquiryMode, setEnquiryMode] = useState(false);
   const [slotCursor, setSlotCursor] = useState<string>();
   const [accepted, setAccepted] = useState(false);
   const [notes, setNotes] = useState("");
@@ -176,7 +144,7 @@ export function ServiceDetail({
     [branch, serviceId],
   );
   const slots = useResource(
-    branch && bookable
+    branch && bookable && offeredSlotsSupported
       ? `/public/services/${serviceId}/slots?branchId=${branch}&limit=50${slotCursor ? `&cursor=${slotCursor}` : ""}`
       : null,
     parseAvailableSlots,
@@ -204,6 +172,8 @@ export function ServiceDetail({
     setLogin(false);
     setNotesError(undefined);
     setSlot("");
+    setPreferredTime("");
+    setDraftRestored(false);
     setSlotCursor(undefined);
     setAccepted(false);
     setNotes("");
@@ -220,6 +190,92 @@ export function ServiceDetail({
     (item) =>
       item.id === slot && item.branchId === branch && item.serviceId === serviceId,
   );
+  // Interpret the displayed wall time in Lagos, not the device timezone.
+  const preferredDate = preferredTime ? new Date(`${preferredTime}:00+01:00`) : null;
+  const preferredAt =
+    preferredDate && Number.isFinite(preferredDate.getTime())
+      ? preferredDate.toISOString()
+      : null;
+  const selectedTime =
+    selectedSlot ??
+    (branch && preferredAt
+      ? {
+          startsAt: preferredAt,
+          endsAt:
+            current?.durationMinutes == null
+              ? null
+              : new Date(
+                  Date.parse(preferredAt) + current.durationMinutes * 60_000,
+                ).toISOString(),
+        }
+      : null);
+  const timeUnavailable =
+    !selectedTime || (!!selectedSlot && (slots.loading || !!slots.error));
+  const bookingPrice =
+    listedFixed && current?.priceKobo != null ? String(current.priceKobo) : null;
+  useEffect(() => {
+    if (!bookable) return;
+    let pending: AbortController | undefined;
+    async function check() {
+      pending?.abort();
+      const controller = new AbortController();
+      pending = controller;
+      try {
+        const response = await apiRequest("/auth/session", {
+          optionalSession: true,
+          signal: controller.signal,
+        });
+        const identity = z
+          .object({
+            mfaRequired: z.boolean().optional(),
+            mfaVerifiedAt: z.string().nullable().optional(),
+            user: z.object({
+              id: z.uuid(),
+              role: z.enum(["CUSTOMER", "STAFF", "ADMIN", "SUPER_ADMIN"]),
+            }),
+          })
+          .parse(response.data);
+        if (!controller.signal.aborted) {
+          setAccess(
+            identity.user.role !== "CUSTOMER"
+              ? "restricted"
+              : identity.mfaRequired && !identity.mfaVerifiedAt
+                ? "verification"
+                : "customer",
+          );
+          if (identity.user.role !== "CUSTOMER") clearBookingSignInDraft();
+          else if (!identity.mfaRequired || identity.mfaVerifiedAt) {
+            const draft = consumeBookingSignInDraft(serviceId);
+            if (draft) {
+              setBranch(draft.branchId);
+              setBranchName(draft.branchName);
+              setSlot(draft.slotId);
+              setPreferredTime(draft.preferredTime);
+              setNotes(draft.notes);
+              setAccepted(false);
+              setReview(undefined);
+              setDraftRestored(true);
+            }
+          }
+        }
+      } catch (failure) {
+        if (!controller.signal.aborted)
+          setAccess(
+            failure instanceof ApiError && failure.status === 401 ? "anonymous" : "error",
+          );
+      }
+    }
+    function changed() {
+      setAccess("checking");
+      void check();
+    }
+    void check();
+    window.addEventListener(SESSION_CHANGED, changed);
+    return () => {
+      pending?.abort();
+      window.removeEventListener(SESSION_CHANGED, changed);
+    };
+  }, [bookable, accessRetry, serviceId]);
   useEffect(() => {
     if (booking) focus(confirmation.current);
   }, [booking]);
@@ -240,13 +296,10 @@ export function ServiceDetail({
       booking ||
       !current ||
       service.error ||
-      !selectedSlot ||
+      timeUnavailable ||
       !policy.data ||
       policy.error ||
-      slots.loading ||
-      slots.error ||
-      (requiresDeposit && !accepted) ||
-      current.priceKobo === null
+      (requiresDeposit && !accepted)
     )
       return;
     const customerNotes = notes.replace(/[\r\n\t]+/g, " ").trim();
@@ -263,7 +316,9 @@ export function ServiceDetail({
     setNotesError(undefined);
     setReview({
       body: {
-        slotId: selectedSlot.id,
+        ...(selectedSlot
+          ? { slotId: selectedSlot.id }
+          : { serviceId, branchId: branch, preferredAt: preferredAt! }),
         policyVersion: policy.data.version,
         ...(requiresDeposit ? { acceptNonRefundableDeposit: true } : {}),
         ...(customerNotes ? { customerNotes } : {}),
@@ -271,14 +326,32 @@ export function ServiceDetail({
       },
       serviceName: current.name,
       branchName,
-      startsAt: selectedSlot.startsAt,
-      endsAt: selectedSlot.endsAt,
+      startsAt: selectedTime!.startsAt,
+      endsAt: selectedTime!.endsAt,
       vehicleName: vehicle
         ? `${vehicle.year} ${vehicle.make} ${vehicle.model}${vehicle.registrationNumber ? ` · ${vehicle.registrationNumber}` : ""}`
         : "No saved vehicle selected",
-      priceKobo: String(current.priceKobo),
+      priceKobo: bookingPrice,
       terms: policy.data,
     });
+  }
+  function preserveForSignIn(event: React.MouseEvent<HTMLAnchorElement>) {
+    if (access !== "anonymous") return;
+    if (
+      !saveBookingSignInDraft({
+        serviceId,
+        branchId: branch,
+        branchName,
+        slotId: slot,
+        preferredTime,
+        notes,
+      })
+    ) {
+      event.preventDefault();
+      setError(
+        "Your browser could not keep this draft for sign-in. Copy your notes before signing in from the navigation.",
+      );
+    }
   }
   function editDetails() {
     if (busy || uncertain) return;
@@ -292,12 +365,12 @@ export function ServiceDetail({
     (review.body.policyVersion !== policy.data?.version ||
       JSON.stringify(review.terms) !== JSON.stringify(policy.data) ||
       review.body.slotId !== selectedSlot?.id ||
-      review.startsAt !== selectedSlot?.startsAt ||
-      review.endsAt !== selectedSlot?.endsAt ||
-      review.priceKobo !== String(current?.priceKobo) ||
+      review.startsAt !== selectedTime?.startsAt ||
+      review.endsAt !== selectedTime?.endsAt ||
+      review.priceKobo !== bookingPrice ||
       review.serviceName !== current?.name ||
       !!policy.error ||
-      !!slots.error);
+      (!!selectedSlot && !!slots.error));
   async function book() {
     if (
       busy ||
@@ -308,11 +381,10 @@ export function ServiceDetail({
       service.error ||
       (!uncertain &&
         (reviewChanged ||
-          !selectedSlot ||
+          timeUnavailable ||
           (requiresDeposit && !accepted) ||
           !policy.data ||
-          slots.loading ||
-          !!slots.error ||
+          (!!selectedSlot && (slots.loading || !!slots.error)) ||
           !!policy.error))
     )
       return;
@@ -358,7 +430,7 @@ export function ServiceDetail({
       });
       if (controller.signal.aborted) return;
       const response = z.object({ booking: bookingSchema }).parse(result.data);
-      if (response.booking.service.id !== serviceId)
+      if (response.booking.service?.id !== serviceId)
         throw new Error("Unconfirmed service identity");
       setBooking(response.booking);
       setUncertain(false);
@@ -389,10 +461,10 @@ export function ServiceDetail({
 
   const locked = busy || uncertain;
   let formTitle = "Service enquiry";
-  if (fixed) {
+  if (bookable && !enquiryMode) {
     if (booking) formTitle = "Your booking request";
     else if (review) formTitle = "Review your booking request";
-    else formTitle = "Choose an available appointment.";
+    else formTitle = "Request a workshop appointment";
   }
   let priceText = "Quotation required";
   if (listedFixed && current) {
@@ -471,7 +543,7 @@ export function ServiceDetail({
                     </p>
                   </div>
                   <div className="sd-actions">
-                    {fixed && access === "restricted" ? (
+                    {bookable && access === "restricted" ? (
                       <Link className="button" href="/admin">
                         Go to your dashboard <ArrowRight size={17} aria-hidden="true" />
                       </Link>
@@ -484,7 +556,7 @@ export function ServiceDetail({
                           focus(booking ? confirmation.current : formHeading.current);
                         }}
                       >
-                        {fixed ? "Choose an appointment" : "Send an enquiry"}
+                        {bookable ? "Choose an appointment" : "Send an enquiry"}
                         <ArrowDown size={17} aria-hidden="true" />
                       </a>
                     )}
@@ -493,7 +565,17 @@ export function ServiceDetail({
                     </Link>
                   </div>
                 </div>
-                <div className={`sd-media${current.image ? "" : " sd-media-empty"}`}>
+                <div
+                  className={`sd-media${current.image ? "" : " sd-media-empty"}`}
+                  style={
+                    current.image
+                      ? {
+                          aspectRatio: `${current.image.width} / ${current.image.height}`,
+                          maxWidth: `min(100%, ${(520 * current.image.width) / current.image.height}px)`,
+                        }
+                      : undefined
+                  }
+                >
                   {current.image ? (
                     <ServicePhoto
                       key={current.image.url}
@@ -534,17 +616,19 @@ export function ServiceDetail({
                 <ol className="sd-process">
                   <li>
                     <span>1</span>
-                    {fixed
+                    {bookable
                       ? "Choose a branch and time"
                       : "Tell us what your vehicle needs"}
                   </li>
                   <li>
                     <span>2</span>
-                    {fixed ? "Send your booking request" : "Review and send your enquiry"}
+                    {bookable
+                      ? "Send your booking request"
+                      : "Review and send your enquiry"}
                   </li>
                   <li>
                     <span>3</span>
-                    {fixed
+                    {bookable
                       ? "Review updates in your account"
                       : "Discuss the next steps with our team"}
                   </li>
@@ -572,27 +656,29 @@ export function ServiceDetail({
                 </div>
               </aside>
               <div className="sd-panel" id="service-request">
-                {bookable && (access === "customer" || access === "anonymous") && (
-                  <ol className="sd-booking-progress" aria-label="Booking progress">
-                    {["Details", "Review", "Received"].map((label, index) => {
-                      let step = 0;
-                      if (review) step = 1;
-                      if (booking) step = 2;
-                      return (
-                        <li
-                          key={label}
-                          aria-current={index === step ? "step" : undefined}
-                          data-complete={index < step}
-                        >
-                          <span aria-hidden="true">
-                            {index < step ? <CheckCircle2 size={16} /> : index + 1}
-                          </span>
-                          {label}
-                        </li>
-                      );
-                    })}
-                  </ol>
-                )}
+                {bookable &&
+                  !enquiryMode &&
+                  (access === "customer" || access === "anonymous") && (
+                    <ol className="sd-booking-progress" aria-label="Booking progress">
+                      {["Details", "Review", "Received"].map((label, index) => {
+                        let step = 0;
+                        if (review) step = 1;
+                        if (booking) step = 2;
+                        return (
+                          <li
+                            key={label}
+                            aria-current={index === step ? "step" : undefined}
+                            data-complete={index < step}
+                          >
+                            <span aria-hidden="true">
+                              {index < step ? <CheckCircle2 size={16} /> : index + 1}
+                            </span>
+                            {label}
+                          </li>
+                        );
+                      })}
+                    </ol>
+                  )}
                 <h2
                   id="service-request-title"
                   ref={formHeading}
@@ -601,7 +687,22 @@ export function ServiceDetail({
                 >
                   {formTitle}
                 </h2>
-                {!fixed ? (
+                {bookable && !booking && (
+                  <button
+                    type="button"
+                    className="text-link"
+                    disabled={locked || quotationUncertain}
+                    onClick={() => {
+                      setEnquiryMode((value) => !value);
+                      requestAnimationFrame(() => focus(formHeading.current));
+                    }}
+                  >
+                    {enquiryMode
+                      ? "Request an appointment instead"
+                      : "Ask a service question instead"}
+                  </button>
+                )}
+                {!bookable || enquiryMode ? (
                   <>
                     <p className="sd-muted">
                       Share your vehicle details and what you need. An enquiry does not
@@ -618,16 +719,6 @@ export function ServiceDetail({
                       />
                     </div>
                   </>
-                ) : !bookable ? (
-                  <div className="sd-recovery">
-                    <p>
-                      Online appointments are unavailable for this service while its price
-                      or duration is being updated.
-                    </p>
-                    <Link className="button secondary" href="/contact">
-                      Contact our team
-                    </Link>
-                  </div>
                 ) : access === "checking" ? (
                   <p role="status" className="sd-muted">
                     Checking booking access…
@@ -659,6 +750,16 @@ export function ServiceDetail({
                       Contact our team
                     </Link>
                   </div>
+                ) : access === "verification" ? (
+                  <div className="sd-recovery">
+                    <p>
+                      Complete your account security check before reviewing or sending a
+                      booking.
+                    </p>
+                    <Link href="/mfa" className="button">
+                      Continue security verification
+                    </Link>
+                  </div>
                 ) : booking ? (
                   <div className="sd-confirmation" role="status">
                     <CheckCircle2 size={32} aria-hidden="true" />
@@ -688,7 +789,7 @@ export function ServiceDetail({
                       <dt>Status</dt>
                       <dd>{booking.status.replaceAll("_", " ")}</dd>
                       <dt>Service</dt>
-                      <dd>{booking.service.name}</dd>
+                      <dd>{booking.service?.name ?? "Vehicle concern"}</dd>
                       {booking.branch && (
                         <>
                           <dt>Branch</dt>
@@ -697,7 +798,7 @@ export function ServiceDetail({
                       )}
                       {booking.scheduledAt && (
                         <>
-                          <dt>Appointment</dt>
+                          <dt>Requested time</dt>
                           <dd>{formatBusinessDate(booking.scheduledAt)}</dd>
                         </>
                       )}
@@ -737,6 +838,12 @@ export function ServiceDetail({
                     }}
                     aria-busy={busy}
                   >
+                    {draftRestored && (
+                      <p role="status" className="notice">
+                        Your booking draft is restored. Review the current time, price and
+                        terms before sending.
+                      </p>
+                    )}
                     {review && (
                       <section
                         className="sd-booking-review"
@@ -756,7 +863,7 @@ export function ServiceDetail({
                             <dd>{review.branchName}</dd>
                           </div>
                           <div>
-                            <dt>Appointment</dt>
+                            <dt>Requested time</dt>
                             <dd>{formatBusinessDate(review.startsAt)}</dd>
                           </div>
                           <div>
@@ -765,7 +872,11 @@ export function ServiceDetail({
                           </div>
                           <div>
                             <dt>Service price</dt>
-                            <dd>{formatKobo(review.priceKobo)}</dd>
+                            <dd>
+                              {review.priceKobo === null
+                                ? "Quotation required — agree the price before payment"
+                                : formatKobo(review.priceKobo)}
+                            </dd>
                           </div>
                           <div>
                             <dt>Your notes</dt>
@@ -834,11 +945,16 @@ export function ServiceDetail({
                         </ServiceChoice>
                       </div>
                       <fieldset className="sd-appointments" disabled={locked}>
-                        <legend>Available appointments</legend>
+                        <legend>Offered appointment times</legend>
                         {!branch ? (
                           <p className="sd-empty">
                             <CalendarDays size={22} aria-hidden="true" />
                             Choose a workshop branch to see available times.
+                          </p>
+                        ) : !offeredSlotsSupported ? (
+                          <p className="sd-empty">
+                            Choose a preferred time below. Our team will review the work
+                            and confirm availability.
                           </p>
                         ) : slots.loading ? (
                           <p className="sd-empty" role="status">
@@ -873,6 +989,7 @@ export function ServiceDetail({
                                       aria-pressed={slot === item.id}
                                       onClick={() => {
                                         setSlot(item.id);
+                                        setPreferredTime("");
                                         setAccepted(false);
                                       }}
                                     >
@@ -905,8 +1022,8 @@ export function ServiceDetail({
                               </div>
                             ) : (
                               <p className="sd-empty">
-                                No appointments are available on this page. Try another
-                                branch or contact our team.
+                                No offered times are listed on this page. You can still
+                                request a preferred time below.
                               </p>
                             )}
                             {(slotCursor || slots.data?.nextCursor) && (
@@ -940,7 +1057,29 @@ export function ServiceDetail({
                           </>
                         )}
                       </fieldset>
+                      <div className="field">
+                        <label htmlFor="booking-preferred-time">
+                          Or request your preferred time (Lagos time)
+                        </label>
+                        <input
+                          id="booking-preferred-time"
+                          type="datetime-local"
+                          value={preferredTime}
+                          disabled={locked || !branch}
+                          aria-describedby="booking-preferred-help"
+                          onChange={(event) => {
+                            setPreferredTime(event.target.value);
+                            setSlot("");
+                            setAccepted(false);
+                          }}
+                        />
+                        <p id="booking-preferred-help" className="sd-muted">
+                          This is a request, not an available slot. The workshop must
+                          confirm it. Choose a time within the booking window shown below.
+                        </p>
+                      </div>
                       <BookingAccountDetails
+                        onSignIn={preserveForSignIn}
                         serviceId={serviceId}
                         vehicle={vehicle}
                         onVehicleChange={setVehicle}
@@ -1047,6 +1186,7 @@ export function ServiceDetail({
                           <Link
                             className="text-link"
                             href={`/login?next=${encodeURIComponent(`/services/${serviceId}`)}`}
+                            onClick={preserveForSignIn}
                           >
                             Sign in to your account
                           </Link>
@@ -1075,6 +1215,7 @@ export function ServiceDetail({
                         <Link
                           className="button"
                           href={`/login?next=${encodeURIComponent(`/services/${serviceId}`)}`}
+                          onClick={preserveForSignIn}
                         >
                           Sign in to request booking
                           <ArrowRight size={17} aria-hidden="true" />
@@ -1088,11 +1229,10 @@ export function ServiceDetail({
                             !!service.error ||
                             (!uncertain &&
                               (reviewChanged ||
-                                !selectedSlot ||
+                                timeUnavailable ||
                                 !policy.data ||
                                 !!policy.error ||
-                                slots.loading ||
-                                !!slots.error ||
+                                (!!selectedSlot && (slots.loading || !!slots.error)) ||
                                 (requiresDeposit && !accepted)))
                           }
                         >
@@ -1125,14 +1265,13 @@ export function ServiceDetail({
               <div className="sd-container sd-care-layout">
                 <figure>
                   <div className="sd-care-image">
-                    <Image
-                      src="/images/allied-autotech/technician-original.webp"
-                      alt="Allied AutoTech technician in the original Precision Autocare You Can Trust campaign"
-                      fill
-                      sizes="(max-width: 700px) 90vw, 36vw"
+                    <CampaignArtwork
+                      artwork="precision-autocare"
+                      alt="Allied AutoTech Precision Autocare You Can Trust campaign, with a person in a red branded uniform"
+                      sizes="(max-width: 420px) calc(100vw - 40px), 380px"
                     />
                   </div>
-                  <figcaption>From our original workshop campaign.</figcaption>
+                  <figcaption>Precision Autocare You Can Trust.</figcaption>
                 </figure>
                 <div>
                   <h2 id="sd-care-title">Clear advice. Careful workmanship.</h2>
@@ -1192,7 +1331,7 @@ export function ServiceDetail({
                       <ChevronDown size={18} aria-hidden="true" />
                     </summary>
                     <p>
-                      {fixed
+                      {bookable
                         ? "A booking request is waiting for workshop review. Check your account for the confirmed appointment and updates."
                         : "Our team reviews your service enquiry and discusses the next steps with you. Sending an enquiry does not confirm a quotation or appointment."}
                     </p>

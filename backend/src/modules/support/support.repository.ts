@@ -796,7 +796,13 @@ export class SupportRepository {
     if (query.targetType === "SERVICE") {
       const rows = await this.database.booking.findMany({
         ...options,
-        where: { ...(id ? { id } : {}), customerId, status: "COMPLETED", review: null },
+        where: {
+          ...(id ? { id } : {}),
+          customerId,
+          serviceId: { not: null },
+          status: "COMPLETED",
+          review: null,
+        },
         select: {
           id: true,
           serviceId: true,
@@ -804,13 +810,19 @@ export class SupportRepository {
           service: { select: { name: true } },
         },
       });
-      return rows.map((row) => ({
-        id: row.id,
-        targetType: "SERVICE",
-        label: `${row.service.name} · ${row.scheduledAt.toLocaleDateString("en-NG", { timeZone: "Africa/Lagos" })}`,
-        serviceId: row.serviceId,
-        bookingId: row.id,
-      }));
+      return rows.flatMap((row) =>
+        row.serviceId === null
+          ? []
+          : [
+              {
+                id: row.id,
+                targetType: "SERVICE",
+                label: `${row.service?.name ?? "Vehicle concern"} · ${row.scheduledAt.toLocaleDateString("en-NG", { timeZone: "Africa/Lagos" })}`,
+                serviceId: row.serviceId,
+                bookingId: row.id,
+              },
+            ],
+      );
     }
     if (query.targetType === "ORDER") {
       const rows = await this.database.order.findMany({

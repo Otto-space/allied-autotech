@@ -15,6 +15,7 @@ const destinations = new Set([
   "/vehicles",
   "/services",
   "/help",
+  "/contact",
   "/forgot-password",
   "/dashboard/support",
   "/admin",
@@ -113,6 +114,7 @@ export function allieSourceSet(catalogue: AllieCatalogue) {
         audience: catalogue.audience,
         mode: catalogue.mode,
         flags: catalogue.flags,
+        knowledgeRevision: catalogue.knowledgeRevision,
         articles: [...catalogue.articles].sort((a, b) => a.id.localeCompare(b.id)),
         guides: [...catalogue.guides].sort((a, b) => a.id.localeCompare(b.id)),
         scenarios: [...catalogue.scenarios].sort((a, b) => a.id.localeCompare(b.id)),
@@ -130,11 +132,20 @@ export function retrieveAllieContext(
   previous?: AllieHistory,
 ): AllieContext {
   const sourceSet = allieSourceSet(catalogue);
-  const safeArticles = catalogue.articles.filter(
+  const knowledge = (catalogue.knowledge ?? []).filter(
+    (item) =>
+      item.permission === "public" &&
+      /^(service|product|vehicle)-[0-9a-f-]{36}$/.test(item.id) &&
+      item.href ===
+        `/${item.id.startsWith("service-") ? "services" : item.id.startsWith("product-") ? "parts" : "vehicles"}/${item.id.slice(8)}` &&
+      /^[a-f0-9]{64}$/.test(item.contentHash),
+  );
+  const knowledgeIds = new Set(knowledge.map((item) => item.id));
+  const safeArticles = [...catalogue.articles, ...knowledge].filter(
     (article) =>
       article.status === "published" &&
       /^[a-z][a-z0-9-]{0,63}$/.test(article.id) &&
-      destinations.has(article.href) &&
+      (destinations.has(article.href) || knowledgeIds.has(article.id)) &&
       Number.isInteger(article.version) &&
       article.version > 0,
   );
@@ -205,13 +216,23 @@ export function retrieveAllieContext(
       articleId: article.id,
       version: article.version,
       title: article.title,
-      href: `/learn?article=${article.id}`,
+      href: knowledgeIds.has(article.id) ? article.href : `/learn?article=${article.id}`,
       passage,
     });
   }
   const actions: AllieAction[] = [];
   for (const source of sources) {
     const article = safeArticles.find((entry) => entry.id === source.articleId)!;
+    if (knowledgeIds.has(article.id)) {
+      actions.push({
+        id: `open:${article.id}`,
+        kind: "navigate",
+        label: `View ${article.title}`,
+        href: article.href,
+        sourceId: source.id,
+      });
+      continue;
+    }
     actions.push({
       id: `read:${article.id}`,
       kind: "article",

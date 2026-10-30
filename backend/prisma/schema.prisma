@@ -1045,6 +1045,9 @@ model BookingSlot {
 }
 
 model Booking {
+  alternativeStartsAt DateTime?
+  alternativeReason String? @db.VarChar(1000)
+  alternativeVersion Int?
   requestedAt             DateTime                     @default(now())
   attendanceConfirmedAt   DateTime?
   resourceReviewNote      String?
@@ -1053,7 +1056,7 @@ model Booking {
   id                      String                       @id @default(uuid()) @db.Uuid
   customerId              String                       @db.Uuid
   branchId                String?                      @db.Uuid
-  serviceId               String                       @db.Uuid
+  serviceId               String?                      @db.Uuid
   vehicleId               String?                      @db.Uuid
   assignedStaffId         String?                      @db.Uuid
   bookingSlotId           String?                      @db.Uuid
@@ -1061,6 +1064,7 @@ model Booking {
   status                  BookingStatus                @default(REQUESTED)
   quotedPriceKobo         BigInt?
   currency                String                       @default("NGN") @db.Char(3)
+  customerConcern         String?                      @db.VarChar(2000)
   customerNotes           String?
   staffNotes              String?
   cancellationReason      String?
@@ -1087,7 +1091,7 @@ model Booking {
 
   customer                        CustomerProfile        @relation(fields: [customerId], references: [id], onDelete: Restrict)
   branch                          Branch?                @relation(fields: [branchId], references: [id], onDelete: Restrict)
-  service                         Service                @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+  service                         Service?               @relation(fields: [serviceId], references: [id], onDelete: Restrict)
   vehicle                         CustomerVehicle?       @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
   assignedStaff                   StaffProfile?          @relation("AssignedBookings", fields: [assignedStaffId], references: [id], onDelete: SetNull)
   bookingSlot                     BookingSlot?           @relation(fields: [bookingSlotId], references: [id], onDelete: Restrict)

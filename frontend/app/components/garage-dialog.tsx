@@ -7,11 +7,13 @@ export function GarageDialog({
   busy,
   onClose,
   children,
+  closeLabel = "Close vehicle dialog",
 }: {
   title: string;
   busy: boolean;
   onClose: () => void;
   children: ReactNode;
+  closeLabel?: string;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const opener = useRef<Element | null>(null);
@@ -68,12 +70,7 @@ export function GarageDialog({
     >
       <header className="garage-dialog-heading">
         <h2 id="garage-dialog-title">{title}</h2>
-        <button
-          type="button"
-          aria-label="Close vehicle dialog"
-          disabled={busy}
-          onClick={onClose}
-        >
+        <button type="button" aria-label={closeLabel} disabled={busy} onClick={onClose}>
           <X size={20} aria-hidden="true" />
         </button>
       </header>

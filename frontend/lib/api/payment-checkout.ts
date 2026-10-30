@@ -16,6 +16,8 @@ export function hasPendingPaymentAttempt(payment: PaymentRecord) {
   );
 }
 export function newPaymentAttemptUnavailable(payment: PaymentRecord, now = Date.now()) {
+  if (payment.reversalReported)
+    return "A reversal was reported. Contact customer care before paying again.";
   if (payment.status !== "REQUIRES_PAYMENT")
     return "Check the current payment status before making another payment.";
   if (payment.bookingId)

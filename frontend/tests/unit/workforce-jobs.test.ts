@@ -57,6 +57,25 @@ function data() {
   };
 }
 describe("workforce jobs query and scope", () => {
+  it("keeps concern-only jobs readable without weakening assignment scope", () => {
+    const value = data();
+    const concern = {
+      ...value.items[0],
+      status: "REQUESTED",
+      service: null,
+      customerConcern: "Engine makes a rattling sound.",
+    };
+    const parsed = parseScopedWorkforceJobs({ ...value, items: [concern] });
+    expect(parsed.items[0].service).toBeNull();
+    expect(parsed.items[0].customerConcern).toBe(concern.customerConcern);
+    expect(() =>
+      parseScopedWorkforceJobs({
+        ...value,
+        items: [{ ...concern, assignedStaffId: id(99) }],
+      }),
+    ).toThrow();
+  });
+
   it("normalizes supported filters and keeps trail out of the API request", () => {
     const query = workforceJobsQuery(
       new URLSearchParams({

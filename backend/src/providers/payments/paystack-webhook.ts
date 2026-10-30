@@ -4,9 +4,10 @@ import { parsePaystackJson, paystackIdentifier } from "./paystack-json.js";
 
 const eventSchema = z.object({ event: z.string().min(1).max(120), data: z.unknown() });
 const chargeSchema = z.object({
+  domain: z.enum(["test", "live"]),
   id: paystackIdentifier,
   reference: z.string().min(1).max(160),
-  status: z.string().min(1).max(80),
+  status: z.literal("success"),
   amount: z.number().int().safe().positive(),
   currency: z.string().length(3),
   paid_at: z.string().nullable().optional(),
@@ -32,6 +33,7 @@ const disputeSchema = z.object({
 });
 
 export type PaystackWebhookEvent = {
+  domain?: "test" | "live";
   disputeLookupRequired?: boolean;
   eventType: string;
   providerEventId: string | null;
@@ -69,6 +71,7 @@ export function parsePaystackWebhook(rawBody: Buffer): PaystackWebhookEvent {
     const data = chargeSchema.parse(envelope.data);
     return {
       eventType: envelope.event,
+      domain: data.domain,
       providerEventId: `${envelope.event}:${String(data.id)}`,
       resourceId: String(data.id),
       reference: data.reference,

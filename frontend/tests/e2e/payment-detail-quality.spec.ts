@@ -433,3 +433,48 @@ for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536])
     }
     expect(errors).toEqual([]);
   });
+
+for (const width of [390, 1440]) {
+  test(`reversal report supersedes original success messaging at ${width}px`, async ({
+    page,
+  }, info) => {
+    await page.setViewportSize({ width, height: 900 });
+    const state = await fixture(page);
+    state.payment.status = "SUCCEEDED";
+    state.payment.reversalReported = true;
+    state.payment.attempts = [
+      {
+        id: id(3),
+        provider: "PAYSTACK",
+        status: "SUCCESSFUL",
+        verificationStatus: "VERIFIED",
+        initiatedAt: "2026-10-08T09:00:00Z",
+        paidAt: "2026-10-08T09:01:00Z",
+      },
+    ];
+    await visit(page);
+    await expect(page.locator(".payment-state .status")).toHaveText("Reversal reported");
+    await expect(page.locator(".payment-status-message")).toContainText(
+      "Do not pay again",
+    );
+    await expect(page.locator(".payment-summary")).toContainText(
+      "Originally confirmed amount",
+    );
+    await expect(checkout(page)).toHaveCount(0);
+    await page.getByRole("button", { name: "Check with provider", exact: true }).click();
+    await expect(page.locator(".payment-state .status")).toHaveText("Reversal reported");
+    await expect(
+      page.getByRole("heading", { name: "Payment confirmed", exact: true }),
+    ).toHaveCount(0);
+    await expect(
+      page.getByRole("heading", { name: "Review the reported reversal", exact: true }),
+    ).toBeVisible();
+    expect(state.writes).toHaveLength(1);
+    expect(state.writes[0].endpoint).toMatch(/\/verify$/);
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+    await page.locator(".payment-summary").scrollIntoViewIfNeeded();
+    await page.screenshot({ path: info.outputPath(`reversal-${width}.png`) });
+  });
+}

@@ -117,3 +117,12 @@ the versioned backend learning definitions, eligibility checks and acceptance te
 and the content/checkpoint records in `docs/help-learn/` (relative to repository root).
 Keep restricted content server-side, practice in memory, and all feature flags off
 until a separately reviewed publication. Never make tutorials grant permissions.
+
+## Efficient delivery and customer language
+
+Follow `docs/UI_UX_AND_CONTENT_RULES.md` and `docs/DELIVERY_AND_VERIFICATION.md`
+for shared design, plain customer language, focused verification and bounded
+one-hour work packages. Preserve unrelated instructions and report unverified
+requirements explicitly. These documents guide work; they are not enforcement
+mechanisms. Current task-specific deployment and capability instructions take
+precedence over the standing release workflow.

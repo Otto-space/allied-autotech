@@ -25,6 +25,7 @@ export async function workforceJobDetailFixture(page: Page, lead = false) {
     base,
     job,
     candidates,
+    classificationService: { id: detailId(900), name: "Synthetic concern diagnostics" },
     writes: [] as { kind: string; body: Record<string, unknown> }[],
     reads: [] as string[],
     fail: false,
@@ -124,6 +125,8 @@ export async function workforceJobDetailFixture(page: Page, lead = false) {
       if (!target || body.expectedVersion !== state.job.version) return fail(409);
       state.job.assignedStaffId = target.id;
       state.job.assignedStaff = target;
+      if (body.serviceId === state.classificationService.id)
+        state.job.service = state.classificationService;
       state.job.version++;
     } else return fail(403);
     if (state.loseResponse) return fail(503);

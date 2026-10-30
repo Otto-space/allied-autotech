@@ -6,6 +6,8 @@ import { parsePaystackWebhook } from "../../src/providers/payments/paystack-webh
 const ids = ["9007199254740992", "9007199254740993", "18446744073709551615"];
 const originalMode = env.PAYSTACK_MODE;
 const originalKey = env.PAYSTACK_SECRET_KEY;
+const originalDeployment = env.DEPLOYMENT_ENV;
+const originalLiveEnabled = env.PAYSTACK_LIVE_ENABLED;
 beforeEach(() => {
   env.PAYSTACK_MODE = "test";
   env.PAYSTACK_SECRET_KEY = "sk_test_synthetic_identity_only";
@@ -14,12 +16,14 @@ beforeEach(() => {
 afterEach(() => {
   env.PAYSTACK_MODE = originalMode;
   env.PAYSTACK_SECRET_KEY = originalKey;
+  env.DEPLOYMENT_ENV = originalDeployment;
+  env.PAYSTACK_LIVE_ENABLED = originalLiveEnabled;
   vi.unstubAllGlobals();
 });
 
 function webhook(event: string, id: string) {
   return Buffer.from(
-    `{"event":"${event}","data":{"id":${id},"reference":"synthetic-reference","transaction":{"reference":"synthetic-reference"},"status":"success","amount":10000,"currency":"NGN"}}`,
+    `{"event":"${event}","data":{"id":${id},"domain":"test","reference":"synthetic-reference","transaction":{"reference":"synthetic-reference"},"status":"success","amount":10000,"currency":"NGN"}}`,
   );
 }
 function response(id: string) {
@@ -89,3 +93,130 @@ describe("exact Paystack transaction identity", () => {
     });
   });
 });
+
+describe("Paystack verification environment and reference", () => {
+  it.each([
+    { domain: undefined },
+    { domain: null },
+    { domain: "live" },
+    { domain: "unknown" },
+    { reference: "another-payment" },
+  ])("rejects incomplete or mismatched verification: %j", async (change) => {
+    vi.mocked(fetch).mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          status: true,
+          message: "Synthetic",
+          data: {
+            id: 42,
+            domain: "test",
+            reference: "synthetic-reference",
+            status: "success",
+            amount: 10000,
+            currency: "NGN",
+            ...change,
+          },
+        }),
+      ),
+    );
+    await expect(new PaystackAdapter().verify("synthetic-reference")).rejects.toThrow();
+  });
+
+  it("accepts a matching live response only with live configuration", async () => {
+    env.PAYSTACK_MODE = "live";
+    env.DEPLOYMENT_ENV = "production";
+    env.PAYSTACK_LIVE_ENABLED = true;
+    env.PAYSTACK_SECRET_KEY = "sk_live_synthetic_contract_only";
+    vi.mocked(fetch).mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          status: true,
+          message: "Synthetic",
+          data: {
+            id: 42,
+            domain: "live",
+            reference: "synthetic-reference",
+            status: "success",
+            amount: 10000,
+            currency: "NGN",
+          },
+        }),
+      ),
+    );
+    await expect(
+      new PaystackAdapter().verify("synthetic-reference"),
+    ).resolves.toMatchObject({
+      reference: "synthetic-reference",
+      status: "success",
+      amountKobo: 10000n,
+    });
+  });
+});
+
+describe("Paystack successful charge event consistency", () => {
+  it.each(["failed", "pending", "abandoned", "reversed"])(
+    "rejects a charge.success envelope whose transaction status is %s",
+    (status) => {
+      const raw = webhook("charge.success", "42")
+        .toString("utf8")
+        .replace('"status":"success"', `"status":"${status}"`);
+      expect(() => parsePaystackWebhook(Buffer.from(raw))).toThrow();
+    },
+  );
+});
+
+it.each([undefined, null, "unknown"])(
+  "rejects a charge event without a recognised domain: %s",
+  (domain) => {
+    const data = {
+      id: 42,
+      domain,
+      reference: "synthetic-reference",
+      status: "success",
+      amount: 10000,
+      currency: "NGN",
+    };
+    expect(() =>
+      parsePaystackWebhook(
+        Buffer.from(JSON.stringify({ event: "charge.success", data })),
+      ),
+    ).toThrow();
+  },
+);
+
+it.each([
+  "reversed",
+  "failed",
+  "abandoned",
+  "pending",
+  "ongoing",
+  "processing",
+  "queued",
+])(
+  "preserves the authoritative %s outcome without treating it as success",
+  async (status) => {
+    vi.mocked(fetch).mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          status: true,
+          message: "Synthetic",
+          data: {
+            id: 42,
+            domain: "test",
+            reference: "synthetic-reference",
+            status,
+            amount: 10000,
+            currency: "NGN",
+          },
+        }),
+      ),
+    );
+    await expect(
+      new PaystackAdapter().verify("synthetic-reference"),
+    ).resolves.toMatchObject({
+      reference: "synthetic-reference",
+      amountKobo: 10000n,
+      status: ["ongoing", "processing", "queued"].includes(status) ? "pending" : status,
+    });
+  },
+);

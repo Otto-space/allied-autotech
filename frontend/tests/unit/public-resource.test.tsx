@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { act, cleanup, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
+import { StrictMode } from "react";
 const request = vi.hoisted(() => vi.fn());
 vi.mock("@/lib/api/client", () => ({
   apiRequest: request,
@@ -132,4 +133,33 @@ it("an external refresh preserves the current page and ignores an older response
     "/staff/messages?cursor=current",
     "/staff/messages?cursor=current",
   ]);
+});
+
+it("does not repeat the server read during Strict Mode effect replay, but still refreshes", async () => {
+  request.mockResolvedValue({ data: "fresh" });
+  const { result } = renderHook(
+    () => useResource("/public/items", parse, "seed", { revalidateOnMount: false }),
+    { wrapper: StrictMode },
+  );
+  await act(async () => {});
+  expect(request).not.toHaveBeenCalled();
+  expect(result.current.data).toBe("seed");
+  act(() => result.current.refresh());
+  await waitFor(() => expect(result.current.data).toBe("fresh"));
+  expect(request).toHaveBeenCalledTimes(1);
+});
+
+it("revalidates when a disabled resource becomes available again", async () => {
+  request.mockResolvedValue({ data: "current" });
+  const { result, rerender } = renderHook(
+    ({ path }: { path: string | null }) =>
+      useResource(path, parse, "seed", { revalidateOnMount: false }),
+    { initialProps: { path: "/public/items" as string | null } },
+  );
+  expect(request).not.toHaveBeenCalled();
+  rerender({ path: null });
+  expect(result.current.data).toBeUndefined();
+  rerender({ path: "/public/items" });
+  await waitFor(() => expect(result.current.data).toBe("current"));
+  expect(request).toHaveBeenCalledTimes(1);
 });

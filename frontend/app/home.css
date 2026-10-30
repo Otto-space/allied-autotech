@@ -120,7 +120,8 @@
   justify-content: center;
 }
 .home-page .home-vehicle-card .product-media img {
-  object-fit: contain;
+  object-fit: cover;
+  object-position: center;
 }
 .home-page .home-product-grid {
   grid-template-columns: repeat(4, minmax(0, 1fr));

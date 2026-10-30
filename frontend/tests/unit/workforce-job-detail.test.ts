@@ -170,3 +170,39 @@ describe("managed job detail boundaries", () => {
     expect(jobRevision(next)).not.toBe(jobRevision(job));
   });
 });
+
+it("binds concern classification receipts to the reviewed service and original concern", () => {
+  const base = jobDetailData(true);
+  base.service = null;
+  base.status = "REQUESTED";
+  base.workOrder = null;
+  base.customerConcern = "Engine rattles on start.";
+  const service = { id: detailId(900), name: "Concern diagnostics" },
+    technician = base.assignedStaff!;
+  const change = {
+    kind: "assignment" as const,
+    technician,
+    service,
+    body: {
+      expectedVersion: base.version,
+      staffId: technician.id,
+      serviceId: service.id,
+      reason: "Concern reviewed for workshop assignment.",
+    },
+  };
+  const after = { ...base, service, version: base.version + 1 };
+  expect(validateJobReceipt(base, after, change).service).toEqual(service);
+  expect(() =>
+    validateJobReceipt(base, { ...after, customerConcern: "Changed" }, change),
+  ).toThrow();
+  expect(() =>
+    validateJobReceipt(
+      base,
+      { ...after, service: { ...service, id: detailId(901) } },
+      change,
+    ),
+  ).toThrow();
+  expect(() =>
+    validateJobReceipt(base, { ...after, status: "CONFIRMED" }, change),
+  ).toThrow();
+});

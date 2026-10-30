@@ -166,6 +166,10 @@ export function registerPaymentsOpenApi(registry: OpenAPIRegistry): void {
         (route.path.startsWith("/staff/")
           ? "Requires ADMIN or SUPER_ADMIN with verified MFA. STAFF has no payment, evidence or refund access. Existing separation-of-duties and transactional checks also apply."
           : "Requires the customer account that owns the payment; server verification remains authoritative.") +
+        (route.method === "get" &&
+        ["/customers/payments", "/customers/payments/{paymentId}"].includes(route.path)
+          ? " Customer reads include reversalReported, a boolean indicating a recorded provider reversal observation. Original payment status and capture amounts remain historical facts; internal anomaly identifiers and details are never returned. A reversal report is not proof of a completed refund or permission to repay."
+          : "") +
         (route.method === "get" && route.path === "/customers/payments"
           ? " Optional vehicleTransactionId filters within the authenticated customer's payments before pagination. A cursor for another customer, target or selected status is rejected. An empty result does not reveal whether a different customer owns the target."
           : "") +

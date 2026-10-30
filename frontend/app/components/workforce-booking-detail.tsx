@@ -11,6 +11,7 @@ import { sameWorkforceScope } from "@/lib/admin/workforce-overview";
 import { formatBusinessDate } from "@/lib/format/date";
 import { NotificationRecordContext } from "./notification-record-context";
 import { Feedback } from "./feedback";
+import { WorkforceBookingAlternative } from "./workforce-booking-alternative";
 import { WorkforceBookingConfirmation } from "./workforce-booking-confirmation";
 import "./workforce-bookings.css";
 
@@ -69,7 +70,8 @@ export function WorkforceBookingDetail({
         <>
           <NotificationRecordContext resourceType="BOOKING" resourceId={row.id} />
           <section className="card" aria-label="Booking appointment">
-            <h2>{row.service.name}</h2>
+            <h2>{row.service?.name ?? "Vehicle concern"}</h2>
+            {row.customerConcern && <p>{row.customerConcern}</p>}
             <dl className="totals">
               <dt>Booking status</dt>
               <dd>{bookingStatusLabels[row.status]}</dd>
@@ -97,13 +99,13 @@ export function WorkforceBookingDetail({
                   </dd>
                 </>
               )}
-              {row.service.durationMinutes !== undefined && (
+              {row.service?.durationMinutes !== undefined && (
                 <>
                   <dt>Service duration</dt>
                   <dd>
-                    {row.service.durationMinutes === null
+                    {row.service?.durationMinutes === null
                       ? "Not recorded"
-                      : `${row.service.durationMinutes} minutes`}
+                      : `${row.service?.durationMinutes} minutes`}
                   </dd>
                 </>
               )}
@@ -117,8 +119,41 @@ export function WorkforceBookingDetail({
               </dd>
             </dl>
           </section>
+          {row.alternativeStartsAt && row.alternativeReason && (
+            <section className="card" aria-label="Proposed appointment">
+              <h2>Proposed appointment</h2>
+              <p>
+                <time dateTime={row.alternativeStartsAt}>
+                  {formatBusinessDate(row.alternativeStartsAt)}
+                </time>
+              </p>
+              <p>{row.alternativeReason}</p>
+              <p>
+                {row.alternativeVersion === row.version &&
+                ["REQUESTED", "CONFIRMED"].includes(row.status)
+                  ? "Waiting for the customer to accept or decline. The current appointment has not changed."
+                  : "The booking changed after this proposal. Review the current appointment before offering another time."}
+              </p>
+            </section>
+          )}
+          <WorkforceBookingAlternative
+            key={`${access.userId}:${row.id}:${row.version}`}
+            row={row}
+            access={access}
+            onRefresh={() => {
+              record.refresh();
+              refreshAccess();
+            }}
+            onSaved={(version) => {
+              setMinimumVersion(version);
+              setMessage(
+                "Proposed time saved for customer review. The current appointment has not changed.",
+              );
+              record.refresh();
+            }}
+          />
           {row.assignedStaff !== undefined &&
-            row.service.durationMinutes !== undefined && (
+            row.service?.durationMinutes !== undefined && (
               <WorkforceBookingConfirmation
                 row={row}
                 access={access}

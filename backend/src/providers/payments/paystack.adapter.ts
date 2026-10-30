@@ -34,13 +34,14 @@ const verifyResponse = envelope(
       "success",
       "failed",
       "abandoned",
+      "reversed",
       "pending",
       "ongoing",
       "processing",
       "queued",
     ]),
     reference: z.string(),
-    domain: z.enum(["test", "live"]).optional(),
+    domain: z.enum(["test", "live"]),
     amount: z.number().int().safe().positive(),
     currency: z.string(),
     paid_at: z.string().nullable().optional(),
@@ -150,7 +151,7 @@ export class PaystackAdapter implements PaymentProviderPort {
       await this.request(`/transaction/verify/${encodeURIComponent(reference)}`),
     );
     if (!parsed.status) throw providerUnavailable();
-    if (parsed.data.domain && parsed.data.domain !== env.PAYSTACK_MODE)
+    if (parsed.data.domain !== env.PAYSTACK_MODE || parsed.data.reference !== reference)
       throw providerRejected();
     const status = ["ongoing", "processing", "queued"].includes(parsed.data.status)
       ? "pending"

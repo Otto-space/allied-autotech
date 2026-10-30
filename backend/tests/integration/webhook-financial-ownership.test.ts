@@ -1,4 +1,14 @@
-import { createHash, randomUUID } from "node:crypto";
+import { PaymentReconciliationWorker } from "../../src/workers/reconciliation.worker.js";
+import { beforeEach as beforePaymentMode, afterEach as afterPaymentMode } from "vitest";
+import { env } from "../../src/config/env.js";
+const previousPaystackMode = env.PAYSTACK_MODE;
+beforePaymentMode(() => {
+  env.PAYSTACK_MODE = "test";
+});
+afterPaymentMode(() => {
+  env.PAYSTACK_MODE = previousPaystackMode;
+});
+import { createHash, randomInt, randomUUID } from "node:crypto";
 import { afterAll, afterEach, describe, expect, it, vi } from "vitest";
 import { paystackProvider } from "../../src/providers/payments/paystack.adapter.js";
 import { prisma } from "../../src/config/database.js";
@@ -184,6 +194,248 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       return { user, payment, attempt, refund, snapshot };
     }
 
+    it.each(["verification", "reconciliation"] as const)(
+      "holds a reversed unallocated payment once and blocks a later stale success via %s",
+      async (source) => {
+        const f = await fixture("PAYSTACK");
+        const periodStart = new Date(Date.UTC(1990, 0, 1) + randomInt(500_000_000_000));
+        const periodEnd = new Date(periodStart.getTime() + 1);
+        await prisma.paymentAttempt.update({
+          where: { id: f.attempt.id },
+          data: { initiatedAt: periodStart },
+        });
+        const observe = async () => {
+          const worker = new PaymentReconciliationWorker(prisma);
+          for (const reobserve of [false, true]) {
+            const run = await worker.run(periodStart, periodEnd, "PAYSTACK", reobserve);
+            expect(run.status).toBe("DIFFERENCES_FOUND");
+            const item = await prisma.paymentReconciliationItem.findFirstOrThrow({
+              where: { runId: run.id },
+            });
+            expect(item).toMatchObject({
+              paymentAttemptId: f.attempt.id,
+              status: "STATUS_MISMATCH",
+              providerAmountKobo: null,
+            });
+            expect(item.note).toContain("reversal");
+          }
+        };
+
+        const verify = vi.spyOn(paystackProvider, "verify").mockResolvedValue({
+          reference: f.attempt.internalReference,
+          gatewayTransactionId: "reversed-receipt",
+          status: "reversed",
+          amountKobo: 10000n,
+          currency: "NGN",
+          paidAt: null,
+          providerFeeKobo: null,
+          method: null,
+        });
+        const service = new PaymentsService(prisma);
+        const actor = {
+          userId: f.user.id,
+          sessionId: randomUUID(),
+          role: "CUSTOMER" as const,
+          email: f.user.email,
+          mfaRequired: false,
+          mfaVerifiedAt: null,
+        };
+        if (source === "reconciliation") {
+          await observe();
+          expect(await service.customerGet(actor, f.payment.id)).toMatchObject({
+            reversalReported: true,
+          });
+        } else {
+          await service.verifyAttempt(actor, f.payment.id, f.attempt.id, context);
+        }
+        await service.verifyAttempt(actor, f.payment.id, f.attempt.id, context);
+        const held = await f.snapshot();
+        expect(held.payment.status).toBe("REQUIRES_REVIEW");
+        expect(held.attempt.gatewayStatus).toBe("reversed");
+        expect(held.attempt.redactedGatewayData).toMatchObject({
+          verificationHold: true,
+        });
+        expect(held.anomalies).toHaveLength(1);
+        expect(held.anomalies[0]?.details).toMatchObject({
+          observed: { status: "reversed" },
+        });
+        expect(held.ledger).toHaveLength(0);
+        expect(held.refunds).toHaveLength(0);
+        expect(held.order.paidAt).toBeNull();
+        verify.mockResolvedValue({
+          reference: f.attempt.internalReference,
+          gatewayTransactionId: "reversed-receipt",
+          status: "success",
+          amountKobo: 10000n,
+          currency: "NGN",
+          paidAt: new Date(),
+          providerFeeKobo: null,
+          method: null,
+        });
+        await service.verifyAttempt(actor, f.payment.id, f.attempt.id, context);
+        const after = await f.snapshot();
+        expect(after.payment.status).toBe("REQUIRES_REVIEW");
+        expect(after.ledger).toHaveLength(0);
+        expect(after.refunds).toHaveLength(0);
+        expect(after.order.paidAt).toBeNull();
+      },
+    );
+
+    it.each(["verification", "reconciliation"] as const)(
+      "reports a later reversal privately without rewriting a settled receipt via %s",
+      async (source) => {
+        const f = await fixture("PAYSTACK");
+        const periodStart = new Date(Date.UTC(1990, 0, 1) + randomInt(500_000_000_000));
+        const periodEnd = new Date(periodStart.getTime() + 1);
+        await prisma.paymentAttempt.update({
+          where: { id: f.attempt.id },
+          data: { initiatedAt: periodStart },
+        });
+        const observe = async () => {
+          const worker = new PaymentReconciliationWorker(prisma);
+          for (const reobserve of [false, true]) {
+            const run = await worker.run(periodStart, periodEnd, "PAYSTACK", reobserve);
+            expect(run.status).toBe("DIFFERENCES_FOUND");
+            const item = await prisma.paymentReconciliationItem.findFirstOrThrow({
+              where: { runId: run.id },
+            });
+            expect(item).toMatchObject({
+              paymentAttemptId: f.attempt.id,
+              status: "STATUS_MISMATCH",
+              providerAmountKobo: null,
+            });
+            expect(item.note).toContain("reversal");
+          }
+        };
+
+        const service = new PaymentsService(prisma);
+        const event = chargeEvent(f.attempt.internalReference);
+        await service.ingestWebhook(event, digest(randomUUID()), context);
+        const before = await f.snapshot();
+        expect(before.payment.status).toBe("SUCCEEDED");
+        vi.spyOn(paystackProvider, "verify").mockResolvedValue({
+          reference: f.attempt.internalReference,
+          gatewayTransactionId: event.gatewayTransactionId!,
+          status: "reversed",
+          amountKobo: 10000n,
+          currency: "NGN",
+          paidAt: before.attempt.paidAt,
+          providerFeeKobo: null,
+          method: null,
+        });
+        const actor = {
+          userId: f.user.id,
+          sessionId: randomUUID(),
+          role: "CUSTOMER" as const,
+          email: f.user.email,
+          mfaRequired: false,
+          mfaVerifiedAt: null,
+        };
+        if (source === "reconciliation") {
+          await observe();
+          expect(await service.customerGet(actor, f.payment.id)).toMatchObject({
+            reversalReported: true,
+          });
+        } else {
+          await service.verifyAttempt(actor, f.payment.id, f.attempt.id, context);
+        }
+        const detail = await service.verifyAttempt(
+          actor,
+          f.payment.id,
+          f.attempt.id,
+          context,
+        );
+        expect(detail).toMatchObject({
+          id: f.payment.id,
+          status: "SUCCEEDED",
+          reversalReported: true,
+        });
+        expect(detail).not.toHaveProperty("anomalies");
+        const list = await service.customerList(actor, { limit: 20 });
+        expect(list).toMatchObject({
+          items: [expect.objectContaining({ id: f.payment.id, reversalReported: true })],
+        });
+        const after = await f.snapshot();
+        expect(after.attempt).toEqual(before.attempt);
+        expect(after.payment).toEqual(before.payment);
+        expect(after.order).toEqual(before.order);
+        expect(after.ledger).toEqual(before.ledger);
+        expect(after.refunds).toEqual(before.refunds);
+        expect(after.anomalies).toHaveLength(1);
+      },
+    );
+
+    function chargeEvent(reference: string): PaystackWebhookEvent {
+      return {
+        domain: "test",
+        eventType: "charge.success",
+        providerEventId: randomUUID(),
+        resourceId: null,
+        reference,
+        status: "success",
+        amountKobo: 10000n,
+        currency: "NGN",
+        gatewayTransactionId: randomUUID(),
+        paidAt: null,
+        providerFeeKobo: null,
+        method: null,
+        category: null,
+        responseDueAt: null,
+      };
+    }
+
+    it("retains the signed environment across a paused provider and rejects a different-mode retry", async () => {
+      const f = await fixture("PAYSTACK");
+      const event = chargeEvent(f.attempt.internalReference);
+      const before = await f.snapshot();
+      const service = new PaymentsService(prisma);
+      env.PAYSTACK_MODE = "disabled";
+      await expect(
+        service.ingestWebhook(event, digest(randomUUID()), context),
+      ).rejects.toThrow();
+      const stored = await prisma.paymentWebhookEvent.findFirstOrThrow({
+        where: { providerEventId: event.providerEventId },
+      });
+      jobs.push(stored.id);
+      expect(stored.redactedPayload).toMatchObject({ domain: "test" });
+      expect(await f.snapshot()).toEqual(before);
+      env.PAYSTACK_MODE = "live";
+      await new PaymentWebhookRetryWorker(prisma, service).runOnce(100);
+      expect(await f.snapshot()).toEqual(before);
+      expect(
+        await prisma.paymentWebhookEvent.findUniqueOrThrow({ where: { id: stored.id } }),
+      ).toMatchObject({
+        status: "DEAD_LETTER",
+        lastErrorCode: "PAYSTACK_EVENT_FACTS_MISMATCH",
+      });
+    });
+
+    it("recovers a legacy event without domain only through authoritative verification", async () => {
+      const f = await fixture("PAYSTACK");
+      const event = chargeEvent(f.attempt.internalReference);
+      delete event.domain;
+      const verify = vi.spyOn(paystackProvider, "verify").mockResolvedValue({
+        reference: f.attempt.internalReference,
+        gatewayTransactionId: event.gatewayTransactionId!,
+        status: "success",
+        amountKobo: 10000n,
+        currency: "NGN",
+        paidAt: null,
+        providerFeeKobo: null,
+        method: null,
+      });
+      await new PaymentsService(prisma).ingestWebhook(
+        event,
+        digest(randomUUID()),
+        context,
+      );
+      expect(verify).toHaveBeenCalledExactlyOnceWith(f.attempt.internalReference);
+      expect((await f.snapshot()).payment.status).toBe("SUCCEEDED");
+      expect(
+        (await f.snapshot()).ledger.filter((entry) => entry.type === "CAPTURE"),
+      ).toHaveLength(1);
+    });
+
     const cases = [
       ["PAYSTACK", "capture"],
       ["MONNIFY", "capture"],
@@ -197,6 +449,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         const f = await fixture(provider, kind === "refund", kind === "dispute");
         const payloadSha256 = digest(randomUUID());
         const event: PaystackWebhookEvent = {
+          domain: "test",
           eventType:
             kind === "capture"
               ? "charge.success"
@@ -345,6 +598,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
     it("initial Paystack ingestion rolls back if the retry worker takes ownership", async () => {
       const f = await fixture("PAYSTACK");
       const event: PaystackWebhookEvent = {
+        domain: "test",
         eventType: "charge.success",
         providerEventId: randomUUID(),
         resourceId: null,

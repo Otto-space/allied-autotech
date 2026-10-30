@@ -19,6 +19,14 @@ trusted processing. Monnify sandbox may omit a signature, so those events can on
 authoritative server-to-server verification and never settle directly. Parsed provider payloads use
 strict allowlists; raw payloads, authorization data, and provider responses are never persisted or logged.
 
+Paystack transaction verification also requires an explicit matching `test`/`live`
+domain and requested reference. Successful-charge events must contain status `success`
+and a recognised domain. The durable redacted event retains that domain; the retry
+worker rechecks it against the current mode. Disabled providers leave recovery pending;
+a contradictory status or environment is retained for operator review without capture.
+Legacy durable events missing domain require authoritative provider verification, never
+an inferred environment. These source checks do not prove merchant activation.
+
 Webhook identities are immutable and deduplicated. Duplicate delivery is safe, while an event that
 does not match its attempt creates an anomaly instead of changing financial state. Capture, refund,
 chargeback, and reversal ledger entries are append-only. A payable can settle only from a verified
@@ -57,11 +65,14 @@ local state; sequential provider lookups are not a global transactional snapshot
 
 Reconciliation item amounts and run totals represent received NGN funds, not requested order
 values: confirmed local receipts use `verifiedAmountKobo`; only positive provider successes for
-the requested reference and NGN currency enter provider totals. Known non-successes contribute
-zero. Unavailable or unallocatable observations have a null provider item amount and contribute
+the requested reference and NGN currency enter provider totals. Non-successes other than reversals contribute
+zero. A reversal has an unknown provider amount, not a verified zero balance. Unavailable or unallocatable observations have a null provider item amount and contribute
 nothing to the total. A matching pair of received totals does not erase an underpayment or an
 existing verification hold. Database write failures fail the run instead of masquerading as
-provider outages. Reconciliation never changes captures, allocations, holds or refunds.
+provider outages. Reconciliation never changes captures, allocations or refunds. A verified reversal
+for the requested reference can add the same deduplicated observation/review hold
+as verification, under the run lease and attempt lock. A successful capture stays
+immutable; a held unallocated attempt cannot accept a later stale success.
 
 Each new reconciliation item also retains the observed provider transaction ID. An eligible
 provider receipt contributes once per run across all batches; a receipt already confirmed for
@@ -76,3 +87,20 @@ separate operational requirements.
 All financial transitions, manual reviews, evidence reads, refund decisions, disputes, anomalies,
 and reconciliation activity retain actor/request correlation where available. Client responses and
 logs expose neither secrets nor unrestricted customer, object-storage, or provider data.
+
+### Provider reversal observations
+
+Paystack verification may return reversed for a refund or chargeback. Preserve that
+outcome rather than treating it as a transport failure or pending payment. Before
+allocation, place the attempt on the existing verification hold and the payment in
+REQUIRES_REVIEW; deduplicate the observation under the attempt lock. A later success
+must not bypass this hold. Reversal alone does not authorise a new refund or supply
+an exact refund amount. Preserve original successful capture facts and route later
+contradictory observations through the anomaly workflow; never rewrite ledger history.
+
+Customer payment reads expose only reversalReported, derived from recorded reversal
+observations. They never return internal anomaly identifiers/details. The original
+payment status, captured amount and receipt history stay intact; customer detail and
+history label the reversal and explain that the historical amount is not proof of
+bank refund receipt. The review indicator is not automatic refund completion or a
+new customer permission. New checkout is unavailable while the review hold applies.

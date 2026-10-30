@@ -17,7 +17,7 @@ export interface InitializedPayment {
 export interface VerifiedPayment {
   reference: string;
   gatewayTransactionId: string;
-  status: "success" | "failed" | "abandoned" | "pending";
+  status: "success" | "failed" | "abandoned" | "pending" | "reversed";
   amountKobo: bigint;
   currency: string;
   paidAt: Date | null;

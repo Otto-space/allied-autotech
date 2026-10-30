@@ -23,7 +23,10 @@ export async function workforceJobsFixture(page: Page, lead = false) {
     version: 0,
     assignedStaffId: base.access.staffId,
     customerNotes: "Synthetic customer note",
-    service: { name: index % 2 ? "Preventive maintenance" : "Engine diagnostics" },
+    customerConcern: null as string | null,
+    service: { name: index % 2 ? "Preventive maintenance" : "Engine diagnostics" } as {
+      name: string;
+    } | null,
     vehicle:
       index === 3
         ? null
@@ -61,6 +64,27 @@ export async function workforceJobsFixture(page: Page, lead = false) {
   };
   await page.route("**/api/v1/staff/workforce/jobs**", async (route) => {
     const url = new URL(route.request().url());
+    if (url.pathname.endsWith("/assignees")) {
+      const job = state.jobs.find(
+        (item) => url.pathname === `/api/v1/staff/workforce/jobs/${item.id}/assignees`,
+      );
+      if (!job) throw Error("Unknown synthetic job");
+      return route.fulfill({
+        json: {
+          success: true,
+          data: {
+            items: [],
+            access: state.access,
+            generatedAt: new Date().toISOString(),
+            jobId: job.id,
+            jobVersion: job.version,
+            branchId: job.branchId,
+          },
+          message: "No synthetic technicians configured",
+          meta: { requestId: "concern-job-assignees" },
+        },
+      });
+    }
     if (url.pathname !== "/api/v1/staff/workforce/jobs") {
       const job = state.jobs.find(
         (item) => url.pathname === `/api/v1/staff/workforce/jobs/${item.id}`,
@@ -104,7 +128,12 @@ export async function workforceJobsFixture(page: Page, lead = false) {
     const filtered = state.jobs.filter(
       (job) =>
         (!q ||
-          JSON.stringify([job.service.name, job.vehicle, job.workOrder?.workOrderNumber])
+          JSON.stringify([
+            job.service?.name,
+            job.customerConcern,
+            job.vehicle,
+            job.workOrder?.workOrderNumber,
+          ])
             .toLowerCase()
             .includes(q)) &&
         (!status ||

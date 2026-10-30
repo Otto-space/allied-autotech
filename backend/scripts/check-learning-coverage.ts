@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { z } from "zod";
 import {
@@ -117,6 +117,28 @@ if (process.argv.includes("--initialise")) {
 const matrix = matrixSchema.parse(JSON.parse(readFileSync(matrixFile, "utf8")));
 const discovered = new Set(inventory.routes.map((r) => r.route));
 const errors: string[] = [];
+function pageSources(directory: string, prefix = "app"): string[] {
+  return readdirSync(directory, { withFileTypes: true }).flatMap((entry) =>
+    entry.isDirectory()
+      ? pageSources(directory + "/" + entry.name, prefix + "/" + entry.name)
+      : entry.name === "page.tsx"
+        ? [prefix + "/" + entry.name]
+        : [],
+  );
+}
+const actualSources = new Set(pageSources(root + "frontend/app"));
+const inventoriedSources = new Set(inventory.routes.map((route) => route.source));
+for (const source of actualSources)
+  if (!inventoriedSources.has(source))
+    errors.push(
+      "Route inventory is missing " +
+        source +
+        "; regenerate it before accepting coverage.",
+    );
+for (const source of inventoriedSources)
+  if (!actualSources.has(source))
+    errors.push("Route inventory contains removed source " + source);
+
 const articles = new Set(learningArticles.map((a) => a.id)),
   guides = new Set(learningGuides.map((g) => g.id)),
   practices = new Set(practiceDefinitions.map((p) => p.id));

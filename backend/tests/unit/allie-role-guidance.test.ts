@@ -133,6 +133,35 @@ describe("provider-observed role guidance regressions", () => {
       ).sources.some((s) => s.articleId === "booking-confirmation"),
     ).toBe(true);
   });
+  it("grounds alternative-time guidance in the permitted review and customer response workflow", () => {
+    const access = {
+      role: "STAFF" as const,
+      managed: true,
+      permissions: ["BOOKINGS_READ"],
+      independentCapabilities: ["BOOKING_CONFIRM"],
+    };
+    const permitted = catalogue(access);
+    const article = permitted.articles.find((a) => a.id === "booking-confirmation")!;
+    expect(article.version).toBe(4);
+    expect(article.steps.join(" ")).toContain("Propose another time");
+    expect(article.steps.join(" ")).toContain("clears the previous staff assignment");
+    expect(article.steps.join(" ")).toContain("Neither answer charges a fee");
+    expect(
+      retrieveAllieContext(
+        permitted,
+        "How do I propose another appointment time for the customer to accept?",
+        "work",
+      ).sources.some((s) => s.articleId === "booking-confirmation"),
+    ).toBe(true);
+    for (const denied of [
+      publicLearningAccess,
+      { ...access, independentCapabilities: [] },
+      { ...access, permissions: [] },
+    ])
+      expect(
+        catalogue(denied).articles.some((a) => a.id === "booking-confirmation"),
+      ).toBe(false);
+  });
   it("retrieves independent-duty guidance only from explicit grants, never a title or responsibility string", () => {
     const ordinary = {
       role: "STAFF" as const,
@@ -283,4 +312,20 @@ describe("provider-observed role guidance regressions", () => {
     );
     expect(context.sources.some((s) => s.articleId === "no-live-lookup")).toBe(true);
   });
+});
+
+it("owner service structure instructions remain administrator-only", () => {
+  const id = "owner-service-groups";
+  expect(
+    catalogue({ role: "ADMIN", managed: false })
+      .articles.find((a) => a.id === id)
+      ?.steps.join(" "),
+  ).toContain("An inactive group remains hidden");
+  for (const role of ["PUBLIC", "CUSTOMER", "STAFF"] as const)
+    expect(catalogue({ role }).articles.some((a) => a.id === id)).toBe(false);
+  expect(
+    catalogue({ role: "ADMIN", managed: false, verified: false }).articles.some(
+      (a) => a.id === id,
+    ),
+  ).toBe(false);
 });

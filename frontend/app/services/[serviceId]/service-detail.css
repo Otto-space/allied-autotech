@@ -91,12 +91,18 @@
   overflow: hidden;
   background: #edf2f5;
 }
+.sd-media:not(.sd-media-empty) {
+  width: 100%;
+  height: auto;
+  justify-self: center;
+}
 .sd-media img,
 .sd-media > [role="img"] {
   height: 100%;
   width: 100%;
   max-height: none;
-  object-fit: contain;
+  object-fit: cover;
+  object-position: center;
   border: 0;
   border-radius: 0;
   margin: 0;
@@ -872,18 +878,15 @@
   gap: 40px;
 }
 .sd-care figure {
-  margin: 0;
+  width: 100%;
+  max-width: 380px;
+  margin: 0 auto;
 }
 .sd-care-image {
   position: relative;
-  height: 340px;
   overflow: hidden;
   border-radius: 6px;
   background: var(--ink);
-}
-.sd-care-image img {
-  object-fit: cover;
-  object-position: center 65%;
 }
 .sd-care figcaption {
   font-size: 12px;
@@ -1099,9 +1102,6 @@
 @media (max-width: 700px) {
   .sd-care-layout {
     grid-template-columns: 1fr;
-  }
-  .sd-care-image {
-    height: 300px;
   }
   .sd-care {
     padding-block: 32px;

@@ -1,3 +1,7 @@
+import {
+  holdUnallocatableProviderResult,
+  recordConflictingProviderFacts,
+} from "../modules/payments/provider-observation.js";
 import { randomUUID } from "node:crypto";
 import { prisma } from "../config/database.js";
 import type {
@@ -58,6 +62,12 @@ function compare(
       status: "STATUS_MISMATCH",
       providerAmountKobo: null,
       note: "Provider receipt identity is missing; excluded from NGN totals",
+    };
+  if (remote.status === "reversed")
+    return {
+      status: "STATUS_MISMATCH",
+      providerAmountKobo: null,
+      note: "Provider reported a reversal; refund or chargeback amount requires review and is excluded from NGN totals",
     };
   const providerAmountKobo = remote.status === "success" ? remote.amountKobo : 0n;
   if (
@@ -200,7 +210,7 @@ export class PaymentReconciliationWorker {
         if (attempts.length === 0) break;
         for (const attempt of attempts) {
           await renewLease();
-          const internalAmountKobo = receivedAmount(attempt);
+          let internalAmountKobo = receivedAmount(attempt);
           let remote: VerifiedPayment;
           try {
             remote = await this.providers.get(provider).verify(attempt.internalReference);
@@ -251,6 +261,29 @@ export class PaymentReconciliationWorker {
               },
               data: { leaseUntil: new Date(Date.now() + reconciliationLeaseMs) },
             });
+            if (
+              remote.status === "reversed" &&
+              remote.reference === attempt.internalReference &&
+              remote.gatewayTransactionId.trim()
+            ) {
+              // Share verification's deduplicated observation under both the run
+              // lease and attempt lock. Never rewrite an existing capture.
+              await transaction.$queryRaw`SELECT "id" FROM "PaymentAttempt" WHERE "id" = ${attempt.id}::uuid FOR UPDATE`;
+              const current = await transaction.paymentAttempt.findUniqueOrThrow({
+                where: { id: attempt.id },
+              });
+              internalAmountKobo = receivedAmount(current);
+              result = compare(current, remote, internalAmountKobo);
+              if (current.status === "SUCCESSFUL") {
+                await recordConflictingProviderFacts(transaction, current, remote);
+              } else {
+                await holdUnallocatableProviderResult(transaction, current, remote);
+                await transaction.paymentAttempt.update({
+                  where: { id: current.id },
+                  data: { gatewayStatus: "reversed" },
+                });
+              }
+            }
             await transaction.paymentReconciliationItem.create({
               data: {
                 runId: run.id,

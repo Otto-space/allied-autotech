@@ -79,6 +79,22 @@ export class AllieClientError extends Error {
   }
 }
 
+// Catalogue references come from the authenticated server's canonical public read,
+// not model URLs. Bind the only permitted destination to that exact source ID.
+function publicCatalogueReference(
+  source: AllieConversation["messages"][number]["answer"]["sources"][number],
+) {
+  const match =
+    /^(service|product|vehicle)-([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/.exec(
+      source.articleId,
+    );
+  return (
+    !!match &&
+    source.id === `${source.articleId}@v${source.version}` &&
+    source.href ===
+      `/${match[1] === "service" ? "services" : match[1] === "product" ? "parts" : "vehicles"}/${match[2]}`
+  );
+}
 // Current catalogue metadata, never model text, determines usable links/modes.
 export function validateConversation(value: unknown, data: LearningCatalogue) {
   const conversation = conversationSchema.parse(value);
@@ -88,6 +104,7 @@ export function validateConversation(value: unknown, data: LearningCatalogue) {
       const article = data.articles.find(
         (a) => a.id === source.articleId && a.version === source.version,
       );
+      if (publicCatalogueReference(source)) continue;
       if (
         !article ||
         source.id !== `${article.id}@v${article.version}` ||
@@ -111,30 +128,35 @@ export function validateConversation(value: unknown, data: LearningCatalogue) {
             action.id === "human:care" &&
             action.href ===
               (data.audience === "customer" ? "/dashboard/support" : "/contact")
-          : !!article &&
-            ((action.kind === "article" &&
-              action.id === `read:${article.id}` &&
-              action.href === source!.href) ||
-              (action.kind === "navigate" &&
-                action.id === `open:${article.id}` &&
-                learningHref.safeParse(action.href).success &&
-                action.href === article.href) ||
-              (action.kind === "guide" &&
-                data.flags.guides &&
-                data.guides.some(
-                  (g) =>
-                    g.articleId === article.id &&
-                    action.id === `guide:${g.id}` &&
-                    action.href === `${g.href}#learn=${g.id}`,
-                )) ||
-              (action.kind === "practice" &&
-                data.flags.practice &&
-                data.scenarios.some(
-                  (s) =>
-                    s.articleId === article.id &&
-                    action.id === `practice:${s.id}` &&
-                    action.href === `/learn/practice/${s.id}`,
-                )));
+          : source && publicCatalogueReference(source)
+            ? action.kind === "navigate" &&
+              action.id === `open:${source.articleId}` &&
+              action.href === source.href &&
+              message.answer.sourceIds.includes(source.id)
+            : !!article &&
+              ((action.kind === "article" &&
+                action.id === `read:${article.id}` &&
+                action.href === source!.href) ||
+                (action.kind === "navigate" &&
+                  action.id === `open:${article.id}` &&
+                  learningHref.safeParse(action.href).success &&
+                  action.href === article.href) ||
+                (action.kind === "guide" &&
+                  data.flags.guides &&
+                  data.guides.some(
+                    (g) =>
+                      g.articleId === article.id &&
+                      action.id === `guide:${g.id}` &&
+                      action.href === `${g.href}#learn=${g.id}`,
+                  )) ||
+                (action.kind === "practice" &&
+                  data.flags.practice &&
+                  data.scenarios.some(
+                    (s) =>
+                      s.articleId === article.id &&
+                      action.id === `practice:${s.id}` &&
+                      action.href === `/learn/practice/${s.id}`,
+                  )));
       if (!valid || !message.answer.actionIds.includes(action.id))
         throw new AllieClientError(502);
     }

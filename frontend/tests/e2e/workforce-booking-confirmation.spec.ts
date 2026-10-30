@@ -352,3 +352,140 @@ test("long populated staff names leave mobile booking labels readable", async ({
   expect(f.writes).toEqual([]);
   await check();
 });
+
+for (const width of [390, 1440])
+  test(`workforce proposal visibility and stale refresh at ${width}px`, async ({
+    page,
+  }, testInfo) => {
+    const { f, check } = await start(page, "STAFF", width);
+    const original = f.booking.scheduledAt;
+    f.booking.alternativeStartsAt = "2040-01-03T10:00:00.000Z";
+    f.booking.alternativeReason = "Allow more time for the requested diagnostic checks.";
+    f.booking.alternativeVersion = f.booking.version;
+    await page.getByRole("button", { name: "Refresh booking", exact: true }).click();
+    const proposal = page.getByRole("region", {
+      name: "Proposed appointment",
+      exact: true,
+    });
+    await expect(proposal).toContainText(
+      "Waiting for the customer to accept or decline.",
+    );
+    await expect(
+      page
+        .getByRole("region", { name: "Booking appointment", exact: true })
+        .locator("time"),
+    ).toHaveAttribute("datetime", original);
+    await proposal.scrollIntoViewIfNeeded();
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+    expect(
+      (await new AxeBuilder({ page }).include(".workforce-booking-detail").analyze())
+        .violations,
+    ).toEqual([]);
+    await page.screenshot({
+      path: testInfo.outputPath(`workforce-proposal-${width}.png`),
+    });
+    f.booking.version += 1;
+    await page.getByRole("button", { name: "Refresh booking", exact: true }).click();
+    await expect(proposal).toContainText("The booking changed after this proposal.");
+    await expect(proposal).not.toContainText("Waiting for the customer");
+    f.booking.alternativeStartsAt = null;
+    f.booking.alternativeReason = null;
+    f.booking.alternativeVersion = null;
+    await page.getByRole("button", { name: "Refresh booking", exact: true }).click();
+    await expect(proposal).toHaveCount(0);
+    expect(f.writes).toEqual([]);
+    await check();
+  });
+
+for (const width of [390, 1440])
+  test(`workforce proposes a reviewed time at ${width}px`, async ({ page }, testInfo) => {
+    const { f, check } = await start(page, "STAFF", width);
+    const original = f.booking.scheduledAt;
+    await page
+      .getByLabel("Proposed time (Lagos)", { exact: true })
+      .fill("2040-01-03T11:00");
+    await page
+      .getByLabel("Reason shown to customer", { exact: true })
+      .fill("Allow more time for the diagnostic inspection.");
+    await page.getByRole("button", { name: "Review proposed time", exact: true }).click();
+    await expect(page.getByRole("dialog")).toContainText(
+      "Their current appointment stays unchanged.",
+    );
+    expect(f.writes).toHaveLength(0);
+    expect(
+      (await new AxeBuilder({ page }).include(".mutation-review").analyze()).violations,
+    ).toEqual([]);
+    await page.screenshot({
+      path: testInfo.outputPath(`workforce-proposal-review-${width}.png`),
+    });
+    await page.getByRole("button", { name: "Send proposed time", exact: true }).click();
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+    await expect(
+      page.getByRole("region", { name: "Proposed appointment", exact: true }),
+    ).toContainText("Waiting for the customer");
+    expect(f.writes).toHaveLength(1);
+    expect(f.writes[0].csrf).toBeTruthy();
+    expect(f.booking.scheduledAt).toBe(original);
+    expect(f.booking.status).toBe("REQUESTED");
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+    await check();
+  });
+test("uncertain workforce proposal survives reload without automatic resend", async ({
+  page,
+}) => {
+  const { f } = await start(page);
+  f.actionMode = "lost";
+  await page
+    .getByLabel("Proposed time (Lagos)", { exact: true })
+    .fill("2040-01-03T11:00");
+  await page
+    .getByLabel("Reason shown to customer", { exact: true })
+    .fill("Allow more time for the diagnostic inspection.");
+  await page.getByRole("button", { name: "Review proposed time", exact: true }).click();
+  await page.getByRole("button", { name: "Send proposed time", exact: true }).click();
+  await expect(page.getByRole("dialog")).toContainText(
+    "The outcome could not be confirmed",
+  );
+  await page.reload();
+  await expect(
+    page.getByText(
+      "An earlier proposal needs checking. No automatic retry will be sent.",
+    ),
+  ).toBeVisible();
+  expect(f.writes).toHaveLength(1);
+  await page.getByRole("button", { name: "Check proposal outcome", exact: true }).click();
+  await expect(
+    page.getByText(/This shows the current record, not who made/),
+  ).toBeVisible();
+  await page
+    .getByRole("checkbox", {
+      name: "I have checked the current booking and the earlier proposal history.",
+    })
+    .check();
+  await page
+    .getByRole("button", { name: "Finish checking proposal", exact: true })
+    .click();
+  await expect(
+    page.getByRole("button", { name: "Review proposed time", exact: true }),
+  ).toBeVisible();
+  expect(f.writes).toHaveLength(1);
+});
+
+test("workforce proposal rechecks permission before sending", async ({ page }) => {
+  const { f } = await start(page);
+  await page
+    .getByLabel("Proposed time (Lagos)", { exact: true })
+    .fill("2040-01-03T11:00");
+  await page
+    .getByLabel("Reason shown to customer", { exact: true })
+    .fill("Allow more time for the diagnostic inspection.");
+  await page.getByRole("button", { name: "Review proposed time", exact: true }).click();
+  f.base.access.independentCapabilities = [];
+  await page.getByRole("button", { name: "Send proposed time", exact: true }).click();
+  await expect(page.getByRole("dialog").getByRole("alert")).toBeVisible();
+  expect(f.writes).toHaveLength(0);
+});

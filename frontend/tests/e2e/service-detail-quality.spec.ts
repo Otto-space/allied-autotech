@@ -53,6 +53,10 @@ let server: Server;
 let mode = "normal";
 let calls: string[] = [];
 function currentRecord() {
+  if (mode === "portrait")
+    return { ...record, image: { ...record.image, width: 768, height: 1024 } };
+  if (mode === "landscape")
+    return { ...record, image: { ...record.image, width: 1659, height: 948 } };
   if (mode === "long")
     return {
       ...record,
@@ -75,6 +79,11 @@ test.beforeAll(async () => {
   server = createServer((req, res) => {
     const url = new URL(req.url ?? "/", `http://127.0.0.1:${port}`);
     calls.push(url.pathname + url.search);
+    if (url.pathname === "/api/v1/public/services/discovery") {
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify(success({ items: [currentRecord()], totalMatches: 1 })));
+      return;
+    }
     if (url.pathname === "/api/v1/public/services") {
       res.writeHead(mode === "otherDown" ? 503 : 200, {
         "Content-Type": "application/json",
@@ -147,6 +156,7 @@ test.beforeEach(() => {
 async function fixture(page: Page) {
   const state = {
     role: "CUSTOMER",
+    mfaRequired: false,
     slots: "normal",
     policyError: false,
     branchError: false,
@@ -157,6 +167,17 @@ async function fixture(page: Page) {
     browserServiceReads: 0,
     customerReads: [] as string[],
   };
+  await page.route("**/api/catalogue-image/**", async (route) => {
+    if (state.failImage) return route.fulfill({ status: 404, body: "" });
+    return route.fulfill({
+      path: path.resolve(
+        mode === "portrait"
+          ? "public/images/equipment/tyre-changer.jpg"
+          : "public/images/allied-autotech/workshop-editorial.webp",
+      ),
+      contentType: mode === "portrait" ? "image/jpeg" : "image/webp",
+    });
+  });
   await page.route("**/api/v1/**", async (route) => {
     const req = route.request();
     const url = new URL(req.url());
@@ -178,9 +199,16 @@ async function fixture(page: Page) {
             user: { id: id(80), email: "service@example.test", role: state.role },
             expiresAt: "2027-01-01T00:00:00Z",
             idleExpiresAt: "2027-01-01T00:00:00Z",
-            mfaRequired: false,
+            mfaRequired: state.mfaRequired,
             mfaVerifiedAt: null,
           });
+    if (endpoint === "/auth/login") {
+      state.role = "CUSTOMER";
+      return ok({
+        user: { id: id(80), email: "service@example.test", role: "CUSTOMER" },
+        mfaRequired: false,
+      });
+    }
     if (endpoint === "/auth/csrf") return ok({ csrfToken: "s".repeat(64) });
     if (endpoint.includes("/public/media/images/"))
       return state.failImage
@@ -218,6 +246,9 @@ async function fixture(page: Page) {
               ],
       });
     }
+    if (endpoint === "/public/services/discovery")
+      return ok({ items: [currentRecord()], totalMatches: 1 });
+    if (endpoint === "/public/service-categories") return ok({ items: [] });
     if (endpoint === `/public/services/${service.id}`) {
       state.browserServiceReads++;
       return ok(currentRecord());
@@ -236,7 +267,9 @@ async function fixture(page: Page) {
       return ok({
         booking: {
           ...booking,
-          service: record,
+          service:
+            req.postDataJSON().serviceId === quoteService.id ? quoteService : record,
+          scheduledAt: req.postDataJSON().preferredAt ?? booking.scheduledAt,
           branch: currentBranch,
           status: "REQUESTED",
           depositAmountKobo: null,
@@ -432,14 +465,20 @@ test("booking reference supports manual copy when clipboard access fails", async
   await expect(page.getByText(/Select and copy the value above/)).toBeVisible();
 });
 async function quoteDraft(page: Page) {
+  await page
+    .getByRole("button", { name: "Ask a service question instead", exact: true })
+    .click();
   await page.getByLabel("Your name", { exact: true }).fill("Service Test");
   await page.getByLabel("Email address", { exact: true }).fill("Service@Example.Test");
   await page.getByLabel("Subject", { exact: true }).fill("Engine assessment enquiry");
   await page
     .getByLabel("Your message", { exact: true })
     .fill("Please discuss the published service with me.");
-  await page.getByRole("combobox", { name: "Handling branch" }).click();
-  await page.getByRole("option", { name: "Port Harcourt", exact: true }).click();
+  // The existing contact picker presents the only available branch as a
+  // labelled fixed choice rather than asking the customer to select it again.
+  await expect(page.getByLabel("Handling branch", { exact: true })).toHaveText(
+    "Port Harcourt",
+  );
 }
 
 test("booking server validation returns to preserved notes with an inline error", async ({
@@ -541,7 +580,7 @@ for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536]) {
     });
     await page.getByRole("link", { name: "Choose an appointment", exact: true }).click();
     await expect(
-      page.getByRole("heading", { name: "Choose an available appointment." }),
+      page.getByRole("heading", { name: "Request a workshop appointment" }),
     ).toBeFocused();
     const branch = page.getByRole("combobox", { name: "Workshop branch" });
     await branch.focus();
@@ -718,9 +757,7 @@ test("empty, failed and mismatched appointment reads fail closed with retry", as
   await expect(page.getByRole("button", { name: "Retry appointments" })).toBeVisible();
   state.slots = "empty";
   await page.getByRole("button", { name: "Retry appointments" }).click();
-  await expect(
-    page.getByText(/No appointments are available on this page/),
-  ).toBeVisible();
+  await expect(page.getByText(/No offered times are listed on this page/)).toBeVisible();
   expect(state.writes).toHaveLength(0);
 });
 test("policy failure blocks request and preserves selected appointment through retry", async ({
@@ -923,7 +960,7 @@ test("failed service photo and reduced motion keep the request path usable", asy
   ).toBeVisible();
   await page.getByRole("link", { name: "Choose an appointment", exact: true }).click();
   await expect(
-    page.getByRole("heading", { name: "Choose an available appointment." }),
+    page.getByRole("heading", { name: "Request a workshop appointment" }),
   ).toBeFocused();
   await prepare(page);
   await expect(
@@ -1053,7 +1090,11 @@ test("missing image, zero price, unbookable and long content stay truthful and c
   await expect(page.getByText("₦0.00", { exact: true })).toBeVisible();
   mode = "unbookable";
   await page.reload();
-  await expect(page.getByText(/Online appointments are unavailable/)).toBeVisible();
+  await selectBranch(page);
+  await expect(
+    page.getByLabel("Or request your preferred time (Lagos time)"),
+  ).toBeEnabled();
+  await expect(page.getByText("Contact us for pricing", { exact: true })).toBeVisible();
   mode = "long";
   await page.reload();
   expect(
@@ -1105,13 +1146,13 @@ test("service section links, FAQ keyboard states and bounded other services", as
   await expect(page.locator(".sd-more-item").nth(1)).toContainText("Quotation required");
   await expect(page.locator(".sd-care-image img")).toHaveAttribute(
     "alt",
-    /original Precision Autocare/,
+    /Precision Autocare You Can Trust campaign/,
   );
   await page.locator(".sd-more-item").nth(1).click();
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Engine assessment");
   await page.locator(".sd-questions summary").nth(1).click();
   await expect(
-    page.locator(".sd-questions").getByText(/Sending an enquiry does not confirm/),
+    page.locator(".sd-questions").getByText(/A booking request is waiting/),
   ).toBeVisible();
   expect((await accessiblePage(page)).violations).toEqual([]);
 });
@@ -1334,3 +1375,173 @@ for (const failure of ["missing", "down", "wrong"])
       ).toBeVisible();
     }
   });
+
+for (const width of [390, 1440]) {
+  for (const quotation of [false, true]) {
+    test(`preferred-time request without slots ${quotation ? "quotation" : "fixed"} at ${width}px`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: 900 });
+      await page.emulateMedia({ reducedMotion: "reduce" });
+      const state = await fixture(page);
+      state.slots = "empty";
+      const selectedService = quotation ? quoteService : service;
+      await page.goto(`/services/${selectedService.id}`);
+      await selectBranch(page);
+      await page
+        .getByLabel("Or request your preferred time (Lagos time)")
+        .fill("2026-11-10T10:30");
+      await reviewRequest(page);
+      if (quotation)
+        await expect(
+          page.getByText("Quotation required — agree the price before payment"),
+        ).toBeVisible();
+      await page.getByRole("button", { name: "Request booking", exact: true }).click();
+      await expect(
+        page.getByRole("heading", { name: "Booking request received" }),
+      ).toBeFocused();
+      expect(state.writes).toHaveLength(1);
+      expect(state.writes[0].body).toEqual({
+        serviceId: selectedService.id,
+        branchId: branch.id,
+        preferredAt: "2026-11-10T09:30:00.000Z",
+        policyVersion: currentPolicy.version,
+      });
+      expect(state.writes[0].csrf).toBe("s".repeat(64));
+      await page.screenshot({
+        path: path.join(
+          os.tmpdir(),
+          `aat-preferred-${quotation ? "quote" : "fixed"}-${width}.png`,
+        ),
+      });
+      await expect(page.getByText("REQUESTED", { exact: true })).toBeVisible();
+    });
+  }
+}
+
+test("anonymous preferred booking survives sign-in and requires a new review", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  state.role = "anonymous";
+  state.slots = "empty";
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto(routePath);
+  await selectBranch(page);
+  await page
+    .getByLabel("Or request your preferred time (Lagos time)")
+    .fill("2026-11-10T10:30");
+  await page
+    .getByLabel("What should we know about your vehicle? (optional)")
+    .fill("A noise when braking");
+  await reviewRequest(page);
+  await page
+    .getByRole("link", { name: "Sign in to request booking", exact: true })
+    .click();
+  await page.getByLabel("Email address", { exact: true }).fill("service@example.test");
+  await page.getByLabel("Password", { exact: true }).fill("synthetic-fixture-password");
+  await page.getByRole("button", { name: "Sign in", exact: true }).click();
+  await expect(page).toHaveURL(new RegExp(routePath + "$"));
+  await expect(
+    page.getByText("Your booking draft is restored.", { exact: false }),
+  ).toBeVisible();
+  await expect(
+    page.getByLabel("Or request your preferred time (Lagos time)"),
+  ).toHaveValue("2026-11-10T10:30");
+  await expect(
+    page.getByLabel("What should we know about your vehicle? (optional)"),
+  ).toHaveValue("A noise when braking");
+  expect(state.writes).toHaveLength(0);
+  await reviewRequest(page);
+  await page.getByRole("button", { name: "Request booking", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: "Booking request received" }),
+  ).toBeFocused();
+  expect(state.writes).toHaveLength(1);
+});
+
+test("customer with incomplete MFA must verify before booking", async ({ page }) => {
+  const state = await fixture(page);
+  state.mfaRequired = true;
+  await page.goto(routePath);
+  await expect(
+    page.getByRole("link", { name: "Continue security verification" }),
+  ).toHaveAttribute("href", "/mfa");
+  await expect(page.getByRole("combobox", { name: "Workshop branch" })).toHaveCount(0);
+  await expect(
+    page.getByRole("button", { name: "Request booking", exact: true }),
+  ).toHaveCount(0);
+  expect(state.writes).toHaveLength(0);
+});
+
+for (const width of [390, 1440]) {
+  test(`service care reuses the complete approved About artwork at ${width}px`, async ({
+    page,
+  }, info) => {
+    await page.setViewportSize({ width, height: 900 });
+    await fixture(page);
+    await page.goto(routePath);
+    const artwork = page.locator('.sd-care [data-artwork="precision-autocare"]');
+    await artwork.scrollIntoViewIfNeeded();
+    const image = artwork.locator("img");
+    await expect(image).toBeVisible();
+    await expect
+      .poll(() => image.evaluate((el) => (el as HTMLImageElement).naturalWidth))
+      .toBeGreaterThan(0);
+    await expect(image).toHaveAttribute("src", "/brand/r2/precision-autocare-800.webp");
+    await expect(image).toHaveCSS("object-fit", "contain");
+    const box = (await artwork.boundingBox())!;
+    expect(box.width / box.height).toBeCloseTo(4 / 5, 2);
+    expect(box.width).toBeLessThanOrEqual(380);
+    expect(await page.locator('.sd-care img[src*="technician-original"]').count()).toBe(
+      0,
+    );
+    await page
+      .locator(".sd-care")
+      .screenshot({ path: info.outputPath(`approved-care-${width}.png`) });
+  });
+}
+
+for (const width of [390, 1440]) {
+  for (const composition of ["portrait", "landscape"]) {
+    test(`${composition} service photos fill cards and details without cropping at ${width}px`, async ({
+      page,
+    }, info) => {
+      mode = composition;
+      await page.setViewportSize({ width, height: 1000 });
+      await fixture(page);
+      const ratio = composition === "portrait" ? 768 / 1024 : 1659 / 948;
+      for (const [route, selector, limit] of [
+        ["/services", ".services-row-media", 420],
+        [routePath, ".sd-media", 520],
+      ] as const) {
+        await page.goto(route);
+        const media = page.locator(selector).first();
+        await media.scrollIntoViewIfNeeded();
+        const photo = media.locator("img");
+        await expect
+          .poll(() => photo.evaluate((el) => (el as HTMLImageElement).naturalWidth))
+          .toBeGreaterThan(0);
+        await expect(photo).toHaveCSS("object-fit", "cover");
+        const frame = (await media.boundingBox())!;
+        const image = (await photo.boundingBox())!;
+        expect(frame.width / frame.height).toBeCloseTo(ratio, 2);
+        expect(frame.height).toBeLessThanOrEqual(limit + 1);
+        expect(image.width).toBeCloseTo(frame.width, 0);
+        expect(image.height).toBeCloseTo(frame.height, 0);
+        expect(
+          await photo.evaluate((el) => {
+            const img = el as HTMLImageElement;
+            return img.naturalWidth / img.naturalHeight;
+          }),
+        ).toBeCloseTo(ratio, 2);
+        expect(
+          await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+        ).toBe(true);
+        await media.screenshot({
+          path: info.outputPath(`${composition}-${width}-${limit}.png`),
+        });
+      }
+    });
+  }
+}

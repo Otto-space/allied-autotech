@@ -13,6 +13,7 @@ import { useAccountSession, useOwnStaffPermissions } from "./dashboard-shell";
 import { formatBusinessDate } from "@/lib/format/date";
 import { formatKobo } from "@/lib/format/money";
 import { Feedback } from "./feedback";
+import { SlotCatalogPicker } from "./slot-catalog-picker";
 import { StaffPicker } from "./staff-picker";
 import { StaffWorkOrder } from "./staff-work-order";
 import { StaffQuoteRecords } from "./staff-quote-records";
@@ -50,6 +51,12 @@ function BookingRecord({ bookingId }: { bookingId: string }) {
   const session = useAccountSession()!;
   const booking = useResource(`/staff/bookings/${bookingId}`, parseStaffBooking);
   const access = useOwnStaffPermissions();
+  const [classification, setClassification] = useState<{
+    id: string;
+    label: string;
+    version: number;
+  }>();
+  const [classificationBlocked, setClassificationBlocked] = useState(true);
   const [proposal, setProposal] = useState<MutationProposal | null>(null);
   const [validation, setValidation] = useState<string>();
   const [message, setMessage] = useState<string>();
@@ -91,7 +98,7 @@ function BookingRecord({ bookingId }: { bookingId: string }) {
   const canChangeQuotes = canOperate;
   const choices = current
     ? (transitions[current.status] ?? []).filter((status) =>
-        status === "CONFIRMED" ? canConfirm : canOperate,
+        status === "CONFIRMED" ? canConfirm && !!current.service : canOperate,
       )
     : [];
   const assignmentVisible =
@@ -115,14 +122,17 @@ function BookingRecord({ bookingId }: { bookingId: string }) {
     if (disabled) return;
     setProposal({ ...next, retryAfterRejection: false });
   }
-  function review(kind: "assignment" | "status" | "disruption", form: FormData) {
+  function review(
+    kind: "assignment" | "status" | "disruption" | "alternative",
+    form: FormData,
+  ) {
     setValidation(undefined);
     setInvalidField(undefined);
     setMessage(undefined);
     if (!current || disabled) return;
     const facts = [
       { label: "Booking", value: current.id },
-      { label: "Service", value: current.service.name },
+      { label: "Service", value: current.service?.name ?? "Vehicle concern" },
     ];
     const submit = (suffix: string, method: "POST" | "PATCH", body: unknown) => () =>
       apiRequest(`/staff/bookings/${current.id}/${suffix}`, { method, csrf: true, body });
@@ -133,23 +143,77 @@ function BookingRecord({ bookingId }: { bookingId: string }) {
         invalidate("Choose an available staff profile.", "booking-staff");
         return;
       }
+      if (
+        !current.service &&
+        (classificationBlocked ||
+          !classification?.id ||
+          classification.version !== current.version)
+      ) {
+        invalidate(
+          "Choose an available service with a configured duration.",
+          "booking-classification",
+        );
+        return;
+      }
       const body: RequestBody<"/staff/bookings/{bookingId}/assignment", "patch"> = {
         assignedStaffId: assignedStaffId.data,
+        ...(!current.service ? { serviceId: classification!.id } : {}),
         expectedVersion: current.version,
       };
       const select = document.getElementById("booking-staff") as HTMLSelectElement | null;
       reviewProposal({
-        title: "Assign this booking?",
+        title: current.service
+          ? "Assign this booking?"
+          : "Classify and assign this concern?",
         description:
-          "The server will check branch permissions and schedule conflicts before saving.",
+          "The server checks branch permissions, current service details and schedule conflicts. This does not confirm the appointment or charge the customer.",
         facts: [
           ...facts,
+          ...(!current.service
+            ? [{ label: "Proposed service", value: classification!.label }]
+            : []),
           {
             label: "Staff member",
             value: select?.selectedOptions[0]?.textContent ?? "Selected staff member",
           },
         ],
         submit: submit("assignment", "PATCH", body),
+      });
+      return;
+    }
+    if (kind === "alternative") {
+      if (!canConfirm || !["REQUESTED", "CONFIRMED"].includes(current.status)) return;
+      const reason = String(form.get("reason") ?? "").trim();
+      const date = new Date(`${String(form.get("preferredAt") ?? "")}:00+01:00`);
+      if (!Number.isFinite(date.getTime()) || date.getTime() <= Date.now()) {
+        invalidate("Choose a future proposed time in Lagos.", "booking-alternative-time");
+        return;
+      }
+      if (reason.length < 10 || !textField(1000).safeParse(reason).success) {
+        invalidate(
+          "Explain the proposed change in 10–1,000 characters.",
+          "booking-alternative-reason",
+        );
+        return;
+      }
+      const body: RequestBody<"/staff/bookings/{bookingId}/alternative", "post"> = {
+        preferredAt: date.toISOString(),
+        reason,
+        expectedVersion: current.version,
+      };
+      reviewProposal({
+        title: "Propose this alternative time?",
+        description:
+          "The customer must review this suggestion. Their existing appointment stays unchanged until they accept; acceptance still needs staff confirmation. This does not reserve capacity, charge a fee or consume their reschedule allowance.",
+        facts: [
+          ...facts,
+          {
+            label: "Proposed time (Lagos)",
+            value: formatBusinessDate(date.toISOString()),
+          },
+          { label: "Reason shown to customer", value: reason },
+        ],
+        submit: submit("alternative", "POST", body),
       });
       return;
     }
@@ -241,8 +305,8 @@ function BookingRecord({ bookingId }: { bookingId: string }) {
           </li>
           <li>
             <ChevronRight aria-hidden="true" />
-            <span aria-current="page" title={current?.service.name}>
-              {current?.service.name ?? "Booking details"}
+            <span aria-current="page" title={current?.service?.name}>
+              {current?.service?.name ?? "Booking details"}
             </span>
           </li>
         </ol>
@@ -314,7 +378,8 @@ function BookingRecord({ bookingId }: { bookingId: string }) {
           <section className="booking-detail-summary" aria-label="Appointment summary">
             <header>
               <div>
-                <h2>{current.service.name}</h2>
+                <h2>{current.service?.name ?? "Vehicle concern"}</h2>
+                {current.customerConcern && <p>{current.customerConcern}</p>}
                 <p>Booking {current.id}</p>
               </div>
               <span className="booking-detail-status" data-status={current.status}>
@@ -417,6 +482,61 @@ function BookingRecord({ bookingId }: { bookingId: string }) {
             </p>
           )}
           <div className="booking-detail-operations">
+            {canConfirm && ["REQUESTED", "CONFIRMED"].includes(current.status) && (
+              <section
+                className="detail-section"
+                aria-labelledby="booking-alternative-title"
+              >
+                <h2 id="booking-alternative-title">Propose another time</h2>
+                <p>
+                  Suggest a Lagos time within the current booking window. The customer
+                  must accept; this does not change or confirm their appointment.
+                </p>
+                {current.alternativeStartsAt &&
+                  current.alternativeVersion === current.version && (
+                    <p>
+                      Current proposal: {formatBusinessDate(current.alternativeStartsAt)}.
+                      Saving another proposal replaces it.
+                    </p>
+                  )}
+                <form
+                  key={`alternative-${current.version}`}
+                  onSubmit={(event) => {
+                    event.preventDefault();
+                    review("alternative", new FormData(event.currentTarget));
+                  }}
+                >
+                  <div className="field">
+                    <label htmlFor="booking-alternative-time">
+                      Proposed time (Lagos)
+                    </label>
+                    <input
+                      id="booking-alternative-time"
+                      name="preferredAt"
+                      type="datetime-local"
+                      required
+                      {...fieldError("booking-alternative-time")}
+                    />
+                  </div>
+                  <div className="field">
+                    <label htmlFor="booking-alternative-reason">
+                      Reason shown to customer
+                    </label>
+                    <textarea
+                      id="booking-alternative-reason"
+                      name="reason"
+                      required
+                      minLength={10}
+                      maxLength={1000}
+                      {...fieldError("booking-alternative-reason")}
+                    />
+                  </div>
+                  <button className="button secondary" disabled={disabled}>
+                    Review alternative time
+                  </button>
+                </form>
+              </section>
+            )}
             {assignmentVisible && current.branch && (
               <section className="detail-section" id="booking-assignment">
                 <h2>Staff assignment</h2>
@@ -428,6 +548,38 @@ function BookingRecord({ bookingId }: { bookingId: string }) {
                     review("assignment", new FormData(event.currentTarget));
                   }}
                 >
+                  {!current.service && (
+                    <div className="field">
+                      <label htmlFor="booking-classification">
+                        Service for this concern
+                      </label>
+                      <p>
+                        Review the customer’s concern and choose the appropriate service.
+                        A quotation remains subject to the normal customer review; this
+                        step does not confirm a visit.
+                      </p>
+                      <SlotCatalogPicker
+                        kind="service"
+                        serviceMode="concern"
+                        id="booking-classification"
+                        key={current.version}
+                        value={
+                          classification?.version === current.version
+                            ? classification.id
+                            : ""
+                        }
+                        onChange={(id, label) =>
+                          setClassification({ id, label, version: current.version })
+                        }
+                        onAvailabilityChange={setClassificationBlocked}
+                        error={
+                          invalidField === "booking-classification"
+                            ? validation
+                            : undefined
+                        }
+                      />
+                    </div>
+                  )}
                   <div className="field">
                     <label htmlFor="booking-staff">Assigned staff member</label>
                     <StaffPicker
@@ -519,7 +671,14 @@ function BookingRecord({ bookingId }: { bookingId: string }) {
               </section>
             )}
           </div>
+          {current.status === "REQUESTED" && !current.service && (
+            <p className="notice">
+              Classify the concern and assign a staff member before confirming this
+              request.
+            </p>
+          )}
           {current.status === "REQUESTED" &&
+            current.service &&
             verifiedAccess &&
             !choices.includes("CONFIRMED") && (
               <p className="notice">

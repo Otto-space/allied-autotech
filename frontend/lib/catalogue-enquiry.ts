@@ -173,6 +173,24 @@ export type CatalogueEnquiryContext = {
 export function catalogueEnquiryContext(
   params: URLSearchParams,
 ): CatalogueEnquiryContext {
+  if (
+    params.has("serviceGroup") &&
+    params.get("vehicle") !== "1" &&
+    params.get("parts") !== "1"
+  ) {
+    const id =
+      params.getAll("serviceGroup").length === 1 &&
+      z.uuid().safeParse(params.get("serviceGroup")).success
+        ? params.get("serviceGroup")!
+        : "invalid";
+    const query = new URLSearchParams({ serviceGroup: id }).toString();
+    return {
+      id: query,
+      href: "/contact?" + query + "#enquiry",
+      label: "Service group enquiry",
+      contextKey: query,
+    };
+  }
   const vehicle = params.get("vehicle") === "1";
   const product = params.get("parts") === "1";
   if (!vehicle && !product)

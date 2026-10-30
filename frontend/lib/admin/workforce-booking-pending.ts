@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { draftIdentity } from "../forms/drafts";
-const prefix = "aat:workforce-booking-confirm:v1:";
+type BookingAction = "confirm" | "alternative";
+const prefix = (action: BookingAction) => `aat:workforce-booking-${action}:v1:`;
 const schema = z
   .object({ token: z.uuid(), id: z.uuid(), version: z.number().int().nonnegative() })
   .strict();
@@ -11,39 +12,50 @@ function identity(owner: string) {
 }
 export function readWorkforceBookingPending(
   owner: string,
+  action: BookingAction = "confirm",
 ): WorkforceBookingPending | undefined {
   if (typeof window === "undefined") return;
   try {
-    const raw = sessionStorage.getItem(prefix + owner);
+    const raw = sessionStorage.getItem(prefix(action) + owner);
     return raw === null ? undefined : schema.parse(JSON.parse(raw));
   } catch {
     return "unknown";
   }
 }
-export function markWorkforceBookingPending(owner: string, id: string, version: number) {
+export function markWorkforceBookingPending(
+  owner: string,
+  id: string,
+  version: number,
+  action: BookingAction = "confirm",
+) {
   identity(owner);
-  if (readWorkforceBookingPending(owner))
-    throw Error("An earlier booking confirmation still needs checking.");
+  if (readWorkforceBookingPending(owner, action))
+    throw Error("An earlier booking change still needs checking.");
   const marker = schema.parse({ token: crypto.randomUUID(), id, version });
   const raw = JSON.stringify(marker);
-  sessionStorage.setItem(prefix + owner, raw);
-  if (sessionStorage.getItem(prefix + owner) !== raw)
-    throw Error("Confirmation recovery storage is unavailable.");
+  sessionStorage.setItem(prefix(action) + owner, raw);
+  if (sessionStorage.getItem(prefix(action) + owner) !== raw)
+    throw Error("Booking recovery storage is unavailable.");
   return marker;
 }
-export function clearWorkforceBookingPending(owner: string, token?: string) {
+export function clearWorkforceBookingPending(
+  owner: string,
+  token?: string,
+  action: BookingAction = "confirm",
+) {
   identity(owner);
-  const current = readWorkforceBookingPending(owner);
+  const current = readWorkforceBookingPending(owner, action);
   if (token && (current === "unknown" || current?.token !== token))
-    throw Error("The pending confirmation changed.");
-  sessionStorage.removeItem(prefix + owner);
-  if (sessionStorage.getItem(prefix + owner) !== null)
-    throw Error("Confirmation recovery storage is unavailable.");
+    throw Error("The pending booking reference changed.");
+  sessionStorage.removeItem(prefix(action) + owner);
+  if (sessionStorage.getItem(prefix(action) + owner) !== null)
+    throw Error("Booking recovery storage is unavailable.");
 }
 export function redactWorkforceBookingPending() {
   if (typeof window === "undefined") return;
   try {
     for (const key of Object.keys(sessionStorage))
-      if (key.startsWith(prefix)) sessionStorage.setItem(key, "pending");
+      if (key.startsWith(prefix("confirm")) || key.startsWith(prefix("alternative")))
+        sessionStorage.setItem(key, "pending");
   } catch {}
 }

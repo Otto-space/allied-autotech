@@ -6,7 +6,7 @@ export interface BookingActionSummary {
   scheduledAt: Date;
   status: BookingStatus;
   attendanceConfirmedAt: Date | null;
-  service: { name: string };
+  service: { name: string } | null;
   branch: { name: string; address: string; city: string; state: string } | null;
 }
 
@@ -77,7 +77,7 @@ function summary(booking: BookingActionSummary) {
     hour: "numeric",
     minute: "2-digit",
   }).format(booking.scheduledAt);
-  return `<dl><div><dt>Service</dt><dd>${escape(booking.service.name)}</dd></div><div><dt>Appointment time</dt><dd><time datetime="${booking.scheduledAt.toISOString()}">${escape(date)}<small>${escape(time)} &middot; West Africa Time (Lagos)</small></time></dd></div>${booking.branch ? `<div><dt>Location</dt><dd>${escape(booking.branch.name)}<small>${escape([booking.branch.address, booking.branch.city, booking.branch.state].join(", "))}</small></dd></div>` : ""}</dl>`;
+  return `<dl><div><dt>Service</dt><dd>${escape(booking.service?.name ?? "Vehicle concern")}</dd></div><div><dt>Appointment time</dt><dd><time datetime="${booking.scheduledAt.toISOString()}">${escape(date)}<small>${escape(time)} &middot; West Africa Time (Lagos)</small></time></dd></div>${booking.branch ? `<div><dt>Location</dt><dd>${escape(booking.branch.name)}<small>${escape([booking.branch.address, booking.branch.city, booking.branch.state].join(", "))}</small></dd></div>` : ""}</dl>`;
 }
 
 function form(token: string, action: "CONFIRM" | "CANCEL", label: string) {

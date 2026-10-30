@@ -4,7 +4,7 @@ import { useSearchParams } from "next/navigation";
 import { ArrowLeft, ArrowRight, ArrowUpRight, Check, Wrench, X } from "lucide-react";
 import type { PublicSeed } from "@/lib/api/public-seed";
 import { useResource } from "@/lib/api/use-resource";
-import { parseServiceDiscovery } from "@/lib/api/public-schemas";
+import { parseServiceCategory, parseServiceDiscovery } from "@/lib/api/public-schemas";
 import { ServiceDiscoveryControls } from "./service-discovery-controls";
 import { formatKobo } from "@/lib/format/money";
 import {
@@ -24,6 +24,20 @@ export function ServicesCatalogue({
   const { params, invalid } = normalizeServiceQuery(
     new URLSearchParams(searchParams.toString()),
   );
+  const categoryId = params.get("categoryId");
+  const category = useResource(
+    categoryId ? "/public/services/categories/" + categoryId : null,
+    parseServiceCategory,
+  );
+  const groupOnly =
+    !!categoryId &&
+    !params.get("search") &&
+    !params.get("pricingType") &&
+    !params.get("cursor");
+  const verifiedGroup =
+    category.data?.id === categoryId && !category.error && !category.refreshError
+      ? category.data
+      : undefined;
   const pricing = params.get("pricingType") ?? "";
   const cursor = params.get("cursor");
   const trail = params.get("_trail")?.split(",") ?? [];
@@ -77,6 +91,18 @@ export function ServicesCatalogue({
           still follow links on this page.
         </p>
       </noscript>
+      {verifiedGroup && (
+        <header className="service-group-context">
+          <h2>{verifiedGroup.name}</h2>
+          {verifiedGroup.description && <p>{verifiedGroup.description}</p>}
+          <Link
+            className="text-link"
+            href={"/contact?serviceGroup=" + verifiedGroup.id + "#enquiry"}
+          >
+            Ask about this service group
+          </Link>
+        </header>
+      )}
       <div className="services-discovery-panel">
         <div className="services-results-heading">
           <h2 id="service-results-heading" className="sr-only" tabIndex={-1}>
@@ -187,7 +213,14 @@ export function ServicesCatalogue({
                   Restart service search
                 </button>
               )}
-              <Link className="text-link" href="/contact">
+              <Link
+                className="text-link"
+                href={
+                  verifiedGroup
+                    ? `/contact?serviceGroup=${verifiedGroup.id}#enquiry`
+                    : "/contact#enquiry"
+                }
+              >
                 Contact Allied AutoTech <ArrowUpRight size={16} aria-hidden="true" />
               </Link>
             </div>
@@ -211,14 +244,18 @@ export function ServicesCatalogue({
             <h3>
               {cursor
                 ? "No services on this page"
-                : filtered
-                  ? "No matching services"
-                  : "Services are not listed yet"}
+                : groupOnly && verifiedGroup
+                  ? "Discuss this work with the workshop"
+                  : filtered
+                    ? "No matching services"
+                    : "Services are not listed yet"}
             </h3>
             <p>
-              {filtered
-                ? "Try other filters or contact our team about your vehicle."
-                : "Contact our team to discuss the work your vehicle needs."}
+              {groupOnly && verifiedGroup
+                ? "Individual services are not listed in this group yet. Tell us about your vehicle so the team can discuss the work and next steps."
+                : filtered
+                  ? "Try other filters or contact our team about your vehicle."
+                  : "Contact our team to discuss the work your vehicle needs."}
             </p>
             <div className="actions">
               {(filtered || cursor) && (
@@ -233,8 +270,25 @@ export function ServicesCatalogue({
           </div>
         ) : (
           resource.data?.items.map((service) => (
-            <article className="services-row" key={service.id}>
-              <div className={`services-row-media${service.image ? " has-photo" : ""}`}>
+            <article
+              className="services-row"
+              key={service.id}
+              style={
+                service.image
+                  ? {
+                      maxWidth: `min(100%, ${(420 * service.image.width) / service.image.height}px)`,
+                    }
+                  : undefined
+              }
+            >
+              <div
+                className={`services-row-media${service.image ? " has-photo" : ""}`}
+                style={
+                  service.image
+                    ? { aspectRatio: `${service.image.width} / ${service.image.height}` }
+                    : undefined
+                }
+              >
                 {service.image ? (
                   <ServicePhoto
                     key={`${service.image.id}:${service.image.url}`}

@@ -1,4 +1,5 @@
 "use client";
+import { OwnerServiceStructure } from "./owner-service-structure";
 import Link from "next/link";
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
@@ -94,6 +95,7 @@ function CategoryWorkspace({ owner }: { owner: string }) {
         Deactivating a category removes the grouping while its active services remain
         available.
       </p>
+      <OwnerServiceStructure disabled={blocked} onSaved={resource.refresh} />
       <Feedback message={message} tone="success" toast={message} />
       <CategoryFilters
         key={`${params.get("search")}:${params.get("isActive")}`}

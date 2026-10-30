@@ -23,7 +23,7 @@ const serializeBooking = (booking: SelectedBooking | null) =>
   booking && {
     id: booking.id,
     status: booking.status,
-    serviceName: booking.service.name,
+    serviceName: booking.service?.name ?? "Vehicle concern",
     scheduledAt: booking.scheduledAt.toISOString(),
     requestedAt: booking.requestedAt.toISOString(),
     confirmedAt: booking.confirmedAt?.toISOString() ?? null,

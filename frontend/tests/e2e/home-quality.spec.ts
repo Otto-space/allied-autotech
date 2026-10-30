@@ -211,6 +211,15 @@ for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536]) {
     await expect(page.locator(".home-vehicle-card")).toHaveCount(2);
     await page.locator(".home-vehicle-card").first().scrollIntoViewIfNeeded();
     await expect(page.locator(".home-vehicle-card").first().locator("img")).toBeVisible();
+    await expect(page.locator(".home-vehicle-card").first().locator("img")).toHaveCSS(
+      "object-fit",
+      "cover",
+    );
+    const vehicleFrame = (await page
+      .locator(".home-vehicle-card .product-media")
+      .first()
+      .boundingBox())!;
+    expect(vehicleFrame.width / vehicleFrame.height).toBeCloseTo(4 / 3, 2);
     await expect
       .poll(() =>
         page
@@ -224,7 +233,9 @@ for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536]) {
     await expect(page.locator(".home-product-card").nth(1)).toContainText(
       "Unavailable at listed branches",
     );
-    await expect(page.locator(".home-product-card").last()).toContainText("₦0.00");
+    await expect(
+      page.locator(".home-product-card").last().locator(".home-card__price"),
+    ).toHaveText("₦0");
     await expect(page.locator(".home-vehicle-card").first()).toContainText("0 km");
     await expect(
       page.locator(".home-vehicle-card").nth(1).locator(".home-vehicle-specs li"),
@@ -257,20 +268,10 @@ for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536]) {
       fullPage: true,
     });
     expect(errors).toEqual([]);
+    // Server-seeded public data must not be fetched again on hydration.
     expect(
       state.reads.filter((p) => p.startsWith("/public/") && !p.includes("/images/")),
-    ).toEqual(
-      expect.arrayContaining([
-        "/public/services",
-        "/public/catalog/products",
-        "/public/vehicles",
-        "/public/support/reviews",
-      ]),
-    );
-    // The current shared session completion invalidates public reads once.
-    expect(
-      state.reads.filter((p) => p.startsWith("/public/") && !p.includes("/images/")),
-    ).toHaveLength(4);
+    ).toEqual([]);
     for (const seed of [
       "/public/catalog/products?limit=4",
       "/public/vehicles?limit=2",

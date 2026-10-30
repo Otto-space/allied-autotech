@@ -157,6 +157,27 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
     afterEach(() => vi.restoreAllMocks());
     afterAll(() => prisma.$disconnect());
 
+    it("does not attach a reversal for a different reference to this payment", async () => {
+      const f = await fixture();
+      const attempt = await f.attempt(
+        {},
+        { status: "reversed", reference: "another-reference" },
+      );
+      const run = await f.run();
+      expect(await f.items(run.id)).toEqual([
+        expect.objectContaining({ status: "STATUS_MISMATCH", providerAmountKobo: null }),
+      ]);
+      expect(
+        await prisma.paymentAttempt.findUniqueOrThrow({ where: { id: attempt.id } }),
+      ).toEqual(attempt);
+      expect(
+        await prisma.payment.findUniqueOrThrow({ where: { id: f.payment.id } }),
+      ).toEqual(f.payment);
+      expect(
+        await prisma.paymentAnomaly.count({ where: { paymentId: f.payment.id } }),
+      ).toBe(0);
+    });
+
     it("includes every attempt beyond 1,000, handles tied timestamps and excludes other providers and period boundaries", async () => {
       const f = await fixture();
       await prisma.paymentAttempt.createMany({

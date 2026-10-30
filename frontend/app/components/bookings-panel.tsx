@@ -213,7 +213,7 @@ export function BookingsPanel() {
                 {data.items.map((booking) => (
                   <tr key={booking.id}>
                     <td className="booking-identity">
-                      <h3>{booking.service.name}</h3>
+                      <h3>{booking.service?.name ?? "Vehicle concern"}</h3>
                       {booking.vehicle ? (
                         <>
                           <p>
@@ -276,7 +276,7 @@ export function BookingsPanel() {
                     <td className="booking-row-action">
                       <Link
                         href={`/dashboard/bookings/${booking.id}`}
-                        aria-label={`View booking: ${booking.service.name}`}
+                        aria-label={`View booking: ${booking.service?.name ?? "Vehicle concern"}`}
                         prefetch={false}
                       >
                         View booking <ArrowRight size={16} aria-hidden="true" />

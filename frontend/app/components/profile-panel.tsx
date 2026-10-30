@@ -71,7 +71,7 @@ const fields = [
   },
 ] as const;
 
-function ProfileForm({
+export function ProfileForm({
   profile,
   refresh,
   disabled,

@@ -204,7 +204,7 @@ function BookingList({ admin }: { admin: boolean }) {
                 <tr key={booking.id}>
                   <td className="work-booking-service">
                     <Link href={`/admin/bookings/${booking.id}`} prefetch={false}>
-                      <strong>{booking.service.name}</strong>
+                      <strong>{booking.service?.name ?? "Vehicle concern"}</strong>
                       <span>{formatBusinessDate(booking.scheduledAt)}</span>
                       <span className="work-booking-ref">Ref {booking.id.slice(-8)}</span>
                     </Link>
@@ -237,7 +237,7 @@ function BookingList({ admin }: { admin: boolean }) {
                     <Link
                       href={`/admin/bookings/${booking.id}`}
                       prefetch={false}
-                      aria-label={`View booking: ${booking.service.name}`}
+                      aria-label={`View booking: ${booking.service?.name ?? "Vehicle concern"}`}
                     >
                       <span>View booking</span>
                       <ArrowUpRight size={18} aria-hidden="true" />

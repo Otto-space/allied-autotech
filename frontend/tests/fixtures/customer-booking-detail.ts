@@ -6,7 +6,7 @@ export const future = (hours: number) =>
 export function detailRecord() {
   return {
     ...bookingRecord(1, "CONFIRMED"),
-    bookingSlotId: bookingId(500),
+    bookingSlotId: bookingId(500) as string | null,
     scheduledAt: future(72),
     requestedAt: new Date(Date.now() - 86400000).toISOString(),
     confirmedAt: new Date().toISOString(),

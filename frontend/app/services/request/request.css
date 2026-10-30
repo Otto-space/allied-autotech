@@ -1,0 +1,93 @@
+.concern-page {
+  background: var(--surface, #f7f8fa);
+  padding-block: 24px 100px;
+}
+.concern-page nav ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  list-style: none;
+  padding: 0;
+  margin: 0 0 24px;
+}
+.concern-page nav a {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+}
+.concern-layout {
+  max-width: 800px;
+}
+.concern-layout h1 {
+  font-size: clamp(26px, 4vw, 38px);
+}
+.concern-layout p {
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+.concern-form {
+  background: white;
+  border: 1px solid var(--line, #d8dee5);
+  border-radius: var(--radius-card, 8px);
+  padding: clamp(18px, 4vw, 32px);
+  box-shadow: var(--elevation-low);
+}
+.concern-form fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+  display: grid;
+  gap: 20px;
+}
+.concern-form label {
+  display: grid;
+  gap: 8px;
+  font-weight: 600;
+}
+.concern-form input,
+.concern-form textarea,
+.concern-form select {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 12px;
+  border: 1px solid var(--border-control, #8290a1);
+  border-radius: var(--radius-control, 6px);
+  background: white;
+  color: var(--ink);
+  font: inherit;
+}
+.concern-form textarea {
+  resize: vertical;
+}
+.concern-form .concern-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
+}
+.concern-form .concern-actions > * {
+  min-height: 44px;
+}
+.concern-form dl {
+  display: grid;
+  gap: 8px;
+  margin-block: 24px;
+}
+.concern-form dt {
+  font-weight: 700;
+}
+.concern-form dd {
+  margin: 0 0 12px;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+.concern-form h2[tabindex="-1"]:focus {
+  outline: none;
+}
+@media (max-width: 479px) {
+  .concern-form .concern-actions > * {
+    width: 100%;
+  }
+}

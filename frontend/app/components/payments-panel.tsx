@@ -1,5 +1,6 @@
 ﻿"use client";
 import Link from "next/link";
+import { paymentReversalMessage } from "@/lib/api/payment-schemas";
 import { useSearchParams } from "next/navigation";
 import { ArrowLeft, ArrowRight, CreditCard, ChevronRight, RefreshCw } from "lucide-react";
 import { useResource } from "@/lib/api/use-resource";
@@ -253,17 +254,27 @@ export function PaymentsPanel() {
                     <td data-label="Status">
                       <span
                         className={`paylist-state ${["CANCELLED", "EXPIRED"].includes(payment.status) ? "closed" : ""}`}
-                        data-status={payment.status}
+                        data-status={
+                          payment.reversalReported ? "REQUIRES_REVIEW" : payment.status
+                        }
                       >
-                        {paymentLabels[payment.status]}
+                        {payment.reversalReported
+                          ? "Reversal reported"
+                          : paymentLabels[payment.status]}
                       </span>
-                      <small>{paymentStatusNotes[payment.status]}</small>
+                      <small>
+                        {payment.reversalReported
+                          ? paymentReversalMessage
+                          : paymentStatusNotes[payment.status]}
+                      </small>
                     </td>
                     <td data-label="Amount">
                       <strong>{formatKobo(payment.amountKobo)}</strong>
                       <small>
                         {payment.status === "SUCCEEDED"
-                          ? "Confirmed amount"
+                          ? payment.reversalReported
+                            ? "Originally confirmed amount"
+                            : "Confirmed amount"
                           : "Requested amount"}
                       </small>
                     </td>

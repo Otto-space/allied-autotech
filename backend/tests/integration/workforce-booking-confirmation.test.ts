@@ -100,6 +100,71 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         .post(`/api/v1/staff/workforce/bookings/${id}/confirmation`)
         .set(who.headers)
         .send(body);
+    const propose = (
+      who: { headers: Record<string, string> },
+      id: string,
+      expectedVersion = 0,
+    ) =>
+      request(app)
+        .post(`/api/v1/staff/workforce/bookings/${id}/alternative`)
+        .set(who.headers)
+        .send({
+          expectedVersion,
+          preferredAt: new Date(Date.now() + 8 * 86400000).toISOString(),
+          reason: "Allow more time for the requested diagnostic checks.",
+        });
+    it("proposes a scoped alternative without changing the appointment or confirming it", async () => {
+      const v = await fixture();
+      const result = await propose(v.who, v.booking.id);
+      expect(result.status).toBe(200);
+      expect(
+        workforceResponseSchema("bookingAlternative").safeParse(result.body.data).success,
+      ).toBe(true);
+      expect(result.body.data).toMatchObject({
+        id: v.booking.id,
+        version: 1,
+        alternativeVersion: 1,
+        status: "REQUESTED",
+        scheduledAt: v.booking.scheduledAt.toISOString(),
+        performedByUserId: v.who.user.id,
+      });
+      expect(result.body.data).not.toHaveProperty("customer");
+      const stored = await prisma.booking.findUniqueOrThrow({
+        where: { id: v.booking.id },
+      });
+      expect(stored.assignedStaffId).toBe(v.booking.assignedStaffId);
+      expect(stored.confirmedAt).toBeNull();
+      expect((await propose(v.who, v.booking.id)).status).toBe(409);
+      expect(
+        (await prisma.booking.findUniqueOrThrow({ where: { id: v.booking.id } })).version,
+      ).toBe(1);
+    });
+    it("rejects proposal requests without scope or grant and across branches", async () => {
+      for (const options of [
+        { capability: false },
+        { scope: false },
+        { branchId: f.other.id },
+      ]) {
+        const v = await fixture(options);
+        expect([403, 404]).toContain((await propose(v.who, v.booking.id)).status);
+        const stored = await prisma.booking.findUniqueOrThrow({
+          where: { id: v.booking.id },
+        });
+        expect(stored.version).toBe(0);
+        expect(stored.alternativeStartsAt).toBeNull();
+      }
+    });
+    it("commits only one concurrent proposal for the reviewed version", async () => {
+      const v = await fixture();
+      const results = await Promise.all([
+        propose(v.who, v.booking.id),
+        propose(v.who, v.booking.id),
+      ]);
+      expect(results.map((r) => r.status).sort()).toEqual([200, 409]);
+      expect(
+        (await prisma.booking.findUniqueOrThrow({ where: { id: v.booking.id } })).version,
+      ).toBe(1);
+    });
     it("completes a permitted reviewed confirmation using real capacity/schedule/version safeguards", async () => {
       const v = await fixture();
       const result = await confirm(v.who, v.booking.id);

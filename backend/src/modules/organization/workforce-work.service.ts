@@ -1,3 +1,4 @@
+import { ServiceOperationsRepository } from "../service-operations/service-operations.repository.js";
 import {
   workforceCareContactSelect,
   projectWorkforceCareContact,
@@ -88,7 +89,8 @@ export const jobSelect = {
   version: true,
   assignedStaffId: true,
   customerNotes: true,
-  service: { select: { name: true } },
+  customerConcern: true,
+  service: { select: { id: true, name: true } },
   vehicle: { select: { make: true, model: true, year: true, registrationNumber: true } },
   workOrder: {
     select: {
@@ -231,6 +233,7 @@ export class WorkforceWorkService {
         filters.push({
           OR: [
             { service: { name: text } },
+            { customerConcern: text },
             { workOrder: { is: { workOrderNumber: text } } },
             {
               vehicle: {
@@ -298,6 +301,7 @@ export class WorkforceWorkService {
         filters.push({
           OR: [
             { service: { name: text } },
+            { customerConcern: text },
             {
               customer: {
                 OR: [{ firstName: text }, { lastName: text }, { phone: text }],
@@ -360,6 +364,10 @@ export class WorkforceWorkService {
           scheduledAt: true,
           status: true,
           version: true,
+          customerConcern: true,
+          alternativeStartsAt: true,
+          alternativeReason: true,
+          alternativeVersion: true,
           service: { select: { name: true, durationMinutes: true } },
           assignedStaff: { select: { id: true, firstName: true, lastName: true } },
           confirmedAt: true,
@@ -626,6 +634,29 @@ export class WorkforceWorkService {
         )
       )
         workforceConflict();
+      let classification:
+        { serviceId: string; quotedPriceKobo: bigint | null } | undefined;
+      let duration: number | undefined;
+      if (!booking.service) {
+        if (booking.status !== "REQUESTED" || !input.serviceId)
+          workforceConflict(
+            "Choose a published service before assigning this concern request",
+          );
+        await tx.$queryRaw`SELECT "id" FROM "Service" WHERE "id" = ${input.serviceId}::uuid FOR SHARE`;
+        const service = await tx.service.findFirst({
+          where: { id: input.serviceId, isActive: true, currency: "NGN" },
+          select: { id: true, durationMinutes: true, pricingType: true, priceKobo: true },
+        });
+        if (!service || !service.durationMinutes)
+          workforceConflict("Choose a published service with a configured duration");
+        duration = service.durationMinutes;
+        classification = {
+          serviceId: service.id,
+          quotedPriceKobo: service.pricingType === "FIXED" ? service.priceKobo : null,
+        };
+      } else if (input.serviceId && input.serviceId !== booking.service.id) {
+        workforceConflict("The service cannot be changed during technician assignment");
+      }
       const technician = await tx.staffProfile.findFirst({
         where: {
           id: input.staffId,
@@ -648,14 +679,47 @@ export class WorkforceWorkService {
         !branchesFor(technicianAccess, "JOBS_UPDATE").includes(booking.branchId)
       )
         workforceDenied("Select an active technician with work access in this branch");
+      if (duration !== undefined) {
+        await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`staff-schedule:${input.staffId}`}, 0))`;
+        if (
+          await new ServiceOperationsRepository().hasScheduleConflict(
+            input.staffId,
+            booking.scheduledAt,
+            new Date(booking.scheduledAt.getTime() + duration * 60000),
+            id,
+            tx,
+          )
+        )
+          workforceConflict("This technician has another appointment at that time");
+      }
+      const current = await workforceSnapshot(tx, actor);
+      if (
+        !(await tx.booking.findFirst({
+          where: { AND: [{ id }, bookingScope(current, "JOBS_ASSIGN")] },
+          select: { id: true },
+        }))
+      )
+        workforceNotFound();
+      const currentTechnician = await workforceSnapshot(tx, {
+        ...actor,
+        userId: technician.userId,
+        role: targetUser.role,
+      });
+      if (!branchesFor(currentTechnician, "JOBS_UPDATE").includes(booking.branchId))
+        workforceDenied();
       await tx.booking.update({
         where: { id },
-        data: { assignedStaffId: input.staffId, version: { increment: 1 } },
+        data: {
+          assignedStaffId: input.staffId,
+          ...classification,
+          version: { increment: 1 },
+        },
       });
       await audit(tx, actor, context, "BOOKING", id, {
         workforceAction: "JOB_ASSIGNED",
         staffId: input.staffId,
         previousStaffId: booking.assignedStaffId,
+        ...(classification ? { serviceId: classification.serviceId } : {}),
         reason: input.reason,
       });
       if (technician.userId !== actor.userId && booking.assignedStaffId !== input.staffId)
@@ -671,7 +735,25 @@ export class WorkforceWorkService {
           deduplicationKey: `job-assigned:${id}:${input.expectedVersion + 1}`,
           channels: [],
         });
-      return changedJob(tx, access, id);
+      const result = await changedJob(tx, current, id);
+      // Responsibility expiry can advance while audit/notification writes await I/O.
+      // Recheck both participants before committing the assignment and its receipt.
+      const finalAccess = await workforceSnapshot(tx, actor);
+      if (
+        !(await tx.booking.findFirst({
+          where: { AND: [{ id }, bookingScope(finalAccess, "JOBS_ASSIGN")] },
+          select: { id: true },
+        }))
+      )
+        workforceNotFound();
+      const finalTechnician = await workforceSnapshot(tx, {
+        ...actor,
+        userId: technician.userId,
+        role: targetUser.role,
+      });
+      if (!branchesFor(finalTechnician, "JOBS_UPDATE").includes(booking.branchId))
+        workforceDenied();
+      return { ...result, access: finalAccess };
     });
   }
   enquiries(

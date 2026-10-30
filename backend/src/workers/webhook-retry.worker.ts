@@ -10,6 +10,7 @@ import type { PaystackWebhookEvent } from "../providers/payments/paystack-webhoo
 import { LostWebhookClaim } from "../modules/payments/webhook-claim.js";
 
 const redactedSchema = z.object({
+  domain: z.enum(["test", "live"]).optional(),
   eventType: z.string(),
   providerEventId: z.string().nullable(),
   resourceId: z.string().nullable(),
@@ -106,8 +107,10 @@ export class PaymentWebhookRetryWorker {
         }
         if (item.provider !== "PAYSTACK") throw new Error("Unsupported webhook provider");
         const value = redactedSchema.parse(item.redactedPayload);
+        const { domain, ...facts } = value;
         const event: PaystackWebhookEvent = {
-          ...value,
+          ...facts,
+          ...(domain === undefined ? {} : { domain }),
           ...(value.eventType.startsWith("charge.dispute.")
             ? { disputeLookupRequired: true }
             : {}),

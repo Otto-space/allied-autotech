@@ -151,6 +151,11 @@
   align-items: flex-start;
   justify-content: space-between;
 }
+.customer-booking-detail .booking-concern-description {
+  color: #e1e9ee;
+  margin-top: 16px;
+  white-space: pre-wrap;
+}
 .booking-appointment .booking-detail-status {
   background: #213640;
   border-color: #4c606b;

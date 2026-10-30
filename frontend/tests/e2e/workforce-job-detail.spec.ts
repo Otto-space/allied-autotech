@@ -532,3 +532,77 @@ test("long technical data and names wrap at 320px", async ({ page }) => {
     await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
   ).toBe(true);
 });
+
+for (const width of [390, 1440])
+  test(`lead classifies a concern during assignment at ${width}px`, async ({
+    page,
+  }, testInfo) => {
+    await page.setViewportSize({ width, height: 1000 });
+    const errors: string[] = [];
+    page.on("pageerror", (e) => errors.push(e.message));
+    page.on("console", (m) => {
+      if (m.type() === "error") errors.push(m.text());
+    });
+    const state = await workforceJobDetailFixture(page, true);
+    state.job.service = null;
+    state.job.status = "REQUESTED";
+    state.job.workOrder = null;
+    state.job.customerConcern = "Engine rattles on cold start.";
+    await page.route("**/api/v1/public/services?**", (route) =>
+      route.fulfill({
+        json: {
+          success: true,
+          message: "Synthetic classification services",
+          meta: { requestId: "classification-services" },
+          data: {
+            items: [
+              {
+                ...state.classificationService,
+                durationMinutes: 60,
+                pricingType: "QUOTE_REQUIRED",
+                priceKobo: null,
+              },
+            ],
+          },
+        },
+      }),
+    );
+    await page.goto(`/admin/workforce/jobs/${state.job.id}`);
+    await page
+      .getByRole("radio", { name: /^Technician 01 Test Staff reference:/ })
+      .check();
+    await page
+      .getByLabel("Service for this concern", { exact: true })
+      .selectOption(state.classificationService.id);
+    await page
+      .getByLabel("Assignment reason", { exact: true })
+      .fill("Reviewed concern and technician suitability.");
+    await page
+      .getByRole("button", { name: "Review job assignment", exact: true })
+      .click();
+    await expect(page.getByRole("dialog")).toContainText(
+      state.classificationService.name,
+    );
+    await expect(page.getByRole("dialog")).toContainText(
+      "Remains requested; no payment or confirmation",
+    );
+    expect(state.writes).toHaveLength(0);
+    expect(
+      (await new AxeBuilder({ page }).include(".mutation-review").analyze()).violations,
+    ).toEqual([]);
+    await page.screenshot({
+      path: testInfo.outputPath(`concern-classification-${width}.png`),
+    });
+    await confirm(page);
+    await expect(page.getByText("Job change recorded.", { exact: true })).toBeVisible();
+    expect(state.writes).toHaveLength(1);
+    expect(state.writes[0].body.serviceId).toBe(state.classificationService.id);
+    expect(state.job.status).toBe("REQUESTED");
+    await expect(
+      page.getByText(state.job.customerConcern, { exact: true }),
+    ).toBeVisible();
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+    expect(errors).toEqual([]);
+  });

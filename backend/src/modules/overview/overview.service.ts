@@ -227,7 +227,7 @@ export class OverviewService {
           recentBookings: bookings.map(
             ({ service, scheduledAt, createdAt, ...booking }) => ({
               ...booking,
-              serviceName: service.name,
+              serviceName: service?.name ?? "Vehicle concern",
               scheduledAt: scheduledAt.toISOString(),
               createdAt: createdAt.toISOString(),
             }),

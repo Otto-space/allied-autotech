@@ -2471,7 +2471,7 @@ export interface paths {
         put?: never;
         /**
          * Request a booking
-         * @description Request a booking. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
+         * @description Accept an offered slot, or a preferred branch/time with either a published service or a customerConcern of 10–2000 characters. Concern requests retain null service and price until staff classification. All requests require staff confirmation. Request a booking. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
          */
         post: operations["postCustomersBookings"];
         delete?: never;
@@ -2514,8 +2514,8 @@ export interface paths {
         options?: never;
         head?: never;
         /**
-         * Reschedule a confirmed deposit-backed booking once
-         * @description Reschedule a confirmed deposit-backed booking once. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
+         * Request one permitted reschedule of a confirmed booking
+         * @description Request one permitted reschedule of a confirmed booking. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
          */
         patch: operations["patchCustomersBookingsByBookingIdSchedule"];
         trace?: never;
@@ -2664,6 +2664,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/staff/bookings/{bookingId}/alternative": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Propose a different time without changing the appointment; requires booking confirmation authority
+         * @description Branch-authorized workshop operations. Deposit payment records are omitted entirely for STAFF, including operational mutation responses. Booking policy snapshots and scheduling/payment clearance states remain available. Inactive staff branches are denied. Propose a different time without changing the appointment; requires booking confirmation authority. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         */
+        post: operations["postStaffBookingsByBookingIdAlternative"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/customers/bookings/{bookingId}/alternative-response": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Accept or decline the current version-bound alternative; acceptance requests staff confirmation without consuming customer reschedule allowance
+         * @description Accept or decline the current version-bound alternative; acceptance requests staff confirmation without consuming customer reschedule allowance. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         */
+        post: operations["postCustomersBookingsByBookingIdAlternativeResponse"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/staff/bookings/{bookingId}/assignment": {
         parameters: {
             query?: never;
@@ -2678,8 +2718,8 @@ export interface paths {
         options?: never;
         head?: never;
         /**
-         * Assign available branch staff
-         * @description Branch-authorized workshop operations. Deposit payment records are omitted entirely for STAFF, including operational mutation responses. Booking policy snapshots and scheduling/payment clearance states remain available. Inactive staff branches are denied. Assign available branch staff. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         * Assign available branch staff and classify an unassigned concern
+         * @description Branch-authorized workshop operations. Deposit payment records are omitted entirely for STAFF, including operational mutation responses. Booking policy snapshots and scheduling/payment clearance states remain available. Inactive staff branches are denied. Assign available branch staff and classify an unassigned concern. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
          */
         patch: operations["patchStaffBookingsByBookingIdAssignment"];
         trace?: never;
@@ -2904,6 +2944,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/admin/service-categories/owner-structure": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Review the eight owner-approved service groups
+         * @description Verified administrator only. Returns existing identities and a revision for explicit review. Includes inactive categories; no writes. Ambiguous names or an existing conflicting Tyre Change association return 409. Review the eight owner-approved service groups. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+         */
+        get: operations["getAdminServiceCategoriesOwnerStructure"];
+        put?: never;
+        /**
+         * Apply the reviewed owner service structure
+         * @description Verified administrator and CSRF required. Atomic, audited, revision-checked operation creates missing groups, preserves existing category identity/content/visibility, and associates only unassigned Tyre Change without changing pricing or duration. Refetch review after an uncertain result; repeated application makes no duplicate changes. No service is created, and no booking/history record is rewritten. Apply the reviewed owner service structure. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         */
+        post: operations["postAdminServiceCategoriesOwnerStructure"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/public/services/categories": {
         parameters: {
             query?: never;
@@ -2913,7 +2977,7 @@ export interface paths {
         };
         /**
          * List active service category options
-         * @description Literal case-insensitive name-prefix search, ascending name/ID order, signed filter-bound cursor. Public options include only active categories with an active service (limit 1–50). Administrator list includes inactive and empty categories and supports isActive (limit 1–100). List active service category options. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+         * @description Literal case-insensitive name-prefix search, ascending name/ID order, signed filter-bound cursor. Public options include active categories even without individual services, with their maintained descriptions (limit 1–50). Administrator list includes inactive and empty categories and supports isActive (limit 1–100). List active service category options. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
          */
         get: operations["getPublicServicesCategories"];
         put?: never;
@@ -2933,7 +2997,7 @@ export interface paths {
         };
         /**
          * List service categories for administration
-         * @description Literal case-insensitive name-prefix search, ascending name/ID order, signed filter-bound cursor. Public options include only active categories with an active service (limit 1–50). Administrator list includes inactive and empty categories and supports isActive (limit 1–100). List service categories for administration. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+         * @description Literal case-insensitive name-prefix search, ascending name/ID order, signed filter-bound cursor. Public options include active categories even without individual services, with their maintained descriptions (limit 1–50). Administrator list includes inactive and empty categories and supports isActive (limit 1–100). List service categories for administration. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
          */
         get: operations["getAdminServiceCategories"];
         put?: never;
@@ -2956,8 +3020,8 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Get an active category backed by an active service
-         * @description Get an active category backed by an active service. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+         * Get an active service group, including groups awaiting individual services
+         * @description Get an active service group, including groups awaiting individual services. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
          */
         get: operations["getPublicServicesCategoriesByCategoryId"];
         put?: never;
@@ -4581,7 +4645,7 @@ export interface paths {
         };
         /**
          * List own payments, optionally for one vehicle purchase
-         * @description Requires the customer account that owns the payment; server verification remains authoritative. Optional vehicleTransactionId filters within the authenticated customer's payments before pagination. A cursor for another customer, target or selected status is rejected. An empty result does not reveal whether a different customer owns the target. List own payments, optionally for one vehicle purchase. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+         * @description Requires the customer account that owns the payment; server verification remains authoritative. Customer reads include reversalReported, a boolean indicating a recorded provider reversal observation. Original payment status and capture amounts remain historical facts; internal anomaly identifiers and details are never returned. A reversal report is not proof of a completed refund or permission to repay. Optional vehicleTransactionId filters within the authenticated customer's payments before pagination. A cursor for another customer, target or selected status is rejected. An empty result does not reveal whether a different customer owns the target. List own payments, optionally for one vehicle purchase. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
          */
         get: operations["getCustomersPayments"];
         put?: never;
@@ -4605,7 +4669,7 @@ export interface paths {
         };
         /**
          * Get an owned payment
-         * @description Requires the customer account that owns the payment; server verification remains authoritative. The private no-store detail response includes checkoutProviders, containing only currently enabled online provider names. An empty array means online checkout is unavailable. This is configuration availability, not authorization to charge; initialization independently validates the current payable and competing attempts. No provider credentials or internal configuration are exposed. Get an owned payment. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+         * @description Requires the customer account that owns the payment; server verification remains authoritative. Customer reads include reversalReported, a boolean indicating a recorded provider reversal observation. Original payment status and capture amounts remain historical facts; internal anomaly identifiers and details are never returned. A reversal report is not proof of a completed refund or permission to repay. The private no-store detail response includes checkoutProviders, containing only currently enabled online provider names. An empty array means online checkout is unavailable. This is configuration availability, not authorization to charge; initialization independently validates the current payable and competing attempts. No provider credentials or internal configuration are exposed. Get an owned payment. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
          */
         get: operations["getCustomersPaymentsByPaymentId"];
         put?: never;
@@ -7910,6 +7974,26 @@ export interface paths {
         get: operations["getStaffWorkforceJobsById"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/staff/workforce/bookings/{id}/alternative": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Responsibility-based workspace: bookingAlternative
+         * @description Explicit enrollment required for operational queues. Current assignments, branch, field projections and state are enforced in a transaction. Access changes require MFA, current password, target/version review and an owner-configured delegation envelope. No financial execution, exports or collection release authority is conferred by a title. Responsibility-based workspace: bookingAlternative. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         */
+        post: operations["postStaffWorkforceBookingsByIdAlternative"];
         delete?: never;
         options?: never;
         head?: never;
@@ -45444,6 +45528,7 @@ export interface operations {
                      *           {
                      *             "categoryId": "00000000-0000-4000-8000-000000000001",
                      *             "category": {
+                     *               "description": "synthetic-description",
                      *               "id": "00000000-0000-4000-8000-000000000001",
                      *               "name": "synthetic-name",
                      *               "slug": "synthetic-slug"
@@ -45495,6 +45580,8 @@ export interface operations {
                                 categoryId: string | null;
                                 /** @description Category validated by this operation's strict request contract. */
                                 category: {
+                                    /** @description Description validated by this operation's strict request contract. */
+                                    description?: string | null;
                                     /**
                                      * Format: uuid
                                      * @description Identifier of the id resource; ownership is resolved server-side.
@@ -45716,6 +45803,7 @@ export interface operations {
                      *       "data": {
                      *         "categoryId": "00000000-0000-4000-8000-000000000001",
                      *         "category": {
+                     *           "description": "synthetic-description",
                      *           "id": "00000000-0000-4000-8000-000000000001",
                      *           "name": "synthetic-name",
                      *           "slug": "synthetic-slug"
@@ -45762,6 +45850,8 @@ export interface operations {
                             categoryId: string | null;
                             /** @description Category validated by this operation's strict request contract. */
                             category: {
+                                /** @description Description validated by this operation's strict request contract. */
+                                description?: string | null;
                                 /**
                                  * Format: uuid
                                  * @description Identifier of the id resource; ownership is resolved server-side.
@@ -46411,6 +46501,7 @@ export interface operations {
                      *           {
                      *             "categoryId": "00000000-0000-4000-8000-000000000001",
                      *             "category": {
+                     *               "description": "synthetic-description",
                      *               "id": "00000000-0000-4000-8000-000000000001",
                      *               "name": "synthetic-name",
                      *               "slug": "synthetic-slug"
@@ -46462,6 +46553,8 @@ export interface operations {
                                 categoryId: string | null;
                                 /** @description Category validated by this operation's strict request contract. */
                                 category: {
+                                    /** @description Description validated by this operation's strict request contract. */
+                                    description?: string | null;
                                     /**
                                      * Format: uuid
                                      * @description Identifier of the id resource; ownership is resolved server-side.
@@ -47006,6 +47099,7 @@ export interface operations {
                      *       "data": {
                      *         "categoryId": "00000000-0000-4000-8000-000000000001",
                      *         "category": {
+                     *           "description": "synthetic-description",
                      *           "id": "00000000-0000-4000-8000-000000000001",
                      *           "name": "synthetic-name",
                      *           "slug": "synthetic-slug"
@@ -47052,6 +47146,8 @@ export interface operations {
                             categoryId: string | null;
                             /** @description Category validated by this operation's strict request contract. */
                             category: {
+                                /** @description Description validated by this operation's strict request contract. */
+                                description?: string | null;
                                 /**
                                  * Format: uuid
                                  * @description Identifier of the id resource; ownership is resolved server-side.
@@ -48145,11 +48241,7 @@ export interface operations {
             content: {
                 /**
                  * @example {
-                 *       "slotId": "00000000-0000-4000-8000-000000000001",
-                 *       "vehicleId": "00000000-0000-4000-8000-000000000001",
-                 *       "customerNotes": "synthetic-customernotes",
-                 *       "policyVersion": "synthetic-policyversion",
-                 *       "acceptNonRefundableDeposit": true
+                 *       "policyVersion": "synthetic-policyversion"
                  *     }
                  */
                 "application/json": {
@@ -48157,7 +48249,24 @@ export interface operations {
                      * Format: uuid
                      * @description Identifier of the slot resource; ownership is resolved server-side.
                      */
-                    slotId: string;
+                    slotId?: string;
+                    /**
+                     * Format: uuid
+                     * @description Identifier of the service resource; ownership is resolved server-side.
+                     */
+                    serviceId?: string;
+                    /** @description Customer Concern validated by this operation's strict request contract. */
+                    customerConcern?: string;
+                    /**
+                     * Format: uuid
+                     * @description Identifier of the branch resource; ownership is resolved server-side.
+                     */
+                    branchId?: string;
+                    /**
+                     * Format: date-time
+                     * @description ISO 8601 timestamp interpreted and validated by the server.
+                     */
+                    preferredAt?: string;
                     /**
                      * Format: uuid
                      * @description Identifier of the vehicle resource; ownership is resolved server-side.
@@ -48645,6 +48754,7 @@ export interface operations {
                 /**
                  * @example {
                  *       "slotId": "00000000-0000-4000-8000-000000000001",
+                 *       "preferredAt": "2030-01-15T10:00:00.000Z",
                  *       "expectedVersion": 0
                  *     }
                  */
@@ -48653,14 +48763,19 @@ export interface operations {
                      * Format: uuid
                      * @description Identifier of the slot resource; ownership is resolved server-side.
                      */
-                    slotId: string;
+                    slotId?: string;
+                    /**
+                     * Format: date-time
+                     * @description ISO 8601 timestamp interpreted and validated by the server.
+                     */
+                    preferredAt?: string;
                     /** @description Last server version observed by the client; stale writes are rejected. */
                     expectedVersion: number;
                 };
             };
         };
         responses: {
-            /** @description Success: Reschedule a confirmed deposit-backed booking once. */
+            /** @description Success: Request one permitted reschedule of a confirmed booking. */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -48669,7 +48784,7 @@ export interface operations {
                     /**
                      * @example {
                      *       "success": true,
-                     *       "message": "Reschedule a confirmed deposit-backed booking once",
+                     *       "message": "Request one permitted reschedule of a confirmed booking",
                      *       "data": {
                      *         "id": "00000000-0000-4000-8000-000000000001",
                      *         "status": "synthetic-status"
@@ -48684,7 +48799,7 @@ export interface operations {
                         success: boolean;
                         /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
                         message: string;
-                        /** @description Authorized response projection for: Reschedule a confirmed deposit-backed booking once. */
+                        /** @description Authorized response projection for: Request one permitted reschedule of a confirmed booking. */
                         data?: {
                             /**
                              * Format: uuid
@@ -50984,6 +51099,557 @@ export interface operations {
             };
         };
     };
+    postStaffBookingsByBookingIdAlternative: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+                 * @example synthetic-token-value-not-a-real-secret
+                 */
+                "x-csrf-token": string;
+            };
+            path: {
+                /**
+                 * @description Identifier selecting the booking resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                bookingId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "preferredAt": "2030-01-15T10:00:00.000Z",
+                 *       "reason": "synthetic-reason",
+                 *       "expectedVersion": 0
+                 *     }
+                 */
+                "application/json": {
+                    /**
+                     * Format: date-time
+                     * @description ISO 8601 timestamp interpreted and validated by the server.
+                     */
+                    preferredAt: string;
+                    /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                    reason: string;
+                    /** @description Last server version observed by the client; stale writes are rejected. */
+                    expectedVersion: number;
+                };
+            };
+        };
+        responses: {
+            /** @description Success: Propose a different time without changing the appointment; requires booking confirmation authority. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Propose a different time without changing the appointment; requires booking confirmation authority",
+                     *       "data": {
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "status": "synthetic-status"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Authorized response projection for: Propose a different time without changing the appointment; requires booking confirmation authority. */
+                        data?: {
+                            /**
+                             * Format: uuid
+                             * @description Public or authorized resource identifier.
+                             */
+                            id?: string;
+                            /** @description Current server-owned lifecycle state when applicable. */
+                            status?: string;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A valid session and required assurance are missing. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A valid session and required assurance are missing.",
+                     *       "error": {
+                     *         "code": "UNAUTHORIZED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The actor is not authorized for this resource or action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The actor is not authorized for this resource or action.",
+                     *       "error": {
+                     *         "code": "FORBIDDEN"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The requested resource is not available. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The requested resource is not available.",
+                     *       "error": {
+                     *         "code": "NOT_FOUND"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The request conflicts with current state or idempotency. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request conflicts with current state or idempotency.",
+                     *       "error": {
+                     *         "code": "CONFLICT"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description One or more request fields are invalid. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "One or more request fields are invalid.",
+                     *       "error": {
+                     *         "code": "VALIDATION_FAILED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    postCustomersBookingsByBookingIdAlternativeResponse: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+                 * @example synthetic-token-value-not-a-real-secret
+                 */
+                "x-csrf-token": string;
+            };
+            path: {
+                /**
+                 * @description Identifier selecting the booking resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                bookingId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "decision": "ACCEPT",
+                 *       "expectedVersion": 0
+                 *     }
+                 */
+                "application/json": {
+                    /**
+                     * @description Decision validated by this operation's strict request contract.
+                     * @enum {string}
+                     */
+                    decision: "ACCEPT" | "DECLINE";
+                    /** @description Last server version observed by the client; stale writes are rejected. */
+                    expectedVersion: number;
+                };
+            };
+        };
+        responses: {
+            /** @description Success: Accept or decline the current version-bound alternative; acceptance requests staff confirmation without consuming customer reschedule allowance. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Accept or decline the current version-bound alternative; acceptance requests staff confirmation without consuming customer reschedule allowance",
+                     *       "data": {
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "status": "synthetic-status"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Authorized response projection for: Accept or decline the current version-bound alternative; acceptance requests staff confirmation without consuming customer reschedule allowance. */
+                        data?: {
+                            /**
+                             * Format: uuid
+                             * @description Public or authorized resource identifier.
+                             */
+                            id?: string;
+                            /** @description Current server-owned lifecycle state when applicable. */
+                            status?: string;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A valid session and required assurance are missing. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A valid session and required assurance are missing.",
+                     *       "error": {
+                     *         "code": "UNAUTHORIZED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The actor is not authorized for this resource or action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The actor is not authorized for this resource or action.",
+                     *       "error": {
+                     *         "code": "FORBIDDEN"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The requested resource is not available. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The requested resource is not available.",
+                     *       "error": {
+                     *         "code": "NOT_FOUND"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The request conflicts with current state or idempotency. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request conflicts with current state or idempotency.",
+                     *       "error": {
+                     *         "code": "CONFLICT"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description One or more request fields are invalid. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "One or more request fields are invalid.",
+                     *       "error": {
+                     *         "code": "VALIDATION_FAILED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     patchStaffBookingsByBookingIdAssignment: {
         parameters: {
             query?: never;
@@ -51008,7 +51674,8 @@ export interface operations {
                 /**
                  * @example {
                  *       "assignedStaffId": "00000000-0000-4000-8000-000000000001",
-                 *       "expectedVersion": 0
+                 *       "expectedVersion": 0,
+                 *       "serviceId": "00000000-0000-4000-8000-000000000001"
                  *     }
                  */
                 "application/json": {
@@ -51019,11 +51686,16 @@ export interface operations {
                     assignedStaffId: string;
                     /** @description Last server version observed by the client; stale writes are rejected. */
                     expectedVersion: number;
+                    /**
+                     * Format: uuid
+                     * @description Identifier of the service resource; ownership is resolved server-side.
+                     */
+                    serviceId?: string;
                 };
             };
         };
         responses: {
-            /** @description Success: Assign available branch staff. */
+            /** @description Success: Assign available branch staff and classify an unassigned concern. */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -51032,7 +51704,7 @@ export interface operations {
                     /**
                      * @example {
                      *       "success": true,
-                     *       "message": "Assign available branch staff",
+                     *       "message": "Assign available branch staff and classify an unassigned concern",
                      *       "data": {
                      *         "id": "00000000-0000-4000-8000-000000000001",
                      *         "status": "synthetic-status"
@@ -51047,7 +51719,7 @@ export interface operations {
                         success: boolean;
                         /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
                         message: string;
-                        /** @description Authorized response projection for: Assign available branch staff. */
+                        /** @description Authorized response projection for: Assign available branch staff and classify an unassigned concern. */
                         data?: {
                             /**
                              * Format: uuid
@@ -54237,6 +54909,7 @@ export interface operations {
                      *           {
                      *             "categoryId": "00000000-0000-4000-8000-000000000001",
                      *             "category": {
+                     *               "description": "synthetic-description",
                      *               "id": "00000000-0000-4000-8000-000000000001",
                      *               "name": "synthetic-name",
                      *               "slug": "synthetic-slug"
@@ -54292,6 +54965,8 @@ export interface operations {
                                 categoryId: string | null;
                                 /** @description Category validated by this operation's strict request contract. */
                                 category: {
+                                    /** @description Description validated by this operation's strict request contract. */
+                                    description?: string | null;
                                     /**
                                      * Format: uuid
                                      * @description Identifier of the id resource; ownership is resolved server-side.
@@ -54484,6 +55159,506 @@ export interface operations {
             };
         };
     };
+    getAdminServiceCategoriesOwnerStructure: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success: Review the eight owner-approved service groups. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Review the eight owner-approved service groups",
+                     *       "data": {
+                     *         "revision": "synthetic-revision",
+                     *         "groups": [
+                     *           {
+                     *             "id": "00000000-0000-4000-8000-000000000001",
+                     *             "slug": "synthetic-slug",
+                     *             "name": "synthetic-name",
+                     *             "description": "synthetic-description",
+                     *             "sortOrder": 1,
+                     *             "action": "create",
+                     *             "isActive": true
+                     *           }
+                     *         ],
+                     *         "tyre": {
+                     *           "id": "00000000-0000-4000-8000-000000000001",
+                     *           "name": "synthetic-name",
+                     *           "version": 1,
+                     *           "categoryId": "00000000-0000-4000-8000-000000000001"
+                     *         }
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /**
+                         * @description Success validated by this operation's strict request contract.
+                         * @enum {boolean}
+                         */
+                        success: true;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /** @description Revision validated by this operation's strict request contract. */
+                            revision: string;
+                            /** @description Groups validated by this operation's strict request contract. */
+                            groups: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
+                                 */
+                                id: string | null;
+                                /** @description Slug validated by this operation's strict request contract. */
+                                slug: string;
+                                /** @description Name validated by this operation's strict request contract. */
+                                name: string;
+                                /** @description Description validated by this operation's strict request contract. */
+                                description: string;
+                                /** @description Sort Order validated by this operation's strict request contract. */
+                                sortOrder: number;
+                                /**
+                                 * @description Action validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                action: "create" | "reuse";
+                                /** @description Boolean control for is active; authorization is still enforced server-side. */
+                                isActive: boolean;
+                            }[];
+                            /** @description Tyre validated by this operation's strict request contract. */
+                            tyre: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
+                                 */
+                                id: string;
+                                /** @description Name validated by this operation's strict request contract. */
+                                name: string;
+                                /** @description Version validated by this operation's strict request contract. */
+                                version: number;
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the category resource; ownership is resolved server-side.
+                                 */
+                                categoryId: string | null;
+                            } | null;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A valid session and required assurance are missing. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A valid session and required assurance are missing.",
+                     *       "error": {
+                     *         "code": "UNAUTHORIZED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The actor is not authorized for this resource or action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The actor is not authorized for this resource or action.",
+                     *       "error": {
+                     *         "code": "FORBIDDEN"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Review existing category or service associations */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description One or more request fields are invalid. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "One or more request fields are invalid.",
+                     *       "error": {
+                     *         "code": "VALIDATION_FAILED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    postAdminServiceCategoriesOwnerStructure: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+                 * @example synthetic-token-value-not-a-real-secret
+                 */
+                "x-csrf-token": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "expectedRevision": "synthetic-expectedrevision"
+                 *     }
+                 */
+                "application/json": {
+                    /** @description Last server version observed by the client; stale writes are rejected. */
+                    expectedRevision: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Success: Apply the reviewed owner service structure. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Apply the reviewed owner service structure",
+                     *       "data": {
+                     *         "created": 1,
+                     *         "reused": 1,
+                     *         "assigned": true,
+                     *         "serviceId": "00000000-0000-4000-8000-000000000001",
+                     *         "categoryIds": [
+                     *           "00000000-0000-4000-8000-000000000001"
+                     *         ]
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /**
+                         * @description Success validated by this operation's strict request contract.
+                         * @enum {boolean}
+                         */
+                        success: true;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /** @description Created validated by this operation's strict request contract. */
+                            created: number;
+                            /** @description Reused validated by this operation's strict request contract. */
+                            reused: number;
+                            /** @description Assigned validated by this operation's strict request contract. */
+                            assigned: boolean;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the service resource; ownership is resolved server-side.
+                             */
+                            serviceId: string | null;
+                            /** @description Category Ids validated by this operation's strict request contract. */
+                            categoryIds: string[];
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A valid session and required assurance are missing. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A valid session and required assurance are missing.",
+                     *       "error": {
+                     *         "code": "UNAUTHORIZED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The actor is not authorized for this resource or action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The actor is not authorized for this resource or action.",
+                     *       "error": {
+                     *         "code": "FORBIDDEN"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Stale review or conflicting existing records */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description One or more request fields are invalid. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "One or more request fields are invalid.",
+                     *       "error": {
+                     *         "code": "VALIDATION_FAILED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     getPublicServicesCategories: {
         parameters: {
             query?: {
@@ -54522,6 +55697,7 @@ export interface operations {
                      *       "data": {
                      *         "items": [
                      *           {
+                     *             "description": "synthetic-description",
                      *             "id": "00000000-0000-4000-8000-000000000001",
                      *             "name": "synthetic-name",
                      *             "slug": "synthetic-slug"
@@ -54546,6 +55722,8 @@ export interface operations {
                         data: {
                             /** @description Items validated by this operation's strict request contract. */
                             items: {
+                                /** @description Description validated by this operation's strict request contract. */
+                                description?: string | null;
                                 /**
                                  * Format: uuid
                                  * @description Identifier of the id resource; ownership is resolved server-side.
@@ -54717,10 +55895,10 @@ export interface operations {
                      *       "data": {
                      *         "items": [
                      *           {
+                     *             "description": "synthetic-description",
                      *             "id": "00000000-0000-4000-8000-000000000001",
                      *             "name": "synthetic-name",
                      *             "slug": "synthetic-slug",
-                     *             "description": "synthetic-description",
                      *             "isActive": true,
                      *             "version": 0,
                      *             "createdAt": "2030-01-15T10:00:00.000Z",
@@ -54746,6 +55924,8 @@ export interface operations {
                         data: {
                             /** @description Items validated by this operation's strict request contract. */
                             items: {
+                                /** @description Description validated by this operation's strict request contract. */
+                                description: string | null;
                                 /**
                                  * Format: uuid
                                  * @description Identifier of the id resource; ownership is resolved server-side.
@@ -54755,8 +55935,6 @@ export interface operations {
                                 name: string;
                                 /** @description Slug validated by this operation's strict request contract. */
                                 slug: string;
-                                /** @description Description validated by this operation's strict request contract. */
-                                description: string | null;
                                 /** @description Boolean control for is active; authorization is still enforced server-side. */
                                 isActive: boolean;
                                 /** @description Version validated by this operation's strict request contract. */
@@ -54982,10 +56160,10 @@ export interface operations {
                      *       "success": true,
                      *       "message": "Create a service category",
                      *       "data": {
+                     *         "description": "synthetic-description",
                      *         "id": "00000000-0000-4000-8000-000000000001",
                      *         "name": "synthetic-name",
                      *         "slug": "synthetic-slug",
-                     *         "description": "synthetic-description",
                      *         "isActive": true,
                      *         "version": 0,
                      *         "createdAt": "2030-01-15T10:00:00.000Z",
@@ -55006,6 +56184,8 @@ export interface operations {
                         message: string;
                         /** @description Data validated by this operation's strict request contract. */
                         data: {
+                            /** @description Description validated by this operation's strict request contract. */
+                            description: string | null;
                             /**
                              * Format: uuid
                              * @description Identifier of the id resource; ownership is resolved server-side.
@@ -55015,8 +56195,6 @@ export interface operations {
                             name: string;
                             /** @description Slug validated by this operation's strict request contract. */
                             slug: string;
-                            /** @description Description validated by this operation's strict request contract. */
-                            description: string | null;
                             /** @description Boolean control for is active; authorization is still enforced server-side. */
                             isActive: boolean;
                             /** @description Version validated by this operation's strict request contract. */
@@ -55211,7 +56389,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Success: Get an active category backed by an active service. */
+            /** @description Success: Get an active service group, including groups awaiting individual services. */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -55220,8 +56398,9 @@ export interface operations {
                     /**
                      * @example {
                      *       "success": true,
-                     *       "message": "Get an active category backed by an active service",
+                     *       "message": "Get an active service group, including groups awaiting individual services",
                      *       "data": {
+                     *         "description": "synthetic-description",
                      *         "id": "00000000-0000-4000-8000-000000000001",
                      *         "name": "synthetic-name",
                      *         "slug": "synthetic-slug"
@@ -55241,6 +56420,8 @@ export interface operations {
                         message: string;
                         /** @description Data validated by this operation's strict request contract. */
                         data: {
+                            /** @description Description validated by this operation's strict request contract. */
+                            description?: string | null;
                             /**
                              * Format: uuid
                              * @description Identifier of the id resource; ownership is resolved server-side.
@@ -55280,7 +56461,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
-            /** @description Inactive, empty or unknown category */
+            /** @description Inactive or unknown category */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -55399,10 +56580,10 @@ export interface operations {
                      *       "success": true,
                      *       "message": "Read a service category for administration",
                      *       "data": {
+                     *         "description": "synthetic-description",
                      *         "id": "00000000-0000-4000-8000-000000000001",
                      *         "name": "synthetic-name",
                      *         "slug": "synthetic-slug",
-                     *         "description": "synthetic-description",
                      *         "isActive": true,
                      *         "version": 0,
                      *         "createdAt": "2030-01-15T10:00:00.000Z",
@@ -55423,6 +56604,8 @@ export interface operations {
                         message: string;
                         /** @description Data validated by this operation's strict request contract. */
                         data: {
+                            /** @description Description validated by this operation's strict request contract. */
+                            description: string | null;
                             /**
                              * Format: uuid
                              * @description Identifier of the id resource; ownership is resolved server-side.
@@ -55432,8 +56615,6 @@ export interface operations {
                             name: string;
                             /** @description Slug validated by this operation's strict request contract. */
                             slug: string;
-                            /** @description Description validated by this operation's strict request contract. */
-                            description: string | null;
                             /** @description Boolean control for is active; authorization is still enforced server-side. */
                             isActive: boolean;
                             /** @description Version validated by this operation's strict request contract. */
@@ -55655,10 +56836,10 @@ export interface operations {
                      *       "success": true,
                      *       "message": "Update or archive a service category",
                      *       "data": {
+                     *         "description": "synthetic-description",
                      *         "id": "00000000-0000-4000-8000-000000000001",
                      *         "name": "synthetic-name",
                      *         "slug": "synthetic-slug",
-                     *         "description": "synthetic-description",
                      *         "isActive": true,
                      *         "version": 0,
                      *         "createdAt": "2030-01-15T10:00:00.000Z",
@@ -55679,6 +56860,8 @@ export interface operations {
                         message: string;
                         /** @description Data validated by this operation's strict request contract. */
                         data: {
+                            /** @description Description validated by this operation's strict request contract. */
+                            description: string | null;
                             /**
                              * Format: uuid
                              * @description Identifier of the id resource; ownership is resolved server-side.
@@ -55688,8 +56871,6 @@ export interface operations {
                             name: string;
                             /** @description Slug validated by this operation's strict request contract. */
                             slug: string;
-                            /** @description Description validated by this operation's strict request contract. */
-                            description: string | null;
                             /** @description Boolean control for is active; authorization is still enforced server-side. */
                             isActive: boolean;
                             /** @description Version validated by this operation's strict request contract. */
@@ -134226,6 +135407,7 @@ export interface operations {
                      *             "assignedStaffId": "00000000-0000-4000-8000-000000000001",
                      *             "customerNotes": "synthetic-customernotes",
                      *             "service": {
+                     *               "id": "00000000-0000-4000-8000-000000000001",
                      *               "name": "synthetic-name"
                      *             },
                      *             "vehicle": {
@@ -134340,11 +135522,18 @@ export interface operations {
                                 assignedStaffId: string | null;
                                 /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
                                 customerNotes: string | null;
+                                /** @description Customer Concern validated by this operation's strict request contract. */
+                                customerConcern?: string | null;
                                 /** @description Service validated by this operation's strict request contract. */
                                 service: {
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the id resource; ownership is resolved server-side.
+                                     */
+                                    id?: string;
                                     /** @description Name validated by this operation's strict request contract. */
                                     name: string;
-                                };
+                                } | null;
                                 /** @description Vehicle validated by this operation's strict request contract. */
                                 vehicle: {
                                     /** @description Make validated by this operation's strict request contract. */
@@ -134842,7 +136031,9 @@ export interface operations {
                                 service: {
                                     /** @description Name validated by this operation's strict request contract. */
                                     name: string;
-                                };
+                                } | null;
+                                /** @description Customer Concern validated by this operation's strict request contract. */
+                                customerConcern?: string | null;
                                 /** @description Customer validated by this operation's strict request contract. */
                                 customer: {
                                     /** @description First Name validated by this operation's strict request contract. */
@@ -135165,6 +136356,7 @@ export interface operations {
                      *         "assignedStaffId": "00000000-0000-4000-8000-000000000001",
                      *         "customerNotes": "synthetic-customernotes",
                      *         "service": {
+                     *           "id": "00000000-0000-4000-8000-000000000001",
                      *           "name": "synthetic-name"
                      *         },
                      *         "vehicle": {
@@ -135283,11 +136475,18 @@ export interface operations {
                             assignedStaffId: string | null;
                             /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
                             customerNotes: string | null;
+                            /** @description Customer Concern validated by this operation's strict request contract. */
+                            customerConcern?: string | null;
                             /** @description Service validated by this operation's strict request contract. */
                             service: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
+                                 */
+                                id?: string;
                                 /** @description Name validated by this operation's strict request contract. */
                                 name: string;
-                            };
+                            } | null;
                             /** @description Vehicle validated by this operation's strict request contract. */
                             vehicle: {
                                 /** @description Make validated by this operation's strict request contract. */
@@ -135478,6 +136677,266 @@ export interface operations {
                                 /** @description Last Name validated by this operation's strict request contract. */
                                 lastName: string;
                             } | null;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                            /** @description ISO 8601 timestamp interpreted and validated by the server. */
+                            serverTime: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A valid session and required assurance are missing. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A valid session and required assurance are missing.",
+                     *       "error": {
+                     *         "code": "UNAUTHORIZED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Current access does not permit this request */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Record unavailable in permitted scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Stale version or invalid state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid fields */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    postStaffWorkforceBookingsByIdAlternative: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+                 * @example synthetic-token-value-not-a-real-secret
+                 */
+                "x-csrf-token": string;
+            };
+            path: {
+                /**
+                 * @description Identifier selecting the id resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "preferredAt": "2030-01-15T10:00:00.000Z",
+                 *       "reason": "synthetic-reason",
+                 *       "expectedVersion": 0
+                 *     }
+                 */
+                "application/json": {
+                    /**
+                     * Format: date-time
+                     * @description ISO 8601 timestamp interpreted and validated by the server.
+                     */
+                    preferredAt: string;
+                    /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                    reason: string;
+                    /** @description Last server version observed by the client; stale writes are rejected. */
+                    expectedVersion: number;
+                };
+            };
+        };
+        responses: {
+            /** @description Success: Responsibility-based workspace: bookingAlternative. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Responsibility-based workspace: bookingAlternative",
+                     *       "data": {
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "branchId": "00000000-0000-4000-8000-000000000001",
+                     *         "status": "REQUESTED",
+                     *         "version": 0,
+                     *         "scheduledAt": "2030-01-15T10:00:00.000Z",
+                     *         "alternativeStartsAt": "2030-01-15T10:00:00.000Z",
+                     *         "alternativeReason": "synthetic-alternativereason",
+                     *         "alternativeVersion": 0,
+                     *         "performedByUserId": "00000000-0000-4000-8000-000000000001"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /**
+                         * @description Success validated by this operation's strict request contract.
+                         * @enum {boolean}
+                         */
+                        success: true;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the id resource; ownership is resolved server-side.
+                             */
+                            id: string;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the branch resource; ownership is resolved server-side.
+                             */
+                            branchId: string;
+                            /**
+                             * @description Requested or filtered lifecycle state from the documented enum.
+                             * @enum {string}
+                             */
+                            status: "REQUESTED" | "CONFIRMED";
+                            /** @description Version validated by this operation's strict request contract. */
+                            version: number;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            scheduledAt: string;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            alternativeStartsAt: string;
+                            /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                            alternativeReason: string;
+                            /** @description Alternative Version validated by this operation's strict request contract. */
+                            alternativeVersion: number;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the performed by user resource; ownership is resolved server-side.
+                             */
+                            performedByUserId: string;
                         };
                         /** @description Meta validated by this operation's strict request contract. */
                         meta: {
@@ -135937,6 +137396,9 @@ export interface operations {
                      *           "lastName": "synthetic-lastname",
                      *           "phone": "+2348000000000"
                      *         },
+                     *         "alternativeStartsAt": "2030-01-15T10:00:00.000Z",
+                     *         "alternativeReason": "synthetic-alternativereason",
+                     *         "alternativeVersion": "synthetic-alternativeversion",
                      *         "assignedStaff": {
                      *           "id": "00000000-0000-4000-8000-000000000001",
                      *           "firstName": "synthetic-firstname",
@@ -136051,7 +137513,9 @@ export interface operations {
                                 name: string;
                                 /** @description Duration Minutes validated by this operation's strict request contract. */
                                 durationMinutes: number | null;
-                            };
+                            } | null;
+                            /** @description Customer Concern validated by this operation's strict request contract. */
+                            customerConcern?: string | null;
                             /** @description Customer validated by this operation's strict request contract. */
                             customer: {
                                 /** @description First Name validated by this operation's strict request contract. */
@@ -136061,6 +137525,15 @@ export interface operations {
                                 /** @description Customer or business phone number in international format. */
                                 phone: string;
                             };
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            alternativeStartsAt: string | null;
+                            /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                            alternativeReason: string | null;
+                            /** @description Alternative Version validated by this operation's strict request contract. */
+                            alternativeVersion: number | null;
                             /** @description Assigned Staff validated by this operation's strict request contract. */
                             assignedStaff: {
                                 /**
@@ -137023,6 +138496,7 @@ export interface operations {
                      *         "assignedStaffId": "00000000-0000-4000-8000-000000000001",
                      *         "customerNotes": "synthetic-customernotes",
                      *         "service": {
+                     *           "id": "00000000-0000-4000-8000-000000000001",
                      *           "name": "synthetic-name"
                      *         },
                      *         "vehicle": {
@@ -137141,11 +138615,18 @@ export interface operations {
                             assignedStaffId: string | null;
                             /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
                             customerNotes: string | null;
+                            /** @description Customer Concern validated by this operation's strict request contract. */
+                            customerConcern?: string | null;
                             /** @description Service validated by this operation's strict request contract. */
                             service: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
+                                 */
+                                id?: string;
                                 /** @description Name validated by this operation's strict request contract. */
                                 name: string;
-                            };
+                            } | null;
                             /** @description Vehicle validated by this operation's strict request contract. */
                             vehicle: {
                                 /** @description Make validated by this operation's strict request contract. */
@@ -137537,6 +139018,7 @@ export interface operations {
                      *         "assignedStaffId": "00000000-0000-4000-8000-000000000001",
                      *         "customerNotes": "synthetic-customernotes",
                      *         "service": {
+                     *           "id": "00000000-0000-4000-8000-000000000001",
                      *           "name": "synthetic-name"
                      *         },
                      *         "vehicle": {
@@ -137655,11 +139137,18 @@ export interface operations {
                             assignedStaffId: string | null;
                             /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
                             customerNotes: string | null;
+                            /** @description Customer Concern validated by this operation's strict request contract. */
+                            customerConcern?: string | null;
                             /** @description Service validated by this operation's strict request contract. */
                             service: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
+                                 */
+                                id?: string;
                                 /** @description Name validated by this operation's strict request contract. */
                                 name: string;
-                            };
+                            } | null;
                             /** @description Vehicle validated by this operation's strict request contract. */
                             vehicle: {
                                 /** @description Make validated by this operation's strict request contract. */
@@ -138020,6 +139509,7 @@ export interface operations {
                 /**
                  * @example {
                  *       "expectedVersion": 0,
+                 *       "serviceId": "00000000-0000-4000-8000-000000000001",
                  *       "staffId": "00000000-0000-4000-8000-000000000001",
                  *       "reason": "synthetic-reason"
                  *     }
@@ -138027,6 +139517,11 @@ export interface operations {
                 "application/json": {
                     /** @description Last server version observed by the client; stale writes are rejected. */
                     expectedVersion: number;
+                    /**
+                     * Format: uuid
+                     * @description Identifier of the service resource; ownership is resolved server-side.
+                     */
+                    serviceId?: string;
                     /**
                      * Format: uuid
                      * @description Identifier of the staff resource; ownership is resolved server-side.
@@ -138057,6 +139552,7 @@ export interface operations {
                      *         "assignedStaffId": "00000000-0000-4000-8000-000000000001",
                      *         "customerNotes": "synthetic-customernotes",
                      *         "service": {
+                     *           "id": "00000000-0000-4000-8000-000000000001",
                      *           "name": "synthetic-name"
                      *         },
                      *         "vehicle": {
@@ -138175,11 +139671,18 @@ export interface operations {
                             assignedStaffId: string | null;
                             /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
                             customerNotes: string | null;
+                            /** @description Customer Concern validated by this operation's strict request contract. */
+                            customerConcern?: string | null;
                             /** @description Service validated by this operation's strict request contract. */
                             service: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
+                                 */
+                                id?: string;
                                 /** @description Name validated by this operation's strict request contract. */
                                 name: string;
-                            };
+                            } | null;
                             /** @description Vehicle validated by this operation's strict request contract. */
                             vehicle: {
                                 /** @description Make validated by this operation's strict request contract. */

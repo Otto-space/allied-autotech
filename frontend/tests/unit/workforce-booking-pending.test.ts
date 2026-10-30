@@ -46,3 +46,20 @@ it("fails closed when recovery storage is unavailable", () => {
   });
   expect(() => markWorkforceBookingPending(owner, booking, 0)).toThrow();
 });
+
+it("isolates proposal markers and redacts both booking actions", () => {
+  const confirmation = markWorkforceBookingPending(owner, booking, 1);
+  const proposal = markWorkforceBookingPending(owner, booking, 1, "alternative");
+  expect(readWorkforceBookingPending(owner)).toEqual(confirmation);
+  expect(readWorkforceBookingPending(owner, "alternative")).toEqual(proposal);
+  expect(() =>
+    clearWorkforceBookingPending(owner, confirmation.token, "alternative"),
+  ).toThrow();
+  clearWorkforceBookingPending(owner, proposal.token, "alternative");
+  expect(readWorkforceBookingPending(owner)).toEqual(confirmation);
+  markWorkforceBookingPending(owner, booking, 1, "alternative");
+  redactWorkforceBookingPending();
+  expect(readWorkforceBookingPending(owner)).toBe("unknown");
+  expect(readWorkforceBookingPending(owner, "alternative")).toBe("unknown");
+  expect(JSON.stringify(sessionStorage)).not.toContain(booking);
+});

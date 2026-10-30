@@ -1,4 +1,5 @@
 "use client";
+import { SlotCatalogPicker } from "./slot-catalog-picker";
 import { NotificationRecordContext } from "./notification-record-context";
 import { WorkflowProgress } from "./status-progress";
 import Link from "next/link";
@@ -59,6 +60,7 @@ type Draft = {
   findings: string;
   reason: string;
   selected?: WorkforceJobCandidate;
+  service?: { id: string; name: string };
 };
 const newDraft = (job: Job): Draft => ({
   base: job,
@@ -192,7 +194,10 @@ export function WorkforceJobDetail({
     setMessage(undefined);
     const base = job;
     const facts = [
-      { label: "Job", value: base.workOrder?.workOrderNumber ?? base.service.name },
+      {
+        label: "Job",
+        value: base.workOrder?.workOrderNumber ?? base.service?.name ?? "Vehicle concern",
+      },
     ];
     if (change.kind === "work") {
       if (change.body.diagnosis !== undefined)
@@ -214,7 +219,12 @@ export function WorkforceJobDetail({
           { label: "Technician", value: technicianName(change.technician) },
           { label: "Staff reference", value: change.technician.id },
         );
-      else
+      if (change.kind === "assignment" && change.service)
+        facts.push(
+          { label: "Service for this concern", value: change.service.name },
+          { label: "Booking", value: "Remains requested; no payment or confirmation" },
+        );
+      if (change.kind !== "assignment")
         facts.push({
           label: "Outcome",
           value: "Complete the work order and booking after independent quality review",
@@ -418,7 +428,7 @@ export function WorkforceJobDetail({
       <header className="wjd-heading">
         <div>
           <h1>{work?.workOrderNumber ?? "Job details"}</h1>
-          {job && <p>{job.service.name}</p>}
+          {job && <p>{job.service?.name ?? "Vehicle concern"}</p>}
         </div>
         <div className="wjd-refresh">
           <button
@@ -595,7 +605,11 @@ export function WorkforceJobDetail({
               </dl>
               <dl className="wjd-notes">
                 <div>
-                  <dt>Reported symptoms</dt>
+                  <dt>Customer concern</dt>
+                  <dd>{job.customerConcern || "Not recorded"}</dd>
+                </div>
+                <div>
+                  <dt>Additional customer notes</dt>
                   <dd>{job.customerNotes || "Not recorded"}</dd>
                 </div>
                 <div>
@@ -769,14 +783,20 @@ export function WorkforceJobDetail({
                   prepare(() => {
                     if (!draft.selected)
                       throw Error("Select a technician before reviewing.");
-                    if (draft.selected.id === job.assignedStaffId)
+                    if (!job.service && !draft.service)
+                      throw Error(
+                        "Choose the service for this concern before reviewing.",
+                      );
+                    if (job.service && draft.selected.id === job.assignedStaffId)
                       throw Error("This technician is already assigned.");
                     return {
                       kind: "assignment",
                       technician: draft.selected,
+                      ...(!job.service ? { service: draft.service } : {}),
                       body: {
                         expectedVersion: draft.base.version,
                         staffId: draft.selected.id,
+                        ...(!job.service ? { serviceId: draft.service?.id } : {}),
                         reason: reviewReason(draft.reason),
                       },
                     };
@@ -784,6 +804,25 @@ export function WorkforceJobDetail({
                 }}
               >
                 <fieldset disabled={blocked}>
+                  {!job.service && (
+                    <div className="field">
+                      <label htmlFor="wjd-concern-service">
+                        Service for this concern
+                      </label>
+                      <SlotCatalogPicker
+                        kind="service"
+                        serviceMode="concern"
+                        id="wjd-concern-service"
+                        value={draft.service?.id ?? ""}
+                        onChange={(_id, _label, record) => edit("service", record)}
+                      />
+                      <small>
+                        The original concern stays on the booking. A quotation remains
+                        unknown until approved. Selecting a service does not confirm the
+                        appointment or collect payment.
+                      </small>
+                    </div>
+                  )}
                   <div className="field">
                     <label htmlFor="wjd-reason">Assignment reason</label>
                     <textarea
@@ -835,6 +874,7 @@ function JobCandidates({
 }: {
   job: Job;
   selected?: WorkforceJobCandidate;
+  service?: { id: string; name: string };
   disabled: boolean;
   onSelect: (value: WorkforceJobCandidate) => void;
 }) {

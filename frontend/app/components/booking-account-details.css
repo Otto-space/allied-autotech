@@ -1,0 +1,28 @@
+.booking-account-editor .garage-dialog input:not([type="checkbox"]):not([type="radio"]),
+.booking-account-editor .garage-dialog select,
+.booking-account-editor .garage-dialog textarea {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--border-control, #8290a1);
+  border-radius: var(--radius-control, 6px);
+  background: white;
+  color: var(--ink, #101820);
+  font: inherit;
+}
+.booking-account-editor .garage-dialog input:focus-visible,
+.booking-account-editor .garage-dialog select:focus-visible,
+.booking-account-editor .garage-dialog textarea:focus-visible {
+  outline: 2px solid #235ca4;
+  outline-offset: 2px;
+}
+.booking-account-editor .garage-dialog .field label {
+  display: block;
+  margin-bottom: 8px;
+}
+.booking-account-editor .garage-dialog input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}

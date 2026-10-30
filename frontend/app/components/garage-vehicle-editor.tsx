@@ -27,7 +27,7 @@ export function GarageVehicleEditor({
   vehicle: CustomerVehicle | null;
   showSearchSetup?: boolean;
   onClose: () => void;
-  onSaved: () => void;
+  onSaved: (vehicle: CustomerVehicle) => void;
   onUncertain: () => void;
 }) {
   const active = useRef(true),
@@ -136,7 +136,7 @@ export function GarageVehicleEditor({
       );
       const saved = garageVehicleSchema.parse(response.data);
       if (vehicle && saved.id !== vehicle.id) throw new Error("Unexpected vehicle");
-      if (active.current) onSaved();
+      if (active.current) onSaved(saved);
     } catch (reason) {
       if (!active.current) return;
       const rejected =

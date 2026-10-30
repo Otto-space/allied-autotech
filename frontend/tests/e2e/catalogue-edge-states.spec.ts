@@ -167,6 +167,13 @@ for (const width of [390, 1440])
       });
       await search.fill("DEMO layout");
       await search.press("Enter");
+      await expect(page).toHaveURL(/search=DEMO(?:\+|%20)layout/);
+      if (kind === "services") {
+        await expect(page.locator(".services-results")).toHaveAttribute(
+          "aria-busy",
+          "false",
+        );
+      }
       const cards = page.locator(presentation[kind].card);
       await expect(cards).toHaveCount(3);
       for (let i = 0; i < 3; i++) {
@@ -187,7 +194,17 @@ for (const width of [390, 1440])
           return size;
         });
         expect(decoded).toEqual([...dimensions[i]]);
-        await expect(image).toHaveCSS("object-fit", "contain");
+        await expect(image).toHaveCSS(
+          "object-fit",
+          kind === "services" ? "cover" : "contain",
+        );
+        if (kind === "services") {
+          const frame = (await card.locator(presentation[kind].media).boundingBox())!;
+          expect(frame.width / frame.height).toBeCloseTo(
+            dimensions[i][0] / dimensions[i][1],
+            2,
+          );
+        }
         await expect(card.locator("h3")).toContainText(longName);
         expect(await card.evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true);
         const photoBox = await card.locator(presentation[kind].media).boundingBox(),
@@ -245,6 +262,13 @@ for (const width of [390, 1440])
       await expect.poll(fixture.olderRequested).toBe(true);
       await search.fill("newer");
       await search.press("Enter");
+      await expect(page).toHaveURL(/search=DEMO(?:\+|%20)layout/);
+      if (kind === "services") {
+        await expect(page.locator(".services-results")).toHaveAttribute(
+          "aria-busy",
+          "false",
+        );
+      }
       const cards = page.locator(presentation[kind].card);
       await expect(cards).toHaveCount(1);
       await expect(cards.first().locator("h3")).toContainText("NEWER result");

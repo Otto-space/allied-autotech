@@ -92,7 +92,7 @@ export function WorkforceBookingConfirmation({
       !eligible ||
       row.status !== "REQUESTED" ||
       !row.assignedStaff ||
-      !row.service.durationMinutes
+      !row.service?.durationMinutes
     )
       return;
     const clean = note.trim();
@@ -127,7 +127,7 @@ export function WorkforceBookingConfirmation({
                 .join(" ")
             : "Not recorded",
         },
-        { label: "Service", value: row.service.name },
+        { label: "Service", value: row.service?.name ?? "Vehicle concern" },
         { label: "Branch", value: row.branch?.name ?? "Unavailable" },
         { label: "Appointment", value: formatBusinessDate(row.scheduledAt) },
         {
@@ -151,7 +151,7 @@ export function WorkforceBookingConfirmation({
             latest.row.branchId !== before.branchId ||
             latest.row.scheduledAt !== before.scheduledAt ||
             latest.row.assignedStaff?.id !== before.assignedStaff?.id ||
-            latest.row.service.durationMinutes !== before.service.durationMinutes
+            latest.row.service?.durationMinutes !== before.service?.durationMinutes
           )
             throw notSent();
           marker = markWorkforceBookingPending(access.userId, row.id, before.version);
@@ -299,7 +299,7 @@ export function WorkforceBookingConfirmation({
           Confirmation requires a separately granted permission as well as access to this
           booking.
         </p>
-      ) : !row.assignedStaff || !row.service.durationMinutes ? (
+      ) : !row.assignedStaff || !row.service?.durationMinutes ? (
         <p>
           An authorised workshop manager must record the assigned staff member and service
           duration before confirmation.

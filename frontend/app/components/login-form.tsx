@@ -1,4 +1,5 @@
 "use client";
+import { clearBookingSignInDraft } from "@/lib/forms/booking-sign-in-draft";
 import Link from "next/link";
 import { catalogueOnly } from "@/lib/public-launch";
 import { useRouter } from "next/navigation";
@@ -68,7 +69,7 @@ export function LoginForm() {
   function rotate() {
     rotating.current = true;
     try {
-      announceSessionChange();
+      announceSessionChange("sign-in");
     } finally {
       rotating.current = false;
     }
@@ -95,6 +96,7 @@ export function LoginForm() {
         signal: controller.signal,
       });
       const data = loginResponse.parse(result.data);
+      if (data.user.role !== "CUSTOMER") clearBookingSignInDraft();
       controller.signal.throwIfAborted();
       rotate();
       await refreshCsrf();

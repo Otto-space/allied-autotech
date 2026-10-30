@@ -162,7 +162,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
           .totalMatches,
       ).toBe(0);
     });
-    it("paginates bounded category options and excludes empty or inactive categories", async () => {
+    it("paginates active groups including empty groups and excludes inactive categories", async () => {
       const f = await fixture();
       const second = await prisma.serviceCategory.create({
         data: { name: `${f.prefix}-Second`, slug: `${f.prefix.toLowerCase()}-second` },
@@ -171,8 +171,12 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         where: { id: f.rows[0]!.id },
         data: { categoryId: second.id },
       });
-      await prisma.serviceCategory.create({
-        data: { name: `${f.prefix}-Empty`, slug: `${f.prefix.toLowerCase()}-empty` },
+      const empty = await prisma.serviceCategory.create({
+        data: {
+          name: `${f.prefix}-Empty`,
+          slug: `${f.prefix.toLowerCase()}-empty`,
+          description: "Owner-listed work area; ask the workshop about your concern.",
+        },
       });
       const first = await request(app)
         .get(categories)
@@ -184,8 +188,18 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         cursor: first.body.data.nextCursor,
         limit: 1,
       });
-      expect(next.body.data.items.map((i: { id: string }) => i.id)).toEqual([second.id]);
-      expect(next.body.data.nextCursor).toBeUndefined();
+      expect(next.body.data.items.map((i: { id: string }) => i.id)).toEqual([empty.id]);
+      const last = await request(app).get(categories).query({
+        search: f.prefix.toLowerCase(),
+        cursor: next.body.data.nextCursor,
+        limit: 1,
+      });
+      expect(last.body.data.items.map((i: { id: string }) => i.id)).toEqual([second.id]);
+      expect(last.body.data.nextCursor).toBeUndefined();
+      const emptyDetail = await request(app).get(`${categories}/${empty.id}`);
+      expect(emptyDetail.status).toBe(200);
+      expect(emptyDetail.body.data.description).toBe(empty.description);
+      expect((await page({ categoryId: empty.id })).items).toEqual([]);
       expect(
         (
           await request(app)

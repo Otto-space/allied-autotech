@@ -74,6 +74,7 @@ export const serviceCategoryUpdateSchema = serviceCategoryCreateSchema
 export type ServiceCategoryCreate = z.infer<typeof serviceCategoryCreateSchema>;
 export type ServiceCategoryUpdate = z.infer<typeof serviceCategoryUpdateSchema>;
 export const publicServiceCategorySchema = z.object({
+  description: z.string().max(2000).nullable().optional(),
   id: z.uuid(),
   name: z.string().max(120),
   slug: z.string().max(120),
@@ -84,4 +85,39 @@ export const adminServiceCategorySchema = publicServiceCategorySchema.extend({
   version: z.number().int().nonnegative(),
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),
+});
+
+export const ownerStructureApplySchema = z
+  .object({ expectedRevision: z.string().regex(/^[0-9a-f]{64}$/) })
+  .strict();
+export const ownerStructurePreviewSchema = z.object({
+  revision: z.string().regex(/^[0-9a-f]{64}$/),
+  groups: z
+    .array(
+      z.object({
+        id: z.uuid().nullable(),
+        slug: z.string(),
+        name: z.string(),
+        description: z.string(),
+        sortOrder: z.number().int(),
+        action: z.enum(["create", "reuse"]),
+        isActive: z.boolean(),
+      }),
+    )
+    .length(8),
+  tyre: z
+    .object({
+      id: z.uuid(),
+      name: z.string(),
+      version: z.number().int(),
+      categoryId: z.uuid().nullable(),
+    })
+    .nullable(),
+});
+export const ownerStructureResultSchema = z.object({
+  created: z.number().int(),
+  reused: z.number().int(),
+  assigned: z.boolean(),
+  serviceId: z.uuid().nullable(),
+  categoryIds: z.array(z.uuid()).length(8),
 });

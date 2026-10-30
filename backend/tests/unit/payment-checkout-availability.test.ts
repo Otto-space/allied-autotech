@@ -57,6 +57,7 @@ describe("owned payment checkout availability", () => {
       amountKobo: "12345",
       status: "REQUIRES_PAYMENT",
       checkoutProviders: ["PAYSTACK"],
+      reversalReported: false,
     });
     expect(findFirst).toHaveBeenCalledWith(
       expect.objectContaining({ where: { id: paymentId, customerId: profileId } }),
@@ -90,4 +91,31 @@ describe("owned payment checkout availability", () => {
       expect(findUnique).not.toHaveBeenCalled();
     },
   );
+});
+
+it("exposes only reversal existence, never internal observations", async () => {
+  const profileId = crypto.randomUUID(),
+    paymentId = crypto.randomUUID();
+  const database = {
+    customerProfile: { findUnique: vi.fn().mockResolvedValue({ id: profileId }) },
+    payment: {
+      findFirst: vi.fn().mockResolvedValue({
+        id: paymentId,
+        amountKobo: 12345n,
+        status: "SUCCEEDED",
+        anomalies: [{ id: crypto.randomUUID() }],
+      }),
+    },
+  } as unknown as PrismaClient;
+  const result = await new PaymentsService(
+    database,
+    new PaymentProviderRegistry({}),
+  ).customerGet(customer, paymentId);
+  expect(result).toEqual({
+    id: paymentId,
+    amountKobo: "12345",
+    status: "SUCCEEDED",
+    reversalReported: true,
+    checkoutProviders: [],
+  });
 });

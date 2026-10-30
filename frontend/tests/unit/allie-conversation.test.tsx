@@ -341,3 +341,49 @@ it("does not create public cookies or retry when an authenticated call fails", a
   expect(network).not.toHaveBeenCalled();
   expect(operational.apiRequest).toHaveBeenCalledTimes(1);
 });
+
+it.each([
+  ["service", "services"],
+  ["product", "parts"],
+  ["vehicle", "vehicles"],
+])(
+  "accepts server-owned %s citations and rejects substituted destinations",
+  (kind, path) => {
+    const value = answered();
+    const answer = value.messages[0]!.answer;
+    const articleId = `${kind}-${id}`;
+    answer.sourceIds = [`${articleId}@v1`];
+    answer.actionIds = [`open:${articleId}`];
+    answer.sources = [
+      {
+        id: `${articleId}@v1`,
+        articleId,
+        version: 1,
+        title: "Tyre fitting",
+        href: `/${path}/${id}`,
+      },
+    ];
+    answer.actions = [
+      {
+        id: `open:${articleId}`,
+        kind: "navigate",
+        label: "View tyre fitting",
+        href: `/${path}/${id}`,
+        sourceId: `${articleId}@v1`,
+      },
+    ];
+    expect(validateConversation(value, data)).toEqual(value);
+    for (const href of [
+      "https://example.test",
+      "/admin/customers",
+      `/services/${operationId}`,
+      `/services/${id}?redirect=bad`,
+    ]) {
+      const tampered = structuredClone(value);
+      tampered.messages[0]!.answer.actions[0]!.href = href;
+      expect(() => validateConversation(tampered, data)).toThrow(AllieClientError);
+      tampered.messages[0]!.answer.sources[0]!.href = href;
+      expect(() => validateConversation(tampered, data)).toThrow(AllieClientError);
+    }
+  },
+);

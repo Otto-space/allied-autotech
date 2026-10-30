@@ -10,6 +10,7 @@ import { serviceOperationsEmptyQuerySchema } from "./service-operations.schemas.
 import { ServiceDiscoveryRepository } from "./service-discovery.repository.js";
 import { ServiceCategoryService } from "./service-category.service.js";
 import {
+  ownerStructureApplySchema,
   adminServiceCategoryQuerySchema,
   serviceCategoryQuerySchema,
   serviceDiscoveryQuerySchema,
@@ -82,6 +83,45 @@ export function createServiceDiscoveryRouter() {
   );
   const admin = Router();
   admin.use(authenticate(), requireAdministrator);
+  admin.get(
+    "/owner-structure",
+    validate({ query: serviceOperationsEmptyQuerySchema }),
+    async (req, res) => {
+      res
+        .set("Cache-Control", "private, no-store")
+        .json(
+          successResponse(
+            "Owner service structure review",
+            req.id,
+            await service.previewOwnerStructure(req.actor as AuthenticatedActor),
+          ),
+        );
+    },
+  );
+  admin.post(
+    "/owner-structure",
+    requireCsrf,
+    createSensitiveRateLimit(20),
+    validate({
+      query: serviceOperationsEmptyQuerySchema,
+      body: ownerStructureApplySchema,
+    }),
+    async (req, res) => {
+      res
+        .set("Cache-Control", "private, no-store")
+        .json(
+          successResponse(
+            "Owner service structure applied",
+            req.id,
+            await service.applyOwnerStructure(
+              req.actor as AuthenticatedActor,
+              validated<{ expectedRevision: string }>(res, "body").expectedRevision,
+              context(req),
+            ),
+          ),
+        );
+    },
+  );
   admin.get(
     "/",
     validate({ query: adminServiceCategoryQuerySchema }),

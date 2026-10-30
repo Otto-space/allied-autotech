@@ -60,6 +60,32 @@ function data() {
   };
 }
 describe("workforce bookings query and scope", () => {
+  it("preserves proposal identity separately from the current appointment", () => {
+    const value = data();
+    const detail = {
+      ...value.items[0],
+      access: value.access,
+      generatedAt: value.generatedAt,
+      alternativeStartsAt: "2026-10-26T09:00:00.000Z",
+      alternativeReason: "A longer workshop visit is needed.",
+      alternativeVersion: 0,
+    };
+    const row = parseWorkforceBookingDetail(detail, detail.id).row;
+    expect(row.scheduledAt).toBe(value.items[0].scheduledAt);
+    expect(row.alternativeStartsAt).toBe(detail.alternativeStartsAt);
+    expect(row.alternativeReason).toBe(detail.alternativeReason);
+    expect(row.alternativeVersion).toBe(0);
+    expect(() =>
+      parseWorkforceBookingDetail({ ...detail, branchId: id(99) }, detail.id),
+    ).toThrow();
+    expect(() =>
+      parseWorkforceBookingDetail(
+        { ...detail, alternativeStartsAt: "invalid" },
+        detail.id,
+      ),
+    ).toThrow();
+  });
+
   it("requires both the explicit confirmation grant and the applicable booking scope", () => {
     const access = parseScopedWorkforceBookings(data()).access;
     access.accessRevision = "a".repeat(64);

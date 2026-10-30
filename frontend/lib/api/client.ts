@@ -1,4 +1,5 @@
 "use client";
+import { clearBookingSignInDraft } from "../forms/booking-sign-in-draft";
 import { redactRefundTimingPolicyChanges } from "../admin/work-refund-timing-pending";
 import { redactFinancePolicyChanges } from "../admin/work-finance-policy-pending";
 import { redactRetentionPolicyChanges } from "../admin/work-retention-policy-pending";
@@ -250,11 +251,12 @@ export function refreshCsrf(): Promise<string> {
   return pending;
 }
 
-export function invalidateSession(reason?: "password-changed"): void {
+export function invalidateSession(reason?: "password-changed" | "sign-in"): void {
   void import("../notifications/browser-push")
     .then(({ clearBrowserPush }) => clearBrowserPush())
     .catch(() => undefined);
   clearAccountDrafts();
+  if (reason !== "sign-in") clearBookingSignInDraft();
   redactVehicleRetries();
   redactReservationRetries();
   redactReviewRecoveries();
@@ -305,7 +307,7 @@ export function invalidateSession(reason?: "password-changed"): void {
 }
 
 // Share only an invalidation event, never account data or credentials.
-export function announceSessionChange(reason?: "password-changed"): void {
+export function announceSessionChange(reason?: "password-changed" | "sign-in"): void {
   invalidateSession(reason);
   if (typeof BroadcastChannel !== "undefined") {
     const channel = new BroadcastChannel("aat-session");

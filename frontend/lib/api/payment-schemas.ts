@@ -15,6 +15,7 @@ export const paymentSchema = z.object({
     "CANCELLED",
     "EXPIRED",
   ]),
+  reversalReported: z.boolean().optional(),
   purpose: z.string(),
   expiresAt: z.string().nullable(),
   orderId: z.string().uuid().nullable(),
@@ -52,3 +53,11 @@ export const paymentMessages: Record<PaymentRecord["status"], string> = {
   EXPIRED:
     "This payment request expired. If you already paid, contact customer care before making another payment.",
 };
+
+export const paymentReversalMessage =
+  "Your payment provider reported a reversal. Contact customer care to confirm the refund or chargeback outcome. Do not pay again until the team has reviewed it.";
+export function paymentMessage(payment: PaymentRecord) {
+  return payment.reversalReported
+    ? paymentReversalMessage
+    : paymentMessages[payment.status];
+}

@@ -1,3 +1,7 @@
+import {
+  bookingAlternativeBodySchema,
+  bookingAlternativeResponseBodySchema,
+} from "./service-operations.schemas.js";
 import type { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import { z, type ZodType } from "zod";
 
@@ -186,6 +190,8 @@ export function registerServiceOperationsOpenApi(registry: OpenAPIRegistry): voi
       method: "post",
       path: "/customers/bookings",
       summary: "Request a booking",
+      description:
+        "Accept an offered slot, or a preferred branch/time with either a published service or a customerConcern of 10–2000 characters. Concern requests retain null service and price until staff classification. All requests require staff confirmation.",
       body: bookingCreateBodySchema,
       secured: true,
       csrf: true,
@@ -202,7 +208,7 @@ export function registerServiceOperationsOpenApi(registry: OpenAPIRegistry): voi
     {
       method: "patch",
       path: "/customers/bookings/{bookingId}/schedule",
-      summary: "Reschedule a confirmed deposit-backed booking once",
+      summary: "Request one permitted reschedule of a confirmed booking",
       params: bookingParamsSchema,
       body: bookingRescheduleBodySchema,
       secured: true,
@@ -276,9 +282,29 @@ export function registerServiceOperationsOpenApi(registry: OpenAPIRegistry): voi
       secured: true,
     },
     {
+      method: "post",
+      path: "/staff/bookings/{bookingId}/alternative",
+      summary:
+        "Propose a different time without changing the appointment; requires booking confirmation authority",
+      params: bookingParamsSchema,
+      body: bookingAlternativeBodySchema,
+      secured: true,
+      csrf: true,
+    },
+    {
+      method: "post",
+      path: "/customers/bookings/{bookingId}/alternative-response",
+      summary:
+        "Accept or decline the current version-bound alternative; acceptance requests staff confirmation without consuming customer reschedule allowance",
+      params: bookingParamsSchema,
+      body: bookingAlternativeResponseBodySchema,
+      secured: true,
+      csrf: true,
+    },
+    {
       method: "patch",
       path: "/staff/bookings/{bookingId}/assignment",
-      summary: "Assign available branch staff",
+      summary: "Assign available branch staff and classify an unassigned concern",
       params: bookingParamsSchema,
       body: bookingAssignmentBodySchema,
       secured: true,

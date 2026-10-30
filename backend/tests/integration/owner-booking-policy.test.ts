@@ -135,6 +135,542 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
   "Owner booking requests and one-hour reminders",
   () => {
     afterAll(() => prisma.$disconnect());
+    for (const disrupted of [false, true])
+      it(`alternative proposal preserves ownership, quota and concurrent acceptance (disrupted=${disrupted})`, async () => {
+        const f = await fixture();
+        await capacity(f);
+        await f.operations.transitionBooking(
+          f.admin.actor,
+          f.booking.id,
+          {
+            status: "CONFIRMED",
+            expectedVersion: f.booking.version,
+            resourceReviewNote: "Test staff and workshop capacity reviewed.",
+          },
+          context(),
+        );
+        if (disrupted) {
+          const confirmed = await prisma.booking.findUniqueOrThrow({
+            where: { id: f.booking.id },
+          });
+          await f.operations.reportBusinessDisruption(
+            f.admin.actor,
+            f.booking.id,
+            {
+              expectedVersion: confirmed.version,
+              reason: "Required workshop equipment is unavailable.",
+            },
+            context(),
+          );
+        }
+        const before = await prisma.booking.findUniqueOrThrow({
+          where: { id: f.booking.id },
+        });
+        const startsAt = new Date(before.scheduledAt.getTime() + 86400000).toISOString();
+        const input = {
+          preferredAt: startsAt,
+          reason: "The workshop proposes a later visit for review.",
+          expectedVersion: before.version,
+        };
+        await f.operations.proposeBookingAlternative(
+          f.admin.actor,
+          f.booking.id,
+          input,
+          context(),
+        );
+        const proposed = await prisma.booking.findUniqueOrThrow({
+          where: { id: f.booking.id },
+        });
+        expect(proposed.scheduledAt).toEqual(before.scheduledAt);
+        expect(proposed.status).toBe("CONFIRMED");
+        expect(proposed.alternativeVersion).toBe(proposed.version);
+        await expect(
+          f.operations.proposeBookingAlternative(
+            f.admin.actor,
+            f.booking.id,
+            input,
+            context(),
+          ),
+        ).rejects.toBeDefined();
+        const other = await account("CUSTOMER", f.branch.id);
+        await expect(
+          f.operations.respondToBookingAlternative(
+            other.actor,
+            f.booking.id,
+            { decision: "ACCEPT", expectedVersion: proposed.version },
+            context(),
+          ),
+        ).rejects.toBeDefined();
+        const replies = await Promise.allSettled(
+          [1, 2].map(() =>
+            f.operations.respondToBookingAlternative(
+              f.customer.actor,
+              f.booking.id,
+              { decision: "ACCEPT", expectedVersion: proposed.version },
+              context(),
+            ),
+          ),
+        );
+        expect(replies.filter((x) => x.status === "fulfilled")).toHaveLength(1);
+        const accepted = await prisma.booking.findUniqueOrThrow({
+          where: { id: f.booking.id },
+        });
+        expect(accepted.status).toBe("REQUESTED");
+        expect(accepted.scheduledAt.toISOString()).toBe(startsAt);
+        expect(accepted.alternativeStartsAt).toBeNull();
+        expect(accepted.bookingSlotId).toBeNull();
+        expect(accepted.assignedStaffId).toBeNull();
+        expect(accepted.customerRescheduleCount).toBe(before.customerRescheduleCount);
+        expect(accepted.depositAmountKobo).toBe(before.depositAmountKobo);
+        expect(accepted.depositForfeitedAt).toBeNull();
+        expect(accepted.disruptionResolution).toBe(disrupted ? "TRANSFERRED" : null);
+        expect(
+          await prisma.bookingReminder.count({
+            where: { bookingId: f.booking.id, status: "PENDING" },
+          }),
+        ).toBe(0);
+        await f.operations.proposeBookingAlternative(
+          f.admin.actor,
+          f.booking.id,
+          {
+            ...input,
+            preferredAt: new Date(
+              before.scheduledAt.getTime() + 2 * 86400000,
+            ).toISOString(),
+            expectedVersion: accepted.version,
+          },
+          context(),
+        );
+        const second = await prisma.booking.findUniqueOrThrow({
+          where: { id: f.booking.id },
+        });
+        await f.operations.respondToBookingAlternative(
+          f.customer.actor,
+          f.booking.id,
+          { decision: "DECLINE", expectedVersion: second.version },
+          context(),
+        );
+        const declined = await prisma.booking.findUniqueOrThrow({
+          where: { id: f.booking.id },
+        });
+        expect(declined.scheduledAt).toEqual(accepted.scheduledAt);
+        expect(declined.status).toBe(accepted.status);
+        expect(declined.alternativeVersion).toBeNull();
+      });
+
+    it("rejects alternatives after MFA, capability or branch access is lost", async () => {
+      const f = await fixture();
+      const input = {
+        preferredAt: new Date(f.startsAt.getTime() + 86400000).toISOString(),
+        reason: "Please review the later workshop time.",
+        expectedVersion: f.booking.version,
+      };
+      const propose = (actor: AuthenticatedActor) =>
+        f.operations.proposeBookingAlternative(actor, f.booking.id, input, context());
+      await expect(
+        propose({ ...f.admin.actor, mfaVerifiedAt: null }),
+      ).rejects.toMatchObject({ statusCode: 403 });
+      await prisma.userCapability.updateMany({
+        where: { userId: f.admin.user.id, capability: "BOOKING_CONFIRM" },
+        data: { revokedAt: new Date() },
+      });
+      await expect(propose(f.admin.actor)).rejects.toMatchObject({ statusCode: 403 });
+      await prisma.userCapability.updateMany({
+        where: { userId: f.admin.user.id, capability: "BOOKING_CONFIRM" },
+        data: { revokedAt: null },
+      });
+      await prisma.user.update({
+        where: { id: f.admin.user.id },
+        data: { role: "STAFF" },
+      });
+      const staff = { ...f.admin.actor, role: "STAFF" as const };
+      const other = await prisma.branch.create({
+        data: {
+          code: `ALT-${randomUUID().slice(0, 8)}`,
+          name: "Other isolated branch",
+          address: "Test only",
+          city: "Port Harcourt",
+          state: "Rivers",
+        },
+      });
+      await prisma.staffProfile.update({
+        where: { id: f.admin.user.staffProfile!.id },
+        data: { branchId: other.id },
+      });
+      await expect(propose(staff)).rejects.toMatchObject({ statusCode: 403 });
+      const unchanged = await prisma.booking.findUniqueOrThrow({
+        where: { id: f.booking.id },
+      });
+      expect(unchanged).toMatchObject({
+        version: f.booking.version,
+        alternativeStartsAt: null,
+        status: "REQUESTED",
+      });
+      expect(unchanged.scheduledAt).toEqual(f.startsAt);
+    });
+
+    it("rejects out-of-window proposals and acceptance while allowing an expired proposal to be declined", async () => {
+      const f = await fixture();
+      const propose = (preferredAt: Date) =>
+        f.operations.proposeBookingAlternative(
+          f.admin.actor,
+          f.booking.id,
+          {
+            preferredAt: preferredAt.toISOString(),
+            reason: "Please review the later workshop time.",
+            expectedVersion: 0,
+          },
+          context(),
+        );
+      for (const days of [1, 15]) {
+        await expect(
+          propose(new Date(Date.now() + days * 86400000)),
+        ).rejects.toMatchObject({ statusCode: 409 });
+      }
+      await propose(new Date(f.startsAt.getTime() + 86400000));
+      // Advance only the isolated fixture's proposal into the expired window.
+      await prisma.booking.update({
+        where: { id: f.booking.id },
+        data: { alternativeStartsAt: new Date(Date.now() - 60000) },
+      });
+      const before = await prisma.booking.findUniqueOrThrow({
+        where: { id: f.booking.id },
+      });
+      await expect(
+        f.operations.respondToBookingAlternative(
+          f.customer.actor,
+          f.booking.id,
+          { decision: "ACCEPT", expectedVersion: before.version },
+          context(),
+        ),
+      ).rejects.toMatchObject({ statusCode: 409 });
+      expect(
+        await prisma.booking.findUniqueOrThrow({ where: { id: f.booking.id } }),
+      ).toEqual(before);
+      await f.operations.respondToBookingAlternative(
+        f.customer.actor,
+        f.booking.id,
+        { decision: "DECLINE", expectedVersion: before.version },
+        context(),
+      );
+      const after = await prisma.booking.findUniqueOrThrow({
+        where: { id: f.booking.id },
+      });
+      expect(after.scheduledAt).toEqual(before.scheduledAt);
+      expect(after).toMatchObject({
+        status: before.status,
+        alternativeStartsAt: null,
+        customerRescheduleCount: before.customerRescheduleCount,
+      });
+    });
+
+    it("invalidates a proposal after a separate booking change even with the newest version", async () => {
+      const f = await fixture();
+      await f.operations.proposeBookingAlternative(
+        f.admin.actor,
+        f.booking.id,
+        {
+          preferredAt: new Date(f.startsAt.getTime() + 86400000).toISOString(),
+          reason: "Please review the later workshop time.",
+          expectedVersion: 0,
+        },
+        context(),
+      );
+      // Simulate an independent committed booking revision; a fresh client version
+      // must not make the earlier proposal valid again.
+      const revised = await prisma.booking.update({
+        where: { id: f.booking.id },
+        data: { version: { increment: 1 } },
+      });
+      for (const decision of ["ACCEPT", "DECLINE"] as const) {
+        await expect(
+          f.operations.respondToBookingAlternative(
+            f.customer.actor,
+            f.booking.id,
+            { decision, expectedVersion: revised.version },
+            context(),
+          ),
+        ).rejects.toMatchObject({ statusCode: 409 });
+      }
+      expect(
+        await prisma.booking.findUniqueOrThrow({ where: { id: f.booking.id } }),
+      ).toEqual(revised);
+    });
+
+    it("saves a concern once without a fabricated service, price or capacity and requires classification before confirmation", async () => {
+      const f = await fixture();
+      const customer = await account("CUSTOMER", f.branch.id);
+      const key = randomUUID();
+      const input = {
+        customerConcern: "The engine shakes when starting from cold.",
+        branchId: f.branch.id,
+        preferredAt: new Date(f.startsAt.getTime() + 2 * 3600000).toISOString(),
+        policyVersion: bookingPolicy.version,
+      };
+      const before = await prisma.booking.findUniqueOrThrow({
+        where: { id: f.booking.id },
+      });
+      const results = await Promise.all(
+        [1, 2].map(() =>
+          f.operations.createBooking(customer.actor, input, key, context()),
+        ),
+      );
+      expect(results.map((result) => result.replayed).sort()).toEqual([false, true]);
+      const saved = await prisma.booking.findFirstOrThrow({
+        where: { customerId: customer.user.profile!.id },
+      });
+      expect(saved).toMatchObject({
+        serviceId: null,
+        customerConcern: input.customerConcern,
+        quotedPriceKobo: null,
+        assignedStaffId: null,
+        bookingSlotId: null,
+        status: "REQUESTED",
+        depositAmountKobo: null,
+        capacityPolicyVersionId: null,
+      });
+      expect(await f.operations.customerBooking(customer.actor, saved.id)).toMatchObject({
+        service: null,
+        customerConcern: input.customerConcern,
+      });
+      await expect(
+        f.operations.customerBooking(f.customer.actor, saved.id),
+      ).rejects.toThrow();
+      await expect(
+        f.operations.transitionBooking(
+          f.admin.actor,
+          saved.id,
+          {
+            expectedVersion: saved.version,
+            status: "CONFIRMED",
+            resourceReviewNote: "Reviewed equipment and staffing",
+          },
+          context(),
+        ),
+      ).rejects.toThrow("Choose the service");
+      await expect(
+        f.operations.assignBooking(
+          f.admin.actor,
+          saved.id,
+          {
+            expectedVersion: saved.version,
+            assignedStaffId: f.admin.user.staffProfile!.id,
+          },
+          context(),
+        ),
+      ).rejects.toThrow("Choose the service");
+      const assigned = await f.operations.assignBooking(
+        f.admin.actor,
+        saved.id,
+        {
+          expectedVersion: saved.version,
+          assignedStaffId: f.admin.user.staffProfile!.id,
+          serviceId: f.service.id,
+        },
+        context(),
+      );
+      expect(assigned).toMatchObject({
+        service: { id: f.service.id },
+        customerConcern: input.customerConcern,
+        status: "REQUESTED",
+      });
+      expect(
+        await prisma.booking.findUniqueOrThrow({ where: { id: saved.id } }),
+      ).toMatchObject({
+        quotedPriceKobo: f.service.priceKobo,
+        serviceId: f.service.id,
+        customerConcern: input.customerConcern,
+      });
+      await capacity(f);
+      await f.operations.transitionBooking(
+        f.admin.actor,
+        saved.id,
+        {
+          expectedVersion: saved.version + 1,
+          status: "CONFIRMED",
+          resourceReviewNote: "Reviewed equipment and staffing",
+        },
+        context(),
+      );
+      expect(
+        await prisma.booking.findUniqueOrThrow({ where: { id: saved.id } }),
+      ).toMatchObject({ status: "CONFIRMED" });
+      expect(
+        await prisma.booking.findUniqueOrThrow({ where: { id: f.booking.id } }),
+      ).toEqual(before);
+    });
+
+    it("saves one canonical preferred-time request under concurrent retries without a slot", async () => {
+      const f = await fixture();
+      const customer = await account("CUSTOMER", f.branch.id);
+      const key = randomUUID();
+      const input = {
+        serviceId: f.service.id,
+        branchId: f.branch.id,
+        preferredAt: f.startsAt.toISOString(),
+        policyVersion: bookingPolicy.version,
+      };
+      const results = await Promise.all(
+        [1, 2].map(() =>
+          f.operations.createBooking(customer.actor, input, key, context()),
+        ),
+      );
+      expect(results.map((value) => value.replayed).sort()).toEqual([false, true]);
+      const records = await prisma.booking.findMany({
+        where: { customerId: customer.user.profile!.id },
+      });
+      expect(records).toHaveLength(1);
+      expect(records[0]).toMatchObject({
+        bookingSlotId: null,
+        assignedStaffId: null,
+        status: "REQUESTED",
+        quotedPriceKobo: 10000n,
+        depositAmountKobo: null,
+        scheduledAt: f.startsAt,
+      });
+      expect(
+        await prisma.auditLog.count({
+          where: { entityType: "BOOKING", entityId: records[0]!.id, action: "CREATE" },
+        }),
+      ).toBe(1);
+      await expect(
+        f.operations.createBooking(
+          customer.actor,
+          {
+            ...input,
+            preferredAt: new Date(f.startsAt.getTime() + 3600000).toISOString(),
+          },
+          key,
+          context(),
+        ),
+      ).rejects.toThrow();
+    });
+    it("accepts an unpriced quotation preference without inventing duration or capacity", async () => {
+      const f = await fixture();
+      const customer = await account("CUSTOMER", f.branch.id);
+      await prisma.service.update({
+        where: { id: f.service.id },
+        data: { pricingType: "QUOTE_REQUIRED", priceKobo: null, durationMinutes: null },
+      });
+      await f.operations.createBooking(
+        customer.actor,
+        {
+          serviceId: f.service.id,
+          branchId: f.branch.id,
+          preferredAt: f.startsAt.toISOString(),
+          policyVersion: bookingPolicy.version,
+        },
+        randomUUID(),
+        context(),
+      );
+      const saved = await prisma.booking.findFirstOrThrow({
+        where: { customerId: customer.user.profile!.id },
+      });
+      expect(saved).toMatchObject({
+        status: "REQUESTED",
+        quotedPriceKobo: null,
+        bookingSlotId: null,
+        assignedStaffId: null,
+        capacityPolicyVersionId: null,
+        depositAmountKobo: null,
+      });
+    });
+    it("rejects withdrawn services and times outside the existing booking window", async () => {
+      const f = await fixture();
+      const input = {
+        serviceId: f.service.id,
+        branchId: f.branch.id,
+        preferredAt: new Date().toISOString(),
+        policyVersion: bookingPolicy.version,
+      };
+      await expect(
+        f.operations.createBooking(f.customer.actor, input, randomUUID(), context()),
+      ).rejects.toThrow();
+      await prisma.service.update({
+        where: { id: f.service.id },
+        data: { isActive: false },
+      });
+      await expect(
+        f.operations.createBooking(
+          f.customer.actor,
+          { ...input, preferredAt: f.startsAt.toISOString() },
+          randomUUID(),
+          context(),
+        ),
+      ).rejects.toThrow();
+    });
+    it("reschedules a confirmed preference once with replay protection and fresh staff review", async () => {
+      const f = await fixture();
+      await capacity(f);
+      await f.operations.transitionBooking(
+        f.admin.actor,
+        f.booking.id,
+        {
+          status: "CONFIRMED",
+          expectedVersion: 0,
+          resourceReviewNote: "Mechanic and workshop bay checked",
+        },
+        context(),
+      );
+      const original = await prisma.booking.update({
+        where: { id: f.booking.id },
+        data: { bookingSlotId: null },
+      });
+      const input = {
+        preferredAt: new Date(f.startsAt.getTime() + 86_400_000).toISOString(),
+        expectedVersion: original.version,
+      };
+      const stranger = await account("CUSTOMER", f.branch.id);
+      await expect(
+        f.operations.rescheduleBooking(
+          stranger.actor,
+          original.id,
+          input,
+          randomUUID(),
+          context(),
+        ),
+      ).rejects.toThrow();
+      const key = randomUUID();
+      await Promise.all(
+        [1, 2].map(() =>
+          f.operations.rescheduleBooking(
+            f.customer.actor,
+            original.id,
+            input,
+            key,
+            context(),
+          ),
+        ),
+      );
+      const saved = await prisma.booking.findUniqueOrThrow({
+        where: { id: original.id },
+      });
+      expect(saved).toMatchObject({
+        status: "REQUESTED",
+        bookingSlotId: null,
+        assignedStaffId: null,
+        customerRescheduleCount: 1,
+        scheduleVersion: 1,
+        confirmedAt: null,
+        resourceReviewNote: null,
+        capacityPolicyVersionId: null,
+      });
+      expect(saved.scheduledAt.toISOString()).toBe(input.preferredAt);
+      expect(
+        await prisma.bookingReminder.count({
+          where: { bookingId: original.id, status: "PENDING" },
+        }),
+      ).toBe(0);
+      await expect(
+        f.operations.rescheduleBooking(
+          f.customer.actor,
+          original.id,
+          { ...input, expectedVersion: saved.version },
+          randomUUID(),
+          context(),
+        ),
+      ).rejects.toThrow();
+    });
     it("calculates quote tax without a browser tax field and ignores legacy overrides on replacement", async () => {
       const f = await fixture();
       const input = {

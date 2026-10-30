@@ -81,11 +81,14 @@ export function pendingMigrations(
 
 /** Conservative gate; it is not a substitute for reviewing migration SQL. */
 export function assertNonDestructiveMigration(sql: string, migrationName?: string): void {
-  // Exact, source-reviewed derived-field backfills, with a preservation/rehearsal
+  // Exact, source-reviewed migrations. Concern intake expands nullability only;
+  // see docs/booking-concern-migration-20261030.md. Derived-field backfills have a preservation/rehearsal
   // plan in docs/shop-vehicles-search-r2.md. No environment flag can approve SQL.
   // A changed byte or renamed migration must undergo a new review. All ordinary
   // migration history, target, backup and post-migration checks still apply.
   const reviewed: Record<string, string> = {
+    "20261030190000_booking_concern_intake":
+      "269654ebfa2f8b39453c4355e6d5a20aab9c4f2373168fe56db41958891eaa2b",
     "20261025132000_catalogue_word_search":
       "4740f38e0d45255a3b1c1eaf7977970a07434f87a8f0584f21ce8af4e249e0e1",
     "20261025133000_catalogue_brand_options":

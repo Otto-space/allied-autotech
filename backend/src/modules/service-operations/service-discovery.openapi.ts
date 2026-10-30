@@ -3,6 +3,9 @@ import { z } from "zod";
 import { catalogueCursorSchema } from "../../common/security/catalogue-cursors.js";
 import { publicServiceSchema } from "./service-operations.openapi.js";
 import {
+  ownerStructureApplySchema,
+  ownerStructurePreviewSchema,
+  ownerStructureResultSchema,
   adminServiceCategoryQuerySchema,
   serviceCategoryQuerySchema,
   serviceDiscoveryQuerySchema,
@@ -40,6 +43,48 @@ export function registerServiceDiscoveryOpenApi(registry: OpenAPIRegistry) {
       },
     },
   });
+
+  registry.registerPath({
+    method: "get",
+    path: "/admin/service-categories/owner-structure",
+    summary: "Review the eight owner-approved service groups",
+    description:
+      "Verified administrator only. Returns existing identities and a revision for explicit review. Includes inactive categories; no writes. Ambiguous names or an existing conflicting Tyre Change association return 409.",
+    security: [{ sessionCookie: [] }],
+    request: { query: z.object({}).strict() },
+    responses: {
+      200: {
+        description: "Current import review",
+        content: {
+          "application/json": { schema: envelope(ownerStructurePreviewSchema) },
+        },
+      },
+      409: { description: "Review existing category or service associations" },
+    },
+  });
+  registry.registerPath({
+    method: "post",
+    path: "/admin/service-categories/owner-structure",
+    summary: "Apply the reviewed owner service structure",
+    description:
+      "Verified administrator and CSRF required. Atomic, audited, revision-checked operation creates missing groups, preserves existing category identity/content/visibility, and associates only unassigned Tyre Change without changing pricing or duration. Refetch review after an uncertain result; repeated application makes no duplicate changes. No service is created, and no booking/history record is rewritten.",
+    security: [{ sessionCookie: [] }],
+    request: {
+      query: z.object({}).strict(),
+      headers: z.object({ "x-csrf-token": z.string().min(32) }),
+      body: {
+        required: true,
+        content: { "application/json": { schema: ownerStructureApplySchema } },
+      },
+    },
+    responses: {
+      200: {
+        description: "Applied structure",
+        content: { "application/json": { schema: envelope(ownerStructureResultSchema) } },
+      },
+      409: { description: "Stale review or conflicting existing records" },
+    },
+  });
   for (const admin of [false, true]) {
     const schema = admin ? adminServiceCategorySchema : publicServiceCategorySchema;
     registry.registerPath({
@@ -49,7 +94,7 @@ export function registerServiceDiscoveryOpenApi(registry: OpenAPIRegistry) {
         ? "List service categories for administration"
         : "List active service category options",
       description:
-        "Literal case-insensitive name-prefix search, ascending name/ID order, signed filter-bound cursor. Public options include only active categories with an active service (limit 1–50). Administrator list includes inactive and empty categories and supports isActive (limit 1–100).",
+        "Literal case-insensitive name-prefix search, ascending name/ID order, signed filter-bound cursor. Public options include active categories even without individual services, with their maintained descriptions (limit 1–50). Administrator list includes inactive and empty categories and supports isActive (limit 1–100).",
       ...(admin ? { security: [{ sessionCookie: [] }] } : {}),
       request: {
         query: admin ? adminServiceCategoryQuerySchema : serviceCategoryQuerySchema,
@@ -74,7 +119,7 @@ export function registerServiceDiscoveryOpenApi(registry: OpenAPIRegistry) {
   registry.registerPath({
     method: "get",
     path: "/public/services/categories/{categoryId}",
-    summary: "Get an active category backed by an active service",
+    summary: "Get an active service group, including groups awaiting individual services",
     request: { params: serviceCategoryParamsSchema, query: z.object({}).strict() },
     responses: {
       200: {
@@ -83,7 +128,7 @@ export function registerServiceDiscoveryOpenApi(registry: OpenAPIRegistry) {
           "application/json": { schema: envelope(publicServiceCategorySchema) },
         },
       },
-      404: { description: "Inactive, empty or unknown category" },
+      404: { description: "Inactive or unknown category" },
     },
   });
   registry.registerPath({

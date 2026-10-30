@@ -5,6 +5,7 @@ import { z } from "zod";
 import { useResource } from "@/lib/api/use-resource";
 import { categorySchema, productSchema } from "@/lib/api/commerce-schemas";
 import { listingSchema } from "@/lib/api/vehicle-schemas";
+import { parseServiceCategory } from "@/lib/api/public-schemas";
 import { parseFitmentModel } from "@/lib/parts-fitment";
 import {
   catalogueEnquiryContext,
@@ -29,7 +30,12 @@ export function ContactPartsEnquiry({
 }) {
   const input = useSearchParams();
   const params = new URLSearchParams(input.toString());
-  if (onlyParts && params.get("parts") !== "1" && params.get("vehicle") !== "1")
+  if (
+    onlyParts &&
+    params.get("parts") !== "1" &&
+    params.get("vehicle") !== "1" &&
+    !params.has("serviceGroup")
+  )
     return null;
   const incoming = catalogueEnquiryContext(params);
   return (
@@ -45,6 +51,13 @@ export function ContactPartsEnquiry({
           />
         ) : selected.get("parts") === "1" ? (
           <ProductEnquiryContext
+            key={context.id}
+            params={selected}
+            contextKey={context.contextKey}
+            labelledBy={labelledBy}
+          />
+        ) : selected.has("serviceGroup") ? (
+          <ServiceGroupEnquiryContext
             key={context.id}
             params={selected}
             contextKey={context.contextKey}
@@ -185,6 +198,58 @@ function ProductEnquiryContext({
         initialContextKey={contextKey}
         productId={validProduct?.id}
         productName={validProduct?.name}
+      />
+    </>
+  );
+}
+
+function ServiceGroupEnquiryContext({
+  params,
+  contextKey,
+  labelledBy,
+}: {
+  params: URLSearchParams;
+  contextKey?: string;
+  labelledBy?: string;
+}) {
+  const id = uuid(params.get("serviceGroup"));
+  const group = useResource(
+    id ? "/public/services/categories/" + id : null,
+    parseServiceCategory,
+  );
+  if (group.loading) return <p role="status">Preparing your service group enquiry…</p>;
+  if (!id || group.data?.id !== id || group.error || group.refreshError)
+    return (
+      <div role="status" className="notice">
+        <p>
+          This service group could not be verified. Your draft has not been replaced with
+          another enquiry.
+        </p>
+        {id && (
+          <button type="button" className="button secondary" onClick={group.refresh}>
+            Retry service group
+          </button>
+        )}
+      </div>
+    );
+  return (
+    <>
+      <p className="notice">
+        Enquiry about {group.data.name}. Describe your vehicle and concern below. The
+        workshop will confirm scope, pricing and visit arrangements.
+      </p>
+      <PublicEnquiryForm
+        presentation="contact"
+        labelledBy={labelledBy}
+        initialSubject={"Service group enquiry: " + group.data.name}
+        initialMessage={
+          "I would like to discuss " +
+          group.data.name +
+          ".\nService group: /services?categoryId=" +
+          id +
+          "\n\nVehicle and concern:"
+        }
+        initialContextKey={contextKey}
       />
     </>
   );

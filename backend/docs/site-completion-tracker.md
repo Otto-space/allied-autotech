@@ -1,3 +1,416 @@
+### 30 October 2026: release preparation and customer service groups
+
+Customer group cards and verified group-to-enquiry context pass two rendered
+390/1440 fixtures and eight context units. Service-request guidance is v10.
+Owner now explicitly requests deployment. Full release checks are running; no new
+production publication yet. Preserve migration/backup and exact-source CI gates.
+See docs/OWNER_SERVICE_STRUCTURE_20261030.md for evidence and remaining scope.
+
+### 30 October 2026: reviewed owner group import ready locally
+
+Added verified-admin review/apply action for eight groups; preserves existing IDs,
+URLs/content/visibility and Tyre Change commercial values. Stale/conflicting records
+block atomically; repeated fresh review is idempotent. 30 native HTTP tests, 17 guidance
+units, two rendered 390/1440 cases, types/lint and 476-route coverage pass. Source-only;
+no production import. See docs/OWNER_SERVICE_STRUCTURE_20261030.md for failures,
+repairs, evidence and pending ordering/media/customer/context/Allie work.
+
+### 30 October 2026: active empty service groups supported
+
+Public category list/detail now expose active groups without individual services,
+including maintained descriptions; inactive visibility and staff safeguards retained.
+25 native HTTP tests pass, with 80-migration replay/no-drift/db:check. Contracts
+regenerated; no schema or production mutation. See docs/OWNER_SERVICE_STRUCTURE_20261030.md
+for evidence and remaining category cards, authoring, import and persistent context.
+
+### 30 October 2026: owner service structure incorporated
+
+New authoritative owner taxonomy read in full. Reuse ServiceCategory; preserve
+Services/Shop/Vehicles navigation and oils/essentials scope. Read-only live checks
+found Tyre Change v4 uncategorised; public groups empty (not an admin census).
+Added tested identity-preserving import planner for eight groups. Full import,
+category authoring extensions, empty-group discovery/enquiry and persistent booking
+context remain required. See docs/OWNER_SERVICE_STRUCTURE_20261030.md.
+
+
+### 30 October 2026: booking guidance and truthful coverage
+
+Updated restricted booking-confirmation article to v4 with alternative-time review,
+customer response and reassignment requirements. Added permission-sensitive retrieval
+test; 77 units, backend/script types and scoped lint pass. Coverage checker now
+detects actual pages missing from inventory; regenerated 107-route inventory and
+added source-only /services/request mapping. Strict completion correctly remains
+failed for 107 routes with acceptance gaps. See docs/help-learn/CONCERN_BOOKING_20261030.md
+for exact evidence. Next: native rendered booking/Allie acceptance and remaining
+policy/provider/completion gates. Production and feature flags unchanged.
+
+
+### 30 October 2026: Allie candidate ranking before limits
+
+Found a recall defect: public service/product/vehicle queries selected twelve matches
+by ID before downstream relevance ranking. With many weak matches, the requested
+record could never reach Allie. Added parameterised database candidate ranking using
+title/name/brand/make/model term coverage before description coverage, with stable
+ID tie-breaking and twelve IDs per catalogue. The bounded eight-term input uses
+literal substring matching, not SQL patterns or user-supplied SQL.
+
+The SQL prefilter mirrors current public visibility; canonical ORM visibility filters
+and public projections are reapplied when loading candidates. Existing follow-up
+IDs, exact amounts, full faults/restrictions, four-source/8000-character context
+budget, permission checks and invalidation remain intact. Empty/no-keyword requests
+no longer retrieve twelve arbitrary services. Pipeline revision is public-knowledge-v3
+to invalidate old conversation context on rollout. No new migration or dependency.
+
+The new native test creates 753 public catalogue records, placing the relevant
+service/product/vehicle listing after 250 weaker IDs in each catalogue. All three
+rank first; full retrieval finds them within the 36-new-source cap, preserves price
+and fault disclosure, returns no arbitrary result for a stopword-only query, and
+excludes all three after unpublication. This is a bounded local relevance proof,
+not a production latency/load benchmark. Whole-catalogue revision hashing remains
+linear and production-volume performance still needs evidence.
+
+Fresh aat_allie_ranking_fa1c0e7425_test at 127.0.0.1:49293 passed 80-migration replay,
+no drift and db:check. All 18 native integration tests pass across ranking, canonical
+knowledge and conversation security (20.55s). All 76 focused unit tests, backend
+types, scoped lint, formatting and diff whitespace checks pass. Initial scale
+fixture failed publication constraints; corrected timestamps and one vehicle per
+live listing, without relaxing database rules. That failed run is not a pass.
+No paid OpenAI call, application database write or deployment occurred. Both test
+clusters stopped and their disposable data removed; logs retained in TEMP under
+aat-allie-ranking-03f09291385842a283ef5c33741950c1 and
+aat-allie-ranking-58028acd4fa24e1b987061f6dea45d1b.
+
+Remaining: complete policy/capability source audit, native rendered booking/Allie
+journeys, remaining delivery/auth acceptance, provider test-mode setup and broader
+completion gates. Full objective remains active; production stays at fc318618.
+
+
+### 30 October 2026: native customer-to-workforce booking journey
+
+Added concern-booking-journey.test.ts using real HTTP middleware, sessions, CSRF,
+idempotency and a fresh isolated PostgreSQL database. The test submits and replays
+one customer request with an account vehicle and notes, rejects another customer's
+read/alternative response, classifies through workforce assignment, proposes a time,
+accepts as the original customer, reassigns for the new time and explicitly confirms
+through the authorised workforce endpoint with synthetic approved capacity.
+
+Every stage retains the booking ID, concern, vehicle and customer notes. Acceptance
+clears the old assignment and stays REQUESTED; only explicit staff confirmation
+makes it CONFIRMED. Quote/deposit remain unknown/null, customer reschedule quota is
+unchanged and no Paystack key, model call or real notification is required.
+
+Fresh aat_concern_journey_1f00491d6c_test at 127.0.0.1:58965 passed all 80 migrations,
+no drift and db:check. All 22 HTTP integrations pass across three files (24.75s),
+including the 21 existing classification/confirmation regressions. Backend types and
+scoped lint pass. Native cluster stopped; disposable data removed after process/path
+checks, logs retained under TEMP/aat-concern-journey-802f1cf3998545f5881437b7174b8190.
+
+This proves API composition, not browser interaction with a real backend or provider
+acceptance. Next scope: native rendered booking composition, remaining proposal
+delivery/auth coverage, Allie knowledge scale and policy/capability audit, then
+project-wide completion gates and exact activation checklist. All implementation
+changes remain local; production remains the verified sidebar release fc318618.
+
+
+### 30 October 2026: workforce concern classification and final authorization
+
+Concern-only jobs can now be classified during the existing JOBS_ASSIGN workflow.
+Staff select a current published NGN service with duration and an eligible technician;
+canonical fixed pricing or unknown quotation is retained, with original concern text
+and REQUESTED status unchanged. The UI reviews service and technician before saving
+and validates the receipt against the chosen service, original concern and status.
+No booking confirmation, payment, new capability or consequential automatic action.
+The restricted job-assignment learning article is version 2.
+
+The assignment transaction now rechecks both lead and technician authorization after
+audit/notification writes, before returning its receipt. This closes expiry during
+awaited work; denied final access rolls back the transaction. Native HTTP regression
+coverage proves one assignment under competing technician/time classification and
+rollback when either participant's responsibility expires during audit processing.
+
+Fresh loopback aat_classification_guards_c3f2250e0e_test at 127.0.0.1:55680 passed
+80-migration replay, no drift and db:check. All 21 HTTP integrations pass: seven
+classification cases plus fourteen workforce booking confirmation/proposal cases
+(21.21 seconds). Backend types and scoped lint pass. The initial PowerShell 5 runner
+stopped on ordinary Prisma stderr; it shut down safely and is not counted as passing.
+The successful current-shell rerun used a separate fresh isolated target. PostgreSQL
+Web Crypto experimental and pg concurrent-query deprecation warnings were emitted;
+no application failure occurred. No real database or provider was used.
+
+Earlier classification UI evidence remains two mocked 390/1440 browser cases and
+one existing assignment regression; these are not native end-to-end acceptance.
+Native customer-to-workforce composition, broader proposal delivery/auth acceptance,
+Allie scale/policy coverage and external provider setup remain open. Latest production
+remains sidebar commit fc318618; classification changes are local and uncommitted.
+
+
+### 30 October 2026: sidebar release fc318618
+
+The owner explicitly requested deployment of finished work, superseding the earlier
+brief's no-deployment instruction for verified finished batches. Signed commit
+fc3186188bf876f2068434fb6a7dc346a72399fa is integrated into remote master and all
+three required GitHub workflows passed for that exact commit (frontend 41123485001,
+backend safety 41123512880, secret guard 41123484749). A clean Git archive export
+excluded the ongoing dirty booking, payment and Allie work from the upload.
+
+Published Vercel dpl_AP7nQwjBj956EddMVwRVmXLwhTbC; both apex and www identities
+verified. Backend deployment 9c91eeff-b191-4de5-b9d5-0e6d06134d42 and all component
+digests unchanged; readiness and current managed backup evidence checked against
+the existing successful populated restore receipt. No migration or gate activation.
+
+Six hosted and six public-site sidebar cases pass at 390x844, 1024x600 and 1440x900.
+Checks cover inner scrolling, no scroll chaining, hidden scrollbar, action visibility,
+non-overlapping form regions, catalogue-bound sticky behavior, mobile Escape/focus,
+no horizontal overflow and no page errors. Desktop/mobile screenshots reviewed.
+The initial fixture-oriented test passed 4/6 on real data: its two parts assertions
+incorrectly expected indefinite pinning despite the single-item catalogue boundary.
+A separate actual-catalogue harness verifies the correct containing-block boundary;
+no product code changed to accommodate that harness. Failure evidence retained.
+Twelve route/viewport/domain smoke cases pass, including BMW and Tyre Change copy
+and prices. Evidence: .private/sidebar-fc318618-*.json and TEMP/aat-sidebar-fc318618-*.
+The full efficient-delivery goal and uncommitted booking/payment/Allie work remain
+in progress; this release does not establish their production acceptance.
+
+
+### 30 October 2026: concern-only workforce job read path
+
+Found that workforce job contracts required a non-null service and renderers read
+service.name directly, despite concern requests having no service. The job projection
+now includes customerConcern; both response contracts accept nullable service. Queue,
+detail and review labels use Vehicle concern. Original concern and additional notes
+remain separately visible. Scoped job search also matches the concern text. Existing
+branch/assigned-person restrictions remain intact; classification is not yet added.
+
+15 focused job contract/detail units pass, including nullable concern and wrong-assignee
+rejection. Backend/frontend types, scoped lint and 404-path OpenAPI validation pass;
+API artifacts regenerated. Two local synthetic 390/1440 queue -> detail -> refresh
+browser cases pass, with scoped Axe, no overflow, and console/runtime error checks.
+Initial test locator ambiguity was corrected. Screenshot inspection found a missing
+synthetic assignee-options response; final fixture now explicitly returns an empty
+eligible list. Final evidence: %TEMP%/aat-concern-workforce-accepted; desktop screenshot
+inspected. No actual technician assignment, real data write or production change.
+Native concern read/search acceptance and workforce classification remain open.
+
+Next implementation point: existing WorkforceWorkService.assign with JOBS_ASSIGN and
+existing workforce job assignment UI, preserving technician eligibility, original
+concern, request status and canonical service pricing. Do not route managed staff
+through legacy admin assignment or grant extra capabilities. Full goal remains active.
+
+
+### 30 October 2026: workforce proposal review and recovery
+
+The workforce booking detail now provides a permission-gated proposed-time form,
+review dialog, fresh access/record check and actor/version-bound receipt validation.
+The existing recovery helper now separates confirmation/proposal keys while retaining
+its confirmation default and redacting both on identity cleanup. Only reference IDs,
+versions and random marker tokens are stored; customer reason/time are not persisted
+in session storage. Unknown outcomes survive reload without automatic resend and
+require current-record inspection and acknowledgement before another action.
+
+15 focused contract/recovery units pass. Five local mocked browser cases pass:
+390/1440 review -> explicit send -> proposal display with unchanged appointment;
+lost-response reload/inspection with one write; access removal before send with zero
+writes; existing 390px confirmation regression. Review-dialog scoped Axe and overflow
+checks pass; success-path console checks pass; lost-response network failure is
+intentional. Both review screenshots inspected under %TEMP%/aat-workforce-proposal-form.
+Guard evidence: %TEMP%/aat-workforce-proposal-guards. No real booking/customer message
+or production change. Backend native evidence remains the preceding 14-case run.
+
+Article service-request v8 already covers this proposal/acceptance behavior; no new
+semantic guide target or eligibility is introduced. Native end-to-end composition,
+proposal-specific auth/expiry/rollback checks, workforce concern classification and
+remaining full brief acceptance remain open. Full delivery goal remains active.
+
+
+### 30 October 2026: scoped workforce proposal action
+
+Added POST /staff/workforce/bookings/:id/alternative using the existing strict
+proposal schema and shared proposal transaction logic. Managed scope, explicit
+BOOKING_CONFIRM grant, MFA, branch scope and actor/workforce locks remain mandatory;
+current access is rechecked after mutation before commit. CSRF and sensitive-write
+rate limiting use existing workforce middleware. The narrow receipt excludes
+customer/staff notes and binds the actor, booking, version and proposed time.
+Legacy proposal behavior is delegated to the same helper; no new fee, capacity
+reservation or confirmation. No production change or new migration.
+
+Fresh native isolated aat_workforce_proposal_b5bf8f0c6d_test on 127.0.0.1:55110
+passed 80-migration replay/no drift and db:check. All 14 workforce confirmation
+HTTP integrations passed, including three new proposal cases: valid unchanged
+appointment/stale retry, denied scope/grant/cross-branch and concurrent proposals.
+Existing confirmation cases cover MFA/CSRF/revocation; proposal-specific expiry,
+MFA/CSRF and notification rollback checks remain to be extended explicitly.
+Backend types, scoped lint and OpenAPI validation (404 paths) pass. API artifacts
+regenerated. Cluster stopped and its verified data folder removed (76,983,553
+logical bytes), logs retained under %TEMP%/aat-workforce-proposal-1dd10883da6b4afc8e43531e4fa31baa.
+
+Next: workforce proposal review/recovery form and concern classification through
+existing permissions, followed by native and rendered acceptance. No new guide
+eligibility/semantic target or published help change yet. Full delivery goal active.
+
+
+### 30 October 2026: workforce proposal visibility
+
+The existing branch-scoped workforce booking detail now returns and renders the
+alternative time, reason and proposal version. The current scheduled appointment
+remains separate. Current proposals say awaiting customer response; intervening
+booking changes show a stale-proposal warning; resolved proposals disappear after
+refresh. No mutation route, permission, guide target or eligibility changed.
+OpenAPI and frontend generated types were regenerated. 11 frontend contract units,
+backend/frontend type checks and scoped lint pass. Two local mocked Playwright
+cases pass at 390/1440, covering refresh/current/stale/cleared states, unchanged
+appointment, no writes, scoped Axe, overflow and console health. Both screenshots
+were inspected. Initial browser runs caught a duplicate inserted panel; it was
+removed and the unchanged assertions passed. Initial schema export needed dummy
+offline environment values; no database connection or write was used.
+Evidence: %TEMP%/aat-workforce-proposal-final. Production/real-role/native API
+acceptance and workforce classification/proposal mutation controls remain open.
+This is one verified increment; the full delivery goal remains active.
+
+
+### 30 October 2026: reviewed business facts and Allie citation UI
+
+Business-contact v1 now supplies the published address, email and care hours with
+explicit workshop-availability limitations. Backend/frontend Contact allowlists are
+aligned. 76 backend and 35 frontend unit cases, types and scoped lint pass. Two local
+mocked browser cases pass at 390/1440: all four citation types, exact link identity,
+Contact navigation/modal close/visible breadcrumbs, scoped Axe and console checks;
+screenshots inspected. Initial disabled-preview and missing-branch-fixture failures
+were corrected and are recorded separately. No real model/customer/production write.
+See docs/help-learn/ALLIE_PUBLIC_KNOWLEDGE_20261030.md for scope and remaining work.
+
+
+### 30 October 2026: Allie product/vehicle sources verified locally
+
+Canonical product/vehicle retrieval now joins services, with public visibility,
+exact-price/fault preservation, bounded follow-ups and catalogue-change invalidation.
+71 backend units, 22 frontend units and 15 existing native HTTP conversation cases
+passed; two catalogue integration cases passed after correcting a synthetic report
+checksum fixture. Both fresh native targets passed 80-migration replay/no-drift and
+db:check. Types/lint pass. No paid model call or production change. Business sources,
+full policy/capability coverage, rendered citations and scale acceptance remain open.
+See docs/help-learn/ALLIE_PUBLIC_KNOWLEDGE_20261030.md (repository root). Task test
+clusters removed, logs retained, C: 22.93 GiB free. Full delivery goal remains active.
+
+
+## Allie public service knowledge — 30 October 2026
+
+Implemented canonical public Service retrieval in the existing Allie conversation
+pipeline. Search reads only active services, uses the existing serviceSelect public
+projection, bounds question terms to eight and new matches to twelve, and re-reads
+up to twenty-four prior source IDs for bounded follow-ups. No catalogue write, URL
+fetch, private record, stock claim or appointment availability inference is added.
+Fixed prices retain integer minor-unit precision; quotations remain unknown. Complete
+conditions are preserved; passages exceeding 6000 characters are omitted rather than
+cropped. The established four-source/8000-character model budget remains intact.
+
+Internal sources include the canonical record ID, public permission, record version,
+content SHA-256, record update time and retrieval time. A database-computed SHA-256
+of current public service fields supplies the conversation revision. Changes even
+without a version bump, and unpublication, invalidate history through existing read,
+in-flight permission checks, pre/post-provider validation and final commit checks.
+The versioned canonical records remain the source of truth; no duplicated index or
+new migration was introduced. Browser citation validation now permits only a service
+UUID whose destination exactly matches its source, never a model-supplied URL.
+
+Verification: 71 backend unit tests, 20 frontend conversation tests, backend/frontend
+type checks, scoped lint and formatting pass. A fresh native loopback
+`aat_allie_services_native_20261030_test` replayed all 80 migrations and passed
+no-drift/db:check. Sixteen integration tests passed, including the fifteen existing
+actual-HTTP conversation security tests and new canonical service retrieval,
+quotation/price precision, draft exclusion, follow-up, edit-during-answer rejection
+and unpublication checks. Provider transport was mocked; no paid call occurred.
+The initial Docker run stopped at the strict native-loopback identity guard before
+fixtures; it is not counted as passing. The native rerun preserved that guard.
+Task Docker container removed. Native cluster stopped and its 76,976,538 disposable
+bytes removed after path/link/process checks; small log retained under temporary
+`aat-allie-native-f5baa113bbca441087772d0d65991ac0`. Final C: reserve: 22.94 GiB.
+
+Remaining: public product/vehicle/business sources and full capability/policy source
+coverage, service-citation rendered browser acceptance, large-catalogue retrieval
+quality/performance, workforce booking integration and external provider acceptance.
+Current source package is not the complete knowledge pipeline or an activation.
+No flags, production deployment, actual customer message or application DB changed.
+
+
+## Alternative appointment guard acceptance — 30 October 2026
+
+A fresh loopback-only `aat_alternative_guards_20261030_test` database was created in
+an auto-removing, memory-limited postgres:18 container using the existing image.
+Target identity was verified before writes; the migration runner independently
+required zero public tables. All 80 migrations replayed, Prisma found no drift,
+and db:check passed. All 17 owner booking integration cases passed (29.41 seconds).
+New cases verify missing MFA, revoked BOOKING_CONFIRM and changed staff branch
+reject proposal writes; out-of-window proposals and expired acceptance fail without
+changing the booking; an expired proposal can still be declined; an intervening
+booking revision invalidates both answers even when the client supplies the newest
+version. Backend type checking and scoped oxlint passed. Test container stopped and
+auto-removed; C: reserve passed at 22.96 GiB. No application database, real notification,
+provider call, feature flag or deployment was used.
+
+These are isolated service/database checks, not full HTTP authentication, physical
+phone or production acceptance. Workforce integration, notification delivery and
+canonical Allie knowledge retrieval remain implementation work. No additional paid
+model evaluation is authorised under the exhausted previous allowance.
+
+### 30 October 2026 alternative appointment controls
+
+Staff/customer reviewed proposal actions implemented. Four 390/1440 browser journeys and two scoped-Axe acceptance runs pass; phone screenshot inspected. Disrupted acceptance now records TRANSFERRED; fresh 80-migration replay/db:check and 14 booking integrations pass, temporary DB removed. Types/scoped lint pass. Disk dropped to 15.41 GiB after checks; further builds/tests stopped under the 20 GiB reserve. Owner asked to free 6 GiB; no system/shared resources deleted. Full evidence/remaining scope: docs/EFFICIENT_DELIVERY_20261030.md. No publication.
+
+### 30 October 2026 alternative proposal backend
+
+Version-bound staff proposals/customer responses now implemented with existing authority, ownership, audit and notification controls. Fresh isolated 80-migration replay/db:check and 13 booking integrations pass; task DB removed. Staff/customer controls, disruption/permission acceptance and full goal remain pending. Migration uncommitted; no application rollout. See docs/EFFICIENT_DELIVERY_20261030.md.
+
+### 30 October 2026 embedded booking recovery verified
+
+Three local phone browser cases pass: uncertain vehicle save blocks duplicate creation until reread; account change closes either editor and clears prior customer inputs/details without submitting. Scroll locking is released. Readiness ledger now distinguishes implemented account/classification controls from the still-missing staff alternative workflow. Full evidence and remaining scope: docs/EFFICIENT_DELIVERY_20261030.md. No production mutation.
+
+### 30 October 2026 booking account entry
+
+Shared booking details now offers existing Garage/profile editors without leaving the booking. Two 390/1440 fixture journeys plus scoped dialog Axe and three Garage/profile regressions pass; 14 guidance units pass. Phone screenshots reviewed after fixing missing public input styling. Embedded-editor uncertainty/account-switch and direct service-page coverage remain open. Full scope/evidence: docs/EFFICIENT_DELIVERY_20261030.md. No real account write or publication.
+
+### 30 October 2026 staff concern classification
+
+Staff assignment now supports reviewed classification using the existing API and service picker. Three browser cases and 14 guidance units pass; original concern remains REQUESTED after classification. No live write. Full remaining scope and evidence are in docs/EFFICIENT_DELIVERY_20261030.md; customer details, alternatives and full acceptance remain open.
+
+### 30 October 2026 concern form review/retry checkpoint
+
+Local concern request form now has explicit review, account-readiness guard and same-key uncertain retry. Eight draft units and two simulated browser cases at 390/1440 pass; types/scoped lint pass and phone receipt inspected. Full sign-in/accessibility/staff workflow acceptance remains open. See docs/EFFICIENT_DELIVERY_20261030.md concern customer form checkpoint for exact scope and limits. No publication or real booking.
+
+### 30 October 2026 delivery continuation — reversal ingestion verified
+
+Paystack reversed status is now recognised. Unallocated reversed attempts are held
+for review, with deduplicated observations and no automatic refund or settlement;
+a stale later success cannot bypass the hold. 44 provider units and 10 isolated
+financial integration cases passed; 78 migrations replayed with no drift in a fresh
+memory-backed test database, then its task container was removed. Backend types/lint
+pass. Customer reversal wording and post-settlement reconciliation remain open,
+alongside concern-only booking, staff alternatives, canonical Allie and activation
+acceptance. Full goal remains active, with no production change. Details and failed
+setup evidence: ../../docs/EFFICIENT_DELIVERY_20261030.md.
+
+### 30 October 2026 delivery continuation — image package verified
+
+Current full goal remains the efficient-delivery brief; no production deployment.
+The image package now uses proportionate cover frames for Services and Home and
+About's exact approved campaign artwork on service detail. 24 distinct local browser
+cases pass across corrected runs; types/scoped lint/diff checks pass. See
+../../docs/EFFICIENT_DELIVERY_20261030.md for evidence and limits. Existing booking
+and payment changes are preserved. Next work remains concern-only/entered-details
+booking and staff alternatives, reversed payments/full lifecycle audit, canonical
+Allie knowledge/access invalidation and final activation acceptance. The worktree
+is allied-contact-validation-20261027 on codex/efficient-delivery-20261030; source
+is uncommitted and production unchanged. Disk reserve passed at 23.75 GiB.
+
+### 30 October 2026 delivery continuation — booking and payment verification
+
+Full delivery goal remains active; no production deployment authorised by the current brief. Sign-in draft recovery and preferred rescheduling are implemented with focused evidence; customer booking-detail matrix passed 42 cases. Service matrix has 38 passing cases after a reproduced Strict Mode duplicate-read fix, with the remaining 28 cases running after a stale single-branch test expectation was corrected. Payment verification now requires mode/reference and coherent charge status; durable webhook retries preserve mode and verify legacy events. Backend checks, 60 relevant units and 32 sequential isolated database cases pass. Parallel shared-queue interference was recorded; no failed run is counted as a full pass. Test databases replayed 78 migrations and task-owned memory containers were removed. See docs/EFFICIENT_DELIVERY_20261030.md and docs/ACTIVATION_READINESS_20261030.md for exact evidence and remaining scope. Concern-only booking, staff alternatives/entered details, reversed payment handling, Allie canonical knowledge, image work and full acceptance remain open. Existing production is unchanged.
+
+### 30 October 2026 efficient delivery — preferred booking implementation
+
+Active goal is the complete 30 October efficient-delivery brief; catalogue is its design reference. Current branch codex/efficient-delivery-20261030 in allied-contact-validation-20261027. The current brief prohibits production deployment; published frontend 33fb5bd5 is unchanged. See docs/EFFICIENT_DELIVERY_20261030.md (repository root) for the full requirement ledger, exact partial evidence and remaining work.
+
+Selected-service preferred-time requests now support fixed and quotation services without configured slots, pending staff confirmation and no invented price/deposit. Three contract, ten isolated database and six focused browser cases pass; existing 78 migrations replayed without drift. Type/lint and 63 guidance/provider-contract tests pass. Concern-only intake, sign-in recovery, preferred rescheduling and broader booking acceptance remain unfinished, alongside payment/Allie/image work. No live charges, messages, deployment, schema change or capability enablement. The one-hour package target was exceeded and recorded. Source remains under verification.
+
 ### 30 October 2026 final catalogue and guide follow-up published
 
 Published exact master source 33fb5bd526ce7383cbfc66ad884eb617f3d73e05 to apex and www as dpl_5RYYMkQQvZLw4mwHGjLy5n96CN8j at 2026-10-30T15:22:02.859Z. Frontend 41077238004, Backend database safety 41077237928 and repository secrets 41077237919 passed for that exact source. The final held build passed all 101 main cases and all seven refresh/Help/guide/auth-focus cases: 108 passed, no failures, skips or flaky results. The deterministic guide race also passed independently on this candidate. All 12 live route/domain/width checks passed with no page errors; final Shop/Vehicles screenshots were reviewed after fonts and photographs loaded. The earlier 5b8bf64e candidate was not promoted; its failing trace and deterministic baseline are retained.
@@ -3404,3 +3817,47 @@ Backend audit evidence refreshed during this batch: published API image revision
 28 October 2026 - Compact customer-care release candidate is now ee757291, preserving currently published Help/Learn source 072e0509 and favourites source ef06efb7. Prior candidate passed all 19 hosted dashboard cases. Final combined build/CI and 29-case dashboard plus learning regression run are in progress before promotion. Coordinate subsequent frontend releases against this source to retain the compact-care work. Backend is not changed by this task.
 
 28 October 2026 - Compact customer-care release completed. Runtime 73436a31, Vercel dpl_J3Yv5aJwRGrzwZe6fiUPyeNdd81t READY on both domains after 14 public production checks. Empty care is compact; recorded cards, history drafts, permissions and error/session boundaries remain intact. Preserves published Help/Learn 072e0509, notification preview 1a33815c and favourites ef06efb7. Final-source CI 40715112526 passed 1092 tests plus types/lint/format/build and zero production audit findings; secret guard 40715112493 and isolated backend safety 40715112523 passed. Twenty-five final hosted dashboard/notification cases passed; ten unchanged-source learning cases passed on the preceding candidate. Two actual public homepage explanation cases passed at 390/1440 with three valid destinations, reviewed article, honest AI label and focus return. Initial extra-test heading expectation was corrected to the actual summary-then-topic sequence, without runtime changes. V41 density/V04 public explanation have released sampled evidence; full V01-V55 remains active. Backend 8fd37e1c unchanged by this task, ACTIVE/readiness200. No shared DB/customer writes. Evidence, rollback, disk interruptions and limitations: backend/docs/customer-care-density-production-20261028.md. V48 notification preference/channel distinction is next; preserve other worktrees.
+
+
+## Filter sidebar scroll repair — 30 October 2026
+
+Owner-reported sidebar scrolling audited on live Parts and Vehicles, then repaired
+in the existing efficient-delivery worktree. Live short catalogues constrained the
+sticky rail; the desktop form also exceeded its frame by 2px. Desktop rails now
+have a moderate 640px maximum, shrink for short viewports, and size the form to
+the frame. Only filter fields scroll; the frame clips overflow and the inner
+scrollbar is hidden using standard and WebKit rules. Apply/clear controls remain
+visible. Sticky positioning remains bounded by the catalogue so it cannot cover
+the footer. Mobile modal/focus/selection semantics and card images are unchanged.
+
+Six final local Edge/Playwright cases passed at 1440x900, 1024x600 and 390x844 for
+both catalogues: wheel scrolling over results leaves the pinned panel/field offset
+stable, inner scrolling and end-of-list overscroll leave the page stable, action
+buttons remain visible, mobile Escape restores focus, no horizontal overflow or
+page errors. Screenshots inspected. First run passed 5/6: collapsed mobile Parts
+fit naturally, so the test was corrected to expand More product details before
+requiring scroll movement; the full corrected six-case run passed. Browser plugin
+unavailable; existing Playwright fallback used at http://127.0.0.1:3021 with the
+read-only discovery fixture. This is synthetic local acceptance, not physical
+phone/Safari or deployed acceptance. Source typing, scoped lint/format and diff
+checks passed. Evidence: %TEMP%/aat-sidebar-20261030-final/.
+
+No dependency install, Docker resource, database write or production publication.
+Disk reserve passed before checks (23.51 GiB) and after (23.50 GiB). Existing broader
+booking/payment/Allie work remains pending; this checkpoint does not close it.
+
+
+30 October 2026 — Customer reversal and reconciliation-worker review handling
+implemented in codex/efficient-delivery-20261030. 41 isolated financial integration
+cases, 27 backend units and 3 local browser fixture cases passed. Existing successful
+captures remain immutable; customer reads expose only a reversal indicator. Evidence
+and remaining scope: docs/EFFICIENT_DELIVERY_20261030.md, Customer reversal and worker
+checkpoint. No production publication or live financial/provider activity.
+
+
+30 October 2026 — Concern booking contract and nullable-safe read paths added in
+codex/efficient-delivery-20261030. 79-migration isolated replay/db:check and 12 booking
+integration cases pass, plus 47 backend/13 frontend units and 2 browser cases. New
+migration remains uncommitted/unpublished. Customer intake and staff classification
+controls remain pending; continue at the Concern booking contract checkpoint in
+docs/EFFICIENT_DELIVERY_20261030.md. No shared database or production change.

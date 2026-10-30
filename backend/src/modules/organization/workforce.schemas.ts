@@ -1,3 +1,4 @@
+export { bookingAlternativeBodySchema as workforceBookingAlternativeSchema } from "../service-operations/service-operations.schemas.js";
 import { supportEmailDeliveryPageSchema } from "../support/customer-email.js";
 export { supportDeliveryDismissSchema } from "../support/customer-email.js";
 import { z } from "zod";
@@ -284,6 +285,7 @@ export const workforceQualitySchema = z.strictObject({
 });
 export const workforceJobAssignmentSchema = z.strictObject({
   expectedVersion: version,
+  serviceId: z.uuid().optional(),
   staffId: z.uuid(),
   reason,
 });
@@ -394,7 +396,8 @@ export const workforceJobResponseSchema = z.object({
   version,
   assignedStaffId: z.uuid().nullable(),
   customerNotes: z.string().nullable(),
-  service: z.object({ name: z.string() }),
+  customerConcern: z.string().nullable().optional(),
+  service: z.object({ id: z.uuid().optional(), name: z.string() }).nullable(),
   vehicle: z
     .object({
       make: z.string(),
@@ -448,7 +451,8 @@ const bookingRow = z.object({
   scheduledAt: timestamp,
   status: z.string(),
   version,
-  service: z.object({ name: z.string() }),
+  service: z.object({ name: z.string() }).nullable(),
+  customerConcern: z.string().nullable().optional(),
   customer: z.object({ firstName: z.string(), lastName: z.string(), phone: z.string() }),
 });
 const enquiryRow = queueBase.extend({
@@ -664,16 +668,33 @@ export function workforceResponseSchema(action: string): z.ZodType {
         capacityPolicyVersionId: z.uuid(),
         performedByUserId: z.uuid(),
       });
+    case "bookingAlternative":
+      return z.object({
+        id: z.uuid(),
+        branchId: z.uuid(),
+        status: z.enum(["REQUESTED", "CONFIRMED"]),
+        version,
+        scheduledAt: timestamp,
+        alternativeStartsAt: timestamp,
+        alternativeReason: z.string(),
+        alternativeVersion: version,
+        performedByUserId: z.uuid(),
+      });
     case "booking":
       return bookingRow.extend({
+        alternativeStartsAt: timestamp.nullable(),
+        alternativeReason: z.string().nullable(),
+        alternativeVersion: version.nullable(),
         assignedStaff: z
           .object({ id: z.uuid(), firstName: z.string(), lastName: z.string() })
           .nullable(),
         confirmedAt: timestamp.nullable(),
-        service: z.object({
-          name: z.string(),
-          durationMinutes: z.number().int().positive().nullable(),
-        }),
+        service: z
+          .object({
+            name: z.string(),
+            durationMinutes: z.number().int().positive().nullable(),
+          })
+          .nullable(),
         access: workforceOwnResponseSchema,
         generatedAt: timestamp,
       });

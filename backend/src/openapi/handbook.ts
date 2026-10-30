@@ -187,10 +187,10 @@ List routes use bounded cursor pagination. Pass the returned \`nextCursor\` as \
 ### Branches, services, published slots and booking requests
 
 1. Read public branches, services, published slots and the current booking policy.
-2. Submit the slot, current policy version and an idempotency key. New bookings are REQUESTED with no booking deposit.
+2. Submit either slotId or serviceId, branchId and preferredAt (an ISO timestamp with timezone), plus the current policy version and an idempotency key. Never combine the two scheduling sources. Preferred requests use an active service and branch without inventing a slot, staff assignment or quotation price. New bookings are REQUESTED with no booking deposit; the existing advance window applies.
 3. Staff with BOOKING_CONFIRM records resource review; the server enforces approved branch capacity/calendar and overlaps before confirmation.
 4. One transactional email reminder is enqueued one hour before the appointment. Confirmation less than one hour ahead uses an immediate reminder fallback. GET links only render a screen; the signed POST confirms attendance or cancels free.
-5. Rescheduling invalidates earlier links/reminders and returns the appointment to staff review. No response never auto-cancels or incurs a fee. Historical deposit records remain protected.
+5. Rescheduling accepts either an offered slotId or a preferredAt timestamp, including for an original booking without a slot. The current one-change limit and cutoff apply. Rescheduling invalidates earlier links/reminders and returns the appointment to staff review. No response never auto-cancels or incurs a fee. Historical deposit records remain protected.
 
 ### Orders, invoices, vehicles and payments
 

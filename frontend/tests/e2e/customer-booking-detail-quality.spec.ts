@@ -445,3 +445,80 @@ test("loading and empty quotation states expose no premature decision controls",
     page.getByRole("button", { name: "Accept quotation", exact: true }),
   ).toHaveCount(0);
 });
+
+test("confirmed booking without a slot reviews a preferred reschedule", async ({
+  page,
+}) => {
+  const state = await bookingDetailFixture(page);
+  state.record.bookingSlotId = null;
+  state.slotError = true;
+  await page.goto(route);
+  await page.getByRole("button", { name: "Reschedule appointment", exact: true }).click();
+  await page
+    .getByLabel("Or request a preferred time (Lagos time)")
+    .fill("2026-11-10T10:30");
+  await page.getByRole("button", { name: "Review reschedule" }).click();
+  await expect(page.getByRole("dialog")).toContainText("10:30");
+  expect(state.writes).toHaveLength(0);
+  await page.getByRole("button", { name: "Confirm change" }).click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  expect(state.writes).toHaveLength(1);
+  expect(state.writes[0].body).toEqual({
+    preferredAt: "2026-11-10T09:30:00.000Z",
+    expectedVersion: 1,
+  });
+  expect(state.writes[0].key).toBeTruthy();
+  await expect(page.locator(".booking-appointment")).toContainText(
+    "Awaiting workshop confirmation.",
+  );
+});
+
+for (const width of [390, 1440])
+  test(`unclassified concern booking remains readable and pending at ${width}px`, async ({
+    page,
+  }) => {
+    const state = await bookingDetailFixture(page);
+    state.record.service = null;
+    state.record.customerConcern = "The engine shakes when starting from cold.";
+    state.record.status = "REQUESTED";
+    state.record.bookingSlotId = null;
+    state.record.quotes = [];
+    state.record.workOrder = null;
+    await page.setViewportSize({ width, height: 900 });
+    const errors: string[] = [];
+    page.on("pageerror", (error) => errors.push(error.message));
+    await page.goto(route);
+    await expect(
+      page.getByRole("heading", { name: "Vehicle concern", exact: true }),
+    ).toBeVisible();
+    await expect(
+      page.getByText(state.record.customerConcern, { exact: true }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "Reschedule appointment", exact: true }),
+    ).toHaveCount(0);
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+    expect(errors).toEqual([]);
+  });
+
+for (const width of [390, 1440])
+  test("saved concern remains readable at " + width + "px", async ({ page }, info) => {
+    const state = await bookingDetailFixture(page);
+    state.record.customerConcern =
+      "The vehicle vibrates when braking. Please check the brakes before discussing any work.";
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto(route);
+    const concern = page.getByText(state.record.customerConcern, { exact: true });
+    await expect(concern).toBeVisible();
+    await expect(concern).toHaveCount(1);
+    expect(
+      (await new AxeBuilder({ page }).include(".booking-appointment").analyze())
+        .violations,
+    ).toEqual([]);
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+    await page.screenshot({ path: info.outputPath("saved-concern.png") });
+  });

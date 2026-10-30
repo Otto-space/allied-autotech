@@ -131,6 +131,13 @@ export const workforceRouteDefinitions = [
   ["get", "/staff/workforce/jobs/:id", "job", empty, schemas.workforceRecordParams],
   [
     "post",
+    "/staff/workforce/bookings/:id/alternative",
+    "bookingAlternative",
+    schemas.workforceBookingAlternativeSchema,
+    schemas.workforceRecordParams,
+  ],
+  [
+    "post",
     "/staff/workforce/bookings/:id/confirmation",
     "bookingConfirmation",
     schemas.workforceBookingConfirmationSchema,
@@ -419,6 +426,14 @@ export function createWorkforceRouter(): Router {
           break;
         case "booking":
           data = await work.booking(actor, id, ctx);
+          break;
+        case "bookingAlternative":
+          data = await new ServiceOperationsService().proposeWorkforceBookingAlternative(
+            actor,
+            id,
+            schemas.workforceBookingAlternativeSchema.parse(body),
+            ctx,
+          );
           break;
         case "bookingConfirmation":
           data = await new ServiceOperationsService().confirmWorkforceBooking(

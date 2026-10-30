@@ -1,3 +1,8 @@
+import {
+  hasVerificationHold,
+  holdUnallocatableProviderResult,
+  recordConflictingProviderFacts,
+} from "./provider-observation.js";
 import { snapshotRefundClock } from "../policies/refund-clock.js";
 import { withTransactionRetry } from "../../common/database/transaction-retry.js";
 import { enqueueLateOrderRefund } from "./refund-workflow.js";
@@ -56,7 +61,11 @@ import {
   lockCurrentPaymentCustomer,
   assertPaymentOperator,
 } from "./payments.policy.js";
-import { PaymentsRepository, staffPaymentView } from "./payments.repository.js";
+import {
+  PaymentsRepository,
+  staffPaymentView,
+  customerPaymentView,
+} from "./payments.repository.js";
 import type {
   ManualPaymentInput,
   ManualReviewInput,
@@ -89,15 +98,6 @@ import {
   lockTarget,
   paymentTarget,
 } from "./payment-target.js";
-
-function hasVerificationHold(data: Prisma.JsonValue): boolean {
-  return (
-    data !== null &&
-    typeof data === "object" &&
-    !Array.isArray(data) &&
-    data["verificationHold"] === true
-  );
-}
 
 const paymentNumber = () =>
   `PAY-${new Date().toISOString().slice(0, 10).replaceAll("-", "")}-${randomUUID().replaceAll("-", "").slice(0, 16).toUpperCase()}`;
@@ -161,9 +161,11 @@ export class PaymentsService {
       ))
     )
       throw paymentNotFound();
-    return paymentJsonSafe(
-      paymentPage(await this.repository.listCustomer(profile.id, query), query.limit),
+    const page = paymentPage(
+      await this.repository.listCustomer(profile.id, query),
+      query.limit,
     );
+    return paymentJsonSafe({ ...page, items: page.items.map(customerPaymentView) });
   }
   async customerGet(actor: AuthenticatedActor, id: string) {
     assertPaymentCustomer(actor);
@@ -172,7 +174,7 @@ export class PaymentsService {
     const payment = await this.repository.owned(id, profile.id);
     if (!payment) throw paymentNotFound();
     return paymentJsonSafe({
-      ...payment,
+      ...customerPaymentView(payment),
       // Availability is informational; initialization still enforces payable rules.
       checkoutProviders: this.providers.enabledProviders(),
     });
@@ -999,6 +1001,7 @@ export class PaymentsService {
             signatureVerifiedAt: new Date(),
             redactedPayload: {
               eventType: event.eventType,
+              ...(event.domain ? { domain: event.domain } : {}),
               providerEventId: event.providerEventId,
               resourceId: event.resourceId,
               reference: event.reference,
@@ -1101,6 +1104,29 @@ export class PaymentsService {
             "Signed event retained for reconciliation; payment reference not found",
         });
       });
+      return;
+    }
+    // Disabling the provider pauses recovery; it must not silently accept a
+    // stored event from a different environment after configuration changes.
+    if (env.PAYSTACK_MODE === "disabled") throw providerUnavailable();
+    if (
+      event.status !== "success" ||
+      (event.domain !== undefined && event.domain !== env.PAYSTACK_MODE)
+    ) {
+      await writeWebhookResult(this.database, claim, {
+        status: "DEAD_LETTER",
+        failedAt: new Date(),
+        nextAttemptAt: null,
+        lastErrorCode: "PAYSTACK_EVENT_FACTS_MISMATCH",
+        lastErrorMessage: "Signed payment event status or environment does not match",
+      });
+      return;
+    }
+    if (event.domain === undefined) {
+      // Older durable events did not retain the provider domain. Do not infer it:
+      // recover from an authoritative lookup, which validates mode and reference.
+      const verified = await this.providers.get("PAYSTACK").verify(event.reference);
+      await this.applyVerifiedAttempt(attempt.id, verified, context, null, claim);
       return;
     }
     await this.applyVerifiedAttempt(
@@ -1864,7 +1890,7 @@ export class PaymentsService {
         // The first successful report is immutable. Later observations must not
         // rewrite it, even if a provider now reports the originally expected amount.
         if (reusedIdentity)
-          await this.recordConflictingProviderFacts(
+          await recordConflictingProviderFacts(
             tx,
             attempt,
             result,
@@ -1882,7 +1908,7 @@ export class PaymentsService {
           result.amountKobo !== attempt.verifiedAmountKobo ||
           result.currency !== attempt.verifiedCurrency
         )
-          await this.recordConflictingProviderFacts(tx, attempt, result);
+          await recordConflictingProviderFacts(tx, attempt, result);
       } else if (
         reusedIdentity ||
         hasVerificationHold(attempt.redactedGatewayData) ||
@@ -1892,7 +1918,7 @@ export class PaymentsService {
             result.amountKobo <= 0n ||
             !result.gatewayTransactionId.trim()))
       ) {
-        await this.holdUnallocatableProviderResult(
+        await holdUnallocatableProviderResult(
           tx,
           attempt,
           result,
@@ -1900,6 +1926,14 @@ export class PaymentsService {
             ? "REUSED_PROVIDER_TRANSACTION"
             : "UNALLOCATABLE_PROVIDER_RESULT",
         );
+      } else if (result.status === "reversed") {
+        // Reversal alone does not identify an approved refund or its amount.
+        // Retain the observation and block allocation; never invent ledger money.
+        await holdUnallocatableProviderResult(tx, attempt, result);
+        await tx.paymentAttempt.update({
+          where: { id: attemptId },
+          data: { gatewayStatus: "reversed" },
+        });
       } else if (result.status !== "success") {
         await tx.paymentAttempt.updateMany({
           where: { id: attemptId, status: { not: "SUCCESSFUL" } },
@@ -2307,81 +2341,6 @@ export class PaymentsService {
       },
       update: {},
     });
-  }
-
-  private async holdUnallocatableProviderResult(
-    tx: Prisma.TransactionClient,
-    attempt: { id: string; paymentId: string; redactedGatewayData: Prisma.JsonValue },
-    result: VerifiedPayment,
-    reason:
-      | "REUSED_PROVIDER_TRANSACTION"
-      | "UNALLOCATABLE_PROVIDER_RESULT" = "UNALLOCATABLE_PROVIDER_RESULT",
-  ) {
-    await this.recordConflictingProviderFacts(tx, attempt, result, reason);
-    if (hasVerificationHold(attempt.redactedGatewayData)) return;
-    const metadata =
-      attempt.redactedGatewayData !== null &&
-      typeof attempt.redactedGatewayData === "object" &&
-      !Array.isArray(attempt.redactedGatewayData)
-        ? attempt.redactedGatewayData
-        : {};
-    await tx.paymentAttempt.update({
-      where: { id: attempt.id },
-      data: {
-        status: "PROCESSING",
-        redactedGatewayData: { ...metadata, verificationHold: true },
-      },
-    });
-    await tx.payment.updateMany({
-      where: { id: attempt.paymentId, status: { not: "SUCCEEDED" } },
-      data: { status: "REQUIRES_REVIEW", cancelledAt: null, expiredAt: null },
-    });
-  }
-
-  private async recordConflictingProviderFacts(
-    tx: Prisma.TransactionClient,
-    attempt: { id: string; paymentId: string },
-    result: VerifiedPayment,
-    reason:
-      | "CONFLICTING_PROVIDER_FACTS"
-      | "REUSED_PROVIDER_TRANSACTION"
-      | "UNALLOCATABLE_PROVIDER_RESULT" = "CONFLICTING_PROVIDER_FACTS",
-  ) {
-    const observed = {
-      reference: result.reference,
-      gatewayTransactionId: result.gatewayTransactionId,
-      status: result.status,
-      amountKobo: result.amountKobo.toString(),
-      currency: result.currency,
-    };
-    const fingerprint = createHash("sha256")
-      .update(JSON.stringify({ reason, observed }))
-      .digest("hex");
-    // The attempt row is locked by the caller; concurrent redeliveries cannot
-    // create duplicate observations. No immutable capture fact is updated.
-    const recorded = await tx.paymentAnomaly.findFirst({
-      where: {
-        paymentAttemptId: attempt.id,
-        type: "OTHER",
-        details: { path: ["observationFingerprint"], equals: fingerprint },
-      },
-      select: { id: true },
-    });
-    if (!recorded)
-      await tx.paymentAnomaly.create({
-        data: {
-          paymentId: attempt.paymentId,
-          paymentAttemptId: attempt.id,
-          type: "OTHER",
-          summary:
-            reason === "REUSED_PROVIDER_TRANSACTION"
-              ? "Additional credit blocked: provider transaction identity was already confirmed for another attempt"
-              : reason === "CONFLICTING_PROVIDER_FACTS"
-                ? "Provider verification conflicts with previously recorded successful payment facts"
-                : "Provider verification requires manual reconciliation before funds can be allocated",
-          details: { reason, observationFingerprint: fingerprint, observed },
-        },
-      });
   }
 
   private async hasSurplusTargetCapture(

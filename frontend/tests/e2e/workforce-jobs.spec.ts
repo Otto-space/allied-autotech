@@ -300,3 +300,50 @@ test("temporary assignment expiry removes the jobs queue without interaction", a
   ).toBeVisible();
   await expect(rows(page)).toHaveCount(0);
 });
+
+for (const width of [390, 1440])
+  test(`concern-only workforce job opens from queue at ${width}px`, async ({
+    page,
+  }, testInfo) => {
+    await page.setViewportSize({ width, height: 1000 });
+    const errors: string[] = [];
+    page.on("pageerror", (e) => errors.push(e.message));
+    page.on("console", (message) => {
+      if (message.type() === "error") errors.push(message.text());
+    });
+    const state = await workforceJobsFixture(page, true),
+      job = state.jobs[0];
+    job.service = null;
+    job.customerConcern = "Engine rattles when starting from cold.";
+    job.status = "REQUESTED";
+    job.workOrder = null;
+    await page.goto(root);
+    await expect(rows(page)).toHaveCount(25);
+    await expect(rows(page).first()).toContainText("Vehicle concern");
+    await rows(page)
+      .first()
+      .getByRole("link", {
+        name: "Open Work order pending — Vehicle concern",
+        exact: true,
+      })
+      .click();
+    await expect(page).toHaveURL(new RegExp(`/admin/workforce/jobs/${job.id}`));
+    await expect(page.getByText(job.customerConcern, { exact: true })).toBeVisible();
+    await expect(
+      page.getByText("Synthetic customer note", { exact: true }),
+    ).toBeVisible();
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+    expect(
+      (await new AxeBuilder({ page }).include(".workforce-job-detail").analyze())
+        .violations,
+    ).toEqual([]);
+    await page.screenshot({
+      path: testInfo.outputPath(`concern-workforce-${width}.png`),
+      fullPage: true,
+    });
+    await page.reload();
+    await expect(page.getByText(job.customerConcern, { exact: true })).toBeVisible();
+    expect(errors).toEqual([]);
+  });

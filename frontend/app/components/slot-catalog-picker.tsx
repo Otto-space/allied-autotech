@@ -27,23 +27,25 @@ export function SlotCatalogPicker({
   onAvailabilityChange,
   draftContext = false,
   branchId,
+  serviceMode = "slot",
 }: {
   kind: "branch" | "service";
   id: string;
   value: string;
-  onChange: (value: string, label: string) => void;
+  onChange: (value: string, label: string, record?: { id: string; name: string }) => void;
   inputRef?: Ref<HTMLSelectElement>;
   error?: string;
   onAvailabilityChange?: (blocked: boolean) => void;
   draftContext?: boolean;
   branchId?: string;
+  serviceMode?: "slot" | "concern";
 }) {
   const pagination = useCursorPage();
   const [selectedLabel, setSelectedLabel] = useState("Selected record");
   const choices = useResource(
     kind === "branch" && branchId
       ? `/public/branches/${branchId}`
-      : `${kind === "branch" ? "/public/branches?" : "/public/services?pricingType=FIXED&"}limit=50${pagination.cursor ? `&cursor=${pagination.cursor}` : ""}`,
+      : `${kind === "branch" ? "/public/branches?" : serviceMode === "concern" ? "/public/services?" : "/public/services?pricingType=FIXED&"}limit=50${pagination.cursor ? `&cursor=${pagination.cursor}` : ""}`,
     kind === "branch" && branchId ? parseBranchChoice : parseChoices,
   );
   const unavailable =
@@ -59,9 +61,10 @@ export function SlotCatalogPicker({
     choices.data?.items.filter(
       (item) =>
         kind === "branch" ||
-        (item.pricingType === "FIXED" &&
-          typeof item.priceKobo === "string" &&
-          item.durationMinutes != null),
+        ((serviceMode === "concern" ||
+          (item.pricingType === "FIXED" && typeof item.priceKobo === "string")) &&
+          item.durationMinutes != null &&
+          item.durationMinutes > 0),
     ) ?? [];
   return (
     <>
@@ -81,6 +84,7 @@ export function SlotCatalogPicker({
           onChange(
             event.target.value,
             event.target.selectedOptions[0]?.textContent ?? "Selected record",
+            visible.find((item) => item.id === event.target.value),
           );
         }}
       >

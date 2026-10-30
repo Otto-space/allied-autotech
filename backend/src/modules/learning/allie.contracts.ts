@@ -3,7 +3,15 @@ import type { learningCatalogue } from "./learning.service.js";
 
 // Internal server boundary. No request handler accepts a catalogue, history,
 // access key or source text from a browser. The server conversation store owns these.
-export type AllieCatalogue = ReturnType<typeof learningCatalogue>;
+export type AllieKnowledge = ReturnType<typeof learningCatalogue>["articles"][number] & {
+  permission: "public";
+  contentHash: string;
+  refreshedAt: string;
+};
+export type AllieCatalogue = ReturnType<typeof learningCatalogue> & {
+  knowledgeRevision?: string;
+  knowledge?: AllieKnowledge[];
+};
 export const alliePageSchema = z.enum([
   "home",
   "parts",

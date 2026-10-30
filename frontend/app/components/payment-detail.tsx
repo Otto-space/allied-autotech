@@ -23,7 +23,7 @@ import {
 import { useResource } from "@/lib/api/use-resource";
 import {
   parsePayment,
-  paymentMessages,
+  paymentMessage,
   type PaymentRecord,
 } from "@/lib/api/payment-schemas";
 import {
@@ -151,6 +151,7 @@ export function PaymentDetail({ paymentId }: { paymentId: string }) {
           providerAttempt !== provider ||
           !keys.current.has(provider) ||
           current.status !== "REQUIRES_PAYMENT" ||
+          current.reversalReported ||
           !!paymentDeadlineUnavailable(current)
         : uncertain || !!newPaymentAttemptUnavailable(current)
     )
@@ -250,7 +251,7 @@ export function PaymentDetail({ paymentId }: { paymentId: string }) {
         )
       )
         throw new Error("Unexpected verification receipt");
-      setMessage(paymentMessages[verified.status]);
+      setMessage(paymentMessage(verified));
       payment.refresh();
     } catch (value) {
       if (live(controller))
@@ -311,7 +312,10 @@ export function PaymentDetail({ paymentId }: { paymentId: string }) {
       {current && (
         <div className="payment-layout" data-compact={!!unavailable || uncertain}>
           <div className="payment-overview">
-            <WorkflowProgress workflow="payment" status={current.status} />
+            <WorkflowProgress
+              workflow="payment"
+              status={current.reversalReported ? "REQUIRES_REVIEW" : current.status}
+            />
             <section
               className="payment-summary"
               aria-labelledby="payment-reference-title"
@@ -332,23 +336,32 @@ export function PaymentDetail({ paymentId }: { paymentId: string }) {
               <div className="payment-amount">
                 <span>
                   {current.status === "SUCCEEDED"
-                    ? "Confirmed amount"
+                    ? current.reversalReported
+                      ? "Originally confirmed amount"
+                      : "Confirmed amount"
                     : "Requested amount"}
                 </span>
                 <strong>{formatKobo(current.amountKobo)}</strong>
                 <span>{purposeLabels[current.purpose] ?? readable(current.purpose)}</span>
               </div>
               <div className="payment-state">
-                {current.status === "SUCCEEDED" ? (
+                {current.status === "SUCCEEDED" && !current.reversalReported ? (
                   <Check size={20} aria-hidden="true" />
                 ) : (
                   <Clock3 size={20} aria-hidden="true" />
                 )}
-                <span className="status" data-status={current.status}>
-                  {statusLabels[current.status]}
+                <span
+                  className="status"
+                  data-status={
+                    current.reversalReported ? "REQUIRES_REVIEW" : current.status
+                  }
+                >
+                  {current.reversalReported
+                    ? "Reversal reported"
+                    : statusLabels[current.status]}
                 </span>
               </div>
-              <p className="payment-status-message">{paymentMessages[current.status]}</p>
+              <p className="payment-status-message">{paymentMessage(current)}</p>
               {current.expiresAt !== null && (
                 <div className="payment-deadline">
                   <span>
@@ -481,14 +494,17 @@ export function PaymentDetail({ paymentId }: { paymentId: string }) {
                 <div className="payment-section-heading">
                   <ShieldCheck size={22} aria-hidden="true" />
                   <h2 id="payment-outcome-title">
-                    {current.status === "SUCCEEDED"
-                      ? "Payment confirmed"
-                      : "Review your payment status"}
+                    {current.reversalReported
+                      ? "Review the reported reversal"
+                      : current.status === "SUCCEEDED"
+                        ? "Payment confirmed"
+                        : "Review your payment status"}
                   </h2>
                 </div>
                 <p>
-                  Use the related record to check fulfilment, or contact customer care if
-                  you need help.
+                  {current.reversalReported
+                    ? paymentMessage(current)
+                    : "Use the related record to check fulfilment, or contact customer care if you need help."}
                 </p>
               </section>
             )}
@@ -516,7 +532,9 @@ export function PaymentDetail({ paymentId }: { paymentId: string }) {
               </h2>
             </div>
             <p className="payment-attempts-caption">
-              Recorded attempts for this payment reference.
+              {current.reversalReported
+                ? "Historical attempts for this payment reference. A later reversal was reported; the recorded capture does not confirm the refund outcome."
+                : "Recorded attempts for this payment reference."}
             </p>
             {current.attempts.length ? (
               <div className="payment-attempt-list">

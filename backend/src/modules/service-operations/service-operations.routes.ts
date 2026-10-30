@@ -1,3 +1,7 @@
+import {
+  bookingAlternativeBodySchema,
+  bookingAlternativeResponseBodySchema,
+} from "./service-operations.schemas.js";
 import { Router } from "express";
 
 import { publicRouterPaths } from "../../common/contracts/public-api.js";
@@ -104,6 +108,16 @@ export function createCustomerServiceOperationsRouter(): Router {
     validate({ params: bookingParamsSchema, query: serviceOperationsEmptyQuerySchema }),
     controller.customerBooking,
   );
+  router.post(
+    "/bookings/:bookingId/alternative-response",
+    requireCsrf,
+    validate({
+      params: bookingParamsSchema,
+      body: bookingAlternativeResponseBodySchema,
+      query: serviceOperationsEmptyQuerySchema,
+    }),
+    controller.respondToBookingAlternative,
+  );
   router.patch(
     "/bookings/:bookingId/schedule",
     requireCsrf,
@@ -198,6 +212,16 @@ export function createStaffServiceOperationsRouter(): Router {
     "/bookings/:bookingId",
     validate({ params: bookingParamsSchema, query: serviceOperationsEmptyQuerySchema }),
     controller.staffBooking,
+  );
+  router.post(
+    "/bookings/:bookingId/alternative",
+    requireCsrf,
+    validate({
+      params: bookingParamsSchema,
+      body: bookingAlternativeBodySchema,
+      query: serviceOperationsEmptyQuerySchema,
+    }),
+    controller.proposeBookingAlternative,
   );
   router.patch(
     "/bookings/:bookingId/assignment",

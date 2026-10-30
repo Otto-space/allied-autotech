@@ -1,5 +1,6 @@
 import { z } from "zod";
 export const publicServiceCategorySchema = z.object({
+  description: z.string().max(2000).nullable().optional(),
   id: z.uuid(),
   name: z.string().max(120),
   slug: z.string().max(120),

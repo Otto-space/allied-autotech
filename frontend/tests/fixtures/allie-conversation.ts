@@ -46,6 +46,7 @@ export async function allieConversationFixture(
       historyReset: false,
       pending: null as { operationId: string; state: string } | null,
     },
+    answerOverride: null as object | null,
     created: false,
     hold: false,
     unknown: false,
@@ -94,6 +95,8 @@ export async function allieConversationFixture(
     if (endpoint === "/auth/csrf")
       return ok({ csrfToken: "synthetic-allie-csrf-".repeat(3) });
     if (/^\/(?:public\/)?learning\/catalogue$/.test(endpoint)) return ok(state.data);
+    if (endpoint === "/public/branches")
+      return ok({ items: [{ id, code: "TEST", name: "Isolated test workshop" }] });
     if (endpoint.includes("/notifications/summary"))
       return ok({ unreadCount: 0, groups: [], destinations: [] });
     const prefix =
@@ -152,7 +155,7 @@ export async function allieConversationFixture(
         state.conversation.messages.push({
           operationId: String(body.operationId),
           question: String(body.question),
-          answer: {
+          answer: state.answerOverride ?? {
             kind: "answer",
             answer:
               "A name match does not confirm compatibility. Check the evidence for your vehicle.",

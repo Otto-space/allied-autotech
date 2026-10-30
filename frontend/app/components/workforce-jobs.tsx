@@ -213,7 +213,7 @@ export function WorkforceJobs({
                       <Link className="wfj-job-link" href={href} prefetch={false}>
                         {title}
                       </Link>
-                      <small>{job.service.name}</small>
+                      <small>{job.service?.name ?? "Vehicle concern"}</small>
                     </th>
                     <td data-label="Vehicle">
                       {job.vehicle ? (
@@ -254,7 +254,7 @@ export function WorkforceJobs({
                       <Link
                         href={href}
                         prefetch={false}
-                        aria-label={`Open ${title} — ${job.service.name}`}
+                        aria-label={`Open ${title} — ${job.service?.name ?? "Vehicle concern"}`}
                       >
                         <ChevronRight size={20} aria-hidden="true" />
                       </Link>

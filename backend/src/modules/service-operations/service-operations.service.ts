@@ -1,3 +1,7 @@
+import type {
+  BookingAlternativeInput,
+  BookingAlternativeResponseInput,
+} from "./service-operations.schemas.js";
 import { basisPoints } from "../policies/policy-money.js";
 import {
   approvedPolicy,
@@ -161,6 +165,13 @@ function bookingFingerprint(input: BookingCreateInput): string {
     .update(
       JSON.stringify({
         slotId: input.slotId,
+        ...(input.slotId === undefined
+          ? {
+              serviceId: input.serviceId,
+              branchId: input.branchId,
+              preferredAt: input.preferredAt,
+            }
+          : {}),
         vehicleId: input.vehicleId ?? null,
         customerNotes: input.customerNotes ?? null,
         policyVersion: input.policyVersion,
@@ -573,29 +584,89 @@ export class ServiceOperationsService {
         requestHash,
         transaction,
       );
-      await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`booking-slot:${input.slotId}`}, 0))`;
-      const slot = await this.repository.lockBookingSlot(input.slotId, transaction);
-      if (
-        slot === null ||
-        slot.status !== "OPEN" ||
-        slot.branch.isActive !== true ||
-        slot.service.isActive !== true ||
-        slot.service.pricingType !== "FIXED" ||
-        slot.service.priceKobo === null ||
-        slot.service.durationMinutes === null
-      )
-        throw serviceOperationNotFound();
-      assertWithinBookingWindow(slot.startsAt);
-      if (
-        await transaction.booking.findFirst({
-          where: {
-            bookingSlotId: slot.id,
-            status: { in: ["REQUESTED", "AWAITING_DEPOSIT", "CONFIRMED", "IN_PROGRESS"] },
+      let slot: {
+        id: string | null;
+        branchId: string;
+        serviceId: string | null;
+        staffId: string | null;
+        startsAt: Date;
+        endsAt: Date | null;
+        service: { priceKobo: bigint | null };
+      };
+      if (input.slotId !== undefined) {
+        await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`booking-slot:${input.slotId}`}, 0))`;
+        const offered = await this.repository.lockBookingSlot(input.slotId, transaction);
+        if (
+          offered === null ||
+          offered.status !== "OPEN" ||
+          offered.branch.isActive !== true ||
+          offered.service.isActive !== true ||
+          offered.service.pricingType !== "FIXED" ||
+          offered.service.priceKobo === null ||
+          offered.service?.durationMinutes == null
+        )
+          throw serviceOperationNotFound();
+        assertWithinBookingWindow(offered.startsAt);
+        if (
+          await transaction.booking.findFirst({
+            where: {
+              bookingSlotId: offered.id,
+              status: {
+                in: ["REQUESTED", "AWAITING_DEPOSIT", "CONFIRMED", "IN_PROGRESS"],
+              },
+            },
+            select: { id: true },
+          })
+        )
+          throw scheduleConflict();
+
+        slot = offered;
+      } else {
+        if (
+          (!input.serviceId && !input.customerConcern) ||
+          !input.branchId ||
+          !input.preferredAt
+        )
+          throw serviceOperationConflict(
+            "Choose a service or describe a concern, with a branch and preferred time",
+          );
+        // Lock canonical records against withdrawal while the request is saved.
+        if (input.serviceId)
+          await transaction.$queryRaw`SELECT "id" FROM "Service" WHERE "id" = ${input.serviceId}::uuid FOR SHARE`;
+        await transaction.$queryRaw`SELECT "id" FROM "Branch" WHERE "id" = ${input.branchId}::uuid FOR SHARE`;
+        const service = input.serviceId
+          ? await transaction.service.findFirst({
+              where: { id: input.serviceId, isActive: true },
+              select: {
+                id: true,
+                priceKobo: true,
+                pricingType: true,
+                durationMinutes: true,
+                currency: true,
+              },
+            })
+          : null;
+        const branch = await this.repository.branch(input.branchId, transaction);
+        if (!branch || (input.serviceId && (!service || service.currency !== "NGN")))
+          throw serviceOperationNotFound();
+        const startsAt = new Date(input.preferredAt);
+        assertWithinBookingWindow(startsAt);
+        // This is a preference, never an invented available slot or assignment.
+        slot = {
+          id: null,
+          branchId: branch.id,
+          serviceId: service?.id ?? null,
+          staffId: null,
+          startsAt,
+          endsAt:
+            service?.durationMinutes == null
+              ? null
+              : new Date(startsAt.getTime() + service.durationMinutes * 60_000),
+          service: {
+            priceKobo: service?.pricingType === "FIXED" ? service.priceKobo : null,
           },
-          select: { id: true },
-        })
-      )
-        throw scheduleConflict();
+        };
+      }
       if (
         input.vehicleId !== undefined &&
         (await this.repository.ownedVehicle(profile.id, input.vehicleId, transaction)) ===
@@ -604,13 +675,26 @@ export class ServiceOperationsService {
         throw serviceOperationNotFound();
       await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`customer-schedule:${profile.id}`}, 0))`;
       if (
-        await this.repository.hasCustomerScheduleConflict(
+        slot.endsAt !== null &&
+        (await this.repository.hasCustomerScheduleConflict(
           profile.id,
           slot.startsAt,
           slot.endsAt,
           null,
           transaction,
-        )
+        ))
+      )
+        throw scheduleConflict();
+      if (
+        slot.endsAt === null &&
+        (await transaction.booking.findFirst({
+          where: {
+            customerId: profile.id,
+            scheduledAt: slot.startsAt,
+            status: { in: [...activeBookingStatuses] },
+          },
+          select: { id: true },
+        }))
       )
         throw scheduleConflict();
       const now = new Date();
@@ -624,6 +708,7 @@ export class ServiceOperationsService {
           bookingSlotId: slot.id,
           scheduledAt: slot.startsAt,
           status: "REQUESTED",
+          customerConcern: input.customerConcern ?? null,
           quotedPriceKobo: slot.service.priceKobo,
           currency: "NGN",
           requestedAt: now,
@@ -643,7 +728,7 @@ export class ServiceOperationsService {
         category: "TRANSACTIONAL",
         title: "Booking request received",
         message:
-          "Your appointment request is awaiting staff confirmation and resource review. No booking deposit is required. Cancellation is free.",
+          "Your booking request is saved. Your preferred time is not confirmed yet. Our team will review it. No booking deposit is required. Cancellation is free.",
         resourceType: "BOOKING",
         resourceId: booking.id,
         deduplicationKey: `booking:${booking.id}:requested`,
@@ -668,6 +753,227 @@ export class ServiceOperationsService {
       const result = await this.repository.customerBooking(booking.id, transaction);
       if (result === null) throw serviceOperationNotFound();
       return jsonSafe({ booking: customerSafeBooking(result), replayed: false });
+    });
+  }
+
+  async proposeBookingAlternative(
+    actor: AuthenticatedActor,
+    id: string,
+    input: BookingAlternativeInput,
+    context: RequestSecurityContext,
+  ) {
+    assertPrivilegedActor(actor);
+    return this.database.$transaction(async (tx) => {
+      const booking = await this.lockAuthorizedStaffBooking(actor, id, tx, false);
+      return this.proposeLockedAlternative(tx, actor, booking, input, context);
+    });
+  }
+
+  async proposeWorkforceBookingAlternative(
+    actor: AuthenticatedActor,
+    id: string,
+    input: BookingAlternativeInput,
+    context: RequestSecurityContext,
+  ) {
+    assertPrivilegedActor(actor);
+    return this.database.$transaction(async (tx) => {
+      await lockWorkforce(tx);
+      await lockAccessActor(tx, actor);
+      const permitted = async () => {
+        const access = await workforceSnapshot(tx, actor);
+        if (
+          !access.managed ||
+          !access.independentCapabilities.includes("BOOKING_CONFIRM")
+        )
+          workforceDenied();
+        return tx.booking.findFirst({
+          where: { AND: [{ id }, bookingScope(access, "BOOKINGS_READ")] },
+          select: { id: true },
+        });
+      };
+      if (!(await permitted())) workforceNotFound();
+      const booking = await this.repository.lockBooking(id, tx);
+      if (!booking || !(await permitted())) workforceNotFound();
+      await this.proposeLockedAlternative(tx, actor, booking, input, context);
+      // Expiry during lock waits invalidates the whole transactional mutation,
+      // including the customer notification and audit record.
+      if (!(await permitted())) workforceNotFound();
+      const receipt = await tx.booking.findUniqueOrThrow({
+        where: { id },
+        select: {
+          id: true,
+          branchId: true,
+          status: true,
+          version: true,
+          scheduledAt: true,
+          alternativeStartsAt: true,
+          alternativeReason: true,
+          alternativeVersion: true,
+        },
+      });
+      return { ...receipt, performedByUserId: actor.userId };
+    });
+  }
+
+  private async proposeLockedAlternative(
+    tx: Prisma.TransactionClient,
+    actor: AuthenticatedActor,
+    booking: NonNullable<Awaited<ReturnType<ServiceOperationsRepository["lockBooking"]>>>,
+    input: BookingAlternativeInput,
+    context: RequestSecurityContext,
+  ) {
+    const id = booking.id;
+    await assertCapability(tx, actor, "BOOKING_CONFIRM");
+    if (!["REQUESTED", "CONFIRMED"].includes(booking.status) || !booking.branchId)
+      throw invalidServiceTransition();
+    const startsAt = new Date(input.preferredAt);
+    assertWithinBookingWindow(startsAt);
+    if (startsAt.getTime() === booking.scheduledAt.getTime())
+      throw serviceOperationConflict("Choose a different appointment time");
+    if (!(await this.repository.branch(booking.branchId, tx)))
+      throw serviceOperationNotFound();
+    const changed = await this.repository.updateBooking(
+      id,
+      input.expectedVersion,
+      {
+        alternativeStartsAt: startsAt,
+        alternativeReason: input.reason,
+        alternativeVersion: input.expectedVersion + 1,
+      },
+      tx,
+    );
+    if (changed.count !== 1) throw staleServiceOperation();
+    const updated = await this.repository.customerBooking(id, tx);
+    if (!updated) throw serviceOperationNotFound();
+    const customer = await tx.customerProfile.findUniqueOrThrow({
+      where: { id: booking.customerId },
+      select: { userId: true },
+    });
+    await enqueueNotification(tx, {
+      userId: customer.userId,
+      type: "BOOKING",
+      category: "TRANSACTIONAL",
+      title: "Review a proposed appointment time",
+      message:
+        "The workshop has suggested another time. Review it in your booking. Your existing appointment has not changed; the proposal does not reserve capacity.",
+      resourceType: "BOOKING",
+      resourceId: id,
+      deduplicationKey: `booking:${id}:alternative:${updated.version}`,
+      channels: ["EMAIL"],
+    });
+    await this.auditBooking(tx, actor, booking, updated, context);
+    return jsonSafe(customerSafeBooking(updated));
+  }
+
+  async respondToBookingAlternative(
+    actor: AuthenticatedActor,
+    id: string,
+    input: BookingAlternativeResponseInput,
+    context: RequestSecurityContext,
+  ) {
+    assertCustomerActor(actor);
+    return this.database.$transaction(async (tx) => {
+      const booking = await this.lockOwnedCustomerBooking(actor.userId, id, tx);
+      if (
+        booking.version !== input.expectedVersion ||
+        booking.alternativeVersion !== booking.version
+      )
+        throw staleServiceOperation();
+      if (
+        !["REQUESTED", "CONFIRMED"].includes(booking.status) ||
+        !booking.alternativeStartsAt ||
+        !booking.branchId
+      )
+        throw invalidServiceTransition();
+      const startsAt = booking.alternativeStartsAt;
+      if (input.decision === "ACCEPT") {
+        assertWithinBookingWindow(startsAt);
+        await tx.$queryRaw`SELECT "id" FROM "Branch" WHERE "id" = ${booking.branchId}::uuid FOR SHARE`;
+        if (!(await this.repository.branch(booking.branchId, tx)))
+          throw serviceOperationNotFound();
+        let duration: number | null = null;
+        if (booking.serviceId) {
+          await tx.$queryRaw`SELECT "id" FROM "Service" WHERE "id" = ${booking.serviceId}::uuid FOR SHARE`;
+          const service = await this.repository.service(booking.serviceId, true, tx);
+          if (!service) throw serviceOperationNotFound();
+          duration = service.durationMinutes;
+        }
+        await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`customer-schedule:${booking.customerId}`}, 0))`;
+        if (
+          duration !== null &&
+          (await this.repository.hasCustomerScheduleConflict(
+            booking.customerId,
+            startsAt,
+            new Date(startsAt.getTime() + duration * 60000),
+            id,
+            tx,
+          ))
+        )
+          throw scheduleConflict();
+        if (
+          duration === null &&
+          (await tx.booking.findFirst({
+            where: {
+              customerId: booking.customerId,
+              id: { not: id },
+              scheduledAt: startsAt,
+              status: { in: [...activeBookingStatuses] },
+            },
+            select: { id: true },
+          }))
+        )
+          throw scheduleConflict();
+      }
+      const changed = await this.repository.updateBooking(
+        id,
+        input.expectedVersion,
+        {
+          alternativeStartsAt: null,
+          alternativeReason: null,
+          alternativeVersion: null,
+          ...(input.decision === "ACCEPT"
+            ? {
+                scheduledAt: startsAt,
+                status: "REQUESTED",
+                bookingSlotId: null,
+                assignedStaffId: null,
+                confirmedAt: null,
+                attendanceConfirmedAt: null,
+                requestedAt: new Date(),
+                capacityPolicyVersionId: null,
+                resourceReviewNote: null,
+                scheduleVersion: { increment: 1 },
+                ...(booking.disruptionResolution === "PENDING"
+                  ? { disruptionResolution: "TRANSFERRED" as const }
+                  : {}),
+              }
+            : {}),
+        },
+        tx,
+      );
+      if (changed.count !== 1) throw staleServiceOperation();
+      if (input.decision === "ACCEPT") await cancelPendingReminders(tx, id);
+      const updated = await this.repository.customerBooking(id, tx);
+      if (!updated) throw serviceOperationNotFound();
+      await enqueueNotification(tx, {
+        userId: actor.userId,
+        type: "BOOKING",
+        category: "TRANSACTIONAL",
+        title:
+          input.decision === "ACCEPT"
+            ? "Alternative time requested"
+            : "Alternative time declined",
+        message:
+          input.decision === "ACCEPT"
+            ? "Your chosen alternative now awaits staff confirmation. This workshop-proposed change does not use your customer reschedule allowance or charge a fee."
+            : "You declined the proposed time. Your existing booking time and status are unchanged.",
+        resourceType: "BOOKING",
+        resourceId: id,
+        deduplicationKey: `booking:${id}:alternative-response:${updated.version}`,
+        channels: ["EMAIL"],
+      });
+      await this.auditBooking(tx, actor, booking, updated, context);
+      return jsonSafe(customerSafeBooking(updated));
     });
   }
 
@@ -696,7 +1002,6 @@ export class ServiceOperationsService {
       const booking = await this.lockOwnedCustomerBooking(actor.userId, id, transaction);
       if (
         booking.status !== "CONFIRMED" ||
-        booking.bookingSlotId === null ||
         booking.customerRescheduleCount >= bookingPolicy.customerRescheduleLimit ||
         booking.scheduledAt.getTime() - Date.now() <
           bookingPolicy.customerRescheduleCutoffHours * 3_600_000
@@ -711,29 +1016,90 @@ export class ServiceOperationsService {
         requestHash,
         transaction,
       );
-      const slotIds = [booking.bookingSlotId, input.slotId].sort();
+      const slotIds = [booking.bookingSlotId, input.slotId]
+        .filter((id): id is string => typeof id === "string")
+        .sort();
       for (const slotId of slotIds) {
         await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`booking-slot:${slotId}`}, 0))`;
         await transaction.$queryRaw`SELECT "id" FROM "BookingSlot" WHERE "id" = ${slotId}::uuid FOR UPDATE`;
       }
-      const replacement = await this.repository.bookingSlot(input.slotId, transaction);
-      if (
-        replacement === null ||
-        replacement.status !== "OPEN" ||
-        replacement.serviceId !== booking.serviceId ||
-        replacement.branch.isActive !== true
-      )
-        throw serviceOperationNotFound();
+      let replacement: {
+        id: string | null;
+        branchId: string;
+        staffId: string | null;
+        startsAt: Date;
+        endsAt: Date | null;
+      };
+      if (input.slotId) {
+        const offered = await this.repository.bookingSlot(input.slotId, transaction);
+        if (
+          !offered ||
+          offered.status !== "OPEN" ||
+          offered.serviceId !== booking.serviceId ||
+          !offered.branch.isActive
+        )
+          throw serviceOperationNotFound();
+        if (
+          await transaction.booking.findFirst({
+            where: {
+              bookingSlotId: offered.id,
+              id: { not: booking.id },
+              status: { in: [...activeBookingStatuses] },
+            },
+            select: { id: true },
+          })
+        )
+          throw scheduleConflict();
+        replacement = offered;
+      } else {
+        if (!input.preferredAt || !booking.branchId || !booking.serviceId)
+          throw invalidServiceTransition();
+        await transaction.$queryRaw`SELECT "id" FROM "Service" WHERE "id" = ${booking.serviceId}::uuid FOR SHARE`;
+        await transaction.$queryRaw`SELECT "id" FROM "Branch" WHERE "id" = ${booking.branchId}::uuid FOR SHARE`;
+        const service = await transaction.service.findFirst({
+          where: { id: booking.serviceId, isActive: true },
+          select: { durationMinutes: true },
+        });
+        if (!service || !(await this.repository.branch(booking.branchId, transaction)))
+          throw serviceOperationNotFound();
+        const startsAt = new Date(input.preferredAt);
+        if (startsAt.getTime() === booking.scheduledAt.getTime())
+          throw serviceOperationConflict("Choose a different preferred time");
+        replacement = {
+          id: null,
+          branchId: booking.branchId,
+          staffId: null,
+          startsAt,
+          endsAt:
+            service.durationMinutes === null
+              ? null
+              : new Date(startsAt.getTime() + service.durationMinutes * 60_000),
+        };
+      }
       assertWithinBookingWindow(replacement.startsAt);
       await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`customer-schedule:${booking.customerId}`}, 0))`;
       if (
-        await this.repository.hasCustomerScheduleConflict(
+        replacement.endsAt !== null &&
+        (await this.repository.hasCustomerScheduleConflict(
           booking.customerId,
           replacement.startsAt,
           replacement.endsAt,
           booking.id,
           transaction,
-        )
+        ))
+      )
+        throw scheduleConflict();
+      if (
+        replacement.endsAt === null &&
+        (await transaction.booking.findFirst({
+          where: {
+            customerId: booking.customerId,
+            id: { not: booking.id },
+            scheduledAt: replacement.startsAt,
+            status: { in: [...activeBookingStatuses] },
+          },
+          select: { id: true },
+        }))
       )
         throw scheduleConflict();
       const result = await this.repository.updateBooking(
@@ -902,7 +1268,21 @@ export class ServiceOperationsService {
       const actorProfile = await this.repository.staffProfile(actor.userId, transaction);
       if (actor.role === "STAFF" && actorProfile?.id !== target.id)
         throw serviceOperationForbidden();
-      const duration = booking.service.durationMinutes;
+      let service = booking.service;
+      if (input.serviceId && booking.serviceId && input.serviceId !== booking.serviceId)
+        throw serviceOperationConflict(
+          "The selected service cannot be changed during assignment",
+        );
+      if (!service) {
+        if (!input.serviceId)
+          throw serviceOperationConflict(
+            "Choose the service for this concern before assignment",
+          );
+        await transaction.$queryRaw`SELECT "id" FROM "Service" WHERE "id" = ${input.serviceId}::uuid FOR SHARE`;
+        service = await this.repository.service(input.serviceId, true, transaction);
+        if (!service || service.currency !== "NGN") throw serviceOperationNotFound();
+      }
+      const duration = service.durationMinutes;
       if (duration === null)
         throw serviceOperationConflict(
           "Service duration must be configured before assignment",
@@ -921,7 +1301,16 @@ export class ServiceOperationsService {
       const result = await this.repository.updateBooking(
         id,
         input.expectedVersion,
-        { assignedStaffId: target.id },
+        {
+          assignedStaffId: target.id,
+          ...(booking.serviceId === null
+            ? {
+                serviceId: service.id,
+                quotedPriceKobo:
+                  service.pricingType === "FIXED" ? service.priceKobo : null,
+              }
+            : {}),
+        },
         transaction,
       );
       if (result.count !== 1) throw staleServiceOperation();
@@ -1054,7 +1443,15 @@ export class ServiceOperationsService {
       throw invalidServiceTransition();
     if (input.status === "CONFIRMED") {
       await assertCapability(transaction, actor, "BOOKING_CONFIRM");
-      await assertBookingCapacity(transaction, booking, input.resourceReviewNote);
+      if (!booking.service)
+        throw serviceOperationConflict(
+          "Choose the service for this concern before confirmation",
+        );
+      await assertBookingCapacity(
+        transaction,
+        { ...booking, service: booking.service },
+        input.resourceReviewNote,
+      );
 
       if (booking.assignedStaffId === null || booking.service.durationMinutes === null)
         throw serviceOperationConflict(

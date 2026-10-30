@@ -120,3 +120,9 @@ describe("payment checkout boundaries", () => {
     },
   );
 });
+
+it("blocks a new checkout after a reversal report even if a stale status is payable", () => {
+  expect(
+    newPaymentAttemptUnavailable({ ...payment, reversalReported: true }, now),
+  ).toContain("reversal");
+});

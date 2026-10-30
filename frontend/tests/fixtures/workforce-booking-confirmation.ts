@@ -44,6 +44,9 @@ export async function workforceBookingConfirmationFixture(
       version: 0,
       scheduledAt: "2040-01-02T09:00:00.000Z",
       confirmedAt: null as string | null,
+      alternativeStartsAt: null as string | null,
+      alternativeReason: null as string | null,
+      alternativeVersion: null as number | null,
     },
   };
   const snapshot = () => {
@@ -111,6 +114,23 @@ export async function workforceBookingConfirmationFixture(
           access: snapshot(),
           generatedAt: new Date().toISOString(),
         }),
+      );
+    }
+    if (request.method() === "POST" && pathname.endsWith("/alternative")) {
+      const body = request.postDataJSON();
+      state.writes.push({ body, csrf: request.headers()["x-csrf-token"] });
+      if (body.expectedVersion !== state.booking.version)
+        return route.fulfill({
+          status: 409,
+          json: { success: false, error: { code: "CONFLICT" } },
+        });
+      state.booking.version += 1;
+      state.booking.alternativeVersion = state.booking.version;
+      state.booking.alternativeStartsAt = body.preferredAt;
+      state.booking.alternativeReason = body.reason;
+      if (state.actionMode === "lost") return route.abort("failed");
+      return route.fulfill(
+        ok({ ...state.booking, performedByUserId: base.access.userId }),
       );
     }
     if (

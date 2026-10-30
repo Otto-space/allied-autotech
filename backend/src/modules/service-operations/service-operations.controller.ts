@@ -1,3 +1,7 @@
+import type {
+  BookingAlternativeInput,
+  BookingAlternativeResponseInput,
+} from "./service-operations.schemas.js";
 import type { Request, Response } from "express";
 
 import type { AuthenticatedActor } from "../../common/contracts/actor.js";
@@ -226,6 +230,36 @@ export class ServiceOperationsController {
             ids(res).bookingId,
             validated<BookingDisruptionResolutionInput>(res, "body"),
             idempotencyKey(res),
+            context(req),
+          ),
+        ),
+      );
+  proposeBookingAlternative = async (req: Request, res: Response) =>
+    res
+      .status(200)
+      .json(
+        successResponse(
+          "Alternative appointment proposed",
+          req.id,
+          await this.service.proposeBookingAlternative(
+            actor(req),
+            ids(res).bookingId,
+            validated<BookingAlternativeInput>(res, "body"),
+            context(req),
+          ),
+        ),
+      );
+  respondToBookingAlternative = async (req: Request, res: Response) =>
+    res
+      .status(200)
+      .json(
+        successResponse(
+          "Alternative appointment response saved",
+          req.id,
+          await this.service.respondToBookingAlternative(
+            actor(req),
+            ids(res).bookingId,
+            validated<BookingAlternativeResponseInput>(res, "body"),
             context(req),
           ),
         ),

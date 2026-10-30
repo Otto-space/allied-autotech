@@ -1,3 +1,4 @@
+import { ServiceGroups } from "../components/service-groups";
 import { CatalogueBanner } from "../components/catalogue-banner";
 import { loadPublicSeed } from "@/lib/api/public-seed-server";
 import { parseServiceDiscovery } from "@/lib/api/public-schemas";
@@ -78,15 +79,16 @@ export default async function ServicesPage({
             <span>Review published services and their details.</span>
             <ArrowUpRight size={20} aria-hidden="true" />
           </Link>
-          <Link href="/contact#enquiry">
+          <Link href={browseEnquiriesOnly() ? "/contact#enquiry" : "/services/request"}>
             <strong>Describe a vehicle problem</strong>
             <span>
-              Tell the team what you have noticed. An enquiry does not confirm an
+              Tell the team what you have noticed. A request does not confirm an
               appointment.
             </span>
             <ArrowUpRight size={20} aria-hidden="true" />
           </Link>
         </nav>
+        <ServiceGroups />
         <section
           className="public-wrap services-catalogue"
           id="service-catalogue"

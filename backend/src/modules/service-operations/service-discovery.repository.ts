@@ -135,7 +135,7 @@ export class ServiceDiscoveryRepository {
     const rows = await this.db.serviceCategory.findMany({
       where: {
         ...(publicRead
-          ? { isActive: true, services: { some: { isActive: true } } }
+          ? { isActive: true }
           : query.isActive === undefined
             ? {}
             : { isActive: query.isActive }),
@@ -157,7 +157,14 @@ export class ServiceDiscoveryRepository {
     const items = rows.slice(0, query.limit),
       last = items.at(-1);
     return {
-      items: publicRead ? items.map(({ id, name, slug }) => ({ id, name, slug })) : items,
+      items: publicRead
+        ? items.map(({ id, name, slug, description }) => ({
+            id,
+            name,
+            slug,
+            description,
+          }))
+        : items,
       ...(rows.length > query.limit && last
         ? { nextCursor: encodeCatalogueCursor(binding, { id: last.id, name: last.name }) }
         : {}),
@@ -170,8 +177,8 @@ export class ServiceDiscoveryRepository {
   }
   async publicCategory(id: string) {
     const row = await this.db.serviceCategory.findFirst({
-      where: { id, isActive: true, services: { some: { isActive: true } } },
-      select: { id: true, name: true, slug: true },
+      where: { id, isActive: true },
+      select: { id: true, name: true, slug: true, description: true },
     });
     if (!row) throw serviceOperationNotFound();
     return row;

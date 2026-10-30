@@ -190,7 +190,7 @@ export class BillingRepository {
         id: r.id,
         sourceType: query.sourceType,
         reference: r.id,
-        label: `${r.service.name} · ${r.branch?.name ?? "Unassigned branch"} · ${r.id}`,
+        label: `${r.service?.name ?? "Vehicle concern"} · ${r.branch?.name ?? "Unassigned branch"} · ${r.id}`,
         branch: r.branch,
         createdAt: r.createdAt,
         updatedAt: r.updatedAt,

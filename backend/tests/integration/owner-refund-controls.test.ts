@@ -1,6 +1,14 @@
+import { beforeEach as beforePaymentMode, afterEach as afterPaymentMode } from "vitest";
+import { env } from "../../src/config/env.js";
+const previousPaystackMode = env.PAYSTACK_MODE;
+beforePaymentMode(() => {
+  env.PAYSTACK_MODE = "test";
+});
+afterPaymentMode(() => {
+  env.PAYSTACK_MODE = previousPaystackMode;
+});
 import { randomUUID } from "node:crypto";
 import { afterAll, describe, expect, it, vi } from "vitest";
-import { env } from "../../src/config/env.js";
 import { prisma } from "../../src/config/database.js";
 import type { Prisma } from "../../src/generated/prisma/client.js";
 import { PaymentsService } from "../../src/modules/payments/payments.service.js";
@@ -70,6 +78,7 @@ async function fixture(provider: "PAYSTACK" | "MONNIFY" = "PAYSTACK") {
     },
   });
   const event: PaystackWebhookEvent = {
+    domain: "test",
     eventType: "charge.success",
     providerEventId: randomUUID(),
     resourceId: randomUUID(),

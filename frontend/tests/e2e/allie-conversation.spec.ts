@@ -1,3 +1,4 @@
+import { learningArticles } from "../../../backend/src/modules/learning/learning.content";
 import { test, expect, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import path from "node:path";
@@ -289,3 +290,94 @@ test("disabled AI keeps reviewed search and auth pages have no conversation laun
     state.writes.filter((write) => write.path.includes("/learning/assistant")),
   ).toHaveLength(0);
 });
+
+for (const width of [390, 1440]) {
+  test(`canonical catalogue citations and contact navigation at ${width}px`, async ({
+    page,
+  }, info) => {
+    const state = await allieConversationFixture(page);
+    const seen = observe(page);
+    const business = learningArticles.find((item) => item.id === "business-contact")!;
+    state.data.articles.push(business);
+    const recordId = "b0000000-0000-4000-8000-000000000003";
+    const sources = [
+      {
+        id: "business-contact@v1",
+        articleId: "business-contact",
+        version: 1,
+        title: business.title,
+        href: "/learn?article=business-contact",
+      },
+      ...(
+        [
+          ["service", "services", "Tyre fitting"],
+          ["product", "parts", "Brake pads"],
+          ["vehicle", "vehicles", "Inspection vehicle"],
+        ] as const
+      ).map(([kind, path, title]) => ({
+        id: `${kind}-${recordId}@v1`,
+        articleId: `${kind}-${recordId}`,
+        version: 1,
+        title,
+        href: `/${path}/${recordId}`,
+      })),
+    ];
+    state.answerOverride = {
+      kind: "answer",
+      answer:
+        "Check the published details and disclosed faults. Customer-care hours do not confirm workshop availability.",
+      steps: [],
+      caveat: "Ask the team to confirm anything missing.",
+      sourceIds: sources.map((item) => item.id),
+      actionIds: ["open:business-contact"],
+      sources,
+      actions: [
+        {
+          id: "open:business-contact",
+          kind: "navigate",
+          label: "Open Contact",
+          href: "/contact",
+          sourceId: "business-contact@v1",
+        },
+      ],
+    };
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/help");
+    await expect(page).toHaveTitle(/Help centre/i);
+    const panel = await begin(page);
+    await panel
+      .getByRole("textbox", { name: "Your help question" })
+      .fill("Where can I review these listings and contact the workshop?");
+    await panel.getByRole("button", { name: "Send question" }).click();
+    await expect(
+      panel.getByText(/Customer-care hours do not confirm workshop availability/),
+    ).toBeVisible();
+    for (const source of sources) {
+      await expect(
+        panel.getByRole("link", { name: `${source.title} · v1`, exact: true }),
+      ).toHaveAttribute("href", source.href);
+    }
+    expect(
+      (await new AxeBuilder({ page }).include(".allie-dialog").analyze()).violations,
+    ).toEqual([]);
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+    await panel
+      .getByRole("link", { name: "Open Contact", exact: true })
+      .scrollIntoViewIfNeeded();
+    await page.screenshot({ path: info.outputPath(`catalogue-citations-${width}.png`) });
+    await panel.getByRole("link", { name: "Open Contact", exact: true }).click();
+    await expect(page).toHaveURL(/\/contact$/);
+    await expect(panel).not.toBeVisible();
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    await expect(page.locator("body")).toContainText("133 Stadium Road");
+    await expect(
+      page.getByRole("navigation", { name: "Breadcrumb", exact: true }),
+    ).toBeInViewport();
+    expect(state.writes.filter((write) => write.path.endsWith("/turns"))).toHaveLength(1);
+    expect(state.unexpected).toEqual([]);
+    await verifyConsole(page, seen.errors, seen.warnings);
+    expect(seen.external).toEqual([]);
+  });
+}
