@@ -8,9 +8,13 @@ isolated database. Three audits/saves and one durable cancellation agree; no liv
 enablement, representative opt-in or operational side effect. Both isolated targets
 replayed 78 migrations. See [W16F evidence](SUPPORT_COVERAGE_COMPOSITION_W16F.md).
 Coverage at 390/1440px includes scoped Axe, overflow and inspected screenshots;
-actual production roles, protected hosted access and shared live transport remain open.
+actual production roles, hosted API and shared live transport remain open.
 W16E master f9a7b7ce passed all three GitHub gates and has a READY held frontend
-candidate. Docker and protected-preview access still block publication checks.
+candidate. Docker still blocks backend packaging. Existing candidate authorization
+resolved protected access without changing settings: eight hosted fixture cases
+pass on held f9a7b7ce. All three native cases and exact-source GitHub gates pass on
+merged aff31956, preserving newer About/equipment/mobile-navigation work. Hosted
+fixture evidence remains distinct from actual production account/API acceptance.
 Full Revision 4, the 106-route completion decisions and provider allowance gate
 remain active. The W16F patch adds tests/evidence without customer runtime changes.
 

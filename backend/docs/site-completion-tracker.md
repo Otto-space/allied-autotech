@@ -1,4 +1,6 @@
-### 29 October 2026 catalogue redesign published
+# Allied AutoTech completion tracker
+
+## 29 October 2026 catalogue redesign published
 
 Frontend source 93f2f3444a1403b19ebeeb38ba49d37ad800f186 is live on both apex/www, deployment dpl_H2xRQcNT8ELpAniX7eHDM6P6Lafv. Promotion verified at 2026-10-29T05:33:04.295Z, preserving the intervening Contact release 35c314c6. Exact-source Frontend 40821653858, Backend safety 40820904020 and secret 40821651216 CI passed. A newer master push cancelled the first frontend run; the immutable integrated release source passed on release/catalogue-redesign-20261029.
 
@@ -7,8 +9,6 @@ Final production-candidate acceptance: 57/57 clean catalogue/Learn/Allie/guide/p
 Runtime backend remains 9c91eeff-b191-4de5-b9d5-0e6d06134d42 from 2586c61b, ready/ACTIVE, with matching four-image digests, no pending rollout, eight managed off-device backups (latest 29 October) and the successful separate 94-table/78-migration restore evidence rechecked. No database write, schema, permission, flag or real test enquiry changed. Compatible W16D frontend controls are included; backend Care article v3 publication remains separate. Later owner-coverage/About changes on master are preserved and are not claimed by this frontend deployment.
 
 Public BMW remains one listing with seven real photos, NGN 3,000,000 and the full AC fault disclosure. Product photography and vehicle-choice data remain honestly unavailable where absent. Release evidence is under backend/ops/digitalocean/.private/catalogue-redesign-20261029-*.json; full audit/design/acceptance report is frontend/docs/CATALOGUE_REDESIGN_20261029.md. C: reserve passes around 28.6 GiB free; no additional agent cleanup ran.
-
-Allied AutoTech completion tracker
 
 ## 29 October 2026: W16F native coverage composition
 
@@ -21,8 +21,12 @@ is checked against actual endpoints. Both isolated targets replayed all 78 migra
 Types/lint, scoped Axe/overflow and inspected 390/1440px screenshots pass. No production
 write, live enablement or provider call. See
 ../../docs/help-learn/SUPPORT_COVERAGE_COMPOSITION_W16F.md for actual results and
-limits. Docker Continue and protected-candidate test access await owner responses;
-independent implementation/verification continues. Full Revision 4 remains active.
+limits. Combined master aff31956 passed all three native cases again and all three
+exact-source GitHub gates. Eight hosted fixture cases pass on the held f9a7b7ce
+candidate using existing provider authorization, with no protection-setting change;
+the broader Trusted Sources request is withdrawn. Docker Continue remains the
+backend packaging dependency. Preserve the published catalogue source 93f2f344.
+Independent implementation/verification continues. Full Revision 4 remains active.
 
 ## 29 October 2026: W16E owner coverage continuation
 

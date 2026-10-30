@@ -3,8 +3,9 @@
 29 October 2026. Continues the W16E implementation integrated at `f9a7b7ce`.
 That commit passed all three exact-source GitHub gates. Its held frontend candidate
 is READY (`dpl_2MZ9NkWixm5hkGWk8TUm1XriLm59`), without the public domains.
-Docker's failed-update notice and protected-candidate test access remain separate
-publication dependencies. No new provider call or feature enablement is authorized.
+Docker's failed-update notice still blocks backend packaging. Protected-candidate
+access was resolved using existing authorization, without a settings change. No new
+provider call or feature enablement is authorized.
 
 ## Acceptance contract
 
@@ -90,7 +91,38 @@ artifact: a separate DOM check proved the unfocused skip link was above the view
 CSS change or accessibility-control removal was needed. The existing verified
 not-found stylesheet preload warning remains a local performance limitation.
 
-No actual-role production, hosted, physical-device, full screen-reader or multi-instance
+No actual-role production, hosted API, physical-device, full screen-reader or multi-instance
 transport/load acceptance is established here. The 106 exact-route completion
 decisions and full Revision 4 goal remain open. Temporary results live under
 `%TEMP%/allied-w16f-*`; no database, cookie, screenshot or trace is committed.
+
+## Integrated and held-candidate evidence
+
+The newer About/equipment/mobile-navigation source was preserved in master
+`aff31956`. All three native cases pass again on that combined source (55.7 seconds).
+Exact-source Frontend 40825209048, Backend safety 40825204517 and secret
+40825204585 GitHub gates pass. This evidence is separate from the preceding
+56.2-second local acceptance run. The customer Care implementation remains intact.
+
+All eight coverage browser cases also pass against the READY production-environment
+held candidate from `f9a7b7ce` (42.1 seconds): reviewed editing, saved/unsaved recovery,
+branch drafts/stale revisions/midnight, role exclusion, keyboard focus and denied
+access. These use intercepted APIs and synthetic identities, not the production
+backend or real account acceptance. Screenshots at 390/1440px were inspected.
+The real API/database composition is the separate local native evidence above.
+
+Local OIDC initially returned `TRUSTED_SOURCES_ENVIRONMENT_MISMATCH`. The existing
+release workflow provides an already authorized provider access method: existing
+project authorization was exchanged for a cookie restricted to this candidate's
+hostname. No Trusted Sources or deployment-protection rule changed and no new
+provider key was created. Only provider cookies were retained transiently; no
+application identity was copied. The candidate bootstrap blocked all application
+API requests, and the eight-case fixture router intercepted its APIs. Tracing was
+disabled. The task-created private browser state was removed after verification.
+The earlier request for a broader Trusted Sources rule is withdrawn as unnecessary.
+
+Fresh provider reads show public frontend `93f2f344` on both domains and ACTIVE
+backend `9c91eeff` from `2586c61b`. Owner coverage and newer About changes are not
+claimed published. Preserve that newer catalogue release when preparing the final
+matching backend/frontend rollout. The remaining deployment dependency is Docker;
+do not reset its storage or enable AI/live flags to bypass the release gate.

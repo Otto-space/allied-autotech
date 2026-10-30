@@ -261,7 +261,9 @@
       "decision": "pending",
       "purpose": null,
       "contextualAnswer": null,
-      "articleIds": ["customer-account-review"],
+      "articleIds": [
+        "customer-account-review"
+      ],
       "guideIds": [],
       "practiceIds": [],
       "statusDefinitions": [],
@@ -324,7 +326,9 @@
       "decision": "pending",
       "purpose": "Read current/latest/scheduled financial policy and review a version-bound approval.",
       "contextualAnswer": "Use the current permitted workspace. Inspect current facts and review before a change. Reconcile uncertain outcomes before resubmitting; removal of the independent grant closes this page.",
-      "articleIds": ["financial-policy-work"],
+      "articleIds": [
+        "financial-policy-work"
+      ],
       "guideIds": [],
       "practiceIds": [],
       "statusDefinitions": [],
@@ -636,7 +640,9 @@
       "decision": "pending",
       "purpose": "Handle current permitted disputes and keep assignment authority distinct from Staff handling.",
       "contextualAnswer": "Use the current permitted workspace. Inspect current facts and review before a change. Reconcile uncertain outcomes before resubmitting; removal of the independent grant closes this page.",
-      "articleIds": ["dispute-work"],
+      "articleIds": [
+        "dispute-work"
+      ],
       "guideIds": [],
       "practiceIds": [],
       "statusDefinitions": [],
@@ -704,7 +710,9 @@
       "decision": "pending",
       "purpose": "Review privacy requests and holds using an explicit grant without promising destruction.",
       "contextualAnswer": "Use the current permitted workspace. Inspect current facts and review before a change. Reconcile uncertain outcomes before resubmitting; removal of the independent grant closes this page.",
-      "articleIds": ["privacy-work"],
+      "articleIds": [
+        "privacy-work"
+      ],
       "guideIds": [],
       "practiceIds": [],
       "statusDefinitions": [],
@@ -877,7 +885,9 @@
       "decision": "pending",
       "purpose": "Inspect and review only the refund stages supplied by explicit grants.",
       "contextualAnswer": "Use the current permitted workspace. Inspect current facts and review before a change. Reconcile uncertain outcomes before resubmitting; removal of the independent grant closes this page.",
-      "articleIds": ["refund-work"],
+      "articleIds": [
+        "refund-work"
+      ],
       "guideIds": [],
       "practiceIds": [],
       "statusDefinitions": [],
@@ -966,7 +976,9 @@
       "decision": "pending",
       "purpose": null,
       "contextualAnswer": null,
-      "articleIds": ["privileged-recovery"],
+      "articleIds": [
+        "privileged-recovery"
+      ],
       "guideIds": [],
       "practiceIds": [],
       "statusDefinitions": [],
@@ -1071,7 +1083,9 @@
       "decision": "pending",
       "purpose": "Review one authorised staff account, its tier/status, workforce grants and separately controlled financial capabilities.",
       "contextualAnswer": "For an owner-authorised demotion, select the new active branch, supply a reason, inspect removed delegation and retained scoped duties, then confirm. If either account or workforce revision changed, refresh and review again.",
-      "articleIds": ["access-review"],
+      "articleIds": [
+        "access-review"
+      ],
       "guideIds": [],
       "practiceIds": [],
       "statusDefinitions": [],
@@ -1182,7 +1196,10 @@
       "decision": "pending",
       "purpose": "Review existing enquiry/complaint queues within current support scope; owners can separately prepare explicit support coverage.",
       "contextualAnswer": "Choose the permitted enquiry or complaint queue and open its canonical case. Conversation availability is explicit; policy hours alone do not establish staffing or enable live chat.",
-      "articleIds": ["care-triage", "support-coverage"],
+      "articleIds": [
+        "care-triage",
+        "support-coverage"
+      ],
       "guideIds": [],
       "practiceIds": [],
       "statusDefinitions": [],
@@ -1205,7 +1222,7 @@
         {
           "pattern": "/admin/support#care-support-coverage",
           "task": "Owner prepares explicit Lagos coverage and reviews or recovers one canonical configuration change",
-          "verification": "11 restricted native API + 15 contract cases, eight intercepted browser cases and three actual browser/CSRF/API/isolated-DB cases accepted. Actual production owner, exact-route and hosted acceptance remain open."
+          "verification": "11 restricted native API + 15 contracts, eight intercepted local cases, three actual browser/CSRF/API/isolated-DB cases on merged aff31956 and eight hosted fixture cases on held f9a7b7ce accepted. Real production owner, hosted API and full exact-route acceptance remain open."
         }
       ]
     },
@@ -1878,7 +1895,9 @@
       "decision": "pending",
       "purpose": "Read and follow up in one owned canonical support conversation.",
       "contextualAnswer": null,
-      "articleIds": ["own-conversation"],
+      "articleIds": [
+        "own-conversation"
+      ],
       "guideIds": [],
       "practiceIds": [],
       "statusDefinitions": [
@@ -1906,8 +1925,12 @@
       "decision": "pending",
       "purpose": "Find and continue your owned support requests; start or receive a reviewed queued handoff.",
       "contextualAnswer": null,
-      "articleIds": ["own-conversation"],
-      "guideIds": ["own-request"],
+      "articleIds": [
+        "own-conversation"
+      ],
+      "guideIds": [
+        "own-request"
+      ],
       "practiceIds": [],
       "statusDefinitions": [
         "Handoff QUEUED/SAVED confirms database persistence, not email delivery or human reading; support business status remains independent."
@@ -2019,7 +2042,9 @@
       "decision": "pending",
       "purpose": null,
       "contextualAnswer": null,
-      "articleIds": ["security-basics"],
+      "articleIds": [
+        "security-basics"
+      ],
       "guideIds": [],
       "practiceIds": [],
       "statusDefinitions": [],
@@ -2061,7 +2086,9 @@
       "decision": "pending",
       "purpose": null,
       "contextualAnswer": null,
-      "articleIds": ["no-live-lookup"],
+      "articleIds": [
+        "no-live-lookup"
+      ],
       "guideIds": [],
       "practiceIds": [],
       "statusDefinitions": [],
@@ -2224,8 +2251,12 @@
       "decision": "pending",
       "purpose": null,
       "contextualAnswer": null,
-      "articleIds": ["parts-fitment"],
-      "guideIds": ["parts-find"],
+      "articleIds": [
+        "parts-fitment"
+      ],
+      "guideIds": [
+        "parts-find"
+      ],
       "practiceIds": [],
       "statusDefinitions": [],
       "recovery": [],
@@ -2373,7 +2404,9 @@
       "decision": "pending",
       "purpose": null,
       "contextualAnswer": null,
-      "articleIds": ["service-request"],
+      "articleIds": [
+        "service-request"
+      ],
       "guideIds": [],
       "practiceIds": [],
       "statusDefinitions": [],
@@ -2436,7 +2469,9 @@
       "decision": "pending",
       "purpose": null,
       "contextualAnswer": null,
-      "articleIds": ["vehicle-enquiry"],
+      "articleIds": [
+        "vehicle-enquiry"
+      ],
       "guideIds": [],
       "practiceIds": [],
       "statusDefinitions": [],

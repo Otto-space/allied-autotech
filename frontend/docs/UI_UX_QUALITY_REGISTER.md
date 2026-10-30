@@ -22,6 +22,12 @@ fresh viewport captures. Shared CSS and permissions are unchanged. This is isola
 native acceptance, not hosted or real-role production acceptance. See
 ../../docs/help-learn/SUPPORT_COVERAGE_COMPOSITION_W16F.md. Exact-route completion,
 broader channel composition and shared live-readiness evidence remain open.
+The three native cases also pass on merged aff31956, whose three GitHub gates pass.
+Eight fixture cases pass on the held production-environment f9a7b7ce candidate with
+existing candidate-scoped authorization. No protection rule changed; temporary
+provider-cookie state was removed. This is hosted fixture UI acceptance, with real
+persistence established separately by the native run. Public source remains the
+newer catalogue release 93f2f344; owner coverage publication still awaits Docker.
 
 ## 29 October 2026: W16E owner coverage editor
 
