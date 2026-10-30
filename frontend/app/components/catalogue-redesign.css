@@ -1,6 +1,6 @@
 :root {
-  --catalogue-shadow: 0 4px 16px #1723380a;
-  --catalogue-hover-shadow: 0 10px 24px #17233812;
+  --catalogue-shadow: var(--elevation-low);
+  --catalogue-hover-shadow: var(--elevation-medium);
 }
 /* Inventory-first catalogue layout. Domain filter and API semantics stay separate. */
 .public-site.shop-page,
@@ -118,8 +118,8 @@
 .shop-page .product-browse-layout .parts-intent label {
   flex: 1 1 0;
   min-width: 0;
-  min-height: 64px;
-  border-radius: 8px;
+  min-height: 48px;
+  border-radius: var(--radius-control);
   font-size: 15px;
 }
 .shop-page .product-browse-layout .parts-intent label:has(input:checked) {
@@ -384,9 +384,9 @@
     max-height: calc(100dvh - var(--viewport-header-offset, 96px) - 20px);
     padding: 0;
     overflow: hidden;
-    border: 1px solid #d6d8da;
+    border: 1px solid var(--line);
     border-radius: 8px;
-    box-shadow: var(--catalogue-shadow);
+    box-shadow: var(--elevation-medium);
     background: #fff;
   }
   .shop-page
@@ -430,7 +430,7 @@
     flex: 1;
     min-width: 0;
     padding: 10px 8px;
-    font-size: 12px;
+    font-size: 13px;
   }
 }
 @media (max-width: 1023px) {
@@ -447,6 +447,7 @@
     padding: 0;
     border-radius: 0;
     overflow: hidden;
+    box-shadow: var(--elevation-high);
   }
   .product-browse-layout .product-filter-panel form {
     display: flex;
@@ -500,7 +501,7 @@
   }
   .shop-page .product-browse-layout .parts-intent label {
     flex-basis: 0;
-    font-size: 13px;
+    font-size: 14px;
     padding: 12px;
   }
   .product-browse-layout .product-search {
@@ -644,7 +645,7 @@
 .vehicle-browse-layout .vehicle-body-shortcuts button {
   white-space: nowrap;
   flex: 0 0 auto;
-  border-radius: 24px;
+  border-radius: var(--radius-control);
 }
 .vehicle-browse-layout .vehicle-body-shortcuts span {
   display: none;
@@ -714,11 +715,11 @@
     margin: 0;
     max-height: calc(100dvh - var(--viewport-header-offset, 96px) - 20px);
     padding: 0;
-    border: 1px solid #d6d8da;
+    border: 1px solid var(--line);
     border-radius: 8px;
     overflow: hidden;
     background: #fff;
-    box-shadow: var(--catalogue-shadow);
+    box-shadow: var(--elevation-medium);
     align-self: start;
   }
   .vehicle-browse-layout .vehicle-filter-panel form {
@@ -759,7 +760,7 @@
     flex: 1;
     min-width: 0;
     padding: 10px 8px;
-    font-size: 12px;
+    font-size: 13px;
   }
   .vehicle-browse-layout .vehicle-filter-group {
     margin-block: 12px;
@@ -780,6 +781,7 @@
     padding: 0;
     border-radius: 0;
     overflow: hidden;
+    box-shadow: var(--elevation-high);
   }
   .vehicle-browse-layout .vehicle-filter-panel form {
     display: flex;

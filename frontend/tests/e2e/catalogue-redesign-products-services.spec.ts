@@ -42,7 +42,7 @@ for (const route of ["/parts", "/services"]) {
       expect(photoBox.width).toBeGreaterThan(width < 375 ? 250 : width < 768 ? 140 : 240);
       if (route === "/parts") {
         await expect(
-          page.getByRole("radio", { name: "Find Parts for My Car", exact: true }),
+          page.getByRole("radio", { name: "By vehicle", exact: true }),
         ).toBeVisible();
         await expect(card.getByText("Image unavailable", { exact: true })).toBeVisible();
         const panel = page.locator("#product-filter-panel");
@@ -98,14 +98,14 @@ for (const width of [390, 1440]) {
   }) => {
     await page.setViewportSize({ width, height: 1000 });
     await page.goto("/parts");
-    await page.getByRole("radio", { name: "Find Parts for My Car", exact: true }).check();
+    await page.getByRole("radio", { name: "By vehicle", exact: true }).check();
     await expect(page.locator(".parts-finder-unavailable")).toBeVisible();
     await expect(page.locator(".parts-finder-unavailable a")).toHaveAttribute(
       "href",
       /\/contact\?/,
     );
     await page
-      .getByRole("radio", { name: "Search by part name or number", exact: true })
+      .getByRole("radio", { name: "By product", exact: true })
       .check();
     await expect(page.locator(".parts-finder-region")).not.toBeVisible();
     const panel = page.locator("#product-filter-panel");

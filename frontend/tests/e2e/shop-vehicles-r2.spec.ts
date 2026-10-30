@@ -179,10 +179,10 @@ for (const width of [360, 390, 768, 1024, 1440]) {
       }),
     ).toBeVisible();
     await expect(
-      page.getByRole("radio", { name: "Search by part name or number", exact: true }),
+      page.getByRole("radio", { name: "By product", exact: true }),
     ).toBeChecked();
     const modeBounds = await page
-      .getByRole("radio", { name: "Search by part name or number", exact: true })
+      .getByRole("radio", { name: "By product", exact: true })
       .boundingBox();
     expect(modeBounds?.height).toBeLessThanOrEqual(24);
     expect(modeBounds?.width).toBeLessThanOrEqual(24);

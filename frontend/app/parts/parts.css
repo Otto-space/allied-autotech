@@ -104,7 +104,7 @@
   min-width: 0;
   height: 44px;
   border: 1px solid var(--product-border);
-  border-radius: 5px;
+  border-radius: var(--radius-control);
   padding: 0 12px;
   background: #fff;
   color: var(--product-navy);
@@ -162,7 +162,7 @@
   justify-content: center;
   height: 44px;
   border: 1px solid var(--product-border);
-  border-radius: 5px;
+  border-radius: var(--radius-control);
   padding: 0 16px;
   background: #fff;
   color: var(--product-navy);
@@ -230,7 +230,7 @@
   height: 44px;
   background: #fff;
   border: 1px solid var(--product-border);
-  border-radius: 5px;
+  border-radius: var(--radius-control);
   cursor: pointer;
 }
 .product-icon-button:hover {
@@ -747,7 +747,7 @@
   width: 100%;
   height: 44px;
   border: 1px solid var(--product-border);
-  border-radius: 5px;
+  border-radius: var(--radius-control);
   padding: 0 12px;
   background: #fff;
   color: var(--product-navy);
@@ -780,7 +780,7 @@
   color: var(--ink);
   border: 1px solid #8290a1;
   border-radius: 7px;
-  box-shadow: 0 8px 24px #01121a24;
+  box-shadow: var(--elevation-medium);
   overflow-y: auto;
   overscroll-behavior: contain;
   font:
@@ -1160,7 +1160,7 @@
   overflow-y: auto;
   background: white;
   border: 1px solid #91a3b5;
-  box-shadow: 0 8px 24px #091b3820;
+  box-shadow: var(--elevation-medium);
   border-radius: 5px;
 }
 .fitment-picker-popup [role="option"] {

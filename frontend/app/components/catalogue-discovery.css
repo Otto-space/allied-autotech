@@ -34,7 +34,7 @@
   min-height: 44px;
   padding: 10px 16px;
   border: 1px solid var(--product-border, #8290a1);
-  border-radius: 6px;
+  border-radius: var(--radius-control);
   background: #fff;
   color: var(--product-navy, var(--vehicle-navy));
   font: inherit;

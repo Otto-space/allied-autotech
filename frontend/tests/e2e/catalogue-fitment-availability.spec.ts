@@ -52,7 +52,7 @@ for (const width of [390, 1440]) {
     await expect(card).toContainText(
       "Choose your vehicle or ask our team to verify suitability.",
     );
-    await page.getByRole("radio", { name: "Find Parts for My Car" }).check();
+    await page.getByRole("radio", { name: "By vehicle" }).check();
     await expect(
       page.getByRole("heading", { name: "Find products for my vehicle" }),
     ).toBeVisible();
@@ -60,7 +60,7 @@ for (const width of [390, 1440]) {
 
     makesAvailable = false;
     await page.reload();
-    await page.getByRole("radio", { name: "Find Parts for My Car" }).check();
+    await page.getByRole("radio", { name: "By vehicle" }).check();
     await expect(page.locator(".parts-finder-unavailable")).toContainText("Ask our team");
     await expect(card).toContainText(
       "Ask our team to verify suitability for your vehicle.",

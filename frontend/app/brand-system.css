@@ -5,6 +5,9 @@
 
 :root {
   --radius-control: 6px;
+  --elevation-low: 0 2px 5px #080c0f05, 0 6px 20px #080c0f08;
+  --elevation-medium: 0 4px 12px #080c0f08, 0 14px 36px #080c0f0f;
+  --elevation-high: 0 16px 60px #080c0f33;
   --brand-logo-width: 160px;
 }
 

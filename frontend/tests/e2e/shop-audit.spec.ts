@@ -61,12 +61,12 @@ for (const width of [390, 1440]) {
       page.getByRole("radio", { name: "Get help choosing a product" }),
     ).toHaveCount(0);
     await expect(
-      page.getByRole("radio", { name: "Find Parts for My Car" }),
+      page.getByRole("radio", { name: "By vehicle" }),
     ).toBeVisible();
-    await page.getByRole("radio", { name: "Find Parts for My Car" }).check();
+    await page.getByRole("radio", { name: "By vehicle" }).check();
     const help = page.locator(".parts-finder-unavailable a");
     await expect(help).toHaveAttribute("href", /part_search=DEMO/);
-    await page.getByRole("radio", { name: "Search by part name or number" }).check();
+    await page.getByRole("radio", { name: "By product" }).check();
     const search = await page
       .getByRole("searchbox", { name: "Search products" })
       .boundingBox();
@@ -142,7 +142,7 @@ for (const width of [390, 1440]) {
     await page.setViewportSize({ width, height: 936 });
     const state = await fixture(page);
     const mode = page.getByRole("radio", {
-      name: "Find Parts for My Car",
+      name: "By vehicle",
       exact: true,
     });
     await mode.check();
@@ -158,7 +158,7 @@ for (const width of [390, 1440]) {
       page.getByRole("heading", { name: "No verified match for these details" }),
     ).toBeVisible();
     await page
-      .getByRole("radio", { name: "Search by part name or number", exact: true })
+      .getByRole("radio", { name: "By product", exact: true })
       .check();
     await expect(page).not.toHaveURL(/vehicleModelId=/);
     await expect(page).toHaveURL(/search=DEMO/);
@@ -175,7 +175,7 @@ test("vehicle-choice errors stay distinct from an empty catalogue and recover", 
 }) => {
   const options = { failedMakes: true };
   const state = await fixture(page, options);
-  await page.getByRole("radio", { name: "Find Parts for My Car", exact: true }).check();
+  await page.getByRole("radio", { name: "By vehicle", exact: true }).check();
   await expect(
     page.getByText(
       "Vehicle choices could not be checked. Retry or ask our team for help.",

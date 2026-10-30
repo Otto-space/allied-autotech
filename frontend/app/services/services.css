@@ -102,7 +102,7 @@
   gap: 7px;
   padding: 8px 14px;
   border: 1px solid var(--services-border);
-  border-radius: 4px;
+  border-radius: var(--radius-control);
   font-size: 14px;
   font-weight: 650;
   background: #fff;
@@ -784,7 +784,7 @@
   height: 48px;
   padding: 10px 12px;
   border: 1px solid var(--services-border);
-  border-radius: 4px;
+  border-radius: var(--radius-control);
   color: var(--services-ink);
   background: #fff;
   font:

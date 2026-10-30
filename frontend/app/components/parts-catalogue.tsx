@@ -184,7 +184,7 @@ export function PartsCatalogue({
           />
         </div>
         <fieldset className="parts-intent">
-          <legend className="sr-only">How would you like to find products?</legend>
+          <legend>Find products</legend>
           <label>
             <input
               type="radio"
@@ -194,7 +194,7 @@ export function PartsCatalogue({
               data-scroll-target="parts-vehicle-finder"
               onChange={() => setIntent("vehicle")}
             />
-            Find Parts for My Car
+            By vehicle
           </label>
           <label>
             <input
@@ -208,7 +208,7 @@ export function PartsCatalogue({
                 update(clearVehicleSelection);
               }}
             />
-            Search by part name or number
+            By product
           </label>
         </fieldset>
         <div className="catalogue-controls">
