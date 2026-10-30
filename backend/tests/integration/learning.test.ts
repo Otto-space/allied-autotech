@@ -175,6 +175,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       const publicResult = await read(null, "/public/learning/catalogue");
       expect(publicResult.status).toBe(200);
       expect(ids(publicResult)).toEqual([
+        "business-contact",
         "home-next-step",
         "parts-fitment",
         "vehicle-enquiry",
