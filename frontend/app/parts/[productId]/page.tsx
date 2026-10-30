@@ -117,7 +117,7 @@ async function RelatedProducts({ product }: { product: Product }) {
               <div>
                 <h3>{item.name}</h3>
                 {item.brand && <p>{item.brand}</p>}
-                <strong>{formatKobo(item.priceKobo)}</strong>
+                <strong>{formatKobo(item.priceKobo, { hideZeroDecimals: true })}</strong>
                 <span>
                   View product <ArrowRight size={16} aria-hidden="true" />
                 </span>
@@ -275,11 +275,11 @@ export default async function ProductPage({
               {product.category.name}
             </p>
             <div className="pd-mobile-price">
-              <strong>{formatKobo(product.priceKobo)}</strong>
+              <strong>{formatKobo(product.priceKobo, { hideZeroDecimals: true })}</strong>
               {compare && (
                 <span>
                   <span className="sr-only">Comparison price </span>
-                  <del>{formatKobo(compare)}</del>
+                  <del>{formatKobo(compare, { hideZeroDecimals: true })}</del>
                 </span>
               )}
               <span className="pd-unit">Price per item</span>
@@ -313,11 +313,13 @@ export default async function ProductPage({
             </div>
             <section className="pd-purchase" aria-label="Price and availability">
               <div className="pd-price-row">
-                <strong>{formatKobo(product.priceKobo)}</strong>
+                <strong>
+                  {formatKobo(product.priceKobo, { hideZeroDecimals: true })}
+                </strong>
                 {compare && (
                   <span>
                     <span className="sr-only">Comparison price </span>
-                    <del>{formatKobo(compare)}</del>
+                    <del>{formatKobo(compare, { hideZeroDecimals: true })}</del>
                   </span>
                 )}
               </div>

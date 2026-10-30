@@ -139,7 +139,7 @@ export function PartsCatalogue({
   function clear() {
     setSearchReset((value) => value + 1);
     update((next) => {
-      for (const key of productFilterKeys) next.delete(key);
+      for (const key of productFilterKeys) if (key !== "search") next.delete(key);
     });
   }
   function focusResults() {
@@ -168,7 +168,7 @@ export function PartsCatalogue({
                 ? "Products unavailable"
                 : noCatalogue
                   ? ""
-                  : `${(products.data?.totalMatches ?? 0).toLocaleString("en-NG")} matching product${products.data?.totalMatches === 1 ? "" : "s"} · ${products.data?.items.length ?? 0} product${products.data?.items.length === 1 ? "" : "s"} on this page`}
+                  : `${products.data?.totalMatches?.toLocaleString("en-NG") ?? 0} product${products.data?.totalMatches === 1 ? "" : "s"}${(products.data?.totalMatches ?? 0) > (products.data?.items.length ?? 0) ? ` · Showing ${products.data?.items.length ?? 0} on this page` : ""}`}
           </p>
         </div>
         {invalid && (
@@ -404,9 +404,22 @@ export function PartsCatalogue({
                   </button>
                 );
               })}
-              <button type="button" className="product-clear" onClick={clear}>
-                Clear all
+              <button
+                type="button"
+                className="product-clear"
+                onClick={() =>
+                  update((next) => {
+                    for (const key of [...next.keys()]) next.delete(key);
+                  })
+                }
+              >
+                Reset search
               </button>
+              {selected.some((key) => key !== "search") && (
+                <button type="button" className="product-clear" onClick={clear}>
+                  Clear all filters
+                </button>
+              )}
             </>
           ) : (
             <span>
@@ -460,11 +473,15 @@ export function PartsCatalogue({
               ))}
             </div>
           ) : products.data?.items.length ? (
-            <div className="product-results-grid">
+            <div
+              className="product-results-grid"
+              data-single={products.data.items.length === 1}
+            >
               {products.data.items.map((product) => (
                 <PartCard
                   key={product.id}
                   product={product}
+                  wide={products.data?.items.length === 1}
                   params={params}
                   vehicleChoicesAvailable={vehicleChoicesAvailable}
                 />
@@ -501,7 +518,7 @@ export function PartsCatalogue({
                 )}
                 {filtered && !noCatalogue && (
                   <button className="button secondary" onClick={clear}>
-                    Clear filters
+                    Clear all filters
                   </button>
                 )}
                 <Link className="button" href={partsEnquiryHref(params)}>

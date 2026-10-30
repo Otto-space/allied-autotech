@@ -19,7 +19,9 @@ const categories = [
   },
 ];
 const refresh = vi.fn();
+let longList = true;
 beforeEach(() => {
+  longList = true;
   resource.mockImplementation((path: string | null) => {
     const search = path
       ? new URL(path, "https://qa.invalid").searchParams.get("search")
@@ -34,6 +36,7 @@ beforeEach(() => {
                     item.name.toLowerCase().includes(search.toLowerCase()),
                   )
                 : categories,
+              ...(!search && longList ? { nextCursor: "A".repeat(120) } : {}),
             },
       loading: false,
       error: undefined,
@@ -48,6 +51,16 @@ afterEach(() => {
 });
 
 describe("service category finder", () => {
+  it("uses one select for a complete small category list", () => {
+    longList = false;
+    const change = vi.fn();
+    render(<ServiceDiscoveryControls params={new URLSearchParams()} change={change} />);
+    expect(screen.queryByText("Find a category")).toBeNull();
+    fireEvent.change(screen.getByLabelText("Service category"), {
+      target: { value: categories[0].id },
+    });
+    expect(change).toHaveBeenCalledWith("categoryId", categories[0].id);
+  });
   it("searches only on submission and lets customers directly choose a matching category", () => {
     const change = vi.fn();
     render(<ServiceDiscoveryControls params={new URLSearchParams()} change={change} />);

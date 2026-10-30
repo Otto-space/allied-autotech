@@ -1,15 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import {
-  ArrowLeft,
-  ArrowRight,
-  ArrowUpRight,
-  Check,
-  Clock3,
-  Wrench,
-  X,
-} from "lucide-react";
+import { ArrowLeft, ArrowRight, ArrowUpRight, Check, Wrench, X } from "lucide-react";
 import type { PublicSeed } from "@/lib/api/public-seed";
 import { useResource } from "@/lib/api/use-resource";
 import { parseServiceDiscovery } from "@/lib/api/public-schemas";
@@ -169,7 +161,11 @@ export function ServicesCatalogue({
           <p>Choose a service to see its details and next steps.</p>
         )}
       </div>
-      <div aria-busy={resource.loading} className="services-results">
+      <div
+        aria-busy={resource.loading}
+        className="services-results"
+        data-single={resource.data?.items.length === 1}
+      >
         {resource.error ? (
           <div className="services-state services-error">
             <h3>Services are unavailable</h3>
@@ -257,22 +253,10 @@ export function ServicesCatalogue({
               </div>
               <div className="services-row-copy">
                 <h3>{service.name}</h3>
-                {service.category && (
-                  <p className="services-row-type">{service.category.name}</p>
-                )}
-                {service.pricingType === "FIXED" && (
-                  <p className="services-row-type">Fixed price</p>
-                )}
                 <p className="services-row-description">
                   {service.shortDescription ||
                     service.description ||
                     "View this service for booking and quotation details."}
-                </p>
-                <p className="services-row-duration">
-                  <Clock3 size={15} aria-hidden="true" />
-                  {service.durationMinutes !== null && service.durationMinutes > 0
-                    ? `Listed duration: ${service.durationMinutes} ${service.durationMinutes === 1 ? "minute" : "minutes"}`
-                    : "Duration not listed"}
                 </p>
               </div>
               <div className="services-row-actions">
@@ -280,7 +264,7 @@ export function ServicesCatalogue({
                   <strong>
                     {service.pricingType === "QUOTE_REQUIRED"
                       ? "Quotation required"
-                      : formatKobo(service.priceKobo)}
+                      : formatKobo(service.priceKobo, { hideZeroDecimals: true })}
                   </strong>
                   <p>
                     {service.pricingType === "QUOTE_REQUIRED"

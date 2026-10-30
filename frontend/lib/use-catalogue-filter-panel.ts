@@ -11,6 +11,7 @@ export function useCatalogueFilterPanel() {
   const [open, setOpen] = useState(false);
   const [desktop, setDesktop] = useState(false);
   const [ready, setReady] = useState(false);
+  const [discardVersion, setDiscardVersion] = useState(0);
 
   useEffect(() => {
     const media = window.matchMedia("(min-width: 1024px)");
@@ -23,6 +24,7 @@ export function useCatalogueFilterPanel() {
       setDesktop(media.matches);
       setOpen(media.matches);
       setReady(true);
+      setDiscardVersion((value) => value + 1);
     };
     const frame = requestAnimationFrame(layout);
     media.addEventListener("change", layout);
@@ -89,6 +91,7 @@ export function useCatalogueFilterPanel() {
     open,
     desktop,
     ready,
+    discardVersion,
     close,
     show,
     applied,
@@ -98,6 +101,7 @@ export function useCatalogueFilterPanel() {
       // A resize may have already reopened the same form as an inline rail.
       if (dialog.current?.open) return;
       setOpen(false);
+      setDiscardVersion((value) => value + 1);
       if (shouldRestore) trigger.current?.focus({ preventScroll: true });
     },
     onKeyDown(event: React.KeyboardEvent<HTMLDialogElement>) {

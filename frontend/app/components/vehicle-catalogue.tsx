@@ -85,7 +85,7 @@ export function VehicleCatalogue({
   };
   function clear() {
     update((next) => {
-      for (const key of vehicleFilterKeys) next.delete(key);
+      for (const key of vehicleFilterKeys) if (key !== "search") next.delete(key);
     });
   }
   function focusResults() {
@@ -114,7 +114,7 @@ export function VehicleCatalogue({
                 ? "Listings unavailable"
                 : noCatalogue
                   ? ""
-                  : `${listings.data?.totalMatches.toLocaleString("en-NG") ?? 0} matching vehicle${listings.data?.totalMatches === 1 ? "" : "s"} · ${listings.data?.items.length ?? 0} vehicle${listings.data?.items.length === 1 ? "" : "s"} on this page`}
+                  : `${listings.data?.totalMatches?.toLocaleString("en-NG") ?? 0} vehicle${listings.data?.totalMatches === 1 ? "" : "s"}${(listings.data?.totalMatches ?? 0) > (listings.data?.items.length ?? 0) ? ` · Showing ${listings.data?.items.length ?? 0} on this page` : ""}`}
           </p>
         </div>
         {invalid && (
@@ -233,9 +233,22 @@ export function VehicleCatalogue({
                   </button>
                 );
               })}
-            <button type="button" className="vehicle-clear" onClick={clear}>
-              Clear all
+            <button
+              type="button"
+              className="vehicle-clear"
+              onClick={() =>
+                update((next) => {
+                  for (const key of [...next.keys()]) next.delete(key);
+                })
+              }
+            >
+              Reset search
             </button>
+            {selected.some((key) => key !== "search") && (
+              <button type="button" className="vehicle-clear" onClick={clear}>
+                Clear all filters
+              </button>
+            )}
           </>
         ) : (
           <span>
@@ -288,11 +301,15 @@ export function VehicleCatalogue({
             ))}
           </div>
         ) : listings.data?.items.length ? (
-          <div className="vehicle-results-grid">
+          <div
+            className="vehicle-results-grid"
+            data-single={listings.data.items.length === 1}
+          >
             {listings.data.items.map((listing, index) => (
               <VehicleCard
                 key={listing.id}
                 listing={listing}
+                wide={listings.data?.items.length === 1}
                 priority={index === 0}
                 href={`/vehicles/${listing.id}?${new URLSearchParams([...params].filter(([key]) => !["cursor", "_trail", "limit", "sort"].includes(key)))}`}
               />
@@ -327,7 +344,7 @@ export function VehicleCatalogue({
               )}
               {selected.length > 0 && (
                 <button className="button secondary" onClick={clear}>
-                  Clear filters
+                  Clear all filters
                 </button>
               )}
               <Link className="button" href={vehicleEnquiryHref(params)}>

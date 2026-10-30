@@ -28,54 +28,6 @@
   min-height: 44px;
   color: var(--product-muted);
 }
-.product-hero {
-  color: #fff;
-  background: var(--gradient-brand);
-}
-.product-hero-inner {
-  display: grid;
-  grid-template-columns: 1.15fr 1fr;
-  min-height: 250px;
-}
-.product-hero-copy {
-  align-self: center;
-  padding: 36px 40px 36px 0;
-}
-.product-hero h1 {
-  font-family: var(--font-nippo), sans-serif;
-  font-size: clamp(28px, 2.9vw, 40px);
-  line-height: 1.12;
-  letter-spacing: -0.025em;
-  max-width: 560px;
-  margin: 0 0 18px;
-}
-.product-hero p {
-  color: #e1e7ef;
-  font-size: 16px;
-  line-height: 1.65;
-  max-width: 440px;
-  margin: 0;
-}
-.product-hero-media {
-  position: relative;
-  min-width: 0;
-}
-.product-hero-media img {
-  object-fit: cover;
-  object-position: right center;
-}
-.product-hero-media span {
-  position: absolute;
-  bottom: 14px;
-  left: 14px;
-  right: 14px;
-  width: fit-content;
-  color: #fff;
-  background: #01121ae8;
-  padding: 6px 9px;
-  font-size: 11px;
-  line-height: 1.5;
-}
 .product-inventory {
   padding-top: 36px;
   padding-bottom: 48px;
@@ -652,9 +604,6 @@
     align-items: flex-start;
     flex-direction: column;
   }
-  .product-hero-copy {
-    padding-right: 22px;
-  }
 }
 @media (prefers-reduced-motion: no-preference) and (hover: hover) {
   .shop-product-card {
@@ -684,23 +633,6 @@
   }
   .shop-product-top {
     grid-template-columns: minmax(0, 0.55fr) minmax(0, 1fr);
-  }
-  .product-hero-inner {
-    grid-template-columns: 1fr;
-  }
-  .product-hero-copy {
-    padding: 24px 0;
-  }
-  .product-hero h1 {
-    font-size: 32px;
-    max-width: 500px;
-    margin-bottom: 12px;
-  }
-  .product-hero p {
-    font-size: 14px;
-  }
-  .product-hero-media {
-    height: 172px;
   }
   .product-inventory {
     padding-top: 26px;
@@ -1068,13 +1000,6 @@
   .product-category {
     grid-column: 1 / -1;
     grid-row: 2;
-  }
-  .product-hero-media {
-    grid-row: 2;
-    height: 128px;
-  }
-  .product-hero h1 {
-    font-size: 30px;
   }
   .product-contact .actions {
     width: 100%;

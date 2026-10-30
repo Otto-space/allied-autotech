@@ -22,17 +22,20 @@ import { packVolumeLabel } from "@/lib/product-family";
 import { PartFitmentSummary } from "./part-fitment-summary";
 import { PublicMedia } from "./public-media";
 import { productAvailability } from "@/lib/product-availability";
+import { vehiclePresentation } from "@/lib/vehicle-presentation";
 type VehicleListing = ReturnType<typeof parseListings>["items"][number];
 export function PartCard({
   product,
   params = new URLSearchParams(),
   href,
   vehicleChoicesAvailable = false,
+  wide = false,
 }: {
   product: Product;
   params?: URLSearchParams;
   href?: string;
   vehicleChoicesAvailable?: boolean;
+  wide?: boolean;
 }) {
   const photo = product.images.find((image) => image.isPrimary) ?? product.images[0];
   const availability = productAvailability(product.availability);
@@ -50,13 +53,18 @@ export function PartCard({
           <PublicMedia
             key={photo?.url ?? "missing"}
             src={photo?.url}
+            width={photo?.width}
+            height={photo?.height}
             alt={photo?.altText ?? product.name}
             fallbackIcon={<Package size={28} strokeWidth={1.4} />}
-            sizes="(max-width: 374px) 100vw, (max-width: 767px) 50vw, (max-width: 1100px) 50vw, 33vw"
+            sizes={
+              wide
+                ? "(max-width: 540px) 92vw, 400px"
+                : "(max-width: 540px) 92vw, (max-width: 1100px) 50vw, 33vw"
+            }
           />
 
           <div className="shop-product-identity">
-            <span className="product-card-meta">{product.category.name}</span>
             <h3>{product.name}</h3>
             {product.brand && <p className="shop-product-brand">{product.brand}</p>}
             {product.family === "ENGINE_OIL" && (
@@ -67,15 +75,15 @@ export function PartCard({
                   : "Pack volume not recorded"}
               </p>
             )}
-            <p className="shop-product-number">
-              {product.manufacturerPartNumber
-                ? `Part no. ${product.manufacturerPartNumber}`
-                : `SKU ${product.sku}`}
-            </p>
+            {product.manufacturerPartNumber && (
+              <p className="shop-product-number">
+                Part no. {product.manufacturerPartNumber}
+              </p>
+            )}
           </div>
         </div>
         <div className="product-copy">
-          <strong>{formatKobo(product.priceKobo)}</strong>
+          <strong>{formatKobo(product.priceKobo, { hideZeroDecimals: true })}</strong>
           {comparison && (
             <p className="shop-comparison-price">
               Compare at <s>{formatKobo(comparison)}</s>
@@ -117,12 +125,8 @@ export function PartCard({
                 </>
               ) : (
                 <>
-                  <p>Fitment unknown</p>
-                  <span>
-                    {vehicleChoicesAvailable
-                      ? "Choose your vehicle or ask our team to verify suitability."
-                      : "Ask our team to verify suitability for your vehicle."}
-                  </span>
+                  <p>Compatibility has not been confirmed.</p>
+                  <span>Ask our team to check.</span>
                 </>
               )}
             </div>
@@ -140,109 +144,79 @@ export function VehicleCard({
   listing,
   href,
   priority = false,
+  wide = false,
 }: {
   listing: VehicleListing;
   href?: string;
   priority?: boolean;
+  wide?: boolean;
 }) {
+  const presentation = vehiclePresentation(listing.vehicle);
+  const specs = [
+    {
+      label: "Mileage",
+      value:
+        listing.vehicle.mileageKm == null
+          ? undefined
+          : `${listing.vehicle.mileageKm.toLocaleString("en-NG")} km`,
+      Icon: Gauge,
+    },
+    {
+      label: "Transmission",
+      value: listing.vehicle.transmission
+        ? vehicleLabel(listing.vehicle.transmission)
+        : undefined,
+      Icon: Settings2,
+    },
+    {
+      label: "Fuel",
+      value: listing.vehicle.fuelType
+        ? vehicleLabel(listing.vehicle.fuelType)
+        : undefined,
+      Icon: Fuel,
+    },
+  ].filter((spec) => spec.value);
+  const photo =
+    listing.vehicle.images.find((image) => image.isPrimary) ?? listing.vehicle.images[0];
   return (
     <article className="product-card vehicle-card">
       <Link href={href ?? `/vehicles/${listing.id}`}>
         <PublicMedia
+          width={photo?.width}
+          height={photo?.height}
           priority={priority}
-          key={
-            (
-              listing.vehicle.images.find((image) => image.isPrimary) ??
-              listing.vehicle.images[0]
-            )?.url ?? "missing"
-          }
-          src={
-            (
-              listing.vehicle.images.find((image) => image.isPrimary) ??
-              listing.vehicle.images[0]
-            )?.url
-          }
-          alt={
-            (
-              listing.vehicle.images.find((image) => image.isPrimary) ??
-              listing.vehicle.images[0]
-            )?.altText || listing.title
-          }
+          key={photo?.url ?? "missing"}
+          src={photo?.url}
+          alt={photo?.altText || presentation.title}
           fallbackIcon={<CarFront size={34} strokeWidth={1.4} />}
-          sizes="(max-width: 767px) 100vw, (max-width: 1050px) 50vw, 33vw"
+          sizes={
+            wide
+              ? "(max-width: 767px) 92vw, (max-width: 1023px) 80vw, 600px"
+              : "(max-width: 767px) 92vw, (max-width: 1050px) 50vw, 33vw"
+          }
         />
 
         <div className="product-copy">
           <span className="vehicle-card-meta">
-            {listing.vehicle.year} · {vehicleLabel(listing.vehicle.condition)}
+            {vehicleLabel(listing.vehicle.condition)}
           </span>
-          <h3>{listing.title}</h3>
-          <p className="vehicle-card-variant">
-            {[listing.vehicle.make, listing.vehicle.model, listing.vehicle.trim]
-              .filter(Boolean)
-              .join(" ")}
-          </p>
-          <strong>{formatKobo(listing.priceKobo)}</strong>
-          <dl className="vehicle-card-specs">
-            <div>
-              <dt>
-                <Gauge size={15} aria-hidden="true" />
-                Mileage
-              </dt>
-              <dd>
-                {listing.vehicle.mileageKm === null
-                  ? "Not listed"
-                  : `${listing.vehicle.mileageKm.toLocaleString("en-NG")} km`}
-              </dd>
-            </div>
-            <div>
-              <dt>
-                <Settings2 size={15} aria-hidden="true" />
-                {listing.vehicle.transmission || listing.vehicle.engineCapacityCc == null
-                  ? "Transmission"
-                  : "Engine"}
-              </dt>
-              <dd>
-                {listing.vehicle.transmission
-                  ? vehicleLabel(listing.vehicle.transmission)
-                  : listing.vehicle.engineCapacityCc != null
-                    ? `${listing.vehicle.engineCapacityCc.toLocaleString("en-NG")} cc`
-                    : "Not listed"}
-              </dd>
-            </div>
-            <div>
-              <dt>
-                {!listing.vehicle.fuelType && listing.vehicle.cylinders != null ? (
-                  <Settings2 size={15} aria-hidden="true" />
-                ) : (
-                  <Fuel size={15} aria-hidden="true" />
-                )}
-                {!listing.vehicle.fuelType && listing.vehicle.cylinders != null
-                  ? "Cylinders"
-                  : "Fuel"}
-              </dt>
-              <dd>
-                {listing.vehicle.fuelType
-                  ? vehicleLabel(listing.vehicle.fuelType)
-                  : listing.vehicle.cylinders != null
-                    ? listing.vehicle.cylinders.toLocaleString("en-NG")
-                    : "Not listed"}
-              </dd>
-            </div>
-          </dl>
-          {(listing.vehicle.powertrain || listing.vehicle.manufactureCountryCode) && (
-            <p className="vehicle-card-specification">
-              {[
-                listing.vehicle.powertrain
-                  ? vehicleLabel(listing.vehicle.powertrain)
-                  : null,
-                listing.vehicle.manufactureCountryCode
-                  ? `Assembled in ${vehicleLabel(listing.vehicle.manufactureCountryCode)}`
-                  : null,
-              ]
-                .filter(Boolean)
-                .join(" · ")}
-            </p>
+          <h3>{presentation.title}</h3>
+          {presentation.subtitle && (
+            <p className="vehicle-card-variant">{presentation.subtitle}</p>
+          )}
+          <strong>{formatKobo(listing.priceKobo, { hideZeroDecimals: true })}</strong>
+          {specs.length > 0 && (
+            <dl className="vehicle-card-specs">
+              {specs.map(({ label, value, Icon }) => (
+                <div key={label}>
+                  <dt>
+                    <Icon size={15} aria-hidden="true" />
+                    {label}
+                  </dt>
+                  <dd>{value}</dd>
+                </div>
+              ))}
+            </dl>
           )}
           <VehicleOwnerDisclosure vehicle={listing.vehicle} compact />
           <div className="vehicle-card-location">

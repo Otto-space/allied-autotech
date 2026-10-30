@@ -1,3 +1,4 @@
+import { CatalogueBanner } from "../components/catalogue-banner";
 import { loadPublicSeed } from "@/lib/api/public-seed-server";
 import { parseVehicleDiscovery } from "@/lib/api/vehicle-schemas";
 import { publicPageMetadata, type SearchParameters } from "@/lib/seo";
@@ -71,22 +72,15 @@ export default async function VehiclesPage({
             </li>
           </ol>
         </nav>
-        <section className="vehicle-hero" aria-labelledby="vehicle-title">
-          <div className="public-wrap vehicle-hero-inner">
-            <div className="vehicle-hero-copy">
-              <h1 id="vehicle-title">
-                {emptyCatalogue
-                  ? "Tell us what you’re looking for"
-                  : "Explore vehicle listings"}
-              </h1>
-              <p>
-                {emptyCatalogue
-                  ? "Share your budget, preferred make and requirements. Our team can discuss your options."
-                  : "Compare published specifications and contact our team about a vehicle."}
-              </p>
-            </div>
-          </div>
-        </section>
+        <CatalogueBanner
+          kind="vehicles"
+          title={
+            emptyCatalogue
+              ? "Tell us what you’re looking for"
+              : "Explore vehicle listings"
+          }
+          description="Compare published specifications and contact our team about a vehicle."
+        />
         <section
           className="public-wrap vehicle-inventory"
           id="inventory"

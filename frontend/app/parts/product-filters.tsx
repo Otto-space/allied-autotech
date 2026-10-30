@@ -102,8 +102,8 @@ const labels: Record<string, string> = {
   oilViscosityGrade: "Viscosity grade",
   packVolumeMl: "Pack volume",
   brand: "Brand",
-  make: "Vehicle make (exact name)",
-  model: "Vehicle model (exact name)",
+  make: "Vehicle make",
+  model: "Vehicle model",
   year: "Year",
   featured: "Featured products",
   minPriceKobo: "Minimum price (NGN)",
@@ -142,7 +142,8 @@ export function ProductFilters({
   }
   const [values, setValues] = useState<Record<string, string>>(readValues);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [previous, setPrevious] = useState(query);
+  const binding = `${query}:${panel.discardVersion}`;
+  const [previous, setPrevious] = useState(binding);
   const optionScope = new URLSearchParams(scope);
   if ((optionScope.get("family") ?? "") !== values.family)
     clearProductFamilyFilters(optionScope);
@@ -155,8 +156,8 @@ export function ProductFilters({
     optionScope.delete("oilViscosityGrade");
     optionScope.delete("packVolumeMl");
   }
-  if (previous !== query) {
-    setPrevious(query);
+  if (previous !== binding) {
+    setPrevious(binding);
     setValues(readValues());
     setErrors({});
   }
@@ -437,9 +438,7 @@ export function ProductFilters({
           <div className="product-filter-header">
             <div>
               <h3 id="product-filter-heading">Filter products</h3>
-              <p>
-                Choose any details you know, then apply. Blank fields match any value.
-              </p>
+              <p>Choose your preferences, then apply filters.</p>
             </div>
             <button
               type="button"
@@ -510,17 +509,14 @@ export function ProductFilters({
 
               .filter((key) => !["productType", "featured"].includes(key))
               .map(renderField)}
-            <details
-              className="product-technical"
-              open={!!(values.productType || values.featured)}
-            >
-              <summary>Technical details</summary>
-              <div>{(["productType", "featured"] as const).map(renderField)}</div>
+            <details className="product-technical" open={!!values.productType}>
+              <summary>More product details</summary>
+              <div>{renderField("productType")}</div>
             </details>
             <p className="product-fitment-note">
               {values.family === "ENGINE_OIL"
                 ? "Grades and pack volumes describe the recorded product. They do not establish manufacturer approval or vehicle suitability."
-                : "Vehicle details can help identify candidates. Reviewed technical evidence is required to confirm compatibility; unknown specifications never confirm fitment."}
+                : "Compatibility has not been confirmed. Ask our team to check your vehicle and required specifications."}
             </p>
           </div>
           <div className="product-filter-actions">
@@ -545,7 +541,7 @@ export function ProductFilters({
                 setErrors({});
               }}
             >
-              Reset draft
+              Clear selections
             </button>
             <button type="submit" className="button" data-scroll-target="product-results">
               Apply filters

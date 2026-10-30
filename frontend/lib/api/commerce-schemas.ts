@@ -38,6 +38,8 @@ export const productSchema = z.object({
       url: z.string(),
       altText: z.string().nullable(),
       isPrimary: z.boolean(),
+      width: z.number().int().positive().nullable().optional(),
+      height: z.number().int().positive().nullable().optional(),
     }),
   ),
   compatibilities: z.array(
