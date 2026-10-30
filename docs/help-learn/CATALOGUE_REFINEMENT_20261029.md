@@ -1,3 +1,7 @@
+### 30 October 2026 discovery-control wording
+
+Shop's discovery choices now read By vehicle and By product under Find products. Their existing radio semantics and guide targets are unchanged. Vehicle condition radios retain the recorded condition model and pending Apply workflow. Quick body shortcuts change only committed body type; existing pending panel edits are discarded on that committed query change, never silently applied. Closed panels reopen from committed values. No learning eligibility, permission or feature gate changed. Geometry, cancellation, budget preservation and keyboard radio selection are covered by catalogue-control-geometry.spec.ts; final hosted acceptance remains pending.
+
 ### 30 October 2026 expanded catalogue published
 
 Master source 04aeef11582ef60f6ef00e05377e9bbd46060039 is published on apex and www as dpl_CksQxTcugzYKnv4RuPQ4bi9LXEJE. Exact-source Frontend 41020410334, Backend database safety 41020654284 and repository secrets 41020410296 passed. The final protected production candidate passed 73 interaction cases plus two original refresh/touch cases, with no failures, skips or flaky results. Post-promotion checks passed all 12 catalogue route/domain/width combinations (390/1440), with no page errors; Tyre Change retains the owner-confirmed NGN 1,000,000 price and corrected descriptions.

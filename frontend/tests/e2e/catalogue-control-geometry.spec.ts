@@ -31,6 +31,11 @@ for (const width of [320, 390, 768, 1024, 1440]) {
     await expect(page).toHaveURL(/maxPriceKobo=500000000/);
     if (width < 1024) await page.getByRole("button", { name: /^Filters/ }).click();
     const panel = page.locator(".vehicle-filter-panel[open]");
+    expect(
+      await panel
+        .locator(".vehicle-filter-body")
+        .evaluate((el) => getComputedStyle(el).scrollbarWidth),
+    ).toBe("none");
     const radio = panel.getByRole("radio", { name: "Used", exact: true });
     await radio.check();
     await expect(radio).toBeChecked();
@@ -58,6 +63,16 @@ for (const width of [320, 390, 768, 1024, 1440]) {
     await vehicle.check();
     await expect(vehicle).toBeChecked();
     await product.check();
+    await expect(product).toBeChecked();
+    expect(
+      await product.locator("..").evaluate((el) => getComputedStyle(el).outlineStyle),
+    ).toBe("none");
+    await product.press("ArrowLeft");
+    await expect(vehicle).toBeChecked();
+    expect(
+      await vehicle.locator("..").evaluate((el) => getComputedStyle(el).outlineStyle),
+    ).toBe("solid");
+    await product.click();
     await expect(product).toBeChecked();
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),

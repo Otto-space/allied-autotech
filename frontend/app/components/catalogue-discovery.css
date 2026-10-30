@@ -116,7 +116,7 @@
   scroll-margin-bottom: 90px;
 }
 :is(.shop-page, .vehicles-page) summary:focus-visible,
-.parts-intent label:focus-within {
+.parts-intent label:has(input:focus-visible) {
   outline: 3px solid var(--focus-ring);
   outline-offset: 3px;
   box-shadow: var(--focus-shadow);

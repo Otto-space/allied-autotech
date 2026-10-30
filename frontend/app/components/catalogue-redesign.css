@@ -464,6 +464,7 @@
     min-height: 0;
     overflow-y: auto;
     overscroll-behavior: contain;
+    scrollbar-width: none;
   }
   .product-browse-layout .product-filter-actions {
     flex-shrink: 0;
@@ -799,6 +800,7 @@
     min-height: 0;
     overflow-y: auto;
     overscroll-behavior: contain;
+    scrollbar-width: none;
   }
   .vehicle-browse-layout .vehicle-filter-actions {
     flex-shrink: 0;
