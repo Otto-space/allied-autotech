@@ -164,7 +164,9 @@ for (const width of [390, 1440]) {
 test("A slow equipment photo keeps Close available on a short screen", async ({
   page,
 }) => {
-  await page.setViewportSize({ width: 320, height: 568 });
+  // Use a wider short viewport so the detail requests a larger derivative than
+  // the now-readable thumbnail; an already decoded identical URL cannot be delayed.
+  await page.setViewportSize({ width: 1024, height: 568 });
   await page.goto("/about#equipment");
   const trigger = page.getByRole("link", {
     name: "View photo of 3D alignment machine",
@@ -179,14 +181,18 @@ test("A slow equipment photo keeps Close available on a short screen", async ({
   const delayed = new Promise<void>((resolve) => {
     release = resolve;
   });
+  let requested = false;
   await page.route("**/*", async (route) => {
     const url = new URL(route.request().url());
-    if ((url.searchParams.get("url") ?? url.pathname).endsWith("/3d-alignment.jpg"))
+    if ((url.searchParams.get("url") ?? url.pathname).endsWith("/3d-alignment.jpg")) {
+      requested = true;
       await delayed;
+    }
     await route.fallback();
   });
   try {
     await trigger.click();
+    await expect.poll(() => requested).toBe(true);
     const dialog = page.getByRole("dialog", {
       name: "3D alignment machine",
       exact: true,

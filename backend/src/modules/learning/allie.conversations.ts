@@ -705,6 +705,17 @@ export async function submitAllieTurn(
   } catch (error) {
     await prisma.$transaction(async (tx) => {
       await mutex(tx);
+      // A human-channel handoff can close and cancel this turn while the
+      // provider response is in flight. Preserve the canonical conflict result
+      // even if the provider reports a transport failure before polling notices.
+      const [currentTurn, currentConversation] = await Promise.all([
+        tx.assistantTurn.findUnique({ where: { id: claim.turn.id } }),
+        tx.assistantConversation.findUnique({ where: { id } }),
+      ]);
+      if (
+        (currentTurn?.status === "CANCELLED" && currentTurn.failureCode === "access_changed") ||
+        currentConversation?.closedAt
+      ) accessLost = true;
       const changed = await tx.assistantTurn.updateMany({
         where: { id: claim.turn.id, status: "PENDING" },
         data: {
