@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { Check } from "lucide-react";
 import type { SupportKind } from "@/lib/api/support-schemas";
 import { SupportCreateForm } from "./support-create-form";
 import { catalogueOnly } from "@/lib/public-launch";
@@ -82,7 +83,10 @@ function EnabledPublicEnquiryForm({
                     checked={kind === value}
                     onChange={() => setKind(value)}
                   />
-                  <span>{value === "enquiries" ? "Enquiry" : "Complaint"}</span>
+                  <span>
+                    <Check size={15} aria-hidden="true" />
+                    {value === "enquiries" ? "Enquiry" : "Complaint"}
+                  </span>
                 </label>
               ))}
             </fieldset>

@@ -292,7 +292,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 108px;
+  gap: 7px;
+  min-width: 124px;
   min-height: 44px;
   border: 1px solid var(--contact-control-border);
   padding: 8px 14px;
@@ -304,6 +305,13 @@
 }
 .contact-reason label:last-of-type span {
   border-radius: 0 5px 5px 0;
+}
+.contact-reason span svg {
+  flex-shrink: 0;
+  visibility: hidden;
+}
+.contact-reason input:checked + span svg {
+  visibility: visible;
 }
 .contact-reason input:checked + span {
   background: var(--brand-red);

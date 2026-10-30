@@ -5,7 +5,9 @@ for (const width of [320, 390, 768, 1024, 1440]) {
     await page.emulateMedia({ reducedMotion: "reduce" });
     const errors: string[] = [];
     page.on("pageerror", (error) => errors.push(error.message));
-    await page.goto("/vehicles?bodyType=SUV&maxPriceKobo=500000000");
+    await page.goto(
+      "/vehicles?bodyType=SUV&maxPriceKobo=500000000&make=BMW&minYear=2000",
+    );
     const search = page.getByRole("searchbox", { name: "Search vehicles", exact: true });
     await expect(search).toBeEnabled();
     const corners = (element: Element) => {
@@ -23,12 +25,27 @@ for (const width of [320, 390, 768, 1024, 1440]) {
       expect(await button.evaluate(corners)).toEqual(reference);
       await button.hover();
       expect(await button.evaluate(corners)).toEqual(reference);
+      const before = await button.boundingBox();
+      await page.mouse.down();
+      expect(await button.evaluate(corners)).toEqual(reference);
+      await page.mouse.up();
+      await expect(button).toHaveAttribute("aria-pressed", "true");
+      expect(await button.evaluate(corners)).toEqual(reference);
+      const after = await button.boundingBox();
+      expect(after?.width).toBe(before?.width);
+      expect(after?.height).toBe(before?.height);
       await button.focus();
+      await page.keyboard.press("Tab");
+      await page.keyboard.press("Shift+Tab");
+      await expect(button).toBeFocused();
+      expect(await button.evaluate((el) => el.matches(":focus-visible"))).toBe(true);
       expect(await button.evaluate(corners)).toEqual(reference);
     }
     await page.getByRole("button", { name: "All types", exact: true }).click();
     await expect(page).not.toHaveURL(/bodyType=/);
     await expect(page).toHaveURL(/maxPriceKobo=500000000/);
+    await expect(page).toHaveURL(/make=BMW/);
+    await expect(page).toHaveURL(/minYear=2000/);
     if (width < 1024) await page.getByRole("button", { name: /^Filters/ }).click();
     const panel = page.locator(".vehicle-filter-panel[open]");
     expect(
