@@ -6,9 +6,12 @@ import type { PublicSeed } from "./public-seed";
 export const loadPublicSeed = cache(
   async <T>(path: string, parse: (value: unknown) => T): Promise<PublicSeed<T>> => {
     try {
-      return { data: await publicData(path, parse) };
+      return { path, data: await publicData(path, parse) };
     } catch {
-      return { error: "This information is temporarily unavailable. Please try again." };
+      return {
+        path,
+        error: "This information is temporarily unavailable. Please try again.",
+      };
     }
   },
 );

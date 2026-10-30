@@ -28,15 +28,14 @@ export function ServicesCatalogue({
   const cursor = params.get("cursor");
   const trail = params.get("_trail")?.split(",") ?? [];
   const filtered = !!(pricing || params.get("search") || params.get("categoryId"));
-  const resource = useResource(
-    serviceApiPath(params),
-    parseServiceDiscovery,
-    initial.data,
-    {
-      initialError: initial.error,
-      revalidateOnMount: false,
-    },
-  );
+  const apiPath = serviceApiPath(params);
+  // History may remount a cached server page under a newer client-side query.
+  // Seed only the query that the server actually read; fetch any other query.
+  const seeded = initial?.path === apiPath ? initial : undefined;
+  const resource = useResource(apiPath, parseServiceDiscovery, seeded?.data, {
+    initialError: seeded?.error,
+    revalidateOnMount: false,
+  });
   function navigate(next: URLSearchParams) {
     const query = normalizeServiceQuery(next).params.toString();
     const url = `/services${query ? `?${query}` : ""}${window.location.hash}`;

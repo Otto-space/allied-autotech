@@ -215,7 +215,15 @@ for (const width of [390, 1440]) {
         },
       });
     });
-    await page.goto("/parts?search=DEMO");
+    // Exercise client search: a full navigation is server rendered and cannot
+    // consume the browser-only fictional list.
+    await page
+      .getByRole("searchbox", { name: "Search products", exact: true })
+      .fill("demo");
+    await page.getByRole("button", { name: "Search products", exact: true }).click();
+    await expect(page.locator(".shop-product-card").nth(8).locator("h3")).toHaveText(
+      publicProduct.name,
+    );
     await expect(page.locator(".shop-product-card")).toHaveCount(12);
     const card = page.locator(".shop-product-card").nth(8);
     await card.scrollIntoViewIfNeeded();

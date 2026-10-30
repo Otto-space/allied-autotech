@@ -46,15 +46,14 @@ export function PartsCatalogue({
   const { params, invalid } = normalizeProductQuery(
     new URLSearchParams(searchParams.toString()),
   );
-  const products = useResource(
-    productApiPath(params),
-    parseProductDiscovery,
-    initial?.data,
-    {
-      initialError: initial?.error,
-      revalidateOnMount: false,
-    },
-  );
+  const apiPath = productApiPath(params);
+  // History may remount a cached server page under a newer client-side query.
+  // Seed only the query that the server actually read; fetch any other query.
+  const seeded = initial?.path === apiPath ? initial : undefined;
+  const products = useResource(apiPath, parseProductDiscovery, seeded?.data, {
+    initialError: seeded?.error,
+    revalidateOnMount: false,
+  });
   const categoryId = params.get("categoryId") ?? "";
   const category = useProductCategory(categoryId);
   const rootId = params.get("parentCategoryId") ?? category.data?.parentId ?? categoryId;

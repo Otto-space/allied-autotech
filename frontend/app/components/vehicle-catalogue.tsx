@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import type { PublicSeed } from "@/lib/api/public-seed";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -31,15 +31,14 @@ export function VehicleCatalogue({
   const { params, invalid } = normalizeVehicleQuery(
     new URLSearchParams(searchParams.toString()),
   );
-  const listings = useResource(
-    vehicleApiPath(params),
-    parseVehicleDiscovery,
-    initial?.data,
-    {
-      initialError: initial?.error,
-      revalidateOnMount: false,
-    },
-  );
+  const apiPath = vehicleApiPath(params);
+  // History may remount a cached server page under a newer client-side query.
+  // Seed only the query that the server actually read; fetch any other query.
+  const seeded = initial?.path === apiPath ? initial : undefined;
+  const listings = useResource(apiPath, parseVehicleDiscovery, seeded?.data, {
+    initialError: seeded?.error,
+    revalidateOnMount: false,
+  });
   const selected = vehicleFilterKeys.filter((key) => params.has(key));
   const publication = useResource(
     selected.length || params.has("cursor") ? "/public/vehicles/discovery?limit=1" : null,
