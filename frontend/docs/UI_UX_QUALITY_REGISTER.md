@@ -1,3 +1,35 @@
+### 1 November 2026: Readable booking detail published
+
+Frontend 36f4c51d670f0cfdc065be95ae2cf77e43082ab3 is promoted to apex/www as
+ dpl_4ok1PujUWyktVb4xPxxLGzMyvHkq (www redirects apex). Backend f0402b67 /
+36b4283f-63fc-401b-abbe-03b8bf9ccf2c is unchanged. Exact-master frontend
+41346242439, backend 41346242451 and secret check 41346242418 passed.
+Booking status/review labels are readable; the staff summary now collapses the
+canonical reference until requested, preserving full copy and manual fallback.
+Expanded staff-reference contrast was corrected before publication.
+
+Evidence: 1,312 frontend units passed, 12 existing skips; 24 focused booking units
+and 68 money/payment-availability/public-boundary units passed. Final hosted:
+12 booking interaction/accessibility cases, two copy cases and two safe screenshot
+captures passed; candidate public checks passed at 390/1440. Four post-promotion checks across apex/www at both widths passed with no page errors or overflow. The initial held
+bd952fa6 candidate failed contrast at four widths and was not promoted. No real
+appointment, financial transaction, policy approval or migration was performed.
+Read-only production check at 20:14 UTC passed 85-migration compatibility, strict
+TLS, runtime least privilege and eight worker heartbeats; temporary access removed.
+The pre-promotion gate revalidated backend identity/digests and reused that fresh
+check and the same-day populated restore rehearsal for the unchanged schema.
+Eight managed backups rechecked; latest 1 November 05:22:11 UTC.
+
+Owner financial clarification and a synthetic non-payable sample are in
+backend/docs/finance-review-20261101.md. Purchasing stays gated. Tax/CAC identifiers,
+accountant applicability/rounding approval, invoice metadata support, service-invoice
+timing and controlled publication/provenance remain outstanding. Existing percentage
+discounts truncate fractional kobo while VAT is half-up; proposal is not approval.
+Current broader limits: merchant acceptance and operational/other policy prerequisites,
+physical-device/unsampled role acceptance, fresh signed-in fitment recheck, separately
+blocked local service SSR fixture preview, and remaining legacy operational labels.
+This is a completed release batch, not a claim that the entire brief is complete.
+
 ### 1 November 2026: Appointment clarity and filter focus published
 
 Frontend ad97a7283f7b3cee5d2d6c9a832ca19f92561298 is live on apex/www as

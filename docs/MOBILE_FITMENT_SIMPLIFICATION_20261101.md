@@ -216,3 +216,64 @@ The scoped follow-up aligns label/copy feedback with the existing customer-card
 light text. New exact-source CI and hosted checks are required before promotion.
 Owner accounting clarification and a non-payable synthetic sample are recorded in
 backend/docs/finance-review-20261101.md; no financial policy or rounding is changed.
+
+## Final booking wording release — 1 November 2026
+
+Source 36f4c51d670f0cfdc065be95ae2cf77e43082ab3 is live as
+ dpl_4ok1PujUWyktVb4xPxxLGzMyvHkq on both domains. Exact-source checks:
+frontend 41346242439, backend 41346242451, secrets 41346242418 all passed.
+Frontend CI: 1,312 passing units / 12 existing skips; build/type/lint/format pass.
+Production dependency audit reported zero; development-inclusive install reported
+22 advisories (21 moderate, one high), unchanged and not described as clean.
+
+Before/after: staff detail previously exposed the full UUID in its header and raw
+uppercase statuses. It now shows a compact expandable reference with exact full-ID
+copy/fallback, and human-readable current/review/choice/outcome labels. Service
+receipt labels use the same mapping. Internal status values, versions, grants and
+required reviews are unchanged. Service receipt production submission remains gated;
+its updated source/CI evidence does not establish live submission acceptance.
+
+Final hosted synthetic checks: 12 booking cases passed, covering reviewed confirmation,
+service assignment, cancellation, disruption, permission limits, uncertain/conflict
+replay prevention and expanded-reference Axe at 320/390/768/1440. Two shared copy
+success/fallback cases with expanded Axe passed. Two 320/1440 capture cases passed;
+images inspected. Two actual candidate public checks passed with no page errors or
+overflow and preserved public booking gate. Fixtures are not real role acceptance.
+
+The earlier bd952fa6 held candidate passed eight booking cases but failed expanded
+label contrast at four widths (1.72:1); never promoted. The fix uses scoped light
+label/status text on the dark staff summary. A temporary inline-style probe was
+blocked by CSP and is not counted as evidence; final deployed-candidate checks
+passed without modifying CSP. Initial and final receipts remain separately named
+booking-wording and booking-readable. Shared copy evidence preserves original IDs.
+
+Accounting clarification: backend/docs/finance-review-20261101.md records exact
+missing fields, proposed rounding boundaries and non-payable synthetic example.
+Sample gross 2,669,134 kobo - discount 266,913 + VAT 180,167 = total 2,582,388;
+integer arithmetic and half-kobo boundary checks passed against the existing helper.
+68 existing backend money/payment-availability/public-launch tests passed without
+DB/provider writes. Initial shell-eval quoting failed before execution; stdin rerun
+passed. Current promotion truncation vs proposed half-up divergence is documented;
+no policy was approved and no calculation or activation gate changed.
+
+Production safety: 20:14 UTC read-only compatibility/TLS/privilege/eight-worker check
+passed, access removed and verified. Pre-promotion rechecked unchanged backend/digests,
+no pending release, health, exact aliases and all source/test evidence. Reused same-day
+populated restore for unchanged 85-migration schema. Eight managed backups remained,
+latest 05:22:11 UTC. No new migration, financial record, live booking or data cleanup.
+
+Safe synthetic images in the existing visualizations folder:
+mobile-fitment-20261101/staff-booking-reference-final-320.png and
+staff-booking-reference-final-1440.png. Earlier staff-booking-reference-320/1440
+images show the held contrast failure, not the production baseline.
+
+No Docker resource was created in this batch. Read-only inventory: 97 images,
+13 stopped containers, 14 volumes, 306 cache records. Existing data, shared caches,
+active/dirty worktrees and rollback resources retained. Final preflight showed
+26.09 GiB free; this is a point-in-time check, not a machine-wide disk guarantee.
+Remaining brief and real-device/role/activation gaps above stay open.
+
+Post-promotion: four actual public checks passed across apex/www at 390/1440,
+including Learn article refresh, Help, Services and the gated service-request
+fallback. No page errors or horizontal overflow. Both aliases were independently
+confirmed on dpl_4ok1PujUWyktVb4xPxxLGzMyvHkq; www redirects to apex.

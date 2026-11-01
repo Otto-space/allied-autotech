@@ -180,3 +180,8 @@ Appointment display checkpoint (1 November 2026): customer booking summary disti
 progressive reference disclosure use existing booking contracts. service-request v13,
 review requirements, semantic guide targets and server eligibility are unchanged;
 no feature flag or tutorial permission changed.
+
+Booking-label release checkpoint (1 November 2026): presentation source 36f4c51d
+is published on apex/www. Four-width detail and reviewed state transitions passed
+with synthetic hosted fixtures. service-request v13, role eligibility, guide targets
+and transaction gates remain unchanged. This does not prove real operational acceptance.
