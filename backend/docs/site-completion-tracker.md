@@ -4550,3 +4550,9 @@ review/choice labels and service receipts now reuse readable booking labels; sta
 summary reuses expandable full-reference control. Business/API values unchanged.
 Baseline two hosted cases passed; final exact-source CI/hosted checks pending.
 See docs/MOBILE_FITMENT_SIMPLIFICATION_20261101.md. Public runtime remains ad97a728.
+
+1 November stock/workshop follow-up: source uses existing readable status labels in
+movement choices/history and work-order summaries/reviews. Exact API values and
+financial/stock safeguards unchanged. Three hosted baselines passed; final checks
+pending. Two older booking assertions (No show/Completed) updated to the already
+published readable labels; no contract or permission was relaxed.

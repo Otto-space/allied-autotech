@@ -289,7 +289,7 @@ test("staff no-show requires explicit review, sends the version and cannot repla
   await expect(dialog.getByText(/outcome could not be confirmed/)).toBeVisible();
   await expect(dialog.getByRole("button", { name: "Confirm change" })).toBeDisabled();
   await dialog.getByRole("button", { name: "Close & review record" }).click();
-  await expect(page.locator(".booking-detail-status")).toHaveText("NO SHOW");
+  await expect(page.locator(".booking-detail-status")).toHaveText("No show");
   await expect(page.getByLabel("Next status")).toHaveCount(0);
   expect(reads).toBeGreaterThan(1);
   expect(mutations).toBe(1);
@@ -505,7 +505,7 @@ test("quotation issue and work-order milestones use revisions and refresh the pa
       .click();
     await expect(page.getByRole("dialog")).toHaveCount(0);
   }
-  await expect(page.locator(".booking-detail-status")).toHaveText("COMPLETED");
+  await expect(page.locator(".booking-detail-status")).toHaveText("Completed");
   await expect(page.getByLabel("Internal work-order notes")).toHaveCount(0);
   expect(workVersion).toBe(5);
   expect(reconciliationWarnings).toEqual([]);
