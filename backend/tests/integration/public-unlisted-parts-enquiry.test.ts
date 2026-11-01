@@ -49,7 +49,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       });
     });
 
-    it("keeps the database requirement for customer-linked Product enquiries", async () => {
+    it("persists customer-owned unlisted parts requests without inventing a product", async () => {
       const user = await prisma.user.create({
         data: {
           email: `linked-parts-${randomUUID()}@example.test`,
@@ -75,11 +75,15 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
             customerId: user.profile!.id,
             name: "Synthetic linked customer",
             email: "linked-constraint@example.test",
-            subject: "Invalid linked enquiry",
-            message: "A customer-linked product still requires its real reference.",
+            subject: "Customer-owned unlisted part",
+            message: "Please assess this unlisted part before preparing a quotation.",
           },
         }),
-      ).rejects.toThrow(/aat_enquiry_target_valid/);
+      ).resolves.toMatchObject({
+        type: "PRODUCT",
+        customerId: user.profile!.id,
+        productId: null,
+      });
     });
 
     it("retains the source requirement for other public enquiry categories", async () => {

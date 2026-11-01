@@ -60,3 +60,9 @@ No production records, inventory, approvals, slots or financial transactions cha
 - Public/customer transactions remain gated by `PUBLIC_LAUNCH_MODE` and `NEXT_PUBLIC_PUBLIC_LAUNCH_MODE`; a source release does not authorise changing them. Manual-payment submission now respects that same frontend restriction.
 - Evidence screenshots use synthetic fixtures. Quotation review and accepted states, administrator issuance and unlisted request screenshots are preserved in the task's local visualizations directory. No pre-implementation screenshot was captured; 200% browser zoom and physical-device acceptance remain unverified.
 - Ten exact, verified stopped task test databases were removed through their temporary data directories; logs were retained. Unverified temporary folders were preserved. Disk preflight after cleanup: 26.75 GiB free, with build still running; this is not a machine-wide guarantee.
+
+## Exact-master CI correction
+
+Signed source `058c435c` was integrated into master. Secret check 41333051092 passed; frontend 41333050838 is running. Backend 41333050937 failed two older unlisted-parts assertions: they still prohibited customer-owned requests without a product ID. The brief requires those requests; the assertions now verify persistence while retaining invalid-service-reference rejection. Fresh isolated rerun passed all 14 tests across four files after 85-migration replay and db:check. No production promotion occurred. Docker initially remained unavailable after startup; Computer Use returned ?Computer Use was not approved to use Docker Desktop.? Owner restart is requested; no reset or data deletion was attempted.
+
+Owner restarted Docker; engine 29.8.0 is now verified. Existing stopped containers and their data are retained. The corrected tests and updated evidence are being integrated for new exact-master CI.

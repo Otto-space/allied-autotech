@@ -52,7 +52,7 @@ describe("unlisted public parts enquiries", () => {
         subject: input.subject,
         message: input.message,
       }).success,
-    ).toBe(false);
+    ).toBe(true);
     for (const invalid of [
       { ...input, productId: "invalid" },
       { ...input, type: "SERVICE" },
