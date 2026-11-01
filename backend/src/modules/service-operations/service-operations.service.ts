@@ -164,6 +164,9 @@ function bookingFingerprint(input: BookingCreateInput): string {
   return createHash("sha256")
     .update(
       JSON.stringify({
+        ...(input.serviceCategoryId === undefined
+          ? {}
+          : { serviceCategoryId: input.serviceCategoryId }),
         slotId: input.slotId,
         ...(input.slotId === undefined
           ? {
@@ -673,6 +676,31 @@ export class ServiceOperationsService {
           },
         };
       }
+      // Resolve from canonical records, never a client-supplied label. Keep this
+      // snapshot unchanged when staff later classify the concern or move a service.
+      let categoryId = input.serviceCategoryId;
+      if (slot.serviceId) {
+        await transaction.$queryRaw`SELECT "id" FROM "Service" WHERE "id" = ${slot.serviceId}::uuid FOR SHARE`;
+        const serviceGroup = await transaction.service.findUnique({
+          where: { id: slot.serviceId },
+          select: { categoryId: true },
+        });
+        if (categoryId && categoryId !== serviceGroup?.categoryId)
+          throw serviceOperationConflict(
+            "The service group changed. Review the service and try again.",
+          );
+        categoryId ??= serviceGroup?.categoryId ?? undefined;
+      }
+      let requestedGroup: { id: string; name: string } | null = null;
+      if (categoryId) {
+        await transaction.$queryRaw`SELECT "id" FROM "ServiceCategory" WHERE "id" = ${categoryId}::uuid FOR SHARE`;
+        requestedGroup = await transaction.serviceCategory.findFirst({
+          where: { id: categoryId, isActive: true },
+          select: { id: true, name: true },
+        });
+        // Unpublished groups must not leak through an otherwise public service.
+        if (!requestedGroup && input.serviceCategoryId) throw serviceOperationNotFound();
+      }
       if (
         input.vehicleId !== undefined &&
         (await this.repository.ownedVehicle(profile.id, input.vehicleId, transaction)) ===
@@ -714,6 +742,8 @@ export class ServiceOperationsService {
           bookingSlotId: slot.id,
           scheduledAt: slot.startsAt,
           status: "REQUESTED",
+          requestedServiceCategoryId: requestedGroup?.id ?? null,
+          requestedServiceCategoryName: requestedGroup?.name ?? null,
           customerConcern: input.customerConcern ?? null,
           quotedPriceKobo: slot.service.priceKobo,
           currency: "NGN",
@@ -747,6 +777,7 @@ export class ServiceOperationsService {
         entityType: "BOOKING",
         entityId: booking.id,
         newValues: {
+          requestedServiceCategoryId: booking.requestedServiceCategoryId,
           branchId: booking.branchId,
           serviceId: booking.serviceId,
           status: booking.status,

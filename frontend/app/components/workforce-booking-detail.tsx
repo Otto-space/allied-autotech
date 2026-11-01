@@ -71,6 +71,9 @@ export function WorkforceBookingDetail({
           <NotificationRecordContext resourceType="BOOKING" resourceId={row.id} />
           <section className="card" aria-label="Booking appointment">
             <h2>{row.service?.name ?? "Vehicle concern"}</h2>
+            {row.requestedServiceCategoryName && (
+              <p>Requested service group: {row.requestedServiceCategoryName}</p>
+            )}
             {row.customerConcern && <p>{row.customerConcern}</p>}
             <dl className="totals">
               <dt>Booking status</dt>

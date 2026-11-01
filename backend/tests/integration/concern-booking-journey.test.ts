@@ -17,6 +17,72 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       f = await workforceFixture();
     }, 30000);
     afterAll(() => prisma.$disconnect());
+    it("rejects withdrawn or mismatched groups and snapshots a service group without inventing a price", async () => {
+      const customer = await f.account(null, "CUSTOMER");
+      const group = await prisma.serviceCategory.create({
+        data: { name: "Published inspection group", slug: randomUUID() },
+      });
+      const other = await prisma.serviceCategory.create({
+        data: { name: "Other group", slug: randomUUID() },
+      });
+      const hidden = await prisma.serviceCategory.create({
+        data: { name: "Private group", slug: randomUUID(), isActive: false },
+      });
+      const service = await prisma.service.create({
+        data: {
+          name: "Group inspection",
+          slug: randomUUID(),
+          categoryId: group.id,
+          pricingType: "QUOTE_REQUIRED",
+        },
+      });
+      const body = {
+        branchId: f.home.id,
+        preferredAt: new Date(Date.now() + 8 * 86400000).toISOString(),
+        policyVersion: bookingPolicy.version,
+      };
+      const send = (detail: object) =>
+        request(app)
+          .post("/api/v1/customers/bookings")
+          .set(customer.headers)
+          .set("Idempotency-Key", randomUUID())
+          .send({ ...body, ...detail });
+      for (const serviceCategoryId of [hidden.id, randomUUID()]) {
+        expect(
+          (
+            await send({
+              serviceCategoryId,
+              customerConcern: "Please inspect the vehicle noise.",
+            })
+          ).status,
+        ).toBe(404);
+      }
+      expect(
+        (await send({ serviceId: service.id, serviceCategoryId: other.id })).status,
+      ).toBe(409);
+      expect(
+        await prisma.booking.count({ where: { customerId: customer.user.profile!.id } }),
+      ).toBe(0);
+      const result = await send({ serviceId: service.id });
+      expect(result.status).toBe(201);
+      expect(result.body.data.booking).toMatchObject({
+        requestedServiceCategoryId: group.id,
+        requestedServiceCategoryName: group.name,
+        quotedPriceKobo: null,
+        status: "REQUESTED",
+      });
+      await prisma.service.update({
+        where: { id: service.id },
+        data: { categoryId: other.id },
+      });
+      const read = await request(app)
+        .get(`/api/v1/customers/bookings/${result.body.data.booking.id}`)
+        .set(customer.headers);
+      expect(read.body.data).toMatchObject({
+        requestedServiceCategoryId: group.id,
+        requestedServiceCategoryName: group.name,
+      });
+    });
     it("retains one customer request through classification, proposed time, acceptance and explicit confirmation", async () => {
       const customer = await f.account(null, "CUSTOMER");
       const vehicle = await prisma.customerVehicle.create({
@@ -26,6 +92,9 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
           model: "Journey",
           year: 2020,
         },
+      });
+      const group = await prisma.serviceCategory.create({
+        data: { name: "Original engine work", slug: randomUUID() },
       });
       const service = await prisma.service.create({
         data: {
@@ -39,6 +108,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       preferred.setUTCHours(9, 0, 0, 0);
       const concern = "The engine rattles when starting from cold.";
       const body = {
+        serviceCategoryId: group.id,
         customerConcern: concern,
         vehicleId: vehicle.id,
         branchId: f.home.id,
@@ -60,8 +130,20 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         id,
         status: "REQUESTED",
         service: null,
+        requestedServiceCategoryId: group.id,
+        requestedServiceCategoryName: group.name,
         customerConcern: concern,
       });
+      await prisma.serviceCategory.update({
+        where: { id: group.id },
+        data: { name: "Changed engine group", isActive: false },
+      });
+      const changedGroup = await request(app)
+        .post("/api/v1/customers/bookings")
+        .set(customer.headers)
+        .set("Idempotency-Key", key)
+        .send({ ...body, serviceCategoryId: randomUUID() });
+      expect(changedGroup.status).toBe(409);
       const replay = await create();
       expect(replay.status).toBe(201);
       expect(replay.body.data.booking.id).toBe(id);
@@ -72,9 +154,11 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         .set("Idempotency-Key", key)
         .send({ ...body, customerConcern: "The brakes squeal when slowing down." });
       expect(changedConcern.status).toBe(409);
-      expect(
-        await prisma.booking.findUniqueOrThrow({ where: { id } }),
-      ).toMatchObject({ customerConcern: concern, status: "REQUESTED", version: 0 });
+      expect(await prisma.booking.findUniqueOrThrow({ where: { id } })).toMatchObject({
+        customerConcern: concern,
+        status: "REQUESTED",
+        version: 0,
+      });
       expect((await create()).body.data).toMatchObject({
         booking: { id, customerConcern: concern },
         replayed: true,
@@ -102,6 +186,14 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
             reason: "Reviewed the reported concern and technician suitability.",
           });
       expect((await assign(0)).status).toBe(200);
+      const staffRead = await request(app)
+        .get(`/api/v1/staff/workforce/jobs/${id}`)
+        .set(f.lead.headers);
+      expect(staffRead.status).toBe(200);
+      expect(staffRead.body.data).toMatchObject({
+        requestedServiceCategoryId: group.id,
+        requestedServiceCategoryName: group.name,
+      });
       expect((await read()).body.data).toMatchObject({
         id,
         status: "REQUESTED",
@@ -187,6 +279,8 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       expect(final.body.data).toMatchObject({
         id,
         status: "CONFIRMED",
+        requestedServiceCategoryId: group.id,
+        requestedServiceCategoryName: group.name,
         scheduledAt: alternative,
         customerConcern: concern,
         customerNotes: body.customerNotes,

@@ -22,6 +22,8 @@ const workforceBookingSchema = z.object({
     ],
   ),
   version: z.number().int().nonnegative(),
+  requestedServiceCategoryId: z.uuid().nullable().optional(),
+  requestedServiceCategoryName: z.string().nullable().optional(),
   customerConcern: z.string().nullable().optional(),
   alternativeStartsAt: z.iso.datetime().nullable().optional(),
   alternativeReason: z.string().nullable().optional(),

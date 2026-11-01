@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 import { mkdirSync, writeFileSync } from "node:fs";
@@ -15,7 +16,7 @@ describe.skipIf(process.env.RUN_NATIVE_BROWSER_TESTS !== "true")(
   () => {
     let f: Awaited<ReturnType<typeof workforceFixture>>, server: Server;
     const origin = "http://127.0.0.1:3021";
-    const evidence = join(tmpdir(), "aat-native-concern-proposal-20261101");
+    const evidence = join(tmpdir(), "aat-native-booking-group-20261101");
     beforeAll(async () => {
       await assertIsolatedLoopbackDatabase();
       f = await workforceFixture();
@@ -45,6 +46,9 @@ describe.skipIf(process.env.RUN_NATIVE_BROWSER_TESTS !== "true")(
     });
     for (const width of [390, 1440])
       it(`submits a concern, reviews a staff proposal and accepts without confirmation at ${width}px`, async () => {
+        const group = await prisma.serviceCategory.create({
+          data: { name: "Tyre & Wheel Maintenance", slug: randomUUID() },
+        });
         const customer = await f.account(null, "CUSTOMER");
         const vehicle = await prisma.customerVehicle.create({
           data: {
@@ -81,7 +85,7 @@ describe.skipIf(process.env.RUN_NATIVE_BROWSER_TESTS !== "true")(
             (response: { url(): string }) => response.url().endsWith("/auth/session"),
             { timeout: 60000 },
           );
-          await page.goto(origin + "/services/request", {
+          await page.goto(origin + `/services/request?serviceGroup=${group.id}`, {
             waitUntil: "domcontentloaded",
             timeout: 60000,
           });
@@ -157,7 +161,12 @@ describe.skipIf(process.env.RUN_NATIVE_BROWSER_TESTS !== "true")(
           await browserExpect(page.locator("main")).toContainText(concern, {
             timeout: 30000,
           });
+          await prisma.serviceCategory.update({
+            where: { id: group.id },
+            data: { name: "Renamed workshop group", isActive: false },
+          });
           await page.reload();
+          await browserExpect(page.locator("main")).toContainText(group.name);
           await browserExpect(page.locator("main")).toContainText(concern, {
             timeout: 30000,
           });
@@ -173,6 +182,10 @@ describe.skipIf(process.env.RUN_NATIVE_BROWSER_TESTS !== "true")(
           await page.screenshot({ path: join(evidence, `saved-${width}.png`) });
 
           const booking = rows[0]!;
+          expect(booking).toMatchObject({
+            requestedServiceCategoryId: group.id,
+            requestedServiceCategoryName: group.name,
+          });
           const staffContext = await browser.newContext({
             viewport: { width, height: 900 },
           });
@@ -190,6 +203,9 @@ describe.skipIf(process.env.RUN_NATIVE_BROWSER_TESTS !== "true")(
           const staffPage = await staffContext.newPage();
           staffPage.on("pageerror", (e: Error) => errors.push(e.message));
           await staffPage.goto(origin + `/admin/workforce/bookings/${booking.id}`);
+          await browserExpect(staffPage.locator("main")).toContainText(
+            `Requested service group: ${group.name}`,
+          );
           const proposedLocal = new Date(date.getTime() + 86400000)
             .toISOString()
             .slice(0, 16);

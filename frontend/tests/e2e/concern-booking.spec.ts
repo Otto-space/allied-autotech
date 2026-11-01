@@ -17,6 +17,13 @@ for (const width of [390, 1440]) {
       const req = route.request();
       const pathname = new URL(req.url()).pathname.replace(/^\/api\/v1/, "");
       let data: unknown = { items: [] };
+      if (pathname === `/public/services/categories/${id(95)}`)
+        data = {
+          id: id(95),
+          name: "Engine & Drive System Maintenance",
+          slug: "engine",
+          description: null,
+        };
       if (pathname === "/auth/session")
         data = { user: { id: id(91), role: "CUSTOMER" }, mfaRequired: false };
       if (pathname === "/customers/profile") {
@@ -72,6 +79,8 @@ for (const width of [390, 1440]) {
           booking: {
             ...booking,
             service: null,
+            requestedServiceCategoryId: id(95),
+            requestedServiceCategoryName: "Engine & Drive System Maintenance",
             customerConcern: calls[0].body.customerConcern,
             status: "REQUESTED",
           },
@@ -86,7 +95,7 @@ for (const width of [390, 1440]) {
         },
       });
     });
-    await page.goto("/services/request");
+    await page.goto(`/services/request?serviceGroup=${id(95)}`);
     await expect(
       page.getByRole("heading", { name: "Tell us what your vehicle needs" }),
     ).toBeVisible();
@@ -159,6 +168,10 @@ for (const width of [390, 1440]) {
     expect(calls).toHaveLength(2);
     expect(calls[0].key).toBeTruthy();
     expect(calls[1]).toEqual(calls[0]);
+    expect(calls[0].body.serviceCategoryId).toBe(id(95));
+    await expect(
+      page.getByText("Engine & Drive System Maintenance", { exact: true }),
+    ).toBeVisible();
     expect(calls[0].body.vehicleId).toBe(id(92));
     expect(calls[0].body).not.toHaveProperty("serviceId");
     expect(calls[0].body).not.toHaveProperty("priceKobo");
@@ -291,3 +304,68 @@ for (const mode of [
     expect(await page.evaluate(() => document.body.style.overflow)).not.toBe("hidden");
   });
 }
+
+test("unavailable service group requires recovery without losing the concern", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  let writes = 0;
+  await page.route("**/api/v1/**", async (route) => {
+    const path = new URL(route.request().url()).pathname.replace("/api/v1", "");
+    if (route.request().method() === "POST") writes++;
+    if (path.startsWith("/public/services/categories/"))
+      return route.fulfill({
+        status: 404,
+        json: {
+          success: false,
+          message: "Service group unavailable",
+          error: { code: "NOT_FOUND" },
+          meta: { requestId: "group-recovery" },
+        },
+      });
+    let data: unknown = { items: [] };
+    if (path === "/auth/session")
+      data = { user: { id: id(91), role: "CUSTOMER" }, mfaRequired: false };
+    if (path === "/public/branches") data = { items: [branch] };
+    if (path === "/public/booking-policy")
+      data = {
+        version: "test-policy",
+        minimumAdvanceHours: 168,
+        maximumAdvanceHours: 336,
+        paymentHoldMinutes: 30,
+        depositBasisPoints: 0,
+        depositRefundableForCustomerCancellation: true,
+        customerRescheduleLimit: 1,
+        customerRescheduleCutoffHours: 24,
+        reminderHoursBeforeAppointment: [24],
+      };
+    return route.fulfill({
+      json: {
+        success: true,
+        data,
+        message: "Isolated group recovery",
+        meta: { requestId: "group-recovery" },
+      },
+    });
+  });
+  await page.goto(`/services/request?serviceGroup=${id(95)}`);
+  await page
+    .getByLabel("What have you noticed?")
+    .fill("Please inspect the braking noise.");
+  await expect(
+    page.getByRole("button", { name: "Retry service group", exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Review request", exact: true }),
+  ).toBeDisabled();
+  await page
+    .getByRole("button", { name: "Continue without a group", exact: true })
+    .click();
+  await expect(
+    page.getByRole("button", { name: "Review request", exact: true }),
+  ).toBeEnabled();
+  await expect(page.getByLabel("What have you noticed?")).toHaveValue(
+    "Please inspect the braking noise.",
+  );
+  expect(writes).toBe(0);
+});

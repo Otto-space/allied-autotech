@@ -1,3 +1,4 @@
+import { z } from "zod";
 import Link from "next/link";
 import { SiteHeader } from "../../components/site-header";
 import { SiteFooter } from "../../components/site-footer";
@@ -8,7 +9,16 @@ export const metadata = {
   title: "Describe a vehicle concern | Allied AutoTech",
   robots: { index: false, follow: true },
 };
-export default function ConcernRequestPage() {
+export default async function ConcernRequestPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ serviceGroup?: string }>;
+}) {
+  const query = await searchParams;
+  const serviceGroup = z.uuid().safeParse(query.serviceGroup).data;
+  const enquiryHref = serviceGroup
+    ? `/contact?serviceGroup=${serviceGroup}#enquiry`
+    : "/contact#enquiry";
   return (
     <>
       <SiteHeader />
@@ -38,12 +48,15 @@ export default function ConcernRequestPage() {
             <section>
               <h2>Contact the workshop</h2>
               <p>Online booking requests are not available in this release.</p>
-              <Link className="button" href="/contact#enquiry">
+              <Link className="button" href={enquiryHref}>
                 Describe your concern
               </Link>
             </section>
           ) : (
-            <ConcernBooking />
+            <ConcernBooking
+              key={serviceGroup ?? "general"}
+              initialServiceGroup={serviceGroup}
+            />
           )}
         </div>
       </main>

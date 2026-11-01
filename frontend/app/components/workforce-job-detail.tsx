@@ -607,6 +607,12 @@ export function WorkforceJobDetail({
                 <div>
                   <dt>Customer concern</dt>
                   <dd>{job.customerConcern || "Not recorded"}</dd>
+                  {job.requestedServiceCategoryName && (
+                    <>
+                      <dt>Requested service group</dt>
+                      <dd>{job.requestedServiceCategoryName}</dd>
+                    </>
+                  )}
                 </div>
                 <div>
                   <dt>Additional customer notes</dt>

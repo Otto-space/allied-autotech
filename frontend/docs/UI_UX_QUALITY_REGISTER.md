@@ -1,3 +1,15 @@
+### 1 November 2026: selected group through booking
+
+Local full-mode request flow now retains selected group across sign-in handoff,
+review, receipt and customer/staff detail. Native browser/API checks at 390/1440
+verify saved group after rename/unpublication and pending status after proposal
+acceptance. Seven fixture browser cases cover review/retry, withdrawn-group recovery,
+service booking review and category enquiry; eight draft units pass. Scoped Axe and
+overflow checks pass where included. Screenshots inspected in TEMP/aat-native-booking-group-20261101
+and TEMP/aat-booking-group-browser. Existing production launch gates remain; limited
+request page enquiry retains the group. This is local acceptance pending release,
+not physical-phone or production booking acceptance. Full scope remains open.
+
 ### 1 November 2026: service-group imagery production acceptance
 
 Runtime 30780884 is live on apex/www as dpl_HGU7Lfaq6oM9XxgTMmUYyStR9a7D,

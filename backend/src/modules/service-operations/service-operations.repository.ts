@@ -169,6 +169,8 @@ export const bookingSelect = {
   status: true,
   quotedPriceKobo: true,
   currency: true,
+  requestedServiceCategoryId: true,
+  requestedServiceCategoryName: true,
   customerConcern: true,
   alternativeStartsAt: true,
   alternativeReason: true,

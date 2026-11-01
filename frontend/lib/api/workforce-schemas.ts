@@ -205,6 +205,8 @@ export const workforceJobSchema = z.object({
   version: z.number().int(),
   assignedStaffId: z.uuid().nullable(),
   customerNotes: z.string().nullable(),
+  requestedServiceCategoryId: z.uuid().nullable().optional(),
+  requestedServiceCategoryName: z.string().nullable().optional(),
   customerConcern: z.string().nullable().optional(),
   service: z.object({ id: z.uuid().optional(), name: z.string() }).nullable(),
   vehicle: z

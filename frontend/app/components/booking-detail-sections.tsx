@@ -27,6 +27,12 @@ export function BookingAppointment({ booking }: { booking: CustomerBookingDetail
         <p className="booking-concern-description">{booking.customerConcern}</p>
       )}
       <dl className="booking-facts">
+        {booking.requestedServiceCategoryName && (
+          <div>
+            <dt>Requested service group</dt>
+            <dd>{booking.requestedServiceCategoryName}</dd>
+          </div>
+        )}
         <div>
           <dt>
             <CalendarDays aria-hidden="true" size={18} />

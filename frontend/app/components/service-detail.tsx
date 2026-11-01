@@ -51,6 +51,7 @@ import type { CustomerVehicle } from "@/lib/api/vehicle-schemas";
 type BookingReview = {
   body: RequestBody<"/customers/bookings", "post">;
   serviceName: string;
+  groupName?: string;
   branchName: string;
   startsAt: string;
   endsAt: string | null;
@@ -315,6 +316,7 @@ export function ServiceDetail({
     setNotesError(undefined);
     setReview({
       body: {
+        ...(current.category ? { serviceCategoryId: current.category.id } : {}),
         ...(selectedSlot
           ? { slotId: selectedSlot.id }
           : { serviceId, branchId: branch, preferredAt: preferredAt! }),
@@ -323,6 +325,7 @@ export function ServiceDetail({
         ...(customerNotes ? { customerNotes } : {}),
         ...(vehicle ? { vehicleId: vehicle.id } : {}),
       },
+      groupName: current.category?.name,
       serviceName: current.name,
       branchName,
       startsAt: selectedTime!.startsAt,
@@ -368,6 +371,8 @@ export function ServiceDetail({
       review.endsAt !== selectedTime?.endsAt ||
       review.priceKobo !== bookingPrice ||
       review.serviceName !== current?.name ||
+      review.body.serviceCategoryId !== (current?.category?.id ?? undefined) ||
+      review.groupName !== current?.category?.name ||
       !!policy.error ||
       (!!selectedSlot && !!slots.error));
   async function book() {
@@ -856,6 +861,12 @@ export function ServiceDetail({
                           <div>
                             <dt>Service</dt>
                             <dd>{review.serviceName}</dd>
+                            {review.groupName && (
+                              <>
+                                <dt>Service group</dt>
+                                <dd>{review.groupName}</dd>
+                              </>
+                            )}
                           </div>
                           <div>
                             <dt>Branch</dt>

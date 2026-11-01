@@ -72,6 +72,7 @@ describe("explicit anonymous booking sign-in handoff", () => {
 });
 
 const concernDraft = {
+  serviceCategoryId: "a9000000-0000-4000-8000-000000000004",
   branchId: draft.branchId,
   branchName: draft.branchName,
   preferredTime: draft.preferredTime,

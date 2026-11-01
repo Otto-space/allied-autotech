@@ -379,6 +379,9 @@ function BookingRecord({ bookingId }: { bookingId: string }) {
             <header>
               <div>
                 <h2>{current.service?.name ?? "Vehicle concern"}</h2>
+                {current.requestedServiceCategoryName && (
+                  <p>Requested service group: {current.requestedServiceCategoryName}</p>
+                )}
                 {current.customerConcern && <p>{current.customerConcern}</p>}
                 <p>Booking {current.id}</p>
               </div>

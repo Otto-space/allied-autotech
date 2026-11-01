@@ -191,7 +191,7 @@ export function registerServiceOperationsOpenApi(registry: OpenAPIRegistry): voi
       path: "/customers/bookings",
       summary: "Request a booking",
       description:
-        "Accept an offered slot, or a preferred branch/time with either a published service or a customerConcern of 10–2000 characters. Concern requests retain null service and price until staff classification. All requests require staff confirmation.",
+        "Accept an offered slot, or a preferred branch/time with either a published service or a customerConcern of 10–2000 characters. An optional serviceCategoryId must be published and match a selected service. The original group ID and name are retained with the booking. Concern requests retain null service and price until staff classification. All requests require staff confirmation.",
       body: bookingCreateBodySchema,
       secured: true,
       csrf: true,

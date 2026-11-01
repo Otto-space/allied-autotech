@@ -2575,7 +2575,7 @@ export interface paths {
         put?: never;
         /**
          * Request a booking
-         * @description Accept an offered slot, or a preferred branch/time with either a published service or a customerConcern of 10–2000 characters. Concern requests retain null service and price until staff classification. All requests require staff confirmation. Request a booking. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
+         * @description Accept an offered slot, or a preferred branch/time with either a published service or a customerConcern of 10–2000 characters. An optional serviceCategoryId must be published and match a selected service. The original group ID and name are retained with the booking. Concern requests retain null service and price until staff classification. All requests require staff confirmation. Request a booking. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
          */
         post: operations["postCustomersBookings"];
         delete?: never;
@@ -49926,6 +49926,11 @@ export interface operations {
                      * @description Identifier of the service resource; ownership is resolved server-side.
                      */
                     serviceId?: string;
+                    /**
+                     * Format: uuid
+                     * @description Identifier of the service category resource; ownership is resolved server-side.
+                     */
+                    serviceCategoryId?: string;
                     /** @description Customer Concern validated by this operation's strict request contract. */
                     customerConcern?: string;
                     /**
@@ -137378,6 +137383,13 @@ export interface operations {
                                 assignedStaffId: string | null;
                                 /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
                                 customerNotes: string | null;
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the requested service category resource; ownership is resolved server-side.
+                                 */
+                                requestedServiceCategoryId?: string | null;
+                                /** @description Requested Service Category Name validated by this operation's strict request contract. */
+                                requestedServiceCategoryName?: string | null;
                                 /** @description Customer Concern validated by this operation's strict request contract. */
                                 customerConcern?: string | null;
                                 /** @description Service validated by this operation's strict request contract. */
@@ -137888,6 +137900,13 @@ export interface operations {
                                     /** @description Name validated by this operation's strict request contract. */
                                     name: string;
                                 } | null;
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the requested service category resource; ownership is resolved server-side.
+                                 */
+                                requestedServiceCategoryId?: string | null;
+                                /** @description Requested Service Category Name validated by this operation's strict request contract. */
+                                requestedServiceCategoryName?: string | null;
                                 /** @description Customer Concern validated by this operation's strict request contract. */
                                 customerConcern?: string | null;
                                 /** @description Customer validated by this operation's strict request contract. */
@@ -138331,6 +138350,13 @@ export interface operations {
                             assignedStaffId: string | null;
                             /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
                             customerNotes: string | null;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the requested service category resource; ownership is resolved server-side.
+                             */
+                            requestedServiceCategoryId?: string | null;
+                            /** @description Requested Service Category Name validated by this operation's strict request contract. */
+                            requestedServiceCategoryName?: string | null;
                             /** @description Customer Concern validated by this operation's strict request contract. */
                             customerConcern?: string | null;
                             /** @description Service validated by this operation's strict request contract. */
@@ -139370,6 +139396,13 @@ export interface operations {
                                 /** @description Duration Minutes validated by this operation's strict request contract. */
                                 durationMinutes: number | null;
                             } | null;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the requested service category resource; ownership is resolved server-side.
+                             */
+                            requestedServiceCategoryId?: string | null;
+                            /** @description Requested Service Category Name validated by this operation's strict request contract. */
+                            requestedServiceCategoryName?: string | null;
                             /** @description Customer Concern validated by this operation's strict request contract. */
                             customerConcern?: string | null;
                             /** @description Customer validated by this operation's strict request contract. */
@@ -140471,6 +140504,13 @@ export interface operations {
                             assignedStaffId: string | null;
                             /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
                             customerNotes: string | null;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the requested service category resource; ownership is resolved server-side.
+                             */
+                            requestedServiceCategoryId?: string | null;
+                            /** @description Requested Service Category Name validated by this operation's strict request contract. */
+                            requestedServiceCategoryName?: string | null;
                             /** @description Customer Concern validated by this operation's strict request contract. */
                             customerConcern?: string | null;
                             /** @description Service validated by this operation's strict request contract. */
@@ -140993,6 +141033,13 @@ export interface operations {
                             assignedStaffId: string | null;
                             /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
                             customerNotes: string | null;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the requested service category resource; ownership is resolved server-side.
+                             */
+                            requestedServiceCategoryId?: string | null;
+                            /** @description Requested Service Category Name validated by this operation's strict request contract. */
+                            requestedServiceCategoryName?: string | null;
                             /** @description Customer Concern validated by this operation's strict request contract. */
                             customerConcern?: string | null;
                             /** @description Service validated by this operation's strict request contract. */
@@ -141527,6 +141574,13 @@ export interface operations {
                             assignedStaffId: string | null;
                             /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
                             customerNotes: string | null;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the requested service category resource; ownership is resolved server-side.
+                             */
+                            requestedServiceCategoryId?: string | null;
+                            /** @description Requested Service Category Name validated by this operation's strict request contract. */
+                            requestedServiceCategoryName?: string | null;
                             /** @description Customer Concern validated by this operation's strict request contract. */
                             customerConcern?: string | null;
                             /** @description Service validated by this operation's strict request contract. */

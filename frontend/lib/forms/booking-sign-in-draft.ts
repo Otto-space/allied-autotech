@@ -19,6 +19,7 @@ const concernSchema = schema
   .extend({
     kind: z.literal("concern"),
     customerConcern: z.string().max(2000),
+    serviceCategoryId: z.uuid().optional(),
   })
   .strict();
 const storedSchema = z.union([schema, concernSchema]);

@@ -1,3 +1,54 @@
+### 1 November 2026: selected service-group booking continuity verified locally
+
+Bounded package began about 11:39 UTC. Added optional serviceCategoryId to existing
+booking intake. Server validates a published group, rejects a mismatch with the
+selected service, and captures the canonical group ID/name. A service booking also
+captures its published group when the client omits the optional field. Private
+category labels are not exposed. The original snapshot survives group renaming,
+unpublication, service reclassification and staff assignment; old bookings remain
+unchanged with null context. Existing idempotency hashes remain compatible when
+no group was supplied; changed group requests cannot reuse a submission key.
+
+Additive migration 20261101120000_booking_service_group adds nullable snapshot
+columns, a restrictive category foreign key, paired-value check and index. Prisma
+client regenerated. Two fresh isolated 83-migration replays and db:check passed
+with no drift. Latest isolated target aat_booking_group_8560ac81a5_test on
+127.0.0.1:54063 passed 8 tests across concern HTTP journey, native rendered concern
+journey and booking-response recovery (72.32s). Native browser cases at 390/1440
+create real test bookings through the UI/API, retain original group after catalogue
+rename/unpublication, show it in customer/staff details, and preserve pending
+confirmation after a staff proposal and customer acceptance. No real customer,
+production booking, payment or delivered communication was used.
+
+Frontend preserves group in the 15-minute sign-in handoff, review, receipt and
+customer/staff details. Individual-service review includes its group and detects
+changed category context. Withdrawn-group recovery retains entered concern and
+requires retry or explicit removal. Catalogue Request a visit respects existing
+launch restrictions; restricted request pages retain category-specific enquiry.
+service-request learning guidance is v12; eligibility and all feature flags unchanged.
+
+Eight frontend draft units, five learning units, seven browser fixture cases passed:
+concern review/retry (2), unavailable-group recovery (1), individual-service
+review/edit/receipt (2), category enquiry (2). Native and fixture screenshots are in
+TEMP/aat-native-booking-group-20261101 and TEMP/aat-booking-group-*; phone/desktop
+screenshots inspected. Scoped Axe and overflow checks passed where included.
+Backend/frontend types, scoped lint, formatting and route coverage (482 operations,
+4 infrastructure routes) passed. An initial wrong-root Prisma command and missing
+inert config failed, then corrected commands passed. Initial service fixture cases
+were skipped without RUN_SERVICE_DETAIL_TESTS; two targeted enabled cases then
+passed and skipped cases are not counted as acceptance. Route coverage initially
+lacked inert env configuration; corrected run passed.
+
+Both task-created test clusters stopped; their verified disposable data directories
+removed (154468620 logical bytes), logs retained. Last C: observation 27.02 GiB.
+No Docker build or cleanup occurred in this package; existing release/rollback and
+restore resources retained. Source is ready for exact-master CI, fresh populated
+backup/restore rehearsal, packaged checks, guarded migration and release. Production
+still runs 30780884; this booking package is not yet deployed. Full brief remains
+open: release, provider configuration/activation, authentic category assets and
+remaining real-role/physical-device acceptance. Tyre Change remains owner-approved
+NGN1,000; no prices or production records changed here.
+
 ### 1 November 2026: service-group imagery released and live verified
 
 Published runtime 30780884fcdff9348837fdd17d10e7c136f0b027 after exact-master

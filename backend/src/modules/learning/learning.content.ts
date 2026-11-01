@@ -298,7 +298,7 @@ export const learningArticles: LearningArticle[] = [
       [
         "Open Services and choose the relevant service. A service group describes a broad area of work; it is not an individual priced service. An active group may have no individual services listed yet. Open the group, read its description and choose Ask about this service group. Its verified name and link are included in the enquiry for you to review and edit; this is not a priced service or confirmed visit. When Allie is available, it can explain the published group description and link you to that group; it cannot confirm a price or appointment from the group alone.",
         "Prepare the vehicle details and the issue you have noticed. When offered, load your saved vehicle and contact details. Add a vehicle or edit contact details in the booking form; these explicit saves update your account and do not submit the booking. Review the request separately afterward.",
-        "If your booking form offers a concern request, describe the problem instead of choosing a service. Vehicle concern means the team has not classified it yet; no service price or confirmed time is implied.",
+        "If your booking form offers a concern request, describe the problem instead of choosing a service. Vehicle concern means the team has not classified it yet; no service price or confirmed time is implied. When Request a visit is available from a service group, that group follows your draft through sign-in and review. The saved request keeps the original group name even if the catalogue changes later. Check Requested service group in your booking details.",
         "Use the enquiry/contact path when online booking is unavailable. When the service page offers booking, choose a branch and an offered time or enter your preferred Lagos time within the published booking window.",
         "When signing in from the booking review, this tab can keep your anonymous draft for 15 minutes. Review it again after sign-in; it is never sent automatically. Logout or an account change clears it.",
         "Review the service, vehicle details, requested time and price before submitting from your customer account. Quotation-required services have no agreed price yet. No booking deposit is required.",
@@ -311,7 +311,7 @@ export const learningArticles: LearningArticle[] = [
       "Public launch mode, ServiceDetail, BookingDetail and ServiceOperationsService booking lifecycle",
       "booking appointment request garage quotation quote",
     ),
-    version: 11,
+    version: 12,
     reviewedAt: "2026-11-01",
   },
   article(

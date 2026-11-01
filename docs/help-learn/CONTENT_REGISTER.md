@@ -152,3 +152,9 @@ Service-group image authoring checkpoint (1 November 2026): owner-service-groups
 adds the actual Manage group image workflow, explicit review and active/inactive
 visibility. Admin eligibility and guide targets are unchanged. Implementation is
 not yet published; no AI/provider flag changes.
+
+Booking group context checkpoint (1 November 2026): service-request v12 describes
+selected-group continuity through sign-in/review and the original group retained
+on booking details. Public eligibility and existing launch gates are unchanged.
+Source acceptance is pending final rendered checks and release; no feature flag
+is activated by this guidance update.

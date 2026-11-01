@@ -21,6 +21,12 @@ const port = Number(process.env.SERVICE_DETAIL_FIXTURE_PORT ?? 5021);
 const routePath = `/services/${service.id}`;
 const record = {
   ...service,
+  category: {
+    id: id(95),
+    name: "Vehicle Diagnostics & Inspections",
+    slug: "diagnostics",
+    description: null,
+  },
   name: "Vehicle diagnostics",
   shortDescription: "Understand your vehicle’s condition before planning the next step.",
   description:
@@ -333,6 +339,7 @@ for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536]) {
     await expect(review).toContainText("Engine warning light is on. Please investigate.");
     await expect(review).toContainText("₦25,100.50");
     await expect(review).toContainText("Port Harcourt");
+    await expect(review).toContainText(record.category.name);
     await expect(page.locator('.sd-booking-progress [aria-current="step"]')).toHaveText(
       "2Review",
     );
@@ -358,6 +365,7 @@ for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536]) {
     ).toBeFocused();
     expect(state.writes).toHaveLength(1);
     expect(state.writes[0].body.customerNotes).toBe("Engine warning light is on.");
+    expect(state.writes[0].body.serviceCategoryId).toBe(record.category.id);
     expect(state.writes[0].body).not.toHaveProperty("acceptNonRefundableDeposit");
     await expect(page.getByLabel("Booking reference", { exact: true })).toHaveValue(
       booking.id,

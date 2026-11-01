@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { browseEnquiriesOnly } from "@/lib/public-launch";
 import { useSearchParams } from "next/navigation";
 import { ArrowLeft, ArrowRight, ArrowUpRight, Check, Wrench, X } from "lucide-react";
 import type { PublicSeed } from "@/lib/api/public-seed";
@@ -95,6 +96,14 @@ export function ServicesCatalogue({
         <header className="service-group-context">
           <h2>{verifiedGroup.name}</h2>
           {verifiedGroup.description && <p>{verifiedGroup.description}</p>}
+          {!browseEnquiriesOnly() && (
+            <Link
+              className="button"
+              href={`/services/request?serviceGroup=${verifiedGroup.id}`}
+            >
+              Request a visit
+            </Link>
+          )}
           <Link
             className="text-link"
             href={"/contact?serviceGroup=" + verifiedGroup.id + "#enquiry"}

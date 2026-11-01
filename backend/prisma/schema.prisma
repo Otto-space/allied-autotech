@@ -974,17 +974,18 @@ model CustomerVehicle {
 }
 
 model ServiceCategory {
-  sortOrder   Int             @default(0)
-  id          String          @id @default(uuid()) @db.Uuid
-  name        String
-  slug        String          @unique
-  description String?
-  isActive    Boolean         @default(true)
-  version     Int             @default(0)
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
-  services    Service[]
-  mediaImages ResourceImage[]
+  sortOrder         Int             @default(0)
+  id                String          @id @default(uuid()) @db.Uuid
+  name              String
+  slug              String          @unique
+  description       String?
+  isActive          Boolean         @default(true)
+  version           Int             @default(0)
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  services          Service[]
+  mediaImages       ResourceImage[]
+  requestedBookings Booking[]
 
   @@index([isActive, sortOrder, name, id])
   @@index([name(ops: raw("gin_trgm_ops"))], type: Gin, map: "ServiceCategory_name_search_idx")
@@ -1047,49 +1048,52 @@ model BookingSlot {
 }
 
 model Booking {
-  alternativeStartsAt     DateTime?
-  alternativeReason       String?                      @db.VarChar(1000)
-  alternativeVersion      Int?
-  requestedAt             DateTime                     @default(now())
-  attendanceConfirmedAt   DateTime?
-  resourceReviewNote      String?
-  capacityPolicyVersionId String?                      @db.Uuid
-  policySnapshot          Json?
-  id                      String                       @id @default(uuid()) @db.Uuid
-  customerId              String                       @db.Uuid
-  branchId                String?                      @db.Uuid
-  serviceId               String?                      @db.Uuid
-  vehicleId               String?                      @db.Uuid
-  assignedStaffId         String?                      @db.Uuid
-  bookingSlotId           String?                      @db.Uuid
-  scheduledAt             DateTime
-  status                  BookingStatus                @default(REQUESTED)
-  quotedPriceKobo         BigInt?
-  currency                String                       @default("NGN") @db.Char(3)
-  customerConcern         String?                      @db.VarChar(2000)
-  customerNotes           String?
-  staffNotes              String?
-  cancellationReason      String?
-  createdAt               DateTime                     @default(now())
-  updatedAt               DateTime                     @updatedAt
-  confirmedAt             DateTime?
-  startedAt               DateTime?
-  completedAt             DateTime?
-  cancelledAt             DateTime?
-  paymentHoldExpiresAt    DateTime?
-  depositBaseKobo         BigInt?
-  depositBasisPoints      Int?
-  depositAmountKobo       BigInt?
-  depositPolicyVersion    String?                      @db.VarChar(80)
-  depositTermsAcceptedAt  DateTime?
-  depositPaidAt           DateTime?
-  depositForfeitedAt      DateTime?
-  customerRescheduleCount Int                          @default(0)
-  scheduleVersion         Int                          @default(0)
-  disruptionRequestedAt   DateTime?
-  disruptionReason        String?
-  disruptionResolution    BookingDisruptionResolution?
-  version                 Int                          @default(0)
+  requestedServiceCategoryId   String?                      @db.Uuid
+  requestedServiceCategoryName String?
+  requestedServiceCategory     ServiceCategory?             @relation(fields: [requestedServiceCategoryId], references: [id], onDelete: Restrict)
+  alternativeStartsAt          DateTime?
+  alternativeReason            String?                      @db.VarChar(1000)
+  alternativeVersion           Int?
+  requestedAt                  DateTime                     @default(now())
+  attendanceConfirmedAt        DateTime?
+  resourceReviewNote           String?
+  capacityPolicyVersionId      String?                      @db.Uuid
+  policySnapshot               Json?
+  id                           String                       @id @default(uuid()) @db.Uuid
+  customerId                   String                       @db.Uuid
+  branchId                     String?                      @db.Uuid
+  serviceId                    String?                      @db.Uuid
+  vehicleId                    String?                      @db.Uuid
+  assignedStaffId              String?                      @db.Uuid
+  bookingSlotId                String?                      @db.Uuid
+  scheduledAt                  DateTime
+  status                       BookingStatus                @default(REQUESTED)
+  quotedPriceKobo              BigInt?
+  currency                     String                       @default("NGN") @db.Char(3)
+  customerConcern              String?                      @db.VarChar(2000)
+  customerNotes                String?
+  staffNotes                   String?
+  cancellationReason           String?
+  createdAt                    DateTime                     @default(now())
+  updatedAt                    DateTime                     @updatedAt
+  confirmedAt                  DateTime?
+  startedAt                    DateTime?
+  completedAt                  DateTime?
+  cancelledAt                  DateTime?
+  paymentHoldExpiresAt         DateTime?
+  depositBaseKobo              BigInt?
+  depositBasisPoints           Int?
+  depositAmountKobo            BigInt?
+  depositPolicyVersion         String?                      @db.VarChar(80)
+  depositTermsAcceptedAt       DateTime?
+  depositPaidAt                DateTime?
+  depositForfeitedAt           DateTime?
+  customerRescheduleCount      Int                          @default(0)
+  scheduleVersion              Int                          @default(0)
+  disruptionRequestedAt        DateTime?
+  disruptionReason             String?
+  disruptionResolution         BookingDisruptionResolution?
+  version                      Int                          @default(0)
 
   customer                        CustomerProfile        @relation(fields: [customerId], references: [id], onDelete: Restrict)
   branch                          Branch?                @relation(fields: [branchId], references: [id], onDelete: Restrict)
@@ -1107,6 +1111,7 @@ model Booking {
   complaints                      Complaint[]
   capacityPolicyVersionIdRelation BusinessPolicyVersion? @relation("Owner_Booking_capacityPolicyVersionId", fields: [capacityPolicyVersionId], references: [id], onDelete: Restrict, onUpdate: NoAction)
 
+  @@index([requestedServiceCategoryId])
   @@index([serviceId])
   @@index([branchId, status, scheduledAt])
   @@index([vehicleId])

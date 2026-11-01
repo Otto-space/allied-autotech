@@ -396,6 +396,8 @@ export const workforceJobResponseSchema = z.object({
   version,
   assignedStaffId: z.uuid().nullable(),
   customerNotes: z.string().nullable(),
+  requestedServiceCategoryId: z.uuid().nullable().optional(),
+  requestedServiceCategoryName: z.string().nullable().optional(),
   customerConcern: z.string().nullable().optional(),
   service: z.object({ id: z.uuid().optional(), name: z.string() }).nullable(),
   vehicle: z
@@ -452,6 +454,8 @@ const bookingRow = z.object({
   status: z.string(),
   version,
   service: z.object({ name: z.string() }).nullable(),
+  requestedServiceCategoryId: z.uuid().nullable().optional(),
+  requestedServiceCategoryName: z.string().nullable().optional(),
   customerConcern: z.string().nullable().optional(),
   customer: z.object({ firstName: z.string(), lastName: z.string(), phone: z.string() }),
 });

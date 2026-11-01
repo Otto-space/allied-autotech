@@ -52,6 +52,8 @@ export const bookingSchema = z.object({
   version: z.number().int(),
   scheduledAt: z.string().nullable(),
   service: serviceSchema.nullable(),
+  requestedServiceCategoryId: z.uuid().nullable().optional(),
+  requestedServiceCategoryName: z.string().nullable().optional(),
   customerConcern: z.string().nullable().optional(),
   alternativeStartsAt: z.iso.datetime({ offset: true }).nullable().optional(),
   alternativeReason: z.string().nullable().optional(),

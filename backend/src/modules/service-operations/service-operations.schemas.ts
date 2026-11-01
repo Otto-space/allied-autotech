@@ -141,6 +141,7 @@ export const bookingCreateBodySchema = z
   .object({
     slotId: uuid.optional(),
     serviceId: uuid.optional(),
+    serviceCategoryId: uuid.optional(),
     customerConcern: cleanText(2000).min(10).optional(),
     branchId: uuid.optional(),
     preferredAt: dateTime.optional(),

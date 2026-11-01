@@ -4882,7 +4882,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### POST `/customers/bookings`
 
 - Operation ID: `postCustomersBookings`
-- Purpose: Accept an offered slot, or a preferred branch/time with either a published service or a customerConcern of 10–2000 characters. Concern requests retain null service and price until staff classification. All requests require staff confirmation. Request a booking. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
+- Purpose: Accept an offered slot, or a preferred branch/time with either a published service or a customerConcern of 10–2000 characters. An optional serviceCategoryId must be published and match a selected service. The original group ID and name are retained with the booking. Concern requests retain null service and price until staff classification. All requests require staff confirmation. Request a booking. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
 - Roles: CUSTOMER
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -4901,6 +4901,7 @@ JSON request fields:
 | --- | --- | --- | --- |
 | `slotId` | string (uuid) | No | Identifier of the slot resource; ownership is resolved server-side. |
 | `serviceId` | string (uuid) | No | Identifier of the service resource; ownership is resolved server-side. |
+| `serviceCategoryId` | string (uuid) | No | Identifier of the service category resource; ownership is resolved server-side. |
 | `customerConcern` | string | No | Customer Concern validated by this operation's strict request contract. |
 | `branchId` | string (uuid) | No | Identifier of the branch resource; ownership is resolved server-side. |
 | `preferredAt` | string (date-time) | No | ISO 8601 timestamp interpreted and validated by the server. |

@@ -12,6 +12,7 @@ import type { RequestBody } from "@/lib/api/contracts";
 import { useResource } from "@/lib/api/use-resource";
 import { useAccountMutation } from "@/lib/api/use-account-mutation";
 import { bookingSchema, parseBookingPolicy } from "@/lib/api/booking-schemas";
+import { parseServiceCategory } from "@/lib/api/public-schemas";
 import { branchRef } from "@/lib/api/commerce-schemas";
 import type { CustomerVehicle } from "@/lib/api/vehicle-schemas";
 import {
@@ -36,12 +37,29 @@ const identitySchema = z.object({
 type Body = RequestBody<"/customers/bookings", "post">;
 type Review = {
   body: Body;
+  groupName?: string;
   branchName: string;
   vehicleName: string;
   owner: string | null;
   policy: string;
 };
-export function ConcernBooking() {
+export function ConcernBooking({
+  initialServiceGroup,
+}: {
+  initialServiceGroup?: string;
+}) {
+  const [serviceGroup, setServiceGroup] = useState(initialServiceGroup);
+  const group = useResource(
+    serviceGroup ? `/public/services/categories/${serviceGroup}` : null,
+    parseServiceCategory,
+  );
+  const verifiedGroup =
+    group.data?.id === serviceGroup && !group.error && !group.refreshError
+      ? group.data
+      : undefined;
+  const groupUnavailable =
+    !!serviceGroup && (!verifiedGroup || group.loading || group.refreshing);
+
   const policy = useResource("/public/booking-policy", parseBookingPolicy);
   const [cursor, setCursor] = useState<string>();
   const branches = useResource(
@@ -65,6 +83,7 @@ export function ConcernBooking() {
   const attempt = useRef<{ body: Body; key: string } | null>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   const reset = useCallback(() => {
+    setServiceGroup(undefined);
     setBranch("");
     setBranchName("");
     setConcern("");
@@ -102,6 +121,7 @@ export function ConcernBooking() {
         else if (!value.mfaRequired || value.mfaVerifiedAt) {
           const draft = consumeConcernSignInDraft();
           if (draft) {
+            setServiceGroup(draft.serviceCategoryId);
             setBranch(draft.branchId);
             setBranchName(draft.branchName);
             setConcern(draft.customerConcern);
@@ -142,6 +162,7 @@ export function ConcernBooking() {
   function preserve(event: MouseEvent<HTMLAnchorElement>) {
     if (
       !saveConcernSignInDraft({
+        ...(serviceGroup ? { serviceCategoryId: serviceGroup } : {}),
         branchId: branch,
         branchName,
         customerConcern: concern,
@@ -160,6 +181,7 @@ export function ConcernBooking() {
       operation.busy ||
       uncertain ||
       unavailable ||
+      groupUnavailable ||
       !policy.data ||
       identity === undefined
     )
@@ -190,6 +212,7 @@ export function ConcernBooking() {
       return;
     }
     const body: Body = {
+      ...(verifiedGroup ? { serviceCategoryId: verifiedGroup.id } : {}),
       branchId: branch,
       customerConcern: concern.trim(),
       preferredAt: date.toISOString(),
@@ -200,6 +223,7 @@ export function ConcernBooking() {
     attempt.current = null;
     setReview({
       body,
+      groupName: verifiedGroup?.name,
       branchName,
       vehicleName: vehicle
         ? `${vehicle.year} ${vehicle.make} ${vehicle.model}`
@@ -253,7 +277,11 @@ export function ConcernBooking() {
       });
       if (controller.signal.aborted) return;
       const saved = z.object({ booking: bookingSchema }).parse(result.data).booking;
-      if (saved.customerConcern !== review.body.customerConcern)
+      if (
+        saved.customerConcern !== review.body.customerConcern ||
+        (review.body.serviceCategoryId &&
+          saved.requestedServiceCategoryId !== review.body.serviceCategoryId)
+      )
         throw Error("Unexpected booking concern");
       setBooking(saved);
       setUncertain(false);
@@ -292,6 +320,12 @@ export function ConcernBooking() {
           <dl>
             <dt>Booking reference</dt>
             <dd>{booking.id}</dd>
+            {booking.requestedServiceCategoryName && (
+              <>
+                <dt>Service group</dt>
+                <dd>{booking.requestedServiceCategoryName}</dd>
+              </>
+            )}
             <dt>Concern</dt>
             <dd>{booking.customerConcern}</dd>
           </dl>
@@ -332,6 +366,12 @@ export function ConcernBooking() {
                 Review your request
               </h2>
               <dl>
+                {review.groupName && (
+                  <>
+                    <dt>Service group</dt>
+                    <dd>{review.groupName}</dd>
+                  </>
+                )}
                 <dt>Concern</dt>
                 <dd>{review.body.customerConcern}</dd>
                 <dt>Workshop</dt>
@@ -420,6 +460,37 @@ export function ConcernBooking() {
                 Describe your concern
               </h2>
               <fieldset disabled={operation.busy || identity === undefined}>
+                {serviceGroup && (
+                  <div>
+                    {verifiedGroup ? (
+                      <p>
+                        Service group: <strong>{verifiedGroup.name}</strong>
+                      </p>
+                    ) : (
+                      <p role="status">
+                        {group.loading
+                          ? "Checking your selected service group…"
+                          : "We could not confirm this service group. Retry or continue without a group."}
+                      </p>
+                    )}
+                    {(group.error || group.refreshError) && (
+                      <button
+                        type="button"
+                        className="button secondary"
+                        onClick={group.refresh}
+                      >
+                        Retry service group
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      className="button secondary"
+                      onClick={() => setServiceGroup(undefined)}
+                    >
+                      Continue without a group
+                    </button>
+                  </div>
+                )}
                 <label htmlFor="concern-text">
                   What have you noticed?
                   <textarea
@@ -526,11 +597,23 @@ export function ConcernBooking() {
               <div className="concern-actions">
                 <button
                   className="button"
-                  disabled={operation.busy || unavailable || identity === undefined}
+                  disabled={
+                    operation.busy ||
+                    unavailable ||
+                    groupUnavailable ||
+                    identity === undefined
+                  }
                 >
                   {identity === undefined ? "Checking your account…" : "Review request"}
                 </button>
-                <Link className="button secondary" href="/contact#enquiry">
+                <Link
+                  className="button secondary"
+                  href={
+                    serviceGroup
+                      ? `/contact?serviceGroup=${serviceGroup}#enquiry`
+                      : "/contact#enquiry"
+                  }
+                >
                   Ask the workshop instead
                 </Link>
               </div>
