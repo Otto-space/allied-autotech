@@ -130,3 +130,10 @@ read-through catalogue suite could not use the absent local API and is not count
 as passed. Fresh Computer Use returned inconsistent window identity/screenshot
 data and input was stopped; prior signed-in fitment inspection is preserved,
 but this attempt is not new live acceptance. Current release remains f0402b67.
+
+The broader booking regression reproduced a real Clear filters focus race twice:
+requestAnimationFrame could focus the old keyed form before React replaced it.
+The follow-up uses a one-shot focus intent after the cleared query state commits;
+clearing already-empty filters focuses the existing control directly. No automatic
+focus occurs on initial loading, refresh or browser history. The existing
+reload/Back/Forward/clear regression is retained unchanged and will verify the fix.

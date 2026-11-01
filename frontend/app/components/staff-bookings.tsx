@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { bookingReferenceLabel } from "@/lib/booking-appointment";
 import { useSearchParams } from "next/navigation";
-import { useState, type FormEvent } from "react";
+import { useLayoutEffect, useRef, useState, type FormEvent } from "react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -35,6 +35,14 @@ export function StaffBookings() {
 }
 function BookingList({ admin }: { admin: boolean }) {
   const search = useSearchParams();
+  const query = search.toString();
+  const restoreFilterFocus = useRef(false);
+  useLayoutEffect(() => {
+    if (restoreFilterFocus.current && !query) {
+      restoreFilterFocus.current = false;
+      document.getElementById("staff-booking-status")?.focus();
+    }
+  }, [query]);
   const { params, api, path, invalid } = workBookingQuery(
     new URLSearchParams(search.toString()),
     admin,
@@ -76,8 +84,13 @@ function BookingList({ admin }: { admin: boolean }) {
     }
   }
   function clear() {
+    if (!query) {
+      document.getElementById("staff-booking-status")?.focus();
+      return;
+    }
+    // Focus the replacement form after its cleared URL state has committed.
+    restoreFilterFocus.current = true;
     navigate(new URLSearchParams());
-    requestAnimationFrame(() => document.getElementById("staff-booking-status")?.focus());
   }
   function firstPage() {
     navigate(filters, true);
