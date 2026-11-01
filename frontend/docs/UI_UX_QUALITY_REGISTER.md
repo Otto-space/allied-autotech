@@ -22,6 +22,7 @@ without page errors or horizontal overflow. This is local intercepted-transport
 UI evidence, not hosted/live or authenticated staff acceptance. Production remains
 6de6c86f until exact-master CI and guarded publication pass. Remaining full-goal
 work: finish payment requirement-to-assertion audit and the final activation handoff.
+
 ### 1 November 2026: authorised Help destination repair published
 
 Runtime 6de6c86f3f1317ba140135b5f02cff3baeb4ee71 is live. Exact-master frontend
