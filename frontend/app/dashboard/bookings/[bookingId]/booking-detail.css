@@ -157,6 +157,12 @@
   font-weight: 600;
   line-height: 1.5;
 }
+.customer-booking-detail
+  .booking-appointment
+  .booking-reference
+  :is(label, [role="status"]) {
+  color: #e1e9ee;
+}
 .customer-booking-detail .booking-concern-description {
   color: #e1e9ee;
   margin-top: 16px;

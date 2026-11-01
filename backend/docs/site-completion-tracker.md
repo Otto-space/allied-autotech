@@ -4490,3 +4490,8 @@ integration cases pass, plus 47 backend/13 frontend units and 2 browser cases. N
 migration remains uncommitted/unpublished. Customer intake and staff classification
 controls remain pending; continue at the Concern booking contract checkpoint in
 docs/EFFICIENT_DELIVERY_20261030.md. No shared database or production change.
+
+1 November follow-up: held candidate a6b0fe03 passed the clear-filter focus
+regression and both canonical-reference copy paths. Expanded-reference contrast
+failed before promotion; scoped label/status colour fix is in the next candidate.
+Source and hosted evidence remain separate; no domains changed for the failed candidate.

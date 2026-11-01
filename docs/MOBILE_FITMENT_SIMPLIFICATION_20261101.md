@@ -137,3 +137,10 @@ The follow-up uses a one-shot focus intent after the cleared query state commits
 clearing already-empty filters focuses the existing control directly. No automatic
 focus occurs on initial loading, refresh or browser history. The existing
 reload/Back/Forward/clear regression is retained unchanged and will verify the fix.
+
+Hosted candidate a6b0fe03 proved the booking filter focus fix with the unchanged
+reload/Back/Forward/clear regression. Clipboard success and manual selection
+fallback both passed at 320px. Expanded-reference Axe checks exposed inherited
+dark form-label text on the dark appointment card; the label and copy-status text
+now use an explicit light colour scoped to that card. Candidate was held and not
+promoted. Updated exact-source CI and hosted contrast checks are required.
