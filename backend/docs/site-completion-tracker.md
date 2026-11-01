@@ -1,3 +1,39 @@
+### 1 November 2026: service-group ordering released
+
+Runtime 459442f14105f2c38a9de2c8b8975174bb25871e is on master and published.
+Exact-master frontend 41298774477, database safety 41298774448 and secrets
+41298774493 passed. Four packaged images and ten packaged checks passed (60.26s).
+Backend f5937b55-795d-4fb3-ba94-1612797a8033 is ACTIVE; strict-TLS read-only
+schema/least-privilege checks and all seven worker heartbeats passed. Temporary
+database access was removed and verified. No grants or activation flags changed.
+
+Fresh production backup was checksum-verified and restored separately into
+allied_category_order_restore_20261101_379f3315f90f_ci on 127.0.0.1:63888.
+Protected migration and schema checks passed; original-column row hashes and
+business table counts were preserved. Managed backup freshness was verified;
+this is not a new managed PITR rehearsal. The guarded forward production migration
+20261101103000_service_category_order then passed, bringing history to 81 migrations.
+No business records were created. Backup and restore evidence are retained.
+
+Frontend dpl_64MP96dyHg74veuEnshapSbSm858 is assigned to apex and www, independently
+verified after promotion. Four hosted category review/save/reload fixture cases
+passed (25.7s), including scoped accessibility and overflow checks at 390/1440.
+Two candidate and four live public checks passed: workshop story on the homepage,
+absent from Tyre Change detail, contained moderately sized service/vehicle images,
+working workshop-principles link, no page errors or horizontal overflow. Hosted
+admin fixtures do not prove actual signed-in owner import or physical-phone coverage.
+
+Receipts: backend/ops/digitalocean/.private/category-order-*. Screenshots:
+TEMP/aat-category-order-live and TEMP/aat-category-order-hosted. Final free space
+27.24 GiB. Docker review found 73 images, 13 stopped containers, 14 volumes and
+265 cache records; retained current/rollback/warm/shared or uncertain resources.
+No broad cleanup, branch retirement or database deletion. Active branch retained.
+The historical source-only checkpoint below is superseded by this release.
+
+Full objective remains open: category imagery authoring, structured category context
+through booking, real authorised owner-group import and remaining provider/real-role
+acceptance. Existing launch, AI and payment restrictions remain unchanged.
+
 ### 1 November 2026: service-group ordering implemented and locally verified
 
 Bounded package began 10:26 UTC. ServiceCategory now has bounded integer sortOrder,

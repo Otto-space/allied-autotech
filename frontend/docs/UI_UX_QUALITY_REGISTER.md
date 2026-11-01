@@ -1,3 +1,14 @@
+### 1 November 2026: service-group ordering production checkpoint
+
+Released runtime 459442f1 with backend f5937b55 and frontend
+dpl_64MP96dyHg74veuEnshapSbSm858 on both domains. Four hosted category/owner-review
+fixture cases passed at 390/1440, with scoped Axe and overflow checks. Four live
+public checks passed on apex/www: homepage workshop story and contained service/
+vehicle images, correct detail-page removal and workshop link, no page errors or
+overflow. This supersedes the source-only release status below. Actual owner import,
+physical-phone acceptance, category imagery and structured booking context remain
+open. No gated feature activation; full coverage goal remains incomplete.
+
 ### 1 November 2026: service-group display order
 
 Existing category editor/detail/import review now expose maintained display order.
