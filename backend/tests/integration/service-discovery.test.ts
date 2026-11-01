@@ -146,6 +146,105 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         ).status,
       ).toBe(422);
     });
+    it("persists reviewed group order, paginates ties, and rejects stale or unauthorised changes", async () => {
+      const actor = await account("ADMIN");
+      const prefix = `Order-${randomUUID().slice(0, 8)}`;
+      const rows = [];
+      for (const [suffix, sortOrder] of [
+        ["Zulu", 1],
+        ["Alpha", 9],
+        ["Middle", 1],
+        ["Middle", 1],
+      ] as const) {
+        const res = await request(app)
+          .post(admin)
+          .set(actor.headers)
+          .send({
+            name: `${prefix}-${suffix}`,
+            slug: `order-${randomUUID()}`,
+            sortOrder,
+          });
+        expect(res.status, JSON.stringify(res.body)).toBe(201);
+        rows.push(res.body.data);
+      }
+      const expected = [rows[2], rows[3]].sort((a, b) => a.id.localeCompare(b.id));
+      expected.push(rows[0], rows[1]);
+      let cursor: string | undefined;
+      const ids: string[] = [];
+      do {
+        const result = await request(app)
+          .get(categories)
+          .query({ search: prefix, limit: 1, cursor });
+        expect(result.status).toBe(200);
+        ids.push(...result.body.data.items.map((row: { id: string }) => row.id));
+        cursor = result.body.data.nextCursor;
+        expect(ids.length).toBeLessThanOrEqual(4);
+      } while (cursor);
+      expect(ids).toEqual(expected.map((row) => row.id));
+      const row = rows[1];
+      const customer = await account("CUSTOMER");
+      expect(
+        (
+          await request(app)
+            .patch(`${admin}/${row.id}`)
+            .set(customer.headers)
+            .send({ sortOrder: 0, expectedVersion: 0 })
+        ).status,
+      ).toBe(403);
+      expect(
+        (
+          await request(app)
+            .patch(`${admin}/${row.id}`)
+            .set({ Cookie: actor.headers.Cookie, Origin: actor.headers.Origin })
+            .send({ sortOrder: 0, expectedVersion: 0 })
+        ).status,
+      ).toBe(403);
+      for (const sortOrder of [-1, 0.5, 1000001, "1", null]) {
+        expect(
+          (
+            await request(app)
+              .patch(`${admin}/${row.id}`)
+              .set(actor.headers)
+              .send({ sortOrder, expectedVersion: 0 })
+          ).status,
+        ).toBe(422);
+      }
+      const saved = await request(app)
+        .patch(`${admin}/${row.id}`)
+        .set(actor.headers)
+        .send({ sortOrder: 0, expectedVersion: 0 });
+      expect(saved.status).toBe(200);
+      expect(saved.body.data).toMatchObject({ id: row.id, sortOrder: 0, version: 1 });
+      expect(
+        (
+          await request(app)
+            .patch(`${admin}/${row.id}`)
+            .set(actor.headers)
+            .send({ sortOrder: 8, expectedVersion: 0 })
+        ).status,
+      ).toBe(409);
+      const current = await request(app).get(`${admin}/${row.id}`).set(actor.headers);
+      expect(current.body.data).toMatchObject({ sortOrder: 0, version: 1 });
+      const publicPage = await request(app)
+        .get(categories)
+        .query({ search: prefix, limit: 1 });
+      expect(publicPage.body.data.items[0].id).toBe(row.id);
+      await prisma.serviceCategory.delete({ where: { id: row.id } });
+      const rest = await request(app)
+        .get(categories)
+        .query({ search: prefix, cursor: publicPage.body.data.nextCursor, limit: 50 });
+      expect(rest.status).toBe(200);
+      expect(rest.body.data.items.map((item: { id: string }) => item.id)).toEqual(
+        expected.slice(0, 3).map((item) => item.id),
+      );
+      expect(
+        (
+          await request(app)
+            .get(categories)
+            .query({ search: prefix + "x", cursor: publicPage.body.data.nextCursor })
+        ).status,
+      ).toBe(422);
+    });
     it("treats SQL-like and wildcard text literally across all searched fields", async () => {
       const f = await fixture();
       for (const field of ["name", "description", "shortDescription"] as const) {

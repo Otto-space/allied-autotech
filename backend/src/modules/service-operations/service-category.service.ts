@@ -103,6 +103,7 @@ export class ServiceCategoryService {
             name: group.name,
             slug: group.slug,
             description: group.description,
+            sortOrder: group.sortOrder,
             isActive: true,
           },
         });
@@ -159,6 +160,7 @@ export class ServiceCategoryService {
           slug: input.slug,
           isActive: input.isActive,
           description: input.description ?? null,
+          sortOrder: input.sortOrder ?? 0,
         },
       });
       await appendAuditEvent(tx, {

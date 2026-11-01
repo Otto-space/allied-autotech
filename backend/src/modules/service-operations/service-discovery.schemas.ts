@@ -61,6 +61,7 @@ export const serviceCategoryCreateSchema = z
       .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
     description: text(2000).nullable().optional(),
     isActive: z.boolean().default(true),
+    sortOrder: z.number().int().min(0).max(1000000).optional(),
   })
   .strict();
 export const serviceCategoryUpdateSchema = serviceCategoryCreateSchema
@@ -80,6 +81,7 @@ export const publicServiceCategorySchema = z.object({
   slug: z.string().max(120),
 });
 export const adminServiceCategorySchema = publicServiceCategorySchema.extend({
+  sortOrder: z.number().int().min(0).max(1000000),
   description: z.string().nullable(),
   isActive: z.boolean(),
   version: z.number().int().nonnegative(),

@@ -1,3 +1,14 @@
+### 1 November 2026: service-group display order
+
+Existing category editor/detail/import review now expose maintained display order.
+Lower numbers precede alphabetical ties. Review is read-only; confirm saves once;
+reopening and reloading retains the order. 390/1440 fixture browser checks and scoped
+Axe/no-overflow checks pass, with screenshots in TEMP/aat-category-order-browser-recheck.
+The native API/database tests independently prove persistence, pagination and access
+boundaries. A test-flow error initially reloaded the blank create form, then was
+corrected to reopen the saved category; failed evidence retained. Source-only pending
+migration/release. Category imagery and structured booking context still open.
+
 ### 1 November 2026: review-button release follow-through
 
 Published source 337477ae on both domains as dpl_5pNZQyW36fq9EisnwLyLR9g1ra31

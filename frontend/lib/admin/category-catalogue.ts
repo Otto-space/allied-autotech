@@ -7,6 +7,7 @@ export const adminCategorySchema = z.object({
   slug: z.string().min(2).max(120),
   description: z.string().max(2000).nullable(),
   isActive: z.boolean(),
+  sortOrder: z.number().int().min(0).max(1000000).default(0),
   version: z.number().int().nonnegative().max(2147483647),
   createdAt: z.iso.datetime({ offset: true }),
   updatedAt: z.iso.datetime({ offset: true }),
@@ -94,6 +95,11 @@ export const categoryFormSchema = z.object({
     "Use lowercase words separated by hyphens.",
   ),
   description: clean(2000),
+  sortOrder: z
+    .number({ error: "Enter a whole number from 0 to 1000000." })
+    .int()
+    .min(0)
+    .max(1000000),
   isActive: z.boolean(),
 });
 export type CategoryFormValues = z.infer<typeof categoryFormSchema>;

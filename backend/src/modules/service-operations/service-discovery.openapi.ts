@@ -94,7 +94,7 @@ export function registerServiceDiscoveryOpenApi(registry: OpenAPIRegistry) {
         ? "List service categories for administration"
         : "List active service category options",
       description:
-        "Literal case-insensitive name-prefix search, ascending name/ID order, signed filter-bound cursor. Public options include active categories even without individual services, with their maintained descriptions (limit 1–50). Administrator list includes inactive and empty categories and supports isActive (limit 1–100).",
+        "Literal case-insensitive name-prefix search, ascending display-order/name/ID order, signed filter-bound cursor (v2; older category cursors must restart). Public options include active categories even without individual services, with their maintained descriptions (limit 1–50). Administrator list includes inactive and empty categories and supports isActive (limit 1–100).",
       ...(admin ? { security: [{ sessionCookie: [] }] } : {}),
       request: {
         query: admin ? adminServiceCategoryQuerySchema : serviceCategoryQuerySchema,
@@ -163,7 +163,7 @@ export function registerServiceDiscoveryOpenApi(registry: OpenAPIRegistry) {
         ? "Update or archive a service category"
         : "Create a service category",
       description:
-        "ADMIN or SUPER_ADMIN with verified MFA and CSRF. Category assignments require an active category. Archive removes public grouping without unpublishing services or changing bookings; reactivation restores grouping. Updates require expectedVersion. Mutations are audited. Unique slug prevents duplicate creation; after uncertain creation, read the list before retrying.",
+        "ADMIN or SUPER_ADMIN with verified MFA and CSRF. Category assignments require an active category. Archive removes public grouping without unpublishing services or changing bookings; reactivation restores grouping. Updates require expectedVersion. Display order is an integer from 0 to 1000000; lower values appear first, then name and ID. Mutations are audited. Unique slug prevents duplicate creation; after uncertain creation, read the list before retrying.",
       security: [{ sessionCookie: [] }],
       request: {
         ...(update ? { params: serviceCategoryParamsSchema } : {}),

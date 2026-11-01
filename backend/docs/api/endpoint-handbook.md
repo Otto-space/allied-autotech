@@ -1699,7 +1699,7 @@ Relevant errors: 400 The request is malformed.; 422 One or more request fields a
 ### GET `/public/services/categories`
 
 - Operation ID: `getPublicServicesCategories`
-- Purpose: Literal case-insensitive name-prefix search, ascending name/ID order, signed filter-bound cursor. Public options include active categories even without individual services, with their maintained descriptions (limit 1–50). Administrator list includes inactive and empty categories and supports isActive (limit 1–100). List active service category options. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Literal case-insensitive name-prefix search, ascending display-order/name/ID order, signed filter-bound cursor (v2; older category cursors must restart). Public options include active categories even without individual services, with their maintained descriptions (limit 1–50). Administrator list includes inactive and empty categories and supports isActive (limit 1–100). List active service category options. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: PUBLIC
 - Authentication: None
 - CSRF: Not required
@@ -23696,7 +23696,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### GET `/admin/service-categories`
 
 - Operation ID: `getAdminServiceCategories`
-- Purpose: Literal case-insensitive name-prefix search, ascending name/ID order, signed filter-bound cursor. Public options include active categories even without individual services, with their maintained descriptions (limit 1–50). Administrator list includes inactive and empty categories and supports isActive (limit 1–100). List service categories for administration. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Literal case-insensitive name-prefix search, ascending display-order/name/ID order, signed filter-bound cursor (v2; older category cursors must restart). Public options include active categories even without individual services, with their maintained descriptions (limit 1–50). Administrator list includes inactive and empty categories and supports isActive (limit 1–100). List service categories for administration. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Not required
@@ -23724,6 +23724,7 @@ Success: HTTP 200.
         "id": "00000000-0000-4000-8000-000000000001",
         "name": "synthetic-name",
         "slug": "synthetic-slug",
+        "sortOrder": 0,
         "isActive": true,
         "version": 0,
         "createdAt": "2030-01-15T10:00:00.000Z",
@@ -23743,7 +23744,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### POST `/admin/service-categories`
 
 - Operation ID: `postAdminServiceCategories`
-- Purpose: ADMIN or SUPER_ADMIN with verified MFA and CSRF. Category assignments require an active category. Archive removes public grouping without unpublishing services or changing bookings; reactivation restores grouping. Updates require expectedVersion. Mutations are audited. Unique slug prevents duplicate creation; after uncertain creation, read the list before retrying. Create a service category. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: ADMIN or SUPER_ADMIN with verified MFA and CSRF. Category assignments require an active category. Archive removes public grouping without unpublishing services or changing bookings; reactivation restores grouping. Updates require expectedVersion. Display order is an integer from 0 to 1000000; lower values appear first, then name and ID. Mutations are audited. Unique slug prevents duplicate creation; after uncertain creation, read the list before retrying. Create a service category. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
 - Roles: ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -23763,6 +23764,7 @@ JSON request fields:
 | `slug` | string | Yes | Slug validated by this operation's strict request contract. |
 | `description` | string / null | No | Description validated by this operation's strict request contract. |
 | `isActive` | boolean | No | Boolean control for is active; authorization is still enforced server-side. |
+| `sortOrder` | integer | No | Sort Order validated by this operation's strict request contract. |
 
 Synthetic request example:
 
@@ -23771,7 +23773,8 @@ Synthetic request example:
   "name": "synthetic-name",
   "slug": "synthetic-slug",
   "description": "synthetic-description",
-  "isActive": true
+  "isActive": true,
+  "sortOrder": 0
 }
 ```
 
@@ -23786,6 +23789,7 @@ Success: HTTP 201.
     "id": "00000000-0000-4000-8000-000000000001",
     "name": "synthetic-name",
     "slug": "synthetic-slug",
+    "sortOrder": 0,
     "isActive": true,
     "version": 0,
     "createdAt": "2030-01-15T10:00:00.000Z",
@@ -23825,6 +23829,7 @@ Success: HTTP 200.
     "id": "00000000-0000-4000-8000-000000000001",
     "name": "synthetic-name",
     "slug": "synthetic-slug",
+    "sortOrder": 0,
     "isActive": true,
     "version": 0,
     "createdAt": "2030-01-15T10:00:00.000Z",
@@ -23841,7 +23846,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### PATCH `/admin/service-categories/{categoryId}`
 
 - Operation ID: `patchAdminServiceCategoriesByCategoryId`
-- Purpose: ADMIN or SUPER_ADMIN with verified MFA and CSRF. Category assignments require an active category. Archive removes public grouping without unpublishing services or changing bookings; reactivation restores grouping. Updates require expectedVersion. Mutations are audited. Unique slug prevents duplicate creation; after uncertain creation, read the list before retrying. Update or archive a service category. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: ADMIN or SUPER_ADMIN with verified MFA and CSRF. Category assignments require an active category. Archive removes public grouping without unpublishing services or changing bookings; reactivation restores grouping. Updates require expectedVersion. Display order is an integer from 0 to 1000000; lower values appear first, then name and ID. Mutations are audited. Unique slug prevents duplicate creation; after uncertain creation, read the list before retrying. Update or archive a service category. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
 - Roles: ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -23862,6 +23867,7 @@ JSON request fields:
 | `slug` | string | No | Slug validated by this operation's strict request contract. |
 | `description` | string / null | No | Description validated by this operation's strict request contract. |
 | `isActive` | boolean | No | Boolean control for is active; authorization is still enforced server-side. |
+| `sortOrder` | integer | No | Sort Order validated by this operation's strict request contract. |
 | `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
 
 Synthetic request example:
@@ -23872,6 +23878,7 @@ Synthetic request example:
   "slug": "synthetic-slug",
   "description": "synthetic-description",
   "isActive": true,
+  "sortOrder": 0,
   "expectedVersion": 0
 }
 ```
@@ -23887,6 +23894,7 @@ Success: HTTP 200.
     "id": "00000000-0000-4000-8000-000000000001",
     "name": "synthetic-name",
     "slug": "synthetic-slug",
+    "sortOrder": 0,
     "isActive": true,
     "version": 0,
     "createdAt": "2030-01-15T10:00:00.000Z",

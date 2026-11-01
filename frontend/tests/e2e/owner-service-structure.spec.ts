@@ -29,6 +29,7 @@ for (const width of [390, 1440])
                 name,
                 action: i === 0 ? "reuse" : "create",
                 isActive: true,
+                sortOrder: i,
               })),
               tyre: { id: bookingId(800), name: "Tyre Change", categoryId: null },
             };

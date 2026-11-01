@@ -196,12 +196,14 @@ function CategoryForm({
       slug: record?.slug ?? "",
       description: record?.description ?? "",
       isActive: record?.isActive ?? true,
+      sortOrder: record?.sortOrder ?? 0,
     },
   });
   const errors = form.formState.errors;
   const fieldOrder: (keyof CategoryFormValues)[] = [
     "name",
     "slug",
+    "sortOrder",
     "description",
     "isActive",
   ];
@@ -213,6 +215,7 @@ function CategoryForm({
       slug: values.slug,
       description: values.description || null,
       isActive: values.isActive,
+      sortOrder: values.sortOrder,
       ...(record ? { expectedVersion: record.version } : {}),
     };
     setProposal({
@@ -225,6 +228,7 @@ function CategoryForm({
         { label: "URL name", value: body.slug },
         { label: "Description", value: body.description || "Not provided" },
         { label: "Active", value: body.isActive ? "Yes" : "No" },
+        { label: "Display order", value: String(body.sortOrder) },
       ],
       onUncertain: () => pending(true),
       submit: async () => {
@@ -276,7 +280,9 @@ function CategoryForm({
       ? `category-error-${name}`
       : name === "slug"
         ? "category-slug-hint"
-        : undefined,
+        : name === "sortOrder"
+          ? "category-order-hint"
+          : undefined,
   });
   function error(name: keyof CategoryFormValues) {
     return (
@@ -337,6 +343,7 @@ function CategoryForm({
                   slug: "",
                   description: "",
                   isActive: true,
+                  sortOrder: 0,
                 });
                 pending(false);
               }}
@@ -388,6 +395,22 @@ function CategoryForm({
                 Use lowercase words separated by hyphens.
               </span>
               {error("slug")}
+            </div>
+            <div className="field">
+              <label htmlFor="admin-sortOrder">Display order</label>
+              <input
+                type="number"
+                min={0}
+                max={1000000}
+                step={1}
+                {...form.register("sortOrder", { valueAsNumber: true })}
+                {...common("sortOrder")}
+              />
+              <span className="field-hint" id="category-order-hint">
+                Lower numbers appear first. Groups with the same number are listed
+                alphabetically.
+              </span>
+              {error("sortOrder")}
             </div>
             <div className="field">
               <label htmlFor="admin-description">Description (optional)</label>

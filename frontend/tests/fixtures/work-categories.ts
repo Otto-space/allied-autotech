@@ -14,6 +14,7 @@ export function categoryRecord(n = 0): AdminCategory {
         : ["Fault finding and vehicle checks.", "Routine care for your vehicle."][n % 2],
     isActive: n !== 2,
     version: 1,
+    sortOrder: 0,
     createdAt: "2026-10-12T08:00:00Z",
     updatedAt: "2026-10-12T08:00:00Z",
   };

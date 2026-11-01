@@ -141,6 +141,10 @@ function CategoryRecord({ categoryId, owner }: { categoryId: string; owner: stri
               <dd>{record.isActive ? "Active" : "Inactive"}</dd>
             </div>
             <div>
+              <dt>Display order</dt>
+              <dd>{record.sortOrder}</dd>
+            </div>
+            <div>
               <dt>URL name</dt>
               <dd>{record.slug}</dd>
             </div>

@@ -39,8 +39,11 @@ test("create validates all fields, reviews, cancels and saves exactly once", asy
   await page.getByLabel("Name", { exact: true }).fill("Synthetic category");
   await page.getByLabel("URL name", { exact: true }).fill("synthetic-category");
   await page.getByLabel("Description (optional)").fill("Category description.");
+  await page.getByLabel("Display order", { exact: true }).fill("12");
   await page.getByRole("button", { name: "Review changes" }).click();
   await expect(page.getByRole("dialog")).toContainText("Category description.");
+  await expect(page.getByRole("dialog")).toContainText("Display order");
+  await expect(page.getByRole("dialog")).toContainText("12");
   await page.getByRole("button", { name: "Go back", exact: true }).click();
   expect(state.writes).toHaveLength(0);
   await page.getByRole("button", { name: "Review changes" }).click();
@@ -53,6 +56,7 @@ test("create validates all fields, reviews, cancels and saves exactly once", asy
       name: "Synthetic category",
       slug: "synthetic-category",
       description: "Category description.",
+      sortOrder: 12,
       isActive: true,
     },
   });
@@ -247,3 +251,43 @@ for (const width of [320, 390, 768, 1467])
       await page.evaluate(() => document.documentElement.scrollWidth > innerWidth),
     ).toBe(false);
   });
+
+for (const width of [390, 1440]) {
+  test(`category order is reviewed and persists after reload at ${width}px`, async ({
+    page,
+  }, info) => {
+    await page.setViewportSize({ width, height: 900 });
+    const { state } = await workCategoriesFixture(page);
+    await page.goto(`${path}?edit=${bookingId(801)}`);
+    const order = page.getByLabel("Display order", { exact: true });
+    await expect(order).toHaveValue("0");
+    await order.fill("");
+    await page.getByRole("button", { name: "Review changes" }).click();
+    await expect(order).toBeFocused();
+    expect(state.writes).toHaveLength(0);
+    await order.fill("4");
+    await page.getByRole("button", { name: "Review changes" }).click();
+    await expect(page.getByRole("dialog")).toContainText("Display order");
+    await expect(page.getByRole("dialog")).toContainText("4");
+    expect(state.writes).toHaveLength(0);
+    await page.screenshot({ path: info.outputPath("order-review.png") });
+    await page.getByRole("button", { name: "Confirm save", exact: true }).click();
+    await expect(
+      page.getByText("Category saved.", { exact: true }).first(),
+    ).toBeVisible();
+    expect(state.writes).toHaveLength(1);
+    expect(state.writes[0].body).toMatchObject({ sortOrder: 4, expectedVersion: 1 });
+    // Saving opens a blank create form; reopen the saved record.
+    await page.goto(`${path}?edit=${bookingId(801)}`);
+    await expect(order).toHaveValue("4");
+    await page.reload();
+    await expect(order).toHaveValue("4");
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+    expect(
+      (await new AxeBuilder({ page }).include("#category-editor").analyze()).violations,
+    ).toEqual([]);
+    await page.screenshot({ path: info.outputPath("order-saved.png") });
+  });
+}

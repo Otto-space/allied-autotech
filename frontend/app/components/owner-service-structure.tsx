@@ -14,6 +14,7 @@ const previewSchema = z.object({
         name: z.string(),
         action: z.enum(["create", "reuse"]),
         isActive: z.boolean(),
+        sortOrder: z.number().int().min(0).max(1000000),
       }),
     )
     .length(8),
@@ -63,13 +64,13 @@ export function OwnerServiceStructure({
       setProposal({
         title: "Review owner service groups",
         description:
-          "Create missing groups and reuse existing records. Existing descriptions, URLs and visibility stay as recorded. Tyre Change is assigned only if it has no group. Prices, durations and bookings stay unchanged.",
+          "Create missing groups and reuse existing records. Existing descriptions, URLs, visibility and display order stay as recorded. Tyre Change is assigned only if it has no group. Prices, durations and bookings stay unchanged.",
         facts: [
           ...plan.groups.map((g) => ({
             label: g.name,
             value:
               g.action === "create"
-                ? "Create and publish group"
+                ? `Create and publish group · display order ${g.sortOrder}`
                 : g.isActive
                   ? "Reuse published group"
                   : "Reuse inactive group; it stays hidden",

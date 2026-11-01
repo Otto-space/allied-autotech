@@ -138,3 +138,12 @@ route completion decisions remain open.
 ## Visual audit candidate, 27 October 2026
 
 Added public `home-next-step`, version 1, reviewed 2026-10-27 against existing Home routes, published branch availability and the approved enquiries-only launch. Its homepage context describes Services, Shop and Vehicles without claiming to read records, confirm appointments or reserve vehicles. Destination: /services; contextual links preserve /parts and /vehicles. Eligibility remains the existing public gate; private content remains server-filtered. No flags or permission rules changed. Existing article versions above are historical; source remains authoritative.
+
+### 1 November 2026 — service-group ordering
+
+`owner-service-groups` v2 (admin gate, reviewed 2026-11-01) explains Display order,
+alphabetical ties, explicit review/save and preservation of existing order during
+owner imports. Destination remains /admin/service-categories; permissions and guide
+targets are unchanged. New groups use the owner's supplied sequence. This is source
+implementation pending the additive migration and verified release; feature flags
+are unchanged. Unit acceptance covers version, admin gate and the actual workflow.

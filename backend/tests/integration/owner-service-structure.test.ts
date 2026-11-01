@@ -101,6 +101,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
           name: "Tyre & Wheel Maintenance",
           slug: "legacy-wheel-group",
           description: "Existing authored description",
+          sortOrder: 42,
         },
       });
       const tyre = await prisma.service.create({
@@ -143,6 +144,19 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         (await prisma.serviceCategory.findUniqueOrThrow({ where: { id: category.id } }))
           .description,
       ).toBe(category.description);
+      expect(
+        (await prisma.serviceCategory.findUniqueOrThrow({ where: { id: category.id } }))
+          .sortOrder,
+      ).toBe(42);
+      const imported = await prisma.serviceCategory.findMany({
+        where: {
+          id: { in: responses.find((r) => r.status === 200)!.body.data.categoryIds },
+        },
+      });
+      for (const group of before.body.data.groups)
+        expect(imported.find((row) => row.slug === group.slug)?.sortOrder).toBe(
+          group.id ? 42 : group.sortOrder,
+        );
       const fresh = await request(app).get(url).set(actor.headers);
       const auditWhere = {
         entityId: {

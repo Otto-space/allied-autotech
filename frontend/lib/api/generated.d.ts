@@ -2977,7 +2977,7 @@ export interface paths {
         };
         /**
          * List active service category options
-         * @description Literal case-insensitive name-prefix search, ascending name/ID order, signed filter-bound cursor. Public options include active categories even without individual services, with their maintained descriptions (limit 1–50). Administrator list includes inactive and empty categories and supports isActive (limit 1–100). List active service category options. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+         * @description Literal case-insensitive name-prefix search, ascending display-order/name/ID order, signed filter-bound cursor (v2; older category cursors must restart). Public options include active categories even without individual services, with their maintained descriptions (limit 1–50). Administrator list includes inactive and empty categories and supports isActive (limit 1–100). List active service category options. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
          */
         get: operations["getPublicServicesCategories"];
         put?: never;
@@ -2997,13 +2997,13 @@ export interface paths {
         };
         /**
          * List service categories for administration
-         * @description Literal case-insensitive name-prefix search, ascending name/ID order, signed filter-bound cursor. Public options include active categories even without individual services, with their maintained descriptions (limit 1–50). Administrator list includes inactive and empty categories and supports isActive (limit 1–100). List service categories for administration. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+         * @description Literal case-insensitive name-prefix search, ascending display-order/name/ID order, signed filter-bound cursor (v2; older category cursors must restart). Public options include active categories even without individual services, with their maintained descriptions (limit 1–50). Administrator list includes inactive and empty categories and supports isActive (limit 1–100). List service categories for administration. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
          */
         get: operations["getAdminServiceCategories"];
         put?: never;
         /**
          * Create a service category
-         * @description ADMIN or SUPER_ADMIN with verified MFA and CSRF. Category assignments require an active category. Archive removes public grouping without unpublishing services or changing bookings; reactivation restores grouping. Updates require expectedVersion. Mutations are audited. Unique slug prevents duplicate creation; after uncertain creation, read the list before retrying. Create a service category. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         * @description ADMIN or SUPER_ADMIN with verified MFA and CSRF. Category assignments require an active category. Archive removes public grouping without unpublishing services or changing bookings; reactivation restores grouping. Updates require expectedVersion. Display order is an integer from 0 to 1000000; lower values appear first, then name and ID. Mutations are audited. Unique slug prevents duplicate creation; after uncertain creation, read the list before retrying. Create a service category. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
          */
         post: operations["postAdminServiceCategories"];
         delete?: never;
@@ -3051,7 +3051,7 @@ export interface paths {
         head?: never;
         /**
          * Update or archive a service category
-         * @description ADMIN or SUPER_ADMIN with verified MFA and CSRF. Category assignments require an active category. Archive removes public grouping without unpublishing services or changing bookings; reactivation restores grouping. Updates require expectedVersion. Mutations are audited. Unique slug prevents duplicate creation; after uncertain creation, read the list before retrying. Update or archive a service category. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         * @description ADMIN or SUPER_ADMIN with verified MFA and CSRF. Category assignments require an active category. Archive removes public grouping without unpublishing services or changing bookings; reactivation restores grouping. Updates require expectedVersion. Display order is an integer from 0 to 1000000; lower values appear first, then name and ID. Mutations are audited. Unique slug prevents duplicate creation; after uncertain creation, read the list before retrying. Update or archive a service category. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
          */
         patch: operations["patchAdminServiceCategoriesByCategoryId"];
         trace?: never;
@@ -55899,6 +55899,7 @@ export interface operations {
                      *             "id": "00000000-0000-4000-8000-000000000001",
                      *             "name": "synthetic-name",
                      *             "slug": "synthetic-slug",
+                     *             "sortOrder": 0,
                      *             "isActive": true,
                      *             "version": 0,
                      *             "createdAt": "2030-01-15T10:00:00.000Z",
@@ -55935,6 +55936,8 @@ export interface operations {
                                 name: string;
                                 /** @description Slug validated by this operation's strict request contract. */
                                 slug: string;
+                                /** @description Sort Order validated by this operation's strict request contract. */
+                                sortOrder: number;
                                 /** @description Boolean control for is active; authorization is still enforced server-side. */
                                 isActive: boolean;
                                 /** @description Version validated by this operation's strict request contract. */
@@ -56130,7 +56133,8 @@ export interface operations {
                  *       "name": "synthetic-name",
                  *       "slug": "synthetic-slug",
                  *       "description": "synthetic-description",
-                 *       "isActive": true
+                 *       "isActive": true,
+                 *       "sortOrder": 0
                  *     }
                  */
                 "application/json": {
@@ -56145,6 +56149,8 @@ export interface operations {
                      * @default true
                      */
                     isActive?: boolean;
+                    /** @description Sort Order validated by this operation's strict request contract. */
+                    sortOrder?: number;
                 };
             };
         };
@@ -56164,6 +56170,7 @@ export interface operations {
                      *         "id": "00000000-0000-4000-8000-000000000001",
                      *         "name": "synthetic-name",
                      *         "slug": "synthetic-slug",
+                     *         "sortOrder": 0,
                      *         "isActive": true,
                      *         "version": 0,
                      *         "createdAt": "2030-01-15T10:00:00.000Z",
@@ -56195,6 +56202,8 @@ export interface operations {
                             name: string;
                             /** @description Slug validated by this operation's strict request contract. */
                             slug: string;
+                            /** @description Sort Order validated by this operation's strict request contract. */
+                            sortOrder: number;
                             /** @description Boolean control for is active; authorization is still enforced server-side. */
                             isActive: boolean;
                             /** @description Version validated by this operation's strict request contract. */
@@ -56584,6 +56593,7 @@ export interface operations {
                      *         "id": "00000000-0000-4000-8000-000000000001",
                      *         "name": "synthetic-name",
                      *         "slug": "synthetic-slug",
+                     *         "sortOrder": 0,
                      *         "isActive": true,
                      *         "version": 0,
                      *         "createdAt": "2030-01-15T10:00:00.000Z",
@@ -56615,6 +56625,8 @@ export interface operations {
                             name: string;
                             /** @description Slug validated by this operation's strict request contract. */
                             slug: string;
+                            /** @description Sort Order validated by this operation's strict request contract. */
+                            sortOrder: number;
                             /** @description Boolean control for is active; authorization is still enforced server-side. */
                             isActive: boolean;
                             /** @description Version validated by this operation's strict request contract. */
@@ -56807,6 +56819,7 @@ export interface operations {
                  *       "slug": "synthetic-slug",
                  *       "description": "synthetic-description",
                  *       "isActive": true,
+                 *       "sortOrder": 0,
                  *       "expectedVersion": 0
                  *     }
                  */
@@ -56819,6 +56832,8 @@ export interface operations {
                     description?: string | null;
                     /** @description Boolean control for is active; authorization is still enforced server-side. */
                     isActive?: boolean;
+                    /** @description Sort Order validated by this operation's strict request contract. */
+                    sortOrder?: number;
                     /** @description Last server version observed by the client; stale writes are rejected. */
                     expectedVersion: number;
                 };
@@ -56840,6 +56855,7 @@ export interface operations {
                      *         "id": "00000000-0000-4000-8000-000000000001",
                      *         "name": "synthetic-name",
                      *         "slug": "synthetic-slug",
+                     *         "sortOrder": 0,
                      *         "isActive": true,
                      *         "version": 0,
                      *         "createdAt": "2030-01-15T10:00:00.000Z",
@@ -56871,6 +56887,8 @@ export interface operations {
                             name: string;
                             /** @description Slug validated by this operation's strict request contract. */
                             slug: string;
+                            /** @description Sort Order validated by this operation's strict request contract. */
+                            sortOrder: number;
                             /** @description Boolean control for is active; authorization is still enforced server-side. */
                             isActive: boolean;
                             /** @description Version validated by this operation's strict request contract. */

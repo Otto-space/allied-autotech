@@ -21,7 +21,11 @@ const positionSchema = z
   .object({ id: z.uuid(), value: z.string().max(160).nullable() })
   .strict();
 const categoryPosition = z
-  .object({ id: z.uuid(), name: z.string().min(1).max(120) })
+  .object({
+    id: z.uuid(),
+    name: z.string().min(1).max(120),
+    sortOrder: z.number().int().min(0).max(1000000),
+  })
   .strict();
 const literal = (value: string) => value.replace(/[\\%_]/g, "\\$&");
 function valueOf(
@@ -126,7 +130,7 @@ export class ServiceDiscoveryRepository {
   }
   async categories(query: ServiceCategoryQuery, publicRead: boolean) {
     const binding = catalogueBinding(
-      publicRead ? "public-service-categories" : "admin-service-categories",
+      publicRead ? "public-service-categories-v2" : "admin-service-categories-v2",
       query,
     );
     const position = query.cursor
@@ -145,13 +149,18 @@ export class ServiceDiscoveryRepository {
         ...(position
           ? {
               OR: [
-                { name: { gt: position.name } },
-                { name: position.name, id: { gt: position.id } },
+                { sortOrder: { gt: position.sortOrder } },
+                { sortOrder: position.sortOrder, name: { gt: position.name } },
+                {
+                  sortOrder: position.sortOrder,
+                  name: position.name,
+                  id: { gt: position.id },
+                },
               ],
             }
           : {}),
       },
-      orderBy: [{ name: "asc" }, { id: "asc" }],
+      orderBy: [{ sortOrder: "asc" }, { name: "asc" }, { id: "asc" }],
       take: query.limit + 1,
     });
     const items = rows.slice(0, query.limit),
@@ -166,7 +175,13 @@ export class ServiceDiscoveryRepository {
           }))
         : items,
       ...(rows.length > query.limit && last
-        ? { nextCursor: encodeCatalogueCursor(binding, { id: last.id, name: last.name }) }
+        ? {
+            nextCursor: encodeCatalogueCursor(binding, {
+              id: last.id,
+              name: last.name,
+              sortOrder: last.sortOrder,
+            }),
+          }
         : {}),
     };
   }

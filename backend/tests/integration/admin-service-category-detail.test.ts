@@ -96,6 +96,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
               "slug",
               "description",
               "isActive",
+              "sortOrder",
               "version",
               "createdAt",
               "updatedAt",

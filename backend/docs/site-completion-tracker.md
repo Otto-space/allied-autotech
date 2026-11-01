@@ -1,3 +1,38 @@
+### 1 November 2026: service-group ordering implemented and locally verified
+
+Bounded package began 10:26 UTC. ServiceCategory now has bounded integer sortOrder,
+with additive migration 20261101103000_service_category_order. Existing rows default
+to zero and retain name/ID ties; public and admin pages use order/name/ID keysets.
+Signed cursor binding is v2, so pre-release cursors must restart. Admin create/edit,
+review and detail show Display order. Owner import sets the supplied sequence only
+for newly created groups; existing identity, content, visibility and order remain.
+Admin-only owner-service-groups guidance is v2; guide eligibility is unchanged.
+
+Fresh isolated aat_category_order_7ff5545bf4_test at 127.0.0.1:60540 passed all 81
+migrations, no drift and db:check. All 31 API/database cases passed (24.92s), including
+order/tie traversal, deleted anchors, changed filter rejection, invalid order,
+CSRF/role denial, stale version and idempotent import preservation. Eight backend
+and eleven frontend focused units passed. Backend/frontend type checks, touched-file
+lint and OpenAPI validation (405 paths) passed; canonical API/client regenerated.
+
+Seven browser fixture cases passed: three existing create/stale-edit checks, two
+owner import reviews, and two order review/save/reopen/reload cases at 390/1440
+(23.5s for the latter). Scoped Axe and overflow checks passed; screenshots inspected.
+The first order reload test incorrectly expected an edited record after the existing
+save flow opened a blank create form; it failed at both widths. Corrected the journey
+to reopen the saved record; assertions retained. Earlier schema generation caught
+an over-broad index edit, corrected before migration replay. These are local/native
+API plus mocked browser results, not a production migration or live admin import.
+
+Test cluster confirmed stopped; 104262502 bytes of disposable test data removed,
+logs retained at TEMP/aat-category-order-3adbcf657c47493694bc2d44bdc0dd8a. Browser
+artifacts retained under TEMP/aat-category-order-browser*. C: 27.31 GiB free.
+No Docker image/database production writes in this package. Source awaits release
+checks, fresh backup/restore safeguards and compatible deployment. Production remains
+337477ae / dpl_5pNZQyW36fq9EisnwLyLR9g1ra31. Live category import needs the owner's
+signed-in admin session (Chrome showed Sign In; requested once). Category media and
+structured category context through booking remain unfinished. Full goal active.
+
 ### 1 November 2026: native booking review sizing published
 
 Source 337477ae5d3cd44146bd19235e773778787eda75 is integrated into master and

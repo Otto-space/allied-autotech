@@ -6,6 +6,13 @@ import {
 } from "@/lib/admin/category-catalogue";
 
 describe("administrator category boundary", () => {
+  it("requires a bounded whole-number display order without converting blank input to zero", () => {
+    const values = { name: "Wheels", slug: "wheels", description: "", isActive: true };
+    expect(categoryFormSchema.parse({ ...values, sortOrder: 7 }).sortOrder).toBe(7);
+    for (const sortOrder of [undefined, "", "2", NaN, -1, 0.5, 1000001])
+      expect(categoryFormSchema.safeParse({ ...values, sortOrder }).success).toBe(false);
+  });
+
   it("forwards supported prefix filters and signed cursor, keeping edit/history client-side", () => {
     const result = categoryQuery(
       new URLSearchParams(
@@ -46,6 +53,7 @@ describe("administrator category boundary", () => {
       slug: "maintenance",
       description: "  ",
       isActive: true,
+      sortOrder: 0,
     };
     expect(categoryFormSchema.parse(input)).toEqual({
       ...input,
