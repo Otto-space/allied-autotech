@@ -1,3 +1,35 @@
+### 1 November 2026: native concern-to-proposal browser acceptance
+
+Extended the existing real-browser concern intake test through separate customer
+and scoped staff sessions: staff reviews/sends an alternative, customer reloads,
+reviews/accepts, and both roles reload the saved pending state. Database assertions
+prove review-only stages do not write, submissions use CSRF, exactly one booking
+persists, concern/vehicle survive, and acceptance is REQUESTED with no confirmation,
+assignment, fabricated deposit or customer reschedule-count increment. Authenticated
+sessions are seeded; this does not prove login/MFA completion or external delivery.
+No API interception, provider call or production booking was used.
+
+Screenshot review found a real 390px customer review defect: shared flex-basis 10rem
+became button height inside the column layout. A scoped booking-detail CSS rule now
+uses natural button height. Native checks include 390x900, 390x500 and 1440x900 review
+buttons (at least 44px, below 80px, fully inside viewport). Screenshots inspected;
+short-screen details remain a scroll region. This is not full accessibility proof.
+
+Final native run: two cases passed in 58.13s on fresh isolated
+127.0.0.1:54380/aat_concern_proposal_browser_db9faaabde_test; 80-migration replay,
+no drift and db:check passed. Backend types, scoped lint, formatting/diff checks passed.
+Initial run failed before form entry because the reused localhost preview did not
+complete identity loading; restarting this task preview with explicit 127.0.0.1
+API/host resolved it. Intermediate full journey passed in 70.95s before the visual
+fix. Failed run is retained as failure evidence. Three stopped task clusters removed
+(231,055,326 logical bytes); logs/screenshots retained. C: 27.39 GiB free at closeout.
+Evidence: TEMP/aat-native-concern-proposal-20261101; final database logs at
+TEMP/aat-concern-proposal-browser-0b83e5f88b15405886de803e130155b9.
+
+CSS change requires exact-source CI/integration/publication. Current live runtime
+remains c158b0d0. Full goal remains active, including owner category authoring/context,
+remaining role/auth/browser coverage and provider/operational acceptance.
+
 # Concern booking contract — 30 October 2026
 
 Canonical workflow: ServiceOperationsService createBooking and assignBooking.

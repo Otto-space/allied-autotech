@@ -560,6 +560,15 @@
     flex-direction: column-reverse;
     align-items: stretch;
   }
+  .dashboard
+    .dashboard-content
+    .customer-booking-detail
+    .mutation-review
+    .actions
+    > .button {
+    /* The shared row basis must not become a 10rem height in this column. */
+    flex: none;
+  }
 }
 @media (prefers-reduced-motion: no-preference) {
   .customer-booking-detail :is(.button, .booking-slot) {

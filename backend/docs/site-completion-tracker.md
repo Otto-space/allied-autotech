@@ -1,3 +1,15 @@
+### 1 November 2026: native proposal journey and mobile review sizing
+
+Two real-browser/API/database customer-to-staff proposal journeys passed at 390/1440
+(58.13s), preserving pending state and original concern/vehicle after acceptance.
+Review dialogs do not write; submissions use CSRF. Seeded sessions do not prove actual
+login/MFA. Screenshot review found and fixed oversized customer dialog buttons caused
+by a horizontal flex basis becoming column height. Native viewport bounds pass at
+390x900, 390x500 and 1440x900. Fresh isolated 80-migration replay/db:check, backend
+types, scoped lint and formatting pass. Full evidence and the failed initial preview
+attempt are in docs/help-learn/CONCERN_BOOKING_20261030.md. CSS publication remains
+pending; current live source is c158b0d0. Full objective remains active.
+
 ### 1 November 2026: Allie group knowledge and booking retry fix published
 
 Runtime source c158b0d0cdfe287d2c2a7a38a95da2c3e9d82f66 is integrated into master

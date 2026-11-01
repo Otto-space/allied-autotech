@@ -15,10 +15,17 @@ describe.skipIf(process.env.RUN_NATIVE_BROWSER_TESTS !== "true")(
   () => {
     let f: Awaited<ReturnType<typeof workforceFixture>>, server: Server;
     const origin = "http://127.0.0.1:3021";
-    const evidence = join(tmpdir(), "aat-native-concern-browser-20261030");
+    const evidence = join(tmpdir(), "aat-native-concern-proposal-20261101");
     beforeAll(async () => {
       await assertIsolatedLoopbackDatabase();
       f = await workforceFixture();
+      await prisma.userCapability.create({
+        data: {
+          userId: f.care.user.id,
+          capability: "BOOKING_CONFIRM",
+          grantedByUserId: f.owner.id,
+        },
+      });
       mkdirSync(evidence, { recursive: true });
       server = await new Promise<Server>((resolve, reject) => {
         const running = createApp({
@@ -37,7 +44,7 @@ describe.skipIf(process.env.RUN_NATIVE_BROWSER_TESTS !== "true")(
       await prisma.$disconnect();
     });
     for (const width of [390, 1440])
-      it(`saves and reloads a real concern request at ${width}px`, async () => {
+      it(`submits a concern, reviews a staff proposal and accepts without confirmation at ${width}px`, async () => {
         const customer = await f.account(null, "CUSTOMER");
         const vehicle = await prisma.customerVehicle.create({
           data: {
@@ -70,6 +77,10 @@ describe.skipIf(process.env.RUN_NATIVE_BROWSER_TESTS !== "true")(
           const page = await context.newPage();
           const errors: string[] = [];
           page.on("pageerror", (e: Error) => errors.push(e.message));
+          const identityResponse = page.waitForResponse(
+            (response: { url(): string }) => response.url().endsWith("/auth/session"),
+            { timeout: 60000 },
+          );
           await page.goto(origin + "/services/request", {
             waitUntil: "domcontentloaded",
             timeout: 60000,
@@ -77,6 +88,7 @@ describe.skipIf(process.env.RUN_NATIVE_BROWSER_TESTS !== "true")(
           await browserExpect(
             page.getByRole("heading", { name: "Tell us what your vehicle needs" }),
           ).toBeVisible({ timeout: 60000 });
+          expect((await identityResponse).status()).toBe(200);
           const concern = "The vehicle vibrates when braking from road speed.";
           await page.getByLabel("What have you noticed?").fill(concern);
           await page
@@ -159,9 +171,167 @@ describe.skipIf(process.env.RUN_NATIVE_BROWSER_TESTS !== "true")(
           ).toBe(true);
           expect(errors).toEqual([]);
           await page.screenshot({ path: join(evidence, `saved-${width}.png`) });
+
+          const booking = rows[0]!;
+          const staffContext = await browser.newContext({
+            viewport: { width, height: 900 },
+          });
+          const staffCookie = f.care.headers.Cookie;
+          const staffSeparator = staffCookie.indexOf("=");
+          await staffContext.addCookies([
+            {
+              name: staffCookie.slice(0, staffSeparator),
+              value: staffCookie.slice(staffSeparator + 1),
+              url: origin,
+              httpOnly: true,
+              sameSite: "Lax",
+            },
+          ]);
+          const staffPage = await staffContext.newPage();
+          staffPage.on("pageerror", (e: Error) => errors.push(e.message));
+          await staffPage.goto(origin + `/admin/workforce/bookings/${booking.id}`);
+          const proposedLocal = new Date(date.getTime() + 86400000)
+            .toISOString()
+            .slice(0, 16);
+          const proposedAt = new Date(`${proposedLocal}:00+01:00`);
+          const reason = "Allow time for the workshop to review the braking concern.";
+          await staffPage
+            .getByLabel("Proposed time (Lagos)", { exact: true })
+            .fill(proposedLocal);
+          await staffPage
+            .getByLabel("Reason shown to customer", { exact: true })
+            .fill(reason);
+          await staffPage
+            .getByRole("button", { name: "Review proposed time", exact: true })
+            .click();
+          await browserExpect(staffPage.getByRole("dialog")).toContainText(
+            "Their current appointment stays unchanged.",
+          );
+          const read = () =>
+            prisma.booking.findUniqueOrThrow({ where: { id: booking.id } });
+          expect(await read()).toMatchObject({
+            version: 0,
+            scheduledAt: booking.scheduledAt,
+            alternativeStartsAt: null,
+          });
+          await staffPage.screenshot({
+            path: join(evidence, `staff-review-${width}.png`),
+          });
+          const proposalResponse = staffPage.waitForResponse(
+            (response: { url(): string; request(): { method(): string } }) =>
+              response.request().method() === "POST" &&
+              response.url().endsWith(`/bookings/${booking.id}/alternative`),
+          );
+          await staffPage
+            .getByRole("button", { name: "Send proposed time", exact: true })
+            .click();
+          const proposedResponse = await proposalResponse;
+          expect(proposedResponse.status()).toBe(200);
+          expect(
+            proposedResponse.request().headers()["x-csrf-token"]?.length,
+          ).toBeGreaterThan(31);
+          expect(await read()).toMatchObject({
+            version: 1,
+            status: "REQUESTED",
+            scheduledAt: booking.scheduledAt,
+            alternativeStartsAt: proposedAt,
+            alternativeReason: reason,
+            customerConcern: concern,
+            vehicleId: vehicle.id,
+          });
+          await page.reload();
+          await browserExpect(
+            page.getByRole("heading", { name: "The workshop proposed another time" }),
+          ).toBeVisible();
+          await page
+            .getByRole("button", { name: "Review proposed time", exact: true })
+            .click();
+          await browserExpect(page.getByRole("dialog")).toContainText(
+            "not a confirmed appointment",
+          );
+          expect(await read()).toMatchObject({
+            version: 1,
+            scheduledAt: booking.scheduledAt,
+          });
+          for (const height of width === 390 ? [900, 500] : [900]) {
+            await page.setViewportSize({ width, height });
+            for (const button of await page
+              .getByRole("dialog")
+              .getByRole("button")
+              .all()) {
+              const bounds = await button.boundingBox();
+              expect(bounds).not.toBeNull();
+              expect(bounds!.height).toBeGreaterThanOrEqual(44);
+              expect(bounds!.height).toBeLessThan(80);
+              expect(bounds!.y).toBeGreaterThanOrEqual(0);
+              expect(bounds!.y + bounds!.height).toBeLessThanOrEqual(height);
+            }
+            await page.screenshot({
+              path: join(evidence, `customer-review-${width}-${height}.png`),
+            });
+          }
+          await page.setViewportSize({ width, height: 900 });
+          const acceptanceResponse = page.waitForResponse(
+            (response: { url(): string; request(): { method(): string } }) =>
+              response.request().method() === "POST" &&
+              response.url().endsWith(`/bookings/${booking.id}/alternative-response`),
+          );
+          await page
+            .getByRole("dialog")
+            .getByRole("button", { name: "Confirm change", exact: true })
+            .click();
+          const acceptedResponse = await acceptanceResponse;
+          expect(acceptedResponse.status()).toBe(200);
+          expect(
+            acceptedResponse.request().headers()["x-csrf-token"]?.length,
+          ).toBeGreaterThan(31);
+          await browserExpect(
+            page.getByRole("heading", { name: "The workshop proposed another time" }),
+          ).toHaveCount(0);
+          expect(await read()).toMatchObject({
+            version: 2,
+            status: "REQUESTED",
+            scheduledAt: proposedAt,
+            alternativeStartsAt: null,
+            confirmedAt: null,
+            assignedStaffId: null,
+            customerConcern: concern,
+            vehicleId: vehicle.id,
+            depositAmountKobo: null,
+            customerRescheduleCount: 0,
+          });
+          await page.reload();
+          await browserExpect(
+            page.locator(".booking-appointment .booking-detail-status"),
+          ).toHaveText(/Requested/);
+          await staffPage.reload();
+          await browserExpect(
+            staffPage.getByRole("region", { name: "Proposed appointment", exact: true }),
+          ).toHaveCount(0);
+          await browserExpect(staffPage.locator("main")).toContainText(concern);
+          for (const currentPage of [page, staffPage]) {
+            expect(
+              await currentPage.evaluate(
+                () => document.documentElement.scrollWidth <= innerWidth,
+              ),
+            ).toBe(true);
+          }
+          expect(
+            await prisma.booking.count({
+              where: { customerId: customer.user.profile!.id },
+            }),
+          ).toBe(1);
+          expect(errors).toEqual([]);
+          await page.screenshot({
+            path: join(evidence, `accepted-pending-${width}.png`),
+          });
+          await staffPage.screenshot({
+            path: join(evidence, `staff-pending-${width}.png`),
+          });
+          await staffContext.close();
         } finally {
           await browser.close();
         }
-      }, 120000);
+      }, 180000);
   },
 );
