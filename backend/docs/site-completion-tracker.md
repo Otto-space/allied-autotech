@@ -1,3 +1,46 @@
+### 1 November 2026: booking group continuity published
+
+Runtime 17abc5e665b0ff7ffd6f21d7a8e1f3be1cd40955 is published. Exact-master
+frontend 41303949093, database safety 41303949079 and secrets 41303949053 passed.
+Four images were built and pushed; ten packaged checks passed (60.406s). The first
+registry lookup failed before upload; an independent lookup succeeded and the
+retained retry completed. No failed attempt is counted as acceptance.
+
+Fresh production backup was checksum verified and restored separately into
+allied_booking_group_restore_20261101_6d0ef532e8ff_ci at 127.0.0.1:63888.
+Original-column row hashes and business counts were preserved; new nullable fields,
+paired-value constraint, restrictive foreign key and index were verified. Managed
+backup freshness checked; this is not a new managed PITR rehearsal. Protected
+forward migration 20261101120000_booking_service_group and db:check passed in
+production (83 migrations). No booking/business records were created by the release.
+Temporary database access was removed and verified; no grants changed.
+
+Backend 3795b7c9-2e75-492a-a489-c9e42fe2383b is ACTIVE with matching image digests,
+read-only strict-TLS schema/least-privilege checks and all eight workers healthy.
+Frontend dpl_G3ET9fphQoBEqGa1dYBK6qdhU2Bt is assigned to apex/www, independently
+verified through the Vercel connector. Previous runtime 30780884 remains retained
+for recovery, with its build/release manifests preserved. Do not reverse migrations;
+any recovery must retain the current migration history and compatible schema checks.
+
+Four hosted category/media fixtures passed (32.2s), followed by two real-data
+candidate and four live public cases at 390/1440. Checks cover homepage imagery,
+story placement, public categories, empty-group enquiry and selected-group context
+on the restricted booking page. No enquiry or production booking was submitted.
+Live public Tyre Change remains NGN1,000 (100000 minor units) in Tyre & Wheel
+Maintenance. Existing booking, payment, AI and live-chat activation gates unchanged.
+Native full-mode booking acceptance is local evidence, not public booking activation.
+Receipts: private ops booking-group-*; live screenshots: TEMP/aat-booking-group-live.
+
+Final observed C: 26.99 GiB free. Docker: 81 images, 13 stopped containers, 14
+volumes and 279 cache records. Task packaged-test resources removed by their test
+cleanup; current/rollback/base resources, other tasks and populated restore evidence
+retained. Package began about 11:39 UTC and live verification finished 12:08:42 UTC.
+Full objective remains active. Next: reconcile the historical requirement ledger
+against current source and evidence, particularly policy/capability knowledge,
+remaining provider-independent acceptance and the exact activation handoff. Icons
+already satisfy the owner taxonomy presentation; actual group photos are an optional
+content enhancement, not permission to fabricate assets or block the whole goal.
+
 ### 1 November 2026: selected service-group booking continuity verified locally
 
 Bounded package began about 11:39 UTC. Added optional serviceCategoryId to existing

@@ -1,3 +1,14 @@
+### 1 November 2026: booking group continuity live checkpoint
+
+Runtime 17abc5e6 is live on apex/www as dpl_G3ET9fphQoBEqGa1dYBK6qdhU2Bt,
+with backend 3795b7c9 and eight healthy workers. Four hosted category/media cases,
+two real-data candidate cases and four live public cases passed at 390/1440.
+Restricted booking retains the selected group in its enquiry link. Native customer
+and staff booking-group persistence remains locally verified; public booking gates
+were preserved. No real customer booking/enquiry was submitted. Tyre Change remains
+NGN1,000. Live screenshots are in TEMP/aat-booking-group-live. Full goal continues
+with requirement/evidence reconciliation and outstanding provider-independent checks.
+
 ### 1 November 2026: selected group through booking
 
 Local full-mode request flow now retains selected group across sign-in handoff,

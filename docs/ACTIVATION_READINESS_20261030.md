@@ -1,3 +1,36 @@
+### 1 November 2026: current released booking context and activation boundary
+
+Runtime 17abc5e6 is now released with 83 migrations, matching frontend/backend,
+passing exact-master CI, populated restore rehearsal and eight healthy workers.
+Selected service group, individual service and vehicle are retained by the booking
+flow; local native customer/staff browser acceptance passed at 390/1440. Sign-in
+draft, review/retry and withdrawn-group recovery have focused passing evidence.
+This supersedes historical statements below that those paths are unimplemented or
+uncommitted. Public limited-launch booking restrictions are unchanged and verified.
+
+Remaining external prerequisites retain their existing boundaries:
+- Paystack: server PAYSTACK_SECRET_KEY and matching PAYSTACK_MODE; merchant NGN and
+  settlement eligibility; dashboard registration of callback
+  https://alliedautotech.com/payments/complete and webhook
+  https://api.alliedautotech.com/api/v1/webhooks/paystack; isolated provider test-mode
+  return/webhook/reconciliation acceptance and reviewed live activation.
+- OpenAI: server OPENAI_API_KEY and ALLIE_OPENAI_MODEL; project Responses/model access,
+  billing, retention/customer notice and a new explicitly bounded evaluation allowance
+  (the earlier 120 reservations remain exhausted). Reviewed HELP_LEARN_AI_ENABLED,
+  HELP_LEARN_ENABLED and ALLIE_AI_DAILY_TOKEN_LIMIT configuration must be consistent
+  with frontend visibility and worker operation. No new paid call was made.
+- Workshop operations: real branch calendars, service duration/buffers, staff and
+  equipment capacity and authorised staff confirmation. Preferred requests remain
+  pending and must not depend on Paystack setup. Delivery/provider acceptance remains
+  distinct from an atomic notification queue and healthy worker heartbeat.
+
+Remaining implementation/verification must be determined from the current source,
+not repeated from older checkpoints: policy/capability source coverage, outstanding
+relevant auth/role and provider-independent journey checks, then a requirement-by-
+requirement final audit. No claim that only credentials remain is made yet. Published
+category icons are a valid owner-approved alternative to photographs; authentic group
+photo content is optional, and real production photo upload has not been exercised.
+
 ### 1 November 2026: workforce proposal security acceptance
 
 Added direct HTTP acceptance for proposal MFA/CSRF rejection, grant revocation,
