@@ -1,3 +1,4 @@
+import { mediaImageSchema } from "../media/media.schemas.js";
 import { z } from "zod";
 import { catalogueCursorSchema } from "../../common/security/catalogue-cursors.js";
 
@@ -75,6 +76,7 @@ export const serviceCategoryUpdateSchema = serviceCategoryCreateSchema
 export type ServiceCategoryCreate = z.infer<typeof serviceCategoryCreateSchema>;
 export type ServiceCategoryUpdate = z.infer<typeof serviceCategoryUpdateSchema>;
 export const publicServiceCategorySchema = z.object({
+  image: mediaImageSchema.nullable().optional(),
   description: z.string().max(2000).nullable().optional(),
   id: z.uuid(),
   name: z.string().max(120),

@@ -69,9 +69,12 @@ it("keeps reviewed contact facts public without promising workshop hours or send
   expect(article.source).toContain("frontend/lib/business.ts");
 });
 
-it("keeps category-order instructions versioned and administrator-only", () => {
+it("keeps category order and image instructions versioned and administrator-only", () => {
   const article = learningArticles.find((item) => item.id === "owner-service-groups")!;
-  expect(article.version).toBe(2);
+  expect(article.version).toBe(3);
+  expect(article.steps.join(" ")).toContain("Manage group image");
+  expect(article.steps.join(" ")).toContain("administrator-only preview");
+  expect(article.steps.join(" ")).toContain("Review each change before confirming");
   expect(article.gate).toBe("admin");
   expect(article.href).toBe("/admin/service-categories");
   expect(article.steps.join(" ")).toContain("Lower numbers appear first");

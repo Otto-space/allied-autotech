@@ -969,6 +969,9 @@
   text-decoration: none;
   min-width: 0;
 }
+.service-group-card img {
+  max-height: 240px;
+}
 .service-group-card h3 {
   margin: 0;
   font-size: 18px;

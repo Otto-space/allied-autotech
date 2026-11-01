@@ -1,3 +1,50 @@
+### 1 November 2026: owner groups applied; category imagery locally verified
+
+Bounded package began about 11:02 UTC. The owner supplied an authorised Chrome
+session. Through the real review/apply UI, created all eight approved groups in
+supplied order (0-7); there were zero existing category records to reuse. Preserved
+Tyre Change 669f57ce-6e45-46f8-a9c4-75aa56f9d169 and assigned it to Tyre & Wheel
+Maintenance 37ec8bcf-7edc-4ec7-a185-ec849d71c5de. Public read confirms NGN100000000
+minor units (NGN1,000,000), one published service, no next page. The other seven
+groups have no published individual services and retain contextual enquiry actions.
+A second review showed all eight as reuse and Tyre Change as keep existing group;
+that review was cancelled without a second write. Screenshot retained under the
+thread visualization directory as service-groups-published-20261101.png.
+
+Category image authoring now extends existing MediaService, ResourceImage, signed
+uploads, byte validation, version checks, MFA/admin/CSRF, audit and cleanup. Migration
+20261101113000_service_category_media adds the optional unique category parent and
+updates one-parent/upload-purpose checks. Existing media is preserved. Public reads
+recheck current group visibility; inactive previews require administrator access.
+The existing ServiceImageEditor handles group photos, reviewed alt-text/removal,
+focus restoration and refresh. Cards use contained photos capped at 240px and retain
+icons without assets. Restricted owner-service-groups guidance is now v3.
+
+Two fresh isolated replay/db:check runs passed all 82 migrations with no drift.
+30 category/service media/discovery integration tests passed (22.65s); 11 category
+HTTP/access tests passed (17.00s), including media session, role, MFA and CSRF guards.
+Five backend learning units and eleven frontend catalogue/discovery units passed.
+Four local Edge browser fixtures passed at 390/1440 (1.2m), covering reviewed image
+edits, cancellation, reload persistence, removal, focus, scoped Axe, overflow,
+image failure, moderated size and empty-group enquiry context. Screenshots inspected.
+Browser image content is synthetic; local storage-host configuration disables new
+uploads. Byte upload/replace/replay checks used the native API service with injected
+storage. This is not live storage or actual group-photo upload acceptance.
+
+Backend/frontend types, configured lint, touched formatting, OpenAPI 410 paths and
+482 documented mounted operations passed. An initial Windows PowerShell run treated
+Prisma informational stderr as fatal; current PowerShell rerun passed. Contract
+export initially lacked inert env values; rerun with local placeholders passed.
+Learning test expected v2 and failed, updated to v3 plus image guidance assertions;
+all five then passed. No failed result is counted as passing.
+
+All three task-created test clusters were confirmed stopped and their data folders
+removed (230640464 logical bytes), with logs retained under TEMP/aat-category-media-*.
+C: 27.17 GiB free. No new Docker resources. Production runtime remains 459442f1;
+image migration/code awaits exact-master CI, fresh backup/populated restore and
+publication. Full goal remains open: image release/real asset acceptance, structured
+group context through booking, provider setup and remaining real-role coverage.
+
 ### 1 November 2026: service-group ordering released
 
 Runtime 459442f14105f2c38a9de2c8b8975174bb25871e is on master and published.

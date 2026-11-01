@@ -4,6 +4,7 @@ export const mediaPurposes = [
   "PROFILE",
   "GARAGE",
   "SERVICE",
+  "SERVICE_CATEGORY",
   "PRODUCT",
   "STOCK",
 ] as const;
@@ -11,6 +12,7 @@ export type MediaPurpose = (typeof mediaPurposes)[number];
 export const mediaLimits = {
   PROFILE: { maxBytes: 5 * 1024 * 1024, count: 1, maxOutputDimension: 1024 },
   GARAGE: { maxBytes: 10 * 1024 * 1024, count: 12, maxOutputDimension: 2048 },
+  SERVICE_CATEGORY: { maxBytes: 10 * 1024 * 1024, count: 1, maxOutputDimension: 2048 },
   SERVICE: { maxBytes: 10 * 1024 * 1024, count: 1, maxOutputDimension: 2048 },
   PRODUCT: { maxBytes: 10 * 1024 * 1024, count: 12, maxOutputDimension: 2048 },
   STOCK: { maxBytes: 10 * 1024 * 1024, count: 20, maxOutputDimension: 2048 },

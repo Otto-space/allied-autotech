@@ -163,3 +163,26 @@ Run `npx tsx tests/helpers/managed-media-api-server.ts` from `backend`. It write
 Start an isolated frontend preview on port 3011 with `BACKEND_ORIGIN=http://127.0.0.1:5011` and `ASSET_STORAGE_HOSTS=media.example.test`. Run Playwright with `PLAYWRIGHT_BASE_URL=http://localhost:3011` and the same fixture/image file variables. Select `customer-directory.spec.ts`, `profile-photo.spec.ts`, `garage-media.spec.ts`, `service-media.spec.ts`, `product-media.spec.ts` and `stock-media.spec.ts`. Use a distinct `--output` directory when other browser tasks run in the same workspace. Restart the isolated API harness between large batches if cumulative synthetic requests reach the existing CSRF limiter; do not disable production rate limits. The HTTPS storage hostname is intercepted only by these tests and forwards the selected bytes to a loopback test route; confirmation and owner reads execute the real validation, database and API logic. This does not certify the live S3 signature, CORS or encryption configuration.
 
 BG-03 harness checkpoint: all nine directory/profile/garage browser scenarios passed cumulatively. The combined run had eight passes and one directory trace-file cleanup failure caused by concurrent use of the same Playwright output directory; that unchanged scenario passed when rerun with a separate output directory. The harness also passed its focused TypeScript and lint checks. Prisma validation and migration status report all 44 migrations applied.
+
+## Service-group images (1 November 2026)
+
+Category media uses the existing managed upload/validation/audit/cleanup lifecycle.
+The additive migration `20261101113000_service_category_media` allows one unique
+`ResourceImage.serviceCategoryId`, keeps exactly one parent and permits the bounded
+`SERVICE_CATEGORY` upload purpose. No existing attachment is rewritten.
+
+Administrator routes under `/admin/service-categories/{categoryId}` mirror services:
+GET `/images`, POST `/assets/upload`, PUT `/image`, PATCH/DELETE `/images/{imageId}`,
+and GET `/images/{imageId}/content`. ADMIN/SUPER_ADMIN plus verified MFA are required;
+mutations require CSRF and current ServiceCategory.version. Upload preparation is
+not publication. Actor/resource/purpose binding, exact replay and failure-safe
+replacement use MediaService. Category metadata and image changes share the category
+lock/version. Replacement/removal queue cleanup transactionally.
+
+Public category projections expose safe nullable image metadata. Existing public
+`/public/media/images/{imageId}` reads permit active services OR active categories,
+never private profile/garage references; inactive/removed images return NOT_FOUND.
+Reads remain no-store. The shared editor supports explicit review, alt text, removal
+and focus return. Missing images retain icons; no imagery is fabricated or attached
+by this migration. Native isolated tests use injected storage; live upload acceptance
+and genuine category assets remain separate from source verification.

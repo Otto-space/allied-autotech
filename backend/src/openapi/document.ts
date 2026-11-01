@@ -1,3 +1,4 @@
+import { registerCategoryMediaOpenApi } from "../modules/service-operations/category-media.openapi.js";
 import { registerFitmentOpenApi } from "../modules/fitment/fitment.openapi.js";
 import { registerLearningOpenApi } from "../modules/learning/learning.openapi.js";
 import { OpenApiGeneratorV31, OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
@@ -42,6 +43,7 @@ export function createOpenApiDocument(options: OpenApiDocumentOptions) {
   registerProfilePhotoOpenApi(registry);
   registerGarageMediaOpenApi(registry);
   registerServiceMediaOpenApi(registry);
+  registerCategoryMediaOpenApi(registry);
   registerProductMediaOpenApi(registry);
   registerOrganizationOpenApi(registry);
   registerCatalogOpenApi(registry);

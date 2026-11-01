@@ -1,13 +1,14 @@
 "use client";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, ChevronRight, Pencil, RefreshCw } from "lucide-react";
 import { useResource } from "@/lib/api/use-resource";
 import { parseAdminCategory } from "@/lib/admin/category-catalogue";
 import { formatBusinessDate } from "@/lib/format/date";
 import { useAccountSession } from "./dashboard-shell";
 import { Feedback } from "./feedback";
+import { ServiceImageEditor } from "./service-image-editor";
 import { WorkCategoryEditor } from "./work-category-form";
 
 export function WorkCategoryDetail({ categoryId }: { categoryId: string }) {
@@ -49,6 +50,8 @@ function CategoryRecord({ categoryId, owner }: { categoryId: string; owner: stri
     !record;
   const [editorRefresh, setEditorRefresh] = useState(0);
   const [message, setMessage] = useState("");
+  const [imageEditing, setImageEditing] = useState(false);
+  const imageOpener = useRef<HTMLButtonElement>(null);
   function navigate(edit: boolean) {
     window.history.pushState(
       null,
@@ -149,6 +152,37 @@ function CategoryRecord({ categoryId, owner }: { categoryId: string; owner: stri
               <dd>{record.slug}</dd>
             </div>
           </dl>
+          <div className="actions">
+            <button
+              ref={imageOpener}
+              className="button secondary"
+              disabled={blocked || editing || imageEditing}
+              onClick={() => {
+                setImageEditing(true);
+                requestAnimationFrame(() => {
+                  const title = document.getElementById("service-image-title");
+                  title?.focus({ preventScroll: true });
+                  title?.scrollIntoView({ block: "start" });
+                });
+              }}
+            >
+              Manage group image
+            </button>
+          </div>
+          {imageEditing && (
+            <ServiceImageEditor
+              category
+              key={`${record.id}:${editorRefresh}`}
+              serviceId={record.id}
+              name={record.name}
+              blocked={blocked || editing}
+              onUpdated={resource.refresh}
+              onClose={() => {
+                setImageEditing(false);
+                requestAnimationFrame(() => imageOpener.current?.focus());
+              }}
+            />
+          )}
           <div className="category-detail-grid">
             {editing ? (
               <WorkCategoryEditor
@@ -172,7 +206,7 @@ function CategoryRecord({ categoryId, owner }: { categoryId: string; owner: stri
                   <h2 id="category-details-title">Category details</h2>
                   <button
                     className="button secondary"
-                    disabled={blocked}
+                    disabled={blocked || imageEditing}
                     onClick={() => navigate(true)}
                   >
                     <Pencil size={15} aria-hidden="true" />
@@ -214,8 +248,8 @@ function CategoryRecord({ categoryId, owner }: { categoryId: string; owner: stri
               <h2 id="category-grouping-title">Service grouping</h2>
               <p>Categories help customers browse related services.</p>
               <p>
-                An active category appears in public browsing when it has an active
-                service.
+                Active groups appear in public browsing. Groups without published services
+                offer a category-specific enquiry.
               </p>
               <p>
                 Deactivating a category removes the grouping while its active services

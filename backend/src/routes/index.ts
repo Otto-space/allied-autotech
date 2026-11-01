@@ -1,3 +1,4 @@
+import { createCategoryMediaRouter } from "../modules/service-operations/category-media.routes.js";
 import { createFitmentRouter } from "../modules/fitment/fitment.routes.js";
 import { createLearningRouter } from "../modules/learning/learning.routes.js";
 import { createServiceDiscoveryRouter } from "../modules/service-operations/service-discovery.routes.js";
@@ -159,6 +160,7 @@ export function createApiRouter(options: ApiRouterOptions): Router {
   apiRouter.use("/admin/inventory", createAdminInventoryRouter());
   apiRouter.use("/admin/services", createAdminServicesRouter());
   apiRouter.use("/admin/services", createServiceMediaRouter());
+  apiRouter.use("/admin/service-categories", createCategoryMediaRouter());
   apiRouter.use("/admin/orders", createAdminOrderOperationsRouter());
   apiRouter.use("/admin/promotions", createAdminPromotionsRouter());
   apiRouter.use("/admin", createAdminVehicleSalesRouter());

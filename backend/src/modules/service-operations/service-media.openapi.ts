@@ -102,9 +102,9 @@ export function registerServiceMediaOpenApi(registry: OpenAPIRegistry) {
       tags: ["Services"],
       summary: secured
         ? "Preview a service image as an administrator"
-        : "Read an active service image",
+        : "Read an active service or service group image",
       description:
-        "Returns validated WebP bytes with Cache-Control: private, no-store and nosniff. Removed/replaced image IDs and inactive public service images return NOT_FOUND. This route never grants access to customer profile or garage media.",
+        "Returns validated WebP bytes with Cache-Control: private, no-store and nosniff. Removed/replaced image IDs and inactive public service or service group images return NOT_FOUND. This route never grants access to customer profile or garage media.",
       ...(secured ? { security: [{ sessionCookie: [] }] } : {}),
       request: {
         params: secured ? serviceImageParamsSchema : z.object({ imageId: z.uuid() }),

@@ -1,3 +1,4 @@
+import { projectResourceImage, resourceImageSelect } from "../media/media.projection.js";
 import { z } from "zod";
 import { prisma } from "../../config/database.js";
 import { Prisma, type PrismaClient } from "../../generated/prisma/client.js";
@@ -160,6 +161,7 @@ export class ServiceDiscoveryRepository {
             }
           : {}),
       },
+      include: { mediaImages: { select: resourceImageSelect, take: 1 } },
       orderBy: [{ sortOrder: "asc" }, { name: "asc" }, { id: "asc" }],
       take: query.limit + 1,
     });
@@ -167,13 +169,14 @@ export class ServiceDiscoveryRepository {
       last = items.at(-1);
     return {
       items: publicRead
-        ? items.map(({ id, name, slug, description }) => ({
+        ? items.map(({ id, name, slug, description, mediaImages }) => ({
             id,
             name,
             slug,
             description,
+            image: mediaImages[0] ? projectResourceImage(mediaImages[0], false) : null,
           }))
-        : items,
+        : items.map(({ mediaImages: _media, ...row }) => row),
       ...(rows.length > query.limit && last
         ? {
             nextCursor: encodeCatalogueCursor(binding, {
@@ -193,9 +196,19 @@ export class ServiceDiscoveryRepository {
   async publicCategory(id: string) {
     const row = await this.db.serviceCategory.findFirst({
       where: { id, isActive: true },
-      select: { id: true, name: true, slug: true, description: true },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        description: true,
+        mediaImages: { select: resourceImageSelect, take: 1 },
+      },
     });
     if (!row) throw serviceOperationNotFound();
-    return row;
+    const { mediaImages, ...category } = row;
+    return {
+      ...category,
+      image: mediaImages[0] ? projectResourceImage(mediaImages[0], false) : null,
+    };
   }
 }

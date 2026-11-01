@@ -1,3 +1,14 @@
+### 1 November 2026: service-group image authoring
+
+Local group detail now uses the shared reviewed image editor and public group cards
+accept genuine photos with icon fallback. Four 390/1440 Edge fixture cases passed,
+including cancellation/no write, alt text, reload, removal, focus return, scoped Axe,
+no overflow, failed-image fallback and category enquiry context. Images stay within
+240px on cards. Screenshots retained under TEMP/aat-category-media-browser. Synthetic
+browser images and injected byte storage are not live-upload acceptance. New image
+code is pending release. The separately authorised real owner import is complete:
+eight groups published, original Tyre Change retained at NGN1,000,000.
+
 ### 1 November 2026: service-group ordering production checkpoint
 
 Released runtime 459442f1 with backend f5937b55 and frontend

@@ -1,12 +1,5 @@
 import { z } from "zod";
 export const publicServiceCategorySchema = z.object({
-  description: z.string().max(2000).nullable().optional(),
-  id: z.uuid(),
-  name: z.string().max(120),
-  slug: z.string().max(120),
-});
-export const serviceSchema = z.object({
-  category: publicServiceCategorySchema.nullable().default(null),
   image: z
     .object({
       id: z.uuid(),
@@ -17,6 +10,15 @@ export const serviceSchema = z.object({
     })
     .nullable()
     .default(null),
+
+  description: z.string().max(2000).nullable().optional(),
+  id: z.uuid(),
+  name: z.string().max(120),
+  slug: z.string().max(120),
+});
+export const serviceSchema = z.object({
+  image: publicServiceCategorySchema.shape.image,
+  category: publicServiceCategorySchema.nullable().default(null),
   id: z.uuid(),
   name: z.string(),
   slug: z.string(),

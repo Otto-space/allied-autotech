@@ -974,16 +974,17 @@ model CustomerVehicle {
 }
 
 model ServiceCategory {
-  sortOrder   Int       @default(0)
-  id          String    @id @default(uuid()) @db.Uuid
+  sortOrder   Int             @default(0)
+  id          String          @id @default(uuid()) @db.Uuid
   name        String
-  slug        String    @unique
+  slug        String          @unique
   description String?
-  isActive    Boolean   @default(true)
-  version     Int       @default(0)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  isActive    Boolean         @default(true)
+  version     Int             @default(0)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
   services    Service[]
+  mediaImages ResourceImage[]
 
   @@index([isActive, sortOrder, name, id])
   @@index([name(ops: raw("gin_trgm_ops"))], type: Gin, map: "ServiceCategory_name_search_idx")
@@ -1046,9 +1047,9 @@ model BookingSlot {
 }
 
 model Booking {
-  alternativeStartsAt DateTime?
-  alternativeReason String? @db.VarChar(1000)
-  alternativeVersion Int?
+  alternativeStartsAt     DateTime?
+  alternativeReason       String?                      @db.VarChar(1000)
+  alternativeVersion      Int?
   requestedAt             DateTime                     @default(now())
   attendanceConfirmedAt   DateTime?
   resourceReviewNote      String?
@@ -3045,6 +3046,7 @@ model ResourceImage {
   profileId         String?          @unique @db.Uuid
   customerVehicleId String?          @db.Uuid
   serviceId         String?          @unique @db.Uuid
+  serviceCategoryId String?          @unique @db.Uuid
   altText           String?          @db.VarChar(240)
   sortOrder         Int              @default(0)
   isPrimary         Boolean          @default(false)
@@ -3053,6 +3055,7 @@ model ResourceImage {
   profile           CustomerProfile? @relation(fields: [profileId], references: [id], onDelete: Cascade)
   customerVehicle   CustomerVehicle? @relation(fields: [customerVehicleId], references: [id], onDelete: Cascade)
   service           Service?         @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  serviceCategory   ServiceCategory? @relation(fields: [serviceCategoryId], references: [id], onDelete: Cascade)
 
   @@index([customerVehicleId, sortOrder, id])
 }

@@ -753,7 +753,7 @@ Relevant errors: 400 The request is malformed.; 401 Current session required; 40
 ### GET `/public/media/images/{imageId}`
 
 - Operation ID: `getPublicMediaImagesByImageId`
-- Purpose: Returns validated WebP bytes with Cache-Control: private, no-store and nosniff. Removed/replaced image IDs and inactive public service images return NOT_FOUND. This route never grants access to customer profile or garage media. Read an active service image. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Returns validated WebP bytes with Cache-Control: private, no-store and nosniff. Removed/replaced image IDs and inactive public service or service group images return NOT_FOUND. This route never grants access to customer profile or garage media. Read an active service or service group image. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: PUBLIC
 - Authentication: None
 - CSRF: Not required
@@ -1456,6 +1456,15 @@ Success: HTTP 200.
       {
         "categoryId": "00000000-0000-4000-8000-000000000001",
         "category": {
+          "image": {
+            "id": "00000000-0000-4000-8000-000000000001",
+            "url": "https://example.test/continue",
+            "altText": "synthetic-alttext",
+            "sortOrder": 1,
+            "isPrimary": true,
+            "width": 1,
+            "height": 1
+          },
           "description": "synthetic-description",
           "id": "00000000-0000-4000-8000-000000000001",
           "name": "synthetic-name",
@@ -1519,6 +1528,15 @@ Success: HTTP 200.
   "data": {
     "categoryId": "00000000-0000-4000-8000-000000000001",
     "category": {
+      "image": {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "url": "https://example.test/continue",
+        "altText": "synthetic-alttext",
+        "sortOrder": 1,
+        "isPrimary": true,
+        "width": 1,
+        "height": 1
+      },
       "description": "synthetic-description",
       "id": "00000000-0000-4000-8000-000000000001",
       "name": "synthetic-name",
@@ -1656,6 +1674,15 @@ Success: HTTP 200.
       {
         "categoryId": "00000000-0000-4000-8000-000000000001",
         "category": {
+          "image": {
+            "id": "00000000-0000-4000-8000-000000000001",
+            "url": "https://example.test/continue",
+            "altText": "synthetic-alttext",
+            "sortOrder": 1,
+            "isPrimary": true,
+            "width": 1,
+            "height": 1
+          },
           "description": "synthetic-description",
           "id": "00000000-0000-4000-8000-000000000001",
           "name": "synthetic-name",
@@ -1722,6 +1749,15 @@ Success: HTTP 200.
   "data": {
     "items": [
       {
+        "image": {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "url": "https://example.test/continue",
+          "altText": "synthetic-alttext",
+          "sortOrder": 1,
+          "isPrimary": true,
+          "width": 1,
+          "height": 1
+        },
         "description": "synthetic-description",
         "id": "00000000-0000-4000-8000-000000000001",
         "name": "synthetic-name",
@@ -1760,6 +1796,15 @@ Success: HTTP 200.
   "success": true,
   "message": "Get an active service group, including groups awaiting individual services",
   "data": {
+    "image": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "url": "https://example.test/continue",
+      "altText": "synthetic-alttext",
+      "sortOrder": 1,
+      "isPrimary": true,
+      "width": 1,
+      "height": 1
+    },
     "description": "synthetic-description",
     "id": "00000000-0000-4000-8000-000000000001",
     "name": "synthetic-name",
@@ -21164,7 +21209,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### GET `/admin/services/{serviceId}/images/{imageId}/content`
 
 - Operation ID: `getAdminServicesByServiceIdImagesByImageIdContent`
-- Purpose: Returns validated WebP bytes with Cache-Control: private, no-store and nosniff. Removed/replaced image IDs and inactive public service images return NOT_FOUND. This route never grants access to customer profile or garage media. Preview a service image as an administrator. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Returns validated WebP bytes with Cache-Control: private, no-store and nosniff. Removed/replaced image IDs and inactive public service or service group images return NOT_FOUND. This route never grants access to customer profile or garage media. Preview a service image as an administrator. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Not required
@@ -21175,6 +21220,314 @@ Parameters:
 | Parameter | Location | Type | Required | Purpose |
 | --- | --- | --- | --- | --- |
 | `serviceId` | path | string (uuid) | Yes | Identifier selecting the service resource. |
+| `imageId` | path | string (uuid) | Yes | Identifier selecting the image resource. |
+
+Success: HTTP 200.
+Binary image/webp bytes (no JSON envelope).
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.
+
+### GET `/admin/service-categories/{categoryId}/images`
+
+- Operation ID: `getAdminServiceCategoriesByCategoryIdImages`
+- Purpose: ADMIN/SUPER_ADMIN with verified MFA only, matching service management. One primary image, optional; no gallery. JPEG/PNG/WebP up to 10 MiB, 32–8192px per side, 40 million pixels, non-animated, full byte/checksum validation, metadata-free WebP within 2048px. Prepare does not attach or publish. Confirmation binds actor, category, purpose, object, checksum and expiry. expectedVersion is ServiceCategory.version, shared with service metadata mutations. Exact token/body confirmation retries replay for 24h; changed replay fails. Replacement preserves the previous image on failure. Removal/replacement queue transactional retryable cleanup. Public projections expose image or null and safe image-ID URLs only; public bytes require an active service group at read time. Inactive image preview uses authenticated admin content route. All image reads use no-store. See managed-media.md for retention and storage configuration. Read service group image management state. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `categoryId` | path | string (uuid) | Yes | Identifier selecting the category resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Read service group image management state",
+  "data": {
+    "version": 1,
+    "images": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "url": "https://example.test/continue",
+        "altText": "synthetic-alttext",
+        "sortOrder": 1,
+        "isPrimary": true,
+        "width": 1,
+        "height": 1
+      }
+    ]
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.; 409 STALE_VERSION, MEDIA_COUNT_LIMIT, MEDIA_LAST_PUBLISHED_IMAGE or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body.; 422 VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.
+
+### POST `/admin/service-categories/{categoryId}/assets/upload`
+
+- Operation ID: `postAdminServiceCategoriesByCategoryIdAssetsUpload`
+- Purpose: ADMIN/SUPER_ADMIN with verified MFA only, matching service management. One primary image, optional; no gallery. JPEG/PNG/WebP up to 10 MiB, 32–8192px per side, 40 million pixels, non-animated, full byte/checksum validation, metadata-free WebP within 2048px. Prepare does not attach or publish. Confirmation binds actor, category, purpose, object, checksum and expiry. expectedVersion is ServiceCategory.version, shared with service metadata mutations. Exact token/body confirmation retries replay for 24h; changed replay fails. Replacement preserves the previous image on failure. Removal/replacement queue transactional retryable cleanup. Public projections expose image or null and safe image-ID URLs only; public bytes require an active service group at read time. Inactive image preview uses authenticated admin content route. All image reads use no-store. See managed-media.md for retention and storage configuration. Prepare a service group image upload. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `categoryId` | path | string (uuid) | Yes | Identifier selecting the category resource. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `mimeType` | image/jpeg / image/png / image/webp | Yes | Mime Type validated by this operation's strict request contract. |
+| `sizeBytes` | integer | Yes | Size Bytes validated by this operation's strict request contract. |
+| `checksumSha256` | string | Yes | Checksum Sha256 validated by this operation's strict request contract. |
+
+Synthetic request example:
+
+```json
+{
+  "mimeType": "image/jpeg",
+  "sizeBytes": 1,
+  "checksumSha256": "synthetic-checksumsha256"
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Prepare a service group image upload",
+  "data": {
+    "assetToken": "synthetic-token-value-not-a-real-secret",
+    "upload": {
+      "method": "PUT",
+      "url": "https://example.test/continue",
+      "expiresAt": "2030-01-15T10:00:00.000Z",
+      "headers": {}
+    },
+    "limits": {
+      "maxBytes": 1,
+      "count": 1,
+      "maxOutputDimension": 1
+    }
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.; 409 STALE_VERSION, MEDIA_COUNT_LIMIT, MEDIA_LAST_PUBLISHED_IMAGE or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body.; 422 VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.
+
+### PUT `/admin/service-categories/{categoryId}/image`
+
+- Operation ID: `putAdminServiceCategoriesByCategoryIdImage`
+- Purpose: ADMIN/SUPER_ADMIN with verified MFA only, matching service management. One primary image, optional; no gallery. JPEG/PNG/WebP up to 10 MiB, 32–8192px per side, 40 million pixels, non-animated, full byte/checksum validation, metadata-free WebP within 2048px. Prepare does not attach or publish. Confirmation binds actor, category, purpose, object, checksum and expiry. expectedVersion is ServiceCategory.version, shared with service metadata mutations. Exact token/body confirmation retries replay for 24h; changed replay fails. Replacement preserves the previous image on failure. Removal/replacement queue transactional retryable cleanup. Public projections expose image or null and safe image-ID URLs only; public bytes require an active service group at read time. Inactive image preview uses authenticated admin content route. All image reads use no-store. See managed-media.md for retention and storage configuration. Confirm and replace the service group image. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `categoryId` | path | string (uuid) | Yes | Identifier selecting the category resource. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+| `assetToken` | string | Yes | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
+| `altText` | string / null | No | Alt Text validated by this operation's strict request contract. |
+
+Synthetic request example:
+
+```json
+{
+  "expectedVersion": 0,
+  "assetToken": "synthetic-token-value-not-a-real-secret",
+  "altText": "synthetic-alttext"
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Confirm and replace the service group image",
+  "data": {
+    "version": 1,
+    "images": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "url": "https://example.test/continue",
+        "altText": "synthetic-alttext",
+        "sortOrder": 1,
+        "isPrimary": true,
+        "width": 1,
+        "height": 1
+      }
+    ]
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.; 409 STALE_VERSION, MEDIA_COUNT_LIMIT, MEDIA_LAST_PUBLISHED_IMAGE or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body.; 422 VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.
+
+### PATCH `/admin/service-categories/{categoryId}/images/{imageId}`
+
+- Operation ID: `patchAdminServiceCategoriesByCategoryIdImagesByImageId`
+- Purpose: ADMIN/SUPER_ADMIN with verified MFA only, matching service management. One primary image, optional; no gallery. JPEG/PNG/WebP up to 10 MiB, 32–8192px per side, 40 million pixels, non-animated, full byte/checksum validation, metadata-free WebP within 2048px. Prepare does not attach or publish. Confirmation binds actor, category, purpose, object, checksum and expiry. expectedVersion is ServiceCategory.version, shared with service metadata mutations. Exact token/body confirmation retries replay for 24h; changed replay fails. Replacement preserves the previous image on failure. Removal/replacement queue transactional retryable cleanup. Public projections expose image or null and safe image-ID URLs only; public bytes require an active service group at read time. Inactive image preview uses authenticated admin content route. All image reads use no-store. See managed-media.md for retention and storage configuration. Edit service group image alt text. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `categoryId` | path | string (uuid) | Yes | Identifier selecting the category resource. |
+| `imageId` | path | string (uuid) | Yes | Identifier selecting the image resource. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+| `altText` | string / null | Yes | Alt Text validated by this operation's strict request contract. |
+
+Synthetic request example:
+
+```json
+{
+  "expectedVersion": 0,
+  "altText": "synthetic-alttext"
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Edit service group image alt text",
+  "data": {
+    "version": 1,
+    "images": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "url": "https://example.test/continue",
+        "altText": "synthetic-alttext",
+        "sortOrder": 1,
+        "isPrimary": true,
+        "width": 1,
+        "height": 1
+      }
+    ]
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.; 409 STALE_VERSION, MEDIA_COUNT_LIMIT, MEDIA_LAST_PUBLISHED_IMAGE or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body.; 422 VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.
+
+### DELETE `/admin/service-categories/{categoryId}/images/{imageId}`
+
+- Operation ID: `deleteAdminServiceCategoriesByCategoryIdImagesByImageId`
+- Purpose: ADMIN/SUPER_ADMIN with verified MFA only, matching service management. One primary image, optional; no gallery. JPEG/PNG/WebP up to 10 MiB, 32–8192px per side, 40 million pixels, non-animated, full byte/checksum validation, metadata-free WebP within 2048px. Prepare does not attach or publish. Confirmation binds actor, category, purpose, object, checksum and expiry. expectedVersion is ServiceCategory.version, shared with service metadata mutations. Exact token/body confirmation retries replay for 24h; changed replay fails. Replacement preserves the previous image on failure. Removal/replacement queue transactional retryable cleanup. Public projections expose image or null and safe image-ID URLs only; public bytes require an active service group at read time. Inactive image preview uses authenticated admin content route. All image reads use no-store. See managed-media.md for retention and storage configuration. Remove a service group image. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `categoryId` | path | string (uuid) | Yes | Identifier selecting the category resource. |
+| `imageId` | path | string (uuid) | Yes | Identifier selecting the image resource. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+
+Synthetic request example:
+
+```json
+{
+  "expectedVersion": 0
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Remove a service group image",
+  "data": {
+    "version": 1,
+    "images": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "url": "https://example.test/continue",
+        "altText": "synthetic-alttext",
+        "sortOrder": 1,
+        "isPrimary": true,
+        "width": 1,
+        "height": 1
+      }
+    ]
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.; 409 STALE_VERSION, MEDIA_COUNT_LIMIT, MEDIA_LAST_PUBLISHED_IMAGE or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body.; 422 VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.
+
+### GET `/admin/service-categories/{categoryId}/images/{imageId}/content`
+
+- Operation ID: `getAdminServiceCategoriesByCategoryIdImagesByImageIdContent`
+- Purpose: Returns validated WebP bytes with Cache-Control: private, no-store and nosniff. Removed/replaced image IDs and inactive public service group images return NOT_FOUND. This route never grants access to customer profile or garage media. Preview a service group image as an administrator. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `categoryId` | path | string (uuid) | Yes | Identifier selecting the category resource. |
 | `imageId` | path | string (uuid) | Yes | Identifier selecting the image resource. |
 
 Success: HTTP 200.
@@ -23380,6 +23733,15 @@ Success: HTTP 200.
       {
         "categoryId": "00000000-0000-4000-8000-000000000001",
         "category": {
+          "image": {
+            "id": "00000000-0000-4000-8000-000000000001",
+            "url": "https://example.test/continue",
+            "altText": "synthetic-alttext",
+            "sortOrder": 1,
+            "isPrimary": true,
+            "width": 1,
+            "height": 1
+          },
           "description": "synthetic-description",
           "id": "00000000-0000-4000-8000-000000000001",
           "name": "synthetic-name",
@@ -23504,6 +23866,15 @@ Success: HTTP 200.
   "data": {
     "categoryId": "00000000-0000-4000-8000-000000000001",
     "category": {
+      "image": {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "url": "https://example.test/continue",
+        "altText": "synthetic-alttext",
+        "sortOrder": 1,
+        "isPrimary": true,
+        "width": 1,
+        "height": 1
+      },
       "description": "synthetic-description",
       "id": "00000000-0000-4000-8000-000000000001",
       "name": "synthetic-name",

@@ -1,4 +1,5 @@
 "use client";
+import { ServicePhoto } from "./service-photo";
 import Link from "next/link";
 import { Wrench, ArrowUpRight } from "lucide-react";
 import { useResource } from "@/lib/api/use-resource";
@@ -38,7 +39,17 @@ export function ServiceGroups() {
               key={group.id}
               href={"/services?categoryId=" + group.id + "#service-catalogue"}
             >
-              <Wrench size={24} aria-hidden="true" />
+              {group.image ? (
+                <ServicePhoto
+                  key={group.image.id}
+                  url={group.image.url}
+                  alt={group.image.altText || group.name}
+                  width={group.image.width}
+                  height={group.image.height}
+                />
+              ) : (
+                <Wrench size={24} aria-hidden="true" />
+              )}
               <h3>{group.name}</h3>
               {group.description && <p>{group.description}</p>}
               <span>

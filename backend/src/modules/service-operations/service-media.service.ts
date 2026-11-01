@@ -166,7 +166,14 @@ export class ServiceMediaService {
     const image = await this.db.resourceImage.findFirst({
       where: {
         id: imageId,
-        ...(admin ? { serviceId: admin.serviceId } : { service: { isActive: true } }),
+        ...(admin
+          ? { serviceId: admin.serviceId }
+          : {
+              OR: [
+                { service: { isActive: true } },
+                { serviceCategory: { isActive: true } },
+              ],
+            }),
       },
       select: { asset: { select: { objectKey: true, sizeBytes: true, mimeType: true } } },
     });

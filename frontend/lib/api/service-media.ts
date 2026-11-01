@@ -20,8 +20,26 @@ export const serviceImagesSchema = z.object({
   images: z.array(serviceAdminImageSchema).max(1),
 });
 export const parseServiceImages = (value: unknown) => serviceImagesSchema.parse(value);
+export const categoryImagesSchema = serviceImagesSchema.extend({
+  images: z
+    .array(
+      serviceAdminImageSchema.extend({
+        url: z
+          .string()
+          .regex(
+            /^\/api\/v1\/admin\/service-categories\/[0-9a-f-]{36}\/images\/[0-9a-f-]{36}\/content$/i,
+          ),
+      }),
+    )
+    .max(1),
+});
+export const parseCategoryImages = (value: unknown) => categoryImagesSchema.parse(value);
 export const validateServiceImage = validateGarageImage;
-export function prepareServiceImage(serviceId: string, options: UploadOptions) {
+export function prepareServiceImage(
+  serviceId: string,
+  options: UploadOptions,
+  category = false,
+) {
   const mimeType = validateServiceImage(options.file);
   return prepareSignedUpload({
     ...options,
@@ -30,12 +48,15 @@ export function prepareServiceImage(serviceId: string, options: UploadOptions) {
         ...metadata,
         mimeType,
       };
-      const response = await apiRequest(`/admin/services/${serviceId}/assets/upload`, {
-        method: "POST",
-        csrf: true,
-        signal: options.signal,
-        body,
-      });
+      const response = await apiRequest(
+        `/admin/${category ? "service-categories" : "services"}/${serviceId}/assets/upload`,
+        {
+          method: "POST",
+          csrf: true,
+          signal: options.signal,
+          body,
+        },
+      );
       const result = z
         .object({ assetToken: z.string().min(40), upload: z.unknown() })
         .parse(response.data);

@@ -147,3 +147,8 @@ owner imports. Destination remains /admin/service-categories; permissions and gu
 targets are unchanged. New groups use the owner's supplied sequence. This is source
 implementation pending the additive migration and verified release; feature flags
 are unchanged. Unit acceptance covers version, admin gate and the actual workflow.
+
+Service-group image authoring checkpoint (1 November 2026): owner-service-groups v3
+adds the actual Manage group image workflow, explicit review and active/inactive
+visibility. Admin eligibility and guide targets are unchanged. Implementation is
+not yet published; no AI/provider flag changes.

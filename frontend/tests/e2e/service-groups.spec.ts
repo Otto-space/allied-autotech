@@ -19,10 +19,27 @@ for (const width of [390, 1440])
         id: id(i + 1),
         name,
         slug: "group-" + i,
+        image:
+          i < 2
+            ? {
+                id: id(900 + i),
+                url: `/api/v1/public/media/images/${id(900 + i)}`,
+                altText: "Group workshop photo",
+                width: 96,
+                height: 64,
+              }
+            : null,
         description: "Discuss your vehicle and the work required with the workshop.",
       }));
       await page.route("**/api/v1/**", (route) => {
         const path = new URL(route.request().url()).pathname.replace("/api/v1", "");
+        if (path.startsWith("/public/media/images/"))
+          return path.endsWith(id(900))
+            ? route.fulfill({
+                contentType: "image/svg+xml",
+                body: '<svg xmlns="http://www.w3.org/2000/svg" width="96" height="64"><rect width="96" height="64" fill="#a00"/></svg>',
+              })
+            : route.fulfill({ status: 404, body: "" });
         if (path === "/auth/session")
           return route.fulfill({
             status: 401,
@@ -51,6 +68,17 @@ for (const width of [390, 1440])
       await page.goto("/services");
       const cards = page.locator(".service-group-card");
       await expect(cards).toHaveCount(8);
+      const photo = cards.first().getByRole("img");
+      await photo.scrollIntoViewIfNeeded();
+      await expect
+        .poll(() => photo.evaluate((img: HTMLImageElement) => img.naturalWidth))
+        .toBeGreaterThan(0);
+      await expect(photo).toHaveCSS("object-fit", "contain");
+      expect((await photo.boundingBox())!.height).toBeLessThanOrEqual(240);
+      await cards.nth(1).scrollIntoViewIfNeeded();
+      await expect(
+        cards.nth(1).getByRole("img", { name: "Service image unavailable" }),
+      ).toBeVisible();
       expect(
         (await new AxeBuilder({ page }).include(".service-groups").analyze()).violations,
       ).toEqual([]);

@@ -65,6 +65,46 @@ async function category(isActive = true) {
 describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
   "administrator category direct read",
   () => {
+    it("protects category image management with session, role, MFA and CSRF", async () => {
+      const row = await category();
+      const path = `${endpoint}/${row.id}`;
+      expect((await request(app).get(`${path}/images`)).status).toBe(401);
+      for (const [role, verified] of [
+        ["CUSTOMER", true],
+        ["STAFF", true],
+        ["ADMIN", false],
+      ] as const) {
+        const a = await account(role, verified);
+        expect((await request(app).get(`${path}/images`).set(a.headers)).status).toBe(
+          403,
+        );
+      }
+      const admin = await account();
+      const snapshot = await request(app).get(`${path}/images`).set(admin.headers);
+      expect(snapshot.status).toBe(200);
+      expect(snapshot.body.data).toEqual({ version: row.version, images: [] });
+      const noCsrf = { Cookie: admin.headers.Cookie, Origin: admin.headers.Origin };
+      expect(
+        (
+          await request(app)
+            .put(`${path}/image`)
+            .set(noCsrf)
+            .send({ expectedVersion: row.version, assetToken: "a".repeat(43) })
+        ).status,
+      ).toBe(403);
+      expect(
+        (
+          await request(app)
+            .delete(`${path}/images/${randomUUID()}`)
+            .set(noCsrf)
+            .send({ expectedVersion: row.version })
+        ).status,
+      ).toBe(403);
+      expect(
+        (await prisma.serviceCategory.findUniqueOrThrow({ where: { id: row.id } }))
+          .version,
+      ).toBe(row.version);
+    });
     afterAll(async () => {
       await prisma.session.deleteMany({ where: { id: { in: sessions } } });
       await prisma.$disconnect();

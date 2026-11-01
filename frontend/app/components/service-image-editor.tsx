@@ -7,6 +7,7 @@ import type { RequestBody } from "@/lib/api/contracts";
 import { useResource } from "@/lib/api/use-resource";
 import {
   parseServiceImages,
+  parseCategoryImages,
   prepareServiceImage,
   validateServiceImage,
 } from "@/lib/api/service-media";
@@ -21,15 +22,19 @@ export function ServiceImageEditor({
   onUpdated,
   onClose,
   blocked = false,
+  category = false,
 }: {
   readonly serviceId: string;
+  readonly category?: boolean;
   readonly name: string;
   readonly onUpdated: () => void;
   readonly onClose: () => void;
   readonly blocked?: boolean;
 }) {
-  const endpoint = `/admin/services/${serviceId}`;
-  const resource = useResource(`${endpoint}/images`, parseServiceImages);
+  const endpoint = `/admin/${category ? "service-categories" : "services"}/${serviceId}`;
+  const parseImages = category ? parseCategoryImages : parseServiceImages;
+  const label = category ? "service group" : "service";
+  const resource = useResource(`${endpoint}/images`, parseImages);
   const [selection, setSelection] = useState<AssetSelection>(null);
   const [revision, setRevision] = useState(0);
   const [proposal, setProposal] = useState<MutationProposal | null>(null);
@@ -54,10 +59,9 @@ export function ServiceImageEditor({
   ) {
     setProposal({
       title,
-      description:
-        "Active services display this photo publicly. Inactive services keep it available for administrator preview.",
+      description: `Active ${label}s display this photo publicly. Inactive ${label}s keep it available for administrator preview.`,
       facts: [
-        { label: "Service", value: name },
+        { label: category ? "Service group" : "Service", value: name },
         ...(altText ? [{ label: "Description", value: altText }] : []),
       ],
       retrySafely: method === "PUT",
@@ -65,7 +69,7 @@ export function ServiceImageEditor({
       onUncertain: resource.refresh,
       submit: async () => {
         const response = await apiRequest(path, { method, csrf: true, body });
-        setSavedVersion(parseServiceImages(response.data).version);
+        setSavedVersion(parseImages(response.data).version);
         return response;
       },
     });
@@ -76,8 +80,8 @@ export function ServiceImageEditor({
         Image for {name}
       </h2>
       <p>
-        Choose one image for the service card and detail page. Services without a photo
-        keep their existing presentation.
+        Choose one image for this {label}. Without a photo, the existing icon or
+        presentation is kept.
       </p>
       <Feedback message={resource.error} />
       <Feedback
@@ -89,7 +93,7 @@ export function ServiceImageEditor({
         tone="info"
       />
       <Feedback message={message} tone="success" toast={message} />
-      {resource.loading && <output>Loading service image…</output>}
+      {resource.loading && <output>Loading {label} image…</output>}
       <div className="actions">
         <button
           type="button"
@@ -120,7 +124,11 @@ export function ServiceImageEditor({
                 height={400}
               />
               <form
-                data-draft-key={JSON.stringify(["service-image-editor:1", serviceId])}
+                data-draft-key={JSON.stringify([
+                  "service-image-editor:1",
+                  category,
+                  serviceId,
+                ])}
                 key={`${image.id}:${resource.data.version}`}
                 onSubmit={(event) => {
                   event.preventDefault();
@@ -173,21 +181,21 @@ export function ServiceImageEditor({
                         "delete"
                       > = { expectedVersion: resource.data.version };
                       propose(
-                        "Remove service image?",
+                        `Remove ${label} image?`,
                         `${endpoint}/images/${image.id}`,
                         "DELETE",
                         body,
                       );
                     }}
                   >
-                    Remove service image
+                    Remove {label} image
                   </button>
                 </div>
               </form>
             </div>
           ) : (
             <p className="empty">
-              <Wrench size={24} aria-hidden="true" /> No service image yet.
+              <Wrench size={24} aria-hidden="true" /> No {label} image yet.
             </p>
           )}
           <div className={styles.upload}>
@@ -195,14 +203,14 @@ export function ServiceImageEditor({
               key={revision}
               uploadId="service-image-file"
               label={
-                image ? "Choose a replacement service image" : "Choose a service image"
+                image ? `Choose a replacement ${label} image` : `Choose a ${label} image`
               }
               hint="JPEG, PNG or WebP, up to 10 MiB. Each side must be between 32 and 8192 pixels."
               accept="image/jpeg,image/png,image/webp"
               disabled={disabled}
               onChange={setSelection}
               validate={validateServiceImage}
-              prepare={(options) => prepareServiceImage(serviceId, options)}
+              prepare={(options) => prepareServiceImage(serviceId, options, category)}
             />
             <div className="actions">
               <button
@@ -216,14 +224,14 @@ export function ServiceImageEditor({
                     altText: image?.altText ?? null,
                   };
                   propose(
-                    image ? "Replace service image?" : "Save service image?",
+                    image ? `Replace ${label} image?` : `Save ${label} image?`,
                     `${endpoint}/image`,
                     "PUT",
                     body,
                   );
                 }}
               >
-                Save service image
+                Save {label} image
               </button>
             </div>
           </div>
@@ -236,7 +244,9 @@ export function ServiceImageEditor({
           onSuccess={() => {
             setSelection(null);
             setRevision((value) => value + 1);
-            setMessage("Service image updated.");
+            setMessage(
+              category ? "Service group image updated." : "Service image updated.",
+            );
             resource.refresh();
             onUpdated();
           }}
