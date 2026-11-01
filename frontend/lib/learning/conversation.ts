@@ -85,14 +85,16 @@ function publicCatalogueReference(
   source: AllieConversation["messages"][number]["answer"]["sources"][number],
 ) {
   const match =
-    /^(service|product|vehicle)-([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/.exec(
+    /^(service-group|service|product|vehicle)-([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/.exec(
       source.articleId,
     );
   return (
     !!match &&
     source.id === `${source.articleId}@v${source.version}` &&
     source.href ===
-      `/${match[1] === "service" ? "services" : match[1] === "product" ? "parts" : "vehicles"}/${match[2]}`
+      (match[1] === "service-group"
+        ? `/services?categoryId=${match[2]}#service-catalogue`
+        : `/${match[1] === "service" ? "services" : match[1] === "product" ? "parts" : "vehicles"}/${match[2]}`)
   );
 }
 // Current catalogue metadata, never model text, determines usable links/modes.

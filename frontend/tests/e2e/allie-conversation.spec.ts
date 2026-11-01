@@ -381,3 +381,88 @@ for (const width of [390, 1440]) {
     expect(seen.external).toEqual([]);
   });
 }
+for (const width of [390, 1440]) {
+  test(`Allie service-group citation opens the matching work area at ${width}px`, async ({
+    page,
+  }, info) => {
+    const state = await allieConversationFixture(page);
+    const id = "f8000000-0000-4000-8000-000000000006";
+    const group = {
+      id,
+      name: "Vehicle AC Maintenance",
+      slug: "vehicle-ac-maintenance",
+      description: "Discuss vehicle air-conditioning concerns with the workshop.",
+    };
+    await page.route("**/api/v1/public/services**", (route) => {
+      const path = new URL(route.request().url()).pathname;
+      const data = path.endsWith("/categories")
+        ? { items: [group] }
+        : path.includes("/categories/")
+          ? group
+          : { items: [], totalMatches: 0 };
+      return route.fulfill({
+        json: {
+          success: true,
+          data,
+          message: "Isolated service group",
+          meta: { requestId: "group-allie" },
+        },
+      });
+    });
+    const articleId = `service-group-${id}`,
+      href = `/services?categoryId=${id}#service-catalogue`;
+    state.answerOverride = {
+      kind: "answer",
+      answer:
+        "This group describes vehicle air-conditioning work. Ask the workshop about your concern; no price or appointment is confirmed.",
+      steps: [],
+      caveat: null,
+      sourceIds: [`${articleId}@v1`],
+      actionIds: [`open:${articleId}`],
+      sources: [
+        { id: `${articleId}@v1`, articleId, version: 1, title: group.name, href },
+      ],
+      actions: [
+        {
+          id: `open:${articleId}`,
+          kind: "navigate",
+          label: "View service group",
+          href,
+          sourceId: `${articleId}@v1`,
+        },
+      ],
+    };
+    await page.setViewportSize({ width, height: 900 });
+    const errors: string[] = [];
+    page.on("pageerror", (error) => errors.push(error.message));
+    await page.goto("/help");
+    const panel = await begin(page);
+    await panel
+      .getByRole("textbox", { name: "Your help question" })
+      .fill("Can you help with vehicle air conditioning?");
+    await panel.getByRole("button", { name: "Send question" }).click();
+    await expect(
+      panel.getByRole("link", { name: group.name + " · v1", exact: true }),
+    ).toHaveAttribute("href", href);
+    expect(
+      (await new AxeBuilder({ page }).include(".allie-dialog").analyze()).violations,
+    ).toEqual([]);
+    await panel.getByRole("link", { name: "View service group", exact: true }).click();
+    await expect(page).toHaveURL(new RegExp("categoryId=" + id));
+    await expect(panel).not.toBeVisible();
+    const retry = page.getByRole("button", { name: "Retry services", exact: true });
+    if (await retry.isVisible()) await retry.click();
+    await expect(
+      page.getByRole("heading", { name: "Discuss this work with the workshop" }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: "Ask about this service group", exact: true }),
+    ).toHaveAttribute("href", new RegExp("serviceGroup=" + id));
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+    expect(errors).toEqual([]);
+    expect(state.writes.filter((write) => write.path.endsWith("/turns"))).toHaveLength(1);
+    await page.screenshot({ path: info.outputPath(`allie-group-${width}.png`) });
+  });
+}

@@ -1,3 +1,33 @@
+### 1 November 2026: canonical Allie service-group knowledge
+
+Allie now retrieves active ServiceCategory records, including empty published groups,
+through the existing public knowledge pipeline. Database ranking precedes the 12-new-
+candidate limit; up to 24 previous source IDs are reloaded with current visibility.
+Only canonical ID/name/description/version/update fields are selected. Groups carry
+no price or availability claim and link to the exact category-filtered Services page.
+Backend and frontend bind the destination to the source ID; model URLs remain disallowed.
+Public revision v4 hashes active group fields, so edits without version bumps and
+unpublication invalidate conversations and in-flight answers. Existing four-source
+and 8000-character answer context limits remain; group candidate bound is additive.
+
+Fresh isolated aat_allie_groups_5b36b250ee_test at 127.0.0.1:60637 passed all 80
+migrations, no drift and db:check. Four native tests across three files passed, covering
+existing catalogue ranking/visibility plus active empty groups, inactive exclusion,
+follow-up reload, edit/unpublish invalidation, in-flight response rejection and wrong-
+group link rejection. 65 focused backend units and 23 client conversation tests passed.
+Backend/frontend types and scoped lint passed. Two mocked Edge browser journeys passed
+at 390/1440, including scoped Axe, one turn submission, citation -> matching Services
+group, enquiry context link, no overflow and no page exceptions; screenshots inspected.
+First browser attempt failed because the preview was stopped; restarted and reran
+unchanged assertions. Initial type check caught a LearningPage enum mismatch, corrected
+to the established other metadata value. This is local/native plus mocked UI evidence,
+not live model or production acceptance. No schema, production data, provider call or
+capability activation. Service-request guidance is v11; guide eligibility unchanged.
+
+Next: owner group ordering/media and structured booking category context, remaining
+provider/native-browser/role/operational acceptance. Full implementation goal remains
+active. This package requires checked-source integration and compatible publication.
+
 ### 1 November 2026: homepage update published and verified
 
 Source 7d9bcee8cca39b84d8081ba8231bc271c0c00617 is on master and live on both

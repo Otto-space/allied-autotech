@@ -135,9 +135,12 @@ export function retrieveAllieContext(
   const knowledge = (catalogue.knowledge ?? []).filter(
     (item) =>
       item.permission === "public" &&
-      /^(service|product|vehicle)-[0-9a-f-]{36}$/.test(item.id) &&
-      item.href ===
-        `/${item.id.startsWith("service-") ? "services" : item.id.startsWith("product-") ? "parts" : "vehicles"}/${item.id.slice(8)}` &&
+      ((/^service-group-[0-9a-f-]{36}$/.test(item.id) &&
+        item.href ===
+          "/services?categoryId=" + item.id.slice(14) + "#service-catalogue") ||
+        (/^(service|product|vehicle)-[0-9a-f-]{36}$/.test(item.id) &&
+          item.href ===
+            `/${item.id.startsWith("service-") ? "services" : item.id.startsWith("product-") ? "parts" : "vehicles"}/${item.id.slice(8)}`)) &&
       /^[a-f0-9]{64}$/.test(item.contentHash),
   );
   const knowledgeIds = new Set(knowledge.map((item) => item.id));

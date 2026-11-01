@@ -34,7 +34,10 @@ it("versions reversal guidance without granting live lookups or writes", () => {
 
 it("keeps concern guidance conditional on the real intake form and preserves pending confirmation", () => {
   const article = learningArticles.find((item) => item.id === "service-request")!;
-  expect(article.version).toBe(10);
+  expect(article.version).toBe(11);
+  expect(article.steps.join(" ")).toContain(
+    "cannot confirm a price or appointment from the group alone",
+  );
   expect(article.steps.join(" ")).toContain("Its verified name and link are included");
   expect(article.steps.join(" ")).toContain("not an individual priced service");
   expect(article.steps.join(" ")).toContain("no individual services listed yet");

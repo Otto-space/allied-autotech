@@ -344,6 +344,7 @@ it("does not create public cookies or retry when an authenticated call fails", a
 
 it.each([
   ["service", "services"],
+  ["service-group", "services"],
   ["product", "parts"],
   ["vehicle", "vehicles"],
 ])(
@@ -360,7 +361,10 @@ it.each([
         articleId,
         version: 1,
         title: "Tyre fitting",
-        href: `/${path}/${id}`,
+        href:
+          kind === "service-group"
+            ? `/services?categoryId=${id}#service-catalogue`
+            : `/${path}/${id}`,
       },
     ];
     answer.actions = [
@@ -368,7 +372,10 @@ it.each([
         id: `open:${articleId}`,
         kind: "navigate",
         label: "View tyre fitting",
-        href: `/${path}/${id}`,
+        href:
+          kind === "service-group"
+            ? `/services?categoryId=${id}#service-catalogue`
+            : `/${path}/${id}`,
         sourceId: `${articleId}@v1`,
       },
     ];

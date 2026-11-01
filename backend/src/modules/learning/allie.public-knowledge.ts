@@ -1,3 +1,7 @@
+import {
+  serviceGroupKnowledgeRevision,
+  retrieveServiceGroupKnowledge,
+} from "./allie.service-group-knowledge.js";
 import { rankedPublicKnowledgeIds } from "./allie.knowledge-ranking.js";
 import { createHash } from "node:crypto";
 import {
@@ -22,9 +26,10 @@ export async function publicKnowledgeRevision(tx: Prisma.TransactionClient) {
   return createHash("sha256")
     .update(
       JSON.stringify([
-        "public-knowledge-v3",
+        "public-knowledge-v4",
         row!.revision,
         await catalogueKnowledgeRevision(tx),
+        await serviceGroupKnowledgeRevision(tx),
       ]),
     )
     .digest("hex");
@@ -142,5 +147,9 @@ export async function retrievePublicKnowledge(
     const source = publicServiceSource(row, refreshedAt);
     return source ? [source] : [];
   });
-  return [...services, ...catalogue];
+  return [
+    ...services,
+    ...catalogue,
+    ...(await retrieveServiceGroupKnowledge(tx, terms, refreshedAt, history)),
+  ];
 }

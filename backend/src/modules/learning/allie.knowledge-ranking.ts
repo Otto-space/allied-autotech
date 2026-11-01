@@ -4,7 +4,7 @@ import { Prisma } from "../../generated/prisma/client.js";
 // callers still apply their canonical public selectors when loading these IDs.
 export async function rankedPublicKnowledgeIds(
   tx: Prisma.TransactionClient,
-  kind: "service" | "product" | "vehicle",
+  kind: "service-group" | "service" | "product" | "vehicle",
   terms: string[],
 ): Promise<string[]> {
   const bounded = [...new Set(terms)]
@@ -12,11 +12,13 @@ export async function rankedPublicKnowledgeIds(
     .slice(0, 8);
   if (!bounded.length) return [];
   const rows =
-    kind === "service"
-      ? Prisma.sql`SELECT "id", "name" AS title, concat_ws(' ', "shortDescription", "description") AS body FROM "Service" WHERE "isActive"`
-      : kind === "product"
-        ? Prisma.sql`SELECT p."id", concat_ws(' ',p."name",p."brand") AS title, p."description" AS body FROM "Product" p JOIN "Category" c ON c."id"=p."categoryId" LEFT JOIN "Category" parent ON parent."id"=c."parentId" WHERE p."isActive" AND c."isActive" AND (c."parentId" IS NULL OR parent."isActive")`
-        : Prisma.sql`SELECT l."id", concat_ws(' ',l."title",v."make",v."model") AS title,l."description" AS body FROM "VehicleListing" l JOIN "Vehicle" v ON v."id"=l."vehicleId" JOIN "Branch" b ON b."id"=l."branchId" WHERE l."status"='AVAILABLE' AND b."isActive"`;
+    kind === "service-group"
+      ? Prisma.sql`SELECT "id", "name" AS title, "description" AS body FROM "ServiceCategory" WHERE "isActive"`
+      : kind === "service"
+        ? Prisma.sql`SELECT "id", "name" AS title, concat_ws(' ', "shortDescription", "description") AS body FROM "Service" WHERE "isActive"`
+        : kind === "product"
+          ? Prisma.sql`SELECT p."id", concat_ws(' ',p."name",p."brand") AS title, p."description" AS body FROM "Product" p JOIN "Category" c ON c."id"=p."categoryId" LEFT JOIN "Category" parent ON parent."id"=c."parentId" WHERE p."isActive" AND c."isActive" AND (c."parentId" IS NULL OR parent."isActive")`
+          : Prisma.sql`SELECT l."id", concat_ws(' ',l."title",v."make",v."model") AS title,l."description" AS body FROM "VehicleListing" l JOIN "Vehicle" v ON v."id"=l."vehicleId" JOIN "Branch" b ON b."id"=l."branchId" WHERE l."status"='AVAILABLE' AND b."isActive"`;
   const result = await tx.$queryRaw<{ id: string }[]>(Prisma.sql`
     WITH public_rows AS (${rows})
     SELECT r.id FROM public_rows r

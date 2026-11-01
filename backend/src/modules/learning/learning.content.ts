@@ -294,7 +294,7 @@ export const learningArticles: LearningArticle[] = [
       "Ask about a service or workshop visit",
       "Check the current service options and discuss availability with the team.",
       [
-        "Open Services and choose the relevant service. A service group describes a broad area of work; it is not an individual priced service. An active group may have no individual services listed yet. Open the group, read its description and choose Ask about this service group. Its verified name and link are included in the enquiry for you to review and edit; this is not a priced service or confirmed visit.",
+        "Open Services and choose the relevant service. A service group describes a broad area of work; it is not an individual priced service. An active group may have no individual services listed yet. Open the group, read its description and choose Ask about this service group. Its verified name and link are included in the enquiry for you to review and edit; this is not a priced service or confirmed visit. When Allie is available, it can explain the published group description and link you to that group; it cannot confirm a price or appointment from the group alone.",
         "Prepare the vehicle details and the issue you have noticed. When offered, load your saved vehicle and contact details. Add a vehicle or edit contact details in the booking form; these explicit saves update your account and do not submit the booking. Review the request separately afterward.",
         "If your booking form offers a concern request, describe the problem instead of choosing a service. Vehicle concern means the team has not classified it yet; no service price or confirmed time is implied.",
         "Use the enquiry/contact path when online booking is unavailable. When the service page offers booking, choose a branch and an offered time or enter your preferred Lagos time within the published booking window.",
@@ -309,8 +309,8 @@ export const learningArticles: LearningArticle[] = [
       "Public launch mode, ServiceDetail, BookingDetail and ServiceOperationsService booking lifecycle",
       "booking appointment request garage quotation quote",
     ),
-    version: 10,
-    reviewedAt: "2026-10-30",
+    version: 11,
+    reviewedAt: "2026-11-01",
   },
   article(
     "security-basics",
