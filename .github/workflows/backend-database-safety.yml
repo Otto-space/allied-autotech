@@ -183,4 +183,5 @@ jobs:
             tests/integration/support-channel.test.ts \
             tests/integration/support-channel-discovery.test.ts \
             tests/unit/support-live-contracts.test.ts \
-            tests/unit/allie-role-guidance.test.ts --maxWorkers=1
+            tests/unit/allie-role-guidance.test.ts \
+            tests/unit/learning-retrieval-coverage.test.ts --maxWorkers=1

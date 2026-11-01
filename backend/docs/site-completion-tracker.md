@@ -1,3 +1,26 @@
+### 1 November 2026: authorised Help destination repair, locally verified
+
+Found a real contract mismatch: seven published staff Help destinations were absent
+from the client validator, rejecting entire eligible catalogues. Allie retrieval
+also omitted /admin/service-categories. Added only the supported destinations;
+server eligibility, independently granted financial duties and feature flags remain
+unchanged. Owner reconfirmed Tyre Change at NGN1,000; no price mutation was made.
+
+Baseline actual server-to-client catalogue parsing failed for three of five role
+profiles. After repair, 71 backend and 38 frontend focused checks passed. Durable
+regressions run independently within each package: all published eligible articles
+remain retrievable, unauthorised service-group guidance stays excluded, supported
+staff destinations parse and unsafe/unknown destinations remain rejected. Backend
+retrieval coverage is included in the existing CI permission-test stage.
+
+Two local rendered fixture cases passed at 390/1440 (1.5m), opening and refreshing
+all seven destinations with no page errors or horizontal overflow. Frontend types
+passed. Browser plugin unavailable; existing Playwright/Edge used. Screenshots:
+TEMP/help-destinations-390.png and TEMP/help-destinations-1440.png. This is synthetic
+catalogue UI evidence, not a new real-role production acceptance or live AI test.
+Production remains runtime 17abc5e6 until exact-master CI and guarded publication
+of this batch pass. No database/schema or production configuration change required.
+
 ### 1 November 2026: booking group continuity published
 
 Runtime 17abc5e665b0ff7ffd6f21d7a8e1f3be1cd40955 is published. Exact-master
