@@ -1,3 +1,13 @@
+### 1 November 2026: review-button release follow-through
+
+Published source 337477ae on both domains as dpl_5pNZQyW36fq9EisnwLyLR9g1ra31
+following exact-master checks. Four live homepage checks passed at 390/1440 on
+apex/www. Hosted staff proposal and customer launch-gate checks passed twice;
+full customer hosted checks hit the expected Contact redirect and are not counted
+as acceptance. Native local customer-review geometry and API/database evidence
+remain the source of customer-dialog coverage. Production launch flags unchanged.
+See the site-completion tracker for exact receipts and outstanding scope.
+
 ### 1 November 2026: native proposal journey and mobile review sizing
 
 Two real-browser/API/database customer-to-staff proposal journeys passed at 390/1440

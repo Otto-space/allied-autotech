@@ -1,3 +1,28 @@
+### 1 November 2026: native booking review sizing published
+
+Source 337477ae5d3cd44146bd19235e773778787eda75 is integrated into master and
+published to both domains through Vercel dpl_5pNZQyW36fq9EisnwLyLR9g1ra31.
+Exact-master frontend 41296569349, database safety 41296569345 and secrets
+41296569375 passed. Backend 4013c48c-7428-411f-b2e4-7a501b5a96ce and its four
+verified image digests remain unchanged; no schema or provider activation changed.
+
+Two hosted homepage checks and four post-promotion checks passed at 390/1440
+across apex/www, preserving the workshop section relocation and contained images.
+Two hosted staff-proposal/customer-launch-restriction fixture checks passed (10.6s).
+Full customer hosted fixture checks encountered the deliberate Contact redirect;
+two failed and the remaining run was stopped. These are not passing customer
+acceptance results. The native customer/staff/API/database journeys and mobile
+button bounds passed locally in the preceding checkpoint (58.13s). Production
+customer booking remains launch-restricted. Hosted fixtures wrote no real records.
+
+Both aliases were independently checked after promotion. Receipts are under
+backend/ops/digitalocean/.private/native-proposal-*. Screenshots and failed/passing
+hosted evidence are retained under TEMP/aat-native-proposal-*. Docker was verified
+running; this frontend-only release created no Docker resources or database writes.
+The release branch remains active for outstanding scope; no branches/resources
+were retired. Full objective remains open, including owner category work, provider
+activation prerequisites and remaining real-role acceptance.
+
 ### 1 November 2026: native proposal journey and mobile review sizing
 
 Two real-browser/API/database customer-to-staff proposal journeys passed at 390/1440
