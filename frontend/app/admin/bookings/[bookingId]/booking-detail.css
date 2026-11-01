@@ -123,6 +123,12 @@
   color: #d3dde4;
   overflow-wrap: anywhere;
 }
+.work-booking-detail
+  .booking-detail-summary
+  .booking-reference
+  :is(label, [role="status"]) {
+  color: #e1e9ee;
+}
 .work-booking-detail .booking-detail-status {
   flex: none;
   font-size: 11px;

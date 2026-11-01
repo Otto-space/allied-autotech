@@ -209,3 +209,10 @@ widths. Service receipt submission remains unavailable on production while the
 booking gate is closed; its source and existing assertions are updated without
 activating that capability. Other legacy operational labels remain an explicit
 follow-up audit item, not a claim that every displayed enum has been removed.
+
+The first bd952fa6 held candidate passed clipboard and public smoke checks but
+failed expanded staff-label contrast on the dark summary. It was not promoted.
+The scoped follow-up aligns label/copy feedback with the existing customer-card
+light text. New exact-source CI and hosted checks are required before promotion.
+Owner accounting clarification and a non-payable synthetic sample are recorded in
+backend/docs/finance-review-20261101.md; no financial policy or rounding is changed.

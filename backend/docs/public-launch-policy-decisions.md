@@ -148,3 +148,15 @@ This supersedes the catalogue-only feature restrictions above for accounts and s
 Production now uses browse_enquiries mode. Registration, account access and public/customer enquiry/complaint intake are open. Visit preferences are submitted as support enquiries, not allocated appointments or guaranteed vehicle holds. Checkout, scheduled-booking writes, paid reservations and payment collection remain closed. Staff MFA/authorisation and company-controlled deletion requirements are preserved.
 
 The release and staff handling guide is in the live-source worktree: C:/Users/PC/.codex/worktrees/allied-admin-redesign-20261022/backend/docs/accounts-and-enquiries-release.md. Frontend source 825562e2, Vercel deployment dpl_2CyVGTPh6qti4zPJe15u3H1mjKeS; backend deployment 15a110c0-006c-49a6-82c6-34dcd67c4052. Anonymous mobile/desktop and API validation checks passed. The unchanged backend schema passed the read-only rollout check; 61 migrations and 28 integration tests passed separately on a new isolated test database. No production test customers/enquiries/emails, schema migration, new resource purchase or database replacement was performed. Existing live branding was preserved.
+
+## 1 November 2026 accounting clarification
+
+The owner explicitly withheld financial-policy approval: actual Tax ID and applicable
+CAC number await verification; never fabricate them or use "none". Preserve the
+recorded VAT configuration while applicability is reviewed. Full product payment is
+at checkout followed by compatibility/availability checks; quotation payment follows
+acceptance within seven-day validity, not a seven-day credit term. Workshop bookings
+remain request-and-confirm with deposits disabled. Service-invoice due timing remains
+separate. Half-up NGN/kobo rounding is a proposal only. See finance-review-20261101.md
+for exact fields, source discrepancies and the synthetic sample invoice. Purchasing
+activation remains gated until controlled approval and acceptance are complete.
