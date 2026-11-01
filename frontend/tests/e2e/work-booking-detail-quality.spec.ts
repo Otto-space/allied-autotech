@@ -50,6 +50,9 @@ test("long service and line descriptions remain readable on mobile", async ({ pa
   await page.setViewportSize({ width: 320, height: 740 });
   await page.goto(route);
   await expect(page.getByRole("heading", { name: "WO-2026-0008" })).toBeVisible();
+  await expect(
+    page.locator(".booking-detail-work").getByText("Draft", { exact: true }),
+  ).toBeVisible();
   await expect(page.locator('.service-line-table td[data-label="Subtotal"]')).toHaveText(
     /30,000/,
   );

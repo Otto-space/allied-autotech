@@ -132,10 +132,19 @@ test("uncertain stock movement preserves body and idempotency key without optimi
   });
   await page.goto(`/admin/inventory/${stock.id}`, { waitUntil: "domcontentloaded" });
   await expect(balances(page, "Available")).toHaveText("8");
+  await expect(
+    page.getByLabel("Movement type", { exact: true }).locator('option[value="STOCK_IN"]'),
+  ).toHaveText("Stock in");
+  await expect(
+    page
+      .getByLabel("Reference type (optional)", { exact: true })
+      .locator('option[value="WORK_ORDER"]'),
+  ).toHaveText("Work order");
   await page.getByLabel("Units moved").fill("3");
   await page.getByLabel("Note (optional)", { exact: true }).fill("Isolated receipt");
   await page.getByRole("button", { name: "Review stock movement" }).click();
   expect(attempts).toHaveLength(0);
+  await expect(page.getByRole("dialog")).toContainText("Stock in");
   await page.getByRole("dialog").getByRole("button", { name: "Confirm change" }).click();
   await expect(
     page.getByRole("dialog").getByRole("button", { name: "Retry same request" }),

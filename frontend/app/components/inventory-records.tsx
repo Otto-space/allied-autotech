@@ -1,4 +1,5 @@
 "use client";
+import { statusLabel } from "@/lib/status-progress";
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -63,7 +64,7 @@ export function InventoryHistory({
             "RESTOCK",
           ].map((value) => (
             <option value={value} key={value}>
-              {value.replaceAll("_", " ")}
+              {statusLabel(value)}
             </option>
           ))}
         </select>
@@ -102,7 +103,7 @@ export function InventoryHistory({
             {history.data?.items.map((item) => (
               <tr key={item.id}>
                 <td data-label="Movement & time">
-                  {item.type.replaceAll("_", " ")}
+                  {statusLabel(item.type)}
                   <p className="muted">{formatBusinessDate(item.createdAt)}</p>
                 </td>
                 <td data-label="On hand before and after">

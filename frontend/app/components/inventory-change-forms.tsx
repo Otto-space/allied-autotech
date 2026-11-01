@@ -1,4 +1,5 @@
 "use client";
+import { statusLabel } from "@/lib/status-progress";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -142,7 +143,7 @@ export function InventoryMovementForm({
       facts: [
         { label: "Part", value: inventory.product.name },
         { label: "Branch", value: inventory.branch.name },
-        { label: "Movement", value: values.type.replaceAll("_", " ") },
+        { label: "Movement", value: statusLabel(values.type) },
         {
           label: values.type === "ADJUSTMENT" ? "New on-hand count" : "Units",
           value: String(values.quantity),
@@ -207,7 +208,7 @@ export function InventoryMovementForm({
               {["STOCK_IN", "RETURN", "RESTOCK", "DAMAGE", "SALE", "ADJUSTMENT"].map(
                 (value) => (
                   <option value={value} key={value}>
-                    {value.replaceAll("_", " ")}
+                    {statusLabel(value)}
                   </option>
                 ),
               )}
@@ -250,7 +251,7 @@ export function InventoryMovementForm({
                 <option value="">No reference</option>
                 {["MANUAL", "ORDER", "WORK_ORDER", "CART"].map((value) => (
                   <option value={value} key={value}>
-                    {value.replaceAll("_", " ")}
+                    {statusLabel(value)}
                   </option>
                 ))}
               </select>
@@ -413,7 +414,7 @@ export function InventoryReservationForm({ inventory, disabled, onReview }: Comm
                 <option value="">No reference</option>
                 {["MANUAL", "ORDER", "WORK_ORDER", "CART"].map((value) => (
                   <option value={value} key={value}>
-                    {value.replaceAll("_", " ")}
+                    {statusLabel(value)}
                   </option>
                 ))}
               </select>

@@ -1,4 +1,5 @@
 "use client";
+import { statusLabel } from "@/lib/status-progress";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -59,14 +60,14 @@ export function StaffWorkOrder({ booking, disabled, canChange = true, onReview }
       title: "Update work-order status?",
       description:
         status === "COMPLETED"
-          ? "Confirm that quality checks are complete. The server also completes an in-progress booking."
+          ? "Confirm that quality checks are complete. This also completes a booking that is in progress."
           : status === "CANCELLED"
             ? "This cancels the work order. Booking cancellation and any payment resolution are separate actions."
             : "Confirm that this workshop milestone has occurred. Starting work also updates a confirmed booking to in progress.",
       facts: [
         { label: "Work order", value: work.workOrderNumber },
-        { label: "From", value: work.status.replaceAll("_", " ") },
-        { label: "To", value: status.replaceAll("_", " ") },
+        { label: "From", value: statusLabel(work.status) },
+        { label: "To", value: statusLabel(status) },
       ],
       submit: () =>
         apiRequest(`/staff/bookings/${booking.id}/work-orders/${work.id}/status`, {
@@ -82,7 +83,7 @@ export function StaffWorkOrder({ booking, disabled, canChange = true, onReview }
       {work ? (
         <>
           <h3>{work.workOrderNumber}</h3>
-          <p>{work.status.replaceAll("_", " ")}</p>
+          <p>{statusLabel(work.status)}</p>
           {work.diagnosis && <p>Diagnosis: {work.diagnosis}</p>}
           {work.internalNotes && <p>Internal notes: {work.internalNotes}</p>}
           <ServiceLineTable

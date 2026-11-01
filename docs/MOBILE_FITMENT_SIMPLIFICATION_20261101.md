@@ -277,3 +277,15 @@ Post-promotion: four actual public checks passed across apex/www at 390/1440,
 including Learn article refresh, Help, Services and the gated service-request
 fallback. No page errors or horizontal overflow. Both aliases were independently
 confirmed on dpl_4ok1PujUWyktVb4xPxxLGzMyvHkq; www redirects to apex.
+
+## Stock and workshop wording follow-up
+
+Current consumer inspection confirmed that operational exception/job screens already
+supply readable labels; unused/fallback code was left unchanged. Stock movement
+forms/history and workshop work-order summary/review still exposed uppercase codes.
+They now reuse statusLabel, preserving exact request values, version/idempotency
+checks, reviews and all stock/payment distinctions. Workshop completion review now
+explains the linked booking change without implementation jargon.
+Three hosted baseline workflows passed (uncertain stock movement, unknown job retry,
+long mobile work order). New assertions verify readable stock/reference options,
+review facts and draft work status. Final CI/hosted verification and release pending.
