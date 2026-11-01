@@ -151,7 +151,7 @@ test("no active responsibilities gives useful personal access without operationa
   await expect(work(page).locator("a")).toHaveCount(0);
   await page
     .getByRole("navigation", { name: "Personal account tools" })
-    .getByRole("link", { name: /^Notifications(?:, \d+ unread updates)?$/ })
+    .getByRole("link", { name: "My notifications", exact: true })
     .click();
   await expect(
     page.getByRole("heading", { name: "Notifications", exact: true }),

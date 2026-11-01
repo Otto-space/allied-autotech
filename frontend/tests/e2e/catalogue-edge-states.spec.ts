@@ -262,7 +262,7 @@ for (const width of [390, 1440])
       await expect.poll(fixture.olderRequested).toBe(true);
       await search.fill("newer");
       await search.press("Enter");
-      await expect(page).toHaveURL(/search=DEMO(?:\+|%20)layout/);
+      await expect(page).toHaveURL(/search=newer/);
       if (kind === "services") {
         await expect(page.locator(".services-results")).toHaveAttribute(
           "aria-busy",

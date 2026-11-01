@@ -1,3 +1,17 @@
+### 1 November 2026: Appointment clarity verification
+
+Frontend-only follow-up: confirmed upcoming appointment wording in Africa/Lagos,
+compact expandable booking references, and consistent reference labels across
+customer/staff surfaces. Build, scoped lint, three units and initial 320/1440
+state tests passed. Surrounding rendered regression is running; publication is
+pending exact-master CI and held hosted acceptance. Existing f0402b67 backend,
+85 migrations, permissions, prices and activation gates remain unchanged.
+Wider baseline: 141 dashboard and 31 Contact cases pass across initial runs and
+two corrected stale assertions; 43 isolated fitment/policy cases and 22 actual
+public route/viewport checks pass. Fresh Computer Use window mismatch prevents
+a new signed-in fitment acceptance claim. See docs/MOBILE_FITMENT_SIMPLIFICATION_20261101.md
+for precise evidence and the external activation/physical-device limitations.
+
 ### 1 November 2026: Mobile dashboard and fitment batch published
 
 Runtime f0402b675e83ae3999526d60880134c518a96435 is published on apex and www:

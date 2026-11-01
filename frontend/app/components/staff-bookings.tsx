@@ -1,5 +1,6 @@
 ﻿"use client";
 import Link from "next/link";
+import { bookingReferenceLabel } from "@/lib/booking-appointment";
 import { useSearchParams } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import {
@@ -206,7 +207,9 @@ function BookingList({ admin }: { admin: boolean }) {
                     <Link href={`/admin/bookings/${booking.id}`} prefetch={false}>
                       <strong>{booking.service?.name ?? "Vehicle concern"}</strong>
                       <span>{formatBusinessDate(booking.scheduledAt)}</span>
-                      <span className="work-booking-ref">Ref {booking.id.slice(-8)}</span>
+                      <span className="work-booking-ref">
+                        Ref {bookingReferenceLabel(booking.id)}
+                      </span>
                     </Link>
                   </td>
                   <td data-label="Branch">{booking.branch?.name ?? "Not assigned"}</td>

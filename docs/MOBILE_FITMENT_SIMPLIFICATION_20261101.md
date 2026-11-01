@@ -51,6 +51,15 @@ the prior release baseline; exact-master CI and both public alias identities now
 | Payment disputes                    | `backend/docs/dispute-policy-workspace.md`                                                                 | Live disputes v1 PENDING; effective 22 September 2026 00:00 Nigeria time; no actor/evidence fields recorded                                       | Existing effective defaults and provider deadlines; publication does not resolve disputes                             | Approved operational coverage and provider acceptance                                                |
 | Retention and legal holds           | `backend/docs/retention-policy-workspace.md`; ordinary enquiry instruction above                           | Live retention v1 PENDING; effective 22 September 2026 00:00 Nigeria time; no actor/evidence fields recorded                                      | `destructiveExecutionEnabled=false`; no retention executor; privacy/holds remain independent                          | Remaining categories/start events/dispositions require approval; no purge authorised                 |
 
+Additional policy inventory (existing contracts, not new business approvals):
+
+| Policy                                | Source and enforcement                                                                                                                                                         | Approval / remaining decision                                                                                                                                                                                                | Verification                                                                                                                                   |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| Stock, procurement and compatibility  | Existing inventory reservation and reviewed-fitment services; approved evidence and independent review required before a verified match; unknown is not compatible             | Genuine stock and procurement commitments must be supplied by authorised operations; no stock or lead-time promise is invented                                                                                               | Current isolated fitment HTTP and engine verification passed; public and staff fixture coverage already records unknown/approved/legacy states |
+| Appointment requests and confirmation | Owner request-and-confirm policy, ServiceOperations and scoped workforce confirmation; preferred time does not reserve capacity; Saturday closes 18:00 Nigeria time            | Existing live booking v1 APPROVED and branch capacity v1 APPROVED metadata recorded above; actual closure/slot/staff coverage still needs operational acceptance                                                             | Isolated owner-booking lifecycle verification passed; rendered customer request/reschedule coverage passed                                     |
+| Cancellation, returns and refunds     | Existing cancellation/aftercare, independent manual-refund approval and versioned refund-calendar snapshots                                                                    | Cancellation v1 remains PENDING; exact remaining decisions: eligible return window and its starting event, partial quantities/defect handling, refund business-day/holiday calendar and separate authorised financial actors | Existing aftercare and refund-policy browser cases; current isolated snapshot/approval verification passed                                     |
+| Payment and quotations                | Effective order-payment and quotation v1 APPROVED records; seven-day quotation and 7.5% VAT instructions remain authoritative; server verifies amounts and provider references | Merchant NGN test-mode configuration/acceptance and finance publication remain required; paid transactions stay gated                                                                                                        | Prior services-commerce isolated payment contracts passed; real provider acceptance is not claimed                                             |
+
 A read-only production snapshot at 19:53 Nigeria time verified the metadata above.
 Fourteen current policy records were inspected. Other effective v1 records are
 booking/order-payment/reviews APPROVED and cancellation/marketing PENDING, all
@@ -92,3 +101,32 @@ Final service rerun: ADMIN and SUPER_ADMIN both passed the production-build save
 Frontend dpl_7UYruc3SHzs2xzcxFtyDu5XVkqbs and backend 36b4283f-63fc-401b-abbe-03b8bf9ccf2c serve f0402b675e83ae3999526d60880134c518a96435. Exact-master checks 41339747501, 41339747466 and 41339747631 passed. All 10 packaged checks passed. Five hosted fixture journeys and two real public-content checks passed before promotion. Both public aliases were independently verified. Database schema and policy/activation flags were preserved. Broader per-page real-role and physical-device acceptance is not claimed.
 
 After promotion, real public article refresh plus Help/Services navigation passed on apex and www at 390 and 1440 (four cases), with no page errors or horizontal overflow. Final C: free space: 25.95 GiB. Temporary isolated test resources were removed; all existing database containers/volumes, rollback images and shared caches were preserved.
+
+## Next verification cycle: appointment clarity and wider dashboard coverage
+
+Source inspection and a failing rendered regression confirmed that an upcoming confirmed booking had only an absolute date. A concise today/tomorrow message now derives from the confirmed scheduled time in Africa/Lagos, with a full date for later appointments. Requested times have an explicit label. Existing 30-second clock refresh is reused; no live announcements, attendance changes or countdown are introduced. Three timezone/status unit checks passed. Rendered updated-bundle verification is pending. Existing schema, rules, permissions, guide targets and eligibility are unchanged.
+
+A 141-case existing per-page dashboard matrix and isolated fitment/policy integration tests are running. These extend the last batch without asserting physical-device or every-real-role acceptance. Specialist invoice recovery still requires an exact source reference after privacy redaction; ordinary invoice authoring already has a searchable named selector. This is a consequential recovery safeguard, not an ordinary requirement to memorise identifiers.
+
+Isolated database verification completed: 43 tests in five files passed (parts-fitment HTTP, fitment engine, operational policy, owner booking policy and refund timing). A new task-owned PostgreSQL database was created, all 85 migrations replayed and db:check passed. Tests used a restricted CRUD runtime role without schema privileges. The task-owned temporary container and its tmpfs data were removed after completion. No shared or production database was changed. Evidence: temporary aat-fitment-policy-4e48d08e2c logs and receipt.
+
+### Appointment clarity follow-up in verification — 1 November 2026
+
+The next frontend-only batch adds confirmed future appointment wording in Nigeria
+time and an expandable full booking reference, retaining the canonical identifier
+for copying and all existing status/permission rules. Local production build and
+three timezone/status units passed; mobile/desktop appointment state regressions
+passed. Surrounding booking, request, copy and form journeys are still running.
+
+The wider previous-bundle dashboard matrix covered 141 cases: 140 passed initially;
+the final case passed after updating its stale My notifications link expectation.
+Contact covered 31 cases: 30 passed initially; the product request case passed
+after its assertion included the existing requested-part and quantity context.
+Neither correction changed production behaviour or permissions. Twelve catalogue
+edge/race cases and 22 read-only actual public route/viewport checks passed.
+Forty-three isolated fitment/policy integration cases passed with all 85 migrations
+replayed; the uniquely owned tmpfs database container was removed. An older
+read-through catalogue suite could not use the absent local API and is not counted
+as passed. Fresh Computer Use returned inconsistent window identity/screenshot
+data and input was stopped; prior signed-in fitment inspection is preserved,
+but this attempt is not new live acceptance. Current release remains f0402b67.

@@ -227,6 +227,22 @@ for (const role of ["ADMIN", "SUPER_ADMIN"]) {
     );
     await noOverflow(page);
     await accessible(page);
+    // A reduced visible viewport models the space occupied by a phone keyboard.
+    // This checks shared dialog geometry, not physical-device keyboard behaviour.
+    await page.setViewportSize({ width: 320, height: 360 });
+    const confirm = review.getByRole("button", { name: "Confirm save" });
+    await confirm.focus();
+    await expect(confirm).toBeInViewport();
+    expect(
+      await confirm.evaluate((button) => {
+        const box = button.getBoundingClientRect();
+        const hit = document.elementFromPoint(
+          box.x + box.width / 2,
+          box.y + box.height / 2,
+        );
+        return hit === button || button.contains(hit);
+      }),
+    ).toBe(true);
     await review.getByRole("button", { name: "Confirm save" }).click();
     await expect.poll(() => writes.length).toBe(1);
     await expect(

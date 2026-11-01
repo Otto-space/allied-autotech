@@ -367,6 +367,7 @@ for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536]) {
     expect(state.writes[0].body.customerNotes).toBe("Engine warning light is on.");
     expect(state.writes[0].body.serviceCategoryId).toBe(record.category.id);
     expect(state.writes[0].body).not.toHaveProperty("acceptNonRefundableDeposit");
+    await page.locator(".booking-reference > summary").click();
     await expect(page.getByLabel("Booking reference", { exact: true })).toHaveValue(
       booking.id,
     );
@@ -462,6 +463,7 @@ test("booking reference supports manual copy when clipboard access fails", async
   await prepare(page);
   await reviewRequest(page);
   await page.getByRole("button", { name: "Request booking", exact: true }).click();
+  await page.locator(".booking-reference > summary").click();
   await page.getByRole("button", { name: "Copy booking reference" }).click();
   const reference = page.getByLabel("Booking reference", { exact: true });
   await expect(reference).toBeFocused();

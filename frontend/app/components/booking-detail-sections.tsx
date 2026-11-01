@@ -5,6 +5,8 @@ import type { CustomerBookingDetail } from "@/lib/api/customer-booking-detail-sc
 import { bookingLabel } from "@/lib/customer-booking-query";
 import { formatBusinessDate } from "@/lib/format/date";
 import { formatKobo } from "@/lib/format/money";
+import { upcomingAppointment } from "@/lib/booking-appointment";
+import { BookingReference } from "./booking-reference";
 
 export type BookingQuote = CustomerBookingDetail["quotes"][number];
 export const vehicleName = (booking: CustomerBookingDetail) =>
@@ -14,7 +16,15 @@ export const vehicleName = (booking: CustomerBookingDetail) =>
 export const quoteOpen = (quote: BookingQuote, now: number) =>
   quote.status === "ISSUED" && !!quote.expiresAt && Date.parse(quote.expiresAt) > now;
 
-export function BookingAppointment({ booking }: { booking: CustomerBookingDetail }) {
+export function BookingAppointment({
+  booking,
+  now,
+}: {
+  booking: CustomerBookingDetail;
+  now: number;
+}) {
+  const reminder = upcomingAppointment(booking.status, booking.scheduledAt, now);
+  const requested = ["REQUESTED", "AWAITING_DEPOSIT"].includes(booking.status);
   return (
     <section className="booking-appointment" aria-labelledby="appointment-title">
       <div className="booking-section-heading">
@@ -23,6 +33,8 @@ export function BookingAppointment({ booking }: { booking: CustomerBookingDetail
           {bookingLabel(booking.status)}
         </span>
       </div>
+      {reminder && <p className="booking-appointment-reminder">{reminder}</p>}
+      <BookingReference id={booking.id} />
       {booking.customerConcern && (
         <p className="booking-concern-description">{booking.customerConcern}</p>
       )}
@@ -36,15 +48,17 @@ export function BookingAppointment({ booking }: { booking: CustomerBookingDetail
         <div>
           <dt>
             <CalendarDays aria-hidden="true" size={18} />
-            Appointment
+            {requested
+              ? "Requested time"
+              : booking.status === "CONFIRMED"
+                ? "Confirmed appointment"
+                : "Appointment"}
           </dt>
           <dd>
             {booking.scheduledAt
               ? formatBusinessDate(booking.scheduledAt)
               : "Time not assigned"}
-            {booking.status === "REQUESTED" && (
-              <small>Awaiting workshop confirmation.</small>
-            )}
+            {requested && <small>Awaiting workshop confirmation.</small>}
           </dd>
         </div>
         <div>

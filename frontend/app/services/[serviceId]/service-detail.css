@@ -333,20 +333,6 @@
   margin: 0;
   overflow-wrap: anywhere;
 }
-.sd-booking-reference {
-  display: grid;
-  gap: 8px;
-  padding: 16px 0;
-}
-.sd-booking-reference label {
-  font-size: 13px;
-  font-weight: 700;
-}
-.sd-panel .sd-booking-reference textarea {
-  resize: none;
-  min-height: 60px;
-  overflow-wrap: anywhere;
-}
 @media (max-width: 600px) {
   .sd-booking-progress {
     gap: 6px;

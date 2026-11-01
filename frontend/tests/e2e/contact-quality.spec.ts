@@ -409,7 +409,10 @@ for (const type of ["PRODUCT", "SERVICE", "VEHICLE"] as const) {
         name: "Contact Test",
         email: "contact@example.test",
         subject: "Workshop question",
-        message: "An isolated test of customer care.",
+        message:
+          type === "PRODUCT"
+            ? "Requested part or product: Workshop question\nQuantity: 1\nAn isolated test of customer care."
+            : "An isolated test of customer care.",
         type,
         [type === "PRODUCT"
           ? "productId"

@@ -46,7 +46,7 @@ import { SiteHeader } from "./site-header";
 import { SiteFooter } from "./site-footer";
 import { PublicEnquiryForm } from "./public-enquiry-form";
 import { BookingAccountDetails } from "./booking-account-details";
-import { CopyControl } from "./copy-control";
+import { BookingReference } from "./booking-reference";
 import type { CustomerVehicle } from "@/lib/api/vehicle-schemas";
 type BookingReview = {
   body: RequestBody<"/customers/bookings", "post">;
@@ -775,20 +775,7 @@ export function ServiceDetail({
                         ? "Your request is waiting for workshop review. Check your account for the confirmed appointment and updates."
                         : "Review your booking for its current status and next steps."}
                     </p>
-                    <div className="sd-booking-reference">
-                      <label htmlFor="booking-reference">Booking reference</label>
-                      <textarea
-                        id="booking-reference"
-                        rows={2}
-                        readOnly
-                        value={booking.id}
-                      />
-                      <CopyControl
-                        value={booking.id}
-                        label="Copy booking reference"
-                        fieldId="booking-reference"
-                      />
-                    </div>
+                    <BookingReference id={booking.id} />
                     <dl>
                       <dt>Status</dt>
                       <dd>{booking.status.replaceAll("_", " ")}</dd>

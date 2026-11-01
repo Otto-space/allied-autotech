@@ -151,6 +151,12 @@
   align-items: flex-start;
   justify-content: space-between;
 }
+.booking-appointment .booking-appointment-reminder {
+  margin: 16px 0 0;
+  color: #fff;
+  font-weight: 600;
+  line-height: 1.5;
+}
 .customer-booking-detail .booking-concern-description {
   color: #e1e9ee;
   margin-top: 16px;

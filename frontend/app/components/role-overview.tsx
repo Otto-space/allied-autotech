@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { bookingReferenceLabel } from "@/lib/booking-appointment";
 import { useRef, useState, type ReactNode, type ComponentProps } from "react";
 import {
   ArrowUpRight,
@@ -510,7 +511,7 @@ export function RoleOverview({
                             <tr key={booking.id}>
                               <td>
                                 <strong>{booking.serviceName}</strong>
-                                <small>#{booking.id.slice(0, 8)}</small>
+                                <small>{bookingReferenceLabel(booking.id)}</small>
                               </td>
                               <td>
                                 {formatBusinessDate(booking.scheduledAt).replace(
@@ -525,7 +526,7 @@ export function RoleOverview({
                                 <OverviewLink
                                   className="overview-record-link"
                                   href={`${base}/bookings/${booking.id}`}
-                                  aria-label={`View booking ${booking.id.slice(0, 8)} for ${booking.serviceName}`}
+                                  aria-label={`View booking ${bookingReferenceLabel(booking.id)} for ${booking.serviceName}`}
                                 >
                                   <ArrowUpRight size={18} />
                                 </OverviewLink>

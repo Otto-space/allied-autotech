@@ -280,7 +280,7 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
         <>
           <div className="booking-detail-grid">
             <div className="booking-detail-primary">
-              <BookingAppointment booking={current} />
+              <BookingAppointment booking={current} now={now} />
               <BookingDeposit booking={current} />
             </div>
             <BookingProgress booking={current} />

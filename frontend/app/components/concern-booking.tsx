@@ -22,6 +22,7 @@ import {
 } from "@/lib/forms/booking-sign-in-draft";
 import { formatBusinessDate } from "@/lib/format/date";
 import { BookingAccountDetails } from "./booking-account-details";
+import { BookingReference } from "./booking-reference";
 import { Feedback } from "./feedback";
 import { AccountChangeNotice } from "./account-change-notice";
 const parseBranches = (value: unknown) =>
@@ -318,8 +319,6 @@ export function ConcernBooking({
             appointment.
           </p>
           <dl>
-            <dt>Booking reference</dt>
-            <dd>{booking.id}</dd>
             {booking.requestedServiceCategoryName && (
               <>
                 <dt>Service group</dt>
@@ -329,6 +328,7 @@ export function ConcernBooking({
             <dt>Concern</dt>
             <dd>{booking.customerConcern}</dd>
           </dl>
+          <BookingReference id={booking.id} />
           <Link className="button" href={`/dashboard/bookings/${booking.id}`}>
             View your booking
           </Link>
