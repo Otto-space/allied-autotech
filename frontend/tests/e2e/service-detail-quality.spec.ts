@@ -651,7 +651,7 @@ test("request uses current policy, exact notes, CSRF and idempotency; confirmati
   });
   expect(state.writes[0].key?.length).toBeGreaterThanOrEqual(16);
   expect(state.writes[0].csrf).toBe("s".repeat(64));
-  await expect(page.getByText("REQUESTED", { exact: true })).toBeVisible();
+  await expect(page.getByText("Requested", { exact: true })).toBeVisible();
   await expect(
     page.getByRole("link", { name: "View booking", exact: true }),
   ).toHaveAttribute("href", `/dashboard/bookings/${booking.id}`);
@@ -1420,7 +1420,7 @@ for (const width of [390, 1440]) {
           `aat-preferred-${quotation ? "quote" : "fixed"}-${width}.png`,
         ),
       });
-      await expect(page.getByText("REQUESTED", { exact: true })).toBeVisible();
+      await expect(page.getByText("Requested", { exact: true })).toBeVisible();
     });
   }
 }

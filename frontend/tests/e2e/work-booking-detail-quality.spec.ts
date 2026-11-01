@@ -130,6 +130,17 @@ for (const width of [320, 360, 390, 430, 768, 844, 1024, 1280, 1440, 1505, 1920]
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
     ).toBe(true);
+    const reference = page.locator(".booking-detail-summary .booking-reference");
+    await expect(reference.getByLabel("Booking reference", { exact: true })).toBeHidden();
+    await reference.locator("summary").click();
+    await expect(reference.getByLabel("Booking reference", { exact: true })).toHaveValue(
+      bookingId(1),
+    );
+    expect(
+      (await new AxeBuilder({ page }).include(".booking-detail-summary").analyze())
+        .violations,
+    ).toEqual([]);
+    await reference.locator("summary").click();
     await page.getByText("Business-caused disruption", { exact: true }).click();
     await expect(page.getByLabel("Disruption reason")).toBeVisible();
     if ([320, 768, 1505].includes(width))
@@ -180,7 +191,7 @@ test("confirmation capability permits unassigned staff confirmation but no other
   state.capability = true;
   state.record.status = "REQUESTED";
   await page.goto(route);
-  await expect(page.getByLabel("Next status")).toContainText("CONFIRMED");
+  await expect(page.getByLabel("Next status")).toContainText("Confirmed");
   await expect(
     page.getByLabel("Next status").locator('option[value="CANCELLED"]'),
   ).toHaveCount(0);
@@ -198,7 +209,7 @@ test("confirmation capability permits unassigned staff confirmation but no other
     .fill("Available technician and diagnostic equipment reviewed.");
   await page.getByRole("button", { name: "Review status change" }).click();
   await page.getByRole("button", { name: "Confirm change", exact: true }).click();
-  await expect(page.locator(".booking-detail-status")).toHaveText("CONFIRMED");
+  await expect(page.locator(".booking-detail-status")).toHaveText("Confirmed");
   expect(state.writes).toHaveLength(1);
 });
 test("cancellation reason is associated with its field and a reviewed change uses the version", async ({
@@ -216,7 +227,7 @@ test("cancellation reason is associated with its field and a reviewed change use
   await expect(page.getByRole("dialog")).toContainText("Customer agreed to cancel");
   expect(state.writes).toHaveLength(0);
   await page.getByRole("button", { name: "Confirm change", exact: true }).click();
-  await expect(page.locator(".booking-detail-status")).toHaveText("CANCELLED");
+  await expect(page.locator(".booking-detail-status")).toHaveText("Cancelled");
   expect(state.writes[0].body.expectedVersion).toBe(1);
 });
 for (const outcome of ["uncertain", "conflict"])

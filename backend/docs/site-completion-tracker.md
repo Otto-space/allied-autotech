@@ -4512,3 +4512,9 @@ docs/EFFICIENT_DELIVERY_20261030.md. No shared database or production change.
 regression and both canonical-reference copy paths. Expanded-reference contrast
 failed before promotion; scoped label/status colour fix is in the next candidate.
 Source and hosted evidence remain separate; no domains changed for the failed candidate.
+
+1 November 2026: Booking wording follow-up in verification. Staff booking summary,
+review/choice labels and service receipts now reuse readable booking labels; staff
+summary reuses expandable full-reference control. Business/API values unchanged.
+Baseline two hosted cases passed; final exact-source CI/hosted checks pending.
+See docs/MOBILE_FITMENT_SIMPLIFICATION_20261101.md. Public runtime remains ad97a728.

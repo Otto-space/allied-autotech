@@ -194,3 +194,18 @@ but no new signed-in acceptance is claimed. Native phone keyboards, zoom, screen
 readers and unsampled real roles remain unverified. Operational finance/fulfilment
 publication, genuine capacity/stock/coverage and merchant test-mode acceptance
 remain the production-activation blockers listed in the policy inventory.
+
+## Booking wording consistency follow-up
+
+A requirement-by-requirement source audit found remaining uppercase status output
+in service receipts and staff booking detail, plus an always-visible canonical UUID
+in the staff appointment summary. A read-only hosted fixture baseline passed the
+existing 390px detail and confirmation tests and confirmed their uppercase status
+expectations. The follow-up reuses bookingLabel and BookingReference across these
+surfaces. API enum values, role checks, record versions and required reviews remain
+unchanged. Expanded staff references are checked with Axe; pending hosted coverage
+includes confirmation, cancellation, disruption, stale/uncertain outcomes and four
+widths. Service receipt submission remains unavailable on production while the
+booking gate is closed; its source and existing assertions are updated without
+activating that capability. Other legacy operational labels remain an explicit
+follow-up audit item, not a claim that every displayed enum has been removed.

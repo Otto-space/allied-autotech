@@ -175,3 +175,8 @@ Service enquiry checkpoint (1 November 2026): service-request v13 describes stru
 Parts quotation checkpoint (1 November 2026): parts-fitment v4 documents customer-owned requests, issued revisions, expiry/decline and guarded collection order acceptance. Payment remains separate from compatibility, final availability and collection readiness. Backend issue/acceptance, customer/admin request screens and original-order links are implemented; rollout and provider test-mode acceptance remain unverified. No practice permissions or feature flags were enabled.
 
 Appointment display checkpoint (1 November 2026): customer booking summary distinguishes requested time from confirmed appointment and shows a Nigeria-time upcoming reminder only while status is CONFIRMED and the scheduled time is future. Existing request/reschedule/cancellation semantics, service-request v13 guidance, eligibility and semantic targets remain unchanged; no definition or flag activation is required for this presentation change.
+
+1 November 2026 booking-label maintenance: presentation-only status casing and
+progressive reference disclosure use existing booking contracts. service-request v13,
+review requirements, semantic guide targets and server eligibility are unchanged;
+no feature flag or tutorial permission changed.

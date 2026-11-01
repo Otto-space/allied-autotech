@@ -1,6 +1,8 @@
 "use client";
 import { NotificationRecordContext } from "./notification-record-context";
 import { WorkflowProgress } from "./status-progress";
+import { BookingReference } from "./booking-reference";
+import { bookingLabel } from "@/lib/customer-booking-query";
 import Link from "next/link";
 import { useState } from "react";
 import { z } from "zod";
@@ -282,8 +284,8 @@ function BookingRecord({ bookingId }: { bookingId: string }) {
             : "Confirm that this service milestone has occurred. Recorded payment is managed separately.",
       facts: [
         ...facts,
-        { label: "From", value: current.status.replaceAll("_", " ") },
-        { label: "To", value: status.replaceAll("_", " ") },
+        { label: "From", value: bookingLabel(current.status) },
+        { label: "To", value: bookingLabel(status) },
         ...(reason ? [{ label: "Reason", value: reason }] : []),
         ...(status === "CONFIRMED"
           ? [{ label: "People and equipment review", value: resourceReviewNote }]
@@ -383,10 +385,10 @@ function BookingRecord({ bookingId }: { bookingId: string }) {
                   <p>Requested service group: {current.requestedServiceCategoryName}</p>
                 )}
                 {current.customerConcern && <p>{current.customerConcern}</p>}
-                <p>Booking {current.id}</p>
+                <BookingReference id={current.id} />
               </div>
               <span className="booking-detail-status" data-status={current.status}>
-                {current.status.replaceAll("_", " ")}
+                {bookingLabel(current.status)}
               </span>
             </header>
             <WorkflowProgress workflow="booking" status={current.status} />
@@ -462,7 +464,9 @@ function BookingRecord({ bookingId }: { bookingId: string }) {
               <p>{current.disruptionReason}</p>
               <p>
                 Resolution:{" "}
-                {current.disruptionResolution?.replaceAll("_", " ") ?? "Not recorded"}
+                {current.disruptionResolution
+                  ? bookingLabel(current.disruptionResolution)
+                  : "Not recorded"}
               </p>
             </section>
           )}
@@ -619,7 +623,7 @@ function BookingRecord({ bookingId }: { bookingId: string }) {
                       <option value="">Choose next status</option>
                       {choices.map((status) => (
                         <option value={status} key={status}>
-                          {status.replaceAll("_", " ")}
+                          {bookingLabel(status)}
                         </option>
                       ))}
                     </select>

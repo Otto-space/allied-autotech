@@ -47,6 +47,7 @@ import { SiteFooter } from "./site-footer";
 import { PublicEnquiryForm } from "./public-enquiry-form";
 import { BookingAccountDetails } from "./booking-account-details";
 import { BookingReference } from "./booking-reference";
+import { bookingLabel } from "@/lib/customer-booking-query";
 import type { CustomerVehicle } from "@/lib/api/vehicle-schemas";
 type BookingReview = {
   body: RequestBody<"/customers/bookings", "post">;
@@ -778,7 +779,7 @@ export function ServiceDetail({
                     <BookingReference id={booking.id} />
                     <dl>
                       <dt>Status</dt>
-                      <dd>{booking.status.replaceAll("_", " ")}</dd>
+                      <dd>{bookingLabel(booking.status)}</dd>
                       <dt>Service</dt>
                       <dd>{booking.service?.name ?? "Vehicle concern"}</dd>
                       {booking.branch && (

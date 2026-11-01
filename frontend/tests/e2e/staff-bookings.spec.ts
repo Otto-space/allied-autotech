@@ -130,7 +130,7 @@ test("booking confirmation requires an active grant and a resource review, then 
     page.getByRole("dialog").getByText(/approved branch calendar/),
   ).toBeVisible();
   await page.getByRole("dialog").getByRole("button", { name: "Confirm change" }).click();
-  await expect(page.locator(".booking-detail-status")).toHaveText("CONFIRMED");
+  await expect(page.locator(".booking-detail-status")).toHaveText("Confirmed");
   expect(writes).toEqual([
     {
       status: "CONFIRMED",
@@ -871,7 +871,7 @@ for (const width of [390, 1440]) {
     expect(writes).toEqual([
       { assignedStaffId: id(6), serviceId: id(4), expectedVersion: 7 },
     ]);
-    await expect(page.locator(".booking-detail-status")).toHaveText("REQUESTED");
+    await expect(page.locator(".booking-detail-status")).toHaveText("Requested");
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
     ).toBe(true);
