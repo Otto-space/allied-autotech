@@ -1,7 +1,17 @@
+# Current activation status - 1 November 2026
+
+See [the delivery handoff](DELIVERY_HANDOFF_20261101.md) for the authoritative
+completed implementation, released source, actual tests and incomplete external
+activation checklist. Runtime 5d310b10 is live; Tyre Change remains NGN1,000.
+Paystack is disabled. Production OpenAI key/model are absent. Published Help,
+guides and practice remain enabled. No provider activation occurred.
+
+## Historical checkpoints (superseded where the current handoff differs)
+
 ### 1 November 2026: Help destination release
 
 Runtime 6de6c86f now replaces 17abc5e6, with frontend
- dpl_H68vUeqpN5iqAg1idy4fAXkL4XC9 and backend d496ecda-0f12-4a62-ac0e-8bf0d08f1b79.
+dpl_H68vUeqpN5iqAg1idy4fAXkL4XC9 and backend d496ecda-0f12-4a62-ac0e-8bf0d08f1b79.
 All exact-master checks passed, hosted/live acceptance passed, eight workers are
 healthy and 83 migrations remain unchanged. Prices, production gates and provider
 settings were preserved. Tyre Change remains NGN1,000. The repair makes already
@@ -24,6 +34,7 @@ This supersedes historical statements below that those paths are unimplemented o
 uncommitted. Public limited-launch booking restrictions are unchanged and verified.
 
 Remaining external prerequisites retain their existing boundaries:
+
 - Paystack: server PAYSTACK_SECRET_KEY and matching PAYSTACK_MODE; merchant NGN and
   settlement eligibility; dashboard registration of callback
   https://alliedautotech.com/payments/complete and webhook
@@ -76,7 +87,6 @@ flags remain unchanged. Full brief and actual owner category import remain open.
 See backend/docs/efficient-delivery-production-20261030.md for receipts, failures,
 corrections and acceptance limits.
 
-
 ### 30 October 2026: Allie candidate ranking before limits
 
 Found a recall defect: public service/product/vehicle queries selected twelve matches
@@ -116,7 +126,6 @@ Remaining: complete policy/capability source audit, native rendered booking/Alli
 journeys, remaining delivery/auth acceptance, provider test-mode setup and broader
 completion gates. Full objective remains active; production stays at fc318618.
 
-
 ### 30 October 2026: native customer-to-workforce booking journey
 
 Added concern-booking-journey.test.ts using real HTTP middleware, sessions, CSRF,
@@ -142,7 +151,6 @@ acceptance. Next scope: native rendered booking composition, remaining proposal
 delivery/auth coverage, Allie knowledge scale and policy/capability audit, then
 project-wide completion gates and exact activation checklist. All implementation
 changes remain local; production remains the verified sidebar release fc318618.
-
 
 ### 30 October 2026: workforce concern classification and final authorization
 
@@ -188,16 +196,16 @@ Set provider settings in the backend API and worker hosting environment, using t
 existing secret manager. Never put the key in the frontend/Vercel public variables,
 Git, chat, callback query strings or logs. Existing names from backend/.env.example:
 
-| Setting | Preparation | Current acceptance |
-| --- | --- | --- |
-| PAYSTACK_SECRET_KEY | Server-only test secret for isolated test-mode acceptance; separate live secret only for an approved activation | Account/key access not verified in this goal |
-| PAYSTACK_MODE | disabled until configured; test for acceptance; live only in production | No settings changed |
-| PAYSTACK_LIVE_ENABLED | Remain false until separately approved live activation | No enablement |
-| DEPLOYMENT_ENV | Production required by the existing live-mode guard | Source guard verified; hosted settings not rechecked here |
-| PAYSTACK_CALLBACK_URL | Production frontend https://alliedautotech.com/payments/complete; isolated staging uses its own frontend origin | Route exists; provider redirect acceptance pending |
-| PAYSTACK_REQUEST_TIMEOUT_MS | Existing default 8000 | Bounded transport tests pass |
-| PAYSTACK_MAX_RESPONSE_BYTES | Existing default 262144 | Bounded response tests pass |
-| PAYMENT_RECONCILIATION_ENABLED | Existing worker control; enable only with reviewed reconciliation scheduling and monitoring | Operational acceptance pending |
+| Setting                        | Preparation                                                                                                     | Current acceptance                                        |
+| ------------------------------ | --------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| PAYSTACK_SECRET_KEY            | Server-only test secret for isolated test-mode acceptance; separate live secret only for an approved activation | Account/key access not verified in this goal              |
+| PAYSTACK_MODE                  | disabled until configured; test for acceptance; live only in production                                         | No settings changed                                       |
+| PAYSTACK_LIVE_ENABLED          | Remain false until separately approved live activation                                                          | No enablement                                             |
+| DEPLOYMENT_ENV                 | Production required by the existing live-mode guard                                                             | Source guard verified; hosted settings not rechecked here |
+| PAYSTACK_CALLBACK_URL          | Production frontend https://alliedautotech.com/payments/complete; isolated staging uses its own frontend origin | Route exists; provider redirect acceptance pending        |
+| PAYSTACK_REQUEST_TIMEOUT_MS    | Existing default 8000                                                                                           | Bounded transport tests pass                              |
+| PAYSTACK_MAX_RESPONSE_BYTES    | Existing default 262144                                                                                         | Bounded response tests pass                               |
+| PAYMENT_RECONCILIATION_ENABLED | Existing worker control; enable only with reviewed reconciliation scheduling and monitoring                     | Operational acceptance pending                            |
 
 Register the public HTTPS webhook in the matching Paystack dashboard environment:
 https://api.alliedautotech.com/api/v1/webhooks/paystack . This is the direct backend

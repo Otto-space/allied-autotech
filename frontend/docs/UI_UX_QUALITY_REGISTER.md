@@ -1,3 +1,45 @@
+### 1 November 2026: Privacy guidance and compatible Help rollout published
+
+Runtime 5d310b10ffb6b34119ef849dca0400b30de71a2a is live on both domains,
+independently verified as dpl_xw7An14AFK7Nh17SnUpyEQGmJqCe. Backend
+dcb30c90-80d1-4ba4-9733-11e736ddc47b is ACTIVE (16/16); all four image digests
+match. Exact-master frontend 41310483759, backend 41310483725 and secrets
+41310483829 passed. Frontend CI: 1,311 passed, 12 deliberately skipped; production
+build, types, lint, audit and formatting passed. No new schema migration or
+permission, price or activation-setting change; 83 migrations remain applied.
+
+Read-only strict-TLS database/schema and runtime least-privilege checks passed;
+all eight workers are healthy and temporary firewall access was removed/verified.
+Today's managed backup and eight retained backup dates were verified. The recent
+populated restore from 17abc5e6 was reused after proving schema/safety scripts
+unchanged. This is not a new production restore or managed PITR rehearsal.
+
+Local: 82 backend and 38 frontend focused cases, 11 actual HTTP cases on a fresh
+isolated database, 67 payment contract cases, types/scoped lint, canonical OpenAPI
+validation and two rendered 390/1440 cases. Final package: nine image checks
+(20.46s), one isolated replay/restore/drift-rejection check (40.34s). Hosted: two
+staff-destination fixtures (53.1s), two actual-public-content privacy fixtures and
+two real-data homepage/group journeys. Live: Privacy search/refresh/navigation at
+390/1440, two apex homepage/group journeys and two www journeys. Older live Help
+also passed after backend rollout before frontend promotion; legacy API returned
+seven articles and version 2 returned eight, without restricted privacy content.
+
+The first www live image poll timed out at five seconds. A separate fresh-context
+diagnostic loaded all three images in 216/470/958ms with no failed requests; the
+www journeys then passed with a bounded 20-second network allowance. The initial
+failure is retained and is not counted as a pass. Tyre Change was verified at
+100000 kobo (NGN1,000) at 2026-11-01T13:34:25.379Z; no price mutation was made.
+All local temporary privacy test servers were stopped and their five data folders
+removed, retaining logs. Superseded local build cleanup has a separate private
+receipt; current/rollback images, remote images, data, restore evidence and useful
+caches are retained. Earlier candidates were not promoted.
+
+Implementation and independent requirement audit are complete; external activation
+and acceptance are explicitly incomplete in docs/DELIVERY_HANDOFF_20261101.md.
+The full work exceeded the brief's one-hour target; this final package began around
+12:40 UTC and production live checks finished around 13:34 UTC. No paid AI request,
+charge, refund, real customer booking or message was made during this package.
+
 ### 1 November 2026: rollout-compatible Privacy guidance ready for publication
 
 The new destination initially would have broken older open tabs that validate the
