@@ -1,3 +1,14 @@
+### 1 November 2026: Mobile dashboard and fitment refinement in progress
+
+Current item: MOBILE-FITMENT-20261101. Full new brief is tracked in
+docs/MOBILE_FITMENT_SIMPLIFICATION_20261101.md. The existing release worktree
+contains shared workflow/learning cleanup, reusable customer/enquiry table scrolling,
+permitted copy controls and fitment year-validation improvements. Local units and
+focused rendered checks passed; broader role/viewport/regression checks are running.
+This batch is not deployed. Prior runtime 53cdc8e1 remains the baseline. Actual
+signed-in fitment queue/evidence/editor inspection completed; no authority or business
+data has been changed. Preserve the unrelated Desktop home-hero edit.
+
 ### 1 November 2026: Services and commerce source published
 
 Runtime 53cdc8e1307bb23395b3e5e77bdee8f93be48139 is live on apex and www:

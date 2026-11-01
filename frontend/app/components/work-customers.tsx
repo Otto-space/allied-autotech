@@ -12,6 +12,7 @@ import {
   parseWorkCustomers,
   type WorkCustomer,
 } from "@/lib/admin/work-customers";
+import { CareTableRegion } from "./care-table-region";
 import { CopyableValue } from "./copyable-value";
 import { CustomerAccountAction } from "./customer-account-action";
 import { StatusBadge } from "./status-progress";
@@ -215,33 +216,7 @@ function CustomerWorkspace() {
                 </p>
               </div>
             )}
-            <div
-              className="wc-records care-table-region"
-              role="region"
-              aria-label="Customer results"
-              tabIndex={0}
-              onFocusCapture={(event) => {
-                const region = event.currentTarget;
-                const target = event.target;
-                if (target === region || !(target instanceof HTMLElement)) return;
-                // Keep keyboard focus clear of the pinned identity column and
-                // clipped edges, including browsers that only reveal part of a cell.
-                const bounds = region.getBoundingClientRect();
-                const cell = target.closest("th, td");
-                const identity = cell?.parentElement?.firstElementChild;
-                const pinned =
-                  identity instanceof HTMLElement &&
-                  identity !== cell &&
-                  getComputedStyle(identity).position === "sticky";
-                const left = pinned
-                  ? identity.getBoundingClientRect().right + 8
-                  : bounds.left + 8;
-                const right = bounds.right - 8;
-                const focused = target.getBoundingClientRect();
-                if (focused.right > right) region.scrollLeft += focused.right - right;
-                else if (focused.left < left) region.scrollLeft -= left - focused.left;
-              }}
-            >
+            <CareTableRegion label="Customer results" className="wc-records">
               <table className="care-table">
                 <colgroup>
                   <col className="care-customer-col" />
@@ -300,7 +275,7 @@ function CustomerWorkspace() {
                   ))}
                 </tbody>
               </table>
-            </div>
+            </CareTableRegion>
             <nav className="wi-pagination" aria-label="Customers pages">
               <button
                 className="button secondary"

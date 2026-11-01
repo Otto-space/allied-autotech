@@ -1,4 +1,6 @@
 "use client";
+import { CareTableRegion } from "./care-table-region";
+import { CopyableValue } from "./copyable-value";
 import { enquiryLabel } from "@/lib/support/enquiry-label";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -217,71 +219,90 @@ export function WorkforceEnquiries({
             <div className="wfe-skeleton" aria-hidden="true" />
           </div>
         ) : data?.items.length ? (
-          <table>
-            <caption className="sr-only">
-              Enquiries in your current responsibility scope
-            </caption>
-            <thead>
-              <tr>
-                {[
-                  "Subject",
-                  "Customer",
-                  "Type",
-                  "Branch",
-                  "Assigned to",
-                  "Status",
-                  "Open",
-                ].map((label) => (
-                  <th scope="col" key={label}>
-                    {label}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {data.items.map((row) => (
-                <tr
-                  key={row.id}
-                  className={row.id === selected ? "is-selected" : undefined}
-                >
-                  <th scope="row">
-                    {row.subject}
-                    <small>
-                      <time dateTime={row.createdAt}>
-                        {formatBusinessDate(row.createdAt)}
-                      </time>
-                    </small>
-                  </th>
-                  <td data-label="Customer">
-                    {row.contact?.name || "Not available in this scope"}
-                  </td>
-                  <td data-label="Type">
-                    {enquiryLabel(row.type, row.vehicleEnquiryIntent)}
-                  </td>
-                  <td data-label="Branch">{row.branch?.name ?? "Branch not recorded"}</td>
-                  <td data-label="Assigned to">{enquiryStaffName(row.assignedStaff)}</td>
-                  <td data-label="Status">
-                    <span
-                      className={`wfe-status is-${row.status.toLowerCase()}`}
-                      data-status={row.status}
-                    >
-                      {enquiryStatusLabels[row.status]}
-                    </span>
-                  </td>
-                  <td data-label="Open">
-                    <button
-                      className="button secondary"
-                      aria-label={`View enquiry: ${row.subject}`}
-                      aria-pressed={row.id === selected}
-                      onClick={() => select(row.id)}
-                    >
-                      View enquiry
-                    </button>
-                  </td>
+          <CareTableRegion label="Enquiry records">
+            <table className="care-table care-enquiries-table">
+              <caption className="sr-only">
+                Enquiries in your current responsibility scope
+              </caption>
+              <thead>
+                <tr>
+                  {[
+                    "Subject",
+                    "Customer",
+                    "Type",
+                    "Branch",
+                    "Assigned to",
+                    "Status",
+                    "Open",
+                  ].map((label) => (
+                    <th scope="col" key={label}>
+                      {label}
+                    </th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {data.items.map((row) => (
+                  <tr
+                    key={row.id}
+                    className={row.id === selected ? "is-selected" : undefined}
+                  >
+                    <th scope="row">
+                      <button
+                        type="button"
+                        className="text-link care-subject-action"
+                        aria-pressed={row.id === selected}
+                        onClick={() => select(row.id)}
+                      >
+                        {row.subject}
+                      </button>
+                      <small>
+                        <time dateTime={row.createdAt}>
+                          {formatBusinessDate(row.createdAt)}
+                        </time>
+                      </small>
+                    </th>
+                    <td data-label="Customer">
+                      {row.contact?.name || "Not available in this scope"}
+                      {row.contact?.email && (
+                        <CopyableValue
+                          value={row.contact.email}
+                          label="Copy contact email"
+                        />
+                      )}
+                    </td>
+                    <td data-label="Type">
+                      {enquiryLabel(row.type, row.vehicleEnquiryIntent)}
+                    </td>
+                    <td data-label="Branch">
+                      {row.branch?.name ?? "Branch not recorded"}
+                    </td>
+                    <td data-label="Assigned to">
+                      {enquiryStaffName(row.assignedStaff)}
+                    </td>
+                    <td data-label="Status">
+                      <span
+                        className={`wfe-status is-${row.status.toLowerCase()}`}
+                        data-status={row.status}
+                      >
+                        {enquiryStatusLabels[row.status]}
+                      </span>
+                    </td>
+                    <td data-label="Open">
+                      <button
+                        className="button secondary"
+                        aria-label={`View enquiry: ${row.subject}`}
+                        aria-pressed={row.id === selected}
+                        onClick={() => select(row.id)}
+                      >
+                        View enquiry
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </CareTableRegion>
         ) : (
           data && (
             <div className="wfe-state">

@@ -1,6 +1,8 @@
 "use client";
 import "./care-workspace.css";
 import Link from "next/link";
+import { CareTableRegion } from "./care-table-region";
+import { CopyableValue } from "./copyable-value";
 import { rememberCareQueue } from "./care-back-link";
 import { enquiryLabel } from "@/lib/support/enquiry-label";
 import { useCallback, useState } from "react";
@@ -278,13 +280,9 @@ function SupportWorkspace({
                 </p>
               </div>
             )}
-            <div
-              className="care-table-region"
-              role="region"
-              aria-label="Customer care cases"
-              tabIndex={0}
-            >
-              <table className="care-table">
+            <CareTableRegion label="Customer care cases">
+              <table className="care-table care-enquiries-table">
+                <caption className="sr-only">Customer care records on this page</caption>
                 <thead>
                   <tr>
                     <th scope="col">Subject</th>
@@ -306,7 +304,7 @@ function SupportWorkspace({
                   ))}
                 </tbody>
               </table>
-            </div>
+            </CareTableRegion>
             <nav className="wi-pagination" aria-label="Support records pages">
               <button
                 className="button secondary"
@@ -517,9 +515,22 @@ function SupportCard({
   return (
     <tr className="wsu-record">
       <td>
-        <strong>{r.subject}</strong>
+        <Link
+          className="text-link"
+          href={"/admin/support/" + r.kind + "/" + r.id}
+          onClick={() => {
+            if (session) rememberCareQueue(session.user.id, r.id, r.kind, returnParams);
+          }}
+        >
+          {r.subject}
+        </Link>
       </td>
-      <td>{r.contact?.name || "Contact not recorded"}</td>
+      <td>
+        <span>{r.contact?.name || "Contact not recorded"}</span>
+        {r.contact?.email && (
+          <CopyableValue value={r.contact.email} label="Copy contact email" />
+        )}
+      </td>
       <td>
         {r.kind === "enquiries"
           ? enquiryLabel(r.type, r.vehicleEnquiryIntent)

@@ -9,6 +9,22 @@
 .fitment-workspace :is(h1, h2) {
   scroll-margin-top: 6rem;
 }
+.fitment-selected-part {
+  display: grid;
+  gap: 0.75rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.fitment-selected-part :is(h2, p) {
+  margin-bottom: 0;
+}
+.fitment-selected-part > a {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  width: fit-content;
+  max-width: 100%;
+}
 .fitment-workspace .fitment-toolbar,
 .fitment-workspace .actions {
   display: flex;

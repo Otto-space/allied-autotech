@@ -44,11 +44,6 @@ export function WorkflowProgress({
           </li>
         ))}
       </ol>
-      <p className="workflow-progress-note">
-        Stages show the workflow, not a percentage complete. Some stages may be skipped;
-        only the current stage is confirmed here. Use recorded dates and history to check
-        completed actions.
-      </p>
     </div>
   );
 }

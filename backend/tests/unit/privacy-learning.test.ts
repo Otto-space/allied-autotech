@@ -29,6 +29,14 @@ describe("reviewed public privacy guidance", () => {
     expect(allieSourceSet(current)).not.toBe(allieSourceSet(legacy));
     expect(current.articles.some((a) => a.id === "privacy-work")).toBe(false);
   });
+  it("keeps maintenance provenance out of the returned guidance", () => {
+    for (const article of learningCatalogue(publicLearningAccess).articles) {
+      expect(article.source).toBe(article.title);
+      expect(article.source).not.toMatch(
+        /frontend\/|backend\/|Review this guidance|\.tsx/,
+      );
+    }
+  });
   it("finds the published notice without exposing staff privacy work", () => {
     const data = learningCatalogue(publicLearningAccess);
     const context = retrieveAllieContext(

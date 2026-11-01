@@ -48,6 +48,12 @@ describe("Administrator service query and record boundaries", () => {
       isActive: true,
     };
     expect(serviceFormSchema.safeParse(base).success).toBe(true);
+    expect(
+      serviceFormSchema.safeParse({
+        ...base,
+        description: "Inspect brakes.\r\n\tExplain repairs.",
+      }).success,
+    ).toBe(true);
     for (const patch of [
       { price: "100000000000000.00" },
       { price: "1.001" },
@@ -57,6 +63,8 @@ describe("Administrator service query and record boundaries", () => {
       { duration: "1441" },
       { duration: "15.5" },
       { pricingType: "" },
+      { description: "Unsafe\u0000text" },
+      { name: "Invalid\nname" },
     ])
       expect(serviceFormSchema.safeParse({ ...base, ...patch }).success).toBe(false);
     expect(

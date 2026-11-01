@@ -1,5 +1,15 @@
 # Versioned content and scenario register
 
+## 1 November presentation refinement checkpoint
+
+Ordinary Help/Learn article bodies omit maintenance source/version/review metadata.
+The Privacy Notice remains a human-readable destination link. Catalogue responses
+retain their compatible source field as the article title, while original provenance
+remains in the versioned server corpus. Article eligibility, permission checks,
+guide targets, scenario state and feature flags are unchanged. Public projection
+unit evidence is recorded in `docs/MOBILE_FITMENT_SIMPLIFICATION_20261101.md`;
+rendered and release acceptance are still pending for this batch.
+
 Source: backend/src/modules/learning/learning.content.ts. Versions and review dates
 below reflect current source definitions, including W9-W13 corrections. Published
 status in source means eligible for filtering when explicitly enabled; it does not

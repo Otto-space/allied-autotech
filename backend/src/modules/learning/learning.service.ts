@@ -261,11 +261,13 @@ export function learningCatalogue(
   const articles = published
     .filter((a) => matches("article answer", a.title, a.summary, a.keywords, ...a.steps))
     .map(({ gate: _gate, ...a }) => {
-      let projected = a;
+      // Keep maintenance provenance in the backend corpus. The compatible source
+      // field is a human-readable citation, never authoring instructions or paths.
+      let projected = { ...a, source: a.title };
       if (a.id === "care-triage" && access.managed) {
         const reply = careReply;
         projected = {
-          ...a,
+          ...projected,
           summary: reply
             ? "Read the case in your current branch scope. Reply only where current view and reply duties overlap on that branch."
             : "Read the cases in your current branch scope. Your current duties do not permit customer replies.",

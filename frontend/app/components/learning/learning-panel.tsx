@@ -49,12 +49,11 @@ export function ArticleBody({ article }: { article: LearningArticle }) {
         <summary>Something not working?</summary>
         <p>{article.recovery}</p>
       </details>
-      <details className="learning-source">
-        <summary>Reviewed source · version {article.version}</summary>
-        <p>
-          {article.source}. Reviewed {article.reviewedAt}.
+      {article.href === "/privacy" && (
+        <p className="learning-source">
+          <Link href="/privacy">Read our Privacy Notice</Link>
         </p>
-      </details>
+      )}
     </article>
   );
 }

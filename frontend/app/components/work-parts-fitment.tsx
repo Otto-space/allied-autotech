@@ -42,6 +42,7 @@ import {
 } from "@/lib/admin/fitment-presentation";
 
 const base = "/staff/fitment";
+const yearRangeError = "The end year must not precede the start year.";
 const statusLabel = (value: string) =>
   value === "PENDING"
     ? "Pending review"
@@ -125,8 +126,7 @@ function FitmentWorkspace({ userId }: { userId: string }) {
           Vehicle compatibility
         </h1>
         <p>
-          Choose a part, record its application and evidence, then obtain independent
-          review.
+          Check which vehicles a part fits. Add evidence, then request independent review.
         </p>
         <button type="button" className="button secondary" onClick={refresh}>
           Refresh fitment workspace
@@ -159,7 +159,7 @@ function FitmentWorkspace({ userId }: { userId: string }) {
             </p>
           </details>
           {query.productId ? (
-            <section aria-label="Selected part">
+            <section aria-label="Selected part" className="fitment-selected-part">
               <Feedback message={product.error || product.refreshError} />
               {product.loading && <p role="status">Loading selected part...</p>}
               {selectedProduct && (
@@ -167,7 +167,9 @@ function FitmentWorkspace({ userId }: { userId: string }) {
                   <h2>{selectedProduct.name}</h2>
                   <p>
                     SKU {selectedProduct.sku} · Type:{" "}
-                    {selectedProduct.productType || "Not recorded"}
+                    {selectedProduct.productType
+                      ? statusLabel(selectedProduct.productType)
+                      : "Not recorded"}
                     {!selectedProduct.isActive ? " · Unpublished product" : ""}
                   </p>
                   {(access.data.globalAuthor || access.data.globalReviewer) && (
@@ -1047,7 +1049,8 @@ function RuleEditor({
       ...(rule ? { expectedVersion: rule.version } : {}),
     };
     if (body.yearFrom !== null && body.yearTo !== null && body.yearFrom > body.yearTo) {
-      setError("The end year must not precede the start year.");
+      setError(yearRangeError);
+      document.getElementById("rule-yearTo")?.focus();
       return;
     }
     setError("");
@@ -1064,7 +1067,13 @@ function RuleEditor({
               ? "Universal accessory"
               : `${make?.name} ${model?.name}, ${body.yearFrom || "start year missing"}–${body.yearTo || "end year missing"}`,
         },
-        { label: "Effect", value: body.effect },
+        {
+          label: "Compatibility",
+          value:
+            body.effect === "INCLUDE"
+              ? "Fits this configuration"
+              : "Does not fit this configuration",
+        },
         { label: "Evidence source", value: body.sourceReference || "Missing" },
         { label: "Evidence", value: body.evidenceNotes || "Missing" },
         ...fitmentQualifierKeys
@@ -1124,7 +1133,7 @@ function RuleEditor({
         range only after evidence review; they never stand in for a missing required
         customer detail.
       </p>
-      <Feedback message={error} />
+      <Feedback message={error === yearRangeError ? "" : error} />
       {legacy && (
         <p className="notice" role="status">
           Saved legacy association: {rule.make} / {rule.model || "model not recorded"}. It
@@ -1310,12 +1319,21 @@ function RuleEditor({
                     <input
                       id="rule-yearTo"
                       name="yearTo"
+                      aria-invalid={error === yearRangeError || undefined}
+                      aria-describedby={
+                        error === yearRangeError ? "rule-year-error" : undefined
+                      }
                       type="number"
                       inputMode="numeric"
                       min={model?.yearFrom || 1886}
                       max={model?.yearTo || 2200}
                       defaultValue={rule?.yearTo || ""}
                     />
+                    {error === yearRangeError && (
+                      <p id="rule-year-error" role="alert">
+                        {yearRangeError}
+                      </p>
+                    )}
                   </div>
                 </div>
                 <div className="field">

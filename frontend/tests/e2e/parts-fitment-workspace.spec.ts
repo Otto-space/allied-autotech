@@ -86,7 +86,9 @@ async function fixture(page: Page) {
         department: "Synthetic",
         version: 1,
         canManageAssignments: false,
-        permissions: [],
+        permissions: state.denied
+          ? []
+          : [state.reviewer ? "FITMENT_REVIEW" : "FITMENT_AUTHOR"],
         serverTime: time,
         assignments: [
           {
@@ -398,12 +400,30 @@ test("late selected-model hydration and changed-record refresh preserve the acti
   expect(state.writes).toHaveLength(0);
 });
 
-for (const width of [360, 390, 768, 1024, 1440])
+for (const width of [320, 360, 390, 414, 768, 1024, 1440])
   test(`oil-filter application, evidence, keyboard and reflow at ${width}px`, async ({
     page,
   }, testInfo) => {
     await page.setViewportSize({ width, height: 900 });
     const state = await fixture(page);
+    await page.route("**/api/v1/staff/fitment/access", (route) =>
+      route.fulfill({
+        json: {
+          success: true,
+          message: "Synthetic global fitment author",
+          meta: { requestId: "fixture" },
+          data: {
+            canAuthor: true,
+            canReview: false,
+            globalAuthor: true,
+            globalReviewer: false,
+            authorBranches: [],
+            reviewBranches: [],
+            branches: [branch],
+          },
+        },
+      }),
+    );
     await page.route(`**/api/v1/staff/fitment/products/${product.id}`, (route) =>
       route.fulfill({
         json: {
@@ -429,6 +449,18 @@ for (const width of [360, 390, 768, 1024, 1440])
       page.getByRole("complementary", { name: "Evidence readiness" }),
     ).toContainText("Model-year range incomplete");
     await expect(page.getByText("Unbounded", { exact: false })).toHaveCount(0);
+    const selectedPart = page.getByRole("region", { name: "Selected part", exact: true });
+    await expect(selectedPart).toContainText("Oil filter");
+    const partActions = selectedPart.getByRole("link");
+    await expect(partActions).toHaveCount(2);
+    const actionBoxes = await partActions.evaluateAll((links) =>
+      links.map((link) => {
+        const { top, bottom, height } = link.getBoundingClientRect();
+        return { top, bottom, height };
+      }),
+    );
+    expect(actionBoxes.every(({ height }) => height >= 44)).toBe(true);
+    expect(actionBoxes[1].top - actionBoxes[0].bottom).toBeGreaterThanOrEqual(8);
     await page.getByRole("button", { name: "Edit rule", exact: true }).click();
     await expect(
       page.getByRole("heading", { name: "Edit fitment rule", exact: true }),
@@ -458,6 +490,31 @@ for (const width of [360, 390, 768, 1024, 1440])
       fullPage: true,
     });
   });
+
+test("an invalid year range preserves evidence and focuses the correction before any write", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  await page.setViewportSize({ width: 390, height: 900 });
+  await draft(page);
+  await page.getByLabel("First model year", { exact: true }).fill("2019");
+  const end = page.getByLabel("Last model year", { exact: true });
+  await end.fill("2013");
+  await page.getByRole("button", { name: "Review fitment draft", exact: true }).click();
+  await expect(end).toBeFocused();
+  await expect(end).toHaveAttribute("aria-invalid", "true");
+  await expect(page.locator("#rule-year-error")).toContainText(
+    "end year must not precede",
+  );
+  await expect(page.getByLabel("Evidence source reference", { exact: true })).toHaveValue(
+    "Synthetic manufacturer reference TEST-PADS-2018",
+  );
+  expect(state.writes).toEqual([]);
+  await end.fill("2019");
+  await page.getByRole("button", { name: "Review fitment draft", exact: true }).click();
+  await expect(page.getByRole("dialog")).toContainText("Fits this configuration");
+  expect(state.writes).toEqual([]);
+});
 
 for (const width of [1440, 390])
   test(`staff author, independent reviewer and history remain usable at ${width}px`, async ({

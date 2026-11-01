@@ -80,6 +80,7 @@ describe("authorised server help survives Allie retrieval", () => {
     it(`retrieves every eligible article from the ${name} catalogue`, () => {
       const data = learningCatalogue({ ...publicLearningAccess, ...access });
       for (const article of data.articles) {
+        expect(article.source, article.id).toBe(article.title);
         const context = retrieveAllieContext(data, article.id, "other");
         expect(
           context.sources.map((s) => s.articleId),

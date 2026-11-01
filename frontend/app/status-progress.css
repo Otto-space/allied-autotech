@@ -73,12 +73,6 @@
 .workflow-stages strong {
   font-size: 0.75rem;
 }
-.workflow-progress-note {
-  font-size: 0.8125rem;
-  line-height: 1.6;
-  margin: 0.85rem 0 0;
-  color: #475569;
-}
 .support-delivery-list {
   list-style: none;
   padding: 0;

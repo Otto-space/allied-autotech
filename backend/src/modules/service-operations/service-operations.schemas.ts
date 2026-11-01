@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const cleanText = (maximum: number) =>
+const cleanText = (maximum: number, multiline = false) =>
   z
     .string()
     .trim()
@@ -10,7 +10,10 @@ const cleanText = (maximum: number) =>
       (value) =>
         [...value].every((character) => {
           const codePoint = character.codePointAt(0) ?? 0;
-          return codePoint > 31 && codePoint !== 127;
+          return (
+            (codePoint > 31 && codePoint !== 127) ||
+            (multiline && [9, 10, 13].includes(codePoint))
+          );
         }),
       "Contains invalid characters",
     );
@@ -60,7 +63,7 @@ const serviceFields = {
     .min(2)
     .max(120)
     .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
-  description: nullableText(10_000),
+  description: cleanText(10_000, true).nullable().optional(),
   shortDescription: nullableText(500),
   pricingType: z.enum(["FIXED", "QUOTE_REQUIRED"]),
   priceKobo: kobo.nullable(),

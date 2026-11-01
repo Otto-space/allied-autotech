@@ -19,7 +19,8 @@ describe("workflow progress and delivery clarity", () => {
         "Current",
       );
       expect(container.querySelector('[role="progressbar"]')).toBeNull();
-      expect(screen.getByText(/not a percentage complete/)).toBeTruthy();
+      expect(screen.queryByText(/not a percentage complete/)).toBeNull();
+      expect(container.querySelectorAll("[data-completed]")).toHaveLength(0);
     },
   );
   it.each(["CANCELLED", "EXPIRED", "REJECTED", "NO_SHOW", "NEW_SERVER_STATE"])(

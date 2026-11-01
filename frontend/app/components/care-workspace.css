@@ -390,3 +390,56 @@
     gap: 6px;
   }
 }
+
+.care-table-shell {
+  min-width: 0;
+  max-width: 100%;
+}
+.care-scroll-hint {
+  margin: 0 0 0.5rem;
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
+.dashboard .dashboard-content .care-enquiries-table {
+  table-layout: fixed;
+  min-width: 64rem;
+}
+.care-enquiries-table th:first-child {
+  width: 17rem;
+}
+.care-enquiries-table th:nth-child(2) {
+  width: 15rem;
+}
+.care-enquiries-table th:nth-child(3) {
+  width: 8rem;
+}
+.care-enquiries-table th:nth-child(4) {
+  width: 8rem;
+}
+.care-enquiries-table th:nth-child(5) {
+  width: 9rem;
+}
+.care-enquiries-table th:nth-child(6) {
+  width: 10rem;
+}
+.care-enquiries-table th:last-child {
+  width: 8rem;
+}
+.care-enquiries-table td > span:first-child {
+  display: block;
+}
+
+.care-subject-action {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  text-align: left;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.care-enquiries-table th[scope="row"] {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  background: transparent;
+}

@@ -175,7 +175,9 @@ for (const width of [320, 390, 768, 1440]) {
       .getByRole("link", { name: "Read answer: " + article.title, exact: true })
       .click();
     await expect(page.locator(".learning-detail")).toBeFocused();
-    for (const summary of ["Something not working?", "Reviewed source · version 2"]) {
+    await expect(page.locator(".learning-detail")).not.toContainText(article.source);
+    await expect(page.getByText(/Reviewed source.*version/)).toHaveCount(0);
+    for (const summary of ["Something not working?"]) {
       await page.getByText(summary, { exact: true }).click();
     }
     await page.getByRole("link", { name: "Back to results" }).click();

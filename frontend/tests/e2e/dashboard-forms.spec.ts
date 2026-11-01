@@ -2,6 +2,8 @@ import { test, expect, type Page, type Route } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import os from "node:os";
 import path from "node:path";
+import { garageFixture } from "../fixtures/customer-garage";
+import { workServicesFixture } from "../fixtures/work-services";
 
 test.use({ reducedMotion: "reduce" });
 test.setTimeout(120_000);
@@ -85,7 +87,9 @@ test("customer profile has clear groups, keyboard focus and unchanged save valid
     if (route.request().method() === "PATCH") {
       const body = route.request().postDataJSON();
       writes.push(body);
-      profile = { ...profile, ...body };
+      const { expectedVersion, ...changes } = body;
+      expect(expectedVersion).toBe(profile.profileVersion);
+      profile = { ...profile, ...changes, profileVersion: profile.profileVersion + 1 };
     }
     await reply(route, profile);
     return true;
@@ -118,12 +122,7 @@ test("customer profile has clear groups, keyboard focus and unchanged save valid
   await expect.poll(() => writes.length).toBe(1);
   expect(writes[0]).toEqual({
     firstName: "Amara",
-    lastName: "Okoro",
-    phone: "+2348000000000",
-    address: null,
-    city: "Port Harcourt",
-    state: "Rivers",
-    country: "Nigeria",
+    expectedVersion: 0,
   });
   for (const width of [320, 390, 768]) {
     await page.setViewportSize({ width, height: 844 });
@@ -146,31 +145,26 @@ test("customer profile has clear groups, keyboard focus and unchanged save valid
 test("customer vehicle fields preserve validation and submission on a narrow screen", async ({
   page,
 }) => {
-  let saved: Record<string, unknown> | null = null;
-  await fixture(page, "CUSTOMER", async (route, endpoint) => {
-    if (endpoint !== "/customers/vehicles") return false;
-    if (route.request().method() === "POST") {
-      saved = { id: id(3), ...route.request().postDataJSON() };
-      await reply(route, saved);
-    } else await reply(route, { vehicles: saved ? [saved] : [] });
-    return true;
-  });
+  const state = await garageFixture(page);
+  state.records = [];
   await page.setViewportSize({ width: 320, height: 740 });
   await page.goto("/dashboard/vehicles");
-  await page.getByLabel("Make", { exact: true }).fill("Toyota");
-  await page.getByLabel("Model", { exact: true }).fill("Corolla");
-  await page.getByLabel("Year", { exact: true }).fill("2020");
+  await page.getByRole("button", { name: "Add a vehicle", exact: true }).click();
+  await page.getByLabel("Make (required)", { exact: true }).fill("Toyota");
+  await page.getByLabel("Model (required)", { exact: true }).fill("Corolla");
+  await page.getByLabel("Year (required)", { exact: true }).fill("2020");
   await page.getByLabel("VIN (optional)", { exact: true }).fill("invalid");
   await page.getByRole("button", { name: "Save vehicle", exact: true }).click();
   await expect(page.getByLabel("VIN (optional)", { exact: true })).toHaveAttribute(
     "aria-invalid",
     "true",
   );
-  expect(saved).toBeNull();
+  expect(state.writes).toHaveLength(0);
   await page.getByLabel("VIN (optional)", { exact: true }).fill("");
   await page.getByRole("button", { name: "Save vehicle", exact: true }).click();
-  await expect(page.getByRole("heading", { name: "2020 Toyota Corolla" })).toBeVisible();
-  expect(saved).toMatchObject({
+  await expect(page.locator(".garage-record")).toContainText("Toyota Corolla");
+  expect(state.writes).toHaveLength(1);
+  expect(state.writes[0].body).toMatchObject({
     make: "Toyota",
     model: "Corolla",
     year: 2020,
@@ -187,20 +181,17 @@ for (const role of ["ADMIN", "SUPER_ADMIN"]) {
   test(`${role} service form preserves pricing, checkboxes and review confirmation`, async ({
     page,
   }) => {
-    const writes: unknown[] = [];
-    await fixture(page, role, async (route, endpoint) => {
-      if (endpoint !== "/admin/services") return false;
-      if (route.request().method() === "POST") {
-        writes.push(route.request().postDataJSON());
-        await reply(route, { id: id(4) });
-      } else await reply(route, { items: [] });
-      return true;
-    });
+    const { state } = await workServicesFixture(page, role);
+    state.records = [];
+    const writes = state.writes;
     await page.setViewportSize({ width: 1280, height: 900 });
     await page.goto("/admin/services");
     await page.getByLabel("Name", { exact: true }).fill("Brake service");
     await page.getByLabel("URL name", { exact: true }).fill("brake-service");
-    await page.getByLabel("Pricing", { exact: true }).selectOption("FIXED");
+    await page
+      .getByRole("region", { name: "Create service", exact: true })
+      .getByLabel("Pricing", { exact: true })
+      .selectOption("FIXED");
     await page
       .getByLabel("Service price (NGN) (optional)", { exact: true })
       .fill("15000");
@@ -210,6 +201,7 @@ for (const role of ["ADMIN", "SUPER_ADMIN"]) {
       "Inspect the brakes.\nExplain any recommended repairs before starting work.",
     );
     await expect(description).toHaveCSS("resize", "vertical");
+    await expect(description).toHaveCSS("font-size", "16px");
     expect((await description.boundingBox())!.height).toBeGreaterThanOrEqual(130);
     await page.getByLabel("Active", { exact: true }).uncheck();
     await description.focus();
@@ -237,7 +229,10 @@ for (const role of ["ADMIN", "SUPER_ADMIN"]) {
     await accessible(page);
     await review.getByRole("button", { name: "Confirm save" }).click();
     await expect.poll(() => writes.length).toBe(1);
-    expect(writes[0]).toMatchObject({
+    await expect(
+      page.getByRole("main").getByText("Service saved.", { exact: true }),
+    ).toBeVisible();
+    expect(writes[0].body).toMatchObject({
       name: "Brake service",
       slug: "brake-service",
       pricingType: "FIXED",

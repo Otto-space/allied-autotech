@@ -40,6 +40,17 @@
 .dashboard .dashboard-content .work-services select {
   padding-right: 30px;
 }
+.dashboard
+  .dashboard-content
+  .work-services
+  .work-service-form
+  :is(input, select, textarea) {
+  font-size: 16px;
+}
+.dashboard .dashboard-content .work-services .work-service-form textarea {
+  min-height: 132px;
+  resize: vertical;
+}
 .dashboard .dashboard-content .work-services .field {
   margin: 0;
   min-width: 0;

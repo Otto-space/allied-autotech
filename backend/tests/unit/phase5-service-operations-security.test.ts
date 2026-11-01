@@ -24,6 +24,26 @@ const actor = (role: AuthenticatedActor["role"], mfa = true): AuthenticatedActor
 });
 
 describe("Phase 5 service-operation security contracts", () => {
+  it("allows description paragraphs while rejecting unsupported controls and multiline names", () => {
+    const input = {
+      name: "Brake service",
+      slug: "brake-service",
+      pricingType: "FIXED",
+      priceKobo: "1500000",
+      durationMinutes: 60,
+      description: "Inspect brakes.\r\n\tExplain repairs.",
+    };
+    expect(serviceCreateBodySchema.safeParse(input).success).toBe(true);
+    for (const patch of [
+      { description: "Unsafe\u0000text" },
+      { description: "Unsafe\u000btext" },
+      { name: "Invalid\nname" },
+    ]) {
+      expect(serviceCreateBodySchema.safeParse({ ...input, ...patch }).success).toBe(
+        false,
+      );
+    }
+  });
   it("uses default-deny role and MFA policies", () => {
     expect(() => assertCustomerActor(actor("CUSTOMER"))).not.toThrow();
     expect(() => assertCustomerActor(actor("STAFF"))).toThrow();
