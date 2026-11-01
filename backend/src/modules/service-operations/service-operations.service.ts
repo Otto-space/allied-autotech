@@ -573,6 +573,12 @@ export class ServiceOperationsService {
             ? await this.repository.customerBooking(bookingId, transaction)
             : null;
         if (replay === null) throw serviceOperationNotFound();
+        // Older fingerprints omit the immutable concern. Compare the saved value
+        // separately so valid pre-existing retry keys remain usable.
+        if ((replay.customerConcern ?? null) !== (input.customerConcern ?? null))
+          throw serviceOperationConflict(
+            "This request was already received with different details. Review your booking before submitting again.",
+          );
         return jsonSafe({ booking: customerSafeBooking(replay), replayed: true });
       }
       const profile = await this.repository.customerProfile(actor.userId, transaction);

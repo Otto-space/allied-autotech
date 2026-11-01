@@ -66,6 +66,19 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       expect(replay.status).toBe(201);
       expect(replay.body.data.booking.id).toBe(id);
       expect(replay.body.data.replayed).toBe(true);
+      const changedConcern = await request(app)
+        .post("/api/v1/customers/bookings")
+        .set(customer.headers)
+        .set("Idempotency-Key", key)
+        .send({ ...body, customerConcern: "The brakes squeal when slowing down." });
+      expect(changedConcern.status).toBe(409);
+      expect(
+        await prisma.booking.findUniqueOrThrow({ where: { id } }),
+      ).toMatchObject({ customerConcern: concern, status: "REQUESTED", version: 0 });
+      expect((await create()).body.data).toMatchObject({
+        booking: { id, customerConcern: concern },
+        replayed: true,
+      });
       expect(
         await prisma.booking.count({ where: { customerId: customer.user.profile!.id } }),
       ).toBe(1);
@@ -185,6 +198,16 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       expect(stored.depositAmountKobo).toBeNull();
       expect(stored.quotedPriceKobo).toBeNull();
       expect(stored.customerRescheduleCount).toBe(0);
+      // Staff classification and rescheduling preserve the original request key.
+      const confirmedReplay = await create();
+      expect(confirmedReplay.status).toBe(201);
+      expect(confirmedReplay.body.data).toMatchObject({
+        booking: { id, customerConcern: concern, status: "CONFIRMED" },
+        replayed: true,
+      });
+      expect(
+        await prisma.booking.count({ where: { customerId: customer.user.profile!.id } }),
+      ).toBe(1);
     });
   },
 );

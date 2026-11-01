@@ -1,3 +1,25 @@
+### 1 November 2026: preserve concern identity on booking retries
+
+Booking creation now compares the immutable saved customer concern when replaying
+an existing request key. Older request fingerprints did not include this field;
+changing it could silently return the previous booking. A changed concern now gets
+409 with review guidance. Existing fingerprints remain compatible; identical retries
+still return the original booking after staff classification and confirmation.
+
+Native HTTP acceptance passed all three tests across concern-booking-journey and
+booking-deposit-flow (24.64s). Fresh isolated aat_concern_retry_5ac0eefbc7_test at
+127.0.0.1:61018 passed 80-migration replay, no drift and db:check. Backend types,
+scoped lint and diff checks passed. No schema change, production record write,
+provider call or notification delivery. Test cluster stopped; its 77,370,942 bytes
+of disposable data removed, logs retained under TEMP/aat-concern-retry-
+d2b81b21e0e64e669f92bb83acd4e018. C: free 26.47 GiB after cleanup.
+
+All three branch CI checks for preceding Allie package ad082add passed. This retry
+fix still requires exact-source CI, master integration and compatible production
+publication together with the Allie package. Full goal remains open: owner category
+ordering/media and structured booking context, remaining native browser/role and
+provider/operational acceptance. Existing activation requirements remain unchanged.
+
 ### 1 November 2026: canonical Allie service-group knowledge
 
 Allie now retrieves active ServiceCategory records, including empty published groups,
