@@ -1,13 +1,24 @@
-### 1 November 2026: Mobile dashboard and fitment refinement in progress
+### 1 November 2026: Mobile dashboard and fitment batch published
 
-Current item: MOBILE-FITMENT-20261101. Full new brief is tracked in
-docs/MOBILE_FITMENT_SIMPLIFICATION_20261101.md. The existing release worktree
-contains shared workflow/learning cleanup, reusable customer/enquiry table scrolling,
-permitted copy controls and fitment year-validation improvements. Local units and
-focused rendered checks passed; broader role/viewport/regression checks are running.
-This batch is not deployed. Prior runtime 53cdc8e1 remains the baseline. Actual
-signed-in fitment queue/evidence/editor inspection completed; no authority or business
-data has been changed. Preserve the unrelated Desktop home-hero edit.
+Runtime f0402b675e83ae3999526d60880134c518a96435 is published on apex and www:
+frontend dpl_7UYruc3SHzs2xzcxFtyDu5XVkqbs; backend
+36b4283f-63fc-401b-abbe-03b8bf9ccf2c ACTIVE (16/16), all four digests verified.
+Exact-master frontend 41339747501, backend 41339747466 and secrets 41339747631 passed.
+Local evidence: 1,309 frontend unit passes (12 skipped), 138 journey cases,
+12 focus/navbar regressions, 18 learning checks, 6 service-security checks,
+and 10 packaged-image/isolated replay-and-restore checks. Hosted: five intercepted
+journeys plus real public Learn/Help/Services at 390 and 1440 passed. After promotion,
+four checks across apex/www and both widths passed with no page errors.
+Live signed-in fitment inspection found and corrected crowded selected-part links;
+no fitment record or permission was changed. Improved shared care tables, year
+validation, ordinary learning text and multiline service-description editing.
+Read-only production schema (85 migrations), TLS, least privilege and eight worker
+heartbeats passed; temporary firewall access was removed. No migration was needed.
+Current item: broader route/state acceptance remains tracked in
+docs/MOBILE_FITMENT_SIMPLIFICATION_20261101.md. Physical-device/native-keyboard
+and untested real-role acceptance remain distinct from fixture evidence. Transaction
+activation still requires approved finance/fulfilment policies, operational setup
+and merchant test-mode acceptance. Preserve the unrelated Desktop hero edit.
 
 ### 1 November 2026: Services and commerce source published
 
