@@ -1,3 +1,43 @@
+### 1 November 2026: service-group imagery released and live verified
+
+Published runtime 30780884fcdff9348837fdd17d10e7c136f0b027 after exact-master
+frontend 41301358790, database safety 41301358866 and secrets 41301358853 passed.
+Frontend dpl_HGU7Lfaq6oM9XxgTMmUYyStR9a7D is verified on apex and www; backend
+f17d81bf-854d-4db2-aee9-ab541a663459 is ACTIVE with matching four image digests.
+Ten packaged checks passed (70.887s). Protected forward migration
+20261101113000_service_category_media and db:check passed: 82 migrations.
+Fresh checksum-verified production backup restored separately into
+allied_category_media_restore_20261101_7cd47bb0f830_ci; original-column row
+hashes and business counts were preserved, with new constraints verified.
+Managed backup freshness checked; this was not a new managed PITR rehearsal.
+Post-release strict-TLS schema/least-privilege checks and all eight worker
+heartbeats passed, including media cleanup. Temporary database access removed
+and verified. No grants or gated AI/payment/live-chat flags changed.
+
+Four hosted image/group fixtures passed at 390/1440, followed by two real-data
+candidate checks and four live checks across apex/www at those widths. Live
+checks cover homepage story placement, moderated contained service/vehicle
+images, detail removal, workshop link, category order and empty-group enquiry
+context without submitting an enquiry. Real authorised Chrome group detail
+loaded the image editor and enabled file selection; save remained disabled
+until an image is prepared. No real category image upload/removal was performed.
+Authentic group assets and actual production upload acceptance remain open.
+Screenshot: service-group-image-editor-live-20261101.png in the thread's
+visualization directory; detailed receipts remain in the private ops directory.
+
+The owner explicitly confirmed the newer Tyre Change price of NGN1,000
+(100000 minor units). Preserve this current price; the NGN1,000,000 references
+below describe the earlier import snapshot and are superseded by this approval.
+All eight owner groups remain published; no individual services were invented.
+
+Final observed C: free space: 27.11 GiB. Docker inventory: 77 images, 13 stopped
+containers, 14 volumes, 272 build-cache records. No blanket cleanup; current and
+rollback resources, other tasks and the populated restore evidence are retained.
+Full objective remains open. Next bounded item: preserve selected service-group
+context through booking, with server validation and customer/staff visibility.
+Remaining provider activation, real-role coverage and authentic asset acceptance
+must stay distinct from this completed release.
+
 ### 1 November 2026: owner groups applied; category imagery locally verified
 
 Bounded package began about 11:02 UTC. The owner supplied an authorised Chrome

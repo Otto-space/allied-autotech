@@ -1,3 +1,20 @@
+### 1 November 2026: service-group imagery production acceptance
+
+Runtime 30780884 is live on apex/www as dpl_HGU7Lfaq6oM9XxgTMmUYyStR9a7D,
+with backend f17d81bf and all eight workers healthy. Four hosted image/group
+fixtures passed at 390/1440 (scoped Axe and overflow), two real-data candidate
+checks passed, then four real-data live checks passed across both domains.
+Homepage service/vehicle images remain contained and moderately sized; workshop
+story placement and links, group order and empty-group enquiry context passed.
+No enquiry was submitted. Real authorised admin image editor loaded with file
+selection enabled and save disabled until preparation. No actual category upload
+or removal was performed: authentic assets/live byte-upload acceptance remain
+open. Screenshot retained as service-group-image-editor-live-20261101.png.
+Owner confirmed current Tyre Change price NGN1,000; older price notes below are
+historical. Physical-phone and remaining role/journey acceptance are not implied.
+Next scope: structured selected-group context through booking. Full goal remains
+incomplete; restricted payment, AI and live-chat flags remain unchanged.
+
 ### 1 November 2026: service-group image authoring
 
 Local group detail now uses the shared reviewed image editor and public group cards
