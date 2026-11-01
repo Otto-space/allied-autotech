@@ -1,3 +1,26 @@
+### 1 November 2026: Allie group knowledge and booking retry fix published
+
+Runtime source c158b0d0cdfe287d2c2a7a38a95da2c3e9d82f66 is integrated into master
+and published. Both domains resolve to Vercel dpl_3YbAhXphEpczp6geixA8m2jU8ooC;
+backend 4013c48c-7428-411f-b2e4-7a501b5a96ce is ACTIVE with matching four images.
+Exact-master frontend 41294218384, database safety 41294218381 and secrets
+41294218360 passed. Ten packaged checks, fresh populated backup restore/read-only
+schema verification, runtime least privilege and seven worker heartbeats passed.
+Two hosted Allie fixture journeys plus two hosted homepage checks passed at
+390/1440; four post-promotion real homepage checks passed across apex/www.
+Screenshots inspected; this is not live-model, payment or real-role booking acceptance.
+No schema migration, real transaction or capability activation occurred. Temporary
+firewall access was removed and verified; backups and restore evidence retained.
+Docker startup was restored by the owner. Registry authentication/visibility retries
+were resolved before publication. Automatic approval review initially rejected master
+integration and backend submission while checks were running; both later succeeded
+only after the specified checks passed. C: 27.47 GiB free at closeout.
+
+See backend/docs/concern-retry-production-20261101.md for exact receipts and limits.
+Next: owner group ordering/media and structured booking category context, native
+browser/role acceptance and remaining provider/operational prerequisites. Full goal
+remains active. Payment and Allie provider activation flags remain unchanged.
+
 ### 1 November 2026: preserve concern identity on booking retries
 
 Booking creation now compares the immutable saved customer concern when replaying
