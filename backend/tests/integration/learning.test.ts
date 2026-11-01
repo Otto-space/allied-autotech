@@ -175,6 +175,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       const publicResult = await read(null, "/public/learning/catalogue");
       expect(publicResult.status).toBe(200);
       expect(ids(publicResult)).toEqual([
+        "privacy-and-allie",
         "business-contact",
         "home-next-step",
         "parts-fitment",
@@ -183,6 +184,19 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         "security-basics",
         "no-live-lookup",
       ]);
+      const privacy = await read(null, "/public/learning/articles/privacy-and-allie");
+      expect(privacy.status).toBe(200);
+      expect(privacy.body.data).toMatchObject({
+        id: "privacy-and-allie",
+        href: "/privacy",
+        version: 1,
+      });
+      expect(privacy.body.data.steps.join(" ")).toContain(
+        "does not promise provider deletion",
+      );
+      expect((await read(null, "/public/learning/articles/privacy-work")).status).toBe(
+        404,
+      );
       const home = await read(null, "/public/learning/articles/home-next-step");
       expect(home.status).toBe(200);
       expect(home.body.data).toMatchObject({

@@ -7,6 +7,7 @@ mean a production publication. Feature flags remain off in committed examples.
 
 | Article                 | Eligibility gate     | Version / review | Actual destination           | Authority                                                                                                                                   |
 | ----------------------- | -------------------- | ---------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| privacy-and-allie       | public               | 1 / 2026-11-01   | /privacy                     | Published Privacy notice v2, actual encrypted Allie history lifecycle and reviewed customer handoff |
 | financial-aftercare     | financial-aftercare  | 3 / 2026-10-27   | /admin/workforce/aftercare   | Scoped financial aftercare adapter, shared OrderAftercareService fee/inspection/audit core and customerAftercareView review-note projection |
 | booking-confirmation    | booking-confirmation | 3 / 2026-10-27   | /admin/workforce/bookings    | Scoped confirmation adapter, shared ServiceOperations transition/capacity/schedule/reminders and reviewed booking form                      |
 | refund-work             | refunds              | 3 / 2026-10-27   | /admin/refunds               | ManualRefundsService scope/current/check, PaymentsService refund decisions and StaffRefunds review/recovery                                 |

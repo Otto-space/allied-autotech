@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { catalogueSchema, learningHref } from "@/lib/learning/contracts";
 
 const destinations = [
+  "/privacy",
   "/admin/service-categories",
   "/admin/workforce/bookings",
   "/admin/workforce/aftercare",

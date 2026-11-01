@@ -15,6 +15,7 @@ const destinations = new Set([
   "/vehicles",
   "/services",
   "/help",
+  "/privacy",
   "/contact",
   "/forgot-password",
   "/dashboard/support",
