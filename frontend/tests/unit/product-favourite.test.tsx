@@ -43,9 +43,9 @@ it("loads a saved product from a later page without writing or trusting the firs
   ).toBeNull();
   expect(
     (
-      await screen.findByRole("button", { name: "Saved to favourites", exact: true })
+      await screen.findByRole("button", { name: "Remove from favourites", exact: true })
     ).hasAttribute("disabled"),
-  ).toBe(true);
+  ).toBe(false);
   expect(screen.getByRole("link", { name: "View favourites" }).getAttribute("href")).toBe(
     "/dashboard/saved",
   );
@@ -69,10 +69,10 @@ it("reads the server again after remount and after an external removal", async (
   fireEvent.click(
     await screen.findByRole("button", { name: "Save to favourites", exact: true }),
   );
-  await screen.findByRole("button", { name: "Saved to favourites", exact: true });
+  await screen.findByRole("button", { name: "Remove from favourites", exact: true });
   first.unmount();
   const second = render(<ProductActions productId={product.id} available />);
-  await screen.findByRole("button", { name: "Saved to favourites", exact: true });
+  await screen.findByRole("button", { name: "Remove from favourites", exact: true });
   second.unmount();
   saved = false;
   render(<ProductActions productId={product.id} available />);
@@ -96,7 +96,7 @@ it("does not turn a failed read into an unsaved state and retries without writin
   ).toBeNull();
   failed = false;
   fireEvent.click(screen.getByRole("button", { name: "Retry favourites check" }));
-  await screen.findByRole("button", { name: "Saved to favourites", exact: true });
+  await screen.findByRole("button", { name: "Remove from favourites", exact: true });
   expect(request.mock.calls.some(([, options]) => options?.method === "PUT")).toBe(false);
 });
 
@@ -129,10 +129,10 @@ it("does not carry a saved badge across product navigation", async () => {
       : result({ items: [{ id: id(201), product }] }),
   );
   const view = render(<ProductActions productId={product.id} available />);
-  await screen.findByRole("button", { name: "Saved to favourites", exact: true });
+  await screen.findByRole("button", { name: "Remove from favourites", exact: true });
   view.rerender(<ProductActions productId={id(4)} available />);
   expect(
-    screen.queryByRole("button", { name: "Saved to favourites", exact: true }),
+    screen.queryByRole("button", { name: "Remove from favourites", exact: true }),
   ).toBeNull();
   await screen.findByRole("button", { name: "Save to favourites", exact: true });
 });
@@ -148,4 +148,32 @@ it("fails closed on repeated cursors and malformed saved identities", async () =
   await expect(
     readProductFavourite(product.id, new AbortController().signal),
   ).rejects.toThrow();
+});
+
+it("removes a saved favourite without submitting the cart, then allows saving again", async () => {
+  let saved = true;
+  request.mockImplementation(async (path, options) => {
+    if (path === "/auth/session") return result({ user: { role: "CUSTOMER" } });
+    if (options?.method === "DELETE") {
+      saved = false;
+      return result(undefined);
+    }
+    if (options?.method === "PUT") {
+      saved = true;
+      return result({ product });
+    }
+    return result({ items: saved ? [{ id: id(201), product }] : [] });
+  });
+  render(<ProductActions productId={product.id} available />);
+  const heart = await screen.findByRole("button", { name: "Remove from favourites" });
+  expect(heart.getAttribute("aria-pressed")).toBe("true");
+  fireEvent.click(heart);
+  const unsaved = await screen.findByRole("button", { name: "Save to favourites" });
+  expect(unsaved.getAttribute("aria-pressed")).toBe("false");
+  fireEvent.click(unsaved);
+  await screen.findByRole("button", { name: "Remove from favourites" });
+  expect(
+    request.mock.calls.filter(([, options]) => options?.method === "DELETE"),
+  ).toHaveLength(1);
+  expect(request.mock.calls.some(([path]) => path.includes("/cart"))).toBe(false);
 });

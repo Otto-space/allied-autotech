@@ -56,6 +56,21 @@ function validateVehicleTarget(
         : "Select a published listing or choose requirements intent",
     });
 }
+const serviceEnquiryFields = {
+  serviceId: uuid.optional(),
+  serviceCategoryId: uuid.optional(),
+};
+function validateServiceTarget(
+  value: { serviceId?: string | undefined; serviceCategoryId?: string | undefined },
+  context: z.RefinementCtx,
+) {
+  if (!value.serviceId && !value.serviceCategoryId)
+    context.addIssue({
+      code: "custom",
+      path: ["serviceId"],
+      message: "Choose a service or main service",
+    });
+}
 export const publicEnquiryCreateBodySchema = z.discriminatedUnion("type", [
   z.object({ ...publicEnquiryFields, type: z.literal("GENERAL") }).strict(),
   z
@@ -66,8 +81,13 @@ export const publicEnquiryCreateBodySchema = z.discriminatedUnion("type", [
     })
     .strict(),
   z
-    .object({ ...publicEnquiryFields, type: z.literal("SERVICE"), serviceId: uuid })
-    .strict(),
+    .object({
+      ...publicEnquiryFields,
+      type: z.literal("SERVICE"),
+      ...serviceEnquiryFields,
+    })
+    .strict()
+    .superRefine(validateServiceTarget),
   z
     .object({
       ...publicEnquiryFields,
@@ -82,11 +102,20 @@ const customerEnquiryFields = { ...optionalBranch, subject, message } as const;
 export const customerEnquiryCreateBodySchema = z.discriminatedUnion("type", [
   z.object({ ...customerEnquiryFields, type: z.literal("GENERAL") }).strict(),
   z
-    .object({ ...customerEnquiryFields, type: z.literal("PRODUCT"), productId: uuid })
+    .object({
+      ...customerEnquiryFields,
+      type: z.literal("PRODUCT"),
+      productId: uuid.optional(),
+    })
     .strict(),
   z
-    .object({ ...customerEnquiryFields, type: z.literal("SERVICE"), serviceId: uuid })
-    .strict(),
+    .object({
+      ...customerEnquiryFields,
+      type: z.literal("SERVICE"),
+      ...serviceEnquiryFields,
+    })
+    .strict()
+    .superRefine(validateServiceTarget),
   z
     .object({
       ...customerEnquiryFields,

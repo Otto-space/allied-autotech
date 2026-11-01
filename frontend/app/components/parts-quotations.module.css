@@ -1,0 +1,46 @@
+.panel {
+  padding: clamp(1rem, 3vw, 1.5rem);
+  margin-block: 1rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.quote {
+  border-top: 1px solid var(--border, #d5dce3);
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+}
+.quote h3 {
+  line-height: 1.4;
+}
+.quote small {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 400;
+  margin-top: 0.3rem;
+}
+.totals {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-block: 1rem;
+}
+.totals div {
+  min-width: 0;
+}
+.totals dt {
+  font-size: 0.9rem;
+}
+.totals dd {
+  margin: 0.25rem 0 0;
+  font-weight: 600;
+}
+.panel input,
+.panel textarea,
+.panel select {
+  max-width: 100%;
+}
+@media (min-width: 60rem) {
+  .totals {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}

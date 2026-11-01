@@ -58,7 +58,7 @@ test("Escape restores the cart button, scrolling and quantity without another mu
   await expect(page.getByRole("button", { name: "Close cart summary" })).toBeFocused();
   await page.keyboard.press("Escape");
   await expect(page.getByRole("dialog")).toHaveCount(0);
-  await expect(page.getByRole("button", { name: "Save quantity to cart" })).toBeFocused();
+  await expect(page.getByRole("button", { name: "Add to cart" })).toBeFocused();
   await expect(page.getByLabel("Quantity", { exact: true })).toHaveValue("2");
   expect(await page.evaluate(() => document.body.style.overflow)).not.toBe("hidden");
   expect(state.writes).toHaveLength(1);
@@ -69,8 +69,8 @@ test("continue shopping closes; repeated save replaces rather than increments qu
   const state = await drawerFixture(page, product);
   await openDrawer(page, product);
   await page.getByRole("button", { name: "Continue shopping" }).click();
-  await expect(page.getByRole("button", { name: "Save quantity to cart" })).toBeFocused();
-  await page.getByRole("button", { name: "Save quantity to cart" }).click();
+  await expect(page.getByRole("button", { name: "Add to cart" })).toBeFocused();
+  await page.getByRole("button", { name: "Add to cart" }).click();
   await expect(page.getByRole("dialog")).toContainText("Quantity 2");
   expect(state.writes.map((w) => w.body)).toEqual([{ quantity: 2 }, { quantity: 2 }]);
   await expect(page.locator(".toast")).toHaveCount(0);
@@ -91,7 +91,7 @@ for (const corruption of ["subtotal", "line", "quantity", "target", "duplicate"]
     const state = await drawerFixture(page, product);
     state.corrupt = corruption;
     await page.goto("/parts/" + product.id);
-    await page.getByRole("button", { name: "Save quantity to cart" }).click();
+    await page.getByRole("button", { name: "Add to cart" }).click();
     await expect(
       page.getByRole("heading", { name: "Update not confirmed" }),
     ).toBeVisible();
@@ -104,7 +104,7 @@ test("failed update retains an honest recovery path without a drawer", async ({
   const state = await drawerFixture(page, product);
   state.fail = true;
   await page.goto("/parts/" + product.id);
-  await page.getByRole("button", { name: "Save quantity to cart" }).click();
+  await page.getByRole("button", { name: "Add to cart" }).click();
   await expect(page.getByRole("heading", { name: "Update not confirmed" })).toBeVisible();
   await expect(
     page.getByRole("link", { name: "Review cart", exact: true }),
@@ -124,7 +124,7 @@ test("late response after account change never opens the drawer", async ({ page 
   const state = await drawerFixture(page, product);
   state.delay = true;
   await page.goto("/parts/" + product.id);
-  await page.getByRole("button", { name: "Save quantity to cart" }).click();
+  await page.getByRole("button", { name: "Add to cart" }).click();
   await expect.poll(() => state.writes.length).toBe(1);
   state.signedIn = false;
   await page.evaluate(() => window.dispatchEvent(new CustomEvent("aat:session-changed")));
@@ -152,9 +152,7 @@ for (const height of [420, 600, 844])
     ).toBeInViewport();
     expect(await dialog.evaluate((n) => n.scrollWidth <= n.clientWidth)).toBe(true);
     await page.keyboard.press("Escape");
-    await expect(
-      page.getByRole("button", { name: "Save quantity to cart" }),
-    ).toBeFocused();
+    await expect(page.getByRole("button", { name: "Add to cart" })).toBeFocused();
   });
 test("approved images render and unavailable thumbnails remain honest", async ({
   page,

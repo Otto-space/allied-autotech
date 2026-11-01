@@ -1,4 +1,5 @@
 "use client";
+import { PartsQuotations } from "./parts-quotations";
 import { enquiryLabel } from "@/lib/support/enquiry-label";
 import { NotificationRecordContext } from "./notification-record-context";
 import { SupportTimelineEntry } from "./support-timeline-entry";
@@ -488,10 +489,24 @@ function ThreadWorkspace({
             {current.text.length > 240 && (
               <details>
                 <summary>Read the full original request</summary>
+
+                {current.kind === "enquiries" && current.serviceCategory && (
+                  <p>
+                    Main service:{" "}
+                    <Link
+                      href={`/services?categoryId=${current.serviceCategory.id}#service-catalogue`}
+                    >
+                      {current.serviceCategory.name}
+                    </Link>
+                  </p>
+                )}
                 <p className="preserve-lines">{current.text}</p>
               </details>
             )}
           </section>
+          {current.kind === "enquiries" && current.type === "PRODUCT" && (
+            <PartsQuotations enquiryId={current.id} />
+          )}
           {current.contact?.customerId && (
             <SupportChannelPanel
               userId={owner}

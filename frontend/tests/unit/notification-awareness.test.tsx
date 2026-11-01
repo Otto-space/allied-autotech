@@ -47,7 +47,7 @@ afterEach(() => {
 });
 describe("notification destinations", () => {
   it.each(["full", "browse_enquiries"])(
-    "respects %s release destinations without reviving unavailable records",
+    "preserves owned history destinations in %s mode",
     (mode) => {
       vi.stubEnv("NEXT_PUBLIC_PUBLIC_LAUNCH_MODE", mode);
       const record = {
@@ -60,13 +60,10 @@ describe("notification destinations", () => {
         href: `/dashboard/bookings/${id}`,
         label: "View booking",
       };
-      const expected =
-        mode === "full"
-          ? { href: destination.href, label: destination.label }
-          : { href: "/contact", label: "Contact about this update" };
+      const expected = { href: destination.href, label: destination.label };
       expect(customerNotificationDestination(record)).toEqual(expected);
       expect(customerNotificationDestination({ ...record, destination })).toEqual(
-        mode === "full" ? destination : expected,
+        destination,
       );
       expect(
         customerNotificationDestination({ ...record, destination: null }),

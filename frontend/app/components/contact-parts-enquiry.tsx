@@ -241,13 +241,11 @@ function ServiceGroupEnquiryContext({
       <PublicEnquiryForm
         presentation="contact"
         labelledBy={labelledBy}
-        initialSubject={"Service group enquiry: " + group.data.name}
+        serviceCategoryId={id}
+        serviceCategoryName={group.data.name}
+        initialSubject={"Service request: " + group.data.name}
         initialMessage={
-          "I would like to discuss " +
-          group.data.name +
-          ".\nService group: /services?categoryId=" +
-          id +
-          "\n\nVehicle and concern:"
+          "I would like to discuss " + group.data.name + ".\n\nVehicle and concern:"
         }
         initialContextKey={contextKey}
       />

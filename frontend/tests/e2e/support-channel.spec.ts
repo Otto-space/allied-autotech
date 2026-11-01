@@ -400,7 +400,7 @@ test("revoked channel access removes its actions without discarding the ordinary
     .fill("Keep my permitted ordinary message draft");
   channel.denied = true;
   await page.getByRole("button", { name: "Refresh status", exact: true }).click();
-  await expect(page.getByText("Updates paused", { exact: true })).toBeVisible();
+  await expect(page.getByText("Conversation unavailable", { exact: true })).toBeVisible();
   await expect(
     page.getByRole("button", { name: "Request a conversation", exact: true }),
   ).toBeDisabled();

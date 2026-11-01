@@ -52,10 +52,10 @@ for (const width of [390, 1440]) {
       }
       if (
         url.pathname.endsWith(`/customers/favourites/${productId}`) &&
-        req.method() === "PUT"
+        ["PUT", "DELETE"].includes(req.method())
       ) {
-        writes.push(url.pathname);
-        saved = true;
+        writes.push(req.method());
+        saved = req.method() === "PUT";
         return route.fulfill({ json: ok({ product: { ...product, id: productId } }) });
       }
       return route.fulfill({
@@ -67,12 +67,12 @@ for (const width of [390, 1440]) {
     await page.goto(productPath);
     await page.getByRole("button", { name: "Save to favourites", exact: true }).click();
     await expect(
-      page.getByRole("button", { name: "Saved to favourites", exact: true }),
-    ).toBeDisabled();
+      page.getByRole("button", { name: "Remove from favourites", exact: true }),
+    ).toBeEnabled();
     expect(writes).toHaveLength(1);
     await page.reload();
     await expect(
-      page.getByRole("button", { name: "Saved to favourites", exact: true }),
+      page.getByRole("button", { name: "Remove from favourites", exact: true }),
     ).toBeVisible();
     await expect(
       page.getByRole("button", { name: "Save to favourites", exact: true }),
@@ -82,7 +82,13 @@ for (const width of [390, 1440]) {
     ).toHaveAttribute("href", "/dashboard/saved");
     expect(reads.some((query) => query.includes("cursor="))).toBe(true);
     await page.screenshot({ path: info.outputPath(`saved-after-refresh-${width}.png`) });
-    saved = false; // Simulate an authorised removal from the account's Saved items page.
+    await page
+      .getByRole("button", { name: "Remove from favourites", exact: true })
+      .click();
+    await expect(
+      page.getByRole("button", { name: "Save to favourites", exact: true }),
+    ).toHaveAttribute("aria-pressed", "false");
+    expect(writes).toEqual(["PUT", "DELETE"]);
     await page.reload();
     await expect(
       page.getByRole("button", { name: "Save to favourites", exact: true }),
@@ -101,9 +107,9 @@ for (const width of [390, 1440]) {
       .getByRole("button", { name: "Retry favourites check", exact: true })
       .click();
     await expect(
-      page.getByRole("button", { name: "Saved to favourites", exact: true }),
-    ).toBeDisabled();
-    expect(writes).toHaveLength(1);
+      page.getByRole("button", { name: "Remove from favourites", exact: true }),
+    ).toBeEnabled();
+    expect(writes).toHaveLength(2);
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
     ).toBe(true);

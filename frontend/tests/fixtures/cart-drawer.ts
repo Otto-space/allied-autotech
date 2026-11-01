@@ -130,6 +130,6 @@ export async function drawerFixture(page: Page, product: Product) {
 export async function openDrawer(page: Page, product: Product, quantity = "2") {
   await page.goto("/parts/" + product.id);
   await page.getByLabel("Quantity", { exact: true }).fill(quantity);
-  await page.getByRole("button", { name: "Save quantity to cart" }).click();
+  await page.getByRole("button", { name: "Add to cart" }).click();
   await expect(page.getByRole("dialog", { name: "Cart updated" })).toBeVisible();
 }

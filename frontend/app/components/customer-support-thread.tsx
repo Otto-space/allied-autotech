@@ -1,4 +1,5 @@
 "use client";
+import { PartsQuotations } from "./parts-quotations";
 import "./care-workspace.css";
 import { StatusBadge } from "./status-progress";
 import { CopyableValue } from "./copyable-value";
@@ -315,6 +316,17 @@ export function CustomerSupportThread({
                 <h2 id="ct-original-title">
                   Original {kind === "enquiries" ? "message" : "complaint"}
                 </h2>
+
+                {record.kind === "enquiries" && record.serviceCategory && (
+                  <p>
+                    Main service:{" "}
+                    <Link
+                      href={`/services?categoryId=${record.serviceCategory.id}#service-catalogue`}
+                    >
+                      {record.serviceCategory.name}
+                    </Link>
+                  </p>
+                )}
                 <p className="support-text">{record.text}</p>
                 {record.kind === "complaints" && record.resolution && (
                   <div className="ct-resolution">
@@ -323,6 +335,9 @@ export function CustomerSupportThread({
                   </div>
                 )}
               </section>
+              {record.kind === "enquiries" && record.type === "PRODUCT" && (
+                <PartsQuotations enquiryId={record.id} />
+              )}
               <section
                 className="ct-messages ct-panel"
                 aria-labelledby="support-messages-title"

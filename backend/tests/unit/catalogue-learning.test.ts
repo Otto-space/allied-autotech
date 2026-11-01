@@ -7,7 +7,7 @@ import {
 it("versions catalogue instructions without changing public guide targets or write permissions", () => {
   const parts = learningArticles.find((item) => item.id === "parts-fitment")!;
   const vehicles = learningArticles.find((item) => item.id === "vehicle-enquiry")!;
-  expect([parts.version, vehicles.version]).toEqual([3, 4]);
+  expect([parts.version, vehicles.version]).toEqual([4, 4]);
   for (const article of [parts, vehicles]) {
     expect(article.gate).toBe("public");
     expect(article.steps.join(" ")).toContain("Apply filters");
@@ -34,7 +34,7 @@ it("versions reversal guidance without granting live lookups or writes", () => {
 
 it("keeps concern guidance conditional on the real intake form and preserves pending confirmation", () => {
   const article = learningArticles.find((item) => item.id === "service-request")!;
-  expect(article.version).toBe(12);
+  expect(article.version).toBe(13);
   expect(article.steps.join(" ")).toContain(
     "group follows your draft through sign-in and review",
   );
@@ -42,7 +42,7 @@ it("keeps concern guidance conditional on the real intake form and preserves pen
   expect(article.steps.join(" ")).toContain(
     "cannot confirm a price or appointment from the group alone",
   );
-  expect(article.steps.join(" ")).toContain("Its verified name and link are included");
+  expect(article.steps.join(" ")).toContain("stored as a structured reference");
   expect(article.steps.join(" ")).toContain("not an individual priced service");
   expect(article.steps.join(" ")).toContain("no individual services listed yet");
   expect(article.steps.join(" ")).toContain("Declining keeps your existing appointment");

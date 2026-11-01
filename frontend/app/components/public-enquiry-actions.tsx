@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { business } from "@/lib/business";
 import { catalogueOnly } from "@/lib/public-launch";
@@ -6,10 +7,12 @@ export function PublicEnquiryActions({
   subject,
   message,
   enquiryHref,
+  primaryAccessory,
 }: {
   subject: string;
   message?: string;
   enquiryHref?: string;
+  primaryAccessory?: ReactNode;
 }) {
   const draft = Array.from(
     message ?? `Hello Allied AutoTech, I would like more information about ${subject}.`,
@@ -31,6 +34,7 @@ export function PublicEnquiryActions({
           Send an enquiry
         </Link>
       )}
+      {primaryAccessory}
       <a
         className="button secondary"
         href={whatsapp}

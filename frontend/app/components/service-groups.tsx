@@ -1,10 +1,35 @@
 "use client";
 import { ServicePhoto } from "./service-photo";
 import Link from "next/link";
-import { Wrench, ArrowUpRight } from "lucide-react";
+import {
+  Wrench,
+  ArrowUpRight,
+  CircleDot,
+  ScanLine,
+  Cpu,
+  Settings,
+  Cog,
+  Snowflake,
+  Paintbrush,
+  Armchair,
+} from "lucide-react";
 import { useResource } from "@/lib/api/use-resource";
 import { parseServiceCategories } from "@/lib/api/public-schemas";
 import { CursorPagination, useCursorPage } from "./cursor-pagination";
+const groupIcons: Record<string, typeof Wrench> = {
+  "Tyre & Wheel Maintenance": CircleDot,
+  "Vehicle Diagnostics & Inspections": ScanLine,
+  "ECU Programming & Vehicle Electronics": Cpu,
+  "Suspension Repairs": Settings,
+  "Engine & Drive System Maintenance": Cog,
+  "Vehicle AC Maintenance": Snowflake,
+  "Bodywork & Painting": Paintbrush,
+  "Interior Repairs": Armchair,
+};
+export function ServiceGroupIcon({ name }: { name: string }) {
+  const Icon = groupIcons[name] ?? Wrench;
+  return <Icon size={24} aria-hidden="true" />;
+}
 export function ServiceGroups() {
   const pagination = useCursorPage();
   const query = new URLSearchParams({ limit: "20" });
@@ -19,7 +44,7 @@ export function ServiceGroups() {
       aria-labelledby="service-groups-title"
     >
       <header>
-        <h2 id="service-groups-title">Vehicle maintenance</h2>
+        <h2 id="service-groups-title">Our maintenance and repair services</h2>
         <p>Choose an area of work, or tell us what you have noticed.</p>
       </header>
       {groups.loading && !groups.data ? (
@@ -48,12 +73,12 @@ export function ServiceGroups() {
                   height={group.image.height}
                 />
               ) : (
-                <Wrench size={24} aria-hidden="true" />
+                <ServiceGroupIcon name={group.name} />
               )}
               <h3>{group.name}</h3>
               {group.description && <p>{group.description}</p>}
               <span>
-                View services <ArrowUpRight size={16} aria-hidden="true" />
+                View details <ArrowUpRight size={16} aria-hidden="true" />
               </span>
             </Link>
           ))}

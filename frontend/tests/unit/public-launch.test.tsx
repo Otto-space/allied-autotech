@@ -45,15 +45,8 @@ it("validates mode explicitly and preserves existing full-mode default", () => {
   vi.stubEnv("NEXT_PUBLIC_PUBLIC_LAUNCH_MODE", "typo");
   expect(() => publicLaunchMode()).toThrow();
 });
-it.each([
-  "cart",
-  "orders",
-  "bookings",
-  "payments",
-  "vehicle-transactions",
-  "inspections",
-  "invoices",
-])("restricts direct %s pages", (name) => {
+it.each(["cart"])("restricts direct %s pages", (name) => {
+  vi.stubEnv("NEXT_PUBLIC_PUBLIC_LAUNCH_MODE", "browse_enquiries");
   expect(restrictedLaunchPage(`/dashboard/${name}`)).toBe(true);
   expect(restrictedLaunchPage(`/dashboard/${name}/record`)).toBe(true);
   expect(restrictedLaunchPage(`/admin/${name}`)).toBe(false);
@@ -88,14 +81,17 @@ it("hides unavailable customer destinations while preserving staff navigation", 
       .some((link) => link.href === "/dashboard/cart"),
   ).toBe(true);
 });
-it("names saved items independently of unavailable orders in limited releases", () => {
+it("keeps existing orders visible while disabling new checkout in limited releases", () => {
   for (const mode of ["browse_enquiries", "catalogue"]) {
     vi.stubEnv("NEXT_PUBLIC_PUBLIC_LAUNCH_MODE", mode);
     const shop = dashboardNavigation("CUSTOMER").find((group) => group.id === "shop");
     if (mode === "catalogue") expect(shop).toBeUndefined();
     else {
-      expect(shop?.label).toBe("Saved items");
-      expect(shop?.links.map((link) => link.href)).toEqual(["/dashboard/saved"]);
+      expect(shop?.label).toBe("Orders & saved items");
+      expect(shop?.links.map((link) => link.href)).toEqual([
+        "/dashboard/orders",
+        "/dashboard/saved",
+      ]);
     }
   }
   vi.stubEnv("NEXT_PUBLIC_PUBLIC_LAUNCH_MODE", "full");
@@ -136,4 +132,37 @@ it("preserves vehicle content while replacing reservation and inspection actions
   expect(
     screen.getByRole("link", { name: "Ask on WhatsApp" }).getAttribute("href"),
   ).toContain("Owner%20vehicle");
+});
+
+it("preserves historical transaction destinations while new cart checkout stays gated", () => {
+  vi.stubEnv("NEXT_PUBLIC_PUBLIC_LAUNCH_MODE", "browse_enquiries");
+  for (const path of [
+    "orders",
+    "bookings",
+    "payments",
+    "invoices",
+    "inspections",
+    "vehicle-transactions",
+  ]) {
+    expect(restrictedLaunchPage(`/dashboard/${path}`)).toBe(false);
+    expect(restrictedLaunchPage(`/dashboard/${path}/record`)).toBe(false);
+  }
+  expect(restrictedLaunchPage("/dashboard/cart")).toBe(true);
+});
+
+it("keeps checkout reachable only in full mode while preserving historical records", () => {
+  vi.stubEnv("NEXT_PUBLIC_PUBLIC_LAUNCH_MODE", "full");
+  expect(restrictedLaunchPage("/dashboard/cart")).toBe(false);
+  vi.stubEnv("NEXT_PUBLIC_PUBLIC_LAUNCH_MODE", "browse_enquiries");
+  expect(restrictedLaunchPage("/dashboard/cart")).toBe(true);
+  for (const route of [
+    "orders",
+    "bookings",
+    "payments",
+    "invoices",
+    "inspections",
+    "vehicle-transactions",
+  ]) {
+    expect(restrictedLaunchPage(`/dashboard/${route}/owned-record`)).toBe(false);
+  }
 });

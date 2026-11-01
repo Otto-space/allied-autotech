@@ -17,6 +17,8 @@ describe("public browsing/enquiries launch boundary", () => {
   it.each([
     "/customers/cart/items",
     "/customers/orders/checkout",
+    "/customers/parts-quotes/record/accept",
+    "/customers/parts-quotes/record/decline",
     "/customers/bookings",
     "/customers/payments",
     "/customers/vehicle-transactions",
@@ -84,6 +86,8 @@ describe("catalogue launch has no public customer intake", () => {
     "/customers/support/enquiries",
     "/customers/profile",
     "/customers/orders/checkout",
+    "/customers/parts-quotes/record/accept",
+    "/customers/parts-quotes/record/decline",
     "/customers/reviews",
     "/webhooks/paystack",
     "/webhooks/monnify",

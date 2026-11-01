@@ -1,4 +1,5 @@
 "use client";
+import { browseEnquiriesOnly } from "@/lib/public-launch";
 import { NotificationRecordContext } from "./notification-record-context";
 import { WorkflowProgress } from "./status-progress";
 import Link from "next/link";
@@ -116,7 +117,7 @@ export function PaymentDetail({ paymentId }: { paymentId: string }) {
   const current = payment.data;
   const readBlocked =
     payment.loading || payment.refreshing || !!payment.error || !!payment.refreshError;
-  const disabled = busy || manualActive || readBlocked;
+  const disabled = browseEnquiriesOnly() || busy || manualActive || readBlocked;
   const pendingAttempt = !!current && hasPendingPaymentAttempt(current);
   const unavailable = current ? newPaymentAttemptUnavailable(current, now) : undefined;
   const deadlineUnavailable = current
@@ -512,7 +513,7 @@ export function PaymentDetail({ paymentId }: { paymentId: string }) {
               key={current.id}
               payment={current}
               eligible={!unavailable && !uncertain}
-              disabled={busy || readBlocked}
+              disabled={browseEnquiriesOnly() || busy || readBlocked}
               onActivity={setManualActive}
               onRefresh={payment.refresh}
               onRecorded={() => {

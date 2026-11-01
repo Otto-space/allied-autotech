@@ -1,6 +1,5 @@
 "use client";
 import Link from "next/link";
-import { browseEnquiriesOnly } from "@/lib/public-launch";
 import { useSearchParams } from "next/navigation";
 import { ArrowLeft, ArrowRight, ArrowUpRight, Check, Wrench, X } from "lucide-react";
 import type { PublicSeed } from "@/lib/api/public-seed";
@@ -13,6 +12,7 @@ import {
   serviceApiPath,
   servicePricing,
 } from "@/lib/service-discovery";
+import { ServiceGroupIcon } from "./service-groups";
 import { ServicePhoto } from "./service-photo";
 import { Feedback } from "./feedback";
 
@@ -94,22 +94,26 @@ export function ServicesCatalogue({
       </noscript>
       {verifiedGroup && (
         <header className="service-group-context">
+          <Link className="text-link" href="/services">
+            All services
+          </Link>
+          <ServiceGroupIcon name={verifiedGroup.name} />
           <h2>{verifiedGroup.name}</h2>
           {verifiedGroup.description && <p>{verifiedGroup.description}</p>}
-          {!browseEnquiriesOnly() && (
+          <div className="actions">
             <Link
               className="button"
               href={`/services/request?serviceGroup=${verifiedGroup.id}`}
             >
               Request a visit
             </Link>
-          )}
-          <Link
-            className="text-link"
-            href={"/contact?serviceGroup=" + verifiedGroup.id + "#enquiry"}
-          >
-            Ask about this service group
-          </Link>
+            <Link
+              className="text-link"
+              href={"/contact?serviceGroup=" + verifiedGroup.id + "#enquiry"}
+            >
+              Ask a question
+            </Link>
+          </div>
         </header>
       )}
       <div className="services-discovery-panel">
@@ -122,7 +126,9 @@ export function ServicesCatalogue({
               ? "Loading services…"
               : resource.error
                 ? "Services unavailable"
-                : `${resource.data?.totalMatches ?? 0} ${resource.data?.totalMatches === 1 ? "service" : "services"} found${cursor || resource.data?.nextCursor ? ` · ${resource.data?.items.length ?? 0} on this page` : ""}`}
+                : groupOnly && verifiedGroup && resource.data?.totalMatches === 0
+                  ? "Tell us what your vehicle needs; the workshop will assess the work."
+                  : `${resource.data?.totalMatches ?? 0} service ${resource.data?.totalMatches === 1 ? "option" : "options"}${cursor || resource.data?.nextCursor ? ` on this page: ${resource.data?.items.length ?? 0}` : ""}`}
           </p>
         </div>
         {invalid && (
@@ -256,8 +262,8 @@ export function ServicesCatalogue({
                 : groupOnly && verifiedGroup
                   ? "Discuss this work with the workshop"
                   : filtered
-                    ? "No matching services"
-                    : "Services are not listed yet"}
+                    ? "No matching service options"
+                    : "Tell us what your vehicle needs"}
             </h3>
             <p>
               {groupOnly && verifiedGroup
@@ -272,7 +278,14 @@ export function ServicesCatalogue({
                   Show all services
                 </button>
               )}
-              <Link className="text-link" href="/contact">
+              <Link
+                className="text-link"
+                href={
+                  verifiedGroup
+                    ? `/contact?serviceGroup=${verifiedGroup.id}#enquiry`
+                    : "/contact#enquiry"
+                }
+              >
                 Contact Allied AutoTech <ArrowUpRight size={16} aria-hidden="true" />
               </Link>
             </div>

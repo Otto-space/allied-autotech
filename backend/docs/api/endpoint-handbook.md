@@ -5221,6 +5221,141 @@ Success: HTTP 200.
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
+### GET `/customers/parts-quotes/enquiries/{id}`
+
+- Operation ID: `getCustomersPartsQuotesEnquiriesById`
+- Purpose: List quotations for an owned parts request. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: CUSTOMER
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "List quotations for an owned parts request",
+  "data": {
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "status": "synthetic-status"
+      }
+    ],
+    "nextCursor": "00000000-0000-4000-8000-000000000001"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### POST `/customers/parts-quotes/{id}/accept`
+
+- Operation ID: `postCustomersPartsQuotesByIdAccept`
+- Purpose: Accept an owned current quotation and create one guarded collection order. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
+- Roles: CUSTOMER
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Required in `Idempotency-Key`
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| `idempotency-key` | header | string | Yes | Unique retry key for this logical mutation. Reuse it only with the identical request. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `revision` | integer | Yes | Revision validated by this operation's strict request contract. |
+
+Synthetic request example:
+
+```json
+{
+  "revision": 1
+}
+```
+
+Success: HTTP 201.
+
+```json
+{
+  "success": true,
+  "message": "Accept an owned current quotation and create one guarded collection order",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "status": "synthetic-status"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### POST `/customers/parts-quotes/{id}/decline`
+
+- Operation ID: `postCustomersPartsQuotesByIdDecline`
+- Purpose: Decline an owned current quotation. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: CUSTOMER
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `revision` | integer | Yes | Revision validated by this operation's strict request contract. |
+
+Synthetic request example:
+
+```json
+{
+  "revision": 1
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Decline an owned current quotation",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "status": "synthetic-status"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
 ### POST `/customers/orders/checkout`
 
 - Operation ID: `postCustomersOrdersCheckout`
@@ -7591,6 +7726,11 @@ Success: HTTP 201.
     "message": "synthetic-message",
     "productId": "00000000-0000-4000-8000-000000000001",
     "serviceId": "00000000-0000-4000-8000-000000000001",
+    "serviceCategoryId": "00000000-0000-4000-8000-000000000001",
+    "serviceCategory": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "name": "synthetic-name"
+    },
     "bookingId": "00000000-0000-4000-8000-000000000001",
     "quoteId": "00000000-0000-4000-8000-000000000001",
     "vehicleListingId": "00000000-0000-4000-8000-000000000001",
@@ -24280,6 +24420,103 @@ Success: HTTP 200.
 ```
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 Unknown category; 409 Duplicate slug or stale version; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/admin/parts-quotes/enquiries/{id}`
+
+- Operation ID: `getAdminPartsQuotesEnquiriesById`
+- Purpose: List quotations for administrator assessment. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "List quotations for administrator assessment",
+  "data": {
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "status": "synthetic-status"
+      }
+    ],
+    "nextCursor": "00000000-0000-4000-8000-000000000001"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### POST `/admin/parts-quotes/enquiries/{id}`
+
+- Operation ID: `postAdminPartsQuotesEnquiriesById`
+- Purpose: Issue an immutable quotation revision for an assessed catalogue product. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
+- Roles: ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Required in `Idempotency-Key`
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| `idempotency-key` | header | string | Yes | Unique retry key for this logical mutation. Reuse it only with the identical request. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `expectedRevision` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+| `productId` | string (uuid) | Yes | Identifier of the product resource; ownership is resolved server-side. |
+| `quantity` | integer | Yes | Quantity validated by this operation's strict request contract. |
+| `unitPriceKobo` | string | Yes | Integer price in Nigerian kobo; client-calculated values are never authoritative. |
+| `notes` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| `expiresAt` | string (date-time) | Yes | ISO 8601 timestamp interpreted and validated by the server. |
+
+Synthetic request example:
+
+```json
+{
+  "expectedRevision": 0,
+  "productId": "00000000-0000-4000-8000-000000000001",
+  "quantity": 1,
+  "unitPriceKobo": "300000",
+  "notes": "synthetic-notes",
+  "expiresAt": "2030-01-15T10:00:00.000Z"
+}
+```
+
+Success: HTTP 201.
+
+```json
+{
+  "success": true,
+  "message": "Issue an immutable quotation revision for an assessed catalogue product",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "status": "synthetic-status"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/admin/orders/expire`
 

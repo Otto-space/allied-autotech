@@ -1,3 +1,4 @@
+import { partsQuotesRouter } from "../modules/orders/parts-quotes.routes.js";
 import { createCategoryMediaRouter } from "../modules/service-operations/category-media.routes.js";
 import { createFitmentRouter } from "../modules/fitment/fitment.routes.js";
 import { createLearningRouter } from "../modules/learning/learning.routes.js";
@@ -137,6 +138,8 @@ export function createApiRouter(options: ApiRouterOptions): Router {
   apiRouter.use("/customers", createGarageMediaRouter());
   apiRouter.use("/admin/customers", createCustomerDirectoryRouter());
   apiRouter.use("/customers", createCustomerServiceOperationsRouter());
+  apiRouter.use("/customers/parts-quotes", partsQuotesRouter());
+  apiRouter.use("/admin/parts-quotes", partsQuotesRouter(true));
   apiRouter.use("/customers/orders", createCustomerOrdersRouter());
   apiRouter.use("/customers/promotions", createCustomerPromotionsRouter());
   apiRouter.use("/customers/invoices", createCustomerBillingRouter());

@@ -1026,8 +1026,18 @@ export class SupportService {
       )
         throw supportNotFound();
     } else if (input.type === "SERVICE") {
-      if ((await this.repository.activeService(input.serviceId, transaction)) === null)
-        throw supportNotFound();
+      const service = input.serviceId
+        ? await this.repository.activeService(input.serviceId, transaction)
+        : null;
+      if (input.serviceId && !service) throw supportNotFound();
+      if (input.serviceCategoryId) {
+        const category = await this.repository.activeServiceCategory(
+          input.serviceCategoryId,
+          transaction,
+        );
+        if (!category || (service && service.categoryId !== category.id))
+          throw supportNotFound();
+      } else if (!service) throw supportNotFound();
     } else if (
       input.type === "VEHICLE" &&
       input.vehicleEnquiryIntent !== "REQUIREMENTS"

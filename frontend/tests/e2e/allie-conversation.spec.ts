@@ -456,7 +456,7 @@ for (const width of [390, 1440]) {
       page.getByRole("heading", { name: "Discuss this work with the workshop" }),
     ).toBeVisible();
     await expect(
-      page.getByRole("link", { name: "Ask about this service group", exact: true }),
+      page.getByRole("link", { name: "Ask a question", exact: true }),
     ).toHaveAttribute("href", new RegExp("serviceGroup=" + id));
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),

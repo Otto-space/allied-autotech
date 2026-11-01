@@ -16,6 +16,7 @@ export type TokenPurpose =
   | "recovery-code"
   | "webauthn-challenge"
   | "inventory-idempotency"
+  | "parts-quote-issue"
   | "order-checkout-idempotency"
   | "order-reservation"
   | "order-inventory"

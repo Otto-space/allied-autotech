@@ -57,3 +57,18 @@ it("preserves public identity validation and the generic reply validation contra
   if (!reply.success)
     expect(reply.error.issues[0].message).toBe("Enter the required information.");
 });
+
+it("accepts optional notes and vehicle details for parts but validates quantities", () => {
+  expect(
+    supportCreationSchema(false, true).safeParse({
+      ...valid,
+      subject: "Universal cleaning product",
+      message: "",
+      partQuantity: "3",
+    }).success,
+  ).toBe(true);
+  for (const partQuantity of ["0", "101", "1.5", "-1"])
+    expect(
+      supportCreationSchema(false, true).safeParse({ ...valid, partQuantity }).success,
+    ).toBe(false);
+});

@@ -70,13 +70,14 @@ export class OrdersService {
     input: CheckoutInput,
     rawKey: string,
     context: RequestSecurityContext,
+    partsQuote?: { id: string; revision: number },
   ) {
     assertCustomer(actor);
     if (input.fulfillmentMethod !== "COLLECTION")
       throw orderConflict("Orders are collection only; delivery is unavailable");
     const scope = `order-checkout:${actor.userId}`;
     const keyHash = hashToken("order-checkout-idempotency", rawKey);
-    const requestHash = orderFingerprint(input);
+    const requestHash = orderFingerprint(partsQuote ? { ...input, partsQuote } : input);
     return withTransactionRetry(this.database, async (transaction) => {
       const checkoutLockKey = `checkout:${keyHash}`;
       await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${checkoutLockKey}, 0))`;
@@ -103,25 +104,80 @@ export class OrdersService {
         transaction,
       );
       let profile = await this.repository.customerProfile(actor.userId, transaction);
-      if (profile?.cart === null || profile === null)
-        throw orderConflict("Cart is empty");
-      await this.repository.lockCart(profile.cart.id, transaction);
-      profile = await this.repository.customerProfile(actor.userId, transaction);
-      if (profile?.cart === null || profile === null || profile.cart.items.length === 0)
-        throw orderConflict("Cart is empty");
+      if (profile === null) throw orderNotFound();
+      let quote = partsQuote
+        ? await transaction.partsQuote.findUnique({
+            where: { id: partsQuote.id },
+            include: { enquiry: true },
+          })
+        : null;
+      if (partsQuote) {
+        if (
+          !quote ||
+          quote.enquiry.customerId !== profile.id ||
+          quote.enquiry.branchId !== input.branchId
+        )
+          throw orderNotFound();
+        await transaction.$queryRaw`SELECT "id" FROM "Enquiry" WHERE "id" = ${quote.enquiryId}::uuid FOR UPDATE`;
+        await transaction.$queryRaw`SELECT "id" FROM "PartsQuote" WHERE "id" = ${quote.id}::uuid FOR UPDATE`;
+        quote = await transaction.partsQuote.findUnique({
+          where: { id: partsQuote.id },
+          include: { enquiry: true },
+        });
+        if (
+          !quote ||
+          quote.enquiry.customerId !== profile.id ||
+          quote.enquiry.branchId !== input.branchId
+        )
+          throw orderNotFound();
+        if (quote.revision !== partsQuote.revision) throw orderStale();
+        if (quote.status === "ACCEPTED" && quote.orderId) {
+          const saved = await this.repository.order(quote.orderId, transaction);
+          if (!saved) throw orderNotFound();
+          await this.repository.completeIdempotency(
+            scope,
+            keyHash,
+            saved.id,
+            transaction,
+          );
+          return jsonSafe({ order: customerOrderView(saved), replayed: true });
+        }
+        const quotedBranch =
+          quote.policySnapshot &&
+          typeof quote.policySnapshot === "object" &&
+          !Array.isArray(quote.policySnapshot)
+            ? quote.policySnapshot["branchId"]
+            : undefined;
+        if (quotedBranch !== input.branchId)
+          throw orderConflict(
+            "The collection branch changed. Request a revised quotation before accepting.",
+          );
+        if (quote.status !== "ISSUED" || quote.expiresAt <= new Date())
+          throw orderConflict(
+            "This quotation has expired, was declined or has been replaced. Request an updated quotation.",
+          );
+      } else {
+        if (!profile.cart) throw orderConflict("Cart is empty");
+        await this.repository.lockCart(profile.cart.id, transaction);
+        profile = await this.repository.customerProfile(actor.userId, transaction);
+        if (!profile?.cart || !profile.cart.items.length)
+          throw orderConflict("Cart is empty");
+      }
       if ((await this.repository.branch(input.branchId, transaction)) === null)
         throw orderNotFound();
-      const productIds = [
-        ...new Set(profile.cart.items.map(({ productId }) => productId)),
-      ].sort((a, b) => a.localeCompare(b));
-      const inventories = await this.repository.lockInventories(
-        input.branchId,
-        productIds,
-        transaction,
+      const sourceItems = quote
+        ? [{ productId: quote.productId, quantity: quote.quantity }]
+        : profile.cart!.items;
+      const productIds = [...new Set(sourceItems.map((item) => item.productId))].sort(
+        (a, b) => a.localeCompare(b),
       );
-      if (inventories.length !== productIds.length) throw checkoutStockUnavailable();
+      const inventories = quote
+        ? []
+        : await this.repository.lockInventories(input.branchId, productIds, transaction);
+      if (!quote && inventories.length !== productIds.length)
+        throw checkoutStockUnavailable();
       const cartByProduct = new Map(
-        profile.cart.items.map((item) => [item.productId, item.quantity]),
+        sourceItems.map((item) => [item.productId, item.quantity]),
       );
       for (const inventory of inventories) {
         const quantity = cartByProduct.get(inventory.productId);
@@ -137,17 +193,43 @@ export class OrdersService {
         )
           throw checkoutStockUnavailable();
       }
-      const items = inventories.map((inventory) => {
-        const quantity = cartByProduct.get(inventory.productId)!;
-        return {
-          productId: inventory.productId,
-          productName: inventory.product.name,
-          sku: inventory.product.sku,
-          unitPriceKobo: inventory.product.priceKobo,
-          quantity,
-          subtotalKobo: inventory.product.priceKobo * BigInt(quantity),
-        };
-      });
+      if (quote) {
+        const product = await transaction.product.findUnique({
+          where: { id: quote.productId },
+          include: { category: { include: { parent: true } } },
+        });
+        if (
+          !product?.isActive ||
+          product.currency !== "NGN" ||
+          !product.category.isActive ||
+          (product.category.parentId && !product.category.parent?.isActive)
+        )
+          throw orderConflict(
+            "The quoted product is no longer available for ordering. Request a revised quotation.",
+          );
+      }
+      const items = quote
+        ? [
+            {
+              productId: quote.productId,
+              productName: quote.productName,
+              sku: quote.sku,
+              unitPriceKobo: quote.unitPriceKobo,
+              quantity: quote.quantity,
+              subtotalKobo: quote.subtotalKobo,
+            },
+          ]
+        : inventories.map((inventory) => {
+            const quantity = cartByProduct.get(inventory.productId)!;
+            return {
+              productId: inventory.productId,
+              productName: inventory.product.name,
+              sku: inventory.product.sku,
+              unitPriceKobo: inventory.product.priceKobo,
+              quantity,
+              subtotalKobo: inventory.product.priceKobo * BigInt(quantity),
+            };
+          });
       if (items.some((item) => item.subtotalKobo > MAX_MONEY_KOBO))
         throw orderConflict("Order amount exceeds the supported limit");
       const subtotalKobo = items.reduce((sum, item) => sum + item.subtotalKobo, 0n);
@@ -177,6 +259,10 @@ export class OrdersService {
         discountAmountKobo,
       );
       const totalKobo = subtotalKobo - discountAmountKobo + deliveryFeeKobo + taxKobo;
+      if (quote && (totalKobo !== quote.totalKobo || taxKobo !== quote.taxKobo))
+        throw orderConflict(
+          "The quotation needs revision before checkout because its financial terms changed",
+        );
       if (totalKobo > MAX_MONEY_KOBO)
         throw orderConflict("Order amount exceeds the supported limit");
       const orderId = randomUUID();
@@ -199,6 +285,17 @@ export class OrdersService {
             finance: policySnapshot(finance),
             payment: policySnapshot(timing),
             fulfillment: deliverySnapshot,
+            ...(quote
+              ? {
+                  partsQuote: {
+                    id: quote.id,
+                    enquiryId: quote.enquiryId,
+                    revision: quote.revision,
+                    notes: quote.notes,
+                    finance: quote.policySnapshot,
+                  },
+                }
+              : {}),
           },
           customerName: `${profile.firstName} ${profile.lastName}`,
           customerEmail: profile.user.email,
@@ -279,7 +376,21 @@ export class OrdersService {
           },
         });
       }
-      await transaction.cartItem.deleteMany({ where: { cartId: profile.cart.id } });
+      if (quote) {
+        await transaction.partsQuote.update({
+          where: { id: quote.id },
+          data: { status: "ACCEPTED", orderId, decidedAt: new Date() },
+        });
+        await appendAuditEvent(transaction, {
+          actorUserId: actor.userId,
+          action: "STATUS_CHANGE",
+          entityType: "ENQUIRY",
+          entityId: quote.enquiryId,
+          newValues: { status: "ACCEPTED", orderId, revision: quote.revision },
+          context,
+        });
+      } else
+        await transaction.cartItem.deleteMany({ where: { cartId: profile.cart!.id } });
       await appendAuditEvent(transaction, {
         actorUserId: actor.userId,
         action: "CREATE",
@@ -460,8 +571,99 @@ export class OrdersService {
         (order.paymentDueAt === null || order.paymentDueAt <= new Date())
       )
         throw orderConflict("The checkout reservation has expired");
-      if (input.status === "CONFIRMED")
+      if (input.status === "CONFIRMED") {
+        const quote = await transaction.partsQuote.findUnique({
+          where: { orderId: order.id },
+          include: { enquiry: { select: { customerId: true } } },
+        });
+        if (quote) {
+          if (!input.reason || input.reason.trim().length < 10)
+            throw orderConflict(
+              "Record final compatibility assessment (or why fitment is not applicable) and availability review before confirming this quoted order",
+            );
+          if (!order.branchId || !quote.enquiry.customerId)
+            throw orderConflict(
+              "The quoted order has no valid collection branch or customer",
+            );
+          const inventory = (
+            await this.repository.lockInventories(
+              order.branchId,
+              [quote.productId],
+              transaction,
+            )
+          )[0];
+          if (
+            !inventory ||
+            inventory.quantity - inventory.reserved < quote.quantity ||
+            !inventory.product.isActive ||
+            !inventory.branch.isActive
+          )
+            throw checkoutStockUnavailable();
+          const nextReserved = inventory.reserved + quote.quantity;
+          if (
+            (
+              await this.repository.updateInventory(
+                inventory.id,
+                inventory.version,
+                inventory.quantity,
+                nextReserved,
+                transaction,
+              )
+            ).count !== 1
+          )
+            throw orderStale();
+          const key = hashToken(
+            "order-reservation",
+            `quoted:${order.id}:${inventory.id}`,
+          );
+          const fingerprint = orderFingerprint({
+            orderId: order.id,
+            quoteId: quote.id,
+            quantity: quote.quantity,
+          });
+          await transaction.inventoryReservation.create({
+            data: {
+              inventoryId: inventory.id,
+              customerId: quote.enquiry.customerId,
+              quantity: quote.quantity,
+              expiresAt: new Date(Date.now() + 3600000),
+              idempotencyKey: key,
+              requestHash: fingerprint,
+              referenceType: "ORDER",
+              referenceId: order.id,
+            },
+          });
+          await transaction.inventoryTransaction.create({
+            data: {
+              inventoryId: inventory.id,
+              performedById: actor.userId,
+              type: "RESERVATION",
+              quantityDelta: 0,
+              reservedDelta: quote.quantity,
+              quantityBefore: inventory.quantity,
+              quantityAfter: inventory.quantity,
+              reservedBefore: inventory.reserved,
+              reservedAfter: nextReserved,
+              idempotencyKey: hashToken("order-inventory", `${key}:reserve`),
+              requestHash: fingerprint,
+              referenceType: "ORDER",
+              referenceId: order.id,
+            },
+          });
+          await appendAuditEvent(transaction, {
+            actorUserId: actor.userId,
+            action: "UPDATE",
+            entityType: "ORDER",
+            entityId: order.id,
+            newValues: {
+              quoteId: quote.id,
+              finalCompatibilityAndAvailabilityReview: input.reason.trim(),
+            },
+            context,
+          });
+        }
         await this.consumeReservations(actor.userId, order.id, transaction);
+      }
       const now = new Date();
       const result = await this.repository.updateOrder(
         id,

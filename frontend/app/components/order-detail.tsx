@@ -1,4 +1,5 @@
 "use client";
+import { browseEnquiriesOnly } from "@/lib/public-launch";
 import { NotificationRecordContext } from "./notification-record-context";
 import { WorkflowProgress } from "./status-progress";
 import Link from "next/link";
@@ -110,6 +111,7 @@ export function OrderDetail({ orderId }: { orderId: string }) {
 
   const current = !order.error && order.data?.id === orderId ? order.data : undefined;
   const disabled =
+    browseEnquiriesOnly() ||
     busy ||
     !!uncertain ||
     order.loading ||
@@ -390,6 +392,19 @@ export function OrderDetail({ orderId }: { orderId: string }) {
           />
         )}
       </div>
+      {current?.partsQuote && (
+        <section className="notice">
+          <h2>Quoted parts order</h2>
+          <p>
+            Payment does not confirm compatibility, final availability or readiness for
+            collection. The workshop reviews these before confirming your order.
+          </p>
+          <p>{current.partsQuote.notes}</p>
+          <Link href={`/dashboard/support/enquiries/${current.partsQuote.enquiryId}`}>
+            Open original request and quotation
+          </Link>
+        </section>
+      )}
       {order.loading && (
         <p className="order-loading" role="status">
           Checking order…

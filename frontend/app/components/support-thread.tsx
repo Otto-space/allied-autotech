@@ -1,4 +1,5 @@
 "use client";
+import { PartsQuotations } from "./parts-quotations";
 import { enquiryLabel } from "@/lib/support/enquiry-label";
 import { useCallback, useState } from "react";
 import Link from "next/link";
@@ -88,6 +89,9 @@ function StaffSupportThread({
       {result.loading && <p role="status">Checking support record…</p>}
       {record && (
         <>
+          {record.kind === "enquiries" && record.type === "PRODUCT" && (
+            <PartsQuotations enquiryId={record.id} />
+          )}
           <section
             className="detail-section support-details"
             aria-labelledby="support-detail-title"
@@ -141,6 +145,17 @@ function StaffSupportThread({
               <dd>{formatBusinessDate(record.updatedAt)}</dd>
             </dl>
             <h3>Original {kind === "enquiries" ? "message" : "complaint"}</h3>
+
+            {record.kind === "enquiries" && record.serviceCategory && (
+              <p>
+                Main service:{" "}
+                <Link
+                  href={`/services?categoryId=${record.serviceCategory.id}#service-catalogue`}
+                >
+                  {record.serviceCategory.name}
+                </Link>
+              </p>
+            )}
             <p className="support-text">{record.text}</p>
             {record.kind === "complaints" && record.resolution && (
               <>

@@ -40,6 +40,8 @@ const enquiryBaseSelect = {
   message: true,
   productId: true,
   serviceId: true,
+  serviceCategoryId: true,
+  serviceCategory: { select: { id: true, name: true } },
   bookingId: true,
   quoteId: true,
   vehicleListingId: true,
@@ -169,6 +171,12 @@ export class SupportRepository {
   activeService(id: string, client: DatabaseClient) {
     return client.service.findFirst({
       where: { id, isActive: true },
+      select: { id: true, categoryId: true },
+    });
+  }
+  activeServiceCategory(id: string, client: DatabaseClient) {
+    return client.serviceCategory.findFirst({
+      where: { id, isActive: true },
       select: { id: true },
     });
   }
@@ -250,7 +258,12 @@ export class SupportRepository {
         ...(input.type === "PRODUCT" && input.productId
           ? { productId: input.productId }
           : {}),
-        ...(input.type === "SERVICE" ? { serviceId: input.serviceId } : {}),
+        ...(input.type === "SERVICE"
+          ? {
+              serviceId: input.serviceId ?? null,
+              serviceCategoryId: input.serviceCategoryId ?? null,
+            }
+          : {}),
         ...(input.type === "VEHICLE"
           ? {
               vehicleListingId: input.vehicleListingId ?? null,
@@ -279,8 +292,13 @@ export class SupportRepository {
         name: `${customer.firstName} ${customer.lastName}`,
         email: customer.user.email,
         phone: customer.phone,
-        ...(input.type === "PRODUCT" ? { productId: input.productId } : {}),
-        ...(input.type === "SERVICE" ? { serviceId: input.serviceId } : {}),
+        ...(input.type === "PRODUCT" ? { productId: input.productId ?? null } : {}),
+        ...(input.type === "SERVICE"
+          ? {
+              serviceId: input.serviceId ?? null,
+              serviceCategoryId: input.serviceCategoryId ?? null,
+            }
+          : {}),
         ...(input.type === "VEHICLE"
           ? {
               vehicleListingId: input.vehicleListingId ?? null,

@@ -70441,6 +70441,1595 @@
         "x-idempotency-required": false
       }
     },
+    "/customers/parts-quotes/enquiries/{id}": {
+      "get": {
+        "summary": "List quotations for an owned parts request",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Identifier of the id resource; ownership is resolved server-side."
+            },
+            "required": true,
+            "name": "id",
+            "in": "path",
+            "description": "Identifier selecting the id resource.",
+            "example": "00000000-0000-4000-8000-000000000001"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success: List quotations for an owned parts request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "description": "Success validated by this operation's strict request contract."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                    },
+                    "data": {
+                      "type": "object",
+                      "description": "Cursor-paginated result for: List quotations for an owned parts request.",
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "description": "Authorized resource projections for this page.",
+                          "items": {
+                            "type": "object",
+                            "description": "Safe item projection returned by List quotations for an owned parts request.",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "description": "Public or authorized resource identifier."
+                              },
+                              "status": {
+                                "type": "string",
+                                "description": "Current server-owned lifecycle state when applicable."
+                              }
+                            },
+                            "additionalProperties": true
+                          }
+                        },
+                        "nextCursor": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "format": "uuid",
+                          "description": "Cursor for the next page, or null/omitted when exhausted."
+                        }
+                      },
+                      "required": [
+                        "items"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string",
+                          "description": "Identifier of the request resource; ownership is resolved server-side."
+                        }
+                      },
+                      "required": [
+                        "requestId"
+                      ],
+                      "description": "Meta validated by this operation's strict request contract."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "meta"
+                  ],
+                  "description": "Response validated by this operation's strict request contract."
+                },
+                "example": {
+                  "success": true,
+                  "message": "List quotations for an owned parts request",
+                  "data": {
+                    "items": [
+                      {
+                        "id": "00000000-0000-4000-8000-000000000001",
+                        "status": "synthetic-status"
+                      }
+                    ],
+                    "nextCursor": "00000000-0000-4000-8000-000000000001"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is malformed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request is malformed.",
+                  "error": {
+                    "code": "BAD_REQUEST"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "A valid session and required assurance are missing.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A valid session and required assurance are missing.",
+                  "error": {
+                    "code": "UNAUTHORIZED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The actor is not authorized for this resource or action.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The actor is not authorized for this resource or action.",
+                  "error": {
+                    "code": "FORBIDDEN"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource is not available.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The requested resource is not available.",
+                  "error": {
+                    "code": "NOT_FOUND"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "One or more request fields are invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "One or more request fields are invalid.",
+                  "error": {
+                    "code": "VALIDATION_FAILED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The route-specific request limit was exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The route-specific request limit was exceeded.",
+                  "error": {
+                    "code": "RATE_LIMITED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                  "error": {
+                    "code": "INTERNAL_ERROR"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                  "error": {
+                    "code": "DATABASE_UNAVAILABLE"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getCustomersPartsQuotesEnquiriesById",
+        "description": "List quotations for an owned parts request. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.",
+        "x-access-boundary": "authenticated-customer",
+        "x-required-roles": [
+          "CUSTOMER"
+        ],
+        "x-csrf-required": false,
+        "x-idempotency-required": false
+      }
+    },
+    "/admin/parts-quotes/enquiries/{id}": {
+      "get": {
+        "summary": "List quotations for administrator assessment",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Identifier of the id resource; ownership is resolved server-side."
+            },
+            "required": true,
+            "name": "id",
+            "in": "path",
+            "description": "Identifier selecting the id resource.",
+            "example": "00000000-0000-4000-8000-000000000001"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success: List quotations for administrator assessment.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "description": "Success validated by this operation's strict request contract."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                    },
+                    "data": {
+                      "type": "object",
+                      "description": "Cursor-paginated result for: List quotations for administrator assessment.",
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "description": "Authorized resource projections for this page.",
+                          "items": {
+                            "type": "object",
+                            "description": "Safe item projection returned by List quotations for administrator assessment.",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "description": "Public or authorized resource identifier."
+                              },
+                              "status": {
+                                "type": "string",
+                                "description": "Current server-owned lifecycle state when applicable."
+                              }
+                            },
+                            "additionalProperties": true
+                          }
+                        },
+                        "nextCursor": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "format": "uuid",
+                          "description": "Cursor for the next page, or null/omitted when exhausted."
+                        }
+                      },
+                      "required": [
+                        "items"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string",
+                          "description": "Identifier of the request resource; ownership is resolved server-side."
+                        }
+                      },
+                      "required": [
+                        "requestId"
+                      ],
+                      "description": "Meta validated by this operation's strict request contract."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "meta"
+                  ],
+                  "description": "Response validated by this operation's strict request contract."
+                },
+                "example": {
+                  "success": true,
+                  "message": "List quotations for administrator assessment",
+                  "data": {
+                    "items": [
+                      {
+                        "id": "00000000-0000-4000-8000-000000000001",
+                        "status": "synthetic-status"
+                      }
+                    ],
+                    "nextCursor": "00000000-0000-4000-8000-000000000001"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is malformed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request is malformed.",
+                  "error": {
+                    "code": "BAD_REQUEST"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "A valid session and required assurance are missing.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A valid session and required assurance are missing.",
+                  "error": {
+                    "code": "UNAUTHORIZED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The actor is not authorized for this resource or action.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The actor is not authorized for this resource or action.",
+                  "error": {
+                    "code": "FORBIDDEN"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource is not available.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The requested resource is not available.",
+                  "error": {
+                    "code": "NOT_FOUND"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "One or more request fields are invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "One or more request fields are invalid.",
+                  "error": {
+                    "code": "VALIDATION_FAILED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The route-specific request limit was exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The route-specific request limit was exceeded.",
+                  "error": {
+                    "code": "RATE_LIMITED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                  "error": {
+                    "code": "INTERNAL_ERROR"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                  "error": {
+                    "code": "DATABASE_UNAVAILABLE"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getAdminPartsQuotesEnquiriesById",
+        "description": "List quotations for administrator assessment. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.",
+        "x-access-boundary": "mfa-verified-admin",
+        "x-required-roles": [
+          "ADMIN",
+          "SUPER_ADMIN"
+        ],
+        "x-csrf-required": false,
+        "x-idempotency-required": false
+      },
+      "post": {
+        "summary": "Issue an immutable quotation revision for an assessed catalogue product",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Identifier of the id resource; ownership is resolved server-side."
+            },
+            "required": true,
+            "name": "id",
+            "in": "path",
+            "description": "Identifier selecting the id resource.",
+            "example": "00000000-0000-4000-8000-000000000001"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+            },
+            "required": true,
+            "name": "x-csrf-token",
+            "in": "header",
+            "description": "Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.",
+            "example": "synthetic-token-value-not-a-real-secret"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 120,
+              "description": "Idempotency Key validated by this operation's strict request contract."
+            },
+            "required": true,
+            "name": "idempotency-key",
+            "in": "header",
+            "description": "Unique retry key for this logical mutation. Reuse it only with the identical request.",
+            "example": "synthetic-idempotency-key"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "expectedRevision": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 2147483646,
+                    "description": "Last server version observed by the client; stale writes are rejected."
+                  },
+                  "productId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Identifier of the product resource; ownership is resolved server-side."
+                  },
+                  "quantity": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Quantity validated by this operation's strict request contract."
+                  },
+                  "unitPriceKobo": {
+                    "type": "string",
+                    "pattern": "^[1-9][0-9]{0,12}$",
+                    "description": "Integer price in Nigerian kobo; client-calculated values are never authoritative."
+                  },
+                  "notes": {
+                    "type": "string",
+                    "minLength": 10,
+                    "maxLength": 2000,
+                    "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                  },
+                  "expiresAt": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "ISO 8601 timestamp interpreted and validated by the server."
+                  }
+                },
+                "required": [
+                  "expectedRevision",
+                  "productId",
+                  "quantity",
+                  "unitPriceKobo",
+                  "notes",
+                  "expiresAt"
+                ],
+                "additionalProperties": false,
+                "description": "Request Body validated by this operation's strict request contract."
+              },
+              "example": {
+                "expectedRevision": 0,
+                "productId": "00000000-0000-4000-8000-000000000001",
+                "quantity": 1,
+                "unitPriceKobo": "300000",
+                "notes": "synthetic-notes",
+                "expiresAt": "2030-01-15T10:00:00.000Z"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Success: Issue an immutable quotation revision for an assessed catalogue product.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "description": "Success validated by this operation's strict request contract."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                    },
+                    "data": {
+                      "type": "object",
+                      "description": "Authorized response projection for: Issue an immutable quotation revision for an assessed catalogue product.",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "description": "Public or authorized resource identifier."
+                        },
+                        "status": {
+                          "type": "string",
+                          "description": "Current server-owned lifecycle state when applicable."
+                        }
+                      },
+                      "additionalProperties": true
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string",
+                          "description": "Identifier of the request resource; ownership is resolved server-side."
+                        }
+                      },
+                      "required": [
+                        "requestId"
+                      ],
+                      "description": "Meta validated by this operation's strict request contract."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "meta"
+                  ],
+                  "description": "Response validated by this operation's strict request contract."
+                },
+                "example": {
+                  "success": true,
+                  "message": "Issue an immutable quotation revision for an assessed catalogue product",
+                  "data": {
+                    "id": "00000000-0000-4000-8000-000000000001",
+                    "status": "synthetic-status"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is malformed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request is malformed.",
+                  "error": {
+                    "code": "BAD_REQUEST"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "A valid session and required assurance are missing.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A valid session and required assurance are missing.",
+                  "error": {
+                    "code": "UNAUTHORIZED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The actor is not authorized for this resource or action.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The actor is not authorized for this resource or action.",
+                  "error": {
+                    "code": "FORBIDDEN"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource is not available.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The requested resource is not available.",
+                  "error": {
+                    "code": "NOT_FOUND"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The request conflicts with current state or idempotency.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request conflicts with current state or idempotency.",
+                  "error": {
+                    "code": "CONFLICT"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "One or more request fields are invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "One or more request fields are invalid.",
+                  "error": {
+                    "code": "VALIDATION_FAILED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The route-specific request limit was exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The route-specific request limit was exceeded.",
+                  "error": {
+                    "code": "RATE_LIMITED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                  "error": {
+                    "code": "INTERNAL_ERROR"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                  "error": {
+                    "code": "DATABASE_UNAVAILABLE"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "postAdminPartsQuotesEnquiriesById",
+        "description": "Issue an immutable quotation revision for an assessed catalogue product. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.",
+        "x-access-boundary": "mfa-verified-admin",
+        "x-required-roles": [
+          "ADMIN",
+          "SUPER_ADMIN"
+        ],
+        "x-csrf-required": true,
+        "x-idempotency-required": true
+      }
+    },
+    "/customers/parts-quotes/{id}/accept": {
+      "post": {
+        "summary": "Accept an owned current quotation and create one guarded collection order",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Identifier of the id resource; ownership is resolved server-side."
+            },
+            "required": true,
+            "name": "id",
+            "in": "path",
+            "description": "Identifier selecting the id resource.",
+            "example": "00000000-0000-4000-8000-000000000001"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+            },
+            "required": true,
+            "name": "x-csrf-token",
+            "in": "header",
+            "description": "Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.",
+            "example": "synthetic-token-value-not-a-real-secret"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 120,
+              "description": "Idempotency Key validated by this operation's strict request contract."
+            },
+            "required": true,
+            "name": "idempotency-key",
+            "in": "header",
+            "description": "Unique retry key for this logical mutation. Reuse it only with the identical request.",
+            "example": "synthetic-idempotency-key"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "revision": {
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "description": "Revision validated by this operation's strict request contract."
+                  }
+                },
+                "required": [
+                  "revision"
+                ],
+                "additionalProperties": false,
+                "description": "Request Body validated by this operation's strict request contract."
+              },
+              "example": {
+                "revision": 1
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Success: Accept an owned current quotation and create one guarded collection order.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "description": "Success validated by this operation's strict request contract."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                    },
+                    "data": {
+                      "type": "object",
+                      "description": "Authorized response projection for: Accept an owned current quotation and create one guarded collection order.",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "description": "Public or authorized resource identifier."
+                        },
+                        "status": {
+                          "type": "string",
+                          "description": "Current server-owned lifecycle state when applicable."
+                        }
+                      },
+                      "additionalProperties": true
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string",
+                          "description": "Identifier of the request resource; ownership is resolved server-side."
+                        }
+                      },
+                      "required": [
+                        "requestId"
+                      ],
+                      "description": "Meta validated by this operation's strict request contract."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "meta"
+                  ],
+                  "description": "Response validated by this operation's strict request contract."
+                },
+                "example": {
+                  "success": true,
+                  "message": "Accept an owned current quotation and create one guarded collection order",
+                  "data": {
+                    "id": "00000000-0000-4000-8000-000000000001",
+                    "status": "synthetic-status"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is malformed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request is malformed.",
+                  "error": {
+                    "code": "BAD_REQUEST"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "A valid session and required assurance are missing.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A valid session and required assurance are missing.",
+                  "error": {
+                    "code": "UNAUTHORIZED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The actor is not authorized for this resource or action.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The actor is not authorized for this resource or action.",
+                  "error": {
+                    "code": "FORBIDDEN"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource is not available.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The requested resource is not available.",
+                  "error": {
+                    "code": "NOT_FOUND"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The request conflicts with current state or idempotency.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request conflicts with current state or idempotency.",
+                  "error": {
+                    "code": "CONFLICT"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "One or more request fields are invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "One or more request fields are invalid.",
+                  "error": {
+                    "code": "VALIDATION_FAILED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The route-specific request limit was exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The route-specific request limit was exceeded.",
+                  "error": {
+                    "code": "RATE_LIMITED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                  "error": {
+                    "code": "INTERNAL_ERROR"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                  "error": {
+                    "code": "DATABASE_UNAVAILABLE"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "postCustomersPartsQuotesByIdAccept",
+        "description": "Accept an owned current quotation and create one guarded collection order. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.",
+        "x-access-boundary": "authenticated-customer",
+        "x-required-roles": [
+          "CUSTOMER"
+        ],
+        "x-csrf-required": true,
+        "x-idempotency-required": true
+      }
+    },
+    "/customers/parts-quotes/{id}/decline": {
+      "post": {
+        "summary": "Decline an owned current quotation",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Identifier of the id resource; ownership is resolved server-side."
+            },
+            "required": true,
+            "name": "id",
+            "in": "path",
+            "description": "Identifier selecting the id resource.",
+            "example": "00000000-0000-4000-8000-000000000001"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+            },
+            "required": true,
+            "name": "x-csrf-token",
+            "in": "header",
+            "description": "Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.",
+            "example": "synthetic-token-value-not-a-real-secret"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "revision": {
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "description": "Revision validated by this operation's strict request contract."
+                  }
+                },
+                "required": [
+                  "revision"
+                ],
+                "additionalProperties": false,
+                "description": "Request Body validated by this operation's strict request contract."
+              },
+              "example": {
+                "revision": 1
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success: Decline an owned current quotation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "description": "Success validated by this operation's strict request contract."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                    },
+                    "data": {
+                      "type": "object",
+                      "description": "Authorized response projection for: Decline an owned current quotation.",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "description": "Public or authorized resource identifier."
+                        },
+                        "status": {
+                          "type": "string",
+                          "description": "Current server-owned lifecycle state when applicable."
+                        }
+                      },
+                      "additionalProperties": true
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string",
+                          "description": "Identifier of the request resource; ownership is resolved server-side."
+                        }
+                      },
+                      "required": [
+                        "requestId"
+                      ],
+                      "description": "Meta validated by this operation's strict request contract."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "meta"
+                  ],
+                  "description": "Response validated by this operation's strict request contract."
+                },
+                "example": {
+                  "success": true,
+                  "message": "Decline an owned current quotation",
+                  "data": {
+                    "id": "00000000-0000-4000-8000-000000000001",
+                    "status": "synthetic-status"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is malformed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request is malformed.",
+                  "error": {
+                    "code": "BAD_REQUEST"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "A valid session and required assurance are missing.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A valid session and required assurance are missing.",
+                  "error": {
+                    "code": "UNAUTHORIZED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The actor is not authorized for this resource or action.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The actor is not authorized for this resource or action.",
+                  "error": {
+                    "code": "FORBIDDEN"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource is not available.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The requested resource is not available.",
+                  "error": {
+                    "code": "NOT_FOUND"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The request conflicts with current state or idempotency.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request conflicts with current state or idempotency.",
+                  "error": {
+                    "code": "CONFLICT"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "One or more request fields are invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "One or more request fields are invalid.",
+                  "error": {
+                    "code": "VALIDATION_FAILED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The route-specific request limit was exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The route-specific request limit was exceeded.",
+                  "error": {
+                    "code": "RATE_LIMITED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                  "error": {
+                    "code": "INTERNAL_ERROR"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                  "error": {
+                    "code": "DATABASE_UNAVAILABLE"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "postCustomersPartsQuotesByIdDecline",
+        "description": "Decline an owned current quotation. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.",
+        "x-access-boundary": "authenticated-customer",
+        "x-required-roles": [
+          "CUSTOMER"
+        ],
+        "x-csrf-required": true,
+        "x-idempotency-required": false
+      }
+    },
     "/customers/orders/checkout": {
       "post": {
         "summary": "Create an atomic server-priced checkout",
@@ -121575,6 +123164,11 @@
                         "type": "string",
                         "format": "uuid",
                         "description": "Identifier of the service resource; ownership is resolved server-side."
+                      },
+                      "serviceCategoryId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Identifier of the service category resource; ownership is resolved server-side."
                       }
                     },
                     "required": [
@@ -121582,8 +123176,7 @@
                       "message",
                       "name",
                       "email",
-                      "type",
-                      "serviceId"
+                      "type"
                     ],
                     "additionalProperties": false,
                     "description": "Request Body validated by this operation's strict request contract."
@@ -123352,8 +124945,7 @@
                     "required": [
                       "subject",
                       "message",
-                      "type",
-                      "productId"
+                      "type"
                     ],
                     "additionalProperties": false,
                     "description": "Request Body validated by this operation's strict request contract."
@@ -123389,13 +124981,17 @@
                         "type": "string",
                         "format": "uuid",
                         "description": "Identifier of the service resource; ownership is resolved server-side."
+                      },
+                      "serviceCategoryId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Identifier of the service category resource; ownership is resolved server-side."
                       }
                     },
                     "required": [
                       "subject",
                       "message",
-                      "type",
-                      "serviceId"
+                      "type"
                     ],
                     "additionalProperties": false,
                     "description": "Request Body validated by this operation's strict request contract."
@@ -123720,6 +125316,36 @@
                           "format": "uuid",
                           "description": "Identifier of the service resource; ownership is resolved server-side."
                         },
+                        "serviceCategoryId": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "format": "uuid",
+                          "description": "Identifier of the service category resource; ownership is resolved server-side."
+                        },
+                        "serviceCategory": {
+                          "type": [
+                            "object",
+                            "null"
+                          ],
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid",
+                              "description": "Identifier of the id resource; ownership is resolved server-side."
+                            },
+                            "name": {
+                              "type": "string",
+                              "description": "Name validated by this operation's strict request contract."
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "name"
+                          ],
+                          "description": "Service Category validated by this operation's strict request contract."
+                        },
                         "bookingId": {
                           "type": [
                             "string",
@@ -123775,6 +125401,8 @@
                         "message",
                         "productId",
                         "serviceId",
+                        "serviceCategoryId",
+                        "serviceCategory",
                         "bookingId",
                         "quoteId",
                         "vehicleListingId",
@@ -123833,6 +125461,11 @@
                     "message": "synthetic-message",
                     "productId": "00000000-0000-4000-8000-000000000001",
                     "serviceId": "00000000-0000-4000-8000-000000000001",
+                    "serviceCategoryId": "00000000-0000-4000-8000-000000000001",
+                    "serviceCategory": {
+                      "id": "00000000-0000-4000-8000-000000000001",
+                      "name": "synthetic-name"
+                    },
                     "bookingId": "00000000-0000-4000-8000-000000000001",
                     "quoteId": "00000000-0000-4000-8000-000000000001",
                     "vehicleListingId": "00000000-0000-4000-8000-000000000001",

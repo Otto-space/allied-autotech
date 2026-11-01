@@ -311,7 +311,7 @@ test("quantity validation, confirmed receipts, duplicate guard and favourites", 
   const { writes, state } = await setup(page);
   await page.goto(routePath);
   const quantity = page.getByLabel("Quantity", { exact: true });
-  const submit = page.getByRole("button", { name: "Save quantity to cart" });
+  const submit = page.getByRole("button", { name: "Add to cart" });
   for (const value of ["0", "1.5", "1001", ""]) {
     await quantity.fill(value);
     await submit.click();
@@ -337,8 +337,8 @@ test("quantity validation, confirmed receipts, duplicate guard and favourites", 
     "/dashboard/saved",
   );
   await expect(
-    page.getByRole("button", { name: "Saved to favourites", exact: true }),
-  ).toBeDisabled();
+    page.getByRole("button", { name: "Remove from favourites", exact: true }),
+  ).toBeEnabled();
   await axe(page);
   await page.screenshot({ path: path.join(os.tmpdir(), "product-detail-success.png") });
 });
@@ -353,9 +353,7 @@ for (const role of ["ANONYMOUS", "STAFF", "ADMIN", "SUPER_ADMIN"]) {
         ? "A customer account is required"
         : "Shopping actions are available to customer accounts",
     );
-    await expect(page.getByRole("button", { name: "Save quantity to cart" })).toHaveCount(
-      0,
-    );
+    await expect(page.getByRole("button", { name: "Add to cart" })).toHaveCount(0);
     await expect(
       page.getByRole("button", { name: "Save to favourites", exact: true }),
     ).toHaveCount(0);
@@ -389,16 +387,14 @@ test("checking and failed account reads hide mutations until retry succeeds", as
   state.sessionStatus = 503;
   await page.goto(routePath);
   await expect(page.locator(".pd-access")).toContainText("Checking your account");
-  await expect(page.getByRole("button", { name: "Save quantity to cart" })).toHaveCount(
-    0,
-  );
+  await expect(page.getByRole("button", { name: "Add to cart" })).toHaveCount(0);
   const retry = page.getByRole("button", { name: "Retry account check" });
   await expect(retry).toBeVisible();
   await axe(page);
   state.sessionStatus = 200;
   state.sessionDelay = 0;
   await retry.click();
-  await expect(page.getByRole("button", { name: "Save quantity to cart" })).toBeEnabled();
+  await expect(page.getByRole("button", { name: "Add to cart" })).toBeEnabled();
   expect(writes).toEqual([]);
 });
 test("fresh mutation preflight refuses a changed role and session events refresh access", async ({
@@ -408,7 +404,7 @@ test("fresh mutation preflight refuses a changed role and session events refresh
   await page.goto(routePath);
   await expect(page.getByLabel("Quantity", { exact: true })).toBeVisible();
   state.role = "ADMIN";
-  await page.getByRole("button", { name: "Save quantity to cart" }).click();
+  await page.getByRole("button", { name: "Add to cart" }).click();
   await expect(page.locator(".pd-access")).toContainText(
     "Shopping actions are available to customer accounts",
   );
@@ -458,7 +454,7 @@ test("failure states retain quantity and never claim success", async ({ page }) 
   await page.getByLabel("Quantity", { exact: true }).fill("4");
   for (const status of [409, 422, 429, 403, 500]) {
     state.status = status;
-    await page.getByRole("button", { name: "Save quantity to cart" }).click();
+    await page.getByRole("button", { name: "Add to cart" }).click();
     await expect(page.locator(".pd-feedback[role=alert]")).toBeVisible();
     await expect(page.getByLabel("Quantity", { exact: true })).toHaveValue("4");
     await expect(page.locator("#quantity-error")).toHaveText(
@@ -469,11 +465,11 @@ test("failure states retain quantity and never claim success", async ({ page }) 
   }
   state.status = 200;
   state.wrong = true;
-  await page.getByRole("button", { name: "Save quantity to cart" }).click();
+  await page.getByRole("button", { name: "Add to cart" }).click();
   await expect(page.getByRole("heading", { name: "Update not confirmed" })).toBeFocused();
   state.wrong = false;
   state.offline = true;
-  await page.getByRole("button", { name: "Save quantity to cart" }).click();
+  await page.getByRole("button", { name: "Add to cart" }).click();
   await expect(page.getByRole("heading", { name: "Update not confirmed" })).toBeVisible();
 });
 test("account change discards pending result and quantity", async ({ page }) => {
@@ -481,7 +477,7 @@ test("account change discards pending result and quantity", async ({ page }) => 
   state.slow = 1400;
   await page.goto(routePath);
   await page.getByLabel("Quantity", { exact: true }).fill("7");
-  await page.getByRole("button", { name: "Save quantity to cart" }).click();
+  await page.getByRole("button", { name: "Add to cart" }).click();
   await expect.poll(() => writes.length).toBe(1);
   await page.evaluate(() => window.dispatchEvent(new Event("aat:session-changed")));
   await expect(page.getByText(/Your session changed/)).toBeVisible();
@@ -497,9 +493,7 @@ test("missing media, compatibility, stock and related empty states", async ({ pa
   await expect(page.getByText("Photos not available", { exact: true })).toBeVisible();
   await expect(page.getByText(/Compatibility has not been listed/)).toBeVisible();
   await expect(page.getByText(/Availability has not been listed/)).toBeVisible();
-  await expect(
-    page.getByRole("button", { name: "Save quantity to cart" }),
-  ).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Add to cart" })).toBeDisabled();
   await expect(
     page.getByRole("button", { name: "Save to favourites", exact: true }),
   ).toBeEnabled();
@@ -507,9 +501,7 @@ test("missing media, compatibility, stock and related empty states", async ({ pa
   mode = "out";
   await page.reload();
   await expect(page.getByText(/Currently unavailable/)).toBeVisible();
-  await expect(
-    page.getByRole("button", { name: "Save quantity to cart" }),
-  ).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Add to cart" })).toBeDisabled();
 });
 test("long records, failed image and reduced motion remain usable", async ({ page }) => {
   mode = "long";

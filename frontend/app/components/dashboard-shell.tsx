@@ -1,4 +1,5 @@
 "use client";
+import { browseEnquiriesOnly } from "@/lib/public-launch";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { LogOut, Menu, PanelLeftClose, PanelLeftOpen, UserRound, X } from "lucide-react";
@@ -505,6 +506,17 @@ export function DashboardShell({
           </div>
         </header>
         <main id="main" className="dashboard-content" key={session.user.id}>
+          {session.user.role === "CUSTOMER" &&
+            browseEnquiriesOnly() &&
+            /^\/dashboard\/(orders|bookings|payments|invoices|inspections|vehicle-transactions)(\/|$)/.test(
+              pathname,
+            ) && (
+              <p className="notice" role="status">
+                Your existing records remain available. New online transactions and
+                appointment changes are unavailable in this release. Contact Customer Care
+                for help with a record.
+              </p>
+            )}
           {currentDestination &&
             !(
               session.workforceManaged &&

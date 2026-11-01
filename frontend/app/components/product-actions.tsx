@@ -4,7 +4,7 @@ import { PublicEnquiryActions } from "./public-enquiry-actions";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import { ArrowRight, Check, Heart, ShoppingBag } from "lucide-react";
+import { ArrowRight, Heart, ShoppingBag } from "lucide-react";
 import { z } from "zod";
 import { apiRequest, ApiError, SESSION_CHANGED } from "@/lib/api/client";
 import { productSchema } from "@/lib/api/commerce-schemas";
@@ -159,7 +159,8 @@ function ProductPurchaseActions({
   }, [result, operation.sessionChanged, getFieldState, setFocus]);
   async function mutate(action: Action, quantity = 1) {
     if (access !== "customer") return;
-    if (action === "favourite" && favourite !== "unsaved") return;
+    if (action === "favourite" && !["unsaved", "saved"].includes(favourite)) return;
+    const removing = action === "favourite" && favourite === "saved";
     if (action === "cart" && (enquiriesOnly || !available)) return;
     const controller = operation.begin();
     if (!controller) return;
@@ -199,6 +200,12 @@ function ProductPurchaseActions({
           productId,
           quantity,
         );
+      } else if (removing) {
+        await apiRequest(`/customers/favourites/${productId}`, {
+          method: "DELETE",
+          csrf: true,
+          signal: controller.signal,
+        });
       } else {
         const receipt = favouriteReceipt.parse(
           (
@@ -214,23 +221,35 @@ function ProductPurchaseActions({
       }
       if (controller.signal.aborted) return;
       if (action === "favourite") {
-        setFavourite("saved");
-        notify("Product saved to your favourites.", {
-          tone: "success",
-          inlineAnnounced: true,
-          action: { label: "View favourites", href: "/dashboard/saved" },
-        });
+        setFavourite(removing ? "unsaved" : "saved");
+        notify(
+          removing
+            ? "Product removed from your favourites."
+            : "Product saved to your favourites.",
+          {
+            tone: "success",
+            inlineAnnounced: true,
+            action: { label: "View favourites", href: "/dashboard/saved" },
+          },
+        );
       }
       if (updatedCart) setDrawerOpen(true);
       setResult({
         action,
         cart: updatedCart,
         success: true,
-        title: action === "cart" ? "Cart updated" : "Product saved",
+        title:
+          action === "cart"
+            ? "Cart updated"
+            : removing
+              ? "Product removed"
+              : "Product saved",
         message:
           action === "cart"
             ? "Your cart quantity has been saved. Review your cart to continue."
-            : "Product saved to your favourites.",
+            : removing
+              ? "Product removed from your favourites."
+              : "Product saved to your favourites.",
       });
     } catch (value) {
       if (controller.signal.aborted) return;
@@ -263,12 +282,34 @@ function ProductPurchaseActions({
       if (!controller.signal.aborted) setActive(undefined);
     }
   }
+  const favouriteControl =
+    access === "customer" && favourite !== "error" ? (
+      <button
+        type="button"
+        className="button secondary pd-favourite"
+        aria-label={
+          active === "favourite"
+            ? "Updating favourites…"
+            : favourite === "checking"
+              ? "Checking favourites…"
+              : saved
+                ? "Remove from favourites"
+                : "Save to favourites"
+        }
+        aria-pressed={saved}
+        disabled={busy || favourite === "checking"}
+        onClick={() => void mutate("favourite")}
+      >
+        <Heart size={20} fill={saved ? "currentColor" : "none"} aria-hidden="true" />
+      </button>
+    ) : null;
   return (
     <div className="pd-actions">
       {enquiriesOnly && (
         <PublicEnquiryActions
           subject={productName ?? "this product"}
           enquiryHref={enquiryHref}
+          primaryAccessory={favouriteControl}
         />
       )}
       {operation.sessionChanged && (
@@ -379,8 +420,9 @@ function ProductPurchaseActions({
                 />
                 <button ref={cartButton} className="button" disabled={busy || !available}>
                   <ShoppingBag size={17} aria-hidden="true" />
-                  {active === "cart" ? "Saving…" : "Save quantity to cart"}
+                  {active === "cart" ? "Saving…" : "Add to cart"}
                 </button>
+                {favouriteControl}
               </div>
               {form.formState.errors.quantity && (
                 <p id="quantity-error" className="pd-field-error" role="alert">
@@ -407,27 +449,7 @@ function ProductPurchaseActions({
                 Retry favourites check
               </button>
             </div>
-          ) : (
-            <button
-              type="button"
-              className="button secondary pd-favourite"
-              disabled={busy || favourite !== "unsaved"}
-              onClick={() => void mutate("favourite")}
-            >
-              {saved ? (
-                <Check size={18} aria-hidden="true" />
-              ) : (
-                <Heart size={18} aria-hidden="true" />
-              )}
-              {active === "favourite"
-                ? "Saving…"
-                : favourite === "checking"
-                  ? "Checking favourites…"
-                  : saved
-                    ? "Saved to favourites"
-                    : "Save to favourites"}
-            </button>
-          )}
+          ) : null}
           {saved && result?.action !== "favourite" && (
             <Link className="pd-link" href="/dashboard/saved">
               View favourites <ArrowRight size={17} aria-hidden="true" />

@@ -21,7 +21,6 @@ export function catalogueOnly() {
 export function restrictedLaunchPage(pathname: string) {
   if (catalogueOnly() && /^\/(?:register|dashboard|payments)(?:\/|$)/i.test(pathname))
     return true;
-  return /^\/dashboard\/(?:cart|orders|bookings|payments|vehicle-transactions|inspections|invoices)(?:\/|$)/i.test(
-    pathname,
-  );
+  // Existing records remain readable; the backend independently rejects transaction writes.
+  return browseEnquiriesOnly() && /^\/dashboard\/cart(?:\/|$)/i.test(pathname);
 }

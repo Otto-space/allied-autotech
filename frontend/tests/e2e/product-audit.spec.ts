@@ -189,8 +189,8 @@ for (const width of [390, 1440]) {
     await page.evaluate(() => window.dispatchEvent(new Event("aat:session-changed")));
     await page.getByRole("button", { name: "Save to favourites", exact: true }).click();
     await expect(
-      page.getByRole("button", { name: "Saved to favourites", exact: true }),
-    ).toBeDisabled();
+      page.getByRole("button", { name: "Remove from favourites", exact: true }),
+    ).toBeEnabled();
     expect(writes).toHaveLength(1);
     role = "STAFF";
     await page.evaluate(() => window.dispatchEvent(new Event("aat:session-changed")));

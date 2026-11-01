@@ -110,10 +110,16 @@ function OrderRecord({
       return;
     }
     const reason = fulfilmentReason.safeParse(String(form.get("reason") ?? ""));
-    if (!reason.success || (status.data === "CANCELLED" && !reason.data)) {
+    if (
+      !reason.success ||
+      (status.data === "CANCELLED" && !reason.data) ||
+      (current.partsQuote &&
+        status.data === "CONFIRMED" &&
+        (reason.data?.length ?? 0) < 10)
+    ) {
       invalidate(
         "fulfilment-reason",
-        "Enter a reason of up to 500 characters, in one paragraph. A reason is required for cancellation.",
+        "Enter a reason of up to 500 characters, in one paragraph. Cancellation requires a reason. Quoted order confirmation requires at least 10 characters recording final compatibility (or why fitment is not applicable) and availability review.",
       );
       return;
     }
@@ -311,6 +317,17 @@ function OrderRecord({
                 Payment
               </dt>
               <dd>{current.paidAt ? "Recorded" : "Not recorded"}</dd>
+              {current.partsQuote && (
+                <dd>
+                  <Link href={`/admin/support/enquiries/${current.partsQuote.enquiryId}`}>
+                    Original parts request and quotation
+                  </Link>
+                  <p>
+                    Confirm only after recording final compatibility and availability
+                    review. Confirmation consumes actual stock.
+                  </p>
+                </dd>
+              )}
             </div>
             <div>
               <dt>
@@ -508,7 +525,7 @@ function OrderRecord({
                       </div>
                       <div className="field">
                         <label htmlFor="fulfilment-reason">
-                          Reason (required for cancellation)
+                          Reason / final compatibility and availability review
                         </label>
                         <textarea
                           id="fulfilment-reason"

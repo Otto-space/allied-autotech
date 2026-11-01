@@ -37,6 +37,8 @@ const enquiry = base.extend({
   message: z.string(),
   productId: ref,
   serviceId: ref,
+  serviceCategoryId: ref.optional(),
+  serviceCategory: z.object({ id: z.uuid(), name: z.string() }).nullable().optional(),
   bookingId: ref,
   quoteId: ref,
   vehicleListingId: ref,
@@ -133,33 +135,45 @@ export const supportText = (
       "Remove unsupported control characters.",
     );
 export const supportCreateSchema = z.object({
+  partQuantity: z
+    .string()
+    .regex(/^(?:[1-9][0-9]?|100)$/, "Enter a quantity from 1 to 100.")
+    .optional(),
+  partNumber: z.string().trim().max(100).optional(),
+  partVehicle: z.string().trim().max(250).optional(),
   subject: supportText(160, true, "Enter a subject for your request."),
   message: supportText(4000, true, "Enter a message with the details of your request."),
   name: supportText(120, false),
   email: z.string().trim(),
   phone: z.string().trim().max(32),
 });
-export function supportCreationSchema(publicMode: boolean) {
-  return supportCreateSchema.superRefine((value, context) => {
-    if (!publicMode) return;
-    if (!value.name)
-      context.addIssue({ code: "custom", path: ["name"], message: "Enter your name." });
-    if (!z.email().max(254).safeParse(value.email).success)
-      context.addIssue({
-        code: "custom",
-        path: ["email"],
-        message: "Enter a valid email address.",
-      });
-    if (
-      value.phone &&
-      (value.phone.length < 7 || !/^\+?[0-9][0-9 ()-]*$/.test(value.phone))
-    )
-      context.addIssue({
-        code: "custom",
-        path: ["phone"],
-        message: "Enter a valid phone number.",
-      });
-  });
+export function supportCreationSchema(publicMode: boolean, partsRequest = false) {
+  return supportCreateSchema
+    .extend({
+      message: partsRequest
+        ? supportText(4000, false)
+        : supportCreateSchema.shape.message,
+    })
+    .superRefine((value, context) => {
+      if (!publicMode) return;
+      if (!value.name)
+        context.addIssue({ code: "custom", path: ["name"], message: "Enter your name." });
+      if (!z.email().max(254).safeParse(value.email).success)
+        context.addIssue({
+          code: "custom",
+          path: ["email"],
+          message: "Enter a valid email address.",
+        });
+      if (
+        value.phone &&
+        (value.phone.length < 7 || !/^\+?[0-9][0-9 ()-]*$/.test(value.phone))
+      )
+        context.addIssue({
+          code: "custom",
+          path: ["phone"],
+          message: "Enter a valid phone number.",
+        });
+    });
 }
 export const supportReplySchema = z.object({
   message: supportText(4000),
@@ -217,18 +231,39 @@ const enquiryRequestFields = { ...customerRequestFields, message: supportText(40
 export const customerEnquiryRequestSchema = z.discriminatedUnion("type", [
   z.object({ ...enquiryRequestFields, type: z.literal("GENERAL") }).strict(),
   z
-    .object({ ...enquiryRequestFields, type: z.literal("PRODUCT"), productId: z.uuid() })
-    .strict(),
-  z
-    .object({ ...enquiryRequestFields, type: z.literal("SERVICE"), serviceId: z.uuid() })
+    .object({
+      ...enquiryRequestFields,
+      type: z.literal("PRODUCT"),
+      productId: z.uuid().optional(),
+    })
     .strict(),
   z
     .object({
       ...enquiryRequestFields,
-      type: z.literal("VEHICLE"),
-      vehicleListingId: z.uuid(),
+      type: z.literal("SERVICE"),
+      serviceId: z.uuid().optional(),
+      serviceCategoryId: z.uuid().optional(),
     })
-    .strict(),
+    .strict()
+    .refine(
+      (value) => !!(value.serviceId || value.serviceCategoryId),
+      "Choose a service or main service",
+    ),
+  z
+    .object({
+      ...enquiryRequestFields,
+      type: z.literal("VEHICLE"),
+      vehicleListingId: z.uuid().optional(),
+      vehicleEnquiryIntent: z.enum(["LISTING", "REQUIREMENTS"]).optional(),
+    })
+    .strict()
+    .refine(
+      (value) =>
+        value.vehicleEnquiryIntent === "REQUIREMENTS"
+          ? !value.vehicleListingId
+          : !!value.vehicleListingId,
+      "Choose a listing or request requirements",
+    ),
   z
     .object({ ...enquiryRequestFields, type: z.literal("BOOKING"), bookingId: z.uuid() })
     .strict(),

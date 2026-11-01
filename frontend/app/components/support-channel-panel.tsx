@@ -383,8 +383,9 @@ function ChannelControls({
       if (alive.current) setBusy(false);
     }
   }
-  const status =
-    resource.error || resource.refreshError
+  const status = resource.denied
+    ? "Conversation unavailable"
+    : resource.error || resource.refreshError
       ? "Updates paused"
       : resource.loading
         ? "Checking status"
@@ -420,8 +421,9 @@ function ChannelControls({
       )}
       {(resource.error || resource.refreshError) && (
         <p role="status">
-          Current status could not be checked. Your ordinary Care history and message form
-          remain available.
+          {resource.denied
+            ? "Live conversation is unavailable for this case or your current access. Review the case below; you can still use its standard reply form when permitted."
+            : "Live updates are temporarily paused. Review the case history below or use the standard reply form when available."}
         </p>
       )}
       <Feedback

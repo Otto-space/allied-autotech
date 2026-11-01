@@ -573,6 +573,7 @@ enum OutboxStatus {
 }
 
 model User {
+  partsQuotesIssued            PartsQuote[]
   supportLivePresence          SupportLivePresence?
   supportLiveCoverageChanges   SupportLiveCoverage[]            @relation("SupportCoverageEditor")
   assignedSupportConversations SupportConversation[]            @relation("SupportLiveAssignee")
@@ -986,6 +987,7 @@ model ServiceCategory {
   services          Service[]
   mediaImages       ResourceImage[]
   requestedBookings Booking[]
+  enquiries         Enquiry[]
 
   @@index([isActive, sortOrder, name, id])
   @@index([name(ops: raw("gin_trgm_ops"))], type: Gin, map: "ServiceCategory_name_search_idx")
@@ -1269,6 +1271,7 @@ model Category {
 }
 
 model Product {
+  partsQuotes            PartsQuote[]
   brandKey               String?                @db.Text
   searchCore             String                 @default("") @db.Text
   searchDocument         String                 @default("") @db.Text
@@ -1505,6 +1508,7 @@ model CartItem {
 }
 
 model Order {
+  partsQuote                   PartsQuote?
   fulfillmentEvidenceAt        DateTime?
   fulfillmentEvidenceReference String?           @db.VarChar(300)
   taxKobo                      BigInt            @default(0)
@@ -2326,12 +2330,14 @@ enum VehicleEnquiryIntent {
 }
 
 model Enquiry {
+  partsQuotes          PartsQuote[]
   supportConversation  SupportConversation?
   id                   String                @id @default(uuid()) @db.Uuid
   customerId           String?               @db.Uuid
   branchId             String?               @db.Uuid
   productId            String?               @db.Uuid
   serviceId            String?               @db.Uuid
+  serviceCategoryId    String?               @db.Uuid
   bookingId            String?               @db.Uuid
   quoteId              String?               @db.Uuid
   vehicleListingId     String?               @db.Uuid
@@ -2353,6 +2359,7 @@ model Enquiry {
   customer             CustomerProfile?    @relation(fields: [customerId], references: [id], onDelete: SetNull)
   branch               Branch?             @relation(fields: [branchId], references: [id], onDelete: Restrict)
   product              Product?            @relation(fields: [productId], references: [id], onDelete: SetNull)
+  serviceCategory      ServiceCategory?    @relation(fields: [serviceCategoryId], references: [id], onDelete: Restrict)
   service              Service?            @relation(fields: [serviceId], references: [id], onDelete: SetNull)
   booking              Booking?            @relation(fields: [bookingId], references: [id], onDelete: SetNull)
   quote                ServiceQuote?       @relation(fields: [quoteId], references: [id], onDelete: SetNull)
@@ -2361,6 +2368,7 @@ model Enquiry {
   convertedTransaction VehicleTransaction?
   messages             SupportMessage[]
 
+  @@index([serviceCategoryId])
   @@index([customerId])
   @@index([branchId, status, createdAt])
   @@index([vehicleListingId])
@@ -3148,4 +3156,37 @@ model ProductCompatibilityHistory {
 
   @@unique([compatibilityId, version])
   @@index([createdAt, id])
+}
+
+// Issued commercial snapshots are immutable; revisions create new rows.
+model PartsQuote {
+  id                 String      @id @default(uuid()) @db.Uuid
+  enquiryId          String      @db.Uuid
+  productId          String      @db.Uuid
+  createdByUserId    String      @db.Uuid
+  orderId            String?     @unique @db.Uuid
+  revision           Int
+  status             QuoteStatus @default(ISSUED)
+  productName        String
+  sku                String
+  quantity           Int
+  unitPriceKobo      BigInt
+  subtotalKobo       BigInt
+  taxKobo            BigInt
+  totalKobo          BigInt
+  currency           String      @default("NGN") @db.Char(3)
+  notes              String
+  expiresAt          DateTime
+  createdAt          DateTime    @default(now())
+  decidedAt          DateTime?
+  idempotencyKeyHash String      @unique @db.Char(64)
+  requestHash        String      @db.Char(64)
+  policySnapshot     Json
+  enquiry            Enquiry     @relation(fields: [enquiryId], references: [id], onDelete: Restrict)
+  product            Product     @relation(fields: [productId], references: [id], onDelete: Restrict)
+  createdBy          User        @relation(fields: [createdByUserId], references: [id], onDelete: Restrict)
+  order              Order?      @relation(fields: [orderId], references: [id], onDelete: Restrict)
+
+  @@unique([enquiryId, revision])
+  @@index([status, expiresAt])
 }

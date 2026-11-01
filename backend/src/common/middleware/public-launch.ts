@@ -4,7 +4,7 @@ import { errorCodes } from "../errors/error-codes.js";
 
 export type PublicLaunchMode = "full" | "browse_enquiries" | "catalogue";
 const transactionPath =
-  /^\/customers\/(?:cart|orders|bookings|payments|vehicle-transactions|vehicle-inspections)(?:\/|$)/i;
+  /^\/customers\/(?:parts-quotes|cart|orders|bookings|payments|vehicle-transactions|vehicle-inspections)(?:\/|$)/i;
 
 /** Mounted at /api/v1 before domain routers. Staff/admin authentication is unchanged. */
 export function publicLaunch(mode: PublicLaunchMode): RequestHandler {

@@ -17,7 +17,7 @@ import { publicFulfillmentOptionsSchema } from "../../src/modules/policies/polic
 import { testOwner } from "../helpers/owner.js";
 import { testCapability } from "../helpers/owner-policy.js";
 const address =
-  "133 Stadium Road, beside Kilimanjaro, Port Harcourt, Rivers State, Nigeria";
+  "133 Stadium Road, beside Kilimanjaro Pizza Jungle Restaurant, Port Harcourt, Rivers State, Nigeria";
 const context = { requestId: randomUUID(), ipAddress: null, userAgent: null };
 async function session(userId: string, privileged: boolean) {
   const token = generateOpaqueToken(),

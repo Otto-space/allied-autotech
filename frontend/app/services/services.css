@@ -951,6 +951,10 @@
   max-width: 60ch;
   margin-bottom: 20px;
 }
+.service-groups header h2 {
+  font-size: clamp(1.35rem, 2.2vw, 1.8rem);
+  line-height: 1.25;
+}
 .service-group-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));

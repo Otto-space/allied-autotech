@@ -55,6 +55,7 @@ const rowSchema = z.object({
   subject: z.string(),
   message: z.string(),
   type: enquiryType,
+  serviceCategory: z.object({ id: z.uuid(), name: z.string() }).nullable().optional(),
   vehicleEnquiryIntent: z.enum(["LISTING", "REQUIREMENTS"]).nullable().optional(),
   status: enquiryStatus,
   version: z.number().int().nonnegative(),

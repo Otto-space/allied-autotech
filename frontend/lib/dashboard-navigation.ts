@@ -234,7 +234,7 @@ export function dashboardNavigation(
       label:
         role === "CUSTOMER" && group.id === "shop"
           ? browseEnquiriesOnly()
-            ? "Saved items"
+            ? "Orders & saved items"
             : "Orders & saved items"
           : group.label,
       links: group.links.filter(

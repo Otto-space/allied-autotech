@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { ChevronDown, ArrowRight, CheckCircle2 } from "lucide-react";
 import { ContactRecordPicker } from "../contact/contact-record-picker";
+import { parseProfile } from "@/lib/api/profile-schemas";
 import { apiRequest, ApiError, SESSION_CHANGED } from "@/lib/api/client";
 import {
   enquiryTypes,
@@ -50,6 +51,8 @@ export function SupportCreateForm({
   onSaved,
   serviceId,
   serviceName,
+  serviceCategoryId,
+  serviceCategoryName,
   presentation,
   labelledBy,
   userId,
@@ -72,6 +75,8 @@ export function SupportCreateForm({
   onSaved: (id: string) => void;
   serviceId?: string;
   serviceName?: string;
+  serviceCategoryId?: string;
+  serviceCategoryName?: string;
   productId?: string;
   productName?: string;
   initialSubject?: string;
@@ -88,7 +93,7 @@ export function SupportCreateForm({
   onReviewChange?: (open: boolean) => void;
 }) {
   const [type, setType] = useState(
-    serviceId
+    serviceId || serviceCategoryId
       ? "SERVICE"
       : kind === "enquiries"
         ? vehicleListingId || initialEnquiryType === "VEHICLE"
@@ -103,24 +108,31 @@ export function SupportCreateForm({
       ? {
           id: serviceId,
           label: serviceName ?? "Selected service",
-          fields: { serviceId },
+          fields: { serviceId, ...(serviceCategoryId ? { serviceCategoryId } : {}) },
           inheritsBranch: false,
         }
-      : productId && kind === "enquiries"
+      : serviceCategoryId && kind === "enquiries"
         ? {
-            id: productId,
-            label: productName ?? "Selected product",
-            fields: { productId },
+            id: serviceCategoryId,
+            label: serviceCategoryName ?? "Selected main service",
+            fields: { serviceCategoryId },
             inheritsBranch: false,
           }
-        : vehicleListingId && kind === "enquiries"
+        : productId && kind === "enquiries"
           ? {
-              id: vehicleListingId,
-              label: vehicleListingTitle ?? "Selected vehicle listing",
-              fields: { vehicleListingId },
-              inheritsBranch: true,
+              id: productId,
+              label: productName ?? "Selected product",
+              fields: { productId },
+              inheritsBranch: false,
             }
-          : undefined,
+          : vehicleListingId && kind === "enquiries"
+            ? {
+                id: vehicleListingId,
+                label: vehicleListingTitle ?? "Selected vehicle listing",
+                fields: { vehicleListingId },
+                inheritsBranch: true,
+              }
+            : undefined,
   );
   const [vehicleIntent, setVehicleIntent] = useState<"LISTING" | "REQUIREMENTS">(
     initialVehicleEnquiryIntent ?? "LISTING",
@@ -188,14 +200,21 @@ export function SupportCreateForm({
     },
     [],
   );
-  const schema = useMemo(() => supportCreationSchema(publicMode), [publicMode]);
+  const partsRequest = kind === "enquiries" && type === "PRODUCT";
+  const schema = useMemo(
+    () => supportCreationSchema(publicMode, partsRequest),
+    [publicMode, partsRequest],
+  );
   const form = useForm<z.infer<typeof supportCreateSchema>>({
     resolver: zodResolver(schema),
     defaultValues: {
       subject:
         initialSubject ??
-        (serviceName ? `Quotation enquiry: ${serviceName}`.slice(0, 160) : ""),
+        (serviceName ? `Service request: ${serviceName}`.slice(0, 160) : ""),
       message: initialMessage ?? "",
+      partQuantity: "1",
+      partNumber: "",
+      partVehicle: "",
       name: "",
       email: "",
       phone: "",
@@ -227,7 +246,7 @@ export function SupportCreateForm({
       setVisitTime("");
       setVisitError(undefined);
       setType(
-        serviceId
+        serviceId || serviceCategoryId
           ? "SERVICE"
           : kind === "enquiries"
             ? vehicleListingId || initialEnquiryType === "VEHICLE"
@@ -242,24 +261,31 @@ export function SupportCreateForm({
           ? {
               id: serviceId,
               label: serviceName ?? "Selected service",
-              fields: { serviceId },
+              fields: { serviceId, ...(serviceCategoryId ? { serviceCategoryId } : {}) },
               inheritsBranch: false,
             }
-          : productId && kind === "enquiries"
+          : serviceCategoryId && kind === "enquiries"
             ? {
-                id: productId,
-                label: productName ?? "Selected product",
-                fields: { productId },
+                id: serviceCategoryId,
+                label: serviceCategoryName ?? "Selected main service",
+                fields: { serviceCategoryId },
                 inheritsBranch: false,
               }
-            : vehicleListingId && kind === "enquiries"
+            : productId && kind === "enquiries"
               ? {
-                  id: vehicleListingId,
-                  label: vehicleListingTitle ?? "Selected vehicle listing",
-                  fields: { vehicleListingId },
-                  inheritsBranch: true,
+                  id: productId,
+                  label: productName ?? "Selected product",
+                  fields: { productId },
+                  inheritsBranch: false,
                 }
-              : undefined,
+              : vehicleListingId && kind === "enquiries"
+                ? {
+                    id: vehicleListingId,
+                    label: vehicleListingTitle ?? "Selected vehicle listing",
+                    fields: { vehicleListingId },
+                    inheritsBranch: true,
+                  }
+                : undefined,
       );
       setVehicleIntent(initialVehicleEnquiryIntent ?? "LISTING");
       setBranch("");
@@ -267,7 +293,7 @@ export function SupportCreateForm({
       reset({
         subject:
           initialSubject ??
-          (serviceName ? `Quotation enquiry: ${serviceName}`.slice(0, 160) : ""),
+          (serviceName ? `Service request: ${serviceName}`.slice(0, 160) : ""),
         message: initialMessage ?? "",
         name: "",
         email: "",
@@ -281,6 +307,8 @@ export function SupportCreateForm({
     kind,
     serviceId,
     serviceName,
+    serviceCategoryId,
+    serviceCategoryName,
     productId,
     productName,
     initialSubject,
@@ -292,6 +320,49 @@ export function SupportCreateForm({
     reset,
     onUncertain,
   ]);
+  useEffect(() => {
+    if (!publicMode) return;
+    let controller: AbortController | undefined;
+    async function prefill() {
+      controller?.abort();
+      const next = new AbortController();
+      controller = next;
+      try {
+        const session = z
+          .object({ user: z.object({ id: z.uuid(), role: z.string() }) })
+          .parse(
+            (
+              await apiRequest("/auth/session", {
+                optionalSession: true,
+                signal: next.signal,
+              })
+            ).data,
+          );
+        if (next.signal.aborted || session.user.role !== "CUSTOMER") return;
+        const profile = parseProfile(
+          (await apiRequest("/customers/profile", { signal: next.signal })).data,
+        );
+        if (next.signal.aborted || profile.user.id !== session.user.id) return;
+        const values = {
+          name: `${profile.firstName} ${profile.lastName}`,
+          email: profile.user.email,
+          phone: profile.phone,
+        };
+        for (const field of ["name", "email", "phone"] as const) {
+          if (!form.getFieldState(field).isDirty && !form.getValues(field))
+            form.setValue(field, values[field], { shouldDirty: false });
+        }
+      } catch {
+        // Optional account convenience: retain editable contact fields on read failure.
+      }
+    }
+    void prefill();
+    window.addEventListener(SESSION_CHANGED, prefill);
+    return () => {
+      controller?.abort();
+      window.removeEventListener(SESSION_CHANGED, prefill);
+    };
+  }, [publicMode, form]);
   const sourceType = supportSourceTypes.find((value) => value === type);
   const choices =
     kind === "enquiries"
@@ -396,7 +467,7 @@ export function SupportCreateForm({
               if (
                 sourceType &&
                 !source &&
-                !(publicMode && type === "PRODUCT") &&
+                !(type === "PRODUCT") &&
                 !(type === "VEHICLE" && vehicleIntent === "REQUIREMENTS")
               ) {
                 setSelectionError("source");
@@ -410,8 +481,25 @@ export function SupportCreateForm({
                 document.getElementById("support-branch")?.focus();
                 return;
               }
+              const requestMessage = partsRequest
+                ? [
+                    `Requested part or product: ${values.subject}`,
+                    `Quantity: ${values.partQuantity ?? "1"}`,
+                    values.partNumber ? `Part number: ${values.partNumber}` : "",
+                    values.partVehicle ? `Vehicle details: ${values.partVehicle}` : "",
+                    values.message,
+                  ]
+                    .filter(Boolean)
+                    .join("\n")
+                : values.message;
+              if (requestMessage.length > 4000) {
+                setError(
+                  "Shorten the details so your complete request is within 4,000 characters.",
+                );
+                return;
+              }
               const visit = visitRequestMessage({
-                message: values.message,
+                message: requestMessage,
                 type,
                 requested: kind === "enquiries" && visitRequested,
                 date: visitDate,
@@ -482,6 +570,12 @@ export function SupportCreateForm({
                       if (latestPickerBlocked.current)
                         throw new ApiError(409, { error: { code: "CONFLICT" } });
                     });
+                    const owner = draftIdentity();
+                    if (owner) {
+                      const key = draftKey(owner, window.location.pathname, draftId);
+                      forgetDraft(key);
+                      window.dispatchEvent(new CustomEvent(DRAFT_SAVED, { detail: key }));
+                    }
                     setReceiptId(saved.id);
                     setComplete(true);
                     onSaved(saved.id);
@@ -638,7 +732,7 @@ export function SupportCreateForm({
               ))}
             </>
           )}
-          {!serviceId && (
+          {!serviceId && !serviceCategoryId && (
             <div className="field">
               <label htmlFor="support-type">
                 {kind === "enquiries" ? "Enquiry type" : "Related transaction"}
@@ -714,19 +808,18 @@ export function SupportCreateForm({
           )}
           {sourceType &&
             !serviceId &&
+            !serviceCategoryId &&
             !(type === "VEHICLE" && vehicleIntent === "REQUIREMENTS") &&
             (isContact ? (
               <div className="field contact-field-wide">
                 <label htmlFor="support-source">
-                  {publicMode && type === "PRODUCT"
-                    ? "Related product (optional)"
-                    : "Related record"}
+                  {type === "PRODUCT" ? "Related product (optional)" : "Related record"}
                 </label>
                 <ContactRecordPicker
                   key={sourceType}
                   id="support-source"
                   kind={sourceType}
-                  required={!(publicMode && type === "PRODUCT")}
+                  required={!(type === "PRODUCT")}
                   value={source}
                   onChange={(value) => {
                     setSource(value);
@@ -747,6 +840,9 @@ export function SupportCreateForm({
                 draftContext={isDashboard}
               />
             ))}
+          {serviceCategoryId && (
+            <p>Main service: {serviceCategoryName ?? "Selected main service"}</p>
+          )}
           {serviceId && <p>Related service: {serviceName ?? "Selected service"}</p>}
           {source?.inheritsBranch ? (
             <p>The related record determines the handling branch.</p>
@@ -799,7 +895,9 @@ export function SupportCreateForm({
             </div>
           )}
           <div className={`field${isContact ? " contact-field-wide" : ""}`}>
-            <label htmlFor="support-subject">Subject</label>
+            <label htmlFor="support-subject">
+              {partsRequest ? "Requested part or product" : "Subject"}
+            </label>
             <input
               id="support-subject"
               data-learning-target="support-subject"
@@ -822,13 +920,60 @@ export function SupportCreateForm({
               {form.formState.errors.subject?.message}
             </p>
           </div>
+          {partsRequest && (
+            <>
+              <div className="field">
+                <label htmlFor="support-part-quantity">Quantity</label>
+                <input
+                  id="support-part-quantity"
+                  type="number"
+                  min="1"
+                  max="100"
+                  step="1"
+                  required
+                  {...form.register("partQuantity")}
+                  aria-invalid={!!form.formState.errors.partQuantity}
+                  aria-describedby="support-part-quantity-error"
+                />
+                <p id="support-part-quantity-error" className="field-error">
+                  {form.formState.errors.partQuantity?.message}
+                </p>
+              </div>
+              <div className="field">
+                <label htmlFor="support-part-number">Part number (optional)</label>
+                <input
+                  id="support-part-number"
+                  maxLength={100}
+                  {...form.register("partNumber")}
+                />
+              </div>
+              <div className="field">
+                <label htmlFor="support-part-vehicle">
+                  Vehicle details, if relevant (optional)
+                </label>
+                <input
+                  id="support-part-vehicle"
+                  maxLength={250}
+                  {...form.register("partVehicle")}
+                />
+                <p className="field-hint">
+                  Make, model, year or engine when relevant. You can leave this blank for
+                  universal products.
+                </p>
+              </div>
+            </>
+          )}
           <div className={`field${isContact ? " contact-field-wide" : ""}`}>
             <label htmlFor="support-opening">
-              {kind === "enquiries" ? "Your message" : "Complaint details"}
+              {partsRequest
+                ? "Additional notes (optional)"
+                : kind === "enquiries"
+                  ? "Your message"
+                  : "Complaint details"}
             </label>
             <textarea
               id="support-opening"
-              required={isContact}
+              required={isContact && !partsRequest}
               rows={5}
               maxLength={4000}
               {...form.register("message")}

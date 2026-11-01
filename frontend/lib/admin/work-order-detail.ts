@@ -19,6 +19,16 @@ export const nextOrderStatus = z.enum([
 const date = z.iso.datetime({ offset: true }).nullable().optional();
 export const staffOrderDetailSchema = workOrderSchema
   .extend({
+    partsQuote: z
+      .object({
+        id: z.uuid(),
+        enquiryId: z.uuid(),
+        revision: z.number().int().positive(),
+        notes: z.string(),
+      })
+      .nullable()
+      .optional(),
+
     branch: workOrderSchema.shape.branch.nullable(),
     customerName: z.string().min(1),
     customerEmail: z.email(),

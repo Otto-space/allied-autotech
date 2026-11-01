@@ -518,6 +518,7 @@ export function WorkforceEnquiryDetail({
               <h2 ref={title} tabIndex={-1}>
                 {row.subject}
               </h2>
+              {row.serviceCategory && <p>Main service: {row.serviceCategory.name}</p>}
               <p>
                 {enquiryLabel(row.type, row.vehicleEnquiryIntent)} ·{" "}
                 <span

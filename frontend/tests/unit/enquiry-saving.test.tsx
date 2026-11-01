@@ -81,7 +81,7 @@ it.each(["product", "vehicle"])(
       `/customers/${kind === "product" ? "favourites" : "saved-vehicles"}/${kind === "product" ? product.id : listing.id}`,
     );
     expect(writes[0][1]).toMatchObject({ csrf: true, body: {} });
-    expect(button.hasAttribute("disabled")).toBe(true);
+    expect(button.hasAttribute("disabled")).toBe(kind !== "product");
     expect(
       screen
         .getByRole("link", {
@@ -171,7 +171,7 @@ it("discards a pending save on a session change", async () => {
 it("keeps the full-mode product cart available", async () => {
   vi.stubEnv("NEXT_PUBLIC_PUBLIC_LAUNCH_MODE", "full");
   render(<ProductActions productId={product.id} available />);
-  await screen.findByRole("button", { name: "Save quantity to cart" });
+  await screen.findByRole("button", { name: "Add to cart" });
   expect(screen.getByRole("spinbutton")).toBeTruthy();
   expect(await screen.findByRole("button", { name: "Save to favourites" })).toBeTruthy();
 });

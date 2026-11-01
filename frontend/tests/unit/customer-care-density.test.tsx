@@ -64,7 +64,7 @@ it("retains the garage vehicle without implying service work", () => {
 });
 
 it.each(["full", "browse_enquiries"])(
-  "preserves recorded statuses and launch restrictions in %s mode",
+  "preserves recorded statuses and history links in %s mode",
   (mode) => {
     vi.stubEnv("NEXT_PUBLIC_PUBLIC_LAUNCH_MODE", mode);
     const { container } = render(<CustomerCareSummary care={full} />);
@@ -77,9 +77,7 @@ it.each(["full", "browse_enquiries"])(
       "View payment",
       "View order",
     ])
-      expect(Boolean(screen.queryByRole("link", { name, exact: true }))).toBe(
-        mode === "full",
-      );
+      expect(Boolean(screen.queryByRole("link", { name, exact: true }))).toBe(true);
     expect(screen.getByRole("link", { name: "View vehicle" })).toBeTruthy();
   },
 );

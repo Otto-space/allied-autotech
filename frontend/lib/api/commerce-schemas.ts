@@ -118,6 +118,16 @@ export const cartSchema = z.object({
 });
 export const parseCart = (value: unknown) => cartSchema.parse(value);
 export const orderSchema = z.object({
+  partsQuote: z
+    .object({
+      id: z.uuid(),
+      enquiryId: z.uuid(),
+      revision: z.number().int().positive(),
+      notes: z.string(),
+    })
+    .nullable()
+    .optional(),
+
   id: z.string().uuid(),
   orderNumber: z.string(),
   status: z.enum([

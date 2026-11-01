@@ -167,7 +167,7 @@ const actions = [
     name: "cart",
     url: `/parts/${product.id}`,
     title: product.name,
-    button: "Save quantity to cart",
+    button: "Add to cart",
     result: "Your cart quantity has been saved.",
     path: `/customers/cart/items/${product.id}`,
   },

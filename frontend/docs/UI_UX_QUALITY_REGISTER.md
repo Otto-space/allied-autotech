@@ -1,3 +1,7 @@
+### 1 November 2026: Services and commerce integration in progress
+
+Active source remains the existing `allied-contact-validation-20261027` release worktree. See `docs/SERVICES_COMMERCE_READINESS_20261101.md` for current scope, evidence and unfinished work. Owner confirmed Saturday closing at 18:00 Africa/Lagos and Tyre Change NGN1,000. No production configuration, data or deployment changed in this batch. Latest isolated database batch passed 84 tests across eight suites after replaying all 85 migrations and passing db:check. Customer quotation review passed at 360/768/1280; staff issuance, unlisted requests and revoked-access fallback passed with browser fixtures. Full frontend run: 1,306 passed, three outdated assertions corrected and their four suites rerun successfully (38 passed), 12 skipped. Full lint, build, release and actual provider acceptance remain outstanding.
+
 ### 1 November 2026: Privacy guidance and compatible Help rollout published
 
 Runtime 5d310b10ffb6b34119ef849dca0400b30de71a2a is live on both domains,

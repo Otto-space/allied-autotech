@@ -107,6 +107,8 @@ const enquirySubmission = supportSubmissionBase.extend({
   message: z.string(),
   productId: z.uuid().nullable(),
   serviceId: z.uuid().nullable(),
+  serviceCategoryId: z.uuid().nullable(),
+  serviceCategory: z.object({ id: z.uuid(), name: z.string() }).nullable(),
   bookingId: z.uuid().nullable(),
   quoteId: z.uuid().nullable(),
   vehicleListingId: z.uuid().nullable(),

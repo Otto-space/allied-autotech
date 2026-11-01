@@ -1,4 +1,5 @@
 ﻿"use client";
+import { browseEnquiriesOnly } from "@/lib/public-launch";
 import { NotificationRecordContext } from "./notification-record-context";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -119,7 +120,7 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
       ? preferredDate.toISOString()
       : null;
   const replacementAt = selectedSlot?.startsAt ?? preferredAt;
-  const disabled = !fresh || mutation.busy || !!proposal;
+  const disabled = browseEnquiriesOnly() || !fresh || mutation.busy || !!proposal;
   function refresh() {
     setProposal(null);
     setSlot("");

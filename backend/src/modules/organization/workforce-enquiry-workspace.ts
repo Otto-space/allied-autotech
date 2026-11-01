@@ -15,6 +15,7 @@ export const workforceEnquirySelect = {
   subject: true,
   message: true,
   type: true,
+  serviceCategory: { select: { id: true, name: true } },
   vehicleEnquiryIntent: true,
   status: true,
   version: true,

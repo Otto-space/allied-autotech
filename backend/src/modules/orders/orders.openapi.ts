@@ -1,3 +1,7 @@
+import {
+  issuePartsQuoteSchema,
+  partsQuoteDecisionSchema,
+} from "./parts-quotes.service.js";
 import type { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import { z, type ZodType } from "zod";
 import {
@@ -32,6 +36,45 @@ interface Path {
 }
 export function registerOrdersOpenApi(registry: OpenAPIRegistry): void {
   const paths: Path[] = [
+    {
+      method: "get",
+      path: "/customers/parts-quotes/enquiries/{id}",
+      summary: "List quotations for an owned parts request",
+      params: z.object({ id: z.uuid() }),
+    },
+    {
+      method: "get",
+      path: "/admin/parts-quotes/enquiries/{id}",
+      summary: "List quotations for administrator assessment",
+      params: z.object({ id: z.uuid() }),
+    },
+    {
+      method: "post",
+      path: "/admin/parts-quotes/enquiries/{id}",
+      summary: "Issue an immutable quotation revision for an assessed catalogue product",
+      params: z.object({ id: z.uuid() }),
+      body: issuePartsQuoteSchema,
+      headers: idempotency,
+      created: true,
+    },
+    {
+      method: "post",
+      path: "/customers/parts-quotes/{id}/accept",
+      summary:
+        "Accept an owned current quotation and create one guarded collection order",
+      params: z.object({ id: z.uuid() }),
+      body: partsQuoteDecisionSchema,
+      headers: idempotency,
+      created: true,
+    },
+    {
+      method: "post",
+      path: "/customers/parts-quotes/{id}/decline",
+      summary: "Decline an owned current quotation",
+      params: z.object({ id: z.uuid() }),
+      body: partsQuoteDecisionSchema,
+      headers: csrf,
+    },
     {
       method: "post",
       path: "/customers/orders/checkout",
