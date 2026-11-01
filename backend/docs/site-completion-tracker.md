@@ -1,3 +1,44 @@
+### 1 November 2026: workforce proposal security acceptance
+
+Added direct HTTP acceptance for proposal MFA/CSRF rejection, grant revocation,
+responsibility expiry on an existing session and expiry during transactional audit.
+Rejected saves leave booking version/time/status unchanged and no audit or customer
+notification. Injected failure after notification queue insertion rolls the transaction
+back; a subsequent retry commits one proposal/notification and stale retry is rejected.
+This proves queue atomicity, not real email delivery. Existing bookings remain intact.
+
+Fresh isolated aat_proposal_acceptance_7878d8feb1_test at 127.0.0.1:54369 passed
+80-migration replay, no drift and db:check. All 19 HTTP tests passed across workforce
+booking confirmation/proposal and the customer-to-workforce concern journey (26.46s).
+Backend types and scoped lint passed. No runtime/schema/API contract changed and no
+production data or external provider call was made. Native PostgreSQL stopped cleanly;
+logs retained at TEMP/aat-proposal-acceptance-09996077bf3a4b7d8b138625f770719c.
+Web Crypto experimental and pg concurrent-query deprecation warnings remain tooling
+follow-up; they did not fail these checks. Full goal remains open: real notification
+delivery, remaining native browser/auth journeys, provider configuration/acceptance,
+and owner category ordering/media/structured booking context/Allie group sources.
+
+### 1 November 2026: homepage update published and verified
+
+Source 7d9bcee8cca39b84d8081ba8231bc271c0c00617 is on master and live on both
+alliedautotech.com and www.alliedautotech.com through Vercel
+dpl_HcBKstVXwmd9BAa8fvP6MCyw6zRX. Workshop principles moved from service details
+to Home; homepage service/vehicle photos preserve full subjects at moderate sizes.
+Exact-master frontend 41291218823, database safety 41291218740 and secrets
+41291218867 all passed. Six local fixture checks from preparation, two held-candidate
+real-data checks, and four post-promotion checks (390/1440, apex/www) passed.
+Rendered checks cover artwork loading, photo framing, no horizontal overflow,
+About navigation, Tyre Change identity, section absence and no page exceptions.
+Screenshots reviewed; portrait equipment retains neutral side framing. This does
+not prove every device, role or payment/AI flow. Backend c886268a remains healthy
+and unchanged; no database migration or gated-feature activation was required.
+CLI token renewal resolved the initial Vercel 403 without a new user approval.
+Receipts: backend/ops/digitalocean/.private/homepage-care-*. Browser images:
+TEMP/aat-homepage-care-candidate and TEMP/aat-homepage-care-live. C: 26.32 GiB free.
+No Docker resources created or deleted; shared dependencies and rollback resources
+retained. The full implementation goal remains open, including remaining owner
+category work and provider/role/operational acceptance tracked in the feature ledgers.
+
 ### 30 October 2026: homepage workshop story and image framing
 
 Moved the approved Precision Autocare / Clear advice section from service details

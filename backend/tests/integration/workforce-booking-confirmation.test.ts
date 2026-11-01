@@ -1,6 +1,8 @@
+import * as auditService from "../../src/modules/audit/audit.service.js";
+import * as notifications from "../../src/modules/notifications/notifications.service.js";
 import { randomUUID } from "node:crypto";
 import request from "supertest";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { createApp } from "../../src/app.js";
 import { prisma } from "../../src/config/database.js";
 import { workforceFixture } from "../fixtures/workforce.js";
@@ -20,6 +22,10 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       f = await workforceFixture();
     }, 30000);
     afterAll(() => prisma.$disconnect());
+    afterEach(() => {
+      vi.useRealTimers();
+      vi.restoreAllMocks();
+    });
     async function fixture(
       options: {
         capability?: boolean;
@@ -153,6 +159,107 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         expect(stored.version).toBe(0);
         expect(stored.alternativeStartsAt).toBeNull();
       }
+    });
+    async function unchangedProposal(id: string, scheduledAt: Date) {
+      expect(await prisma.booking.findUniqueOrThrow({ where: { id } })).toMatchObject({
+        version: 0,
+        status: "REQUESTED",
+        scheduledAt,
+        alternativeStartsAt: null,
+        alternativeReason: null,
+        alternativeVersion: null,
+        confirmedAt: null,
+      });
+      expect(
+        await prisma.notification.count({
+          where: { resourceType: "BOOKING", resourceId: id },
+        }),
+      ).toBe(0);
+      expect(await prisma.auditLog.count({ where: { entityId: id } })).toBe(0);
+    }
+    it("rejects proposals without MFA or CSRF without leaving customer notifications", async () => {
+      const v = await fixture();
+      const pending = await f.session(v.who.user.id, "STAFF", false);
+      expect((await propose(pending, v.booking.id)).status).toBe(403);
+      expect(
+        (
+          await propose(
+            { headers: { Cookie: v.who.headers.Cookie!, Origin: v.who.headers.Origin! } },
+            v.booking.id,
+          )
+        ).status,
+      ).toBe(403);
+      await unchangedProposal(v.booking.id, v.booking.scheduledAt);
+    });
+    it("rejects proposals after grant revocation or responsibility expiry on an existing session", async () => {
+      const revoked = await fixture();
+      await prisma.userCapability.update({
+        where: { id: revoked.grantId! },
+        data: { revokedAt: new Date() },
+      });
+      expect((await propose(revoked.who, revoked.booking.id)).status).toBe(403);
+      await unchangedProposal(revoked.booking.id, revoked.booking.scheduledAt);
+      const expired = await fixture();
+      await prisma.workforceAssignment.updateMany({
+        where: { userId: expired.who.user.id },
+        data: { expiresAt: new Date(Date.now() - 1000) },
+      });
+      expect((await propose(expired.who, expired.booking.id)).status).toBe(403);
+      await unchangedProposal(expired.booking.id, expired.booking.scheduledAt);
+    });
+    it("rolls back proposal, audit and notification when responsibility expires during the save", async () => {
+      const v = await fixture(),
+        expiresAt = new Date(Date.now() + 30000);
+      await prisma.workforceAssignment.updateMany({
+        where: { userId: v.who.user.id },
+        data: { expiresAt },
+      });
+      const original = auditService.appendAuditEvent;
+      vi.spyOn(auditService, "appendAuditEvent").mockImplementation(async (tx, event) => {
+        await original(tx, event);
+        if (event.entityId === v.booking.id) {
+          vi.useFakeTimers({ toFake: ["Date"] });
+          vi.setSystemTime(new Date(expiresAt.getTime() + 1));
+        }
+      });
+      expect([403, 404]).toContain((await propose(v.who, v.booking.id)).status);
+      await unchangedProposal(v.booking.id, v.booking.scheduledAt);
+    });
+    it("preserves the existing booking on notification queue failure and retries once without duplicates", async () => {
+      const v = await fixture(),
+        original = notifications.enqueueNotification;
+      const queued: string[] = [];
+      const spy = vi
+        .spyOn(notifications, "enqueueNotification")
+        .mockImplementation(async (tx, input) => {
+          const result = await original(tx, input);
+          if (input.resourceId === v.booking.id) {
+            queued.push(result.id);
+            throw new Error("Isolated notification queue failure");
+          }
+          return result;
+        });
+      expect((await propose(v.who, v.booking.id)).status).toBe(500);
+      expect(queued).toHaveLength(1);
+      await unchangedProposal(v.booking.id, v.booking.scheduledAt);
+      expect(
+        await prisma.outboxEvent.count({ where: { aggregateId: { in: queued } } }),
+      ).toBe(0);
+      spy.mockRestore();
+      expect((await propose(v.who, v.booking.id)).status).toBe(200);
+      expect((await propose(v.who, v.booking.id)).status).toBe(409);
+      expect(
+        await prisma.notification.count({
+          where: { resourceType: "BOOKING", resourceId: v.booking.id },
+        }),
+      ).toBe(1);
+      expect(
+        await prisma.booking.findUniqueOrThrow({ where: { id: v.booking.id } }),
+      ).toMatchObject({
+        version: 1,
+        status: "REQUESTED",
+        scheduledAt: v.booking.scheduledAt,
+      });
     });
     it("commits only one concurrent proposal for the reviewed version", async () => {
       const v = await fixture();
