@@ -1,68 +1,113 @@
 # Services, booking and commerce - 1 November 2026
 
-Current batch: integration repair, not published. Baseline efb890cf; previous runtime 5d310b10. Existing release worktree reused. Owner confirmed Tyre Change NGN1,000. On 1 November the owner confirmed Saturday closing at 18:00 Africa/Lagos (Nigeria time). Existing booking capacity validation enforces 18:00; no live schedule was changed.
+## Release verdict
 
-| Requirement                               | Status     | Evidence / remaining work                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| ----------------------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Eight service overviews and option counts | Unverified | Shared group icons, contextual overview and option counts implemented in service-groups.tsx/services-catalogue.tsx. Local browser group cases passed at 390/1440; all eight destination interactions and both contextual action links passed at 390/1440, including browser Back navigation.                                                                                                                                                                                                                       |
-| Structured service enquiries              | Done       | Nullable serviceCategoryId relationship, server relationship validation, customer/staff display. Fresh isolated HTTP checks verify group-only persistence, replay, ownership and invalid targets. Not deployed.                                                                                                                                                                                                                                                                                                    |
-| Signed-in contextual requests             | Done       | Existing customer-owned support creation/recovery reused; editable context preserved and account contact shown. Local intercepted-browser owned group enquiry passed. This is separate from real HTTP database checks, not hosted customer acceptance.                                                                                                                                                                                                                                                             |
-| Cart / checkout                           | Unverified | /cart and /checkout redirect to existing guarded dashboard flow. Stock, finance approval and launch guards preserved. Full purchase/provider journey remains unverified.                                                                                                                                                                                                                                                                                                                                           |
-| Product favourites                        | Unverified | Compact accessible save/remove toggle implemented; focused unit checks passed. Actual save/remove, refresh persistence and failure recovery passed at 390/1440; no horizontal overflow.                                                                                                                                                                                                                                                                                                                            |
-| Booking and staff confirmation            | Unverified | Existing concern/group booking and staff confirmation retained. Saturday closing decision resolved at 18:00 Nigeria time; live branch capacity configuration and complete journey still require verification.                                                                                                                                                                                                                                                                                                      |
-| Parts requests / quotes / orders          | Unverified | Customer-owned unlisted requests collect quantity, optional part number/vehicle and optional notes. PartsQuote stores immutable revisions; authorised administrators issue/revise, customers accept/decline, and acceptance creates one linked collection order. Five real integration cases passed, including mocked provider verification and post-payment assessment/stock consumption. Customer 360/768/1280, administrator issue and unlisted-request browser fixtures passed; broader release checks remain. |
-| Payments                                  | Blocked    | Live mode disabled; provider test-mode configuration and approved financial policy not established. Contract tests do not prove provider acceptance.                                                                                                                                                                                                                                                                                                                                                               |
-| Customer/staff history                    | Unverified | Existing history readable in browse/enquiry mode; new transaction writes remain gated. Rendered history and all secondary actions require verification.                                                                                                                                                                                                                                                                                                                                                            |
-| Responsive/keyboard/screenshots           | Unverified | Local Playwright/Edge used because browser plugin unavailable. Safe 390px owned-request screenshot captured and inspected. Full 360/768/1280, zoom and keyboard matrix remains.                                                                                                                                                                                                                                                                                                                                    |
+Source published and representative live journeys verified. **Full commerce
+activation remains blocked** by the external prerequisites below.
 
-## Current evidence
+Runtime: 53cdc8e1307bb23395b3e5e77bdee8f93be48139.
+Both alliedautotech.com and www.alliedautotech.com resolve to
+dpl_8Q1egBBsQNYYGVEC5Fh5XxgxQFdX. Backend
+c5942ed9-51ec-4af6-b468-af8a703c3c2e is ACTIVE (16/16), with matching four image
+digests. Domain and backend identities were verified after promotion.
 
-- 37/37 focused frontend unit tests passed across public-launch, enquiry-saving, product-favourite, support-creation-recovery and support-create-validation.
-- 23/23 HTTP integration tests passed on a newly created isolated local PostgreSQL `_test` database: service-group-enquiry and support-creation-replay, one worker. Includes unlisted product requests, customer isolation and duplicate submission protection.
-- All 85 migrations replayed into that empty test database; database history/schema check passed with no difference. Test server stopped afterward.
-- Backend TypeScript passed; catalogue-learning and owner-calendar unit checks passed 9/9.
-- Local service-group browser checks passed at 390/1440; signed-in main-service request passed separately. These use intercepted browser fixtures; database persistence is verified separately by real HTTP integration tests.
-- Initial integration failures exposed the existing target constraint and required a compatible replacement in the new migration. A later parallel run failed; final sequential run passed. Initial browser confirmation locator and outdated favourite/history assertions were corrected. Failed runs are not counted as passes.
+Owner decisions: Saturday closes at 18:00 Africa/Lagos; Tyre Change NGN1,000.
+No price, launch flag, inventory, approval, appointment or financial transaction
+was fabricated or changed for verification.
 
-## Release and activation
+## Requirement-to-evidence checklist
 
-New additive migrations: `backend/prisma/migrations/20261101180000_service_enquiry_category/migration.sql` and `backend/prisma/migrations/20261101190000_parts_quotations/migration.sql`. Deploy reviewed migration before backend consuming the column, then frontend; use the repository backup, history, restore and exact-master CI release workflow. No target migration or production deployment has occurred. Regenerated OpenAPI/types accompany contract changes.
+| Requirement                                                    | Status     | Source and evidence                                                                                                                                                                                                                                                               |
+| -------------------------------------------------------------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Eight service destinations, distinct icons, counts and context | Done       | frontend/app/components/service-groups.tsx and services-catalogue.tsx; all eight destinations and contextual actions checked at 390/1440 with fixtures; live AC context checked on both domains at both widths.                                                                   |
+| Structured group/job Service enquiries                         | Done       | backend/src/modules/support; additive service_enquiry_category migration; real isolated HTTP ownership, relationship, persistence and replay checks.                                                                                                                              |
+| Signed-in and unlisted parts requests                          | Done       | Existing account-aware support creation/recovery reused; optional vehicle/part number, bounded quantity; isolated HTTP and rendered fixtures verify owned persistence and contextual prefills.                                                                                    |
+| Immutable quotation to collection order                        | Done       | backend/src/modules/orders/parts-quotes.service.ts and parts-quotes.routes.ts; frontend/app/components/parts-quotations.tsx; revised/stale/expired/declined quotes, ownership, concurrent acceptance, snapshots, audit and no early stock changes covered in real isolated tests. |
+| Cart/checkout entry points and compact favourites              | Done       | frontend/app/cart/page.tsx, frontend/app/checkout/page.tsx and product purchase components; existing server checkout reused; save/remove, refresh and failure recovery at 390/1440; transaction gates preserved.                                                                  |
+| Booking request and staff confirmation implementation          | Done       | Existing concern/group booking and workforce confirmation suites included in 84-test isolated integration batch; capacity safeguards preserved; no fake published job or slot.                                                                                                    |
+| History and support access                                     | Done       | Historical orders/bookings/payments remain readable in restricted mode; full-mode cart stays reachable; revoked conversation access has explicit fallback. Unit and browser fixtures passed.                                                                                      |
+| Production purchasing/payment/booking activation               | Blocked    | Financial/fulfilment approvals, genuine eligible inventory/calendar and provider test acceptance remain prerequisites. No actual merchant test payment performed.                                                                                                                 |
+| Responsive/dialog behaviour                                    | Done       | Customer quotation 360/768/1280, staff issuance, unlisted request, mobile layout, focus return, favourites and public services checks passed. Fixture and real public evidence are separate.                                                                                      |
+| Comprehensive device/accessibility acceptance                  | Unverified | Physical phones, real role sessions across every dashboard state, 200% browser zoom and complete WCAG 2.2 AA audit are not established by this batch.                                                                                                                             |
 
-Keep PUBLIC_LAUNCH_MODE/NEXT_PUBLIC_PUBLIC_LAUNCH_MODE and payment gates unchanged until approved activation. Provider callback/webhook setup, merchant test credentials and financial policy acceptance remain unverified; do not expose secret values. Collection-only existing policy remains; delivery was not enabled.
+## Actual verification
 
-Rollback: disable the new UI through the existing launch gates or restore the prior application release; retain the additive column and stored references. Do not reverse migration by deleting customer data.
+- Exact-master GitHub checks passed: Frontend release 41333397074; Backend
+  database safety 41333397179; repository secrets 41333397155.
+- Frontend CI: **1,309 passed, 12 skipped**, with clean build, types, lint,
+  audit and formatting. Backend CI passed migration replay/schema, type/lint,
+  startup/backup safety and integration stages.
+- Fresh isolated local database: **84 tests across eight integration files**
+  passed after 85-migration replay and db:check. Additional corrected legacy
+  cases: 14 tests across four files passed. Quotation audit rerun: four passed.
+  These overlapping batches must not be summed as unique cases.
+- Backend learning/launch checks: 62 passed; canonical OpenAPI: 414 paths.
+- Final packaged artifacts: nine image checks and one isolated database
+  replay/restore/drift-rejection check passed.
+- Candidate hosted browser: **5/5 intercepted-fixture cases**, plus **2/2 real
+  public-content checks** at 390/1440.
+- After promotion: **4/4 real public-content checks**, apex/www at 390/1440.
+  Verified homepage story placement, contained moderate service/vehicle images,
+  removal of the story from Tyre Change, eight service groups, contextual AC
+  question fields and restricted booking fallback. No page errors/overflow.
+  No enquiry or real transaction was submitted.
+- Earlier failures were corrected before release: three outdated frontend
+  history assertions, two older backend unlisted-request assertions and a
+  quotation-dialog focus-return regression. Failed runs are not counted as passes.
+- Payment tests use an injected provider mock; they prove application contracts,
+  not Paystack merchant test-mode or real charge acceptance.
 
-No production records, inventory, approvals, slots or financial transactions changed. Remaining independent work includes full history/support states and comprehensive journey/release verification. Parts quotation conversion is implemented; its acceptance tests use isolated database records and an injected provider mock, not Paystack test-mode or production payment. Required build/lint/release checks and production acceptance remain outstanding. Verdict: not production ready.
+## Database and release safety
 
-## Quotation verification checkpoint
+Migrations 20261101180000_service_enquiry_category and
+20261101190000_parts_quotations were applied through guarded db:migrate after
+fresh verified backup and populated isolated restore rehearsal from 83 to 85.
+The rehearsal retained original-column hashes/counts. Production db:check passed
+at 85 migrations; runtime least privilege, strict TLS, four component digests and
+all eight workers passed after rollout. Temporary firewall access was removed.
+Eight managed backup dates were checked; this does not claim a new managed PITR
+restore or a new off-device restore. Existing encrypted off-device/PITR policy
+evidence is retained.
 
-- `backend/tests/integration/parts-quotation-journey.test.ts`: four cases passed. Covers immutable revisions, stale/expired/declined/replaced rejection, administrator/customer ownership boundaries, repeated/concurrent acceptance, preserved cart, price snapshots, no early stock reservation, mocked provider verification, final compatibility assessment and actual fixture-stock consumption exactly once.
-- Existing `delivery-checkout.test.ts` passed; its outdated address expectation was aligned with the approved address. Combined five cases passed after 85-migration replay and database safety check.
-- Browser `parts-quotation-journey.spec.ts`: customer review/acceptance passed at 360/768/1280; administrator issue and focused unlisted request passed separately. The dialog close initially disabled its opener through an unnecessary refresh; removing that refresh restored focus and all three viewport checks passed.
-- Additional route regression fixed: full-mode cart must stay reachable; browse/enquiry mode blocks cart writes while retaining historical booking/order/payment links. Broad frontend tests are running; legacy visibility assertions are being reconciled with this required behaviour.
-- Canonical OpenAPI validates 414 paths. Focused backend catalogue guidance and launch-boundary checks passed 62 cases. Focused backend/frontend lint passed before final form and layout refinements; final checks remain pending.
-- Current official payment verification guidance reviewed: https://paystack.com/docs/payments/verify-payments/ and https://paystack.com/docs/payments/webhooks/. Existing server amount/reference/currency verification and SHA-512 webhook signature checks are reused. Real merchant test-mode credentials/callback/webhook acceptance is not established.
+Order was backup/rehearsal, additive migrations, backend health, held frontend
+candidate, promotion, both-domain identity and rendered live checks.
+Rollback retains the additive schema/data and restores compatible prior
+application artifacts; never delete customer records to reverse these migrations.
 
-## Expanded regression checkpoint
+## Exact remaining production activation prerequisites
 
-- Fresh isolated PostgreSQL replay: 85 migrations and db:check passed. Eight integration files passed all 84 tests, including quotation, delivery checkout, group enquiry/replay, concern booking, workforce confirmation and payment concurrency. The temporary server stopped cleanly.
-- Full frontend unit run: 1,306 passed, three outdated history/launch assertions failed and 12 skipped. The three assertions were corrected; the affected four suites plus request validation passed all 38 tests on rerun.
-- Final mobile quotation layout and support access checks passed three browser cases. Actual favourites PUT and DELETE, refresh and failure recovery passed at 390 and 1440. These browser tests use intercepted fixtures, not production transactions.
-- The quotation expiry check now reads the clock inside the click handler; scoped React lint passes. Full repository lint/build/release checks remain pending.
+1. Record approved finance policy and collection configuration through the
+   existing authorised workflow. Delivery remains disabled without separate
+   approved zones, fees and operational policy.
+2. Supply genuine eligible prices/on-hand inventory for ordinary purchases, and
+   authorised branch closures, capacity and appointment slots. Do not fabricate
+   stock or technician availability. Saturday closing and Tyre Change price
+   already have owner approval and require no further decision.
+3. Configure server PAYSTACK_SECRET_KEY and PAYSTACK_MODE=test with merchant NGN
+   eligibility; PAYSTACK_CALLBACK_URL=https://alliedautotech.com/payments/complete;
+   signed webhook https://api.alliedautotech.com/api/v1/webhooks/paystack.
+   Verify actual test success/cancel/failure, delayed/duplicate webhook,
+   browser-close recovery, wrong amount/currency/reference rejection and
+   reconciliation. Keys remain private.
+4. Verify PAYMENT_RECONCILIATION_ENABLED and worker readiness before activation.
+   Keep PAYSTACK_LIVE_ENABLED=false until separate live approval. Preserve
+   PUBLIC_LAUNCH_MODE and NEXT_PUBLIC_PUBLIC_LAUNCH_MODE=browse_enquiries until
+   operational prerequisites and activation review pass.
+5. Complete real authorised-role and physical-device acceptance; 200% browser
+   zoom and comprehensive accessibility coverage remain unverified.
+   No unrelated AI/live-chat capability was enabled.
 
-## Release gate status and exact external dependencies
+## Screenshots and local resources
 
-- Full frontend ESLint passed. Final changed-file React lint and launch-mode unit checks passed (11 tests). Backend TypeScript, full Oxlint and secret guard passed (3,562 non-ignored files). Privileged quotation reads now produce an audit record; the four quotation integration cases passed again after a fresh migration replay and database check.
-- Local production compilation, TypeScript and 82 static pages passed. Shared dependency paths produced 27 standalone tracing warnings; this local output is not a deployable artifact. Clean CI/provider builds remain required. Source publication is pending. Both Vercel aliases were checked and still identify the prior deployment `dpl_xw7An14AFK7Nh17SnUpyEQGmJqCe`.
-- Required before source publication: final build/type/format results, reviewed signed integration commit, exact-master GitHub checks, current backend identity and image build, fresh verified backup, populated restore rehearsal, least-privilege checks, guarded forward migrations and matching backend/frontend health/alias verification.
-- Required before commerce activation: approved `finance` policy and collection configuration; genuine eligible product prices and inventory for ordinary purchases; authorised operational review of branch closures, capacities and slots. Saturday closing is settled at 18:00 Africa/Lagos and Tyre Change remains NGN1,000; neither needs another owner decision.
-- Paystack test acceptance requires server `PAYSTACK_SECRET_KEY`, `PAYSTACK_MODE=test`, merchant NGN eligibility, `PAYSTACK_CALLBACK_URL=https://alliedautotech.com/payments/complete`, configured signed webhook `https://api.alliedautotech.com/api/v1/webhooks/paystack`, and verified delayed/duplicate notification and reconciliation behaviour. Keep `PAYSTACK_LIVE_ENABLED=false` until separate live approval. Verify `PAYMENT_RECONCILIATION_ENABLED` and worker readiness before activating reconciliation. Do not disclose keys.
-- Public/customer transactions remain gated by `PUBLIC_LAUNCH_MODE` and `NEXT_PUBLIC_PUBLIC_LAUNCH_MODE`; a source release does not authorise changing them. Manual-payment submission now respects that same frontend restriction.
-- Evidence screenshots use synthetic fixtures. Quotation review and accepted states, administrator issuance and unlisted request screenshots are preserved in the task's local visualizations directory. No pre-implementation screenshot was captured; 200% browser zoom and physical-device acceptance remain unverified.
-- Ten exact, verified stopped task test databases were removed through their temporary data directories; logs were retained. Unverified temporary folders were preserved. Disk preflight after cleanup: 26.75 GiB free, with build still running; this is not a machine-wide guarantee.
+Safe screenshots are in the task visualizations folder
+services-commerce-20261101: quotation-review-360.png,
+quotation-accepted-360.png, staff-parts-quotation.png,
+unlisted-parts-request.png, and live public-page captures.
+Quotation/staff screenshots use synthetic fixtures. Live public captures contain
+public content only. No pre-implementation screenshot was captured; these are
+interaction-state and final-state evidence, not a claimed before/after pair.
 
-## Exact-master CI correction
-
-Signed source `058c435c` was integrated into master. Secret check 41333051092 passed; frontend 41333050838 is running. Backend 41333050937 failed two older unlisted-parts assertions: they still prohibited customer-owned requests without a product ID. The brief requires those requests; the assertions now verify persistence while retaining invalid-service-reference rejection. Fresh isolated rerun passed all 14 tests across four files after 85-migration replay and db:check. No production promotion occurred. Docker initially remained unavailable after startup; Computer Use returned ?Computer Use was not approved to use Docker Desktop.? Owner restart is requested; no reset or data deletion was attempted.
-
-Owner restarted Docker; engine 29.8.0 is now verified. Existing stopped containers and their data are retained. The corrected tests and updated evidence are being integrated for new exact-master CI.
+Task test databases and scoped Docker credentials were removed after use;
+populated restore evidence, current/rollback images, unrelated resources,
+session stores and useful caches are retained. Last disk preflight: 26.63 GiB
+free with 20 GiB reserve; this is not a machine-wide guarantee.

@@ -1,6 +1,29 @@
-### 1 November 2026: Services and commerce integration in progress
+### 1 November 2026: Services and commerce source published
 
-Active source remains the existing `allied-contact-validation-20261027` release worktree. See `docs/SERVICES_COMMERCE_READINESS_20261101.md` for current scope, evidence and unfinished work. Owner confirmed Saturday closing at 18:00 Africa/Lagos and Tyre Change NGN1,000. No production configuration, data or deployment changed in this batch. Latest isolated database batch passed 84 tests across eight suites after replaying all 85 migrations and passing db:check. Customer quotation review passed at 360/768/1280; staff issuance, unlisted requests and revoked-access fallback passed with browser fixtures. Full frontend run: 1,306 passed, three outdated assertions corrected and their four suites rerun successfully (38 passed), 12 skipped. Full frontend/backend lint, types, secret guard and local production compilation passed. All eight group destination links and favourites save/remove passed at 390/1440. Signed source 058c435c reached master; exact-master CI, backend packaging, guarded migrations and production publication remain pending. Docker engine was restored by the owner and verified as 29.8.0. The two legacy unlisted-request assertions were corrected; all 14 tests across their suites, service-group requests and quotations passed in a fresh isolated replay. Real provider acceptance and 200% browser zoom remain unverified.
+Runtime 53cdc8e1307bb23395b3e5e77bdee8f93be48139 is live on apex and www:
+frontend dpl_8Q1egBBsQNYYGVEC5Fh5XxgxQFdX; backend
+c5942ed9-51ec-4af6-b468-af8a703c3c2e ACTIVE (16/16), all four digests matched.
+Exact-master frontend 41333397074, backend 41333397179 and secrets 41333397155 passed.
+Frontend: 1,309 passed, 12 skipped. Packaged image/database checks: 10 passed.
+Hosted candidate: five intercepted journey checks plus two real public-content
+checks passed. After promotion, four real public-content checks passed across
+apex/www and 390/1440 widths, with no submissions or page errors.
+
+Both additive migrations were applied with guarded db:migrate after fresh backup
+verification and a populated isolated restore rehearsal (83 to 85 migrations).
+Original restored columns/counts remained unchanged. Production db:check,
+strict TLS, runtime least privilege and all eight worker heartbeats passed.
+Temporary firewall access was removed and verified. Managed backup inventory
+was checked; this was a new local populated restore, not a new managed PITR test.
+
+Service discovery, structured contextual enquiries, unlisted parts requests,
+immutable quotations, guarded collection-order conversion, history access and
+compact favourites are deployed. Production activation remains BLOCKED by
+finance/collection approval, real stock/calendar setup and Paystack test-mode
+acceptance. Launch/payment flags, prices and business records were preserved.
+Saturday 18:00 Africa/Lagos and Tyre Change NGN1,000 are settled owner decisions.
+See docs/SERVICES_COMMERCE_READINESS_20261101.md for evidence and exact gates.
+Physical-device and 200% browser-zoom acceptance remain unverified.
 
 ### 1 November 2026: Privacy guidance and compatible Help rollout published
 
