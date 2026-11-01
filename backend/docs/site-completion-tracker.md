@@ -1,3 +1,20 @@
+### 1 November 2026: Appointment clarity and filter focus published
+
+Frontend ad97a7283f7b3cee5d2d6c9a832ca19f92561298 is live on apex/www as
+dpl_G1SFTUokXojjEjbMkt84TTtUt6QT; backend f0402b67 remains unchanged and healthy.
+Exact-master frontend 41344028844, backend 41344028780 and secrets 41344028786
+passed. 1,312 frontend units passed (12 existing skips), seven final hosted
+fixture checks, two candidate public checks and four post-promotion public checks
+passed. Corrected booking Clear filters focus after remount and dark-card expanded
+reference contrast. Confirmed future time uses Africa/Lagos; full references remain
+available through explicit expand/copy. Prices, stock, permissions and gates unchanged.
+Read-only schema/TLS/privilege/eight-worker checks passed; temporary access removed.
+C: 26.31 GiB free. Broader local evidence and failed/skipped runs are preserved in
+docs/MOBILE_FITMENT_SIMPLIFICATION_20261101.md. Current constraints: merchant and
+policy/operational activation prerequisites, physical-device/unsampled role acceptance,
+fresh Computer Use fitment recheck and separately blocked service SSR fixture launch.
+No production transactions or migrations occurred.
+
 ### 1 November 2026: Appointment clarity verification
 
 Frontend-only follow-up: confirmed upcoming appointment wording in Africa/Lagos,

@@ -1,6 +1,6 @@
 # Mobile tasks and compatibility refinement - 1 November 2026
 
-Status: verified batch published as f0402b67; broader acceptance limits remain below. Brief:
+Status: frontend follow-up ad97a728 published; backend remains f0402b67. Acceptance limits remain below. Brief:
 Allied_AutoTech_Mobile_First_Dashboard_Fitment_Simplification_Codex_Prompt_2026-11-01.md.
 Existing release worktree reused at 4919492e. Previous runtime 53cdc8e1 remains
 the prior release baseline; exact-master CI and both public alias identities now passed. Desktop's unrelated home-hero edit is preserved.
@@ -9,15 +9,15 @@ the prior release baseline; exact-master CI and both public alias identities now
 
 | Brief          | Task / roles                                                             | Current evidence and remaining work                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | -------------- | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1, 7–10, 18–19 | Public pages and all dashboard tasks                                     | Existing dashboard page index has 166 acceptance entries. Preserve prior functionality; new broad route/state review and regression matrix pending. No claim that all pages have been newly verified.                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| 2, 12          | Shared booking/order/payment/care progress                               | Exact paragraph removed at shared WorkflowProgress source; current stage remains the only marked stage. No inferred completed events. 33 frontend unit checks passed across status and learning suites; rendered consumer checks pending.                                                                                                                                                                                                                                                                                                                                                                                             |
+| 1, 7–10, 18–19 | Public pages and all dashboard tasks                                     | Existing dashboard page index has 166 acceptance entries. Broad synthetic verification: preceding 138 journeys, additional 141 dashboard cases and 31 Contact cases across documented initial runs and corrected assertions, then 134 booking/overview passes plus the fixed focus case on the hosted candidate. This is sampled state coverage, not every real-role or physical-device acceptance.                                                                                                                                                                                                                                   |
+| 2, 12          | Shared booking/order/payment/care progress                               | Exact paragraph removed at shared WorkflowProgress source; current stage remains the only marked stage. No inferred completed events. 33 frontend unit checks passed across status and learning suites; rendered consumer regression passed in the documented booking, care and dashboard matrices.                                                                                                                                                                                                                                                                                                                                   |
 | 3, 4, 14       | Help/Learn/Allie ordinary guidance                                       | ArticleBody no longer displays source/version/review maintenance text; Privacy Notice remains a useful public link. Backend catalogue keeps source field compatible as human-readable title; internal provenance stays in backend corpus. 18 backend learning cases passed. All five audience projections and rendered Learn/Allie/guide fixtures passed.                                                                                                                                                                                                                                                                             |
 | 5–6            | Customer records, admin/Super Admin support, managed workforce enquiries | Reused customer-table keyboard reveal in CareTableRegion. Scroll guidance, semantic table, bounded columns, subject/detail actions and permitted-email copy controls shared. Existing customer 390px baseline passed; new enquiry 390px copy success/failure, focus reveal, overflow and Axe check passed with fixtures. Five-width enquiry coverage and all managed staff/admin permission and recovery cases passed.                                                                                                                                                                                                                |
 | 10–11          | Fitment author/reviewer, direct/product-context entry                    | Existing dependent selectors, evidence sections, review, legacy reconciliation and leave guard retained. Year-order error now focuses and describes last-year field; review uses readable compatibility wording. Fixture corrected to carry explicit FITMENT_AUTHOR/FITMENT_REVIEW grants; no app guard changed. 390px editor and author/independent-review journey passed. All 18 production-build fixture cases passed, including seven widths and permission/recovery states. Actual signed-in live queue, evidence and editor inspection completed without writes; selected-part link spacing corrected from the observed defect. |
-| 12–13          | Booking summaries/calendar                                               | Existing recorded-event summaries and preferred/confirmed distinction retained. Saturday 18:00 Africa/Lagos already approved. All 46 customer-booking fixture cases passed, preserving preferred/confirmed meaning; no capacity/slot data invented.                                                                                                                                                                                                                                                                                                                                                                                   |
+| 12–13          | Booking summaries/calendar                                               | Existing recorded-event summaries and preferred/confirmed distinction retained. Saturday 18:00 Africa/Lagos already approved. All 46 customer-booking fixture cases passed. Added confirmed today/tomorrow wording in Nigeria time, a full later date and expandable canonical references. Both 320/1440 hosted state/contrast checks and clipboard success/manual fallback passed; no capacity or slot data invented.                                                                                                                                                                                                                |
 | 15–17          | Policy inventory/enforcement and launch readiness                        | Existing services-commerce readiness and delivery handoff are baseline. Current effective policy metadata inspected read-only; exact pending decisions are listed below. Preserve browse/enquiry, payment and independent approval safeguards.                                                                                                                                                                                                                                                                                                                                                                                        |
 | 18–19          | Responsive/accessibility/verification                                    | Local Edge/Playwright fixtures; Browser host unavailable. Computer Use stopped because it could not determine current Chrome URL confidently. Authorised live fitment inspection was completed before a later URL-verification stop. Physical mobile keyboard, native zoom and real-role production acceptance not yet established.                                                                                                                                                                                                                                                                                                   |
-| Publication    | All completed source                                                     | Published f0402b67 after exact-master CI, matching backend health and held hosted acceptance; both apex/www deployment identities verified.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| Publication    | All completed source                                                     | Frontend ad97a728 published after exact-master CI and seven final hosted fixture checks; backend f0402b67 remains unchanged and healthy. Both aliases independently verified; four post-promotion public viewport checks passed.                                                                                                                                                                                                                                                                                                                                                                                                      |
 
 ## Current checks and known failures
 
@@ -144,3 +144,53 @@ fallback both passed at 320px. Expanded-reference Axe checks exposed inherited
 dark form-label text on the dark appointment card; the label and copy-status text
 now use an explicit light colour scoped to that card. Candidate was held and not
 promoted. Updated exact-source CI and hosted contrast checks are required.
+
+## Final appointment and focus publication ? 1 November 2026
+
+Frontend ad97a7283f7b3cee5d2d6c9a832ca19f92561298 is READY as
+dpl_G1SFTUokXojjEjbMkt84TTtUt6QT on both apex and www. Backend
+36b4283f-63fc-401b-abbe-03b8bf9ccf2c retains f0402b67 and all four verified digests.
+Required exact-master checks: frontend 41344028844, backend 41344028780 and
+secrets 41344028786, all passed. Frontend: 1,312 units passed, 12 existing skips,
+plus lint/types/format/build and zero production dependency audit findings.
+The installation audit still reported 22 development-inclusive advisories; no
+dependency change or claim of a clean development dependency tree is made.
+
+Final hosted evidence: five existing cases passed (320/1440 appointment states and
+expanded contrast, ADMIN/SUPER_ADMIN short-viewport service review/save, filter
+reload/Back/Forward/clear focus), plus two canonical-reference clipboard/fallback
+cases with expanded Axe checks. Two real public candidate checks and four after
+promotion checks at 390/1440 across both domains passed without page errors or
+horizontal overflow. Actual public booking requests remain gated and offer Contact.
+Local concern submission/retry passed; hosted submission is not accepted while
+that gate is closed. The earlier seven-case candidate run was stopped after the
+contrast failures and concern-gate mismatch; it is not a passing run.
+
+The broader local bundle run passed 134 cases, failed the reproducible clear-filter
+focus race and skipped 70 service SSR cases. The unchanged focus regression passed
+on both held candidates after the fix. Automatic approval review rejected starting
+the separate local service SSR fixture preview with blocked by policy. It was not
+retried; those service SSR cases remain unverified in this follow-up. Shared reference
+copy behavior was independently verified on the hosted customer booking surface.
+
+Read-only production safety refreshed at 20:00 UTC: 85 migrations compatible,
+strict TLS, runtime least privilege and eight fresh successful worker heartbeats.
+Temporary access was removed and verified. Eight managed backups remain; latest
+1 November 05:22 UTC. The earlier same-day populated restore rehearsal covers
+the unchanged schema; no new restore or production migration was performed.
+No prices, stock, records, permissions, policies, notification gates or payment
+capabilities changed. No actual appointment or financial transaction was submitted.
+Final C: preflight: 26.31 GiB free. Local preview processes were stopped; the task
+created no new Docker resource in this follow-up. Existing volumes, backups,
+images, shared caches, dirty worktrees and rollback resources remain intact.
+
+Safe synthetic screenshots: mobile-fitment-20261101/appointment-after-320.png
+and appointment-reference-final-320.png in the existing visualizations directory.
+Private provider receipts use the appointment-final prefix; failed candidate
+receipts remain under appointment-clarity. A fresh signed-in fitment retry could
+not proceed because Computer Use returned mismatched Chrome text and a ChatGPT
+screenshot. Prior live fitment inspection remains valid historical evidence,
+but no new signed-in acceptance is claimed. Native phone keyboards, zoom, screen
+readers and unsampled real roles remain unverified. Operational finance/fulfilment
+publication, genuine capacity/stock/coverage and merchant test-mode acceptance
+remain the production-activation blockers listed in the policy inventory.
