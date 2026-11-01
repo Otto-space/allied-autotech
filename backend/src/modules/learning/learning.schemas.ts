@@ -1,6 +1,9 @@
 import { z } from "zod";
 import { learningTargets } from "./learning.content.js";
-export const learningQuery = z.strictObject({ q: z.string().trim().max(120).optional() });
+export const learningQuery = z.strictObject({
+  q: z.string().trim().max(120).optional(),
+  destinationsVersion: z.enum(["1", "2"]).default("1"),
+});
 export const learningParams = z.strictObject({
   id: z.string().regex(/^[a-z][a-z0-9-]{0,63}$/),
 });

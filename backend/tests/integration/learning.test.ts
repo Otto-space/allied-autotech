@@ -172,7 +172,10 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       expect(outbound).toHaveBeenCalledOnce();
     });
     it("filters private titles, snippets, bodies, guide and scenario definitions before public search or direct reads", async () => {
-      const publicResult = await read(null, "/public/learning/catalogue");
+      const publicResult = await read(
+        null,
+        "/public/learning/catalogue?destinationsVersion=2",
+      );
       expect(publicResult.status).toBe(200);
       expect(ids(publicResult)).toEqual([
         "privacy-and-allie",
@@ -184,6 +187,14 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         "security-basics",
         "no-live-lookup",
       ]);
+      const legacy = await read(null, "/public/learning/catalogue");
+      expect(legacy.status).toBe(200);
+      expect(ids(legacy)).toEqual(
+        ids(publicResult).filter((id) => id !== "privacy-and-allie"),
+      );
+      expect(
+        (await read(null, "/public/learning/catalogue?destinationsVersion=3")).status,
+      ).toBe(422);
       const privacy = await read(null, "/public/learning/articles/privacy-and-allie");
       expect(privacy.status).toBe(200);
       expect(privacy.body.data).toMatchObject({

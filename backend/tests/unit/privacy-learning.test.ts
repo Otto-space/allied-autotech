@@ -19,6 +19,16 @@ afterEach(() => {
 });
 
 describe("reviewed public privacy guidance", () => {
+  it("keeps legacy catalogue readers compatible without granting newer readers private content", () => {
+    const current = learningCatalogue(publicLearningAccess, "", "2");
+    const legacy = learningCatalogue(publicLearningAccess, "", "1");
+    expect(current.articles.some((a) => a.id === "privacy-and-allie")).toBe(true);
+    expect(legacy.articles).toEqual(
+      current.articles.filter((a) => a.href !== "/privacy"),
+    );
+    expect(allieSourceSet(current)).not.toBe(allieSourceSet(legacy));
+    expect(current.articles.some((a) => a.id === "privacy-work")).toBe(false);
+  });
   it("finds the published notice without exposing staff privacy work", () => {
     const data = learningCatalogue(publicLearningAccess);
     const context = retrieveAllieContext(

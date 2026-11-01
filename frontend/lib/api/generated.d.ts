@@ -11629,6 +11629,11 @@ export interface operations {
                  * @example synthetic-q
                  */
                 q?: string;
+                /**
+                 * @description Destinations Version used to constrain this request.
+                 * @example 1
+                 */
+                destinationsVersion?: "1" | "2";
             };
             header?: never;
             path?: never;
@@ -12624,6 +12629,11 @@ export interface operations {
                  * @example synthetic-q
                  */
                 q?: string;
+                /**
+                 * @description Destinations Version used to constrain this request.
+                 * @example 1
+                 */
+                destinationsVersion?: "1" | "2";
             };
             header?: never;
             path?: never;

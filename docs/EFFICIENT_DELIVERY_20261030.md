@@ -40,7 +40,6 @@ follow-up; they did not fail these checks. Full goal remains open: real notifica
 delivery, remaining native browser/auth journeys, provider configuration/acceptance,
 and owner category ordering/media/structured booking context/Allie group sources.
 
-
 ### 30 October 2026: booking guidance and truthful coverage
 
 Updated restricted booking-confirmation article to v4 with alternative-time review,
@@ -51,7 +50,6 @@ added source-only /services/request mapping. Strict completion correctly remains
 failed for 107 routes with acceptance gaps. See docs/help-learn/CONCERN_BOOKING_20261030.md
 for exact evidence. Next: native rendered booking/Allie acceptance and remaining
 policy/provider/completion gates. Production and feature flags unchanged.
-
 
 ### 30 October 2026: Allie candidate ranking before limits
 
@@ -92,7 +90,6 @@ Remaining: complete policy/capability source audit, native rendered booking/Alli
 journeys, remaining delivery/auth acceptance, provider test-mode setup and broader
 completion gates. Full objective remains active; production stays at fc318618.
 
-
 ### 30 October 2026: native customer-to-workforce booking journey
 
 Added concern-booking-journey.test.ts using real HTTP middleware, sessions, CSRF,
@@ -118,7 +115,6 @@ acceptance. Next scope: native rendered booking composition, remaining proposal
 delivery/auth coverage, Allie knowledge scale and policy/capability audit, then
 project-wide completion gates and exact activation checklist. All implementation
 changes remain local; production remains the verified sidebar release fc318618.
-
 
 ### 30 October 2026: workforce concern classification and final authorization
 
@@ -151,7 +147,6 @@ Native customer-to-workforce composition, broader proposal delivery/auth accepta
 Allie scale/policy coverage and external provider setup remain open. Latest production
 remains sidebar commit fc318618; classification changes are local and uncommitted.
 
-
 ### 30 October 2026: sidebar release fc318618
 
 The owner explicitly requested deployment of finished work, superseding the earlier
@@ -175,7 +170,7 @@ incorrectly expected indefinite pinning despite the single-item catalogue bounda
 A separate actual-catalogue harness verifies the correct containing-block boundary;
 no product code changed to accommodate that harness. Failure evidence retained.
 Twelve route/viewport/domain smoke cases pass, including BMW and Tyre Change copy
-and prices. Evidence: .private/sidebar-fc318618-*.json and TEMP/aat-sidebar-fc318618-*.
+and prices. Evidence: .private/sidebar-fc318618-_.json and TEMP/aat-sidebar-fc318618-_.
 The full efficient-delivery goal and uncommitted booking/payment/Allie work remain
 in progress; this release does not establish their production acceptance.
 
@@ -194,20 +189,20 @@ in the existing release worktree. No new worktree or dependency installation.
 Historical checkpoints below retain failed attempts and earlier gaps; this table
 is the current summary. Full completion is not yet claimed.
 
-| Requirement | Authoritative evidence / implementation | Verification | Current status |
-| --- | --- | --- | --- |
-| Durable design, plain language and efficient delivery rules | AGENTS.md references docs/UI_UX_AND_CONTENT_RULES.md and docs/DELIVERY_AND_VERIFICATION.md | Current source read; existing quality directive retained | Implemented |
-| Paystack trusted checkout and verification | Existing payments adapters/services; provider domain/reference validation, raw-signature ingress, durable events and reconciliation | Focused provider tests and isolated financial integration evidence below; current exact-master CI includes payment lifecycle/concurrency tests | Final requirement-to-assertion reconciliation remains; external provider test mode not accepted |
-| Reversed/delayed/duplicate payment handling | Existing anomaly/hold, reconciliation, customer reversal indicator; no invented refunds | 41 isolated reconciliation/webhook cases and customer browser fixtures below | Implemented and independently tested; real provider/merchant acceptance remains |
-| Functional service and concern booking requests | Existing request UI/API, entered/account vehicle and contact, sign-in draft, review/retry, persistent reference and original group snapshot | Native real API/browser/database journeys at 390/1440; 83-migration replay; booking-group release receipts | Implemented in full-mode source; public launch gates preserved |
-| Staff confirmation, alternatives, cancellation and capacity | ServiceOperations and scoped workforce adapters; separate current grants and transaction guards | Native customer-to-workforce journey; proposal MFA/CSRF/revocation/expiry/queue-atomicity checks | Implemented and locally tested; real calendars/resources and notification delivery require operational acceptance |
-| Genuine OpenAI Allie and bounded access | Responses adapter, encrypted conversation storage, quotas, cancellation and source validation | Provider-independent contract and HTTP security tests; no new paid call | Source implemented; live model evaluation requires a new bounded allowance and account setup |
-| Canonical catalogue knowledge | Published services/products/vehicles/groups, visibility rechecks, bounded retrieval, version/hash invalidation | Canonical-source and 753-record ranking integration tests; revoked/unpublished sources excluded | Implemented; production-volume performance not established |
-| Reviewed policy and capability knowledge | Curated task definitions and current role/mode/flags; public Privacy notice is absent from eligible Help/Allie sources | Actual learning corpus/allowlists and public notice inspected 1 November | Concrete remaining implementation/audit: policy source coverage and current public capability grounding |
-| Role-aware Help, guides and practice | Backend-owned versioned corpus, eligibility gates, in-memory practice, shared UI | 71 backend + 38 frontend focused checks; new 390/1440 local/hosted destination tests; 6de6c86f released | Destination repair complete; real signed-in staff browser acceptance not re-established today |
-| Catalogue filters, cards, focus, shadows and imagery | Existing discovery components/tokens/media derivatives; frontend/docs/CATALOGUE_EXPANDED_20261029.md | Prior 108-case hosted matrix plus current real-data candidate/live homepage/group checks | Implemented and sampled-browser verified; native zoom/physical-device/screen-reader limits retained |
-| Workshop story and owner service groups | Story on homepage, removed from service detail; eight published groups/icons; Tyre Change NGN1,000 | Four live apex/www 390/1440 journeys and read-only public price response | Released; authentic category photos remain optional |
-| Activation and final handoff | docs/ACTIVATION_READINESS_20261030.md; provider setup docs | Names, callback/webhook paths, flags and operational prerequisites recorded | Final source/acceptance reconciliation pending; no claim that only keys remain |
+| Requirement                                                 | Authoritative evidence / implementation                                                                                                     | Verification                                                                                                                                   | Current status                                                                                                                 |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| Durable design, plain language and efficient delivery rules | AGENTS.md references docs/UI_UX_AND_CONTENT_RULES.md and docs/DELIVERY_AND_VERIFICATION.md                                                  | Current source read; existing quality directive retained                                                                                       | Implemented                                                                                                                    |
+| Paystack trusted checkout and verification                  | Existing payments adapters/services; provider domain/reference validation, raw-signature ingress, durable events and reconciliation         | Focused provider tests and isolated financial integration evidence below; current exact-master CI includes payment lifecycle/concurrency tests | Source/assertion audit complete (backend/docs/payment-requirement-audit-20261101.md); external provider test mode not accepted |
+| Reversed/delayed/duplicate payment handling                 | Existing anomaly/hold, reconciliation, customer reversal indicator; no invented refunds                                                     | 41 isolated reconciliation/webhook cases and customer browser fixtures below                                                                   | Implemented and independently tested; real provider/merchant acceptance remains                                                |
+| Functional service and concern booking requests             | Existing request UI/API, entered/account vehicle and contact, sign-in draft, review/retry, persistent reference and original group snapshot | Native real API/browser/database journeys at 390/1440; 83-migration replay; booking-group release receipts                                     | Implemented in full-mode source; public launch gates preserved                                                                 |
+| Staff confirmation, alternatives, cancellation and capacity | ServiceOperations and scoped workforce adapters; separate current grants and transaction guards                                             | Native customer-to-workforce journey; proposal MFA/CSRF/revocation/expiry/queue-atomicity checks                                               | Implemented and locally tested; real calendars/resources and notification delivery require operational acceptance              |
+| Genuine OpenAI Allie and bounded access                     | Responses adapter, encrypted conversation storage, quotas, cancellation and source validation                                               | Provider-independent contract and HTTP security tests; no new paid call                                                                        | Source implemented; live model evaluation requires a new bounded allowance and account setup                                   |
+| Canonical catalogue knowledge                               | Published services/products/vehicles/groups, visibility rechecks, bounded retrieval, version/hash invalidation                              | Canonical-source and 753-record ranking integration tests; revoked/unpublished sources excluded                                                | Implemented; production-volume performance not established                                                                     |
+| Reviewed policy and capability knowledge                    | Curated task definitions, reviewed Privacy notice v1, current server role/mode/flags and bounded destination-version negotiation            | 82 backend and 38 frontend focused cases; 11 isolated HTTP cases; 390/1440 rendered checks; mode/flag/source invalidation verified             | Implemented and locally verified; publication pending                                                                          |
+| Role-aware Help, guides and practice                        | Backend-owned versioned corpus, eligibility gates, in-memory practice, shared UI                                                            | 71 backend + 38 frontend focused checks; new 390/1440 local/hosted destination tests; 6de6c86f released                                        | Destination repair complete; real signed-in staff browser acceptance not re-established today                                  |
+| Catalogue filters, cards, focus, shadows and imagery        | Existing discovery components/tokens/media derivatives; frontend/docs/CATALOGUE_EXPANDED_20261029.md                                        | Prior 108-case hosted matrix plus current real-data candidate/live homepage/group checks                                                       | Implemented and sampled-browser verified; native zoom/physical-device/screen-reader limits retained                            |
+| Workshop story and owner service groups                     | Story on homepage, removed from service detail; eight published groups/icons; Tyre Change NGN1,000                                          | Four live apex/www 390/1440 journeys and read-only public price response                                                                       | Released; authentic category photos remain optional                                                                            |
+| Activation and final handoff                                | docs/ACTIVATION_READINESS_20261030.md; provider setup docs                                                                                  | Names, callback/webhook paths, flags and operational prerequisites recorded                                                                    | Source/assertion audit complete; final publication/handoff pending. Provider and operational acceptance require more than keys |
 
 The combined scope exceeds one hour. Package 1: durable guidance and functional
 preferred-time booking with focused verification. Subsequent packages: payment
@@ -246,7 +241,6 @@ The previous real OpenAI evaluation allowance is exhausted; no additional paid
 calls or quota reset were made. Continue independently on implementation work.
 
 Four preference cases were rerun successfully after the image fixture was corrected. Desktop receipt screenshot reviewed; the mobile capture was taken during smooth scrolling and is not accepted as final visual evidence. Reduced-motion capture and the broader responsive acceptance remain pending. Local preview stopped.
-
 
 ## Package 2 checkpoint (30 October, 17:36 UTC)
 
@@ -291,7 +285,6 @@ not establish complete payment readiness or real Paystack test-mode acceptance.
 Allie canonical catalogue knowledge, image composition and complete activation
 handoff remain required. The exhausted OpenAI evaluation allowance is unchanged.
 
-
 ### 17:50 UTC verification update
 
 Paystack charge events now require a recognised domain and successful transaction
@@ -324,7 +317,6 @@ It explicitly does not claim that only credentials remain. About's exact approve
 asset is CampaignArtwork artwork="precision-autocare" (/brand/r2 derivatives);
 service detail still uses technician-original.webp and must be updated after the
 frozen booking verification. No image implementation is claimed yet.
-
 
 ### Final booking acceptance checkpoint (30 October, 17:59 UTC)
 
@@ -424,7 +416,6 @@ chargeback reconciliation and full lifecycle acceptance still require work. Do n
 claim payment readiness or only-key setup. The full booking, canonical Allie and
 activation scope remains active.
 
-
 ## Filter sidebar scroll repair — 30 October 2026
 
 Owner-reported sidebar scrolling audited on live Parts and Vehicles, then repaired
@@ -451,7 +442,6 @@ checks passed. Evidence: %TEMP%/aat-sidebar-20261030-final/.
 No dependency install, Docker resource, database write or production publication.
 Disk reserve passed before checks (23.51 GiB) and after (23.50 GiB). Existing broader
 booking/payment/Allie work remains pending; this checkpoint does not close it.
-
 
 ## Customer reversal and worker checkpoint — 30 October 2026
 
@@ -491,7 +481,6 @@ observation handling were unimplemented. Full payment lifecycle/operational
 acceptance remains open, alongside concern-only booking, entered vehicle/contact,
 staff alternatives, canonical Allie knowledge and the complete activation audit.
 No deployment, merchant configuration, live charge or AI enablement occurred.
-
 
 ## Concern booking contract checkpoint — 30 October 2026
 
@@ -561,7 +550,7 @@ pass after updating the expected service-request version from 5 to 6 and asserti
 classification is not confirmation/quotation approval/payment. Frontend type and
 scoped lint checks pass. Initial lint apostrophe and stale article-version assertion
 were corrected; no failed run counted as acceptance. Evidence: temporary
- aat-concern-classification. No dependencies installed or production action.
+aat-concern-classification. No dependencies installed or production action.
 
 Remaining: entered vehicle/contact details, alternative-time proposals, workforce
 entry-point integration, stale/permission-loss/pagination classification coverage,

@@ -1,3 +1,28 @@
+### 1 November 2026: rollout-compatible Privacy guidance ready for publication
+
+The new destination initially would have broken older open tabs that validate the
+entire catalogue against the prior destination list. Before publication, added the
+bounded destinationsVersion=2 request; absent/1 callers retain the previous list.
+Version selection cannot grant private content. Internal Allie retrieval uses the
+current reviewed source and source-set invalidation. Updated OpenAPI and client types.
+The earlier d31918bb candidate is READY but remains unpublished; production is still
+6de6c86f. Exact-master checks and hosted/live acceptance must pass for this correction.
+
+Passed 82 distinct focused backend unit cases, 38 frontend cases, types/scoped lint,
+OpenAPI validation (410 paths) and 390/1440 local privacy search/refresh/navigation.
+Fresh isolated HTTP run passed all 11 cases (17.50s), 83-migration replay and schema
+check. The first compatibility run expected 400 rather than the established 422
+validation response; corrected the assertion, with the failed log retained. Native
+servers were stopped. No schema, grant, price, feature-flag or application-data change.
+Payment audit additionally passed 67 provider-independent unit cases; see
+backend/docs/payment-requirement-audit-20261101.md for implementation/assertion mapping.
+
+Remaining handoff: guarded publication and live checks, then the final activation
+summary. Merchant/provider test-mode acceptance, new bounded live model evaluation,
+real operational calendars/capacity and notification delivery remain external setup.
+Physical-device/native zoom/full screen-reader and signed-in staff production
+acceptance have not been newly established by this batch. Tyre Change stays NGN1,000.
+
 ### 1 November 2026: reviewed privacy Help guidance, locally verified
 
 Added public privacy-and-allie v1, grounded in the published Privacy notice,
@@ -22,6 +47,7 @@ without page errors or horizontal overflow. This is local intercepted-transport
 UI evidence, not hosted/live or authenticated staff acceptance. Production remains
 6de6c86f until exact-master CI and guarded publication pass. Remaining full-goal
 work: finish payment requirement-to-assertion audit and the final activation handoff.
+
 ### 1 November 2026: authorised Help destination repair published
 
 Runtime 6de6c86f3f1317ba140135b5f02cff3baeb4ee71 is live. Exact-master frontend
@@ -356,8 +382,8 @@ button bounds passed locally in the preceding checkpoint (58.13s). Production
 customer booking remains launch-restricted. Hosted fixtures wrote no real records.
 
 Both aliases were independently checked after promotion. Receipts are under
-backend/ops/digitalocean/.private/native-proposal-*. Screenshots and failed/passing
-hosted evidence are retained under TEMP/aat-native-proposal-*. Docker was verified
+backend/ops/digitalocean/.private/native-proposal-_. Screenshots and failed/passing
+hosted evidence are retained under TEMP/aat-native-proposal-_. Docker was verified
 running; this frontend-only release created no Docker resources or database writes.
 The release branch remains active for outstanding scope; no branches/resources
 were retired. Full objective remains open, including owner category work, provider
@@ -546,7 +572,6 @@ Added tested identity-preserving import planner for eight groups. Full import,
 category authoring extensions, empty-group discovery/enquiry and persistent booking
 context remain required. See docs/OWNER_SERVICE_STRUCTURE_20261030.md.
 
-
 ### 30 October 2026: booking guidance and truthful coverage
 
 Updated restricted booking-confirmation article to v4 with alternative-time review,
@@ -557,7 +582,6 @@ added source-only /services/request mapping. Strict completion correctly remains
 failed for 107 routes with acceptance gaps. See docs/help-learn/CONCERN_BOOKING_20261030.md
 for exact evidence. Next: native rendered booking/Allie acceptance and remaining
 policy/provider/completion gates. Production and feature flags unchanged.
-
 
 ### 30 October 2026: Allie candidate ranking before limits
 
@@ -598,7 +622,6 @@ Remaining: complete policy/capability source audit, native rendered booking/Alli
 journeys, remaining delivery/auth acceptance, provider test-mode setup and broader
 completion gates. Full objective remains active; production stays at fc318618.
 
-
 ### 30 October 2026: native customer-to-workforce booking journey
 
 Added concern-booking-journey.test.ts using real HTTP middleware, sessions, CSRF,
@@ -624,7 +647,6 @@ acceptance. Next scope: native rendered booking composition, remaining proposal
 delivery/auth coverage, Allie knowledge scale and policy/capability audit, then
 project-wide completion gates and exact activation checklist. All implementation
 changes remain local; production remains the verified sidebar release fc318618.
-
 
 ### 30 October 2026: workforce concern classification and final authorization
 
@@ -657,7 +679,6 @@ Native customer-to-workforce composition, broader proposal delivery/auth accepta
 Allie scale/policy coverage and external provider setup remain open. Latest production
 remains sidebar commit fc318618; classification changes are local and uncommitted.
 
-
 ### 30 October 2026: sidebar release fc318618
 
 The owner explicitly requested deployment of finished work, superseding the earlier
@@ -681,10 +702,9 @@ incorrectly expected indefinite pinning despite the single-item catalogue bounda
 A separate actual-catalogue harness verifies the correct containing-block boundary;
 no product code changed to accommodate that harness. Failure evidence retained.
 Twelve route/viewport/domain smoke cases pass, including BMW and Tyre Change copy
-and prices. Evidence: .private/sidebar-fc318618-*.json and TEMP/aat-sidebar-fc318618-*.
+and prices. Evidence: .private/sidebar-fc318618-_.json and TEMP/aat-sidebar-fc318618-_.
 The full efficient-delivery goal and uncommitted booking/payment/Allie work remain
 in progress; this release does not establish their production acceptance.
-
 
 ### 30 October 2026: concern-only workforce job read path
 
@@ -710,7 +730,6 @@ existing workforce job assignment UI, preserving technician eligibility, origina
 concern, request status and canonical service pricing. Do not route managed staff
 through legacy admin assignment or grant extra capabilities. Full goal remains active.
 
-
 ### 30 October 2026: workforce proposal review and recovery
 
 The workforce booking detail now provides a permission-gated proposed-time form,
@@ -734,7 +753,6 @@ Article service-request v8 already covers this proposal/acceptance behavior; no 
 semantic guide target or eligibility is introduced. Native end-to-end composition,
 proposal-specific auth/expiry/rollback checks, workforce concern classification and
 remaining full brief acceptance remain open. Full delivery goal remains active.
-
 
 ### 30 October 2026: scoped workforce proposal action
 
@@ -761,7 +779,6 @@ Next: workforce proposal review/recovery form and concern classification through
 existing permissions, followed by native and rendered acceptance. No new guide
 eligibility/semantic target or published help change yet. Full delivery goal active.
 
-
 ### 30 October 2026: workforce proposal visibility
 
 The existing branch-scoped workforce booking detail now returns and renders the
@@ -780,7 +797,6 @@ Evidence: %TEMP%/aat-workforce-proposal-final. Production/real-role/native API
 acceptance and workforce classification/proposal mutation controls remain open.
 This is one verified increment; the full delivery goal remains active.
 
-
 ### 30 October 2026: reviewed business facts and Allie citation UI
 
 Business-contact v1 now supplies the published address, email and care hours with
@@ -791,7 +807,6 @@ Contact navigation/modal close/visible breadcrumbs, scoped Axe and console check
 screenshots inspected. Initial disabled-preview and missing-branch-fixture failures
 were corrected and are recorded separately. No real model/customer/production write.
 See docs/help-learn/ALLIE_PUBLIC_KNOWLEDGE_20261030.md for scope and remaining work.
-
 
 ### 30 October 2026: Allie product/vehicle sources verified locally
 
@@ -804,7 +819,6 @@ db:check. Types/lint pass. No paid model call or production change. Business sou
 full policy/capability coverage, rendered citations and scale acceptance remain open.
 See docs/help-learn/ALLIE_PUBLIC_KNOWLEDGE_20261030.md (repository root). Task test
 clusters removed, logs retained, C: 22.93 GiB free. Full delivery goal remains active.
-
 
 ## Allie public service knowledge — 30 October 2026
 
@@ -844,7 +858,6 @@ coverage, service-citation rendered browser acceptance, large-catalogue retrieva
 quality/performance, workforce booking integration and external provider acceptance.
 Current source package is not the complete knowledge pipeline or an activation.
 No flags, production deployment, actual customer message or application DB changed.
-
 
 ## Alternative appointment guard acceptance — 30 October 2026
 
@@ -4332,7 +4345,6 @@ Backend audit evidence refreshed during this batch: published API image revision
 
 28 October 2026 - Compact customer-care release completed. Runtime 73436a31, Vercel dpl_J3Yv5aJwRGrzwZe6fiUPyeNdd81t READY on both domains after 14 public production checks. Empty care is compact; recorded cards, history drafts, permissions and error/session boundaries remain intact. Preserves published Help/Learn 072e0509, notification preview 1a33815c and favourites ef06efb7. Final-source CI 40715112526 passed 1092 tests plus types/lint/format/build and zero production audit findings; secret guard 40715112493 and isolated backend safety 40715112523 passed. Twenty-five final hosted dashboard/notification cases passed; ten unchanged-source learning cases passed on the preceding candidate. Two actual public homepage explanation cases passed at 390/1440 with three valid destinations, reviewed article, honest AI label and focus return. Initial extra-test heading expectation was corrected to the actual summary-then-topic sequence, without runtime changes. V41 density/V04 public explanation have released sampled evidence; full V01-V55 remains active. Backend 8fd37e1c unchanged by this task, ACTIVE/readiness200. No shared DB/customer writes. Evidence, rollback, disk interruptions and limitations: backend/docs/customer-care-density-production-20261028.md. V48 notification preference/channel distinction is next; preserve other worktrees.
 
-
 ## Filter sidebar scroll repair — 30 October 2026
 
 Owner-reported sidebar scrolling audited on live Parts and Vehicles, then repaired
@@ -4360,14 +4372,12 @@ No dependency install, Docker resource, database write or production publication
 Disk reserve passed before checks (23.51 GiB) and after (23.50 GiB). Existing broader
 booking/payment/Allie work remains pending; this checkpoint does not close it.
 
-
 30 October 2026 — Customer reversal and reconciliation-worker review handling
 implemented in codex/efficient-delivery-20261030. 41 isolated financial integration
 cases, 27 backend units and 3 local browser fixture cases passed. Existing successful
 captures remain immutable; customer reads expose only a reversal indicator. Evidence
 and remaining scope: docs/EFFICIENT_DELIVERY_20261030.md, Customer reversal and worker
 checkpoint. No production publication or live financial/provider activity.
-
 
 30 October 2026 — Concern booking contract and nullable-safe read paths added in
 codex/efficient-delivery-20261030. 79-migration isolated replay/db:check and 12 booking

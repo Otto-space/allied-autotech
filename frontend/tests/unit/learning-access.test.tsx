@@ -83,8 +83,8 @@ it("uses only bounded GET reads with no operational write token or arbitrary rou
   vi.stubGlobal("fetch", fetcher);
   await readLearning("catalogue", undefined, new AbortController().signal);
   expect(fetcher.mock.calls.map((call) => call[0])).toEqual([
-    "/api/v1/learning/catalogue",
-    "/api/v1/public/learning/catalogue",
+    "/api/v1/learning/catalogue?destinationsVersion=2",
+    "/api/v1/public/learning/catalogue?destinationsVersion=2",
   ]);
   for (const [, options] of fetcher.mock.calls) {
     expect(options).toMatchObject({

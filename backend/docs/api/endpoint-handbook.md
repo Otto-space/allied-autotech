@@ -525,6 +525,7 @@ Parameters:
 | Parameter | Location | Type | Required | Purpose |
 | --- | --- | --- | --- | --- |
 | `q` | query | string | No | Q used to constrain this request. |
+| `destinationsVersion` | query | 1 / 2 | No | Destinations Version used to constrain this request. |
 
 Success: HTTP 200.
 
@@ -27354,6 +27355,7 @@ Parameters:
 | Parameter | Location | Type | Required | Purpose |
 | --- | --- | --- | --- | --- |
 | `q` | query | string | No | Q used to constrain this request. |
+| `destinationsVersion` | query | 1 / 2 | No | Destinations Version used to constrain this request. |
 
 Success: HTTP 200.
 

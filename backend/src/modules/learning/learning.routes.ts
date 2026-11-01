@@ -33,7 +33,11 @@ export function createLearningRouter() {
                 : publicLearningAccess;
             const data =
               kind === "catalogue"
-                ? learningCatalogue(access, learningQuery.parse(req.query).q)
+                ? learningCatalogue(
+                    access,
+                    learningQuery.parse(req.query).q,
+                    learningQuery.parse(req.query).destinationsVersion,
+                  )
                 : learningItem(access, kind, learningParams.parse(req.params).id);
             res.json(successResponse("Eligible learning content", req.id, data));
           } catch (error) {

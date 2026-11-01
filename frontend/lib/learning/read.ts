@@ -18,7 +18,10 @@ export async function readLearning(
 ): Promise<unknown> {
   if (id !== undefined && !/^[a-z][a-z0-9-]{0,63}$/.test(id))
     throw new LearningReadError(404);
-  const suffix = kind + (id ? "/" + encodeURIComponent(id) : "");
+  const suffix =
+    kind +
+    (id ? "/" + encodeURIComponent(id) : "") +
+    (kind === "catalogue" ? "?destinationsVersion=2" : "");
   const workGuard = workforceReadGuard("/learning/" + suffix);
   for (const prefix of ["/learning/", "/public/learning/"]) {
     const response = await fetch("/api/v1" + prefix + suffix, {

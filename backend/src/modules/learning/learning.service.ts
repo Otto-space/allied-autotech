@@ -232,13 +232,21 @@ function textWords(value: string) {
     )
     .map((word) => synonyms[word] ?? word);
 }
-export function learningCatalogue(access: LearningAccess, query = "") {
+export function learningCatalogue(
+  access: LearningAccess,
+  query = "",
+  destinationsVersion: "1" | "2" = "2",
+) {
   if (!env.HELP_LEARN_ENABLED) throw learningUnavailable();
   const careReply =
     access.careScope?.reply ??
     access.permissions.some((p) => ["CUSTOMER_ENQUIRIES", "COMPLAINTS"].includes(p));
+  // HTTP callers default to the previously released destination contract; internal Allie retrieval uses current sources.
   const published = learningArticles.filter(
-    (a) => a.status === "published" && learningEligible(access, a.gate),
+    (a) =>
+      a.status === "published" &&
+      learningEligible(access, a.gate) &&
+      (destinationsVersion === "2" || a.href !== "/privacy"),
   );
   const visibleIds = new Set(published.map((a) => a.id));
   const words = textWords(query);

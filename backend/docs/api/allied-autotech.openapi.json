@@ -4970,6 +4970,22 @@
             "in": "query",
             "description": "Q used to constrain this request.",
             "example": "synthetic-q"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1",
+                "2"
+              ],
+              "default": "1",
+              "description": "Destinations Version validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "destinationsVersion",
+            "in": "query",
+            "description": "Destinations Version used to constrain this request.",
+            "example": "1"
           }
         ],
         "responses": {
@@ -6401,6 +6417,22 @@
             "in": "query",
             "description": "Q used to constrain this request.",
             "example": "synthetic-q"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1",
+                "2"
+              ],
+              "default": "1",
+              "description": "Destinations Version validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "destinationsVersion",
+            "in": "query",
+            "description": "Destinations Version used to constrain this request.",
+            "example": "1"
           }
         ],
         "responses": {
