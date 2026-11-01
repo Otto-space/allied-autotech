@@ -1,3 +1,44 @@
+### 1 November 2026: authorised Help destination repair published
+
+Runtime 6de6c86f3f1317ba140135b5f02cff3baeb4ee71 is live. Exact-master frontend
+41306198090, database safety 41306198130 and secrets 41306198115 passed. Both
+apex and www were independently verified as dpl_H68vUeqpN5iqAg1idy4fAXkL4XC9.
+Backend d496ecda-0f12-4a62-ac0e-8bf0d08f1b79 is ACTIVE (16/16), with matching
+four image digests, strict-TLS read-only schema/least-privilege checks and all eight
+workers healthy. Temporary database access was removed and verified. No schema,
+permissions, prices or feature flags changed; 83 migrations remain applied.
+
+The eight-line runtime repair restores seven supported staff Help destinations
+and Allie's service-category destination. Local acceptance: 71 backend and 38
+frontend focused checks, frontend types/lint, two rendered 390/1440 fixtures.
+Hosted acceptance: two Help fixtures (34.4s), two real-data candidate journeys and
+four real-data live journeys across both domains at 390/1440. Public Help opened
+and survived direct article refresh in Chrome without the black container outline;
+Chrome was signed out, so this does not add real authenticated staff acceptance.
+Live screenshot: TEMP/help-destinations-live-chrome.png. No paid AI call or real
+customer enquiry, booking, payment or message was made.
+
+Nine packaged image checks passed (25.343s), plus one isolated database replay,
+backup/restore and drift-rejection check (43.777s). The first registry upload attempt
+stopped during access lookup before upload; independent lookup and retained retry
+succeeded. Today's managed backup was verified. The recent populated production
+restore from 17abc5e6 was reused after proving the schema and safety scripts are
+unchanged; this is not a new production restore or managed PITR rehearsal.
+Build/release manifests for 17abc5e6 are preserved with explicit filenames. Current
+and two preceding releases, populated restore evidence and other tasks are retained.
+
+Tyre Change was re-read through /api/v1/public/services/:id and remains NGN1,000
+(100000 minor units), as confirmed by the owner. Initial guessed non-public endpoint
+returned 404; it was not counted as evidence. Public images, workshop story location,
+eight service groups and contextual enquiry/restricted-booking links passed live.
+Final observed C: 27.01 GiB free; task packaged containers cleaned up by their runners.
+This package began about 12:14 UTC and live verification finished 2026-11-01T12:36:51.214Z.
+
+Full goal remains active. Next: close the concrete public-policy knowledge gap
+(the published Privacy notice is not an eligible Help/Allie source), verify current
+capability metadata grounding, then finish the payment lifecycle and requirement
+ledger audit. Keep external provider and physical-device acceptance limits explicit.
+
 ### 1 November 2026: authorised Help destination repair, locally verified
 
 Found a real contract mismatch: seven published staff Help destinations were absent

@@ -1,3 +1,18 @@
+### 1 November 2026: Help destination release
+
+Runtime 6de6c86f now replaces 17abc5e6, with frontend
+ dpl_H68vUeqpN5iqAg1idy4fAXkL4XC9 and backend d496ecda-0f12-4a62-ac0e-8bf0d08f1b79.
+All exact-master checks passed, hosted/live acceptance passed, eight workers are
+healthy and 83 migrations remain unchanged. Prices, production gates and provider
+settings were preserved. Tyre Change remains NGN1,000. The repair makes already
+eligible staff guidance usable; it does not enable AI or broaden permissions.
+
+Concrete remaining source audit: published Privacy notice knowledge is absent from
+the Help/Allie catalogue; current public capability/policy grounding needs verification.
+Payment lifecycle acceptance must be reconciled with the actual current CI assertions.
+Provider account/test-mode and paid-model acceptance remain external prerequisites.
+These limits prevent a claim that the full brief is complete or only keys remain.
+
 ### 1 November 2026: current released booking context and activation boundary
 
 Runtime 17abc5e6 is now released with 83 migrations, matching frontend/backend,

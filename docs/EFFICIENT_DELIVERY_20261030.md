@@ -189,17 +189,25 @@ charges and real customer communications for demonstration. Previous production
 33fb5bd5 remains the baseline; work is isolated on codex/efficient-delivery-20261030
 in the existing release worktree. No new worktree or dependency installation.
 
-| Requirement | Current evidence | Changed location | Verification | Status |
-| --- | --- | --- | --- | --- |
-| Durable design, language, delivery rules | Existing quality directive retained | AGENTS.md; two referenced rule documents | Review pending | Implemented, verification pending |
-| Paystack server checkout, verification, durable webhooks, reconciliation | Existing payments module and invariant document | Audit in progress | Focused and isolated integration checks pending | Not yet verified for this goal |
-| Preferred-time booking without configured slots, including quotation/concern journeys | Existing service booking now accepts an offered slot or a preferred Lagos time; canonical quote price stays null | Service operations schemas/service; ServiceDetail; API contracts | 3 contract tests; 10 isolated booking integration cases; 6 focused browser cases passed | Selected-service preference implemented; concern-only path, sign-in draft recovery and preference rescheduling still missing |
-| Staff confirmation, alternatives, cancellation and capacity | Existing workflows and capacity locking | Reuse; audit pending | Isolated concurrency tests required | Not yet verified |
-| Genuine OpenAI Allie | Existing Responses adapter, retrieval, shared quota and conversation modules | Reuse; canonical catalogue knowledge audit pending | Provider evaluation allowance previously exhausted; no new calls authorised | Independent code audit pending; live evaluation blocked |
-| Grounded role-aware Help/Learn | Existing versioned role-filtered definitions | Update with changed workflows | Eligibility/source invalidation checks required | Audit pending |
-| Catalogue controls and cards | Published 33fb5bd5, prior 108 hosted checks | Preserve completed controls | New image requirements need fresh checks | Existing implementation; current goal gaps remain |
-| Cover composition, tyre-changer ratio and exact About asset reuse | Published tyre changer 768x1024; BMW primary 1000x750; exact About precision-autocare component | ServicesCatalogue, ServiceDetail, service and Home styles | 24 distinct local browser cases across corrected runs; types/lint pass | Implemented and locally verified; not deployed, physical-device acceptance unverified |
-| Activation and exact external prerequisites | Existing environment examples and provider docs | Consolidated handoff to be completed | Account/configuration facts must be verified without secrets | Incomplete |
+## Current requirement ledger — 1 November 2026
+
+Historical checkpoints below retain failed attempts and earlier gaps; this table
+is the current summary. Full completion is not yet claimed.
+
+| Requirement | Authoritative evidence / implementation | Verification | Current status |
+| --- | --- | --- | --- |
+| Durable design, plain language and efficient delivery rules | AGENTS.md references docs/UI_UX_AND_CONTENT_RULES.md and docs/DELIVERY_AND_VERIFICATION.md | Current source read; existing quality directive retained | Implemented |
+| Paystack trusted checkout and verification | Existing payments adapters/services; provider domain/reference validation, raw-signature ingress, durable events and reconciliation | Focused provider tests and isolated financial integration evidence below; current exact-master CI includes payment lifecycle/concurrency tests | Final requirement-to-assertion reconciliation remains; external provider test mode not accepted |
+| Reversed/delayed/duplicate payment handling | Existing anomaly/hold, reconciliation, customer reversal indicator; no invented refunds | 41 isolated reconciliation/webhook cases and customer browser fixtures below | Implemented and independently tested; real provider/merchant acceptance remains |
+| Functional service and concern booking requests | Existing request UI/API, entered/account vehicle and contact, sign-in draft, review/retry, persistent reference and original group snapshot | Native real API/browser/database journeys at 390/1440; 83-migration replay; booking-group release receipts | Implemented in full-mode source; public launch gates preserved |
+| Staff confirmation, alternatives, cancellation and capacity | ServiceOperations and scoped workforce adapters; separate current grants and transaction guards | Native customer-to-workforce journey; proposal MFA/CSRF/revocation/expiry/queue-atomicity checks | Implemented and locally tested; real calendars/resources and notification delivery require operational acceptance |
+| Genuine OpenAI Allie and bounded access | Responses adapter, encrypted conversation storage, quotas, cancellation and source validation | Provider-independent contract and HTTP security tests; no new paid call | Source implemented; live model evaluation requires a new bounded allowance and account setup |
+| Canonical catalogue knowledge | Published services/products/vehicles/groups, visibility rechecks, bounded retrieval, version/hash invalidation | Canonical-source and 753-record ranking integration tests; revoked/unpublished sources excluded | Implemented; production-volume performance not established |
+| Reviewed policy and capability knowledge | Curated task definitions and current role/mode/flags; public Privacy notice is absent from eligible Help/Allie sources | Actual learning corpus/allowlists and public notice inspected 1 November | Concrete remaining implementation/audit: policy source coverage and current public capability grounding |
+| Role-aware Help, guides and practice | Backend-owned versioned corpus, eligibility gates, in-memory practice, shared UI | 71 backend + 38 frontend focused checks; new 390/1440 local/hosted destination tests; 6de6c86f released | Destination repair complete; real signed-in staff browser acceptance not re-established today |
+| Catalogue filters, cards, focus, shadows and imagery | Existing discovery components/tokens/media derivatives; frontend/docs/CATALOGUE_EXPANDED_20261029.md | Prior 108-case hosted matrix plus current real-data candidate/live homepage/group checks | Implemented and sampled-browser verified; native zoom/physical-device/screen-reader limits retained |
+| Workshop story and owner service groups | Story on homepage, removed from service detail; eight published groups/icons; Tyre Change NGN1,000 | Four live apex/www 390/1440 journeys and read-only public price response | Released; authentic category photos remain optional |
+| Activation and final handoff | docs/ACTIVATION_READINESS_20261030.md; provider setup docs | Names, callback/webhook paths, flags and operational prerequisites recorded | Final source/acceptance reconciliation pending; no claim that only keys remain |
 
 The combined scope exceeds one hour. Package 1: durable guidance and functional
 preferred-time booking with focused verification. Subsequent packages: payment
