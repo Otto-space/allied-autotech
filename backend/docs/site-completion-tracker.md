@@ -1,3 +1,30 @@
+### 2 November 2026, 21:58 UTC: Runtime capability and Help repair published
+
+Runtime 333c3a22dde455274044331e30608f9b2cb2eef4 is published on apex/www as
+frontend dpl_7WepmwodVU3tgjZKaMN3XXdiMk6Q with matching ACTIVE backend
+c65d74ac-45e6-4b65-b410-fd4adc2bd25e, 16/16, four verified digests and readiness 200.
+Exact-master frontend 41528634610 (1,353 passed / 12 existing skips), backend
+41528634892 and secrets 41528634612 pass. Native isolated HTTP 46/46, packaged
+10/10 and held browser 99/99 plus two actual anonymous guide checks pass.
+Published browser checks initially passed 20/22: two vehicle discovery reads received
+429 with Retry-After. After respecting that window, the affected two pass 2/2;
+all 22 distinct cases are verified, not a single clean 22-case run. Two additional
+actual public guide browser checks and 16 anonymous HTTP checks across both domains
+pass. Protected role browser cases remain fixtures; no real-account acceptance.
+
+Home-next-step v5/service-request v17 are live, with 12 guide steps and private
+vehicle-operations 404. Shared runtime availability, separate booking/finance gates,
+stale/offline draft protection, public MPN search, partial Help retry and safe owned
+booking/Allie service descriptions are released. Earlier held/recovery entries below
+are historical and retained. Full audit stays active: account-optional purchasing is
+the next engineering item; real-role/provider/device acceptance remains separate.
+No schema, business record, price, grant, policy or activation flag changed.
+
+Fresh verified backup and pre/post strict-TLS/schema/least-privilege/eight-worker
+checks pass; temporary firewall access is removed. The 09:33 UTC populated restore
+is reused only for unchanged schema/safety scripts; it is not a fresh restore.
+Full receipt and safe public pictures: docs/LIVE_AUDIT_IMPLEMENTATION_20261102.md.
+
 ### 2 November 2026: Help contract recovery; runtime batch remains held
 
 Held source 0c200511 passed CI but final browser checks caught a 13-step public guide

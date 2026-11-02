@@ -1,3 +1,14 @@
+## 2 November 2026, 21:58 UTC: v5/v17 published
+
+Runtime 333c3a22 publishes home-next-step v5 and service-request v17. Actual
+anonymous HTTP checks verify both domains and private vehicle-operations 404;
+actual 320/1440 browser guide checks show all 12 steps, no overflow and zero Axe
+violations. Held equivalents and optional Help-source failure/recovery also pass.
+Eligibility, semantic targets, activation flags and stored history are unchanged.
+Earlier v16 failure/recovery and source checkpoints below are historical; exact
+release and retained failure receipts are in docs/LIVE_AUDIT_IMPLEMENTATION_20261102.md.
+Real-role/provider/device acceptance remains unperformed.
+
 ## 2 November 2026 guide-bound recovery checkpoint
 
 Service-request v16 temporarily exceeded the established client limit and was withdrawn

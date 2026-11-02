@@ -5,6 +5,72 @@ The current requirement ledger is frontend/docs/UI_UX_QUALITY_REGISTER.md; this
 report records a bounded implementation package, not a second backlog or a claim
 that the whole site is ready. Package start: 17:31 UTC; 60-minute review: 18:31 UTC.
 
+## Published runtime capability and Help repair - 21:58 UTC
+
+Runtime capability and Help repair published
+
+Runtime 333c3a22dde455274044331e30608f9b2cb2eef4 is published on apex/www as
+frontend dpl_7WepmwodVU3tgjZKaMN3XXdiMk6Q with matching ACTIVE backend
+c65d74ac-45e6-4b65-b410-fd4adc2bd25e, 16/16, four verified digests and readiness 200.
+Exact-master frontend 41528634610 (1,353 passed / 12 existing skips), backend
+41528634892 and secrets 41528634612 pass. Native isolated HTTP 46/46, packaged
+10/10 and held browser 99/99 plus two actual anonymous guide checks pass.
+Published browser checks initially passed 20/22: two vehicle discovery reads received
+429 with Retry-After. After respecting that window, the affected two pass 2/2;
+all 22 distinct cases are verified, not a single clean 22-case run. Two additional
+actual public guide browser checks and 16 anonymous HTTP checks across both domains
+pass. Protected role browser cases remain fixtures; no real-account acceptance.
+
+Home-next-step v5/service-request v17 are live, with 12 guide steps and private
+vehicle-operations 404. Shared runtime availability, separate booking/finance gates,
+stale/offline draft protection, public MPN search, partial Help retry and safe owned
+booking/Allie service descriptions are released. Earlier held/recovery entries below
+are historical and retained. Full audit stays active: account-optional purchasing is
+the next engineering item; real-role/provider/device acceptance remains separate.
+No schema, business record, price, grant, policy or activation flag changed.
+
+Fresh verified backup and pre/post strict-TLS/schema/least-privilege/eight-worker
+checks pass; temporary firewall access is removed. The 09:33 UTC populated restore
+is reused only for unchanged schema/safety scripts; it is not a fresh restore.
+Full receipt and safe public pictures: docs/LIVE_AUDIT_IMPLEMENTATION_20261102.md.
+
+The 0c200511 guide regression and recovery below remain part of the evidence.
+The final source enforces the 12-step contract on server responses, reviewed content,
+actual isolated HTTP and the real client schema. No assertion was weakened to hide
+that regression. A transient provider error during the first post-health attempt
+restored the firewall in finally; a separate final read-only check passed at
+21:56:18 UTC. Vercel CLI acknowledgement and registry login retries used the same
+authorised principal; provider state/digests were verified before continuing.
+
+Evidence under %TEMP%/aat-full-audit-20261102: guide-main-hosted.json (49),
+guide-hero-services.json (29), guide-preserve-hosted.json (21), guide-held-learning.json
+(2 actual), guide-public-release.json (16 HTTP), guide-published-browser.json (20/22),
+guide-published-vehicle-retry.json (2/2), guide-public-learning.json (2 actual).
+Native guide-native-9b02cd83149141f394060031df6c3e32/receipt.json records 46/46,
+87 migrations, isolated target identity and non-owner runtime privileges. The six
+suites include booking/response/fitment and current capability/learning/calendar.
+Frontend development-inclusive dependency findings remain 21 moderate / one high;
+production dependency audit is zero. Existing 12 skipped tests are not passed tests.
+
+Eight anonymous public screenshots and their deployment identities are recorded in
+guide-public-comparison.json at 320 and 1440 pixels. Compare before-settled-<route>-<width>.png
+with guide-after-public-<route>-<width>.png for contact, services, vehicle and search.
+These contain public content only, no customer/account data or fabricated business
+records. Public guide screenshots are guide-public-learning-{320,1440}.png.
+Full-page captures can include transient lazy thumbnail placeholders; they are not
+proof that every thumbnail request completed. Physical devices/Safari and actual
+provider/account delivery remain untested. Current buying and booking gates stay closed.
+
+Completion retention review: Docker remains on desktop-linux, with 137 unique
+images, 14 containers (one existing running builder), 15 volumes (10 active) and
+12.26 GB build cache. Eight new images are the failed-source investigation and
+current four-image release sets; current/previous recovery targets, useful warm
+cache and other tasks' resources are retained. No Docker objects were pruned.
+Eight known task-created provider-cookie/handshake/state and diagnostic-log files
+were removed non-recursively after checks; original protected settings and release
+evidence remain. C: measured 24.21 GiB free at completion (20 GiB reserve). The two
+previous policy-blocked synthetic database folders remain untouched.
+
 ## Held Help contract regression and recovery - 2 November 2026
 
 The 0c200511 source passed all exact-source CI (frontend 41523677037: 1,352 tests,
