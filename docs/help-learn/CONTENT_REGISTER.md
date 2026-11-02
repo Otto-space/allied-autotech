@@ -206,3 +206,5 @@ Nine hosted synthetic workflow checks passed; no production stock action occurre
 2 November 2026: Financial-policy guidance v4 adds verified Tax ID/CAC prerequisites and an explicit stop for unresolved identity/applicability. Existing eligibility and feature flags are unchanged. Published in runtime 59068ee4 after restricted learning tests and release verification; see docs/INVOICE_IDENTIFIER_SUPPORT_20261102.md.
 
 2 November: Invoice-filter search and hidden-field correction retain existing directory permissions, invoice contracts, guide targets and eligibility. No tutorial definition describes these filter controls; no learning version or feature flag changes. Hidden source-field correction awaits hosted acceptance.
+
+2 November: Invoice-filter recovery published in d9473ad9. All 26 held-candidate and four public-route synthetic regressions passed. Existing guide targets, eligibility, policy gates and permissions remain unchanged.

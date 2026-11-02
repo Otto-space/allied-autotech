@@ -1,3 +1,36 @@
+### 2 November 2026: Collapsed invoice filter recovery published
+
+Frontend d9473ad9cfd5643b771ed693a7c54853db672974 is live as
+ dpl_626aFaqfA3CNdPtKC5f25Dv3SdPL on apex and www; both identities verified.
+Exact-master checks passed: Frontend 41415052847 (1,319 passing units, 12 existing
+skips; production build/types/lint/format), Backend safety 41415052703 and secrets
+41415052449. Held-candidate browser checks: 26 passed, zero skipped/flaky/unexpected.
+All four new source-filter cases then passed on the actual public route at 320px
+and 1440px with intercepted synthetic records. Actual /parts responded 200 on both
+domains; www resolved to apex. Safe candidate screenshots were visually inspected.
+
+Before: invalid source reference or missing source type stayed hidden after filters
+were collapsed. After: Apply reveals the panel, focuses the correction and preserves
+the draft without an invalid invoice read/write. Customer-search, changed/recovered
+fitment drafts, uncertain saves and denied/inactive/mismatched access regressions
+passed. Existing field focus indication remains accessible. No business record,
+permission, policy, financial gate or schema changed.
+
+Backend dea3489e-0d93-4aad-9e0d-998fae51190b from 1224d942 remains unchanged;
+four image digests/readiness and absence of pending rollout verified. Eight current
+managed backups and the existing separate 85-migration restore rehearsal checked;
+no new restore or database write. Actual signed-in invoice/fitment inspection is
+recorded below; the one unclassified browser messaging error is not called resolved.
+Physical-device, independent reviewer and broader unsampled real-role acceptance
+remain open. Purchasing activation still needs the recorded owner/accountant and
+merchant prerequisites. The full brief is not declared complete by this batch.
+
+Evidence: private invoice-source-{ci,candidate,prepromotion}.json; Windows Temp
+/aat-invoice-source-hosted.json (26 passed), /aat-invoice-source-public-final.json
+(4 passed), and /aat-invoice-source-hosted/ safe synthetic screenshots. The initial
+four hidden-field failures remain documented in the baseline evidence. No Docker
+resource was created or removed; final disk reserve is checked separately.
+
 ### 2 November 2026: Signed-in acceptance refreshed; source-filter release held
 
 The authorised browser session is now available. Read-only actual invoice checks
