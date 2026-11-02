@@ -83,10 +83,11 @@ it("retains authoritative unknown and out-of-stock states on eligible real-media
         name: "Second product",
         availability: [{ ...product.availability[0], inStock: false }],
       },
+      { ...photographed, id: id(74), name: "Third product" },
     ],
   };
   const view = render(<HomePartsPreview />);
-  expect(view.container.querySelectorAll(".home-product-card")).toHaveLength(2);
+  expect(view.container.querySelectorAll(".home-product-card")).toHaveLength(3);
   expect(screen.getByText("Availability not listed")).toBeTruthy();
   expect(screen.getByText("Unavailable at listed branches")).toBeTruthy();
   const image = screen.getAllByRole("img")[0];
@@ -181,12 +182,16 @@ it("does not render an empty review stage while retaining a real published revie
   expect(screen.getByText("Published fixture review")).toBeTruthy();
 });
 
-it("shows one eligible product without borrowing media from a missing-photo record", () => {
+it("uses labelled category discovery when too few photographed products are published", () => {
   state.data = {
     items: [photographed, { ...product, id: id(99), name: "No photograph" }],
   };
   const view = render(<HomePartsPreview />);
-  expect(view.container.querySelectorAll(".home-product-card")).toHaveLength(1);
-  expect(screen.getByRole("heading", { name: product.name })).toBeTruthy();
+  expect(view.container.querySelectorAll(".home-product-card")).toHaveLength(0);
+  expect(screen.queryByRole("heading", { name: product.name })).toBeNull();
   expect(screen.queryByRole("heading", { name: "No photograph" })).toBeNull();
+  expect(screen.getByText(/Illustrative category images/)).toBeTruthy();
+  expect(screen.getByRole("heading", { name: "Engine oils" })).toBeTruthy();
+  expect(screen.getByRole("heading", { name: "Filters" })).toBeTruthy();
+  expect(screen.getByRole("heading", { name: "Replacement parts" })).toBeTruthy();
 });
