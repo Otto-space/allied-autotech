@@ -15,6 +15,7 @@ import {
 import { publicData, PublicApiError } from "@/lib/api/public-server";
 import { serviceSchema, parseServices } from "@/lib/api/public-schemas";
 import { formatKobo } from "@/lib/format/money";
+import { servicePhotograph } from "@/lib/service-photography";
 import { ServicePhoto } from "../../components/service-photo";
 import { ServiceDetail } from "../../components/service-detail";
 const getService = cache(async (id: string) => {
@@ -62,6 +63,7 @@ async function OtherServices({ serviceId }: { readonly serviceId: string }) {
               } else {
                 priceLabel = "Contact us for pricing";
               }
+              const photograph = servicePhotograph(item, "card");
               return (
                 <Link
                   className="sd-more-item"
@@ -69,12 +71,13 @@ async function OtherServices({ serviceId }: { readonly serviceId: string }) {
                   href={`/services/${item.id}`}
                 >
                   <div className="sd-more-media">
-                    {item.image ? (
+                    {photograph ? (
                       <ServicePhoto
-                        url={item.image.url}
-                        alt={item.image.altText ?? item.name}
-                        width={item.image.width}
-                        height={item.image.height}
+                        url={photograph.url}
+                        alt={photograph.altText ?? item.name}
+                        width={photograph.width}
+                        height={photograph.height}
+                        illustrative={photograph.illustrative}
                       />
                     ) : (
                       <Wrench size={26} strokeWidth={1.3} aria-hidden="true" />

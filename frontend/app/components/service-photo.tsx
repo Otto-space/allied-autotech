@@ -9,11 +9,13 @@ export function ServicePhoto({
   alt,
   width,
   height,
+  illustrative = false,
 }: {
   url: string;
   alt: string;
   width: number;
   height: number;
+  illustrative?: boolean;
 }) {
   const [failed, setFailed] = useState(false);
   return failed ? (
@@ -25,14 +27,17 @@ export function ServicePhoto({
       <Wrench size={32} aria-hidden="true" />
     </div>
   ) : (
-    <ResponsivePublicImage
-      src={url}
-      sizes="(max-width: 767px) 90vw, (max-width: 1023px) 44vw, 360px"
-      alt={alt}
-      width={width}
-      height={height}
-      className={styles.image}
-      onError={() => setFailed(true)}
-    />
+    <div className={styles.frame} style={{ aspectRatio: `${width} / ${height}` }}>
+      <ResponsivePublicImage
+        src={url}
+        sizes="(max-width: 767px) 90vw, (max-width: 1023px) 44vw, 360px"
+        alt={alt}
+        width={width}
+        height={height}
+        className={styles.image}
+        onError={() => setFailed(true)}
+      />
+      {illustrative && <span className={styles.caption}>Illustrative image</span>}
+    </div>
   );
 }

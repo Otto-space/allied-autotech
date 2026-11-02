@@ -1,3 +1,11 @@
+### 2 November 2026: Broader site-completion objective resumed
+
+Full-scope requirements and current evidence are tracked at the top of
+frontend/docs/UI_UX_QUALITY_REGISTER.md. First batch addresses verified public
+service import-note exposure and approved imagery, preserving stored history,
+commercial fields, launch gates and completed hero/Admin operations. Full goal
+remains active; later dashboard/enhancement/acceptance requirements are not dropped.
+
 ### 2 November 2026: Photographic hero published and verified
 
 Runtime source 485fb2c57140ea020f297878582b3ee2558d48bc is published as

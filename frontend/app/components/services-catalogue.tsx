@@ -14,6 +14,7 @@ import {
 } from "@/lib/service-discovery";
 import { ServiceGroupIcon } from "./service-groups";
 import { ServicePhoto } from "./service-photo";
+import { servicePhotograph } from "@/lib/service-photography";
 import { Feedback } from "./feedback";
 
 export function ServicesCatalogue({
@@ -291,72 +292,59 @@ export function ServicesCatalogue({
             </div>
           </div>
         ) : (
-          resource.data?.items.map((service) => (
-            <article
-              className="services-row"
-              key={service.id}
-              style={
-                service.image
-                  ? {
-                      maxWidth: `min(100%, ${(420 * service.image.width) / service.image.height}px)`,
-                    }
-                  : undefined
-              }
-            >
-              <div
-                className={`services-row-media${service.image ? " has-photo" : ""}`}
-                style={
-                  service.image
-                    ? { aspectRatio: `${service.image.width} / ${service.image.height}` }
-                    : undefined
-                }
-              >
-                {service.image ? (
-                  <ServicePhoto
-                    key={`${service.image.id}:${service.image.url}`}
-                    url={service.image.url}
-                    alt={service.image.altText || service.name}
-                    width={service.image.width}
-                    height={service.image.height}
-                  />
-                ) : (
-                  <>
-                    <Wrench size={26} aria-hidden="true" />
-                    <span>Image unavailable</span>
-                  </>
-                )}
-              </div>
-              <div className="services-row-copy">
-                <h3>{service.name}</h3>
-                <p className="services-row-description">
-                  {service.shortDescription ||
-                    service.description ||
-                    "View this service for booking and quotation details."}
-                </p>
-              </div>
-              <div className="services-row-actions">
-                <div className="services-row-price">
-                  <strong>
-                    {service.pricingType === "QUOTE_REQUIRED"
-                      ? "Quotation required"
-                      : formatKobo(service.priceKobo, { hideZeroDecimals: true })}
-                  </strong>
-                  <p>
-                    {service.pricingType === "QUOTE_REQUIRED"
-                      ? "Discuss your vehicle and the work needed."
-                      : "Listed service price. Review details before requesting."}
+          resource.data?.items.map((record) => {
+            const service = { ...record, image: servicePhotograph(record, "card") };
+            return (
+              <article className="services-row" key={service.id}>
+                <div className={`services-row-media${service.image ? " has-photo" : ""}`}>
+                  {service.image ? (
+                    <ServicePhoto
+                      key={service.image.url}
+                      url={service.image.url}
+                      alt={service.image.altText || service.name}
+                      width={service.image.width}
+                      height={service.image.height}
+                      illustrative={service.image.illustrative}
+                    />
+                  ) : (
+                    <>
+                      <Wrench size={26} aria-hidden="true" />
+                      <span>Image unavailable</span>
+                    </>
+                  )}
+                </div>
+                <div className="services-row-copy">
+                  <h3>{service.name}</h3>
+                  <p className="services-row-description">
+                    {service.shortDescription ||
+                      service.description ||
+                      "View this service for booking and quotation details."}
                   </p>
                 </div>
-                <Link
-                  href={`/services/${service.id}`}
-                  className="text-link"
-                  aria-label={`View ${service.name}`}
-                >
-                  View service <ArrowUpRight size={17} aria-hidden="true" />
-                </Link>
-              </div>
-            </article>
-          ))
+                <div className="services-row-actions">
+                  <div className="services-row-price">
+                    <strong>
+                      {service.pricingType === "QUOTE_REQUIRED"
+                        ? "Quotation required"
+                        : formatKobo(service.priceKobo, { hideZeroDecimals: true })}
+                    </strong>
+                    <p>
+                      {service.pricingType === "QUOTE_REQUIRED"
+                        ? "Discuss your vehicle and the work needed."
+                        : "Listed service price. Review details before requesting."}
+                    </p>
+                  </div>
+                  <Link
+                    href={`/services/${service.id}`}
+                    className="text-link"
+                    aria-label={`View ${service.name}`}
+                  >
+                    View service <ArrowUpRight size={17} aria-hidden="true" />
+                  </Link>
+                </div>
+              </article>
+            );
+          })
         )}
       </div>
       {(cursor || resource.data?.nextCursor) && (

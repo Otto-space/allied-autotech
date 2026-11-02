@@ -93,6 +93,54 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
   "Service discovery and category authority",
   () => {
     afterAll(() => prisma.$disconnect());
+    it("publishes clean service copy across list, discovery and detail while preserving internal evidence and prices", async () => {
+      const original =
+        "3D correction of all four wheels. Authorised amount: NGN 4,000, already reflecting the 20% reduction from NGN 5,000. Listed duration: one hour; listed warranty: seven days.";
+      const service = await prisma.service.create({
+        data: {
+          id: `00000000${randomUUID().slice(8)}`,
+          name: `Editorial-${randomUUID()}`,
+          slug: `editorial-${randomUUID()}`,
+          description: original,
+          shortDescription: "3D correction of all four wheels.",
+          pricingType: "FIXED",
+          priceKobo: 400000n,
+          durationMinutes: 60,
+        },
+      });
+      const clean =
+        "3D correction of all four wheels. Listed duration: one hour; listed warranty: seven days.";
+      const detail = await request(app).get(`/api/v1/public/services/${service.id}`);
+      const discovery = await page({ search: service.name });
+      const listing = await request(app)
+        .get("/api/v1/public/services")
+        .query({ limit: 50 });
+      expect(detail.status).toBe(200);
+      expect(listing.status).toBe(200);
+      for (const row of [
+        detail.body.data,
+        discovery.items[0],
+        listing.body.data.items.find((item: { id: string }) => item.id === service.id),
+      ]) {
+        expect(row).toMatchObject({
+          id: service.id,
+          description: clean,
+          priceKobo: "400000",
+          durationMinutes: 60,
+          version: 0,
+        });
+      }
+      const actor = await account("ADMIN");
+      const internal = await request(app)
+        .get(`/api/v1/admin/services/${service.id}`)
+        .set(actor.headers);
+      expect(internal.status).toBe(200);
+      expect(internal.body.data.description).toBe(original);
+      expect(
+        (await prisma.service.findUniqueOrThrow({ where: { id: service.id } }))
+          .description,
+      ).toBe(original);
+    });
     it.each(["name", "newest", "duration_asc"] as const)(
       "traverses %s ties and nulls with exact totals and compatible UUID anchors",
       async (sort) => {

@@ -203,6 +203,10 @@
   text-align: center;
   padding: 0 5px;
 }
+.services-row-media.has-photo {
+  height: auto;
+  aspect-ratio: 3 / 2;
+}
 .services-row-media img,
 .services-row-media [role="img"] {
   width: 100%;

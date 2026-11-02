@@ -1,3 +1,41 @@
+### 2 November 2026: Broader site-completion objective resumed
+
+Package start: 13:10 UTC; target 60 minutes for the first public-content batch.
+Objective: attachment 34136d68-83e6-41f3-9002-26b6d609f71b/goal-objective.md,
+read completely. Its directory contains no separate audit. Existing repository
+records are being reconciled; the owner was asked which audit supplies the
+additional enhancement contracts. This does not block verified independent fixes.
+Current source 703f1a26 is clean at start. Both public aliases still identify hero
+runtime 485fb2c5 / dpl_8qztTisCborq3CBcEQNmvpmQfr2v. Preserve that release and
+the published Admin vehicle-operations repair; no new authority to change roles.
+
+| Full objective requirement                                                 | Current evidence / next verification                                                                                            | Status                       |
+| -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | ---------------------------- |
+| Inspect instructions, current source/runtime and completed changes         | Brief, current AGENTS/directive/tracker; anonymous alias identity reads                                                         | Verified baseline            |
+| Remove internal public description notes; preserve prices/history          | Public API confirms three legacy arithmetic paragraphs; public-only projection in progress, stored source retained              | Implementing                 |
+| Repair Home/catalogue/detail service imagery and fallbacks                 | Three public services have no image; approved asset adapter in progress; tyre portrait remains in detail, action photo in cards | Implementing                 |
+| Truthful booking/purchasing/Help/dashboard language; remove contradictions | Reconcile launch mode and current route/state coverage, inspect rendered journeys                                               | Pending                      |
+| Simplify repeated conditions without deleting important facts              | Preserve financial/operational conditions; evaluate affected journeys                                                           | Pending                      |
+| Identify missing genuine product facts for operator                        | Read actual published inventory and authoring models, never fabricate                                                           | Pending                      |
+| Customer/Admin/Super Admin/assigned Staff journeys                         | Existing fixture and prior role evidence are historical; fresh authorised acceptance not yet available                          | Pending / access-limited     |
+| Vehicle stock/edit/fitment/inventory/enquiries/complaints/bookings         | Inspect current components and registry before selecting verified defects                                                       | Pending                      |
+| Explicit View/Edit details, laptop vehicle steps                           | Preserve completed operations repair; inspect current affordances/rendered states                                               | Pending                      |
+| Shared records-table patterns, badges/pagination/actions/copy              | Inspect corrected customer table and equivalent consumers                                                                       | Pending                      |
+| Public navigation search                                                   | Inspect existing implementation and audit contract                                                                              | Pending                      |
+| Accessible branded dashboard-search focus                                  | Inspect shared component and representative consumers                                                                           | Pending                      |
+| Optional browser notification invitation using existing settings           | Inspect permissions/preferences and audit contract; no auto prompt                                                              | Pending                      |
+| Calendar/date indicators and booking details                               | Existing appointment clarity release retained; inspect actual gaps                                                              | Pending                      |
+| Countdown only for confirmed appointments                                  | Existing absolute/today/tomorrow display is not countdown; inspect contract and status semantics                                | Pending                      |
+| Consistent photographic proportions/reliable media fallback                | Shared service renderer being updated; product/vehicle consumers still to inspect                                               | Implementing / wider pending |
+| Preserve carousel/favourites/filters/radii                                 | Hero runtime preserved; affected regression suite and source diff required                                                      | Pending final checks         |
+| Mobile-first layouts; tablet/laptop sidebar states; content language       | Render affected paths and update per-page coverage as each batch completes                                                      | Pending                      |
+| Operational/financial boundaries; approved policy reconciliation           | Existing launch restrictions retained; no real transactions, grants or fabricated data                                          | Invariant                    |
+| Required checks, state interactions, safe records, final report/readiness  | Focused checks underway; exact-source CI, hosted and release receipts still required                                            | Pending                      |
+
+The full goal remains active across bounded batches. Physical devices, real-role
+acceptance, merchant sandbox and business activation are separate evidence classes;
+source or intercepted tests do not prove them. Do not call the entire site ready.
+
 ### 2 November 2026: Photographic hero published and verified
 
 Runtime source 485fb2c57140ea020f297878582b3ee2558d48bc is published as

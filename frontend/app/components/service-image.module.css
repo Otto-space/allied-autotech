@@ -7,6 +7,30 @@
   border-radius: 12px;
   background: var(--surface-muted, #f1f3f5);
 }
+.frame {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+.frame .image {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+  object-fit: cover;
+}
+.caption {
+  position: absolute;
+  bottom: 6px;
+  left: 6px;
+  max-width: calc(100% - 12px);
+  padding: 3px 6px;
+  border-radius: var(--radius-control);
+  background: #111416e8;
+  color: #fff;
+  font-size: 11px;
+  line-height: 1.4;
+}
 .editor,
 .upload {
   max-width: 600px;

@@ -2,6 +2,7 @@ import { Prisma, type PrismaClient } from "../../generated/prisma/client.js";
 import { prisma } from "../../config/database.js";
 import { resourceImageSelect } from "../media/media.projection.js";
 import { projectServiceImage } from "./service-media.service.js";
+import { publicServiceCopy } from "./public-service-copy.js";
 import type {
   AdminServiceListQuery,
   CustomerBookingListQuery,
@@ -49,6 +50,12 @@ export function projectCatalogueService(
       : null;
   return {
     ...service,
+    ...(publicRead
+      ? {
+          description: publicServiceCopy(service.description),
+          shortDescription: publicServiceCopy(service.shortDescription),
+        }
+      : {}),
     categoryId: publicRead ? (visibleCategory?.id ?? null) : service.categoryId,
     category: visibleCategory,
     image: mediaImages[0]

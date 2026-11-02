@@ -3,6 +3,7 @@ import type { PublicSeed } from "@/lib/api/public-seed";
 import { useState } from "react";
 import Link from "next/link";
 import { ServicePhoto } from "./service-photo";
+import { servicePhotograph } from "@/lib/service-photography";
 import imageStyles from "./service-image.module.css";
 import { ArrowUpRight, Wrench } from "lucide-react";
 import { useResource } from "@/lib/api/use-resource";
@@ -79,53 +80,61 @@ export function ServiceList({
         className={`service-discovery${preview ? " service-discovery--preview" : ""}`}
         aria-busy={resource.loading}
       >
-        {(!resource.error ? resource.data : undefined)?.items.map((service) => (
-          <article
-            className={`service-discovery__item${service.image ? ` ${imageStyles.withImage}` : ""}`}
-            key={service.id}
-          >
-            {service.image ? (
-              <div className={imageStyles.card}>
-                <ServicePhoto
-                  key={service.image.id}
-                  url={service.image.url}
-                  alt={service.image.altText || service.name}
-                  width={service.image.width}
-                  height={service.image.height}
-                />
-              </div>
-            ) : (
-              <Wrench className="service-discovery__icon" size={22} aria-hidden="true" />
-            )}
-            <div className="service-discovery__body">
-              <CardHeading className="service-discovery__title">
-                {service.name}
-              </CardHeading>
-              <p className="service-discovery__description">
-                {(preview ? service.description : service.shortDescription) ??
-                  service.shortDescription ??
-                  service.description ??
-                  "View this service for booking and quotation details."}
-              </p>
-              <div className="service-discovery__actions">
-                <div>
-                  <strong>
-                    {service.pricingType === "QUOTE_REQUIRED"
-                      ? "Quotation required"
-                      : formatKobo(service.priceKobo, { hideZeroDecimals: true })}
-                  </strong>
+        {(!resource.error ? resource.data : undefined)?.items.map((record) => {
+          const service = { ...record, image: servicePhotograph(record, "card") };
+          return (
+            <article
+              className={`service-discovery__item${service.image ? ` ${imageStyles.withImage}` : ""}`}
+              key={service.id}
+            >
+              {service.image ? (
+                <div className={imageStyles.card}>
+                  <ServicePhoto
+                    key={service.image.url}
+                    url={service.image.url}
+                    alt={service.image.altText || service.name}
+                    width={service.image.width}
+                    height={service.image.height}
+                    illustrative={service.image.illustrative}
+                  />
                 </div>
-                <Link
-                  aria-label={`View ${service.name}`}
-                  className="text-link"
-                  href={`/services/${service.id}`}
-                >
-                  View service <ArrowUpRight size={17} aria-hidden="true" />
-                </Link>
+              ) : (
+                <Wrench
+                  className="service-discovery__icon"
+                  size={22}
+                  aria-hidden="true"
+                />
+              )}
+              <div className="service-discovery__body">
+                <CardHeading className="service-discovery__title">
+                  {service.name}
+                </CardHeading>
+                <p className="service-discovery__description">
+                  {(preview ? service.description : service.shortDescription) ??
+                    service.shortDescription ??
+                    service.description ??
+                    "View this service for booking and quotation details."}
+                </p>
+                <div className="service-discovery__actions">
+                  <div>
+                    <strong>
+                      {service.pricingType === "QUOTE_REQUIRED"
+                        ? "Quotation required"
+                        : formatKobo(service.priceKobo, { hideZeroDecimals: true })}
+                    </strong>
+                  </div>
+                  <Link
+                    aria-label={`View ${service.name}`}
+                    className="text-link"
+                    href={`/services/${service.id}`}
+                  >
+                    View service <ArrowUpRight size={17} aria-hidden="true" />
+                  </Link>
+                </div>
               </div>
-            </div>
-          </article>
-        ))}
+            </article>
+          );
+        })}
       </div>
       {!resource.loading && !resource.error && resource.data?.items.length === 0 && (
         <div className="empty">

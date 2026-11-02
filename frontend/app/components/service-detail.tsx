@@ -7,6 +7,7 @@ import {
 import { browseEnquiriesOnly } from "@/lib/public-launch";
 import Link from "next/link";
 import { ServicePhoto } from "./service-photo";
+import { servicePhotograph } from "@/lib/service-photography";
 import {
   ArrowDown,
   ArrowRight,
@@ -95,6 +96,7 @@ export function ServiceDetail({
     { revalidateOnMount: false },
   );
   const current = service.data;
+  const photograph = current ? servicePhotograph(current) : null;
   const listedFixed = current?.pricingType === "FIXED";
   const bookable = !!current && !browseEnquiriesOnly();
   const offeredSlotsSupported =
@@ -571,23 +573,24 @@ export function ServiceDetail({
                   </div>
                 </div>
                 <div
-                  className={`sd-media${current.image ? "" : " sd-media-empty"}`}
+                  className={`sd-media${photograph ? "" : " sd-media-empty"}`}
                   style={
-                    current.image
+                    photograph
                       ? {
-                          aspectRatio: `${current.image.width} / ${current.image.height}`,
-                          maxWidth: `min(100%, ${(520 * current.image.width) / current.image.height}px)`,
+                          aspectRatio: `${photograph.width} / ${photograph.height}`,
+                          maxWidth: `min(100%, ${(520 * photograph.width) / photograph.height}px)`,
                         }
                       : undefined
                   }
                 >
-                  {current.image ? (
+                  {photograph ? (
                     <ServicePhoto
-                      key={current.image.url}
-                      url={current.image.url}
-                      alt={current.image.altText ?? current.name}
-                      width={current.image.width}
-                      height={current.image.height}
+                      key={photograph.url}
+                      url={photograph.url}
+                      alt={photograph.altText ?? current.name}
+                      width={photograph.width}
+                      height={photograph.height}
+                      illustrative={photograph.illustrative}
                     />
                   ) : (
                     <>

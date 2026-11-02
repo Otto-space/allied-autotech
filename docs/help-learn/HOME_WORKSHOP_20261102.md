@@ -29,3 +29,12 @@ reduced-motion instructions in home-next-step v2 remain accurate. It makes no
 hover-pause promise, so no article version, eligibility or feature flag changes.
 The owner now requests laptop hover to continue; visual/timing checks are in
 frontend/docs/HERO_OVERLAY_20261102.md.
+
+Public service presentation follow-up: approved action photographs now also cover
+catalogue/detail views, with an explicit label for the oil illustration. Exact
+legacy source-arithmetic sentences are excluded only from public API descriptions;
+stored administrator content, financial fields, quantities, durations and history
+remain unchanged. home-next-step v2 and service-request v13 retain the same
+workflow, destinations, eligibility and guide targets; no article/version/flag
+change is required for this presentation-only correction. Public/admin separation
+is exercised by the isolated service-discovery integration test.
