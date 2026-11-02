@@ -185,3 +185,9 @@ Booking-label release checkpoint (1 November 2026): presentation source 36f4c51d
 is published on apex/www. Four-width detail and reviewed state transitions passed
 with synthetic hosted fixtures. service-request v13, role eligibility, guide targets
 and transaction gates remain unchanged. This does not prove real operational acceptance.
+
+
+2 November stock/workshop label checkpoint: presentation source 518dd13f published.
+Existing guidance, semantic targets, eligibility and flags unchanged. Stock quantities,
+payment distinctions and reviewed work-order milestones retain their contracts.
+Nine hosted synthetic workflow checks passed; no production stock action occurred.

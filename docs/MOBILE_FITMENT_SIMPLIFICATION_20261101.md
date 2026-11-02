@@ -1,6 +1,6 @@
 # Mobile tasks and compatibility refinement - 1 November 2026
 
-Status: frontend follow-up ad97a728 published; backend remains f0402b67. Acceptance limits remain below. Brief:
+Status: frontend follow-up 518dd13f published on 2 November; backend remains f0402b67. Acceptance limits remain below. Brief:
 Allied_AutoTech_Mobile_First_Dashboard_Fitment_Simplification_Codex_Prompt_2026-11-01.md.
 Existing release worktree reused at 4919492e. Previous runtime 53cdc8e1 remains
 the prior release baseline; exact-master CI and both public alias identities now passed. Desktop's unrelated home-hero edit is preserved.
@@ -17,7 +17,7 @@ the prior release baseline; exact-master CI and both public alias identities now
 | 12–13          | Booking summaries/calendar                                               | Existing recorded-event summaries and preferred/confirmed distinction retained. Saturday 18:00 Africa/Lagos already approved. All 46 customer-booking fixture cases passed. Added confirmed today/tomorrow wording in Nigeria time, a full later date and expandable canonical references. Both 320/1440 hosted state/contrast checks and clipboard success/manual fallback passed; no capacity or slot data invented.                                                                                                                                                                                                                |
 | 15–17          | Policy inventory/enforcement and launch readiness                        | Existing services-commerce readiness and delivery handoff are baseline. Current effective policy metadata inspected read-only; exact pending decisions are listed below. Preserve browse/enquiry, payment and independent approval safeguards.                                                                                                                                                                                                                                                                                                                                                                                        |
 | 18–19          | Responsive/accessibility/verification                                    | Local Edge/Playwright fixtures; Browser host unavailable. Computer Use stopped because it could not determine current Chrome URL confidently. Authorised live fitment inspection was completed before a later URL-verification stop. Physical mobile keyboard, native zoom and real-role production acceptance not yet established.                                                                                                                                                                                                                                                                                                   |
-| Publication    | All completed source                                                     | Frontend ad97a728 published after exact-master CI and seven final hosted fixture checks; backend f0402b67 remains unchanged and healthy. Both aliases independently verified; four post-promotion public viewport checks passed.                                                                                                                                                                                                                                                                                                                                                                                                      |
+| Publication    | All completed source                                                     | Latest frontend 518dd13f published after exact-master CI and nine final hosted stock/workshop checks, retaining earlier booking and fitment batches; backend f0402b67 unchanged. Both aliases independently verified; four post-promotion public viewport checks passed.                                                                                                                                                                                                                                                                                                                                                                                                      |
 
 ## Current checks and known failures
 
@@ -289,3 +289,57 @@ explains the linked booking change without implementation jargon.
 Three hosted baseline workflows passed (uncertain stock movement, unknown job retry,
 long mobile work order). New assertions verify readable stock/reference options,
 review facts and draft work status. Final CI/hosted verification and release pending.
+
+
+## Stock/workshop final evidence — 2 November 2026
+
+Frontend 518dd13ff281618765725e762825646eaced35df is live on apex/www as
+dpl_4qkD4d4C9r2gesMvh18SogvgVfv9; www redirects to apex. Backend f0402b67
+and deployment 36b4283f-63fc-401b-abbe-03b8bf9ccf2c remain unchanged.
+Stock movement choices/history and work-order summaries/reviews reuse readable
+labels. Exact request codes, idempotency, version checks and reviews are preserved.
+
+Exact-master CI passed: frontend 41391577799, backend 41391610306, secrets
+41391577851. Frontend: 1,312 units passed, 12 existing skips; build/type/lint/format
+passed. Earlier 67a9f203 CI failed only quality-register formatting, corrected in
+518dd13f. Local scoped lint/format and 24 progress units passed. Three hosted
+baselines passed; final nine hosted stock/workshop cases passed, including uncertain
+recovery, reservations, reviewed milestones and 320/1440 accessibility. Two candidate
+and four post-promotion public checks passed with no page errors or overflow.
+These are synthetic staff fixtures and real public read-only checks, not production
+stock or financial acceptance. No actual records, approvals or payments were changed.
+
+Fresh 2 November 05:02 UTC read-only schema/TLS/privilege/eight-worker check passed;
+temporary access removed. Eight managed backups verified (latest 1 November
+05:22:11 UTC). Reused the 1 November populated restore rehearsal for unchanged
+85-migration schema; no migration or new restore was performed. C: 25.40 GiB free.
+No Docker resources created; existing containers, volumes, caches and rollback
+resources retained. See docs/MOBILE_FITMENT_SIMPLIFICATION_20261101.md for screenshots
+and prior evidence. The complete brief remains active: remaining ordinary-interface
+wording/form audit, real-role/device coverage and previously recorded external
+activation/accounting decisions remain open. Purchasing/deposits remain gated.
+
+Before/after: STOCK IN becomes Stock in, WORK ORDER becomes Work order in stock
+reference choices, and DRAFT becomes Draft in workshop summary/review. Work completion
+review explains the linked booking change without server implementation language.
+Authoritative movement/status codes and financial consequences remain unchanged.
+
+Changed runtime files: inventory-change-forms.tsx, inventory-records.tsx and
+staff-work-order.tsx, all under frontend/app/components. Existing statusLabel is
+reused; no new formatter or global text filtering. Current operations screens already
+supply labels, so unused fallbacks were left unchanged. Final hosted evidence includes
+all four inventory cases, quotation/work-order milestones, long mobile content, two
+summary widths and draft-note persistence. The no-show assertion was corrected to
+the already-published casing but was not selected by the final config; do not count
+it as an additional passing case. Baseline three cases remain separately recorded.
+
+Safe synthetic before/after screenshots: mobile-fitment-20261101/
+inventory-wording-before-320.png and inventory-wording-after-320.png in the existing
+visualizations directory. Both visually inspected; final mobile Axe passed.
+Production-dependency audit reported zero vulnerabilities; development-inclusive
+install still reported 22 advisories (21 moderate, one high), unchanged.
+
+Provider receipts use stock-wording; the resumed safety receipts use
+stock-wording-resume-post-health to preserve the 1 November evidence. The prior
+failed CI was a terminal formatting failure, not restarted as an observation timeout.
+Native-device, unsampled real-role and service SSR limitations remain as recorded.

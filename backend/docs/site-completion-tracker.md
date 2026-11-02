@@ -1,3 +1,31 @@
+### 2 November 2026: Stock and workshop wording published
+
+Frontend 518dd13ff281618765725e762825646eaced35df is live on apex/www as
+dpl_4qkD4d4C9r2gesMvh18SogvgVfv9; www redirects to apex. Backend f0402b67
+and deployment 36b4283f-63fc-401b-abbe-03b8bf9ccf2c remain unchanged.
+Stock movement choices/history and work-order summaries/reviews reuse readable
+labels. Exact request codes, idempotency, version checks and reviews are preserved.
+
+Exact-master CI passed: frontend 41391577799, backend 41391610306, secrets
+41391577851. Frontend: 1,312 units passed, 12 existing skips; build/type/lint/format
+passed. Earlier 67a9f203 CI failed only quality-register formatting, corrected in
+518dd13f. Local scoped lint/format and 24 progress units passed. Three hosted
+baselines passed; final nine hosted stock/workshop cases passed, including uncertain
+recovery, reservations, reviewed milestones and 320/1440 accessibility. Two candidate
+and four post-promotion public checks passed with no page errors or overflow.
+These are synthetic staff fixtures and real public read-only checks, not production
+stock or financial acceptance. No actual records, approvals or payments were changed.
+
+Fresh 2 November 05:02 UTC read-only schema/TLS/privilege/eight-worker check passed;
+temporary access removed. Eight managed backups verified (latest 1 November
+05:22:11 UTC). Reused the 1 November populated restore rehearsal for unchanged
+85-migration schema; no migration or new restore was performed. C: 25.40 GiB free.
+No Docker resources created; existing containers, volumes, caches and rollback
+resources retained. See docs/MOBILE_FITMENT_SIMPLIFICATION_20261101.md for screenshots
+and prior evidence. The complete brief remains active: remaining ordinary-interface
+wording/form audit, real-role/device coverage and previously recorded external
+activation/accounting decisions remain open. Purchasing/deposits remain gated.
+
 ### 1 November 2026: Readable booking detail published
 
 Frontend 36f4c51d670f0cfdc065be95ae2cf77e43082ab3 is promoted to apex/www as
