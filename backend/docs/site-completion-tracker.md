@@ -1,3 +1,19 @@
+### 2 November 2026: Signed-in acceptance refreshed; source-filter release held
+
+The authorised browser session is now available. Read-only actual invoice checks
+confirmed the empty state, branch choices and customer search disclosure. Actual
+fitment inspection opened and closed the untouched legacy draft without a native
+confirmation; focus returned to Edit rule. Draft version 0 and all six evidence
+warnings remained unchanged. No fields were edited and no record was submitted.
+One asynchronous listener/message-channel console error was captured on invoices;
+its cause is unclassified. The temporary agent tab was closed. No physical-device
+or independent reviewer acceptance is inferred.
+
+Source-filter commit 7f77caf4 passed backend safety and secret checks. Frontend
+production compilation passed but final quality-register formatting failed; this
+follow-up formats the register. Corrected hosted acceptance and publication remain
+pending; runtime b72eddd8 remains the verified production release.
+
 ### 2 November 2026: Collapsed invoice source-filter recovery
 
 Actual public-route testing with synthetic records reproduced four failures: an
