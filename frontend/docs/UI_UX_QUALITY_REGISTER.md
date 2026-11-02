@@ -1,3 +1,22 @@
+### 2 November 2026: Home and About workshop restoration released
+
+Public Home/About source 1224d942 is live on apex/www, frontend
+`dpl_Ehmd5TkgUMnWp2CHHZoUmp7CiTZL`, matching ACTIVE backend
+`dea3489e-0d93-4aad-9e0d-998fae51190b`. Authentic images, complete team and lift,
+correct card media, three authoritative featured services and accessible looping
+hero are published. Final amounts: diagnostics NGN 8,000; four-wheel alignment
+NGN 4,000; generic oil NGN 8,000. Existing tyre unit and package boundaries preserved.
+
+Passing hosted evidence covers 17 Home scenarios and 26 About regressions: three
+full real-time loops twice, manual/focus pause and restart, touch, stalled/failed
+images, no-JS, doubled text and 320?1920px layouts. Final candidate and four
+unmocked public 390/1440px cases passed. Axe found no violations in tested states.
+Visibility is simulated; physical Safari/Chrome, full screen reader and field
+performance remain untested. One image-load timing assertion failed; two controlled
+delay repetitions passed, and its regression harness is corrected. Three exact-source
+CI workflows and nine packaged checks passed. No enquiry/order/booking was sent for
+visual demonstration. [Mapping, failures, measured results and safe screenshots](HOME_WORKSHOP_20261102.md).
+
 ### 2 November 2026: Live fitment inspection and invoice-search follow-up
 
 Owner restored Super Admin access. A separate Chrome tab inspected the actual

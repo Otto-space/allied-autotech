@@ -1,3 +1,28 @@
+### 2 November 2026: Home and About workshop restoration published
+
+Source 1224d942 is live on apex/www as dpl_Ehmd5TkgUMnWp2CHHZoUmp7CiTZL.
+Backend dea3489e-0d93-4aad-9e0d-998fae51190b is ACTIVE, 16/16, four matching
+digests. Three exact-source CI workflows passed: 1,319 frontend units with 12
+existing skips, isolated backend safety/regressions and nine packaged checks.
+17 Home scenarios and 26 About regressions have passing hosted evidence, including
+three real-time loops twice, image stalls/failures, pause/keyboard/touch, no-JS
+and 320?1920px layouts. Final-candidate and four real public smoke cases passed.
+Failures, simulated visibility and physical-device limits remain in the report.
+
+Normal admin authoring and public reads confirm Diagnostics NGN 8,000, Alignment
+NGN 4,000 for all four wheels/60 minutes, Generic Lube Oil NGN 8,000. Unknown
+durations stay null; no slots/capacity were added. Existing Tyre Change remains
+NGN 1,000/30 minutes. No duplicate groups, second discounts or invented package
+scope. Only genuine workbook questions remain. Full team/lift and authentic
+workshop imagery are preserved; illustrative Shop discovery is labelled.
+
+Production verification was read-only: 85 migrations compatible, least privilege
+and eight workers healthy; temporary access removed. Existing managed backups and
+fresh populated restore rehearsal verified; no migration. Unrelated releases stay
+with their owning agent. Separate owner request: full Admin operations with
+owner-only controls retained; vehicle price-history actor support needs its own
+compatible change. [Full results and safe screenshots](../../frontend/docs/HOME_WORKSHOP_20261102.md).
+
 ### 2 November 2026: Live fitment inspection and invoice-search follow-up
 
 Owner restored Super Admin access. A separate Chrome tab inspected the actual

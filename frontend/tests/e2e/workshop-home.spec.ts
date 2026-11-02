@@ -1,8 +1,8 @@
 import { test, expect, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 const hero = (page: Page) => page.getByRole("region", { name: "Workshop highlights" });
-async function open(page: Page) {
-  const response = await page.goto("/");
+async function open(page: Page, waitUntil: "load" | "domcontentloaded" = "load") {
+  const response = await page.goto("/", { waitUntil });
   expect(response?.status()).toBe(200);
   await expect(page).toHaveTitle(/Allied AutoTech/);
   await expect(hero(page).getByRole("heading", { level: 1 })).toContainText(
@@ -305,21 +305,32 @@ test("slow and failed slide requests retain a usable current slide with bounded 
 }) => {
   test.setTimeout(60000);
   let requests = 0;
+  let releaseImage!: () => void;
+  const delayedImage = new Promise<void>((resolve) => {
+    releaseImage = resolve;
+  });
   await page.route("**/_next/image?*", async (route) => {
     const asset = new URL(route.request().url()).searchParams.get("url") ?? "";
     if (asset.includes("alignment-at-work")) {
       requests++;
-      await new Promise((r) => setTimeout(r, 8500));
+      await delayedImage;
     }
     return route.continue();
   });
-  await open(page);
-  await page.waitForTimeout(6300);
-  await expect(hero(page)).toHaveAttribute("data-slide", "1");
-  await expect(
-    hero(page).getByRole("link", { name: "Explore diagnostics" }),
-  ).toBeVisible();
-  await expect(hero(page)).toHaveAttribute("data-slide", "2", { timeout: 6000 });
+  try {
+    // Observe the pending state before releasing the image. Waiting for the load
+    // event would include the delayed eager image and make this a timer race.
+    await open(page, "domcontentloaded");
+    await expect(hero(page)).toHaveAttribute("data-waiting", "true", { timeout: 10000 });
+    await expect(hero(page)).toHaveAttribute("data-slide", "1");
+    await expect(
+      hero(page).getByRole("link", { name: "Explore diagnostics" }),
+    ).toBeVisible();
+    releaseImage();
+    await expect(hero(page)).toHaveAttribute("data-slide", "2", { timeout: 7900 });
+  } finally {
+    releaseImage();
+  }
   expect(requests).toBeLessThanOrEqual(2);
   await page.unroute("**/_next/image?*");
   await page.route("**/_next/image?*", (route) => {
