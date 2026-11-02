@@ -1,3 +1,39 @@
+### 2 November 2026: Shared release public acceptance complete; authoring access pending
+
+Published runtime 6f3cf203 is verified on apex/www as frontend
+ dpl_7HctXP7eYBDvCc9i7TnQsiG9hYgP, with ACTIVE backend
+1597c138-919c-4470-b991-0add596837f9. Exact-source frontend 41425787830,
+backend 41425787658 and secret 41425787671 checks passed. The owning release
+completed the protected 87-migration rollout, populated restore preservation,
+fresh backup, runtime privilege and eight-worker checks; see the vehicle-operator
+release report and its protected receipts. No duplicate deployment was created.
+
+Our final public privacy acceptance passed four cases: 320/1440 on apex/www,
+actual released UI with synthetic API interception and zero AI writes. Final safe
+screenshots were inspected. Independent unmocked public catalogue reads using
+ destinationsVersion=2 returned
+privacy-and-allie v2 with scheduled-cleanup wording on both domains. Public access
+to privacy-work returned 404. The default legacy catalogue intentionally omits
+new destinations; its omission was investigated rather than called a defect.
+Reports: %TEMP%/aat-privacy-clarity-public.json and
+%TEMP%/aat-privacy-guidance-public.json. www resolves to apex as configured.
+
+Three actual public service descriptions still contain workbook/discount notes:
+Comprehensive Vehicle Diagnostics (800000 kobo, duration unknown), Wheel Alignment
+(400000 kobo, 60 minutes), Generic Lube Oil Service (800000 kobo, duration unknown).
+Prepared description-only edits are in frontend/docs/HOME_WORKSHOP_20261102.md.
+Preserve all IDs, prices, scopes, warranties and unknown durations. Chrome currently
+shows Sign In and a separate MFA tab; the owner confirmed no access is available.
+No alternate authentication, direct database edit or permission change was attempted.
+This authoring requirement remains incomplete. The latest owner authorization allows
+finishing the shared release after safeguards; that release is now completed.
+
+Financial/operational activation remains gated by the precise existing decisions
+in the policy inventory and backend/docs/finance-review-20261101.md. Native-phone,
+full screen-reader and unsampled real-role acceptance remain unverified. These
+limits are not replaced by the 75 local service cases or the hosted/public fixtures.
+The full goal is not declared complete while the service authoring item remains.
+
 ### 2 November 2026: Admin vehicle operations and workshop regression published
 
 Owner-approved full Admin operations are released at signed master 6f3cf203;

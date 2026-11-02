@@ -36,6 +36,7 @@ changing only description and preserving IDs, final prices, quantities and durat
   and the listed warranty is seven days. Confirm vehicle suitability, scope,
   materials, tax and warranty conditions with the team before work is agreed.
 - Generic Lube Oil Service: Lube oil change with air-filter and AC-filter cleaning.
+  This is separate from Basic Oil Service, which has a different scope and price.
   Confirm suitable oil, oil and filter compatibility, parts/materials inclusion,
   appointment duration, tax and any warranty conditions before work is agreed.
 

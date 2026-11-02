@@ -232,3 +232,5 @@ Nine hosted synthetic workflow checks passed; no production stock action occurre
 2 November: privacy-and-allie v2 replaces implementation terminology with plain-language reply records and scheduled cleanup. Deadlines, encryption, backup/provider caveats, public eligibility, policy version and guide targets remain unchanged. Existing privacy/retrieval guards are preserved. Source only; coordinated publication and rendered disclosure/navigation checks pending.
 
 2 November: Privacy wording rendered acceptance passed on held production candidate 1ff4a13c at 320/1440 (two cases, zero AI writes). Backend guidance v2 publication and actual-domain checks remain pending; policy version, gates and eligibility are unchanged.
+
+2 November: privacy-and-allie v2 is live in runtime 6f3cf203. Both public version-2 catalogues returned it; staff-only privacy-work remained 404. Four public 320/1440 disclosure/navigation fixtures passed with zero AI writes. Policy version, eligibility and activation gates are unchanged.
