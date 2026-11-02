@@ -71,6 +71,7 @@ export function InvoiceFilters({
         const field = (Object.keys(schema.shape) as (keyof InvoiceFiltersValue)[]).find(
           (k) => v[k],
         );
+        if (field === "customerId" && !open) onToggle();
         if (field) form.setFocus(field);
       })}
     >

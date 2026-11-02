@@ -47,6 +47,10 @@ for (const width of [320, 1440]) {
     await page
       .getByLabel("Customer profile reference (optional)", { exact: true })
       .fill("incomplete");
+    await page.getByRole("button", { name: "Fewer filters", exact: true }).click();
+    await expect(
+      page.getByLabel("Customer profile reference (optional)", { exact: true }),
+    ).toHaveCount(0);
     const reads = invoices.reads.length;
     await page
       .getByRole("button", { name: "Apply invoice filters", exact: true })
