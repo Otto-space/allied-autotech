@@ -104,6 +104,7 @@ jobs:
           npm run db:check
           docker run --rm --network "container:${{ job.services.postgres.id }}" \
             --mount "type=bind,source=$PWD,target=/workspace" --workdir /workspace \
+            --mount "type=bind,source=$PWD/../frontend/lib/workforce-registry.ts,target=/frontend/lib/workforce-registry.ts,readonly" \
             -e NODE_ENV=test -e DEPLOYMENT_ENV=local -e DB_HOST=127.0.0.1 -e DB_PORT=5432 \
             -e DB_NAME=allied_admin_operations_regression_ci -e TEST_DB_NAME=allied_admin_operations_regression_ci \
             -e DB_USER=postgres -e DB_PASSWORD=isolated-ci-only-password -e DB_SSL_MODE=disable \
