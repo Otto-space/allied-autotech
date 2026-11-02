@@ -106,6 +106,17 @@ loading/missing fixture imagery are retained but are not final comparison eviden
 
 ## Hour-boundary checkpoint
 
+Exact-source backend CI 41504574591 and a fresh isolated native PostgreSQL run
+both rejected the new proposal fixture because it omitted the required proposal
+reason/version. Corrected synthetic metadata, retaining the complete-proposal
+constraint and all runtime guards. The native run's other 42 cases pass (learning,
+booking proposals/responses and fitment review); the corrected frozen source must
+pass all 43 plus separate fake-provider push cases before acceptance is recorded.
+The first native harness attempt treated Prisma's informational stderr as a
+PowerShell error; output is now captured by a child runner that checks exit status.
+Both task clusters were stopped and retained pending final bounded cleanup. No
+shared/application target, existing grant, business row or provider was touched.
+
 At 18:31 UTC, the source package remains unpublished while a retained notification-click fixture initially hangs on Opening your update. It subsequently passes unchanged in three repeats; development compilation was observed, and final hosted checks remain required. Four customer booking-list layout/Axe regressions and mocked push subscription/CSRF/device opt-out pass. The calendar geometry fix and native/no-JavaScript search checks pass. Next package starts 18:31 UTC, target 19:31 UTC: freeze/commit and run exact-source gates, then authoritative capability and approved guest-purchasing work. No unsafe publication or activation is used to meet the hour target.
 
 ## Operational boundary and next package

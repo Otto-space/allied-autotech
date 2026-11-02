@@ -41,6 +41,9 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
           status: "REQUESTED",
           scheduledAt: new Date("2026-10-15T10:00:00Z"),
           alternativeStartsAt: new Date("2026-11-15T10:00:00Z"),
+          alternativeReason: "Synthetic calendar proposal",
+          alternativeVersion: 1,
+          version: 1,
         },
       });
       const query = {
