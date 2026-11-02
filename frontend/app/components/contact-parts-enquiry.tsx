@@ -14,6 +14,7 @@ import {
 } from "@/lib/catalogue-enquiry";
 import { PublicEnquiryForm } from "./public-enquiry-form";
 import { CatalogueEnquiryDrafts } from "./catalogue-enquiry-drafts";
+import { serviceInterest } from "@/lib/featured-services";
 
 const parseProduct = (value: unknown) => productSchema.parse(value);
 const parseCategory = (value: unknown) => categorySchema.parse(value);
@@ -34,7 +35,8 @@ export function ContactPartsEnquiry({
     onlyParts &&
     params.get("parts") !== "1" &&
     params.get("vehicle") !== "1" &&
-    !params.has("serviceGroup")
+    !params.has("serviceGroup") &&
+    !params.has("serviceInterest")
   )
     return null;
   const incoming = catalogueEnquiryContext(params);
@@ -56,6 +58,13 @@ export function ContactPartsEnquiry({
             contextKey={context.contextKey}
             labelledBy={labelledBy}
           />
+        ) : selected.has("serviceInterest") ? (
+          <FeaturedServiceEnquiry
+            key={context.id}
+            value={selected.get("serviceInterest")}
+            contextKey={context.contextKey}
+            labelledBy={labelledBy}
+          />
         ) : selected.has("serviceGroup") ? (
           <ServiceGroupEnquiryContext
             key={context.id}
@@ -72,6 +81,39 @@ export function ContactPartsEnquiry({
         );
       }}
     </CatalogueEnquiryDrafts>
+  );
+}
+
+function FeaturedServiceEnquiry({
+  value,
+  contextKey,
+  labelledBy,
+}: {
+  value: string | null;
+  contextKey?: string;
+  labelledBy?: string;
+}) {
+  const item = serviceInterest(value);
+  if (!item)
+    return (
+      <p className="notice" role="status">
+        This service enquiry could not be identified. Your draft has not been replaced.
+      </p>
+    );
+  return (
+    <>
+      <p className="notice">
+        Ask about {item.name}. The team will confirm scope, pricing, materials and visit
+        arrangements. This enquiry does not reserve an appointment.
+      </p>
+      <PublicEnquiryForm
+        presentation="contact"
+        labelledBy={labelledBy}
+        initialSubject={`Service enquiry: ${item.name}`}
+        initialMessage={`I would like to discuss ${item.name}.\n${item.description}\n\nVehicle and concern:`}
+        initialContextKey={contextKey}
+      />
+    </>
   );
 }
 

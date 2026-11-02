@@ -56742,10 +56742,14 @@
                     "description": "Currency validated by this operation's strict request contract."
                   },
                   "durationMinutes": {
-                    "type": "integer",
+                    "type": [
+                      "integer",
+                      "null"
+                    ],
                     "minimum": 15,
                     "maximum": 1440,
-                    "description": "Duration Minutes validated by this operation's strict request contract."
+                    "example": 60,
+                    "description": "Confirmed job duration in minutes, or null when unknown. A null duration cannot provide appointment slots."
                   },
                   "isActive": {
                     "type": "boolean",
@@ -56768,7 +56772,7 @@
                 "slug": "synthetic-slug",
                 "pricingType": "FIXED",
                 "priceKobo": "300000",
-                "durationMinutes": 15
+                "durationMinutes": 60
               }
             }
           },
@@ -57652,10 +57656,14 @@
                     "description": "Currency validated by this operation's strict request contract."
                   },
                   "durationMinutes": {
-                    "type": "integer",
+                    "type": [
+                      "integer",
+                      "null"
+                    ],
                     "minimum": 15,
                     "maximum": 1440,
-                    "description": "Duration Minutes validated by this operation's strict request contract."
+                    "example": 60,
+                    "description": "Confirmed job duration in minutes, or null when unknown. A null duration cannot provide appointment slots."
                   },
                   "isActive": {
                     "type": "boolean",

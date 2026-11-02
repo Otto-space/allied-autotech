@@ -48552,7 +48552,7 @@ export interface operations {
                  *       "slug": "synthetic-slug",
                  *       "pricingType": "FIXED",
                  *       "priceKobo": "300000",
-                 *       "durationMinutes": 15
+                 *       "durationMinutes": 60
                  *     }
                  */
                 "application/json": {
@@ -48582,8 +48582,11 @@ export interface operations {
                      * @enum {string}
                      */
                     currency?: "NGN";
-                    /** @description Duration Minutes validated by this operation's strict request contract. */
-                    durationMinutes: number;
+                    /**
+                     * @description Confirmed job duration in minutes, or null when unknown. A null duration cannot provide appointment slots.
+                     * @example 60
+                     */
+                    durationMinutes: number | null;
                     /**
                      * @description Boolean control for is active; authorization is still enforced server-side.
                      * @default true
@@ -49217,8 +49220,11 @@ export interface operations {
                      * @enum {string}
                      */
                     currency?: "NGN";
-                    /** @description Duration Minutes validated by this operation's strict request contract. */
-                    durationMinutes?: number;
+                    /**
+                     * @description Confirmed job duration in minutes, or null when unknown. A null duration cannot provide appointment slots.
+                     * @example 60
+                     */
+                    durationMinutes?: number | null;
                     /** @description Boolean control for is active; authorization is still enforced server-side. */
                     isActive?: boolean;
                 };

@@ -24,6 +24,20 @@ const actor = (role: AuthenticatedActor["role"], mfa = true): AuthenticatedActor
 });
 
 describe("Phase 5 service-operation security contracts", () => {
+  it("preserves an explicitly unknown service duration without treating zero as unknown", () => {
+    const input = {
+      name: "Comprehensive Vehicle Diagnostics",
+      slug: "comprehensive-vehicle-diagnostics",
+      pricingType: "FIXED",
+      priceKobo: "800000",
+      durationMinutes: null,
+    };
+    expect(serviceCreateBodySchema.parse(input).durationMinutes).toBeNull();
+    for (const durationMinutes of [0, 14, 1441, 60.5])
+      expect(
+        serviceCreateBodySchema.safeParse({ ...input, durationMinutes }).success,
+      ).toBe(false);
+  });
   it("allows description paragraphs while rejecting unsupported controls and multiline names", () => {
     const input = {
       name: "Brake service",

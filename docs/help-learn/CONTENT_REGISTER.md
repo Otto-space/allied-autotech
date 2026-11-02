@@ -1,5 +1,9 @@
 # Versioned content and scenario register
 
+## 2 November Home workshop checkpoint
+
+Public home-next-step v2 explains controllable authentic workshop highlights, the complete team photograph and contextual service enquiries. Unknown duration remains unconfirmed and cannot offer appointment slots. No new guide permission or feature flag. Source-only until its compatible backend publication; see HOME_WORKSHOP_20261102.md.
+
 ## 1 November presentation refinement checkpoint
 
 Ordinary Help/Learn article bodies omit maintenance source/version/review metadata.
@@ -185,7 +189,6 @@ Booking-label release checkpoint (1 November 2026): presentation source 36f4c51d
 is published on apex/www. Four-width detail and reviewed state transitions passed
 with synthetic hosted fixtures. service-request v13, role eligibility, guide targets
 and transaction gates remain unchanged. This does not prove real operational acceptance.
-
 
 2 November stock/workshop label checkpoint: presentation source 518dd13f published.
 Existing guidance, semantic targets, eligibility and flags unchanged. Stock quantities,

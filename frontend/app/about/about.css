@@ -591,3 +591,66 @@
     scroll-behavior: auto !important;
   }
 }
+/* Real workshop photography preserves people and complete portrait equipment. */
+.about-page .about-hero-grid {
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: 40px;
+}
+.about-page .about-hero-photo {
+  aspect-ratio: 3 / 2;
+  width: 100%;
+  height: auto;
+  position: relative;
+}
+.about-page .about-hero-photo img {
+  object-fit: cover;
+}
+.about-page .about-team {
+  padding-block: 56px;
+}
+.about-page .about-team-photo {
+  margin-block: 28px;
+}
+.about-page .about-team-photo img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+.about-page .about-action-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+}
+.about-page .about-action-grid figure > div {
+  position: relative;
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+  border-radius: 8px;
+}
+.about-page .about-action-grid img {
+  object-fit: cover;
+}
+.about-page .about-action-grid figcaption {
+  padding-top: 12px;
+  font-size: 14px;
+}
+.about-page .equipment-image[data-portrait="true"] {
+  aspect-ratio: 2 / 3;
+}
+.about-page .equipment-image[data-portrait="true"] img {
+  object-fit: contain;
+}
+@media (max-width: 760px) {
+  .about-page .about-hero-grid,
+  .about-page .about-action-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .about-page .about-hero-figure {
+    width: 100%;
+    max-width: none;
+  }
+  .about-page .about-team {
+    padding-block: 36px;
+  }
+}

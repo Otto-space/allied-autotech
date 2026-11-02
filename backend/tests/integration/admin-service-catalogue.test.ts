@@ -18,6 +18,7 @@ import {
 import { ServiceMediaService } from "../../src/modules/service-operations/service-media.service.js";
 import { MemoryMediaStorage } from "../helpers/media-storage.js";
 import { testOwner } from "../helpers/owner.js";
+import { assertIsolatedLoopbackDatabase } from "../helpers/isolated-database.js";
 
 const app = createApp({ checkReadiness: async () => undefined });
 const endpoint = "/api/v1/admin/services";
@@ -100,6 +101,39 @@ async function page(
 describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
   "Administrator service catalogue",
   () => {
+    it("authors an explicit unknown duration without inventing a slot or discounting the final amount again", async () => {
+      await assertIsolatedLoopbackDatabase();
+      const a = await account();
+      const identity = randomUUID();
+      const response = await request(app)
+        .post(endpoint)
+        .set(a.headers)
+        .set("Idempotency-Key", randomUUID())
+        .send({
+          name: `Comprehensive diagnostics ${identity}`,
+          slug: `diagnostics-${identity}`,
+          pricingType: "FIXED",
+          priceKobo: "800000",
+          durationMinutes: null,
+          isActive: true,
+        });
+      expect(response.status, JSON.stringify(response.body)).toBe(201);
+      const stored = await prisma.service.findUniqueOrThrow({
+        where: { id: response.body.data.id },
+      });
+      expect(stored.durationMinutes).toBeNull();
+      expect(stored.priceKobo).toBe(800000n);
+      const slots = await request(app).get(`/api/v1/public/services/${stored.id}/slots`);
+      expect(slots.status).toBe(404);
+      expect(await prisma.bookingSlot.count({ where: { serviceId: stored.id } })).toBe(0);
+      for (const durationMinutes of [0, 14, 1441]) {
+        const rejected = await request(app)
+          .patch(`${endpoint}/${stored.id}`)
+          .set(a.headers)
+          .send({ expectedVersion: stored.version, durationMinutes });
+        expect(rejected.status).toBe(422);
+      }
+    });
     afterAll(async () => {
       await prisma.session.deleteMany({ where: { id: { in: sessions } } });
       await prisma.$disconnect();

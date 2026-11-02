@@ -172,8 +172,8 @@ export const serviceFormSchema = z
       .string()
       .trim()
       .refine(
-        (v) => /^\d+$/.test(v) && Number(v) >= 15 && Number(v) <= 1440,
-        "Enter a whole duration from 15 to 1440 minutes.",
+        (v) => v === "" || (/^\d+$/.test(v) && Number(v) >= 15 && Number(v) <= 1440),
+        "Leave blank when unknown, or enter a whole duration from 15 to 1440 minutes.",
       ),
     isActive: z.boolean(),
   })

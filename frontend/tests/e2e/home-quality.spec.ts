@@ -188,7 +188,7 @@ async function fixture(page: Page) {
 async function ready(page: Page) {
   await page.goto("/");
   await expect(page.locator("main h1")).toContainText(
-    "Diagnostics, repairs and automotive essentials.",
+    "Comprehensive diagnostics. Clear next steps.",
   );
   await page.evaluate(() => document.fonts.ready);
 }
@@ -207,13 +207,13 @@ for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536]) {
     await ready(page);
     await expect(page).toHaveTitle(/Allied AutoTech/);
     await expect(page.locator("main h1")).toHaveCount(1);
-    await expect(page.locator(".home-product-card")).toHaveCount(4);
+    await expect(page.locator(".home-product-card")).toHaveCount(3);
     await expect(page.locator(".home-vehicle-card")).toHaveCount(2);
     await page.locator(".home-vehicle-card").first().scrollIntoViewIfNeeded();
     await expect(page.locator(".home-vehicle-card").first().locator("img")).toBeVisible();
     await expect(page.locator(".home-vehicle-card").first().locator("img")).toHaveCSS(
       "object-fit",
-      "contain",
+      "cover",
     );
     const vehicleFrame = (await page
       .locator(".home-vehicle-card .product-media")
@@ -241,7 +241,7 @@ for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536]) {
       page.locator(".home-vehicle-card").nth(1).locator(".home-vehicle-specs li"),
     ).toHaveCount(0);
     for (const selector of [
-      ".home-care",
+      ".home-bay",
       ".home-services",
       ".partner-layout",
       ".home-vehicles",
@@ -276,7 +276,7 @@ for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536]) {
     for (const seed of [
       "/public/catalog/products?limit=4",
       "/public/vehicles?limit=2",
-      "/public/services?limit=3",
+      "/public/services?limit=50",
       "/public/support/reviews?limit=3",
     ])
       expect(serverReads.filter((read) => read === `/api/v1${seed}`)).toHaveLength(1);
@@ -288,16 +288,13 @@ test("stable hero, keyboard, FAQ and navigation perform their advertised actions
   await fixture(page);
   await page.emulateMedia({ reducedMotion: "reduce" });
   await ready(page);
-  await expect(page.locator(".hero-controls, .service-marquee")).toHaveCount(0);
+  const carousel = page.getByRole("region", { name: "Workshop highlights" });
   await expect(
-    page.locator(".hero-copy").getByRole("link", { name: "Explore services" }),
-  ).toHaveAttribute("href", "/services");
-  const contact = page
-    .locator(".hero-copy")
-    .getByRole("link", { name: "Contact the team" });
-  await contact.focus();
-  await expect(contact).toBeFocused();
-  await expect(contact).toHaveAttribute("href", "/contact#enquiry");
+    carousel.getByRole("link", { name: "Explore diagnostics" }),
+  ).toHaveAttribute("href", "/services?search=diagnostics");
+  await carousel.getByRole("button", { name: "Next slide" }).focus();
+  await page.keyboard.press("Enter");
+  await expect(carousel).toHaveAttribute("data-slide", "2");
   await page
     .locator("main")
     .getByText("Where is Allied AutoTech?", { exact: true })
@@ -361,9 +358,9 @@ test("four independent seed failures recover through their actual public APIs", 
       await expect(page.locator(".home-shop .home-preview-loading")).toHaveCount(4);
     }
   }
-  await expect(page.locator(".home-product-card")).toHaveCount(4);
+  await expect(page.locator(".home-product-card")).toHaveCount(3);
   await expect(page.locator(".home-vehicle-card")).toHaveCount(2);
-  await expect(page.locator(".service-discovery__item")).toHaveCount(3);
+  await expect(page.locator(".home-services .home-feature-card")).toHaveCount(3);
   expect(
     state.reads.filter((p) => p.startsWith("/public/") && !p.includes("/images/")),
   ).toHaveLength(12);
@@ -442,7 +439,7 @@ test("homepage sections reflow when text is doubled on a narrow screen", async (
       element.style.lineHeight = "1.5";
     }
   });
-  for (const selector of [".home-shop", ".equipment-story", ".home-faq"]) {
+  for (const selector of [".home-shop", ".home-equipment-grid", ".home-faq"]) {
     await page.locator(selector).scrollIntoViewIfNeeded();
     await noOverflow(page);
   }
@@ -453,9 +450,10 @@ test("mobile hero remains stable while the menu opens and closes", async ({ page
   await page.setViewportSize({ width: 390, height: 900 });
   await page.emulateMedia({ reducedMotion: "no-preference" });
   await ready(page);
-  await page.waitForTimeout(7500);
-  await expect(page.locator("main h1")).toHaveText(
-    "Diagnostics, repairs and automotive essentials.",
+  await expect(page.getByRole("region", { name: "Workshop highlights" })).toHaveAttribute(
+    "data-slide",
+    "2",
+    { timeout: 10000 },
   );
   await page.getByRole("button", { name: "Open navigation", exact: true }).click();
   await expect(
@@ -470,29 +468,26 @@ test("mobile hero remains stable while the menu opens and closes", async ({ page
 });
 
 for (const width of [390, 1440]) {
-  test(`homepage care reuses the complete approved About artwork at ${width}px`, async ({
-    page,
-  }, info) => {
-    await page.setViewportSize({ width, height: 900 });
-    await fixture(page);
-    await ready(page);
-    const artwork = page.locator('.home-care [data-artwork="precision-autocare"]');
-    await artwork.scrollIntoViewIfNeeded();
-    const image = artwork.locator("img");
-    await expect(image).toBeVisible();
-    await expect
-      .poll(() => image.evaluate((el) => (el as HTMLImageElement).naturalWidth))
-      .toBeGreaterThan(0);
-    await expect(image).toHaveAttribute("src", "/brand/r2/precision-autocare-800.webp");
-    await expect(image).toHaveCSS("object-fit", "contain");
-    const box = (await artwork.boundingBox())!;
-    expect(box.width / box.height).toBeCloseTo(4 / 5, 2);
-    expect(box.width).toBeLessThanOrEqual(380);
-    expect(await page.locator('.home-care img[src*="technician-original"]').count()).toBe(
-      0,
-    );
-    await page
-      .locator(".home-care")
-      .screenshot({ path: info.outputPath(`approved-care-${width}.png`) });
-  });
+  test(
+    "homepage lift and team preserve their full photographs at " + width,
+    async ({ page }) => {
+      await page.setViewportSize({ width, height: 1000 });
+      await fixture(page);
+      await ready(page);
+      for (const selector of [".home-bay-photo img", ".home-team-photo img"]) {
+        const image = page.locator(selector);
+        await image.scrollIntoViewIfNeeded();
+        await expect
+          .poll(() => image.evaluate((el) => (el as HTMLImageElement).naturalWidth))
+          .toBeGreaterThan(0);
+        const ratios = await image.evaluate((el) => ({
+          natural:
+            (el as HTMLImageElement).naturalWidth /
+            (el as HTMLImageElement).naturalHeight,
+          shown: el.getBoundingClientRect().width / el.getBoundingClientRect().height,
+        }));
+        expect(ratios.shown).toBeCloseTo(ratios.natural, 2);
+      }
+    },
+  );
 }

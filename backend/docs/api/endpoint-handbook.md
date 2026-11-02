@@ -23957,7 +23957,7 @@ JSON request fields:
 | `pricingType` | FIXED / QUOTE_REQUIRED | Yes | Pricing Type validated by this operation's strict request contract. |
 | `priceKobo` | string / null | Yes | Integer price in Nigerian kobo; client-calculated values are never authoritative. |
 | `currency` | NGN | No | Currency validated by this operation's strict request contract. |
-| `durationMinutes` | integer | Yes | Duration Minutes validated by this operation's strict request contract. |
+| `durationMinutes` | integer / null | Yes | Confirmed job duration in minutes, or null when unknown. A null duration cannot provide appointment slots. |
 | `isActive` | boolean | No | Boolean control for is active; authorization is still enforced server-side. |
 
 Synthetic request example:
@@ -23968,7 +23968,7 @@ Synthetic request example:
   "slug": "synthetic-slug",
   "pricingType": "FIXED",
   "priceKobo": "300000",
-  "durationMinutes": 15
+  "durationMinutes": 60
 }
 ```
 
@@ -24088,7 +24088,7 @@ JSON request fields:
 | `pricingType` | FIXED / QUOTE_REQUIRED | No | Pricing Type validated by this operation's strict request contract. |
 | `priceKobo` | string / null | No | Integer price in Nigerian kobo; client-calculated values are never authoritative. |
 | `currency` | NGN | No | Currency validated by this operation's strict request contract. |
-| `durationMinutes` | integer | No | Duration Minutes validated by this operation's strict request contract. |
+| `durationMinutes` | integer / null | No | Confirmed job duration in minutes, or null when unknown. A null duration cannot provide appointment slots. |
 | `isActive` | boolean | No | Boolean control for is active; authorization is still enforced server-side. |
 
 Synthetic request example:

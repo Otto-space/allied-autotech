@@ -8,6 +8,7 @@ import { normalizeProductQuery } from "./product-discovery";
 import { fitmentLabels, fitmentQualifierKeys, partsEnquiryHref } from "./parts-fitment";
 import { familyLabels, packVolumeLabel } from "./product-family";
 import { formatKobo } from "./format/money";
+import { serviceInterest } from "./featured-services";
 
 export function vehicleEnquiryHref(input: URLSearchParams, listingId?: string) {
   const params = normalizeVehicleQuery(input).params;
@@ -173,6 +174,27 @@ export type CatalogueEnquiryContext = {
 export function catalogueEnquiryContext(
   params: URLSearchParams,
 ): CatalogueEnquiryContext {
+  if (
+    params.has("serviceInterest") &&
+    params.get("vehicle") !== "1" &&
+    params.get("parts") !== "1"
+  ) {
+    const selected =
+      params.getAll("serviceInterest").length === 1
+        ? serviceInterest(params.get("serviceInterest"))
+        : undefined;
+    const query = new URLSearchParams({
+      serviceInterest: selected?.key ?? "invalid",
+    }).toString();
+    return {
+      id: query,
+      href: `/contact?${query}#enquiry`,
+      label: selected
+        ? `Service enquiry: ${selected.name}`
+        : "Unavailable service enquiry",
+      contextKey: query,
+    };
+  }
   if (
     params.has("serviceGroup") &&
     params.get("vehicle") !== "1" &&

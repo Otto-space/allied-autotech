@@ -2,6 +2,7 @@
 import { VehicleOwnerDisclosure } from "./vehicle-owner-disclosure";
 import type { PublicSeed } from "@/lib/api/public-seed";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowUpRight, CarFront, MapPin, Settings2 } from "lucide-react";
 import { vehiclePresentation } from "@/lib/vehicle-presentation";
 import { useResource } from "@/lib/api/use-resource";
@@ -47,6 +48,7 @@ export function HomePartsPreview({
     parts.data?.items.filter((part) =>
       part.images.some((image) => isPublicMediaUrl(image.url, hosts)),
     ) ?? [];
+  const showProducts = featured.length >= 3;
   return (
     <div className="home-catalogue-preview" aria-busy={parts.loading}>
       <Feedback message={parts.error} />
@@ -66,7 +68,7 @@ export function HomePartsPreview({
         className="home-product-grid"
         data-sparse={!!parts.data && featured.length <= 2}
       >
-        {(!parts.error ? featured : []).map((part) => {
+        {(!parts.error && showProducts ? featured.slice(0, 3) : []).map((part) => {
           const images = part.images.filter((image) =>
             isPublicMediaUrl(image.url, hosts),
           );
@@ -103,6 +105,59 @@ export function HomePartsPreview({
           );
         })}
       </div>
+      {!showProducts && (
+        <div
+          className="home-feature-grid home-shop-discovery"
+          aria-label="Shop discovery"
+        >
+          {[
+            {
+              title: "Engine oils",
+              image: "engine-oils",
+              href: "/parts?family=ENGINE_OIL",
+              copy: "Explore recorded grades and ask about suitability.",
+            },
+            {
+              title: "Filters",
+              image: "filters",
+              href: "/contact?parts=1&part_search=Filters#enquiry",
+              copy: "Ask the team to check the filter your vehicle needs.",
+            },
+            {
+              title: "Replacement parts",
+              image: "replacement-parts",
+              href: "/contact?parts=1&part_search=Replacement+parts#enquiry",
+              copy: "Discuss the part, vehicle and specifications before collection.",
+            },
+          ].map((item) => (
+            <article className="home-feature-card" key={item.image}>
+              <div
+                className="home-feature-media"
+                data-contain={item.image !== "engine-oils"}
+              >
+                <Image
+                  src={`/images/workshop/owner/${item.image}.webp`}
+                  alt=""
+                  fill
+                  sizes="(max-width: 700px) 90vw, 380px"
+                />
+              </div>
+              <div className="home-feature-body">
+                <h3>{item.title}</h3>
+                <p>{item.copy}</p>
+                <Link className="text-link" href={item.href}>
+                  Explore {item.title.toLowerCase()}{" "}
+                  <ArrowUpRight size={16} aria-hidden="true" />
+                </Link>
+              </div>
+            </article>
+          ))}
+          <p className="home-discovery-note">
+            Illustrative category images. Ask the team to confirm product specifications
+            and availability.
+          </p>
+        </div>
+      )}
       {!parts.loading &&
         !parts.error &&
         !!parts.data?.items.length &&

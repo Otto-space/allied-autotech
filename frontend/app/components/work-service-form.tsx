@@ -232,7 +232,7 @@ function ServiceForm({
       description: values.description || null,
       pricingType: values.pricingType,
       priceKobo: values.price ? nairaToKobo(values.price) : null,
-      durationMinutes: Number(values.duration),
+      durationMinutes: values.duration ? Number(values.duration) : null,
       isActive: values.isActive,
       ...(record ? { expectedVersion: record.version } : {}),
     };
@@ -257,7 +257,13 @@ function ServiceForm({
           label: "Service price (NGN)",
           value: body.priceKobo !== null ? formatKobo(body.priceKobo) : "Not provided",
         },
-        { label: "Duration", value: `${body.durationMinutes} minutes` },
+        {
+          label: "Duration",
+          value:
+            body.durationMinutes === null
+              ? "Not confirmed; appointment slots unavailable"
+              : `${body.durationMinutes} minutes`,
+        },
         { label: "Active", value: body.isActive ? "Yes" : "No" },
       ],
       onUncertain: () => pending(true),
@@ -484,7 +490,13 @@ function ServiceForm({
               {error("price")}
             </div>
             <div className="field">
-              <label htmlFor="admin-durationMinutes">Duration in minutes</label>
+              <label htmlFor="admin-durationMinutes">
+                Duration in minutes (optional)
+              </label>
+              <p className="field-hint">
+                Leave blank until confirmed. A service without a duration cannot offer
+                appointment slots.
+              </p>
               <input
                 {...form.register("duration")}
                 {...common("duration")}

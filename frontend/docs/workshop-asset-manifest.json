@@ -1,0 +1,243 @@
+[
+  {
+    "id": "smoke-leak-detector",
+    "source": "IMG_3258.jpg.jpeg",
+    "sha256": "79a9498e0bbb3a5be272afd2f0e18176939f601b30886f07eba0fb8850699732",
+    "originalWidth": 5616,
+    "originalHeight": 3744,
+    "placement": "About engine equipment",
+    "framing": "Full composition",
+    "derivatives": [
+      {
+        "path": "/images/workshop/owner/smoke-leak-detector.webp",
+        "width": 1600,
+        "height": 1067,
+        "bytes": 116902
+      }
+    ]
+  },
+  {
+    "id": "workshop-equipment",
+    "source": "IMG_3263.jpg.jpeg",
+    "sha256": "4764c2a8f48d306d0bbf9532ba9682f3a83c35915d61cd2bcc22314e94fb971a",
+    "originalWidth": 5616,
+    "originalHeight": 3744,
+    "placement": "About workshop equipment",
+    "framing": "Full composition",
+    "derivatives": [
+      {
+        "path": "/images/workshop/owner/workshop-equipment.webp",
+        "width": 1600,
+        "height": 1067,
+        "bytes": 161920
+      }
+    ]
+  },
+  {
+    "id": "service-bay",
+    "source": "IMG_3264.jpg.jpeg",
+    "sha256": "853910ece45ef37b6b1514d93e86d1b511d4fdeaff0debb36b77d0bc3eb224f9",
+    "originalWidth": 3744,
+    "originalHeight": 5616,
+    "placement": "Home service bay; About equipment",
+    "framing": "Both posts; natural portrait ratio",
+    "derivatives": [
+      {
+        "path": "/images/workshop/owner/service-bay.webp",
+        "width": 1600,
+        "height": 2400,
+        "bytes": 489502
+      }
+    ]
+  },
+  {
+    "id": "diagnostics-at-work",
+    "source": "IMG_3267.jpg.jpeg",
+    "sha256": "d69d52f03082b3e6cd6d6a32d54b895416ecf217b7a00e7174b3386fd057571a",
+    "originalWidth": 5616,
+    "originalHeight": 3744,
+    "placement": "Hero 1; diagnostics; About team at work",
+    "framing": "62% 50%; copy outside photo",
+    "derivatives": [
+      {
+        "path": "/images/workshop/owner/diagnostics-at-work.webp",
+        "width": 1600,
+        "height": 1067,
+        "bytes": 125068
+      }
+    ]
+  },
+  {
+    "id": "diagnostic-tablet",
+    "source": "IMG_3447.jpg.jpeg",
+    "sha256": "9b586255dc9c97fd55e08952cfbb33b0c2f95baf6aa8db81171089e6b67cac59",
+    "originalWidth": 5616,
+    "originalHeight": 3744,
+    "placement": "Home equipment; About team at work",
+    "framing": "Supporting detail",
+    "derivatives": [
+      {
+        "path": "/images/workshop/owner/diagnostic-tablet.webp",
+        "width": 1600,
+        "height": 1067,
+        "bytes": 75734
+      }
+    ]
+  },
+  {
+    "id": "alignment-at-work",
+    "source": "IMG_3532.jpg.jpeg",
+    "sha256": "7705817d34806fe29986bc49c4e1d639211af793140047a7ff8f0c404b9bd2b2",
+    "originalWidth": 5616,
+    "originalHeight": 3744,
+    "placement": "Hero 2; alignment; About team at work",
+    "framing": "62% 50%; preserve person and equipment",
+    "derivatives": [
+      {
+        "path": "/images/workshop/owner/alignment-at-work.webp",
+        "width": 1600,
+        "height": 1067,
+        "bytes": 126754
+      }
+    ]
+  },
+  {
+    "id": "allied-team",
+    "source": "IMG_3618.jpg.jpeg",
+    "sha256": "1ddee9f7c45a5381ea9d14786f1bb943a50b4eaacbb27937a68d85850ce68ed0",
+    "originalWidth": 5616,
+    "originalHeight": 3744,
+    "placement": "Home team; About team",
+    "framing": "Full natural ratio; all seven people; never crop",
+    "derivatives": [
+      {
+        "path": "/images/workshop/owner/allied-team.webp",
+        "width": 1920,
+        "height": 1280,
+        "bytes": 299022
+      }
+    ]
+  },
+  {
+    "id": "tyre-care-at-work",
+    "source": "IMG_3412.jpg.jpeg",
+    "sha256": "cd137ebfa3556747f2f46e44cfa469af1fd6263a70a176014d319da7dee67e9b",
+    "originalWidth": 5616,
+    "originalHeight": 3744,
+    "placement": "Hero 3; About introduction",
+    "framing": "50% 50%; landscape tyre action",
+    "derivatives": [
+      {
+        "path": "/images/workshop/owner/tyre-care-at-work.webp",
+        "width": 1600,
+        "height": 1067,
+        "bytes": 179358
+      }
+    ]
+  },
+  {
+    "id": "tyre-changer",
+    "source": "IMG_3261.jpg.jpeg",
+    "sha256": "a8a3e9f3b76bf7088ad8a70bb8b7ee8d49dbcf66f57f0cdfdb80f8e40bff759e",
+    "originalWidth": 3744,
+    "originalHeight": 5616,
+    "placement": "About workshop equipment",
+    "framing": "Full portrait",
+    "derivatives": [
+      {
+        "path": "/images/workshop/owner/tyre-changer.webp",
+        "width": 1600,
+        "height": 2400,
+        "bytes": 821012
+      }
+    ]
+  },
+  {
+    "id": "engine-oils",
+    "source": "WhatsApp Image 2026-11-01 at 21.48.06.jpeg",
+    "sha256": "5983aa7bbca8525b0a50d8a962759661ea3ddc26df7ea6bdeb06fe97f8be6b8e",
+    "originalWidth": 626,
+    "originalHeight": 417,
+    "placement": "Shop discovery",
+    "framing": "Illustrative; no SKU/stock claim",
+    "derivatives": [
+      {
+        "path": "/images/workshop/owner/engine-oils.webp",
+        "width": 626,
+        "height": 417,
+        "bytes": 17286
+      }
+    ]
+  },
+  {
+    "id": "filters",
+    "source": "WhatsApp Image 2026-11-01 at 21.48.07.jpeg",
+    "sha256": "59c9d6ff59b93faa87db61f62570303f5c3caaf883dd8fcf025beb7d0a98b1f0",
+    "originalWidth": 740,
+    "originalHeight": 1110,
+    "placement": "Shop discovery",
+    "framing": "Portrait contain; illustrative",
+    "derivatives": [
+      {
+        "path": "/images/workshop/owner/filters.webp",
+        "width": 740,
+        "height": 1110,
+        "bytes": 51876
+      }
+    ]
+  },
+  {
+    "id": "replacement-parts",
+    "source": "WhatsApp Image 2026-11-01 at 21.48.08.jpeg",
+    "sha256": "c5155e40b030e2d6e5ae1f3a3b990b569824e73e1211b19f01d9dc5dea66c482",
+    "originalWidth": 700,
+    "originalHeight": 480,
+    "placement": "Shop discovery",
+    "framing": "Complete illustration; no SKU claim",
+    "derivatives": [
+      {
+        "path": "/images/workshop/owner/replacement-parts.webp",
+        "width": 700,
+        "height": 480,
+        "bytes": 50484
+      }
+    ]
+  },
+  {
+    "id": "branded-oils-withheld",
+    "source": "WhatsApp Image 2026-11-01 at 21.48.09.jpeg",
+    "sha256": "54c43f03eb5181253bdb66c00c4ea482eb7e269e134ac28391c2b7a0dc7a6b28",
+    "originalWidth": 800,
+    "originalHeight": 476,
+    "placement": "Withheld",
+    "framing": "Unverified brand/grade/stock",
+    "derivatives": []
+  },
+  {
+    "id": "oil-service",
+    "source": "WhatsApp Image 2026-11-01 at 21.48.010.jpeg",
+    "sha256": "fd01fc7878b462710a3c10a26f10aca56481405ca8671efa7506324ab43be21d",
+    "originalWidth": 800,
+    "originalHeight": 600,
+    "placement": "Generic Lube Oil Service discovery",
+    "framing": "Label illustrative; not Allied employee",
+    "derivatives": [
+      {
+        "path": "/images/workshop/owner/oil-service.webp",
+        "width": 800,
+        "height": 600,
+        "bytes": 32724
+      }
+    ]
+  },
+  {
+    "id": "performance-withheld",
+    "source": "WhatsApp Image 2026-11-01 at 21.48.011.jpeg",
+    "sha256": "a85d818f4c878b174e2e65c82d30dde342641a2d1e0edadd3a4ee528aae4276e",
+    "originalWidth": 622,
+    "originalHeight": 378,
+    "placement": "Withheld",
+    "framing": "Unsupported tuning direction",
+    "derivatives": []
+  }
+]

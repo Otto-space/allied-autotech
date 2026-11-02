@@ -72,7 +72,13 @@ const serviceFields = {
     .number()
     .int()
     .min(15)
-    .max(24 * 60),
+    .max(24 * 60)
+    .nullable()
+    .meta({
+      example: 60,
+      description:
+        "Confirmed job duration in minutes, or null when unknown. A null duration cannot provide appointment slots.",
+    }),
   isActive: z.boolean().default(true),
 } as const;
 const validServicePrice = (value: {

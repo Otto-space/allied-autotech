@@ -12,6 +12,8 @@ export const equipmentGroups = [
       },
       {
         slug: "tyre-changer",
+        src: "/images/workshop/owner/tyre-changer.webp",
+        portrait: true,
         name: "Tyre changer",
         description: "Used to remove and fit tyres to wheels.",
       },
@@ -22,8 +24,16 @@ export const equipmentGroups = [
       },
       {
         slug: "air-compressor",
+        src: "/images/workshop/owner/workshop-equipment.webp",
         name: "High-capacity air compressor",
         description: "Supplies compressed air for workshop equipment.",
+      },
+      {
+        slug: "service-bay-lift",
+        src: "/images/workshop/owner/service-bay.webp",
+        portrait: true,
+        name: "Two-post vehicle lift",
+        description: "Provides access beneath a vehicle for inspection and maintenance.",
       },
     ],
   },
@@ -94,6 +104,7 @@ export const equipmentGroups = [
       },
       {
         slug: "smoke-leak-detector",
+        src: "/images/workshop/owner/smoke-leak-detector.webp",
         name: "Smoke leak detector",
         description: "Helps locate leaks in suitable vehicle systems.",
       },

@@ -10,11 +10,15 @@ export function EquipmentPhoto({
   name,
   description,
   sizes,
+  src: suppliedSrc,
+  portrait = false,
 }: {
   slug: string;
   name: string;
   description: string;
   sizes: string;
+  src?: string;
+  portrait?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [thumbnailFailed, setThumbnailFailed] = useState(false);
@@ -26,7 +30,7 @@ export function EquipmentPhoto({
   const closeButton = useRef<HTMLButtonElement>(null);
   const titleId = useId();
   const descriptionId = useId();
-  const src = `/images/equipment/${slug}.jpg`;
+  const src = suppliedSrc ?? `/images/equipment/${slug}.jpg`;
 
   useEffect(() => {
     if (!open) return;
@@ -49,6 +53,7 @@ export function EquipmentPhoto({
         ref={trigger}
         href={src}
         className={`equipment-image ${styles.trigger}`}
+        data-portrait={portrait}
         aria-label={`View photo of ${name}`}
         aria-haspopup="dialog"
         onClick={(event) => {

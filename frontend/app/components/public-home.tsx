@@ -1,14 +1,5 @@
-import { CampaignArtwork } from "./campaign-artwork";
-import Image from "next/image";
 import Link from "next/link";
-import {
-  ArrowRight,
-  ArrowUpRight,
-  CarFront,
-  ChevronDown,
-  Package,
-  Wrench,
-} from "lucide-react";
+import { ArrowUpRight, CarFront, ChevronDown, Package, Wrench } from "lucide-react";
 import { faqs } from "@/lib/business";
 import { loadPublicSeed } from "@/lib/api/public-seed-server";
 import { parseProducts } from "@/lib/api/commerce-schemas";
@@ -18,12 +9,14 @@ import { parsePublicReviews } from "@/lib/api/review-schemas";
 import { SiteHeader } from "./site-header";
 import { SiteFooter } from "./site-footer";
 import { HomeHero } from "./home-hero";
-import { ServiceList } from "./service-list";
+import { HomeSectionHeading, HomeWorkshop } from "./home-workshop";
+import { HomeFeaturedServices } from "./home-featured-services";
 import { HomePartsPreview, HomeVehiclesPreview } from "./home-catalogue-preview";
 import { HomeReviewsPreview } from "./home-reviews-preview";
 import { ContactInvitation } from "./brand-editorial";
 import { vehicleEnquiryHref } from "@/lib/catalogue-enquiry";
 import { learningEnabled } from "@/lib/learning/contracts";
+import { browseEnquiriesOnly } from "@/lib/public-launch";
 import { LearningEntry } from "./learning/learning-entry";
 import "../home.css";
 
@@ -32,7 +25,7 @@ export async function PublicHome() {
     loadPublicSeed("/public/catalog/products?limit=4", parseProducts),
     loadPublicSeed("/public/vehicles?limit=2", parseListings),
     loadPublicSeed("/public/support/reviews?limit=3", parsePublicReviews),
-    loadPublicSeed("/public/services?limit=3", parseServices),
+    loadPublicSeed("/public/services?limit=50", parseServices),
   ]);
   return (
     <>
@@ -78,109 +71,34 @@ export async function PublicHome() {
           </div>
         </section>
         <section className="public-section public-surface home-services">
-          <div className="public-wrap home-services__layout">
-            <div>
-              <div className="section-heading">
-                <h2>Explore our services</h2>
-                <p>Review published services and contact the team about your vehicle.</p>
-              </div>
-              <ServiceList preview initial={services} />
-              <Link className="text-link home-services__all" href="/services">
-                Explore services <ArrowUpRight size={17} aria-hidden="true" />
+          <div className="public-wrap">
+            <HomeSectionHeading
+              title="Explore our services"
+              copy="Start with diagnostics, wheel care or routine oil servicing."
+              href="/services"
+              action="Explore services"
+            />
+            <HomeFeaturedServices initial={services} />
+            <p className="home-services__enquiry">
+              Not sure which service?{" "}
+              <Link
+                className="text-link"
+                href={browseEnquiriesOnly() ? "/contact#enquiry" : "/services/request"}
+              >
+                Describe a vehicle concern <ArrowUpRight size={16} aria-hidden="true" />
               </Link>
-              <p className="home-services__enquiry">
-                Not sure which service?{" "}
-                <Link className="text-link" href="/contact#enquiry">
-                  Ask about a service <ArrowUpRight size={16} aria-hidden="true" />
-                </Link>
-              </p>
-            </div>
+            </p>
           </div>
         </section>
-        <section className="public-section home-care" aria-labelledby="home-care-title">
-          <div className="public-wrap home-care-layout">
-            <figure>
-              <div className="home-care-image">
-                <CampaignArtwork
-                  artwork="precision-autocare"
-                  alt="Allied AutoTech Precision Autocare You Can Trust campaign, with a person in a red branded uniform"
-                  sizes="(max-width: 420px) calc(100vw - 40px), 380px"
-                />
-              </div>
-              <figcaption>Precision Autocare You Can Trust.</figcaption>
-            </figure>
-            <div>
-              <h2 id="home-care-title">Clear advice. Careful workmanship.</h2>
-              <p>
-                We explain the issue, discuss the next steps and prioritise quality
-                workmanship.
-              </p>
-              <dl className="home-care-principles">
-                <div>
-                  <dt>Understand the concern</dt>
-                  <dd>We listen and clarify the issue with you.</dd>
-                </div>
-                <div>
-                  <dt>Discuss the work</dt>
-                  <dd>
-                    We explain the findings and talk through recommended next steps.
-                  </dd>
-                </div>
-                <div>
-                  <dt>Keep you informed</dt>
-                  <dd>Clear communication before and after the work.</dd>
-                </div>
-              </dl>
-              <Link className="text-link" href="/about">
-                Our workshop principles <ArrowRight size={17} aria-hidden="true" />
-              </Link>
-            </div>
-          </div>
-        </section>
-        <section className="public-section">
-          <div className="public-wrap equipment-story">
-            <div className="equipment-story__image">
-              <Image
-                src="/images/equipment/autel-mk808s.jpg"
-                alt="Autel MK808S diagnostic tablet and equipment case"
-                fill
-                sizes="(max-width: 700px) 90vw, 40vw"
-              />
-            </div>
-            <div>
-              <h2>Inside the workshop</h2>
-              <p>See some of the equipment used to investigate vehicle concerns.</p>
-              <Link href="/about#equipment" className="text-link">
-                View workshop equipment <ArrowUpRight size={17} aria-hidden="true" />
-              </Link>
-            </div>
-          </div>
-        </section>
+        <HomeWorkshop />
         <section className="public-section public-surface home-shop">
           <div className="public-wrap">
-            <div className="shop-editorial">
-              <div>
-                <h2>Parts, oils and automotive essentials.</h2>
-                <p>
-                  Browse the Shop or ask our team to check product specifications and
-                  collection availability.
-                </p>
-                <Link className="button" href="/parts">
-                  Browse the Shop <ArrowUpRight size={17} aria-hidden="true" />
-                </Link>
-              </div>
-              <div className="shop-editorial__image">
-                <Image
-                  src="/images/allied-autotech/parts-editorial.webp"
-                  alt="Editorial display of automotive filters, brake components and oil containers"
-                  fill
-                  sizes="(max-width: 700px) 100vw, 55vw"
-                />
-                <span className="home-editorial-credit">
-                  Editorial product illustration.
-                </span>
-              </div>
-            </div>
+            <HomeSectionHeading
+              title="Parts, oils and automotive essentials"
+              copy="Explore the Shop or ask the team to check specifications, suitability and collection availability."
+              href="/parts"
+              action="Browse the Shop"
+            />
             <HomePartsPreview initial={products} />
           </div>
         </section>

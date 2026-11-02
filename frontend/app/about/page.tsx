@@ -1,4 +1,4 @@
-import { CampaignArtwork } from "../components/campaign-artwork";
+import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -62,11 +62,12 @@ export default function AboutPage() {
               </div>
               <figure className="about-hero-figure">
                 <div className="about-hero-photo">
-                  <CampaignArtwork
-                    artwork="precision-autocare"
-                    alt="Allied AutoTech Precision Autocare You Can Trust campaign, with a person in a red branded uniform"
-                    sizes="(max-width: 760px) calc(100vw - 40px), (max-width: 1023px) 36vw, 380px"
-                    priority
+                  <Image
+                    src="/images/workshop/owner/tyre-care-at-work.webp"
+                    alt="Team member working beside tyre-changing equipment in the Allied workshop"
+                    fill
+                    sizes="(max-width: 760px) 90vw, 480px"
+                    preload
                   />
                 </div>
               </figure>
@@ -77,6 +78,7 @@ export default function AboutPage() {
           {[
             ["purpose", "Our purpose"],
             ["principles", "Our principles"],
+            ["team", "Our team at work"],
             ["equipment", "Workshop equipment"],
             ["visit", "Visit us"],
           ].map(([id, label]) => (
@@ -131,6 +133,60 @@ export default function AboutPage() {
             </p>
           </div>
           <TrustPrinciples complete />
+        </section>
+        <section
+          id="team"
+          tabIndex={-1}
+          className="about-team about-wrap"
+          aria-labelledby="about-team-title"
+        >
+          <div className="about-section-heading">
+            <h2 id="about-team-title">The people behind your vehicle care</h2>
+            <p>
+              Meet the Allied team, with a closer look at inspection, diagnostics and
+              wheel care in our workshop.
+            </p>
+          </div>
+          <figure className="about-team-photo">
+            <Image
+              src="/images/workshop/owner/allied-team.webp"
+              alt="All seven Allied AutoTech team members together in front of the workshop"
+              width={1920}
+              height={1280}
+              sizes="(max-width: 760px) 90vw, 1200px"
+            />
+          </figure>
+          <div className="about-action-grid">
+            {[
+              [
+                "diagnostics-at-work",
+                "Inspecting an open engine bay",
+                "An Allied technician inspecting a vehicle with the bonnet open",
+              ],
+              [
+                "alignment-at-work",
+                "Working with alignment equipment",
+                "Allied technician beside 3D wheel alignment equipment",
+              ],
+              [
+                "diagnostic-tablet",
+                "Reviewing vehicle-system scan results",
+                "Hands using a diagnostic tablet during vehicle checks",
+              ],
+            ].map(([image, caption, alt]) => (
+              <figure key={image}>
+                <div>
+                  <Image
+                    src={`/images/workshop/owner/${image}.webp`}
+                    alt={alt}
+                    fill
+                    sizes="(max-width: 760px) 90vw, 380px"
+                  />
+                </div>
+                <figcaption>{caption}</figcaption>
+              </figure>
+            ))}
+          </div>
         </section>
         <section
           className="about-equipment"

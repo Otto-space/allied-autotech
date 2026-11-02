@@ -22,25 +22,29 @@ beforeEach(() => {
     addEventListener: vi.fn(),
     removeEventListener: vi.fn(),
   }));
+  vi.stubGlobal(
+    "IntersectionObserver",
+    class {
+      observe() {}
+      disconnect() {}
+    },
+  );
 });
 afterEach(() => {
   cleanup();
   vi.unstubAllGlobals();
 });
 
-it("keeps one stable offer and the two distinct hero destinations", () => {
+it("server-first diagnostics retains one heading and a real service discovery destination", () => {
   render(<HomeHero />);
   expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
   expect(screen.getByRole("heading", { level: 1 }).textContent).toBe(
-    "Diagnostics, repairs and automotive essentials.",
+    "Comprehensive diagnostics. Clear next steps.",
   );
   expect(
-    screen.getByRole("link", { name: "Explore services" }).getAttribute("href"),
-  ).toBe("/services");
-  expect(
-    screen.getByRole("link", { name: "Contact the team" }).getAttribute("href"),
-  ).toBe("/contact#enquiry");
-  expect(screen.queryByRole("button")).toBeNull();
+    screen.getByRole("link", { name: "Explore diagnostics" }).getAttribute("href"),
+  ).toBe("/services?search=diagnostics");
+  expect(screen.getByRole("button", { name: "Play slideshow" })).toBeTruthy();
 });
 
 it("omits verified empty reviews but exposes a failed refresh and recovery action", () => {

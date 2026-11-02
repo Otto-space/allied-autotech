@@ -1,3 +1,18 @@
+### 2 November 2026: Home workshop restoration in progress
+
+The full owner brief, all original photographs and authorised workbook were inspected.
+Home/About now have authentic workshop composition, three service priorities and a
+progressively enhanced looping hero. Source contract permits unknown service durations
+without booking-slot eligibility. Focused frontend checks pass 18, backend contracts
+and corpus 13; first production-like build/types passed. Actual current Tyre Change
+record remains NGN 1,000, version 6. Wheel Alignment was authored through the normal
+reviewed admin workflow at NGN 4,000 for all four wheels, 60 minutes. Diagnostics/oil
+await compatible unknown-duration authoring publication. Full rendered matrix,
+exact-source CI, concurrent release reconciliation and promotion remain required.
+Local server start was rejected by automatic approval review; no equivalent retry.
+See frontend/docs/HOME_WORKSHOP_20261102.md for source mappings, evidence and limits.
+C: reserve passes at 24.77 GiB with a justified 1 GiB remaining write allowance.
+
 ### 2 November 2026: Invoice identifiers published
 
 Runtime 59068ee4 is live on both domains as dpl_9HWiLQfY5421gq2etamHH7Mv3eyc;

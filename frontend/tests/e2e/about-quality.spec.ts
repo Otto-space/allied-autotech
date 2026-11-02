@@ -72,7 +72,7 @@ for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536]) {
     const groups = page.locator(".equipment-disclosure");
     await expect(groups).toHaveCount(3);
     await expect(groups.first()).toHaveAttribute("open", "");
-    await expect(groups.first().locator("figure")).toHaveCount(4);
+    await expect(groups.first().locator("figure")).toHaveCount(5);
     const diagnostics = groups.nth(1).locator("summary");
     await diagnostics.focus();
     await page.keyboard.press("Enter");
@@ -129,7 +129,7 @@ test("section links move keyboard focus below the header on a short mobile scree
   }
 });
 
-test("every equipment item and the current campaign image have readable labels", async ({
+test("every equipment item and the authentic workshop image have readable labels", async ({
   page,
 }) => {
   await session(page);
@@ -139,7 +139,7 @@ test("every equipment item and the current campaign image have readable labels",
     const group = groups.nth(i);
     if (!(await group.evaluate((el) => el.hasAttribute("open"))))
       await group.locator("summary").click();
-    await expect(group.locator("figure")).toHaveCount([4, 5, 6][i]);
+    await expect(group.locator("figure")).toHaveCount([5, 5, 6][i]);
     for (const img of await group.locator("img").all()) {
       await img.scrollIntoViewIfNeeded();
       await expect
@@ -160,7 +160,7 @@ test("every equipment item and the current campaign image have readable labels",
   await expect(page.locator(".about-archive")).toHaveCount(0);
   await expect(page.locator(".about-hero-photo img")).toHaveAttribute(
     "src",
-    /brand\/r2\/precision-autocare-\d+\.webp/,
+    /tyre-care-at-work/,
   );
 });
 

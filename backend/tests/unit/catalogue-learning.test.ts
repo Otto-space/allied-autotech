@@ -4,6 +4,17 @@ import {
   learningGuides,
 } from "../../src/modules/learning/learning.content.js";
 
+it("explains controllable workshop highlights without turning a discovery request into an appointment", () => {
+  const home = learningArticles.find((item) => item.id === "home-next-step")!;
+  expect(home.version).toBe(2);
+  expect(home.gate).toBe("public");
+  const text = home.steps.join(" ");
+  expect(text).toContain("Generic Lube Oil Service");
+  expect(text).toContain("explicitly choose Play");
+  expect(text).toContain("does not reserve an appointment");
+  expect(text).toContain("complete team photograph");
+});
+
 it("versions catalogue instructions without changing public guide targets or write permissions", () => {
   const parts = learningArticles.find((item) => item.id === "parts-fitment")!;
   const vehicles = learningArticles.find((item) => item.id === "vehicle-enquiry")!;

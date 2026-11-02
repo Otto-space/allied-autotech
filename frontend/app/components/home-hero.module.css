@@ -1,0 +1,161 @@
+.hero {
+  background: #16191b;
+  color: white;
+  touch-action: pan-y pinch-zoom;
+}
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+  max-width: 1600px;
+  margin-inline: auto;
+  min-height: 520px;
+}
+.media {
+  position: relative;
+  grid-column: 2;
+  grid-row: 1;
+  min-width: 0;
+  background: #292c2f;
+  overflow: hidden;
+}
+.photo {
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 500ms ease;
+}
+.photo[data-current="true"] {
+  opacity: 1;
+}
+.content {
+  grid-column: 1;
+  grid-row: 1;
+  padding: clamp(28px, 4vw, 64px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+}
+.hero .eyebrow {
+  color: #f3b3af;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin: 0 0 20px;
+}
+.hero h1 {
+  color: white;
+  font-size: clamp(32px, 3.1vw, 46px);
+  line-height: 1.12;
+  letter-spacing: -0.025em;
+  margin: 0;
+  text-transform: none;
+  min-height: 3.36em;
+}
+.hero .copy {
+  color: #e3e5e6;
+  font-size: 16px;
+  line-height: 1.65;
+  margin: 20px 0 24px;
+  min-height: 4.95em;
+  max-width: 44ch;
+}
+.controls {
+  order: 3;
+  min-height: 44px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 28px;
+}
+.content > [aria-roledescription="slide"] {
+  order: 2;
+}
+.content > [role="status"] {
+  order: 4;
+}
+.controls button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 44px;
+  min-height: 44px;
+  background: transparent;
+  color: white;
+  border: 1px solid #8a8c8e;
+  border-radius: 5px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+}
+.controls > button:first-child {
+  min-width: 84px;
+}
+.controls button:hover {
+  background: #ffffff20;
+}
+.hero :is(button, a):focus-visible {
+  outline: 3px solid white;
+  outline-offset: 4px;
+}
+.pickers {
+  display: flex;
+}
+.pickers button {
+  border: 0;
+  min-width: 32px;
+}
+.pickers span {
+  width: 8px;
+  height: 8px;
+  border: 1px solid white;
+  border-radius: 50%;
+}
+.pickers [aria-current] span {
+  background: white;
+}
+.unavailable {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  color: #e3e5e6;
+}
+@media (max-width: 760px) {
+  .layout {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+  .media {
+    aspect-ratio: 3 / 2;
+    flex: none;
+    width: 100%;
+  }
+  .content {
+    padding: 28px 20px 26px;
+  }
+  .hero h1 {
+    font-size: clamp(29px, 7.4vw, 40px);
+    min-height: 3.36em;
+    max-width: 22ch;
+  }
+  .hero .copy {
+    min-height: 4.95em;
+    margin-block: 16px 20px;
+  }
+  .hero .eyebrow {
+    margin-bottom: 14px;
+  }
+  .controls {
+    margin-top: 24px;
+    gap: 6px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .photo {
+    transition: none;
+  }
+}

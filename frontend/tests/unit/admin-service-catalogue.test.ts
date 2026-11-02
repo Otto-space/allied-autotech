@@ -48,6 +48,7 @@ describe("Administrator service query and record boundaries", () => {
       isActive: true,
     };
     expect(serviceFormSchema.safeParse(base).success).toBe(true);
+    expect(serviceFormSchema.safeParse({ ...base, duration: "" }).success).toBe(true);
     expect(
       serviceFormSchema.safeParse({
         ...base,
