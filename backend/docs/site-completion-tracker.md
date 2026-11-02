@@ -1,18 +1,22 @@
-### 2 November 2026: Photographic hero overlay in verification
+### 2 November 2026: Photographic hero published and verified
 
-The new objective focuses this package on the homepage hero. Full-width genuine
-workshop backgrounds, directional overlay, Quicksand headline and restrained
-44px controls replace the split layout. Diagnostics remains first; destinations
-and launch wording are preserved. The final owner instruction takes precedence:
-laptop hover continues autoplay, while focus/manual pause persists until Play.
-Seven-second timing, decoding/failure recovery and single-timer behavior remain.
+Runtime source 485fb2c57140ea020f297878582b3ee2558d48bc is published as
+frontend dpl_8qztTisCborq3CBcEQNmvpmQfr2v on both verified public domains.
+All three exact-source GitHub gates passed. All 20 hosted carousel tests and
+42 contrast samples passed; public smoke found three successful destinations,
+no horizontal overflow and zero page errors. Whole-team proportions and downstream
+sections remain covered. Physical devices, Safari, screen readers and physical
+background-tab behavior were not tested. No owner decision remains for this hero.
 
-Six controller units, scoped lint/type checks, 42 conservative contrast samples,
-loading-state corrections and two short-phone support-clearance cases pass.
-Full local suite, exact-source CI, held production build and publication are pending.
-Other workflows and published Admin operations are outside this bounded change.
-Ledger: frontend/docs/HERO_OVERLAY_20261102.md. A separate referenced audit was
-not attached; its path was requested while explicit hero implementation continued.
+The final owner instruction wins: laptop hover continues autoplay; focus/manual
+pause persists until Play. Seven-second timing, full genuine backgrounds,
+directional overlay, cleaner brand heading, subject-aware crops and restrained
+44px controls are delivered. Larger mobile text grows the photo-clear area.
+Backend deployment 1597c138-919c-4470-b991-0add596837f9 remains ACTIVE, 16/16,
+all four digests match its manifest and readiness is 200. Backend runtime/schema/
+scripts are unchanged; no migration, database write, permission or feature-flag
+change was made. Other audit/authoring work retains its separate status.
+Full ledger and safe screenshots: frontend/docs/HERO_OVERLAY_20261102.md.
 
 ### 2 November 2026: Shared release public acceptance complete; authoring access pending
 

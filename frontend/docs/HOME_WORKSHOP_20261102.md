@@ -1,3 +1,7 @@
+Latest hero redesign, seven-second timing and laptop-hover policy: see
+[HERO_OVERLAY_20261102.md](HERO_OVERLAY_20261102.md). Published runtime 485fb2c5.
+Earlier composition and motion observations below are historical.
+
 # Home and About workshop restoration - 2 November 2026
 
 ## Latest publication and remaining authoring
