@@ -4614,3 +4614,5 @@ published readable labels; no contract or permission was relaxed.
 2 November: Payment customer-filter batch in verification. Existing directory API maps customer-profile IDs correctly; added debounced name/email lookup, paged named choices, selected-record reload and manual-reference fallback. Verified admin identity and API permissions remain authoritative; no payment mutation changes. Prior deployed filter baseline passed. Local lint/types passed before final access-revocation/focus refinements. Hosted final checks pending. Owner currently cannot access the signed-in fitment workspace; fresh real-role review stays pending, with no repeat sign-in request in this batch.
 
 Customer-filter review correction: attached the manual-input focus ref and added collapsed invalid-reference focus recovery coverage before candidate publication.
+
+Customer-filter hosted fixture correction: the new synthetic directory response omitted required message metadata and was correctly rejected by the API client. Corrected fixture envelope only; runtime validation remains strict. Initial hosted failure is retained, and final-source CI/acceptance must pass before publication.

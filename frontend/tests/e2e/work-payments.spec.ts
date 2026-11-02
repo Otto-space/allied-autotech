@@ -613,6 +613,7 @@ async function customerSearchFixture(page: Page) {
                   ? { nextCursor: "customer_page_two" }
                   : {}),
               },
+        message: "Synthetic customer search",
         meta: { requestId: "synthetic-customer-picker" },
       },
     });
