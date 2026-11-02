@@ -12,8 +12,10 @@ unverified. This supersedes the earlier current-access blocker, not those limits
 Observed friction: closing an untouched editor still asks about unsaved changes.
 Source confirms RuleDetail always confirms and RuleEditor always enables its leave
 guard. Any correction must preserve recovered drafts and changed catalogue choices;
-this finding is not yet fixed. No browser screenshots containing private evidence
-were added to public artifacts.
+source now distinguishes untouched editors from edits, recovered selections and
+uncertain saves. New browser coverage checks silent close and cancel/discard
+protection; rendered verification remains pending. No browser screenshots containing
+private evidence were added to public artifacts.
 
 Invoice filters still required a pasted customer profile identifier. A pending
 source change reuses CustomerFilterPicker from payments, with named search, selection,

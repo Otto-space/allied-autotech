@@ -468,6 +468,7 @@ function RuleDetail({
   onSaved: (message: string) => void;
 }) {
   const [editingRule, setEditingRule] = useState<StaffFitmentRule | null>(null),
+    [editingDirty, setEditingDirty] = useState(false),
     [proposal, setProposal] = useState<MutationProposal | null>(null),
     [uncertain, setUncertain] = useState(false);
   const [note, setNote] = useState("");
@@ -490,6 +491,7 @@ function RuleDetail({
           className="button secondary"
           onClick={() => {
             if (
+              editingDirty &&
               !window.confirm(
                 "Close this editor? Your unsaved changes will not be saved.",
               )
@@ -512,6 +514,7 @@ function RuleDetail({
         )}
         <RuleEditor
           rule={editingRule}
+          onDirtyChange={setEditingDirty}
           productId={rule.productId}
           productType={productType}
           access={access}
@@ -748,7 +751,10 @@ function RuleDetail({
                 ref={editTrigger}
                 className="button secondary"
                 disabled={blocked || uncertain || !!proposal}
-                onClick={() => setEditingRule(rule)}
+                onClick={() => {
+                  setEditingDirty(false);
+                  setEditingRule(rule);
+                }}
               >
                 Edit rule
               </button>
@@ -876,6 +882,7 @@ function RuleEditor({
   userId,
   blocked,
   onSaved,
+  onDirtyChange,
 }: {
   rule?: StaffFitmentRule;
   productId: string;
@@ -884,8 +891,8 @@ function RuleEditor({
   userId: string;
   blocked: boolean;
   onSaved: (id: string) => void;
+  onDirtyChange?: (dirty: boolean) => void;
 }) {
-  useEditorLeaveGuard(true);
   const pickerMarker = `fitment-selection:${userId}:${productId}:${rule?.id || "new"}:${rule?.version ?? 0}`;
   const [savedSelection] = useState(() => {
     try {
@@ -904,6 +911,7 @@ function RuleEditor({
       return null;
     }
   });
+  const [dirty, setDirty] = useState(!!savedSelection);
   const [make, setMake] = useState<FitmentOption | undefined>(() =>
     savedSelection
       ? (savedSelection.make ?? undefined)
@@ -971,6 +979,10 @@ function RuleEditor({
       return false;
     }
   });
+  useEditorLeaveGuard(dirty || uncertain);
+  useEffect(() => {
+    onDirtyChange?.(dirty || uncertain);
+  }, [dirty, uncertain, onDirtyChange]);
   const entry = useRef<HTMLFormElement>(null);
   useEffect(() => {
     document.getElementById("fitment-editor-title")?.focus();
@@ -1180,6 +1192,8 @@ function RuleEditor({
       )}
       <form
         ref={entry}
+        onInputCapture={() => setDirty(true)}
+        onChangeCapture={() => setDirty(true)}
         onReset={() => {
           try {
             sessionStorage.removeItem(pickerMarker);
@@ -1252,6 +1266,7 @@ function RuleEditor({
                         : undefined)
                     }
                     onChange={(value) => {
+                      setDirty(true);
                       selectionChanged.current = true;
                       setShowSavedLabels(false);
                       setIdentityError("");
@@ -1285,6 +1300,7 @@ function RuleEditor({
                     }
                     disabled={!make}
                     onChange={(value) => {
+                      setDirty(true);
                       setModel(value);
                       try {
                         sessionStorage.setItem(

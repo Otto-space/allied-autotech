@@ -833,3 +833,41 @@ test("catalogue search precedes create and either make control clears a dependen
   ).toHaveValue("");
   await expect(page.getByText(/Corolla already exists/)).toHaveCount(0);
 });
+
+test("untouched fitment editor closes without confirmation but changed evidence stays protected", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  state.rule = existingRule();
+  const dialogs: string[] = [];
+  let discard = false;
+  page.on("dialog", async (dialog) => {
+    dialogs.push(dialog.message());
+    if (discard) await dialog.accept();
+    else await dialog.dismiss();
+  });
+  await page.goto(`/admin/fitment?productId=${product.id}&ruleId=${id(5)}`);
+  await page.getByRole("button", { name: "Edit rule", exact: true }).click();
+  await page.getByText("Additional technical restrictions", { exact: true }).click();
+  await page.getByRole("button", { name: "Close rule editor", exact: true }).click();
+  await expect(
+    page.getByRole("button", { name: "Edit rule", exact: true }),
+  ).toBeVisible();
+  expect(dialogs).toEqual([]);
+  await page.getByRole("button", { name: "Edit rule", exact: true }).click();
+  await page
+    .getByLabel("Evidence source reference", { exact: true })
+    .fill("Synthetic unsaved evidence");
+  await page.getByRole("button", { name: "Close rule editor", exact: true }).click();
+  await expect(page.getByLabel("Evidence source reference", { exact: true })).toHaveValue(
+    "Synthetic unsaved evidence",
+  );
+  expect(dialogs).toHaveLength(1);
+  discard = true;
+  await page.getByRole("button", { name: "Close rule editor", exact: true }).click();
+  await expect(
+    page.getByRole("button", { name: "Edit rule", exact: true }),
+  ).toBeVisible();
+  expect(dialogs).toHaveLength(2);
+  expect(state.writes).toEqual([]);
+});
