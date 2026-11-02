@@ -1,11 +1,19 @@
-### 2 November 2026: Invoice identifiers in verification
+### 2 November 2026: Invoice identifiers published
 
-Controlled new finance approvals now require verified Tax ID and CAC details;
-historical JSON settings/snapshots remain readable and unchanged. Invoice/PDF
-rendering and versioned restricted guidance carry recorded identifiers. No real
-policy or transaction was published. Local evidence and remaining release gates:
-[Invoice identifier verification](../../docs/INVOICE_IDENTIFIER_SUPPORT_20261102.md).
-Owner cannot currently access fitment; fresh real-role acceptance remains pending.
+Runtime 59068ee4 is live on both domains as dpl_9HWiLQfY5421gq2etamHH7Mv3eyc;
+backend 3141a019-da25-4231-80e8-7935f6a33b9c is ACTIVE, 16/16, with all four
+digests matched. New finance approvals require verified Tax ID/CAC fields;
+historical settings and snapshots remain readable and unchanged. No real policy
+or transaction was published. Exact-master CI passed: 1,314 frontend units with
+12 existing skips; 40 final isolated backend checks; nine packaged checks;
+ten final hosted journeys, fifteen additional finance workspace cases and four
+live public checks passed. Original fixture failures and transient preload warnings
+are retained in the evidence, not concealed. Read-only production safety and eight
+worker heartbeats passed at 07:22 UTC; temporary access removed. No migration.
+[Release evidence and exact limits](../../docs/INVOICE_IDENTIFIER_SUPPORT_20261102.md).
+Owner cannot currently access fitment. Broader requirement/state audit, real-role
+and physical-device coverage and recorded financial/operational approvals remain
+open. Purchasing/deposits remain gated; actual identifiers are still not supplied.
 
 ### 2 November 2026: Payment customer search published
 

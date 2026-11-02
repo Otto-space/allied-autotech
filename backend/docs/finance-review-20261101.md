@@ -26,7 +26,7 @@ discountTreatment, deliveryTaxable, invoiceName, invoiceAddress, paymentTerms an
 applicability. Publication also requires expectedVersion, effectiveAt, source and
 approvalEvidence. The 2 November implementation adds invoiceTaxId and
 invoiceCacNumber to new approvals, with optional historical snapshot fields taxId
-and cacNumber. This support is pending release verification; it does not supply or
+and cacNumber. This support is published in runtime 59068ee4; it does not supply or
 approve actual identifiers. Missing identifiers and unresolved applicability must
 stop a new approval; do not hide them in approvalEvidence or enter placeholders.
 Historic versions remain readable and are not backfilled.

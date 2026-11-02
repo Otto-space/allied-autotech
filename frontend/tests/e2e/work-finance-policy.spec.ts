@@ -6,6 +6,8 @@ import {
 } from "../fixtures/work-finance-policy";
 const root = "/admin/finance-policy";
 async function fill(page: Page) {
+  await page.getByLabel("Verified Tax ID", { exact: true }).fill("TEST-TAX-001");
+  await page.getByLabel("Verified CAC registration number").fill("TEST-CAC-001");
   await page
     .getByLabel("Approval source", { exact: true })
     .fill("Synthetic signed accountant approval");
