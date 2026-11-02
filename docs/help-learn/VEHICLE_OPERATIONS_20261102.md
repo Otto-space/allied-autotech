@@ -16,3 +16,8 @@ Acceptance covers eligibility across managed/legacy accounts and roles, denial o
 owner/finance authority, exact grouped values, actual HTTP create/edit/price/document
 operations on a new isolated database, stale/concurrent/expired access and audit
 preservation. Publication and actual results belong in the backend change report.
+
+Allie's navigation allowlist includes the existing vehicle-management route. The
+catalogue remains the permission boundary: retrieval cannot reveal this article
+to public, customer, Staff or unverified accounts. Full-catalogue retrieval checks
+cover both administrators and the owner, including the permitted navigation action.
