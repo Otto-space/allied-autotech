@@ -57,3 +57,10 @@ Reports: appointments-before.json, appointments-local.json,
 appointments-recovery.json and appointments-final.json. Safe baseline screenshots
 are in appointments-before; corrected date/countdown screenshots are in
 appointments-recovery. Original failed reports/traces are retained.
+
+The first exact-source frontend CI (41473949551) found two older customer-care
+assertions expecting the replaced combined requested-time sentence: 1,337 passed,
+two failed and 12 existing skips. Updated both full/enquiries-mode assertions to
+require the separate requested label, explicit workshop-confirmation message and
+absence of a countdown. Runtime confirmation logic is unchanged. This source is
+rechecked before publication; the first held candidate is not promoted.

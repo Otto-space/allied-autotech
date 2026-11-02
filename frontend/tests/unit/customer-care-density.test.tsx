@@ -69,7 +69,9 @@ it.each(["full", "browse_enquiries"])(
     vi.stubEnv("NEXT_PUBLIC_PUBLIC_LAUNCH_MODE", mode);
     const { container } = render(<CustomerCareSummary care={full} />);
     expect(container.querySelectorAll(".care-timeline li")).toHaveLength(3);
-    expect(screen.getByText("Requested time; awaiting confirmation.")).toBeTruthy();
+    expect(screen.getByText("Requested time", { exact: true })).toBeTruthy();
+    expect(screen.getByText("Awaiting workshop confirmation.")).toBeTruthy();
+    expect(screen.queryByRole("timer")).toBeNull();
     expect(screen.getByText("QUO-QA-101")).toBeTruthy();
     for (const name of [
       "View current booking",
