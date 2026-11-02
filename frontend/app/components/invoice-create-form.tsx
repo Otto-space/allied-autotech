@@ -313,7 +313,7 @@ export function InvoiceCreateForm({
           ? pending.sourceId
           : manualId.trim().toLowerCase();
     if (!z.uuid().safeParse(sourceId).success) {
-      setMessage("Enter the exact source UUID to inspect its current invoice.");
+      setMessage("Use the complete source reference to inspect its current invoice.");
       return;
     }
     flight.current = true;
@@ -452,7 +452,7 @@ export function InvoiceCreateForm({
                 </div>
                 <div className="field">
                   <label htmlFor="invoice-recovery-reference">
-                    Source UUID to inspect
+                    Source reference to inspect
                   </label>
                   <input
                     id="invoice-recovery-reference"

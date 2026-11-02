@@ -597,7 +597,7 @@ function PrivacyFilters({
           p = new URLSearchParams(),
           userId = String(values.get("userId") ?? "").trim();
         if (userId && !z.uuid().safeParse(userId).success) {
-          setError("Enter an exact account UUID or leave the filter empty.");
+          setError("Use the complete account reference, or leave this filter empty.");
           event.currentTarget
             .querySelector<HTMLInputElement>("#privacy-account")
             ?.focus();

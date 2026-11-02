@@ -789,7 +789,7 @@ function ModerationFilters({
         const values = new FormData(e.currentTarget),
           id = String(values.get("reviewId") ?? "").trim();
         if (id && !z.uuid().safeParse(id).success) {
-          setError("Enter an exact review UUID or leave the reference empty.");
+          setError("Use the complete review reference, or leave this filter empty.");
           e.currentTarget
             .querySelector<HTMLInputElement>("#moderation-reference")
             ?.focus();

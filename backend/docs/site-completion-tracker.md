@@ -1,3 +1,33 @@
+### 2 November 2026: Live fitment inspection and invoice-search follow-up
+
+Owner restored Super Admin access. A separate Chrome tab inspected the actual
+fitment queue, draft evidence, legacy editor and additional restrictions at normal
+and 390x844 viewport sizes. No record was submitted, approved, retired or changed.
+Refresh retained the draft at version 0 and its six evidence warnings. Legacy
+Toyota/Camry labels remained explicit; missing catalogue identity and model years
+were not guessed. Captured console errors/warnings: none. Temporary viewport was
+reset. Native physical-phone/keyboard and independent reviewer acceptance remain
+unverified. This supersedes the earlier current-access blocker, not those limits.
+
+Observed friction: closing an untouched editor still asks about unsaved changes.
+Source confirms RuleDetail always confirms and RuleEditor always enables its leave
+guard. Any correction must preserve recovered drafts and changed catalogue choices;
+this finding is not yet fixed. No browser screenshots containing private evidence
+were added to public artifacts.
+
+Invoice filters still required a pasted customer profile identifier. A pending
+source change reuses CustomerFilterPicker from payments, with named search, selection,
+manual fallback and existing validation. Invoice-specific mobile/desktop recovery
+tests are added; TypeScript, scoped lint and formatting passed. Rendered acceptance
+and publication are pending. Visible UUID
+wording in review/privacy filters and specialist invoice lookup is being replaced
+with reference wording without removing exact-match safeguards.
+
+The corrected unknown-duration slot test now passes its CI step (15 cases); the
+same run fails later on two Home guidance expectations from the unrelated release.
+Per the owner's instruction, that release is left to its agent. Do not claim full
+CI success or take over that deployment. Source de9ea589; run 41409065023.
+
 ### 2 November 2026: Connected customer fitment acceptance refreshed
 
 Eleven hosted Playwright cases passed against https://alliedautotech.com at

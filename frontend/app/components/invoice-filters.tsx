@@ -7,8 +7,12 @@ import {
   invoiceSourceLabels,
   invoiceStatusLabels,
 } from "@/lib/admin/work-invoices";
+import { CustomerFilterPicker } from "./customer-filter-picker";
 import { AdminBranchPicker } from "./admin-branch-picker";
-const reference = z.union([z.literal(""), z.uuid("Use an existing UUID reference.")]);
+const reference = z.union([
+  z.literal(""),
+  z.uuid("Use the complete reference from an authorised record."),
+]);
 const schema = z
   .object({
     invoiceNumber: z
@@ -137,26 +141,21 @@ export function InvoiceFilters({
               <p className="field-hint">Includes inactive branches.</p>
             </div>
           )}
-          <div className="field">
-            <label htmlFor="invoice-filter-customerId">Customer profile reference</label>
-            <input
-              id="invoice-filter-customerId"
-              {...form.register("customerId", { setValueAs: (v: string) => v.trim() })}
-              maxLength={36}
-              autoComplete="off"
-              spellCheck={false}
-              aria-invalid={!!errors.customerId}
-              aria-describedby={
-                errors.customerId
-                  ? "invoice-filter-customerId-error invoice-customer-hint"
-                  : "invoice-customer-hint"
-              }
+          {open && (
+            <Controller
+              control={form.control}
+              name="customerId"
+              render={({ field }) => (
+                <CustomerFilterPicker
+                  id="invoice-filter-customerId"
+                  value={field.value}
+                  onChange={(value) => field.onChange(value.trim())}
+                  disabled={disabled}
+                  error={errors.customerId?.message}
+                />
+              )}
             />
-            <p id="invoice-customer-hint" className="field-hint">
-              Exact profile UUID from an authorised record.
-            </p>
-            {error("customerId")}
-          </div>
+          )}
           <div className="field">
             <label htmlFor="invoice-filter-sourceType">Source type</label>
             <select
