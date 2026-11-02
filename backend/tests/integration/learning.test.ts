@@ -214,7 +214,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         id: "home-next-step",
         page: "home",
         href: "/services",
-        version: 2,
+        version: 3,
       });
       expect(publicResult.headers["cache-control"]).toContain("no-store");
       expect(publicResult.headers.vary).toContain("Cookie");

@@ -185,6 +185,7 @@ export const learningArticles: LearningArticle[] = [
       "Choose your next step with Allied AutoTech",
       "Start with Services for vehicle care, Shop for products and compatibility, or Vehicles for listings and requirements enquiries. The team confirms availability and arrangements separately.",
       [
+        "Use Search in the public header to choose Services, Shop or Vehicles, then enter a name or work needed. Results open in the selected catalogue so you can refine its filters. Search does not establish availability or compatibility.",
         "Home highlights comprehensive diagnostics, four-wheel alignment and Generic Lube Oil Service. Open the published service to see its current price, or ask the team about scope and pricing. An enquiry does not reserve an appointment.",
         "Use the hero’s Previous, Next and slide controls to explore workshop highlights. Pause stops rotation; keyboard focus also stops it until you explicitly choose Play. Reduced-motion preferences start the slideshow paused.",
         "About includes the complete team photograph, team-at-work photos and workshop equipment. Open an equipment group, then choose a photo for a closer look. Equipment does not establish vehicle eligibility or an appointment guarantee.",
@@ -194,9 +195,9 @@ export const learningArticles: LearningArticle[] = [
       ],
       "/services",
       "Home customer routes, catalogue availability contract and approved enquiries launch",
-      "home homepage start services shop products vehicles enquiry",
+      "home homepage search start services shop products vehicles enquiry",
     ),
-    version: 2,
+    version: 3,
     reviewedAt: "2026-11-02",
   },
   article(

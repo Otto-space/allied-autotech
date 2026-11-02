@@ -135,7 +135,7 @@ for (const [name, id, asset, price] of services) {
 test("an image failing before enhancement leaves service identity and enquiry available", async ({
   page,
 }) => {
-  await page.route("**/images/workshop/owner/diagnostics-at-work.webp", (route) =>
+  await page.route("**/*diagnostics-at-work*", (route) =>
     route.fulfill({ status: 404, body: "" }),
   );
   await page.goto(`/services/${services[0][1]}`, { waitUntil: "domcontentloaded" });

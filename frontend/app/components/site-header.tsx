@@ -11,6 +11,7 @@ import {
   LogIn,
   Menu,
   ShoppingBag,
+  Search,
   UserRound,
   Wrench,
   X,
@@ -348,18 +349,32 @@ function HeaderContent({ pathname }: { pathname: string }) {
             </Link>
           </div>
 
-          {/* MOBILE BUTTON */}
-          <button
-            ref={menuButton}
-            type="button"
-            className={`mobile-menu-button ${open ? "mobile-menu-button--open" : ""}`}
-            aria-label={open ? "Close navigation" : "Open navigation"}
-            aria-expanded={open}
-            aria-controls="mobile-menu"
-            onClick={() => setOpen((value) => !value)}
-          >
-            {open ? <X size={21} strokeWidth={2} /> : <Menu size={22} strokeWidth={2} />}
-          </button>
+          <div className="site-header__tools">
+            <Link
+              href="/search"
+              className="site-search-link"
+              aria-label="Search services, parts and vehicles"
+            >
+              <Search size={20} aria-hidden="true" />
+              <span>Search</span>
+            </Link>
+            {/* MOBILE BUTTON */}
+            <button
+              ref={menuButton}
+              type="button"
+              className={`mobile-menu-button ${open ? "mobile-menu-button--open" : ""}`}
+              aria-label={open ? "Close navigation" : "Open navigation"}
+              aria-expanded={open}
+              aria-controls="mobile-menu"
+              onClick={() => setOpen((value) => !value)}
+            >
+              {open ? (
+                <X size={21} strokeWidth={2} />
+              ) : (
+                <Menu size={22} strokeWidth={2} />
+              )}
+            </button>
+          </div>
         </div>
       </header>
 

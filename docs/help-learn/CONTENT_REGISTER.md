@@ -1,3 +1,8 @@
+Public home-next-step v3 adds the public catalogue-search route and its real
+Services/Shop/Vehicles destinations. Public gate, permissions, guide targets and
+all feature flags remain unchanged. Verification is part of the active search
+and dashboard package; source-only until its compatible release.
+
 ## 2 November vehicle operations checkpoint
 
 Publication: `6f3cf203` backend/frontend released with 87 applied migrations.

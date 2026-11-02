@@ -38,3 +38,9 @@ remain unchanged. home-next-step v2 and service-request v13 retain the same
 workflow, destinations, eligibility and guide targets; no article/version/flag
 change is required for this presentation-only correction. Public/admin separation
 is exercised by the isolated service-discovery integration test.
+
+Navigation search follow-up: home-next-step v3 explains the explicit public Search
+entry, catalogue selection and refinement. Search does not establish availability
+or compatibility. Public eligibility and existing guide targets remain; no write
+permission or activation flag is added. Unit and real isolated HTTP expectations
+are versioned together. Source-only until the next verified publication.

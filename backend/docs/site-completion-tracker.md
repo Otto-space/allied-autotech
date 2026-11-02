@@ -1,3 +1,17 @@
+### 2 November 2026: Search, dashboard focus and responsive image batch in verification
+
+Native public-header search and /search now route validated phrases to the existing
+Services/Shop/Vehicles catalogues, including no-JavaScript submission. Shared
+dashboard search uses branded visible focus. Approved static service photos use
+the existing responsive image pipeline; managed publication-aware media stays
+unchanged. Home guidance v3 and acceptance expectations are versioned together.
+Local coverage: 24 distinct rendered cases, focused units/types/lint/format pass.
+Exact-source CI, hosted image-byte confirmation and publication remain pending.
+No permissions, prices, operational/financial policy or feature flags changed.
+One real published product lacks brand, part number, description, photos,
+classification and compatibility evidence; report only genuine missing facts.
+Report: docs/PUBLIC_SEARCH_DASHBOARD_FOCUS_20261102.md. Full goal remains active.
+
 ### 2 November 2026: Public service descriptions and approved imagery published
 
 Runtime 2c6f58d0 is verified on both domains as dpl_2tmoL1nPgoL4R8pxQ6g5boYiaBzf;
