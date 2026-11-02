@@ -1,3 +1,15 @@
+## 3 November 2026: Seven-day quotation guidance (source)
+
+Parts-fitment v5 explains the approved seven-day quotation validity, its saved
+expiry and that validity is not a credit period. No step, semantic target, public/
+private eligibility, practice scope or activation flag changes. The parts authoring
+form removes custom expiry; new obsolete-form requests fail with refresh guidance,
+while original issue receipts keep their saved terms. Service/parts issuance share
+approved policy enforcement. Native quotation/service/booking/learning 37/37,
+policy/learning units 13/13 and rendered quotation 7/7 pass; source CI/publication
+are pending. Production remains parts-fitment v4 on runtime 333c3a22. See the
+existing full-audit implementation report for exact evidence and limits.
+
 ## 2 November 2026, 21:58 UTC: v5/v17 published
 
 Runtime 333c3a22 publishes home-next-step v5 and service-request v17. Actual

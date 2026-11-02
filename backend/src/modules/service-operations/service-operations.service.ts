@@ -4,6 +4,7 @@ import type {
   BookingAlternativeResponseInput,
 } from "./service-operations.schemas.js";
 import { basisPoints } from "../policies/policy-money.js";
+import { quotationTerms } from "../policies/quotation-terms.js";
 import {
   approvedPolicy,
   policySnapshot,
@@ -1940,6 +1941,7 @@ export class ServiceOperationsService {
         throw invalidServiceTransition();
       const finance = await assertFinanceGate(transaction);
       const now = new Date();
+      const terms = await quotationTerms(transaction, now);
       await this.repository.voidOtherIssuedQuotes(bookingId, quoteId, now, transaction);
       const result = await this.repository.transitionQuote(
         quoteId,
@@ -1948,8 +1950,8 @@ export class ServiceOperationsService {
         {
           status: "ISSUED",
           issuedAt: now,
-          expiresAt: new Date(now.getTime() + 7 * 86_400_000),
-          policySnapshot: policySnapshot(finance),
+          expiresAt: terms.expiresAt,
+          policySnapshot: { ...policySnapshot(finance), quotation: terms.snapshot },
         },
         transaction,
       );

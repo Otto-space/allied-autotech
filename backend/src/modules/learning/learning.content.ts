@@ -318,14 +318,14 @@ export const learningArticles: LearningArticle[] = [
         "Use the vehicle make, model and year fields where available; check engine, trim and technical requirements. In Filters, edit pending selections, then choose Apply filters. Clear selections only resets the panel; Clear all filters preserves the search and sort. Reset search clears the full discovery state.",
         "Read the compatibility evidence. Compatible, incompatible and not confirmed have different meanings.",
         "For unknown fitment or missing stock, send an enquiry with the details you actually know. Collection is the launch fulfilment option; do not assume delivery.",
-        "Sign in to keep a parts request in Customer Care. An issued quotation shows its revision, quantity, price, VAT, expiry and terms. Where online transactions are enabled, review and accept the current quotation to create one collection order, then open that order for payment. Declined, expired or replaced quotations cannot be accepted. Payment does not confirm final compatibility, availability or collection readiness.",
+        "Sign in to keep a parts request in Customer Care. An issued quotation shows its revision, quantity, price, VAT, expiry and terms. It is valid for seven days from issue; the saved expiry time applies. This is not a credit period. Where online transactions are enabled, review and accept the current quotation to create one collection order, then open that order for payment. Declined, expired or replaced quotations cannot be accepted. Payment does not confirm final compatibility, availability or collection readiness.",
       ],
       "/parts",
       "Parts discovery, fitment evidence and approved collection-only launch",
       "shop brake pads compatible compatibility vehicle car",
     ),
-    version: 4,
-    reviewedAt: "2026-11-01",
+    version: 5,
+    reviewedAt: "2026-11-03",
   },
   {
     ...article(

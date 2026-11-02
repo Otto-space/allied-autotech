@@ -1,3 +1,38 @@
+### 3 November 2026: Approved quotation validity enforced (source only)
+
+Package started 2 November 23:03 UTC (3 November Nigeria time); review target
+00:03 UTC. Ownership source 723aed01 now passes all three exact-source gates:
+frontend 41541634035 (1,353 passed / 12 existing skips), backend 41541634168
+(including 20 separate guest access/ownership checks) and secrets 41541634116.
+Its signature is verified. Neither guest source package is published.
+
+New parts quotations now use the actual approved seven-day policy and save its
+provenance; service issuance shares the same terms helper. The authoring form
+and confirmation show 7 days from issue instead of offering a custom date.
+An obsolete new request with a custom expiry is rejected with a refresh message;
+original-key receipt recovery keeps an existing offer's saved amount and expiry.
+No issued quote, stock, price, quantity, fee, grant or activation flag is changed.
+Public parts-fitment guidance advances to v5 with unchanged eligibility/targets.
+Canonical OpenAPI/handbook/frontend types are regenerated without reformatting.
+
+Final native guest-quote-native-255199c1a51b4cf8beed5f245a89e29d passes 37/37
+across parts quotation, service lifecycle, booking policy and learning suites,
+with 89-migration replay, no drift/db:check and non-owner runtime privileges.
+Thirteen policy/learning units and seven rendered quotation cases pass. Browser
+cases include customer 360/768/1280 and authoring 360/768/1366, keyboard order,
+Axe, overflow and one submission; all account/provider data is synthetic.
+Frontend/backend TypeScript, repository backend lint, focused frontend ESLint,
+format, secret guard and 414-path API validation pass. An initial frontend lint
+invocation selected the backend-only tool; actual ESLint then passed. Review-date
+metadata was corrected after the native run and focused learning units pass.
+Exact-source CI for this quotation fix is pending at this source checkpoint.
+
+Production remains 333c3a22 / 87 migrations with commerce closed. Account-optional
+cart, shared checkout/payment/promotion/quote/recovery and guest cancellation/operator
+alerts remain implementation work. Fresh populated restore, recovery images and
+actual provider/role/device acceptance remain separate; no whole-site readiness claim.
+Continue the shared guest checkout work next. Report: docs/LIVE_AUDIT_IMPLEMENTATION_20261102.md.
+
 ### 2 November 2026: Guest order/invoice ownership prepared (source only)
 
 Guest access foundation 076fe87c passes all exact-source gates: frontend
@@ -210,7 +245,7 @@ No payment, booking, AI, delivery, deposit or reservation activation is authoris
 | 6.4 retained carousel/media/favourites/radii          | Existing approved whole-team/hero/card assets, manual/focus pause and later owner preference that laptop hover continues autoplay                           | Published; retained hero regressions pass including three real-time autoplay loops, pause/resume, slow/failed images; physical devices/Safari unverified                                                                                                                                                                     |
 | Operational booking                                   | Existing request/confirm, proposals, customer response, capacity/resource checks and disabled deposits                                                      | No activation; reconcile actual approved hours/resources/responsibility/policy values, isolated lifecycle regression and authorised operational acceptance remain                                                                                                                                                            |
 | Account-optional purchasing                           | Audit and original approved requirement permit optional accounts; current Order/Cart/checkout/payment paths require customer account                        | Source-only proof/session and order/invoice/aftercare ownership foundation: exact foundation CI passes; ownership replay/regressions 28/28 and migration/finance/document checks 57/57. No guest public route yet; shared checkout/payment/cart/quote/recovery integration and populated restore/publication remain required |
-| Payment/collection/finance                            | Preserve pay-first then final compatibility/availability review, separate paid/allocated/ready states, collection-only, seven-day quote validity            | Actual provider test-mode acceptance unavailable. Verified Tax/CAC, VAT applicability, percentage rounding and workshop invoice timing remain owner/accountant decisions; do not repeat settled delivery/deposit choices                                                                                                     |
+| Payment/collection/finance                            | Preserve pay-first then final compatibility/availability review, separate paid/allocated/ready states, collection-only, seven-day quote validity            | New quotation seven-day enforcement is source-only, verified 37 native / seven rendered cases; existing offers unchanged. Actual provider acceptance and verified Tax/CAC, VAT applicability, percentage rounding and service-invoice timing remain separate owner/accountant items                                          |
 | Release and evidence                                  | Exact master CI, packaged safety, held-hosted checks, backup/recovery/read-only DB checks and alias verification required                                   | Batch published with exact-source CI, packaged, held, deployed and safety gates above. Whole-site readiness is not established; provider/physical/real-role evidence stays separate                                                                                                                                          |
 
 Current batch evidence and safe before/after paths:

@@ -85,98 +85,121 @@ for (const width of [360, 768, 1280])
     await page.screenshot({ path: info.outputPath(`quotation-accepted-${width}.png`) });
   });
 
-test("administrator issues a quotation from the original short parts request", async ({
-  page,
-}, info) => {
-  await page.setViewportSize({ width: 1280, height: 900 });
-  const { detail: state } = await workThreadFixture(page, "ADMIN", "enquiries");
-  state.record.type = "PRODUCT";
-  state.record.serviceId = null as unknown as string;
-  state.record.message = "Please quote a replacement filter.";
-  const productId = "b1000000-0000-4000-8000-000000000003";
-  let items: unknown[] = [],
-    count = 0;
-  await page.route("**/api/v1/public/catalog/products?**", (route) =>
-    route.fulfill({
-      json: {
-        success: true,
-        data: { items: [{ id: productId, name: "Assessed replacement filter" }] },
-        message: "Fixture product",
-        meta: { requestId: "fixture" },
-      },
-    }),
-  );
-  await page.route("**/api/v1/admin/parts-quotes/**", async (route) => {
-    if (route.request().method() === "POST") {
-      count++;
-      const body = route.request().postDataJSON();
-      expect(body).toMatchObject({
-        expectedRevision: 0,
-        productId,
-        quantity: 2,
-        unitPriceKobo: "10000",
-      });
-      const quote = {
-        ...body,
-        id: quoteId,
-        enquiryId: state.record.id,
-        revision: 1,
-        productName: "Assessed replacement filter",
-        subtotalKobo: "20000",
-        taxKobo: "1500",
-        totalKobo: "21500",
-        status: "ISSUED",
-        orderId: null,
-      };
-      items = [quote];
-      return route.fulfill({
-        status: 201,
+for (const width of [360, 768, 1366])
+  test(`administrator issues a seven-day quotation from the original request at ${width}px`, async ({
+    page,
+  }, info) => {
+    await page.setViewportSize({ width, height: 900 });
+    const { detail: state } = await workThreadFixture(page, "ADMIN", "enquiries");
+    state.record.type = "PRODUCT";
+    state.record.serviceId = null as unknown as string;
+    state.record.message = "Please quote a replacement filter.";
+    const productId = "b1000000-0000-4000-8000-000000000003";
+    let items: unknown[] = [],
+      count = 0;
+    await page.route("**/api/v1/public/catalog/products?**", (route) =>
+      route.fulfill({
         json: {
           success: true,
-          data: quote,
-          message: "Fixture issued",
+          data: { items: [{ id: productId, name: "Assessed replacement filter" }] },
+          message: "Fixture product",
+          meta: { requestId: "fixture" },
+        },
+      }),
+    );
+    await page.route("**/api/v1/admin/parts-quotes/**", async (route) => {
+      if (route.request().method() === "POST") {
+        count++;
+        const body = route.request().postDataJSON();
+        expect(body).not.toHaveProperty("expiresAt");
+        expect(body).toMatchObject({
+          expectedRevision: 0,
+          productId,
+          quantity: 2,
+          unitPriceKobo: "10000",
+        });
+        const quote = {
+          ...body,
+          id: quoteId,
+          enquiryId: state.record.id,
+          revision: 1,
+          productName: "Assessed replacement filter",
+          subtotalKobo: "20000",
+          taxKobo: "1500",
+          totalKobo: "21500",
+          status: "ISSUED",
+          orderId: null,
+          expiresAt: new Date(Date.now() + 7 * 86_400_000).toISOString(),
+        };
+        items = [quote];
+        return route.fulfill({
+          status: 201,
+          json: {
+            success: true,
+            data: quote,
+            message: "Fixture issued",
+            meta: { requestId: "fixture" },
+          },
+        });
+      }
+      return route.fulfill({
+        json: {
+          success: true,
+          data: { items },
+          message: "Fixture quotes",
           meta: { requestId: "fixture" },
         },
       });
-    }
-    return route.fulfill({
-      json: {
-        success: true,
-        data: { items },
-        message: "Fixture quotes",
-        meta: { requestId: "fixture" },
-      },
+    });
+    await page.goto(`/admin/support/enquiries/${state.record.id}`);
+    await expect(
+      page.getByRole("heading", { name: "Prepare a quotation", exact: true }),
+    ).toBeVisible();
+    await page.getByLabel("Related record", { exact: true }).selectOption(productId);
+    await page.getByLabel("Quantity", { exact: true }).fill("2");
+    await page.getByLabel("Unit price in naira, before VAT").fill("100.00");
+    await expect(
+      page.getByText(
+        "Valid for 7 days from issue. The saved quotation shows its exact expiry.",
+      ),
+    ).toBeVisible();
+    await page.getByLabel("Unit price in naira, before VAT").focus();
+    await page.keyboard.press("Tab");
+    await expect(
+      page.getByLabel("Assessment, lead time and cancellation/refund terms"),
+    ).toBeFocused();
+    await page
+      .getByLabel("Assessment, lead time and cancellation/refund terms")
+      .fill(
+        "Assessed replacement filter. Collection only; compatibility and availability checked after payment. Contact care for cancellation/refund review.",
+      );
+    await page.getByRole("button", { name: "Review quotation", exact: true }).click();
+    await expect(page.getByRole("dialog")).toContainText("Assessed replacement filter");
+    await expect(page.getByRole("dialog")).toContainText("7 days from issue");
+    await page
+      .getByRole("button", { name: "Confirm quotation decision", exact: true })
+      .click();
+    await expect(
+      page.getByRole("heading", { name: /Assessed replacement filter Revision 1/ }),
+    ).toBeVisible();
+    expect(count).toBe(1);
+    await page
+      .getByRole("heading", { name: "Parts quotations", exact: true })
+      .scrollIntoViewIfNeeded();
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+    expect(
+      (
+        await new AxeBuilder({ page })
+          .withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"])
+          .analyze()
+      ).violations,
+    ).toEqual([]);
+    await page.screenshot({
+      path: info.outputPath(`staff-parts-quotation-${width}.png`),
     });
   });
-  await page.goto(`/admin/support/enquiries/${state.record.id}`);
-  await expect(
-    page.getByRole("heading", { name: "Prepare a quotation", exact: true }),
-  ).toBeVisible();
-  await page.getByLabel("Related record", { exact: true }).selectOption(productId);
-  await page.getByLabel("Quantity", { exact: true }).fill("2");
-  await page.getByLabel("Unit price in naira, before VAT").fill("100.00");
-  await page
-    .getByLabel("Expiry date (6pm Nigeria time)")
-    .fill(new Date(Date.now() + 86400000).toISOString().slice(0, 10));
-  await page
-    .getByLabel("Assessment, lead time and cancellation/refund terms")
-    .fill(
-      "Assessed replacement filter. Collection only; compatibility and availability checked after payment. Contact care for cancellation/refund review.",
-    );
-  await page.getByRole("button", { name: "Review quotation", exact: true }).click();
-  await expect(page.getByRole("dialog")).toContainText("Assessed replacement filter");
-  await page
-    .getByRole("button", { name: "Confirm quotation decision", exact: true })
-    .click();
-  await expect(
-    page.getByRole("heading", { name: /Assessed replacement filter Revision 1/ }),
-  ).toBeVisible();
-  expect(count).toBe(1);
-  await page
-    .getByRole("heading", { name: "Parts quotations", exact: true })
-    .scrollIntoViewIfNeeded();
-  await page.screenshot({ path: info.outputPath("staff-parts-quotation.png") });
-});
 
 test("signed-in unlisted parts request collects quantity without mandatory vehicle or notes", async ({
   page,

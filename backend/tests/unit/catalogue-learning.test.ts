@@ -23,7 +23,7 @@ it("explains controllable workshop highlights without turning a discovery reques
 it("versions catalogue instructions without changing public guide targets or write permissions", () => {
   const parts = learningArticles.find((item) => item.id === "parts-fitment")!;
   const vehicles = learningArticles.find((item) => item.id === "vehicle-enquiry")!;
-  expect([parts.version, vehicles.version]).toEqual([4, 5]);
+  expect([parts.version, vehicles.version]).toEqual([5, 5]);
   expect(vehicles.steps.join(" ")).toContain(
     "there is no online inspection request action",
   );

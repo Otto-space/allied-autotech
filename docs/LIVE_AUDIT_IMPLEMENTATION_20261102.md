@@ -5,6 +5,65 @@ The current requirement ledger is frontend/docs/UI_UX_QUALITY_REGISTER.md; this
 report records a bounded implementation package, not a second backlog or a claim
 that the whole site is ready. Package start: 17:31 UTC; 60-minute review: 18:31 UTC.
 
+## Seven-day quotation enforcement - source checkpoint, 3 November
+
+Package started 2 November 23:03 UTC (3 November Nigeria time); review target
+00:03 UTC. Ownership source 723aed01 now passes all three exact-source gates:
+frontend 41541634035 (1,353 passed / 12 existing skips), backend 41541634168
+(including 20 separate guest access/ownership checks) and secrets 41541634116.
+Its signature is verified. Neither guest source package is published.
+
+New parts quotations now use the actual approved seven-day policy and save its
+provenance; service issuance shares the same terms helper. The authoring form
+and confirmation show 7 days from issue instead of offering a custom date.
+An obsolete new request with a custom expiry is rejected with a refresh message;
+original-key receipt recovery keeps an existing offer's saved amount and expiry.
+No issued quote, stock, price, quantity, fee, grant or activation flag is changed.
+Public parts-fitment guidance advances to v5 with unchanged eligibility/targets.
+Canonical OpenAPI/handbook/frontend types are regenerated without reformatting.
+
+Final native guest-quote-native-255199c1a51b4cf8beed5f245a89e29d passes 37/37
+across parts quotation, service lifecycle, booking policy and learning suites,
+with 89-migration replay, no drift/db:check and non-owner runtime privileges.
+Thirteen policy/learning units and seven rendered quotation cases pass. Browser
+cases include customer 360/768/1280 and authoring 360/768/1366, keyboard order,
+Axe, overflow and one submission; all account/provider data is synthetic.
+Frontend/backend TypeScript, repository backend lint, focused frontend ESLint,
+format, secret guard and 414-path API validation pass. An initial frontend lint
+invocation selected the backend-only tool; actual ESLint then passed. Review-date
+metadata was corrected after the native run and focused learning units pass.
+Exact-source CI for this quotation fix is pending at this source checkpoint.
+
+Production remains 333c3a22 / 87 migrations with commerce closed. Account-optional
+cart, shared checkout/payment/promotion/quote/recovery and guest cancellation/operator
+alerts remain implementation work. Fresh populated restore, recovery images and
+actual provider/role/device acceptance remain separate; no whole-site readiness claim.
+Continue the shared guest checkout work next. Report: docs/LIVE_AUDIT_IMPLEMENTATION_20261102.md.
+
+Native first run a9c83677bccf4f7e8e89e82b8b12c4c2 passes 34/34. Final
+255199c1a51b4cf8beed5f245a89e29d passes 37/37 after adding explicit obsolete-form
+rejection and unchanged legacy-receipt recovery. That target was newly created,
+actual identity checked, replayed and used only with synthetic fixtures/fake provider;
+its own data was stopped/removed. The final canonical source includes a review-date
+metadata correction checked by focused units. A targeted test typecheck exposed an
+older UUID-literal inference in the fake buyer fixture; the fixture now uses the
+actual AuthenticatedActor interface. An initial metadata API check omitted test
+configuration; the explicitly configured loopback/nonconnecting metadata check passes.
+No shared application database or actual messaging/payment provider was contacted.
+
+Quotation browser receipt: %TEMP%/aat-full-audit-20261102/quotation-browser.json,
+7/7, zero skips/flaky/failures. Screens are isolated role fixtures, including
+staff-parts-quotation-360/768/1366.png. They are not real account screenshots;
+the earlier guide-after-public images remain the safe genuine public comparison.
+The fixture API accepts no unmocked writes and has no database/provider; Next dev
+uses verified existing dependencies. Native/unit, rendered fixtures and future
+provider/device/live-role acceptance are distinct evidence classes.
+
+Existing issued offers are never silently extended or rewritten. An operator should
+review any earlier custom-date offers through normal authoring before operational
+acceptance; no protected authoring bypass or repeated sign-in request is introduced.
+New quote validity is not a credit period or a decision about workshop invoice timing.
+
 ## Guest purchase ownership extension - verified source checkpoint
 
 Guest access foundation 076fe87c passes all exact-source gates: frontend

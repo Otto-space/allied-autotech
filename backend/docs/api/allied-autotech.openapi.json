@@ -71134,7 +71134,7 @@
                   "expiresAt": {
                     "type": "string",
                     "format": "date-time",
-                    "description": "ISO 8601 timestamp interpreted and validated by the server."
+                    "description": "Legacy field retained only for original-key receipt recovery. New issuance requests must omit it; custom expiry is rejected. The server sets the approved seven-day validity from issuance."
                   }
                 },
                 "required": [
@@ -71142,8 +71142,7 @@
                   "productId",
                   "quantity",
                   "unitPriceKobo",
-                  "notes",
-                  "expiresAt"
+                  "notes"
                 ],
                 "additionalProperties": false,
                 "description": "Request Body validated by this operation's strict request contract."

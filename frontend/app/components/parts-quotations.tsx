@@ -273,7 +273,6 @@ function QuotationPanel({
               BigInt(fraction.padEnd(2, "0"))
             ).toString();
             const quantity = Number(form.get("quantity"));
-            const expiry = String(form.get("expiry"));
             const notes = String(form.get("notes"));
             const body = {
               expectedRevision: latest?.revision ?? 0,
@@ -281,7 +280,6 @@ function QuotationPanel({
               quantity,
               unitPriceKobo,
               notes,
-              expiresAt: new Date(`${expiry}T18:00:00+01:00`).toISOString(),
             };
             const key = crypto.randomUUID();
             setProposal({
@@ -294,7 +292,7 @@ function QuotationPanel({
                 { label: "Quantity", value: String(quantity) },
                 { label: "Unit price before VAT", value: formatKobo(unitPriceKobo) },
                 { label: "Terms", value: notes },
-                { label: "Expires", value: `${expiry}, 6pm Nigeria time` },
+                { label: "Valid for", value: "7 days from issue" },
               ],
               retrySafely: true,
               submit: async () => {
@@ -349,8 +347,9 @@ function QuotationPanel({
             />
           </div>
           <div className="field">
-            <label htmlFor="parts-quote-expiry">Expiry date (6pm Nigeria time)</label>
-            <input id="parts-quote-expiry" name="expiry" type="date" required />
+            <p>
+              Valid for 7 days from issue. The saved quotation shows its exact expiry.
+            </p>
           </div>
           <div className="field">
             <label htmlFor="parts-quote-notes">

@@ -24500,7 +24500,7 @@ JSON request fields:
 | `quantity` | integer | Yes | Quantity validated by this operation's strict request contract. |
 | `unitPriceKobo` | string | Yes | Integer price in Nigerian kobo; client-calculated values are never authoritative. |
 | `notes` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
-| `expiresAt` | string (date-time) | Yes | ISO 8601 timestamp interpreted and validated by the server. |
+| `expiresAt` | string (date-time) | No | Legacy field retained only for original-key receipt recovery. New issuance requests must omit it; custom expiry is rejected. The server sets the approved seven-day validity from issuance. |
 
 Synthetic request example:
 

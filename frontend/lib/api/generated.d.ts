@@ -59564,9 +59564,9 @@ export interface operations {
                     notes: string;
                     /**
                      * Format: date-time
-                     * @description ISO 8601 timestamp interpreted and validated by the server.
+                     * @description Legacy field retained only for original-key receipt recovery. New issuance requests must omit it; custom expiry is rejected. The server sets the approved seven-day validity from issuance.
                      */
-                    expiresAt: string;
+                    expiresAt?: string;
                 };
             };
         };

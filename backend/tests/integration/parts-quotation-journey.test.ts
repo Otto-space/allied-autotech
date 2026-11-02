@@ -2,6 +2,9 @@ import { PaymentsService } from "../../src/modules/payments/payments.service.js"
 import { PaymentProviderRegistry } from "../../src/providers/payments/payment-provider.registry.js";
 import type { PaymentProviderPort } from "../../src/providers/payments/payment-provider.port.js";
 import { paymentTestSession } from "../helpers/payment-session.js";
+import type { AuthenticatedActor } from "../../src/common/contracts/actor.js";
+import { hashToken } from "../../src/common/security/session-tokens.js";
+import { orderFingerprint } from "../../src/modules/orders/orders.types.js";
 import { randomUUID } from "node:crypto";
 import request from "supertest";
 import { afterAll, describe, expect, it } from "vitest";
@@ -26,7 +29,7 @@ async function fixture() {
     mfaRequired: true,
     mfaVerifiedAt: new Date(),
   };
-  const buyer = {
+  const buyer: AuthenticatedActor = {
     userId: customer.user.id,
     email: customer.user.email,
     role: customer.user.role,
@@ -60,7 +63,6 @@ async function fixture() {
     unitPriceKobo: "10000",
     notes:
       "Collection only. Final compatibility and availability require review after payment. Contact care for cancellation or refund assessment.",
-    expiresAt: new Date(Date.now() + 86400000).toISOString(),
   };
   return { customer, sources, actor, buyer, enquiry, input };
 }
@@ -68,6 +70,88 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
   "Parts request to quoted collection order",
   () => {
     afterAll(() => prisma.$disconnect());
+    it("recovers an original legacy issue receipt without rewriting its saved expiry or price", async () => {
+      const f = await fixture(),
+        key = randomUUID();
+      const legacy = {
+        ...f.input,
+        expiresAt: new Date(Date.now() + 86_400_000).toISOString(),
+      };
+      const original = await prisma.partsQuote.create({
+        data: {
+          enquiryId: f.enquiry.id,
+          productId: f.input.productId,
+          createdByUserId: f.actor.userId,
+          revision: 1,
+          productName: f.sources.product.name,
+          sku: f.sources.product.sku,
+          quantity: 2,
+          unitPriceKobo: 10000n,
+          subtotalKobo: 20000n,
+          taxKobo: 1500n,
+          totalKobo: 21500n,
+          notes: f.input.notes,
+          expiresAt: new Date(legacy.expiresAt),
+          idempotencyKeyHash: hashToken("parts-quote-issue", `${f.actor.userId}:${key}`),
+          requestHash: orderFingerprint({ enquiryId: f.enquiry.id, ...legacy }),
+          policySnapshot: {},
+        },
+      });
+      expect(
+        await quotes.issue(f.actor, f.enquiry.id, legacy, key, context()),
+      ).toMatchObject({ id: original.id });
+      const saved = await prisma.partsQuote.findUniqueOrThrow({
+        where: { id: original.id },
+      });
+      expect(saved.expiresAt).toEqual(original.expiresAt);
+      expect(saved.totalKobo).toBe(original.totalKobo);
+      expect(await prisma.partsQuote.count({ where: { enquiryId: f.enquiry.id } })).toBe(
+        1,
+      );
+    });
+    it("issues the approved seven-day snapshot without a client-selected expiry", async () => {
+      const f = await fixture();
+      const issued = (await quotes.issue(
+        f.actor,
+        f.enquiry.id,
+        f.input,
+        randomUUID(),
+        context(),
+      )) as { id: string };
+      const stored = await prisma.partsQuote.findUniqueOrThrow({
+        where: { id: issued.id },
+      });
+      expect(stored.expiresAt.getTime() - stored.createdAt.getTime()).toBe(
+        7 * 86_400_000,
+      );
+      expect(stored.policySnapshot).toMatchObject({
+        quotation: {
+          approvalStatus: "APPROVED",
+          settings: { validityDays: 7, shorterOverride: false },
+        },
+      });
+    });
+    it.each([1, 30])(
+      "rejects an obsolete %i-day custom expiry without issuing a different offer",
+      async (days) => {
+        const f = await fixture();
+        await expect(
+          quotes.issue(
+            f.actor,
+            f.enquiry.id,
+            {
+              ...f.input,
+              expiresAt: new Date(Date.now() + days * 86_400_000).toISOString(),
+            },
+            randomUUID(),
+            context(),
+          ),
+        ).rejects.toThrow(/Refresh the form/);
+        expect(
+          await prisma.partsQuote.count({ where: { enquiryId: f.enquiry.id } }),
+        ).toBe(0);
+      },
+    );
     it("preserves quoted prices through catalogue edits and repeated HTTP acceptance without touching the cart", async () => {
       const f = await fixture(),
         key = randomUUID();
@@ -78,9 +162,25 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         key,
         context(),
       )) as { id: string; revision: number };
+      const stored = await prisma.partsQuote.findUniqueOrThrow({
+        where: { id: issued.id },
+      });
+      expect(stored.expiresAt.getTime() - stored.createdAt.getTime()).toBe(
+        7 * 86_400_000,
+      );
+      expect(stored.policySnapshot).toMatchObject({
+        quotation: {
+          key: "quotation",
+          settings: { validityDays: 7, shorterOverride: false },
+        },
+      });
       expect(
         await quotes.issue(f.actor, f.enquiry.id, f.input, key, context()),
       ).toMatchObject({ id: issued.id });
+      expect(
+        (await prisma.partsQuote.findUniqueOrThrow({ where: { id: issued.id } }))
+          .expiresAt,
+      ).toEqual(stored.expiresAt);
       await prisma.product.update({
         where: { id: f.sources.product.id },
         data: { priceKobo: 99999n, name: "Later catalogue name" },

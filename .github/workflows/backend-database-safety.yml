@@ -65,7 +65,7 @@ jobs:
       - name: Verify backup, command and startup protection
         run: npx --no-install vitest run tests/unit/database-schema-safety.test.ts tests/unit/database-migration-safety.test.ts tests/unit/database-health.test.ts tests/unit/database-error-mapping.test.ts --maxWorkers=2
       - name: Verify unknown service durations and public workshop guidance
-        run: npx --no-install vitest run tests/unit/service-duration.test.ts tests/unit/public-service-copy.test.ts tests/unit/phase5-service-operations-security.test.ts tests/unit/catalogue-learning.test.ts tests/unit/vehicle-operator-migration.test.ts tests/unit/vehicle-operations-learning.test.ts --maxWorkers=1
+        run: npx --no-install vitest run tests/unit/service-duration.test.ts tests/unit/public-service-copy.test.ts tests/unit/phase5-service-operations-security.test.ts tests/unit/catalogue-learning.test.ts tests/unit/quotation-terms.test.ts tests/unit/vehicle-operator-migration.test.ts tests/unit/vehicle-operations-learning.test.ts --maxWorkers=1
       - name: Verify administrator authoring on the new isolated CI database
         run: |
           docker run --rm --network "container:${{ job.services.postgres.id }}" \

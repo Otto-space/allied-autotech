@@ -15,6 +15,7 @@ import {
 } from "../support/support.errors.js";
 import { assertFinanceGate, policySnapshot } from "../policies/policies.service.js";
 import { draftTotals } from "../policies/policy-money.js";
+import { quotationTerms } from "../policies/quotation-terms.js";
 import { jsonSafe, orderFingerprint } from "./orders.types.js";
 
 export const issuePartsQuoteSchema = z
@@ -24,7 +25,12 @@ export const issuePartsQuoteSchema = z
     quantity: z.number().int().min(1).max(100),
     unitPriceKobo: z.string().regex(/^[1-9][0-9]{0,12}$/),
     notes: z.string().trim().min(10).max(2000),
-    expiresAt: z.iso.datetime({ offset: true }),
+    expiresAt: z.iso
+      .datetime({ offset: true })
+      .optional()
+      .describe(
+        "Legacy field retained only for original-key receipt recovery. New issuance requests must omit it; custom expiry is rejected. The server sets the approved seven-day validity from issuance.",
+      ),
   })
   .strict();
 export const partsQuoteDecisionSchema = z
@@ -104,6 +110,10 @@ export class PartsQuotesService {
           );
         return partsQuoteView(replay);
       }
+      if (input.expiresAt !== undefined)
+        throw supportConflict(
+          "Quotations are valid for 7 days from issue. Refresh the form to use the current quotation terms.",
+        );
       await tx.$queryRaw`SELECT "id" FROM "Enquiry" WHERE "id" = ${enquiryId}::uuid FOR UPDATE`;
       const enquiry = await tx.enquiry.findUnique({
         where: { id: enquiryId },
@@ -123,9 +133,7 @@ export class PartsQuotesService {
         throw supportConflict(
           "An accepted quotation cannot be replaced; use the linked order and aftercare process",
         );
-      const expiresAt = new Date(input.expiresAt);
-      if (expiresAt <= new Date() || expiresAt.getTime() > Date.now() + 30 * 86400000)
-        throw supportConflict("Choose an expiry within the next 30 days");
+      const terms = await quotationTerms(tx);
       const product = await tx.product.findUnique({
         where: { id: input.productId },
         include: { category: { include: { parent: true } } },
@@ -160,11 +168,13 @@ export class PartsQuotesService {
           taxKobo,
           totalKobo: subtotalKobo + taxKobo,
           notes: input.notes,
-          expiresAt,
+          createdAt: terms.issuedAt,
+          expiresAt: terms.expiresAt,
           idempotencyKeyHash: keyHash,
           requestHash,
           policySnapshot: {
             finance: policySnapshot(finance),
+            quotation: terms.snapshot,
             branchId: enquiry.branchId,
             fulfillmentMethod: "COLLECTION",
           },
