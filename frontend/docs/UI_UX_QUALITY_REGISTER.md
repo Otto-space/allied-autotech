@@ -1,3 +1,32 @@
+### 2 November 2026: Invoice search and fitment dismissal published
+
+Source b72eddd86106bf54a741b65cfa5eb578f92fc5e4 is published as
+ dpl_DqdBns92iwTfuX9qfHYgi2B4erKN on apex and www; both identities verified.
+Exact-master Frontend 41411747513, Backend safety 41411865203 and repository
+secrets 41411747468 passed. The held production candidate passed 22 synthetic
+browser cases with no skipped, flaky or unexpected results. Two additional
+320/1440px invoice runs passed and their safe screenshots were visually inspected.
+Invoice search covers selection, paging, refresh, retry and collapsed invalid-reference
+focus recovery; fitment covers untouched dismissal, changed evidence confirmation,
+reconciled draft discard, late hydration, invalid years and uncertain saves.
+Payment search and denied/inactive/mismatched role regressions also passed.
+Scoped invoice Axe and overflow checks passed. These are fixture-based protected-route
+checks, not actual customer or financial transactions. Public /parts returned 200
+on both domains, with www resolving to the apex.
+
+Backend remains dea3489e-0d93-4aad-9e0d-998fae51190b from 1224d942; all four
+image digests and readiness matched. No runtime backend or schema difference from
+that release. Eight current managed backups and the existing separate 85-migration
+restore rehearsal were rechecked; no new restore, database write or grant change ran.
+Financial gates remain unchanged. The owner currently lacks signed-in access;
+new real-role acceptance remains pending despite historical inspection below.
+Physical-device, full keyboard/screen-reader and independent reviewer acceptance
+remain unverified. The broader completion brief is not declared finished.
+
+Evidence: backend/ops/digitalocean/.private/invoice-fitment-{ci,candidate,prepromotion}.json;
+Windows Temp/aat-invoice-fitment-hosted.json (22 passed) and
+Windows Temp/aat-invoice-fitment-visual/ (safe synthetic screenshots).
+
 ### 2 November 2026: Home and About workshop restoration released
 
 Public Home/About source 1224d942 is live on apex/www, frontend
