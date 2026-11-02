@@ -1,3 +1,8 @@
+Public service-note exposure is resolved by the reviewed public projection in
+2c6f58d0; stored administrator evidence is retained. Service catalogue/detail imagery
+is restored. See [the release report](../../docs/PUBLIC_SERVICE_PRESENTATION_20261102.md).
+Historical authoring/access notes below describe the earlier state.
+
 Latest hero redesign, seven-second timing and laptop-hover policy: see
 [HERO_OVERLAY_20261102.md](HERO_OVERLAY_20261102.md). Published runtime 485fb2c5.
 Earlier composition and motion observations below are historical.

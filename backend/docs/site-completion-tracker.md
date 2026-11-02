@@ -1,3 +1,20 @@
+### 2 November 2026: Public service descriptions and approved imagery published
+
+Runtime 2c6f58d0 is verified on both domains as dpl_2tmoL1nPgoL4R8pxQ6g5boYiaBzf;
+backend 9e7d8b5c-82a1-4660-be23-4fca2a9b6828 is ACTIVE 16/16, four matching
+digests, readiness 200 and eight fresh workers. Three legacy import-note paragraphs
+are excluded only from public projection; administrator source/history and all
+commercial fields are retained. Approved service photos and reliable fallback
+cover catalogue/detail/related views; oil is labelled illustrative.
+
+All three exact-source gates pass (frontend 41454980598, backend 41454861473,
+secrets 41454861206), along with 10 packaged, 29 held and 11 public browser cases.
+Fresh backup, strict-TLS schema/privilege/worker checks and trusted-source removal
+passed; same-day populated restore was revalidated for unchanged schema. No new
+migration, direct business-row edit, grant or feature-flag change.
+Report: docs/PUBLIC_SERVICE_PRESENTATION_20261102.md. Full-scope ledger remains
+at the top of frontend/docs/UI_UX_QUALITY_REGISTER.md; the broader goal is active.
+
 ### 2 November 2026: Broader site-completion objective resumed
 
 Full-scope requirements and current evidence are tracked at the top of
