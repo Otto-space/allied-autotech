@@ -110,7 +110,10 @@ Anonymous before: `public-after-catalogue-390.png` and
 Anonymous after: `public-after-search-390.png` and
 `public-after-search-1440.png` show the released Search entry, form and focus.
 All four are under `C:/Users/PC/AppData/Local/Temp/site-completion-20261102`.
-Search screenshots were visually inspected at both widths. The published service
+Search screenshots were visually inspected at both widths. Settled same-route
+after captures `public-after-search-header-390.png` and
+`public-after-search-header-1440.png` also show the catalogue header with Search;
+the mobile capture was inspected after service groups and fonts finished loading. The published service
 frames retain the approved workshop imagery and previous before/after evidence.
 
 The four dashboard screenshots in `search-public` use synthetic intercepted roles
