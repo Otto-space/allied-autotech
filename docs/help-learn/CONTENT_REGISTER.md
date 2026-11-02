@@ -193,3 +193,5 @@ payment distinctions and reviewed work-order milestones retain their contracts.
 Nine hosted synthetic workflow checks passed; no production stock action occurred.
 
 2 November 2026: Form clarity batch changes presentation only: invoice source references use existing disclosure/copy controls; known status labels are readable. Guide v13 semantic targets, eligibility, permissions and feature flags are unchanged. Hosted acceptance pending.
+
+2 November: Form clarity published as dfd69bd1. Existing guide v13 targets, eligibility and flags preserved. Six final hosted interaction checks passed; see docs/FORM_CLARITY_RELEASE_20261102.md for evidence and acceptance limits.

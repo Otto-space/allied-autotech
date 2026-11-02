@@ -1,3 +1,19 @@
+### 2 November 2026: Form clarity published
+
+Frontend dfd69bd1 is live on both domains as dpl_Acehf69pBzE1vxdycA3GXq7MmoCs.
+Readable status/review labels and invoice source disclosure/copy are released.
+Exact-master frontend 41394976202, backend 41394976199 and secret checks
+41394976252 passed: 1,312 units, build/types/lint/format; 12 existing unit skips.
+57 distinct hosted journeys passed across the identical-runtime initial run and
+corrected assertion rerun; six final-candidate checks and four live public checks passed.
+Two storage-dependent upload checks remain unverified. Synthetic screenshots and
+all failures/limitations are documented in docs/FORM_CLARITY_RELEASE_20261102.md.
+Backend f0402b67 and 85 migrations are unchanged; read-only safety and worker checks
+passed, temporary access removed, latest managed backup 2 November 05:22 UTC.
+Purchasing/deposits remain gated. Wider brief, real-role/device coverage, invoice
+identifier support and recorded financial/operational decisions remain open.
+C: 25.43 GiB free; no Docker resources created or other tasks' resources removed.
+
 ### 2 November 2026: Stock and workshop wording published
 
 Frontend 518dd13ff281618765725e762825646eaced35df is live on apex/www as

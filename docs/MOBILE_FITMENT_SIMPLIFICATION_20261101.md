@@ -1,6 +1,6 @@
 # Mobile tasks and compatibility refinement - 1 November 2026
 
-Status: frontend follow-up 518dd13f published on 2 November; backend remains f0402b67. Acceptance limits remain below. Brief:
+Status: frontend follow-up dfd69bd1 published on 2 November; backend remains f0402b67. Acceptance limits remain below. Brief:
 Allied_AutoTech_Mobile_First_Dashboard_Fitment_Simplification_Codex_Prompt_2026-11-01.md.
 Existing release worktree reused at 4919492e. Previous runtime 53cdc8e1 remains
 the prior release baseline; exact-master CI and both public alias identities now passed. Desktop's unrelated home-hero edit is preserved.
