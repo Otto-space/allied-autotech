@@ -218,3 +218,5 @@ Nine hosted synthetic workflow checks passed; no production stock action occurre
 2 November: Invoice-filter search and hidden-field correction retain existing directory permissions, invoice contracts, guide targets and eligibility. No tutorial definition describes these filter controls; no learning version or feature flag changes. Hidden source-field correction awaits hosted acceptance.
 
 2 November: Invoice-filter recovery published in d9473ad9. All 26 held-candidate and four public-route synthetic regressions passed. Existing guide targets, eligibility, policy gates and permissions remain unchanged.
+
+2 November: privacy-and-allie v2 replaces implementation terminology with plain-language reply records and scheduled cleanup. Deadlines, encryption, backup/provider caveats, public eligibility, policy version and guide targets remain unchanged. Existing privacy/retrieval guards are preserved. Source only; coordinated publication and rendered disclosure/navigation checks pending.

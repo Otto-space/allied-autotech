@@ -1,3 +1,24 @@
+### 2 November 2026: Plain-language Allie privacy explanations
+
+Brief sections 3, 4 and 14: actual /privacy inspection confirmed customer-facing
+"temporary turn receipts", "expired payload" and "retention worker" wording.
+Allie disclosure, Privacy Notice and backend privacy-and-allie guidance now say
+"temporary reply records" and explain that removal of expired conversation data
+depends on scheduled cleanup. Encryption, 15-minute/one-hour expiry, session limits,
+backup policy, provider deletion caveat, optional AI and support-message boundaries
+remain unchanged. Privacy Notice policy version/effective date are unchanged;
+editorial learning guidance advances to v2 so source-set invalidation remains truthful.
+
+Focused backend privacy/role-guidance: 20 passed. Mixed retrieval run: 24 passed,
+two unrelated vehicle-operations retrieval failures inherited from master 616e76d8;
+those remain with their owning agent. Frontend mixed run: 31 passed, one Allie
+initialization timeout; unchanged Allie file rerun passed all 23. Scoped frontend/
+backend lint and formatting passed. New 320/1440 browser coverage checks disclosure,
+privacy-link navigation, retained caveats, no AI writes and overflow; rendered checks
+and coordinated backend/frontend publication remain pending. No feature, policy,
+permission, provider configuration or schema change is part of this copy correction.
+Frontend TypeScript passed. Current production stays d9473ad9. Other agents' migration/release work is not taken over.
+
 ### 2 November 2026: Administrator operations and vehicle price repair in progress
 
 Owner selected full Admin operations with owner-only controls and independent

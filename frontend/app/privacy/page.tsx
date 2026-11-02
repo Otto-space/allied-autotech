@@ -146,15 +146,15 @@ export default function PrivacyPage() {
           remains available without AI.
         </p>
         <p>
-          Active conversation data and temporary turn receipts are encrypted on our server
+          Active conversation data and temporary reply records are encrypted on our server
           and expire after 15 minutes without a completed answer or one hour overall,
           possibly sooner with your session. Up to six recent turns are used as context.
-          Clear removes active server history; expired payload cleanup depends on our
-          retention worker, and backups follow their own policy. We request no stored
-          provider response, but OpenAI&apos;s abuse-monitoring rules may still apply.
-          Clearing local help does not promise provider deletion. Conversations are not
-          saved in browser storage. Choosing a contact link does not submit your question
-          or conversation to Customer Care.
+          Clear removes active server history. Removal of expired conversation data
+          depends on scheduled cleanup; backups follow their own policy. We request no
+          stored provider response, but OpenAI&apos;s abuse-monitoring rules may still
+          apply. Clearing local help does not promise provider deletion. Conversations are
+          not saved in browser storage. Choosing a contact link does not submit your
+          question or conversation to Customer Care.
         </p>
         <p>
           Signed-in customers can separately review and send a Customer Care message. Only

@@ -280,10 +280,10 @@ export function AllieConversationPanel({
         </p>
         <p>
           Allie uses up to six recent turns as context. Conversation data and temporary
-          turn receipts are encrypted on our server, expiring after 15 minutes without a
+          reply records are encrypted on our server, expiring after 15 minutes without a
           completed answer or one hour overall, possibly sooner with your session. Clear
           removes the conversation from active server history; backups follow their own
-          policy. Expired payload cleanup depends on our retention worker.
+          policy. Removal of expired conversation data depends on scheduled cleanup.
         </p>
         <p>
           We request no stored provider response. OpenAI’s abuse-monitoring rules may

@@ -112,8 +112,8 @@ export const learningArticles: LearningArticle[] = [
       [
         "Open the Privacy notice for the current explanation of account, enquiry, technical and support information. Avoid putting personal records, passwords, codes or banking details into help questions or catalogue searches.",
         "If conversational Allie is available and you choose to use it, OpenAI processes your typed question, eligible reviewed instructions and recent help context. Private records, support threads, uploads and form contents are not included. Secret screening can miss sensitive text. Reviewed help remains available without AI.",
-        "Active Allie conversation data and temporary turn receipts are encrypted on our server. They expire after 15 minutes without a completed answer or one hour overall, possibly sooner with your session. Up to six recent turns provide context; conversations are not saved in browser storage.",
-        "Clear removes active server history. Expired payload cleanup depends on the retention worker, and backups follow their own policy. We request no stored provider response, but OpenAI abuse-monitoring rules may still apply. Clearing local help does not promise provider deletion.",
+        "Active Allie conversation data and temporary reply records are encrypted on our server. They expire after 15 minutes without a completed answer or one hour overall, possibly sooner with your session. Up to six recent turns provide context; conversations are not saved in browser storage.",
+        "Clear removes active server history. Removal of expired conversation data depends on scheduled cleanup; backups follow their own policy. We request no stored provider response, but OpenAI abuse-monitoring rules may still apply. Clearing local help does not promise provider deletion.",
         "Opening a contact link does not send your conversation. Signed-in customers separately review and send a Customer Care message; only the selected summary and optional help excerpts are attached. Cancelling a review does not remove a message already saved.",
         "Use the contact details in the Privacy notice to request access, correction, deletion or other applicable privacy choices. Proportionate identity verification may be needed. Legal obligations or documented holds can limit removal; deletion is not instantaneous across every system. Allie cannot inspect or erase your records.",
       ],
@@ -122,8 +122,8 @@ export const learningArticles: LearningArticle[] = [
       "privacy personal information data retention allie conversation history clear delete erase storage openai provider backup notice",
       "You can read the public notice without an account. Optional AI help is available only when the current site configuration enables it.",
     ),
-    version: 1,
-    reviewedAt: "2026-11-01",
+    version: 2,
+    reviewedAt: "2026-11-02",
     outcome:
       "You know where to read the current notice and how to ask about your information. Reading help does not submit a privacy request or delete records.",
     recovery:

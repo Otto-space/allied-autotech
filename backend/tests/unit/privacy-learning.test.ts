@@ -55,6 +55,10 @@ describe("reviewed public privacy guidance", () => {
     );
     expect(source!.passage).toContain("does not promise provider deletion");
     expect(source!.passage).toContain("backups follow their own policy");
+    expect(source!.passage).toContain("depends on scheduled cleanup");
+    expect(source!.passage).not.toMatch(/payload|retention worker|turn receipts/);
+    expect(source!.passage).toContain("15 minutes");
+    expect(source!.passage).toContain("one hour overall");
     expect(source!.passage).toContain("does not send your conversation");
     expect(context.sources.some((item) => item.articleId === "privacy-work")).toBe(false);
     expect(context.actions.some((item) => item.href === "/admin/privacy")).toBe(false);
