@@ -1,0 +1,22 @@
+.customer-filter-picker summary {
+  min-height: 44px;
+  padding-block: 12px;
+  cursor: pointer;
+  color: var(--link);
+  font-weight: 600;
+}
+.customer-filter-picker summary:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+.customer-filter-picker details {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.customer-filter-picker details > .field {
+  margin-bottom: 12px;
+}
+.customer-filter-picker .pagination {
+  flex-wrap: wrap;
+  gap: 8px;
+}

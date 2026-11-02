@@ -90,6 +90,7 @@ test("supported filters, 25+3 cursor history, reload and Back retain scope and s
     .getByLabel("Payment status", { exact: true })
     .selectOption("REQUIRES_REVIEW");
   await page.getByLabel("Payment provider filter").selectOption("MANUAL");
+  await page.getByText("Use a customer reference", { exact: true }).click();
   await page.getByLabel("Customer profile reference (optional)").fill(id(7));
   await button(page, "Apply payment filters").click();
   await expect(page).toHaveURL(/customerId=/);
@@ -568,4 +569,148 @@ test("redacted recovery references require explicit manual reconciliation withou
     page.getByRole("heading", { name: f.payments.records[0].paymentNumber, exact: true }),
   ).toBeFocused();
   expect(f.payments.writes).toHaveLength(1);
+});
+
+async function customerSearchFixture(page: Page) {
+  const { customerRecord } = await import("../fixtures/work-customers");
+  const rows = Array.from({ length: 28 }, (_, n) => customerRecord(n));
+  const state = { reads: [] as URL[], mode: "normal", detailDenied: false };
+  await page.route("**/api/v1/admin/customers**", async (route) => {
+    expect(route.request().method()).toBe("GET");
+    const u = new URL(route.request().url());
+    state.reads.push(u);
+    const target = u.pathname.split("/").at(-1);
+    if (
+      state.mode === "error" ||
+      state.mode === "denied" ||
+      (target !== "customers" && state.detailDenied)
+    )
+      return route.fulfill({
+        status: state.mode === "error" ? 503 : 403,
+        json: {
+          success: false,
+          error: { code: state.mode === "error" ? "DATABASE_UNAVAILABLE" : "FORBIDDEN" },
+        },
+      });
+    const row = rows.find((r) => r.id === target);
+    const matching = rows.filter((r) =>
+      u.searchParams.get("field") === "email"
+        ? r.email.startsWith(u.searchParams.get("search") ?? "")
+        : `${r.firstName} ${r.lastName}`
+            .toLowerCase()
+            .startsWith(u.searchParams.get("search") ?? ""),
+    );
+    const offset = u.searchParams.has("cursor") ? 25 : 0;
+    return route.fulfill({
+      json: {
+        success: true,
+        data:
+          target !== "customers"
+            ? { ...row, address: null, city: null, state: null, country: "NG" }
+            : {
+                items: matching.slice(offset, offset + 25),
+                ...(matching.length > offset + 25
+                  ? { nextCursor: "customer_page_two" }
+                  : {}),
+              },
+        meta: { requestId: "synthetic-customer-picker" },
+      },
+    });
+  });
+  return { rows, state };
+}
+test("payment customer search selects names, preserves paging and reload without carrying references manually", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 320, height: 900 });
+  const f = await workPaymentFixture(page);
+  const c = await customerSearchFixture(page);
+  await page.goto("/admin/payments");
+  await expect(page.getByLabel("Customer (optional)", { exact: true })).toBeVisible();
+  expect(c.state.reads).toHaveLength(0);
+  await page.getByText("Find a customer", { exact: true }).click();
+  await page.getByLabel("Customer search", { exact: true }).fill("sy");
+  await expect(page.getByRole("option", { name: /Synthetic Customer 2 ·/ })).toHaveCount(
+    1,
+  );
+  await page
+    .getByLabel("Customer (optional)", { exact: true })
+    .selectOption(c.rows[2].id);
+  await page
+    .getByRole("navigation", { name: "Customer search pages" })
+    .getByRole("button", { name: "Next", exact: true })
+    .click();
+  await expect(page.getByLabel("Customer (optional)", { exact: true })).toHaveValue(
+    c.rows[2].id,
+  );
+  await expect(page.getByRole("option", { name: /Synthetic Customer 27 ·/ })).toHaveCount(
+    1,
+  );
+  await expect(page.getByRole("option", { name: /Synthetic Customer 2 ·/ })).toHaveCount(
+    1,
+  );
+  await page.getByLabel("Search customers by").selectOption("email");
+  await page.getByLabel("Customer search", { exact: true }).fill("directory-1@");
+  await expect(page.getByRole("option", { name: /Chidi Obi ·/ })).toHaveCount(1);
+  expect(c.state.reads.at(-1)?.searchParams.has("cursor")).toBe(false);
+  await page
+    .getByLabel("Customer (optional)", { exact: true })
+    .selectOption(c.rows[1].id);
+  await button(page, "Apply payment filters").click();
+  await expect(page).toHaveURL(new RegExp(`customerId=${c.rows[1].id}`));
+  expect(new URL(page.url()).searchParams.has("search")).toBe(false);
+  await page.reload();
+  await expect(page.getByRole("option", { name: /Chidi Obi ·/ })).toHaveCount(1);
+  await expect(page.getByLabel("Customer profile reference (optional)")).toBeHidden();
+  expect(
+    (await new AxeBuilder({ page }).include(".wp-filters").analyze()).violations,
+  ).toEqual([]);
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+  ).toBe(true);
+  expect(f.payments.writes).toHaveLength(0);
+});
+test("customer search failure retries and revoked detail access removes the selected identity", async ({
+  page,
+}) => {
+  const f = await workPaymentFixture(page);
+  const c = await customerSearchFixture(page);
+  c.state.mode = "error";
+  await page.goto("/admin/payments");
+  await page.getByText("Find a customer", { exact: true }).click();
+  await page.getByLabel("Customer search", { exact: true }).fill("am");
+  await expect(button(page, "Retry customer search")).toBeVisible();
+  await expect(
+    page.getByText("No customers match this search.", { exact: true }),
+  ).toHaveCount(0);
+  c.state.mode = "normal";
+  await button(page, "Retry customer search").click();
+  await page
+    .getByLabel("Customer (optional)", { exact: true })
+    .selectOption(c.rows[0].id);
+  await button(page, "Apply payment filters").click();
+  await expect(page.getByRole("option", { name: /Amina Okafor ·/ })).toHaveCount(1);
+  c.state.detailDenied = true;
+  await page.reload();
+  await expect(
+    page.getByText("The selected customer details are unavailable.", { exact: false }),
+  ).toBeVisible();
+  await expect(page.getByRole("option", { name: /Amina Okafor/ })).toHaveCount(0);
+  await expect(page.getByLabel("Customer (optional)", { exact: true })).toHaveValue(
+    c.rows[0].id,
+  );
+  await page.getByLabel("Customer (optional)", { exact: true }).selectOption("");
+  await button(page, "Apply payment filters").click();
+  await expect(page).toHaveURL(/\/admin\/payments$/);
+  expect(f.payments.writes).toHaveLength(0);
+});
+test("staff cannot use payment customer discovery", async ({ page }) => {
+  await workPaymentFixture(page, "STAFF");
+  const c = await customerSearchFixture(page);
+  await page.goto("/admin/payments");
+  await expect(
+    page.getByText("Administrator access is required for finance.", { exact: true }),
+  ).toBeVisible();
+  await expect(page.getByText("Find a customer", { exact: true })).toHaveCount(0);
+  expect(c.state.reads).toHaveLength(0);
 });

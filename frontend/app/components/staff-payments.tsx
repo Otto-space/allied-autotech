@@ -1,4 +1,5 @@
 "use client";
+import { CustomerFilterPicker } from "./customer-filter-picker";
 import { statusLabel } from "@/lib/status-progress";
 import { NotificationRecordContext } from "./notification-record-context";
 import Link from "next/link";
@@ -1376,25 +1377,13 @@ function PaymentFilters({
             ))}
           </select>
         </div>
-        <div className="field">
-          <label htmlFor="payment-customer-filter">
-            Customer profile reference (optional)
-          </label>
-          <input
-            id="payment-customer-filter"
-            value={customer}
-            onChange={(e) => setCustomer(e.target.value)}
-            autoComplete="off"
-            maxLength={36}
-            aria-invalid={!!error}
-            aria-describedby={error ? "payment-customer-error" : undefined}
-          />
-          {error && (
-            <p id="payment-customer-error" className="field-error" role="alert">
-              {error}
-            </p>
-          )}
-        </div>
+        <CustomerFilterPicker
+          id="payment-customer-filter"
+          value={customer}
+          onChange={setCustomer}
+          disabled={disabled}
+          error={error}
+        />
         <div className="wp-actions">
           <button className="button">Apply payment filters</button>
           <button

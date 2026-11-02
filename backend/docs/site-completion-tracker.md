@@ -4610,3 +4610,5 @@ pending. Two older booking assertions (No show/Completed) updated to the already
 published readable labels; no contract or permission was relaxed.
 
 2 November form-clarity verification: initial hosted inspection assertion expected uppercase display labels; corrected the assertion only. Production candidate remains held. Asset upload cases require their isolated storage allowlist and are explicitly excluded from hosted acceptance; document-review version/concurrency coverage remains included.
+
+2 November: Payment customer-filter batch in verification. Existing directory API maps customer-profile IDs correctly; added debounced name/email lookup, paged named choices, selected-record reload and manual-reference fallback. Verified admin identity and API permissions remain authoritative; no payment mutation changes. Prior deployed filter baseline passed. Local lint/types passed before final access-revocation/focus refinements. Hosted final checks pending. Owner currently cannot access the signed-in fitment workspace; fresh real-role review stays pending, with no repeat sign-in request in this batch.
