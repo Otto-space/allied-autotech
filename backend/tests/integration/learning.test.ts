@@ -261,13 +261,25 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       const cases: [Identity, string[], string[]][] = [
         [
           f.operations,
-          ["mixed-queues", "care-triage", "sales-enquiries"],
-          ["finance-meaning", "customer-account-review"],
+          [
+            "mixed-queues",
+            "care-triage",
+            "sales-enquiries",
+            "customer-account-review",
+            "vehicle-operations",
+          ],
+          ["finance-meaning", "privileged-recovery", "financial-policy-work"],
         ],
         [
           f.scopedAdmin,
-          ["mixed-queues", "access-review"],
-          ["customer-account-review", "care-triage"],
+          [
+            "mixed-queues",
+            "access-review",
+            "customer-account-review",
+            "care-triage",
+            "vehicle-operations",
+          ],
+          ["privileged-recovery", "financial-policy-work"],
         ],
         [f.care, ["care-triage"], ["finance-meaning", "customer-account-review"]],
         [f.cashier, ["sales-enquiries"], ["care-triage", "finance-meaning"]],

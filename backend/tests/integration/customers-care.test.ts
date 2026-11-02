@@ -40,8 +40,14 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         .send({ expectedStatus, status, reason });
     it("requires administrator, assurance, CSRF, bounded reason and current customer role", async () => {
       const id = f.customer.user.profile!.id;
-      for (const account of [f.customer, f.care, f.operations])
+      for (const account of [f.customer, f.care])
         expect((await change(id, account.headers)).status).toBe(403);
+      // An enrolled Admin now has full operations. Use a separate customer so
+      // this accepted restriction cannot revoke another case's shared session.
+      const operationsTarget = await f.account(null, "CUSTOMER");
+      expect(
+        (await change(operationsTarget.user.profile!.id, f.operations.headers)).status,
+      ).toBe(200);
       const noCsrf = { ...admin.headers };
       delete noCsrf["X-CSRF-Token"];
       expect((await change(id, noCsrf)).status).toBe(403);

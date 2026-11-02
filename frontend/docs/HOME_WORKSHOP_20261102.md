@@ -1,6 +1,6 @@
-# Home and About workshop restoration ? 2 November 2026
+# Home and About workshop restoration - 2 November 2026
 
-Released source `1224d942d0e8cd76315786e735bc56185dc51c22` is live on
+Released source `1224d942d0e8cd76315786e735bc56185dc51c22` was published on
 `alliedautotech.com` and `www.alliedautotech.com` (www redirects to apex).
 Frontend: `dpl_Ehmd5TkgUMnWp2CHHZoUmp7CiTZL`; backend:
 `dea3489e-0d93-4aad-9e0d-998fae51190b`, ACTIVE, 16/16 steps, four matching digests.
@@ -11,7 +11,7 @@ as part of this publication.
 
 The complete owner brief dated 1 November, its asset register, all 15 photographs
 and Sheet1 of `AUTHORIZED SERVICE PRICE.xlsx` were inspected. Actual photographs
-are 5616?3744 (portraits 3744?5616), larger than the brief's reference dimensions.
+are 5616 x 3744 (portraits 3744 x 5616), larger than the brief's reference dimensions.
 Originals remain unchanged. `scripts/prepare-workshop-assets.mjs` creates 13
 metadata-stripped WebP variants, 2,547,642 bytes total, through the existing Sharp
 pipeline. `workshop-asset-manifest.json` records all 15 original names, hashes,
@@ -128,22 +128,22 @@ actual native background-tab switching, physical-phone Safari/Chrome, full scree
 reader use and field performance percentiles remain untested. Existing fixture-gated
 Home/brand suites remain skipped where their fixture server was unavailable.
 Automatic approval review rejected starting the local production server with only
-?blocked by policy?; no equivalent start command was retried. Hosted production
+"blocked by policy"; no equivalent start command was retried. Hosted production
 builds supplied rendered evidence instead.
 
 ## Comparable lab samples and safe screenshots
 
-Fresh Edge headless contexts, 390/1440?1000, reduced motion, network idle, no CPU or
+Fresh Edge headless contexts, 390/1440 x 1000, reduced motion, network idle, no CPU or
 network throttling. These are individual lab samples, not field percentiles or a
 universal speed guarantee. Click-to-paint is a two-animation-frame sample, not INP.
 Image transfer accounting can reflect cache behavior.
 
-| Route / width | LCP before ? public after | CLS before ? after  | Measured image bytes before ? after |
-| ------------- | ------------------------- | ------------------- | ----------------------------------- |
-| Home 390      | 4272 ? 2328ms             | 0 ? 0.000004        | 101440 ? 114520                     |
-| Home 1440     | 1656 ? 1572ms             | 0.000477 ? 0.000087 | 203918 ? 306666                     |
-| About 390     | 1556 ? 1312ms             | 0.000004 ? 0.000004 | 0 ? 140636                          |
-| About 1440    | 1288 ? 1164ms             | 0.000166 ? 0.000166 | 59152 ? 122698                      |
+| Route / width | LCP before -> public after | CLS before -> after  | Measured image bytes before -> after |
+| ------------- | -------------------------- | -------------------- | ------------------------------------ |
+| Home 390      | 4272 -> 2328ms             | 0 -> 0.000004        | 101440 -> 114520                     |
+| Home 1440     | 1656 -> 1572ms             | 0.000477 -> 0.000087 | 203918 -> 306666                     |
+| About 390     | 1556 -> 1312ms             | 0.000004 -> 0.000004 | 0 -> 140636                          |
+| About 1440    | 1288 -> 1164ms             | 0.000166 -> 0.000166 | 59152 -> 122698                      |
 
 Public Home click-to-paint was 23.1/33.5ms. All four after samples had no overflow
 or page errors. About's zero before-transfer sample is a cache-accounting limit,
