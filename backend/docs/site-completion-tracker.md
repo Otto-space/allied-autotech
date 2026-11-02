@@ -1,3 +1,24 @@
+### 2 November 2026: Complete-audit batch published; full goal remains active
+
+Runtime 022a8a0609e377dcb2c794e6eb0e9f48ff90cf56 is on apex/www as frontend
+dpl_GpKYZ8EeuUwpiuxFbzsHuARDHp9X with matching ACTIVE backend
+d129d4df-56db-477f-9928-c84362f2d825, 16/16, four digests, readiness 200 and
+8 fresh workers. Exact-source frontend 41505612149 (1,346 passed / 12 existing
+skips), backend 41505544748 and secrets 41505544949 pass. Native isolated HTTP
+48/48, packaged 10/10, held browser 99/99, published browser 22/22 and both-alias
+anonymous HTTP 12/12 pass. Protected browser cases use synthetic role records.
+Fresh backup/read-only TLS/schema/privilege/workers/firewall checks pass; same-day
+populated restore reused only for unchanged schema/scripts. No business records,
+prices, permissions, migrations or activation flags changed. Actual public v4/v15
+learning and private 404 pass; actual account/device/provider acceptance is separate.
+
+Authoritative current scope remains the requirement ledger in the UI quality register.
+Next engineering item is shared runtime capabilities, followed by coherent account-optional
+purchasing. No whole-site launch-readiness claim. Genuine product facts, recorded finance
+decisions and operational/provider acceptance remain outstanding. Full results, retained
+failed attempts, safe public pictures and policy-blocked synthetic cleanup are recorded in
+[Full audit implementation](../../docs/LIVE_AUDIT_IMPLEMENTATION_20261102.md).
+
 ### 2 November 2026: Full supplied audit is the active scope
 
 The complete owner audit has now been read and reconciled against deployed 9be4e66b.

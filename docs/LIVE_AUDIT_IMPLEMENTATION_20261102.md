@@ -5,6 +5,48 @@ The current requirement ledger is frontend/docs/UI_UX_QUALITY_REGISTER.md; this
 report records a bounded implementation package, not a second backlog or a claim
 that the whole site is ready. Package start: 17:31 UTC; 60-minute review: 18:31 UTC.
 
+## Published audit batch - 2 November 2026, 19:42 UTC
+
+Runtime **022a8a0609e377dcb2c794e6eb0e9f48ff90cf56** is published on apex/www as
+frontend **dpl_GpKYZ8EeuUwpiuxFbzsHuARDHp9X** and matching ACTIVE backend
+**d129d4df-56db-477f-9928-c84362f2d825**, 16/16 components, four verified digests,
+readiness 200 and eight fresh workers. No schema, business-row, price, grant or
+activation flag changed. Earlier pending/source-only statements below are historical.
+
+Exact-source GitHub gates pass: frontend **41505612149** (1,346 passed, 12 existing
+skips), backend **41505544748** and secrets **41505544949**. The isolated native
+PostgreSQL run passes **48/48** authenticated HTTP checks in two newly created
+CI databases with 87-migration replay, no drift and non-owner runtime roles.
+Packaged images pass **10/10**; held deployment **99/99** browser cases pass with
+no skips/flaky cases; the published domain passes **22/22** browser cases plus
+**12** anonymous HTTP checks across both aliases. Protected role data/provider
+responses in browser tests are fixtures, not real-role or delivery acceptance.
+The first deployed browser invocation used the wrong working directory and failed
+one fixture image lookup; the complete rerun from frontend passes all 22.
+
+Release checks verify a fresh backup, strict TLS, schema/runtime least privilege,
+worker health and restored temporary firewall rules. The same-day populated restore
+at 09:33 UTC is reused only because schema/safety scripts are unchanged; it is not
+a new restore rehearsal. Production writes were limited to deploying image digests.
+Public learning home-next-step v4/service-request v15 and private-guide 404 pass on
+both domains. Eligibility, destinations and feature flags are unchanged.
+
+Final safe after pictures are anonymous reads of the published application, not
+local fixture renders. Contact pictures were recaptured after genuine branch
+options loaded. All captures made zero API writes. Real-account, provider test-mode,
+physical-device/Safari and full screen-reader acceptance remain unperformed.
+
+C: measured **25.12 GiB free** at the final preflight. Four newly published images
+and existing release/rollback images, volumes and useful caches are retained.
+Automatic approval review blocked recursive cleanup of two stopped task-created
+failed synthetic PostgreSQL data directories with the reason "blocked by policy".
+They remain untouched; this action was not retried through another mechanism.
+Three separate temporary provider-auth files were removed nonrecursively.
+
+The full audit goal remains active: authoritative runtime capability convergence
+and account-optional purchasing still require implementation. Browsing/enquiries
+remain the launch scope; operational/financial/provider acceptance is not inferred.
+
 ## Implemented source
 
 - Public combined search reads only anonymous published Services, Shop, Vehicles
@@ -99,9 +141,9 @@ Calendar/role images contain synthetic records only. Early screenshots containin
 loading/missing fixture imagery are retained but are not final comparison evidence.
 
 [Contact before, 320px](C:/Users/PC/AppData/Local/Temp/aat-full-audit-20261102/before-settled-contact-320.png)
-[Contact after, 320px](C:/Users/PC/AppData/Local/Temp/aat-full-audit-20261102/after-local-contact-320.png)
+[Contact after, 320px](C:/Users/PC/AppData/Local/Temp/aat-full-audit-20261102/after-public-contact-320.png)
 [Vehicle before, 1440px](C:/Users/PC/AppData/Local/Temp/aat-full-audit-20261102/before-settled-vehicle-1440.png)
-[Vehicle after, 1440px](C:/Users/PC/AppData/Local/Temp/aat-full-audit-20261102/after-local-vehicle-1440.png)
+[Vehicle after, 1440px](C:/Users/PC/AppData/Local/Temp/aat-full-audit-20261102/after-public-vehicle-1440.png)
 [Calendar after, 320px](C:/Users/PC/AppData/Local/Temp/aat-full-audit-20261102/calendar-fixed/booking-calendar-owned-app-f0406-election-and-close-at-320px/calendar-320.png)
 
 ## Hour-boundary checkpoint

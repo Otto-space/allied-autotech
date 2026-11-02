@@ -1,3 +1,13 @@
+## 2 November 2026 complete-audit publication update
+
+Runtime 022a8a06 publishes public home-next-step v4 and service-request v15.
+Anonymous reads verify both versions on apex/www; private guidance remains 404.
+Calendar and explicit Enable invitation checks pass in held and deployed fixtures;
+isolated authenticated learning/calendar HTTP checks pass. Eligibility, guide targets
+and activation flags are unchanged. Actual account/provider/device acceptance is
+unperformed. Earlier pending statements below are historical. See
+`docs/LIVE_AUDIT_IMPLEMENTATION_20261102.md` for the exact release and check receipts.
+
 ## 2 November complete-audit guidance checkpoint (source)
 
 Public home-next-step v4 describes combined services/products/vehicles/public-Help
