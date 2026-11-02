@@ -200,7 +200,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       expect(privacy.body.data).toMatchObject({
         id: "privacy-and-allie",
         href: "/privacy",
-        version: 1,
+        version: 2,
       });
       expect(privacy.body.data.steps.join(" ")).toContain(
         "does not promise provider deletion",

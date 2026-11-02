@@ -1,3 +1,13 @@
+### 2 November 2026: Privacy guidance v2 HTTP expectation corrected
+
+The reconciled 95a7f45c backend CI reached the real isolated learning HTTP checks:
+10 passed, one failed because the public privacy article assertion still expected
+version 1. The expectation now matches the deliberate v2 editorial revision;
+public eligibility, private-content 404, no-store/cache and provider-deletion
+assertions remain intact. New exact-source CI and held rendered acceptance remain
+required. This is our privacy correction, separate from the other agent's vehicle
+operations rollout. Frontend production remains d9473ad9 until release gates pass.
+
 ### 2 November 2026: Plain-language Allie privacy explanations
 
 Brief sections 3, 4 and 14: actual /privacy inspection confirmed customer-facing
