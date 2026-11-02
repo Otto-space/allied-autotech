@@ -61,40 +61,42 @@ export function CustomerFilterPicker({
       ? `${selected.data.firstName} ${selected.data.lastName} · ${selected.data.email}`
       : "Customer reference selected";
   return (
-    <div className="field customer-filter-picker">
-      <label htmlFor={`${id}-choice`}>Customer (optional)</label>
-      <select
-        id={`${id}-choice`}
-        value={value}
-        disabled={disabled || busy}
-        onChange={(event) => onChange(event.target.value)}
-      >
-        <option value="">All customers</option>
-        {value && !choices.some((row) => row.id === value) && (
-          <option value={value}>{selectedName}</option>
+    <div className="customer-filter-picker">
+      <div className="field customer-filter-selection">
+        <label htmlFor={`${id}-choice`}>Customer (optional)</label>
+        <select
+          id={`${id}-choice`}
+          value={value}
+          disabled={disabled || busy}
+          onChange={(event) => onChange(event.target.value)}
+        >
+          <option value="">All customers</option>
+          {value && !choices.some((row) => row.id === value) && (
+            <option value={value}>{selectedName}</option>
+          )}
+          {choices.map((row) => (
+            <option key={row.id} value={row.id}>
+              {row.firstName} {row.lastName} · {row.email}
+            </option>
+          ))}
+        </select>
+        {value && (selected.error || selected.refreshError) && (
+          <div>
+            <p className="field-hint">
+              The selected customer details are unavailable. The reference filter is
+              retained.
+            </p>
+            <button
+              type="button"
+              className="text-link"
+              disabled={disabled || selected.loading || selected.refreshing}
+              onClick={selected.refresh}
+            >
+              Retry selected customer
+            </button>
+          </div>
         )}
-        {choices.map((row) => (
-          <option key={row.id} value={row.id}>
-            {row.firstName} {row.lastName} · {row.email}
-          </option>
-        ))}
-      </select>
-      {value && (selected.error || selected.refreshError) && (
-        <div>
-          <p className="field-hint">
-            The selected customer details are unavailable. The reference filter is
-            retained.
-          </p>
-          <button
-            type="button"
-            className="text-link"
-            disabled={disabled || selected.loading || selected.refreshing}
-            onClick={selected.refresh}
-          >
-            Retry selected customer
-          </button>
-        </div>
-      )}
+      </div>
       <details>
         <summary>Find a customer</summary>
         <div className="field">
@@ -153,7 +155,7 @@ export function CustomerFilterPicker({
           <>
             <p role="status">
               {choices.length
-                ? `${choices.length} customers on this page. Choose one above.`
+                ? `${choices.length} ${choices.length === 1 ? "customer" : "customers"} on this page. Choose from the Customer field.`
                 : "No customers match this search."}
             </p>
             <CursorPagination

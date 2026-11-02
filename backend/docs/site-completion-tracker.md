@@ -4616,3 +4616,5 @@ published readable labels; no contract or permission was relaxed.
 Customer-filter review correction: attached the manual-input focus ref and added collapsed invalid-reference focus recovery coverage before candidate publication.
 
 Customer-filter hosted fixture correction: the new synthetic directory response omitted required message metadata and was correctly rejected by the API client. Corrected fixture envelope only; runtime validation remains strict. Initial hosted failure is retained, and final-source CI/acceptance must pass before publication.
+
+Customer-filter visual correction: inspected 320/1440 captures and moved expanded search into a separate full-width filter row, preventing desktop controls from bottom-aligning beside a tall search panel. Recovery test now waits for applied filter navigation before reload. Runtime validation and access guards are unchanged. Previous full hosted run: 41 passed; recovery assertion race corrected and rerun passed; private-evidence synthetic storage URL is rejected by the production allowlist and remains separately unverified.

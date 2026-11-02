@@ -20,3 +20,24 @@
   flex-wrap: wrap;
   gap: 8px;
 }
+.wp-filters:has(.customer-filter-picker) fieldset {
+  grid-template-columns: 1fr 1fr auto;
+}
+.wp-filters .customer-filter-picker {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: start;
+  gap: 16px;
+  min-width: 0;
+}
+@media (max-width: 760px) {
+  .wp-filters:has(.customer-filter-picker) fieldset,
+  .wp-filters .customer-filter-picker {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .wp-filters .customer-filter-picker {
+    grid-row: auto;
+  }
+}

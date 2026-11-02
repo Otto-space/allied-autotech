@@ -690,6 +690,7 @@ test("customer search failure retries and revoked detail access removes the sele
     .getByLabel("Customer (optional)", { exact: true })
     .selectOption(c.rows[0].id);
   await button(page, "Apply payment filters").click();
+  await expect(page).toHaveURL(new RegExp(`customerId=${c.rows[0].id}`));
   await expect(page.getByRole("option", { name: /Amina Okafor ·/ })).toHaveCount(1);
   c.state.detailDenied = true;
   await page.reload();
