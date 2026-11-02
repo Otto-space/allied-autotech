@@ -1,5 +1,6 @@
 ﻿"use client";
 import Link from "next/link";
+import { CareTableRegion } from "./care-table-region";
 import { bookingReferenceLabel } from "@/lib/booking-appointment";
 import { useSearchParams } from "next/navigation";
 import { useLayoutEffect, useRef, useState, type FormEvent } from "react";
@@ -197,72 +198,74 @@ function BookingList({ admin }: { admin: boolean }) {
           </div>
         )}
         {data && data.items.length > 0 && (
-          <table className="work-booking-table">
-            <caption className="sr-only">
-              Workshop booking records. Appointments are shown in Lagos time.
-            </caption>
-            <thead>
-              <tr>
-                <th scope="col">Service &amp; appointment</th>
-                <th scope="col">Branch</th>
-                <th scope="col">Status</th>
-                <th scope="col">Assigned staff</th>
-                <th scope="col">Vehicle</th>
-                <th scope="col">
-                  <span className="sr-only">View</span>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.items.map((booking) => (
-                <tr key={booking.id}>
-                  <td className="work-booking-service">
-                    <Link href={`/admin/bookings/${booking.id}`} prefetch={false}>
-                      <strong>{booking.service?.name ?? "Vehicle concern"}</strong>
-                      <span>{formatBusinessDate(booking.scheduledAt)}</span>
-                      <span className="work-booking-ref">
-                        Ref {bookingReferenceLabel(booking.id)}
-                      </span>
-                    </Link>
-                  </td>
-                  <td data-label="Branch">{booking.branch?.name ?? "Not assigned"}</td>
-                  <td className="work-booking-status" data-label="Status">
-                    <span>{bookingLabel(booking.status)}</span>
-                  </td>
-                  <td data-label="Assigned staff">
-                    {booking.assignedStaff
-                      ? `${booking.assignedStaff.firstName} ${booking.assignedStaff.lastName}`
-                      : "Not assigned"}
-                  </td>
-                  <td data-label="Vehicle">
-                    <div>
-                      {booking.vehicle ? (
-                        <>
-                          {booking.vehicle.year} {booking.vehicle.make}{" "}
-                          {booking.vehicle.model}
-                          {booking.vehicle.registrationNumber && (
-                            <p>{booking.vehicle.registrationNumber}</p>
-                          )}
-                        </>
-                      ) : (
-                        "Not linked"
-                      )}
-                    </div>
-                  </td>
-                  <td className="work-booking-action">
-                    <Link
-                      href={`/admin/bookings/${booking.id}`}
-                      prefetch={false}
-                      aria-label={`View booking: ${booking.service?.name ?? "Vehicle concern"}`}
-                    >
-                      <span>View booking</span>
-                      <ArrowUpRight size={18} aria-hidden="true" />
-                    </Link>
-                  </td>
+          <CareTableRegion label="Workshop booking records">
+            <table className="work-booking-table">
+              <caption className="sr-only">
+                Workshop booking records. Appointments are shown in Lagos time.
+              </caption>
+              <thead>
+                <tr>
+                  <th scope="col">Service &amp; appointment</th>
+                  <th scope="col">Branch</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Assigned staff</th>
+                  <th scope="col">Vehicle</th>
+                  <th scope="col">
+                    <span className="sr-only">View</span>
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {data.items.map((booking) => (
+                  <tr key={booking.id}>
+                    <td className="work-booking-service">
+                      <Link href={`/admin/bookings/${booking.id}`} prefetch={false}>
+                        <strong>{booking.service?.name ?? "Vehicle concern"}</strong>
+                        <span>{formatBusinessDate(booking.scheduledAt)}</span>
+                        <span className="work-booking-ref">
+                          Ref {bookingReferenceLabel(booking.id)}
+                        </span>
+                      </Link>
+                    </td>
+                    <td data-label="Branch">{booking.branch?.name ?? "Not assigned"}</td>
+                    <td className="work-booking-status" data-label="Status">
+                      <span>{bookingLabel(booking.status)}</span>
+                    </td>
+                    <td data-label="Assigned staff">
+                      {booking.assignedStaff
+                        ? `${booking.assignedStaff.firstName} ${booking.assignedStaff.lastName}`
+                        : "Not assigned"}
+                    </td>
+                    <td data-label="Vehicle">
+                      <div>
+                        {booking.vehicle ? (
+                          <>
+                            {booking.vehicle.year} {booking.vehicle.make}{" "}
+                            {booking.vehicle.model}
+                            {booking.vehicle.registrationNumber && (
+                              <p>{booking.vehicle.registrationNumber}</p>
+                            )}
+                          </>
+                        ) : (
+                          "Not linked"
+                        )}
+                      </div>
+                    </td>
+                    <td className="work-booking-action">
+                      <Link
+                        href={`/admin/bookings/${booking.id}`}
+                        prefetch={false}
+                        aria-label={`View booking: ${booking.service?.name ?? "Vehicle concern"}`}
+                      >
+                        <span>View booking</span>
+                        <ArrowUpRight size={18} aria-hidden="true" />
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </CareTableRegion>
         )}
         {data?.items.length === 0 && (
           <div className="work-booking-state">

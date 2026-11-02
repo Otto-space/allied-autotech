@@ -447,3 +447,21 @@
     transition: none;
   }
 }
+
+.work-vehicle-stock .ws-table-region {
+  border: 0;
+  border-radius: 0;
+}
+.work-vehicle-stock .ws-row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+.work-vehicle-stock .ws-stock-number {
+  margin-top: 4px;
+}
+.work-vehicle-stock .ws-row-actions .button {
+  font-size: 13px;
+  font-weight: 700;
+}

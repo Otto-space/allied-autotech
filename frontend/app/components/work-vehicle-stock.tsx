@@ -27,6 +27,9 @@ import {
 } from "@/lib/admin/work-vehicle-stock";
 import { formatKobo } from "@/lib/format/money";
 import { useAccountSession, useOwnStaffPermissions } from "./dashboard-shell";
+import { CareTableRegion } from "./care-table-region";
+import { CopyableValue } from "./copyable-value";
+import { StatusBadge } from "./status-progress";
 import { Feedback } from "./feedback";
 import { PublicMedia } from "./public-media";
 import { AdminBranchPicker } from "./admin-branch-picker";
@@ -253,7 +256,9 @@ function StockWorkspace({ role, branchId }: { role: string; branchId?: string | 
                 </button>
               </div>
             )}
-            {data && data.items.length > 0 && <StockTable rows={data.items} />}
+            {data && data.items.length > 0 && (
+              <StockTable rows={data.items} editable={!blocked} />
+            )}
             {!busy && !error && data?.items.length === 0 && (
               <div className="work-service-state">
                 <h3>
@@ -425,7 +430,7 @@ function StockFilters({
     </section>
   );
 }
-function StockTable({ rows }: { rows: WorkStockVehicle[] }) {
+function StockTable({ rows, editable }: { rows: WorkStockVehicle[]; editable: boolean }) {
   const transmission = {
     AUTOMATIC: "Automatic",
     MANUAL: "Manual",
@@ -433,82 +438,107 @@ function StockTable({ rows }: { rows: WorkStockVehicle[] }) {
     OTHER: "Other transmission",
   } as const;
   return (
-    <table className="ws-table" aria-label="Vehicle stock">
-      <thead>
-        <tr>
-          <th scope="col">Vehicle</th>
-          <th scope="col">Branch</th>
-          <th scope="col">Sale listings</th>
-        </tr>
-      </thead>
-      <tbody>
-        {rows.map((row) => {
-          const image = row.images.find((image) => image.isPrimary) ?? row.images[0],
-            name = `${row.year} ${row.make} ${row.model}`;
-          return (
-            <tr key={row.id}>
-              <th scope="row">
-                <div className="ws-vehicle">
-                  <div className="ws-thumb">
-                    <PublicMedia
-                      key={image?.url ?? row.id}
-                      src={image?.url}
-                      alt={image?.altText ?? name}
-                      stockPreview
-                      sizes="88px"
-                      fallbackIcon={<CarFront size={24} strokeWidth={1.5} />}
-                    />
-                  </div>
-                  <div className="ws-vehicle-copy">
-                    <Link
-                      href={`/admin/vehicles/${row.id}`}
-                      aria-label={`Manage ${name} (${row.stockNumber})`}
-                    >
-                      {name}
-                    </Link>
-                    <p className="ws-stock-number">{row.stockNumber}</p>
-                    {row.trim && <p>{row.trim}</p>}
-                    <p className="ws-specs">
-                      {row.condition === "NEW" ? "New" : "Used"} ·{" "}
-                      {row.mileageKm === null
-                        ? "Mileage not recorded"
-                        : `${row.mileageKm.toLocaleString("en-NG")} km`}
-                      {row.transmission ? ` · ${transmission[row.transmission]}` : ""}
-                    </p>
-                  </div>
-                </div>
-              </th>
-              <td data-label="Branch">
-                <span className="ws-branch-name">{row.branch.name}</span>
-                <span className="ws-branch-code">{row.branch.code}</span>
-                {!row.branch.isActive && (
-                  <span className="ws-inactive">Inactive branch</span>
-                )}
-              </td>
-              <td data-label="Sale listings">
-                {row.listings.length ? (
-                  row.listings.map((listing) => (
-                    <div className="ws-listing" key={listing.id}>
-                      <div>
-                        <span className="ws-listing-title">{listing.title}</span>
-                        <span className="ws-listing-status" data-status={listing.status}>
-                          {stockStatusLabels[listing.status]}
-                        </span>
-                      </div>
-                      <p className="ws-price">{formatKobo(listing.priceKobo)}</p>
+    <CareTableRegion label="Vehicle stock records" className="ws-table-region">
+      <table className="ws-table" aria-label="Vehicle stock">
+        <thead>
+          <tr>
+            <th scope="col">Vehicle</th>
+            <th scope="col">Branch</th>
+            <th scope="col">Sale listings</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => {
+            const image = row.images.find((image) => image.isPrimary) ?? row.images[0],
+              name = `${row.year} ${row.make} ${row.model}`;
+            return (
+              <tr key={row.id}>
+                <th scope="row">
+                  <div className="ws-vehicle">
+                    <div className="ws-thumb">
+                      <PublicMedia
+                        key={image?.url ?? row.id}
+                        src={image?.url}
+                        alt={image?.altText ?? name}
+                        stockPreview
+                        sizes="88px"
+                        fallbackIcon={<CarFront size={24} strokeWidth={1.5} />}
+                      />
                     </div>
-                  ))
-                ) : (
-                  <div className="ws-unlisted">
-                    <span>Not listed</span>
-                    <p>This stock record has no sale listing.</p>
+                    <div className="ws-vehicle-copy">
+                      <Link
+                        href={`/admin/vehicles/${row.id}`}
+                        aria-label={`Manage ${name} (${row.stockNumber})`}
+                      >
+                        {name}
+                      </Link>
+                      <div className="ws-stock-number">
+                        <CopyableValue
+                          value={row.stockNumber}
+                          label={`Copy stock number ${row.stockNumber}`}
+                        />
+                      </div>
+                      {row.trim && <p>{row.trim}</p>}
+                      <p className="ws-specs">
+                        {row.condition === "NEW" ? "New" : "Used"} ·{" "}
+                        {row.mileageKm === null
+                          ? "Mileage not recorded"
+                          : `${row.mileageKm.toLocaleString("en-NG")} km`}
+                        {row.transmission ? ` · ${transmission[row.transmission]}` : ""}
+                      </p>
+                      <div className="ws-row-actions">
+                        <Link
+                          className="button secondary"
+                          href={`/admin/vehicles/${row.id}`}
+                          aria-label={`View details for ${name} (${row.stockNumber})`}
+                        >
+                          View details
+                        </Link>
+                        {editable && (
+                          <Link
+                            className="button secondary"
+                            href={`/admin/vehicles/${row.id}#vehicle-record-editor`}
+                            aria-label={`Edit details for ${name} (${row.stockNumber})`}
+                          >
+                            Edit details
+                          </Link>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                )}
-              </td>
-            </tr>
-          );
-        })}
-      </tbody>
-    </table>
+                </th>
+                <td data-label="Branch">
+                  <span className="ws-branch-name">{row.branch.name}</span>
+                  <span className="ws-branch-code">{row.branch.code}</span>
+                  {!row.branch.isActive && (
+                    <span className="ws-inactive">Inactive branch</span>
+                  )}
+                </td>
+                <td data-label="Sale listings">
+                  {row.listings.length ? (
+                    row.listings.map((listing) => (
+                      <div className="ws-listing" key={listing.id}>
+                        <div>
+                          <span className="ws-listing-title">{listing.title}</span>
+                          <StatusBadge status={listing.status}>
+                            {stockStatusLabels[listing.status]}
+                          </StatusBadge>
+                        </div>
+                        <p className="ws-price">{formatKobo(listing.priceKobo)}</p>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="ws-unlisted">
+                      <span>Not listed</span>
+                      <p>This stock record has no sale listing.</p>
+                    </div>
+                  )}
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </CareTableRegion>
   );
 }

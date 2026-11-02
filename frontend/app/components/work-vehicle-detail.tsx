@@ -113,6 +113,7 @@ function DetailWorkspace({
   branchId?: string | null;
   refreshAccess: () => void;
 }) {
+  const editorPanel = useRef<HTMLDetailsElement>(null);
   const seen = useRef<StockDetail | undefined>(undefined),
     minimumVersion = useRef(0),
     active = useRef(true),
@@ -174,6 +175,25 @@ function DetailWorkspace({
     error = resource.error || resource.refreshError,
     busy = resource.loading || resource.refreshing || checking;
   const disabled = busy || !!error || !!proposal || !!pending || awaiting || !current;
+  function openRecordEditor() {
+    const panel = editorPanel.current;
+    if (!panel) return;
+    panel.open = true;
+    panel.querySelector("summary")?.focus();
+  }
+  useEffect(() => {
+    let mounted = true;
+    const reveal = () => {
+      if (mounted && window.location.hash === "#vehicle-record-editor")
+        openRecordEditor();
+    };
+    queueMicrotask(reveal);
+    window.addEventListener("hashchange", reveal);
+    return () => {
+      mounted = false;
+      window.removeEventListener("hashchange", reveal);
+    };
+  }, [current?.id, generation]);
   function identity(signal: AbortSignal) {
     if (!active.current || signal.aborted || draftIdentity() !== `${owner}:${role}`)
       throw Error("Vehicle account changed");
@@ -419,6 +439,16 @@ function DetailWorkspace({
           )}
         </div>
         <div className="actions">
+          {current && (
+            <button
+              type="button"
+              className="button secondary"
+              disabled={disabled}
+              onClick={openRecordEditor}
+            >
+              Edit details
+            </button>
+          )}
           <button
             className="button secondary"
             disabled={busy || !!proposal}
@@ -497,7 +527,7 @@ function DetailWorkspace({
       )}
       {current && (
         <div key={generation}>
-          <nav className="vd-sections" aria-label="Vehicle record sections">
+          <nav className="vd-sections" aria-label="Vehicle record sections" tabIndex={0}>
             <a href="#vehicle-record-details">Record details</a>
             <a href="#vehicle-sale-listings">Sale listings</a>
             <a href="#vehicle-photos">Vehicle photos</a>
@@ -569,7 +599,11 @@ function DetailWorkspace({
             </section>
           </div>
           <VehicleOwnerDisclosure vehicle={current} />
-          <details className="detail-section vd-record-editor">
+          <details
+            className="detail-section vd-record-editor"
+            id="vehicle-record-editor"
+            ref={editorPanel}
+          >
             <summary>Edit vehicle specifications</summary>
             <VehicleRecordForm
               key={current.id}

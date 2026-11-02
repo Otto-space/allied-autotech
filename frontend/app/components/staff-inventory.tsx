@@ -1,5 +1,7 @@
 "use client";
 import Link from "next/link";
+import { CopyableValue } from "./copyable-value";
+import { CareTableRegion } from "./care-table-region";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import {
@@ -372,57 +374,64 @@ function StockFilters({
 }
 function StockTable({ rows }: { rows: Inventory[] }) {
   return (
-    <table className="wi-table" aria-label="Parts inventory">
-      <thead>
-        <tr>
-          {["Part & branch", "On hand", "Reserved", "Available", "Reorder level"].map(
-            (label) => (
-              <th key={label} scope="col">
-                {label}
-              </th>
-            ),
-          )}
-        </tr>
-      </thead>
-      <tbody>
-        {rows.map((row) => (
-          <tr key={row.id}>
-            <th scope="row">
-              <Link href={`/admin/inventory/${row.id}`} className="text-link">
-                {row.product.name}
-              </Link>
-              <span className="wi-meta">{row.product.sku}</span>
-              <span className="wi-meta">
-                {row.branch.name}
-                {row.branch.isActive ? "" : " (inactive branch)"}
-              </span>
-              {(!row.product.isActive || !row.product.category.isActive) && (
-                <span className="wi-meta">
-                  {!row.product.isActive ? "Inactive part" : "Inactive category"}
-                </span>
-              )}
-            </th>
-            {(
-              [
-                ["On hand", row.quantity],
-                ["Reserved", row.reserved],
-                ["Available", row.available],
-                ["Reorder level", row.reorderLevel],
-              ] as const
-            ).map(([label, value]) => (
-              <td key={label}>
-                <span className="wi-mobile-label" aria-hidden="true">
+    <CareTableRegion label="Parts inventory records">
+      <table className="wi-table" aria-label="Parts inventory">
+        <thead>
+          <tr>
+            {["Part & branch", "On hand", "Reserved", "Available", "Reorder level"].map(
+              (label) => (
+                <th key={label} scope="col">
                   {label}
-                </span>
-                <span>{value}</span>
-                {label === "Available" && row.available <= row.reorderLevel && (
-                  <small className="wi-low">Low stock</small>
-                )}
-              </td>
-            ))}
+                </th>
+              ),
+            )}
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr key={row.id}>
+              <th scope="row">
+                <Link href={`/admin/inventory/${row.id}`} className="text-link">
+                  {row.product.name}
+                </Link>
+                <div className="wi-meta">
+                  <CopyableValue
+                    value={row.product.sku}
+                    label={`Copy SKU ${row.product.sku}`}
+                  />
+                </div>
+                <span className="wi-meta">
+                  {row.branch.name}
+                  {row.branch.isActive ? "" : " (inactive branch)"}
+                </span>
+                {(!row.product.isActive || !row.product.category.isActive) && (
+                  <span className="wi-meta">
+                    {!row.product.isActive ? "Inactive part" : "Inactive category"}
+                  </span>
+                )}
+              </th>
+              {(
+                [
+                  ["On hand", row.quantity],
+                  ["Reserved", row.reserved],
+                  ["Available", row.available],
+                  ["Reorder level", row.reorderLevel],
+                ] as const
+              ).map(([label, value]) => (
+                <td key={label}>
+                  <span className="wi-mobile-label" aria-hidden="true">
+                    {label}
+                  </span>
+                  <span>{value}</span>
+                  {label === "Available" && row.available <= row.reorderLevel && (
+                    <small className="wi-low">Low stock</small>
+                  )}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </CareTableRegion>
   );
 }

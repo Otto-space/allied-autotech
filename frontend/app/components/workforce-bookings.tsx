@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { CareTableRegion } from "./care-table-region";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ChevronRight, RefreshCw, Search } from "lucide-react";
 import { useResource } from "@/lib/api/use-resource";
@@ -180,80 +181,82 @@ export function WorkforceBookings({
             <div className="wfb-skeleton" aria-hidden="true" />
           </div>
         ) : data?.items.length ? (
-          <table>
-            <caption className="sr-only">
-              Bookings in your current responsibility scope
-            </caption>
-            <thead>
-              <tr>
-                <th scope="col">Service</th>
-                <th scope="col">Customer</th>
-                <th scope="col">Vehicle</th>
-                <th scope="col">Branch</th>
-                <th scope="col">Scheduled</th>
-                <th scope="col">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.items.map((booking) => (
-                <tr key={booking.id}>
-                  <th scope="row">
-                    <Link
-                      href={`/admin/workforce/bookings/${booking.id}`}
-                      prefetch={false}
-                    >
-                      {booking.service?.name ?? "Vehicle concern"}
-                    </Link>
-                  </th>
-                  <td data-label="Customer">
-                    <span>
-                      {[booking.customer.firstName, booking.customer.lastName]
-                        .filter(Boolean)
-                        .join(" ")}
-                    </span>
-                    <small>{booking.customer.phone}</small>
-                  </td>
-                  <td data-label="Vehicle">
-                    {booking.vehicle ? (
-                      <>
-                        <span>
-                          {[
-                            booking.vehicle.make,
-                            booking.vehicle.model,
-                            booking.vehicle.year,
-                          ]
-                            .filter((value) => value !== null)
-                            .join(" ")}
-                        </span>
-                        <small>
-                          {booking.vehicle.registrationNumber ??
-                            "Registration not recorded"}
-                        </small>
-                      </>
-                    ) : (
-                      <span>Vehicle not recorded</span>
-                    )}
-                  </td>
-                  <td data-label="Branch">
-                    <span>{booking.branch?.name ?? "Branch not recorded"}</span>
-                  </td>
-                  <td data-label="Scheduled">
-                    <time dateTime={booking.scheduledAt}>
-                      {formatBusinessDate(booking.scheduledAt)}
-                    </time>
-                  </td>
-                  <td data-label="Status">
-                    <span
-                      className={`wfb-status is-${booking.status.toLowerCase()}`}
-                      data-status={booking.status}
-                    >
-                      {bookingStatusLabels[booking.status]}
-                    </span>
-                  </td>
+          <CareTableRegion label="Permitted booking records">
+            <table>
+              <caption className="sr-only">
+                Bookings in your current responsibility scope
+              </caption>
+              <thead>
+                <tr>
+                  <th scope="col">Service</th>
+                  <th scope="col">Customer</th>
+                  <th scope="col">Vehicle</th>
+                  <th scope="col">Branch</th>
+                  <th scope="col">Scheduled</th>
+                  <th scope="col">Status</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {data.items.map((booking) => (
+                  <tr key={booking.id}>
+                    <th scope="row">
+                      <Link
+                        href={`/admin/workforce/bookings/${booking.id}`}
+                        prefetch={false}
+                      >
+                        {booking.service?.name ?? "Vehicle concern"}
+                      </Link>
+                    </th>
+                    <td data-label="Customer">
+                      <span>
+                        {[booking.customer.firstName, booking.customer.lastName]
+                          .filter(Boolean)
+                          .join(" ")}
+                      </span>
+                      <small>{booking.customer.phone}</small>
+                    </td>
+                    <td data-label="Vehicle">
+                      {booking.vehicle ? (
+                        <>
+                          <span>
+                            {[
+                              booking.vehicle.make,
+                              booking.vehicle.model,
+                              booking.vehicle.year,
+                            ]
+                              .filter((value) => value !== null)
+                              .join(" ")}
+                          </span>
+                          <small>
+                            {booking.vehicle.registrationNumber ??
+                              "Registration not recorded"}
+                          </small>
+                        </>
+                      ) : (
+                        <span>Vehicle not recorded</span>
+                      )}
+                    </td>
+                    <td data-label="Branch">
+                      <span>{booking.branch?.name ?? "Branch not recorded"}</span>
+                    </td>
+                    <td data-label="Scheduled">
+                      <time dateTime={booking.scheduledAt}>
+                        {formatBusinessDate(booking.scheduledAt)}
+                      </time>
+                    </td>
+                    <td data-label="Status">
+                      <span
+                        className={`wfb-status is-${booking.status.toLowerCase()}`}
+                        data-status={booking.status}
+                      >
+                        {bookingStatusLabels[booking.status]}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </CareTableRegion>
         ) : data ? (
           <div className="wfb-state">
             <h3>

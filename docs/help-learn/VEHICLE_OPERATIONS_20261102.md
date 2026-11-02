@@ -27,3 +27,13 @@ Allie's navigation allowlist includes the existing vehicle-management route. The
 catalogue remains the permission boundary: retrieval cannot reveal this article
 to public, customer, Staff or unverified accounts. Full-catalogue retrieval checks
 cover both administrators and the owner, including the permitted navigation action.
+
+## Version 2 authoring follow-up
+
+The reviewed source adds explicit View details and Edit details on each current
+stock row. Edit details opens the existing specification editor without saving;
+the header can reopen it. Record sections stay horizontal on laptop and scroll
+locally when needed. Price, branch, review, current-version, uncertainty and
+committed-listing checks remain authoritative. Eligibility and /admin/vehicles
+are unchanged. Version 1 publication above is historical; version 2 awaits this
+batch release. See docs/RECORD_AUTHORING_20261102.md for results and limitations.

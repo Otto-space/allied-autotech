@@ -1,3 +1,14 @@
+## 2 November 2026 record actions and launch wording checkpoint
+
+Private vehicle-operations v2 adds explicit View details / Edit details and the
+horizontal record-section navigation. Its vehicle-admin eligibility, destination,
+owner-only controls and financial boundaries are unchanged. Public vehicle-enquiry
+v5 explains the currently offered enquiry or inspection action and separate workshop
+confirmation; it promises neither a visit nor a vehicle reservation. Static Help
+follows the current public launch mode. No guide target or feature flag changed.
+Source verification is recorded in docs/RECORD_AUTHORING_20261102.md; publication
+is pending the exact-source gates and rendered acceptance.
+
 Publication update: service-request v14 and its customer date/countdown/optional
 alert UI are live from runtime c53530c4, frontend dpl_2Vzushd5TSdpqSNDVBt2cEhchVyE
 and ACTIVE backend 5a65ebbf-72b9-4941-8020-f55d94200e68. Anonymous article reads
@@ -82,7 +93,7 @@ mean a production publication. Feature flags remain off in committed examples.
 | privacy-work            | privacy              | 3 / 2026-10-27   | /admin/privacy               | PrivacyRouter assertCapability, hold protection and WorkPrivacy review/recovery                                                             |
 | financial-policy-work   | financial-policy     | 4 / 2026-11-02   | /admin/finance-policy        | readFinancePolicy and publishPolicy FINANCE branch, FinancePolicy current/version/review                                                    |
 | parts-fitment           | public               | 4 / 2026-11-01   | /parts                       | Parts discovery, fitment evidence and approved collection-only launch                                                                       |
-| vehicle-enquiry         | public               | 2 / 2026-10-26   | /vehicles                    | Vehicle discovery and listing-less enquiry contracts                                                                                        |
+| vehicle-enquiry         | public               | 5 / 2026-11-02   | /vehicles                    | Vehicle discovery and listing-less enquiry contracts                                                                                        |
 | service-request         | public               | 13 / 2026-11-01  | /services                    | Public launch mode and Services page                                                                                                        |
 | security-basics         | public               | 2 / 2026-10-26   | /forgot-password             | Identity recovery and published account security guidance                                                                                   |
 | no-live-lookup          | public               | 2 / 2026-10-26   | /help                        | Launch restrictions and existing status contracts                                                                                           |

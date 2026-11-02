@@ -170,3 +170,7 @@ allie-real-provider.spec.ts
 workforce-history.spec.ts
 # Revision 4 W11: separate explicit grants, populated work and active revocation.
 workforce-independent.spec.ts
+
+# 2 November record-authoring follow-up: isolated role fixtures; real-role acceptance separate.
+authoring-affordances.spec.ts
+launch-truth.spec.ts

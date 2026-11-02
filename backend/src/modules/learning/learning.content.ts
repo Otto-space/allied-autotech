@@ -90,7 +90,7 @@ export const learningArticles: LearningArticle[] = [
       "Admin and Super Admin can maintain vehicle stock, draft listings and asking prices with current verified access. Owner-only controls and separate financial approvals remain restricted.",
       [
         "Open Vehicle stock, choose Add vehicle record and enter the actual branch, stock number and known vehicle details. Preserve unknown values and review before confirming. A stock record does not publish a listing.",
-        "Open the stock record to edit known details or create a draft listing with an initial asking price. Use ungrouped NGN or correctly grouped commas, such as 55000000.00 or 55,000,000.00. Review the exact amount before saving.",
+        "Choose View details on a stock row to inspect its facts, or Edit details to open the existing specifications editor. The detail header also offers Edit details. Use the horizontal section links for listings, photos, documents and condition; scroll this row locally when needed. Opening an editor saves nothing. Review changes before explicitly confirming. Create a draft listing with an initial asking price when needed. Use ungrouped NGN or correctly grouped commas, such as 55000000.00 or 55,000,000.00. Review the exact amount before saving.",
         "Use Manage asking price to enter a different amount and reason. Price history records your signed-in account; an employee profile is not required for Admin or Super Admin. Reserved, sold and archived listings retain their committed-price safeguards.",
         "Document review records the reviewing account and the decision. Review the actual evidence; a role does not establish document authenticity. Publishing still requires the normal photo, branch, price and lifecycle checks.",
         "If a record changed, reload and inspect its current version before editing again. For an uncertain response, inspect the recorded state and history before acknowledging it; do not retry automatically or guess a new price.",
@@ -99,7 +99,7 @@ export const learningArticles: LearningArticle[] = [
       "VehiclesService role/branch policy and User-attributed price/document audit",
       "vehicle stock create edit draft listing asking price history administrator",
     ),
-    version: 1,
+    version: 2,
     reviewedAt: "2026-11-02",
   },
   {
@@ -336,14 +336,14 @@ export const learningArticles: LearningArticle[] = [
       [
         "Open Vehicles. Edit pending preferences in Filters, then choose Apply filters. Used includes unspecified, foreign and Nigerian use; refine the recorded history when known. Assembly location is separate. Clear all filters preserves search and sort; Reset search clears the full discovery state.",
         "Open a listing and read the owner-reported condition and known issues beside the enquiry action. These statements are separate from a recorded inspection; missing information does not mean fault-free. Use the requirements enquiry if no listing suits you.",
-        "Review the enquiry before sending. The team confirms any inspection separately.",
+        "Review the enquiry before sending. In an enquiries release, send a vehicle enquiry to discuss an inspection; there is no online inspection request action. Use an inspection request only when the listing offers it. Neither an enquiry nor a submitted request confirms a visit or reserves the vehicle. The team confirms any inspection separately.",
       ],
       "/vehicles",
       "Vehicle discovery and listing-less enquiry contracts",
       "car sale inspection reservation known issues condition owner reported",
     ),
-    version: 4,
-    reviewedAt: "2026-10-29",
+    version: 5,
+    reviewedAt: "2026-11-02",
   },
   {
     ...article(

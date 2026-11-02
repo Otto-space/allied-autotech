@@ -12,6 +12,8 @@ describe.each(["browse_enquiries", "catalogue", "full"])("Help in %s mode", (mod
     const { faqs, answerFaq, business } = await import("@/lib/business");
     const { helpArticleGuidance } = await import("@/lib/help-article-guidance");
     const parts = faqs.find((item) => item.id === "shop-and-collection")!;
+    const inspection = faqs.find((item) => item.id === "vehicle-inspections")!;
+    expect(inspection.answer).toContain("does not");
     const payment = faqs.find((item) => item.id === "pending-payments")!;
     expect(answerFaq("parts compatibility stock")).toBe(parts);
     expect(parts.answer).toContain("unknown or needs verification");
@@ -19,10 +21,14 @@ describe.each(["browse_enquiries", "catalogue", "full"])("Help in %s mode", (mod
     expect(parts.answer).toContain("collection from the workshop");
     expect(helpArticleGuidance[parts.id][2]).toContain("engine, trim");
     if (mode === "full") {
+      expect(inspection.answer).toContain("Use the inspection request option");
       expect(payment.href).toBe("/dashboard/payments");
       expect(helpArticleGuidance[payment.id][0]).toBe("Your order or payment reference");
       expect(parts.answer).toContain("Review quantities and the total at checkout");
     } else {
+      expect(inspection.answer).toContain("Send a vehicle enquiry");
+      expect(inspection.answer).not.toContain("Use the inspection request option");
+      expect(inspection.answer).toContain("confirms any visit separately");
       expect(parts.answer).toContain("only a verified fit");
       expect(parts.answer).toContain("Online checkout is not available");
       expect(parts.answer).not.toContain("at checkout");

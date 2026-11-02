@@ -1,3 +1,14 @@
+### 2 November 2026: Record authoring and launch wording in verification
+
+Explicit stock View/Edit and laptop sections, shared records-table/copy/status
+patterns, full-width mobile dashboard search and Staff appointment timing are
+implemented over c53530c4. Inspection Help now follows the current release.
+Local role/state/regression checks are recorded in docs/RECORD_AUTHORING_20261102.md.
+Private vehicle-operations v2 and public vehicle-enquiry v5 preserve eligibility;
+no schema, business-row, price, permission or feature-flag change. Exact-source
+CI, held candidate acceptance and compatible publication remain pending. The
+full goal stays active; actual accounts/device/provider acceptance remain separate.
+
 ### 2 November 2026: Broader site-completion objective in progress
 
 Three bounded batches are published. Current runtime c53530c4, frontend

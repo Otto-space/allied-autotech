@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { AppointmentTiming } from "./appointment-timing";
 import { useCallback, useState } from "react";
 import { useResource } from "@/lib/api/use-resource";
 import type { WorkforceAccess } from "@/lib/api/workforce-schemas";
@@ -75,15 +76,10 @@ export function WorkforceBookingDetail({
               <p>Requested service group: {row.requestedServiceCategoryName}</p>
             )}
             {row.customerConcern && <p>{row.customerConcern}</p>}
+            <AppointmentTiming status={row.status} scheduledAt={row.scheduledAt} />
             <dl className="totals">
               <dt>Booking status</dt>
               <dd>{bookingStatusLabels[row.status]}</dd>
-              <dt>Scheduled</dt>
-              <dd>
-                <time dateTime={row.scheduledAt}>
-                  {formatBusinessDate(row.scheduledAt)}
-                </time>
-              </dd>
               <dt>Customer</dt>
               <dd>
                 {row.customer.firstName} {row.customer.lastName}

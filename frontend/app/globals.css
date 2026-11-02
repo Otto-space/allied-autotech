@@ -3664,3 +3664,23 @@ html {
 .vehicle-detail .vd-summary .vehicle-owner-disclosure :is(p, h3, small) {
   color: #292524;
 }
+
+/* Keep page search usable beside the complete account controls on phones. */
+@media (max-width: 600px) {
+  .dashboard .dashboard-top {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+  .dashboard .dashboard-search {
+    width: 100%;
+  }
+  .dashboard-account-controls {
+    justify-content: flex-end;
+    width: 100%;
+  }
+  .dashboard-account-controls :is(.dashboard-icon-link, .dashboard-account-link) {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}

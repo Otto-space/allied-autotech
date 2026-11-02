@@ -115,8 +115,9 @@ export const faqs = [
     id: "vehicle-inspections",
     category: "Vehicles and inspections",
     question: "Can I inspect a vehicle before buying?",
-    answer:
-      "Open a published vehicle listing to review its details, images and any listed condition report. Use the inspection request option and follow its status in your account. Submitting a request does not confirm an inspection appointment.",
+    answer: browseEnquiriesOnly()
+      ? "Open a published vehicle listing to review its details, images and any listed condition report. Send a vehicle enquiry to discuss an inspection with our team. The team confirms any visit separately; an enquiry does not reserve the vehicle or confirm an inspection appointment."
+      : "Open a published vehicle listing to review its details, images and any listed condition report. Use the inspection request option and follow its status in your account. Submitting a request does not confirm an inspection appointment.",
     keywords: "vehicle marketplace buy car inspection appointment listing",
     href: "/vehicles",
     action: "Explore vehicles",

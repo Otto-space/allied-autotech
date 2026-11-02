@@ -1,4 +1,7 @@
 "use client";
+import { CareTableRegion } from "./care-table-region";
+import { CopyableValue } from "./copyable-value";
+import { StatusBadge } from "./status-progress";
 import { statusLabel } from "@/lib/status-progress";
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -84,12 +87,7 @@ export function InventoryHistory({
         Refresh stock history
       </button>
       {history.loading && <p role="status">Checking stock history…</p>}
-      <div
-        className="table-region"
-        role="region"
-        aria-label="Stock movement history"
-        tabIndex={0}
-      >
+      <CareTableRegion label="Stock movement history" className="table-region">
         <table>
           <thead>
             <tr>
@@ -121,16 +119,24 @@ export function InventoryHistory({
                   </p>
                 </td>
                 <td data-label="Reference & note">
-                  {item.referenceId
-                    ? `${item.referenceType ?? "Reference"}: ${item.referenceId}`
-                    : "No reference"}
+                  {item.referenceId ? (
+                    <>
+                      <span>{item.referenceType ?? "Reference"}: </span>
+                      <CopyableValue
+                        value={item.referenceId}
+                        label="Copy movement reference"
+                      />
+                    </>
+                  ) : (
+                    "No reference"
+                  )}
                   {item.note && <p>{item.note}</p>}
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
-      </div>
+      </CareTableRegion>
       {!history.loading && !history.error && history.data?.items.length === 0 && (
         <p>No movements match this page and filter.</p>
       )}
@@ -194,7 +200,7 @@ export function InventoryReservations({
           <option value="">All statuses</option>
           {["ACTIVE", "RELEASED", "CONSUMED", "EXPIRED"].map((value) => (
             <option value={value} key={value}>
-              {value}
+              {statusLabel(value)}
             </option>
           ))}
         </select>
@@ -218,7 +224,7 @@ export function InventoryReservations({
         <article className="wid-reservation" key={reservation.id}>
           <h3>Reservation {reservation.id.slice(-8)}</h3>
           <p>
-            {reservation.status} · {reservation.quantity} units
+            <StatusBadge status={reservation.status} /> · {reservation.quantity} units
           </p>
           <p>Expires {formatBusinessDate(reservation.expiresAt)}</p>
           {reservation.referenceId && (

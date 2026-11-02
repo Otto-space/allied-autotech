@@ -9,10 +9,12 @@ it("keeps vehicle operation guidance private to current administrators without g
   const article = learningArticles.find((x) => x.id === "vehicle-operations")!;
   expect(article).toMatchObject({
     gate: "vehicle-admin",
-    version: 1,
+    version: 2,
     href: "/admin/vehicles",
   });
   expect(article.steps.join(" ")).toContain("employee profile is not required");
+  expect(article.steps.join(" ")).toContain("Choose View details");
+  expect(article.steps.join(" ")).toContain("Opening an editor saves nothing");
   for (const role of ["PUBLIC", "CUSTOMER", "STAFF", "ADMIN", "SUPER_ADMIN"] as const) {
     for (const managed of [true, false]) {
       const access = { ...publicLearningAccess, role, managed, verified: true };

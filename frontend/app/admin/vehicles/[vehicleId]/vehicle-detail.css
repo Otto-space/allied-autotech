@@ -447,3 +447,21 @@
     max-width: 100%;
   }
 }
+
+/* Section navigation stays in one readable row, with local scrolling when needed. */
+.vd-sections {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scroll-padding-inline: 8px;
+  padding: 4px 4px 10px;
+}
+.vd-sections a {
+  flex: 0 0 auto;
+}
+.vd-sections:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+#vehicle-record-editor {
+  scroll-margin-top: 20px;
+}

@@ -621,7 +621,8 @@ export function RoleOverview({
                   date in Africa/Lagos. Automatic refresh pauses while hidden or offline
                   and slows after errors. Available links open permitted record lists;
                   their filters are independent of this overview. In an enquiries release,
-                  restricted record details remain unavailable online.
+                  existing records remain readable; online transactions and appointment
+                  changes are unavailable.
                 </p>
               </details>
             </>

@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { CareTableRegion } from "./care-table-region";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { ChevronRight, RefreshCw, Search } from "lucide-react";
@@ -209,66 +210,70 @@ export function WorkforceComplaints({
             <div className="wfc-skeleton" aria-hidden="true" />
           </div>
         ) : data?.items.length ? (
-          <table>
-            <caption className="sr-only">
-              Complaints in your current responsibility scope
-            </caption>
-            <thead>
-              <tr>
-                {["Complaint", "Customer", "Priority", "Branch", "Status", "Open"].map(
-                  (label) => (
-                    <th scope="col" key={label}>
-                      {label}
-                    </th>
-                  ),
-                )}
-              </tr>
-            </thead>
-            <tbody>
-              {data.items.map((row) => (
-                <tr
-                  key={row.id}
-                  className={row.id === selected ? "is-selected" : undefined}
-                >
-                  <th scope="row">
-                    {row.subject}
-                    <small>
-                      <time dateTime={row.createdAt}>
-                        {formatBusinessDate(row.createdAt)}
-                      </time>
-                    </small>
-                  </th>
-                  <td data-label="Customer">
-                    {row.contact?.name || "Not available in this scope"}
-                  </td>
-                  <td data-label="Priority">
-                    <span className={`wfc-status is-${row.priority.toLowerCase()}`}>
-                      {complaintPriorityLabels[row.priority]}
-                    </span>
-                  </td>
-                  <td data-label="Branch">{row.branch?.name ?? "Branch not recorded"}</td>
-                  <td data-label="Status">
-                    <span
-                      className={`wfc-status is-${row.status.toLowerCase()}`}
-                      data-status={row.status}
-                    >
-                      {complaintStatusLabels[row.status]}
-                    </span>
-                  </td>
-                  <td data-label="Open">
-                    <button
-                      className="button secondary"
-                      aria-label={`View complaint: ${row.subject}`}
-                      aria-pressed={row.id === selected}
-                      onClick={() => select(row.id)}
-                    >
-                      View complaint
-                    </button>
-                  </td>
+          <CareTableRegion label="Permitted complaint records">
+            <table>
+              <caption className="sr-only">
+                Complaints in your current responsibility scope
+              </caption>
+              <thead>
+                <tr>
+                  {["Complaint", "Customer", "Priority", "Branch", "Status", "Open"].map(
+                    (label) => (
+                      <th scope="col" key={label}>
+                        {label}
+                      </th>
+                    ),
+                  )}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {data.items.map((row) => (
+                  <tr
+                    key={row.id}
+                    className={row.id === selected ? "is-selected" : undefined}
+                  >
+                    <th scope="row">
+                      {row.subject}
+                      <small>
+                        <time dateTime={row.createdAt}>
+                          {formatBusinessDate(row.createdAt)}
+                        </time>
+                      </small>
+                    </th>
+                    <td data-label="Customer">
+                      {row.contact?.name || "Not available in this scope"}
+                    </td>
+                    <td data-label="Priority">
+                      <span className={`wfc-status is-${row.priority.toLowerCase()}`}>
+                        {complaintPriorityLabels[row.priority]}
+                      </span>
+                    </td>
+                    <td data-label="Branch">
+                      {row.branch?.name ?? "Branch not recorded"}
+                    </td>
+                    <td data-label="Status">
+                      <span
+                        className={`wfc-status is-${row.status.toLowerCase()}`}
+                        data-status={row.status}
+                      >
+                        {complaintStatusLabels[row.status]}
+                      </span>
+                    </td>
+                    <td data-label="Open">
+                      <button
+                        className="button secondary"
+                        aria-label={`View complaint: ${row.subject}`}
+                        aria-pressed={row.id === selected}
+                        onClick={() => select(row.id)}
+                      >
+                        View complaint
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </CareTableRegion>
         ) : (
           data && (
             <div className="wfc-state">

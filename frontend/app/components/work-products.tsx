@@ -1,5 +1,7 @@
 "use client";
 import Link from "next/link";
+import { CopyableValue } from "./copyable-value";
+import { CareTableRegion } from "./care-table-region";
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { ArrowLeft, ChevronRight, Plus, RefreshCw } from "lucide-react";
@@ -264,90 +266,98 @@ function ProductWorkspace({ owner }: { owner: string }) {
               </div>
             )}
             {!!data?.items.length && (
-              <table className="product-table">
-                <thead>
-                  <tr>
-                    <th scope="col">Product</th>
-                    <th scope="col">Category</th>
-                    <th scope="col">Price</th>
-                    <th scope="col">Visibility</th>
-                    <th scope="col">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {data.items.map((row) => {
-                    const image = row.images.find((r) => r.isPrimary) ?? row.images[0];
-                    return (
-                      <tr key={row.id}>
-                        <th scope="row">
-                          <div className="product-identity">
-                            <div className="product-thumb">
-                              <PublicMedia
-                                src={image?.url}
-                                alt={image?.altText ?? row.name}
-                                adminPreview={image?.source === "UPLOADED"}
-                                sizes="64px"
-                              />
+              <CareTableRegion label="Product records">
+                <table className="product-table">
+                  <thead>
+                    <tr>
+                      <th scope="col">Product</th>
+                      <th scope="col">Category</th>
+                      <th scope="col">Price</th>
+                      <th scope="col">Visibility</th>
+                      <th scope="col">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {data.items.map((row) => {
+                      const image = row.images.find((r) => r.isPrimary) ?? row.images[0];
+                      return (
+                        <tr key={row.id}>
+                          <th scope="row">
+                            <div className="product-identity">
+                              <div className="product-thumb">
+                                <PublicMedia
+                                  src={image?.url}
+                                  alt={image?.altText ?? row.name}
+                                  adminPreview={image?.source === "UPLOADED"}
+                                  sizes="64px"
+                                />
+                              </div>
+                              <div>
+                                <strong>
+                                  <Link
+                                    href={`/admin/products/${row.id}`}
+                                    prefetch={false}
+                                  >
+                                    {row.name}
+                                  </Link>
+                                </strong>
+                                <CopyableValue
+                                  value={row.sku}
+                                  label={`Copy SKU ${row.sku}`}
+                                />
+                                {row.brand && <small>{row.brand}</small>}
+                                {row.featured && (
+                                  <span className="product-featured">Featured</span>
+                                )}
+                              </div>
                             </div>
-                            <div>
-                              <strong>
-                                <Link href={`/admin/products/${row.id}`} prefetch={false}>
-                                  {row.name}
-                                </Link>
-                              </strong>
-                              <small>{row.sku}</small>
-                              {row.brand && <small>{row.brand}</small>}
-                              {row.featured && (
-                                <span className="product-featured">Featured</span>
-                              )}
-                            </div>
-                          </div>
-                        </th>
-                        <td data-label="Category">{row.category.name}</td>
-                        <td data-label="Price">
-                          <strong>{formatKobo(row.priceKobo)}</strong>
-                          {row.compareAtPriceKobo !== null && (
+                          </th>
+                          <td data-label="Category">{row.category.name}</td>
+                          <td data-label="Price">
+                            <strong>{formatKobo(row.priceKobo)}</strong>
+                            {row.compareAtPriceKobo !== null && (
+                              <small>
+                                Comparison: {formatKobo(row.compareAtPriceKobo)}
+                              </small>
+                            )}
                             <small>
-                              Comparison: {formatKobo(row.compareAtPriceKobo)}
+                              {row.availability.some((r) => r.inStock)
+                                ? "In stock at a branch"
+                                : "No available stock"}
                             </small>
-                          )}
-                          <small>
-                            {row.availability.some((r) => r.inStock)
-                              ? "In stock at a branch"
-                              : "No available stock"}
-                          </small>
-                        </td>
-                        <td data-label="Visibility">
-                          <span
-                            className={`work-service-status${row.isActive ? "" : " inactive"}`}
-                          >
-                            {row.isActive ? "Active" : "Inactive"}
-                          </span>
-                          {!row.category.isActive && <small>Category inactive</small>}
-                        </td>
-                        <td>
-                          <div className="product-row-actions">
-                            <button
-                              className="button secondary"
-                              disabled={blocked}
-                              onClick={() => open("edit", row.id)}
+                          </td>
+                          <td data-label="Visibility">
+                            <span
+                              className={`work-service-status${row.isActive ? "" : " inactive"}`}
                             >
-                              View &amp; edit
-                            </button>
-                            <button
-                              className="button secondary"
-                              disabled={blocked}
-                              onClick={() => open("media", row.id)}
-                            >
-                              Compatibility &amp; images
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+                              {row.isActive ? "Active" : "Inactive"}
+                            </span>
+                            {!row.category.isActive && <small>Category inactive</small>}
+                          </td>
+                          <td>
+                            <div className="product-row-actions">
+                              <button
+                                className="button secondary"
+                                disabled={blocked}
+                                onClick={() => open("edit", row.id)}
+                              >
+                                View &amp; edit
+                              </button>
+                              <button
+                                className="button secondary"
+                                disabled={blocked}
+                                onClick={() => open("media", row.id)}
+                              >
+                                Compatibility &amp; images
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </CareTableRegion>
             )}
             <nav className="pagination" aria-label="Product pages">
               <button

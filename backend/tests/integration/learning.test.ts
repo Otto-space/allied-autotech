@@ -229,6 +229,15 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       expect(appointment.body.data.steps.join(" ")).toContain(
         "No permission is requested by the invitation",
       );
+      const vehicle = await read(null, "/public/learning/articles/vehicle-enquiry");
+      expect(vehicle.status).toBe(200);
+      expect(vehicle.body.data).toMatchObject({ version: 5, href: "/vehicles" });
+      expect(vehicle.body.data.steps.join(" ")).toContain(
+        "only when the listing offers it",
+      );
+      expect(
+        (await read(null, "/public/learning/articles/vehicle-operations")).status,
+      ).toBe(404);
       expect(publicResult.headers["cache-control"]).toContain("no-store");
       expect(publicResult.headers.vary).toContain("Cookie");
       for (const id of [
@@ -331,6 +340,12 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         ]),
       );
       expect(ids(await read(admin))).not.toContain("privileged-recovery");
+      for (const identity of [admin, owner]) {
+        const vehicle = await read(identity, "/learning/articles/vehicle-operations");
+        expect(vehicle.status).toBe(200);
+        expect(vehicle.body.data).toMatchObject({ version: 2, href: "/admin/vehicles" });
+        expect(vehicle.body.data.steps.join(" ")).toContain("Edit details");
+      }
       expect(ids(await read(owner))).toContain("privileged-recovery");
       expect((await read(admin, "/learning/articles/care-triage")).body.data.href).toBe(
         "/admin/support",

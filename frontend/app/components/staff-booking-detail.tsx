@@ -4,6 +4,7 @@ import { WorkflowProgress } from "./status-progress";
 import { BookingReference } from "./booking-reference";
 import { bookingLabel } from "@/lib/customer-booking-query";
 import Link from "next/link";
+import { AppointmentTiming } from "./appointment-timing";
 import { useState } from "react";
 import { z } from "zod";
 import { apiRequest } from "@/lib/api/client";
@@ -392,11 +393,12 @@ function BookingRecord({ bookingId }: { bookingId: string }) {
               </span>
             </header>
             <WorkflowProgress workflow="booking" status={current.status} />
+            <AppointmentTiming
+              status={current.status}
+              scheduledAt={current.scheduledAt}
+              current={!booking.loading && !booking.refreshing && !stale}
+            />
             <dl className="booking-detail-facts">
-              <div>
-                <dt>Appointment</dt>
-                <dd>{formatBusinessDate(current.scheduledAt)}</dd>
-              </div>
               <div>
                 <dt>Branch</dt>
                 <dd>{current.branch?.name ?? "Not assigned"}</dd>
