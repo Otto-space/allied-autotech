@@ -1,5 +1,11 @@
 # Administrator vehicle operations checkpoint
 
+Code published in `6f3cf203` with compatible production migrations, matching API/
+worker images and the held-then-promoted frontend. Exact-source CI, isolated HTTP
+role/audit checks and private full-catalogue retrieval passed. Actual signed-in
+owner/Admin acceptance remains unavailable; no feature flag was changed. See the
+backend report for separate synthetic, hosted and real production evidence.
+
 vehicle-operations v1, reviewed 2 November 2026, remains backend-owned and private.
 Its vehicle-admin gate requires verified current Admin/Super Admin access. Public,
 Customer, Staff and unverified sessions cannot receive its body. This matches the

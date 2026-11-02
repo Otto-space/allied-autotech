@@ -1,5 +1,48 @@
 # Home and About workshop restoration - 2 November 2026
 
+## Latest publication and remaining authoring
+
+The Home/About implementation is retained in released source `6f3cf203`, frontend
+`dpl_7HctXP7eYBDvCc9i7TnQsiG9hYgP` and backend
+`1597c138-919c-4470-b991-0add596837f9`. Both actual domains were verified after
+promotion. Four unmocked public price/navigation/team smoke cases passed at
+390/1440px. Live carousel checks passed again: three loops 56.8s, hover/manual
+pause and keyboard behavior 54.0s, controlled slow/failed images 26.8s.
+The separate [vehicle-access report](../../backend/docs/vehicle-operator-access-20261102.md)
+records its migrations, role checks, release receipts and actual acceptance limits.
+The original Home publication below remains historical evidence.
+
+Latest safe screenshots, visually inspected at desktop Home and mobile About:
+
+- [Mobile Home before](C:/Users/PC/AppData/Local/Temp/allied-home-20261102/before-home-390.png)
+  / [after](C:/Users/PC/AppData/Local/Temp/vehicle-operator-20261102/public-final/home-390.png)
+- [Desktop Home before](C:/Users/PC/AppData/Local/Temp/allied-home-20261102/before-home-1440.png)
+  / [after](C:/Users/PC/AppData/Local/Temp/vehicle-operator-20261102/public-final/home-1440.png)
+- [Mobile About before](C:/Users/PC/AppData/Local/Temp/allied-home-20261102/before-about-390.png)
+  / [after](C:/Users/PC/AppData/Local/Temp/vehicle-operator-20261102/public-final/about-390.png)
+- [Desktop About before](C:/Users/PC/AppData/Local/Temp/allied-home-20261102/before-about-1440.png)
+  / [after](C:/Users/PC/AppData/Local/Temp/vehicle-operator-20261102/public-final/about-1440.png)
+
+One authoring follow-up is pending: the three newly created full service descriptions
+contain internal workbook/discount notes. The owner cannot sign in right now, so no
+alternative authentication or database authoring was attempted. Prepared replacement
+copy below removes that internal explanation. Apply through normal review/Confirm,
+changing only description and preserving IDs, final prices, quantities and durations:
+
+- Diagnostics: Full vehicle health check with a PDF copy of the scan result. Confirm
+  appointment duration, vehicle suitability, exact scope, parts/materials inclusion,
+  tax and any warranty conditions with the team before work is agreed.
+- Wheel Alignment: 3D correction of all four wheels. The listed duration is one hour
+  and the listed warranty is seven days. Confirm vehicle suitability, scope,
+  materials, tax and warranty conditions with the team before work is agreed.
+- Generic Lube Oil Service: Lube oil change with air-filter and AC-filter cleaning.
+  Confirm suitable oil, oil and filter compatibility, parts/materials inclusion,
+  appointment duration, tax and any warranty conditions before work is agreed.
+
+This is pending editorial authoring, separate from genuinely unresolved workbook
+package, duration, tax/material and warranty conditions documented below. The
+published final amounts already reflect the authorised reduction exactly once.
+
 Released source `1224d942d0e8cd76315786e735bc56185dc51c22` was published on
 `alliedautotech.com` and `www.alliedautotech.com` (www redirects to apex).
 Frontend: `dpl_Ehmd5TkgUMnWp2CHHZoUmp7CiTZL`; backend:

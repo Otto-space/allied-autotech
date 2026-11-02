@@ -84,6 +84,8 @@ work-support-detail.spec.ts > seven responsive widths, long original text and fu
 work-support.spec.ts > seven responsive widths and long complete records pass accessibility
 work-vehicle-create.spec.ts > responsive groups and long review preserve all fields with accessible keyboard focus
 work-vehicle-detail.spec.ts > responsive named record, navigation, disclosure and review pass accessibility checks
+# Admin/Super Admin without employee profiles: exact price review; synthetic accounts.
+vehicle-administrator-price.spec.ts
 work-vehicle-sale-detail.spec.ts > seven responsive widths and review retain accessible names, contrast and no overflow
 work-vehicle-sales.spec.ts > empty, unavailable and access-error states have valid accessible structure
 work-vehicle-stock.spec.ts > responsive layouts preserve every stock fact, readable controls and keyboard filter disclosure

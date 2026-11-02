@@ -1,5 +1,10 @@
 ## 2 November vehicle operations checkpoint
 
+Publication: `6f3cf203` backend/frontend released with 87 applied migrations.
+Private catalogue/retrieval checks passed; actual-account acceptance is unavailable.
+Flags and owner/independent financial gates remain unchanged. Details and retained
+failed checks: backend/docs/vehicle-operator-access-20261102.md.
+
 Private vehicle-operations v1 uses a new server-side vehicle-admin eligibility gate
 matching current Admin/Super Admin vehicle role access, including managed accounts.
 It explains stock/draft/price review, User audit attribution, correct grouped NGN,
@@ -13,6 +18,11 @@ See VEHICLE_OPERATIONS_20261102.md and backend/docs/vehicle-operator-access-2026
 ## 2 November Home workshop checkpoint
 
 Public home-next-step v2 explains controllable authentic workshop highlights, the complete team photograph and contextual service enquiries. Unknown duration remains unconfirmed and cannot offer appointment slots. No new guide permission or feature flag. Source-only until its compatible backend publication; see HOME_WORKSHOP_20261102.md.
+
+Publication update: the compatible Home backend was released at `1224d942` and
+retained in `6f3cf203`; actual public Home/About regression checks passed. No help
+feature flag was enabled by either publication. Earlier source-only wording above
+is historical; service-description editorial authoring still awaits sign-in.
 
 ## 1 November presentation refinement checkpoint
 

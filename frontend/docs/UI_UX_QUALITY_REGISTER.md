@@ -1,3 +1,41 @@
+### 2 November 2026: Admin vehicle operations and workshop regression published
+
+Owner-approved full Admin operations are released at signed master 6f3cf203;
+owner-only controls and independent financial approvals remain restricted.
+Backend 1597c138-919c-4470-b991-0add596837f9 is ACTIVE, 16/16; frontend
+dpl_7HctXP7eYBDvCc9i7TnQsiG9hYgP is verified on apex/www. All three exact-source
+CI checks, nine packaged checks, read-only predeploy, 87-migration db:check, API
+readiness and all eight worker heartbeats passed. Four digest changes only.
+
+Admin enrollment no longer hides the operational dashboard; price history and
+document review record the authenticated User without manufacturing employee
+profiles. Grouped NGN is exact. Staff scope, current access, MFA, versions and
+committed-sale safeguards remain. Three isolated real HTTP flows, 41 workforce
+regressions and 46 distinct hosted synthetic scenarios are covered. The full
+browser run passed 41/46; all five harness failures were repaired and retested
+in a nine-case final run. Four price cases passed again on the published route
+with synthetic accounts/records. Real signed-in authoring remains unverified.
+
+Both forward migrations passed after a fresh verified backup and populated
+restore/replay preserving all original row hashes. A second fresh backup also
+restored separately. Runtime ledger permission remained restricted; read-only
+verification used the migrator. Live favourite removal was traced to a successful
+request before migration, with existing rate-limit expiry; neither was undone.
+No account roles, financial grants or real vehicle prices were changed for QA.
+
+The Home/About work is retained: four unmocked public smoke cases passed at
+390/1440px; three live autoplay loops, hover/manual/keyboard and slow/failed-image
+regressions passed. Fresh safe screenshots were captured. The three new service
+full descriptions still need the prepared removal of internal workbook notes;
+normal authoring awaits the owner's sign-in. Final prices/scopes remain intact.
+Physical Safari and a full screen-reader journey remain untested.
+
+Reports: backend/docs/vehicle-operator-access-20261102.md and
+frontend/docs/HOME_WORKSHOP_20261102.md. Earlier in-progress entries are historical.
+Other agents retain their unrelated acceptance tasks. Bounded cleanup removed
+32 superseded local image references; remote/current/rollback images, warm caches,
+other tasks, databases and recovery evidence were retained. C: remained above 20 GiB.
+
 ### 2 November 2026: Privacy wording passes held production-build acceptance
 
 Reused READY candidate dpl_4ELMasQqeXkWM1dAU1tqA8FRaxnS from source
