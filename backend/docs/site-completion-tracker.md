@@ -1,3 +1,34 @@
+### 2 November 2026: Connected customer fitment acceptance refreshed
+
+Eleven hosted Playwright cases passed against https://alliedautotech.com at
+390/1440px and default desktop: catalogue choices available/empty/failed,
+reviewed versus unconfirmed application guidance, technical configuration and
+Back/refresh, contextual enquiry review/submission, dependent-choice retry,
+saved-car editing/default reuse, off-page defaults, failed ownership preflight,
+unknown-specification preservation, session loss and late-response suppression.
+Account data and submissions were intercepted synthetic fixtures; this is not
+real-account, backend-policy or physical-device acceptance. No real message was sent.
+
+Two obsolete suites were corrected to current By vehicle, contextual enquiry
+and Retry vehicle choices controls. Catalogue assertions now use explicit
+reviewed and unknown products, instead of assuming the first live product has a
+particular compatibility state. Payload, review-before-write, privacy, accessibility,
+no-overflow and stale-response assertions remain. Initial runs failed on obsolete
+copy/control selectors (3 failures, then 2 passes/3 failures); those are not passes.
+Final run: 11 passed, no retries or skips. Scoped lint, TypeScript and whitespace checks passed before reconciliation.
+Evidence: `%TEMP%/aat-fitment-connected-final-20261102.json`; screenshots and
+retained preceding failure traces are in the corresponding task directories.
+
+Runtime remains 59068ee4, already published on both domains; this batch changes
+only tests and records. Follow-up b797e3b7 CI is green for all three workflows.
+The broader brief remains open; fresh authorised fitment, physical-device and
+external financial/operational acceptance remain explicitly unverified. Disk
+reserve passed at 24.66 GiB free; no Docker resources or dependencies were created.
+
+Reconciled with concurrent master fee9d908 without changing its runtime.
+Its Home/workshop release still requires its recorded acceptance gates; the
+eleven cases above prove the existing published runtime, not that newer candidate.
+
 ### 2 November 2026: Home workshop restoration in progress
 
 The full owner brief, all original photographs and authorised workbook were inspected.
@@ -46,6 +77,7 @@ temporary access removed. C: 25.40 GiB free; Docker/other worktree resources ret
 Owner currently has no fitment sign-in access; no repeated sign-in request until
 that changes. Remaining: broader requirement/state audit, invoice identifier support
 and the already recorded financial/operational approvals and external acceptance.
+
 ### 2 November 2026: Form clarity published
 
 Frontend dfd69bd1 is live on both domains as dpl_Acehf69pBzE1vxdycA3GXq7MmoCs.
@@ -61,6 +93,7 @@ passed, temporary access removed, latest managed backup 2 November 05:22 UTC.
 Purchasing/deposits remain gated. Wider brief, real-role/device coverage, invoice
 identifier support and recorded financial/operational decisions remain open.
 C: 25.43 GiB free; no Docker resources created or other tasks' resources removed.
+
 ### 2 November 2026: Form clarity verification pending
 
 Twelve existing form/detail components now use readable status and review labels.
@@ -70,6 +103,7 @@ Payload enums, status styling hooks, source eligibility, permissions and financi
 activation gates are unchanged. Three hosted baseline cases passed; scoped ESLint
 and TypeScript passed. Two 320px reference interaction/accessibility tests added.
 Exact-master CI and final hosted acceptance are pending; this is not yet published.
+
 ### 2 November 2026: Stock and workshop wording published
 
 Frontend 518dd13ff281618765725e762825646eaced35df is live on apex/www as
@@ -78,8 +112,7 @@ and deployment 36b4283f-63fc-401b-abbe-03b8bf9ccf2c remain unchanged.
 Stock movement choices/history and work-order summaries/reviews reuse readable
 labels. Exact request codes, idempotency, version checks and reviews are preserved.
 
-Exact-master CI passed: frontend 41391577799, backend 41391610306, secrets
-41391577851. Frontend: 1,312 units passed, 12 existing skips; build/type/lint/format
+Exact-master CI passed: frontend 41391577799, backend 41391610306, secrets 41391577851. Frontend: 1,312 units passed, 12 existing skips; build/type/lint/format
 passed. Earlier 67a9f203 CI failed only quality-register formatting, corrected in
 518dd13f. Local scoped lint/format and 24 progress units passed. Three hosted
 baselines passed; final nine hosted stock/workshop cases passed, including uncertain
@@ -101,7 +134,7 @@ activation/accounting decisions remain open. Purchasing/deposits remain gated.
 ### 1 November 2026: Readable booking detail published
 
 Frontend 36f4c51d670f0cfdc065be95ae2cf77e43082ab3 is promoted to apex/www as
- dpl_4ok1PujUWyktVb4xPxxLGzMyvHkq (www redirects apex). Backend f0402b67 /
+dpl_4ok1PujUWyktVb4xPxxLGzMyvHkq (www redirects apex). Backend f0402b67 /
 36b4283f-63fc-401b-abbe-03b8bf9ccf2c is unchanged. Exact-master frontend
 41346242439, backend 41346242451 and secret check 41346242418 passed.
 Booking status/review labels are readable; the staff summary now collapses the

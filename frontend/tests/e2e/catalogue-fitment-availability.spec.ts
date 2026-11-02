@@ -1,7 +1,33 @@
 import { test, expect } from "@playwright/test";
 
 // The product cards must use the same vehicle-choice availability as the finder.
-// Published catalogue reads are read-only; identity and writes stay isolated.
+// Explicit reviewed/unknown fixtures avoid depending on the first live product.
+const id = (n: number) => `f7000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
+const product = {
+  id: id(2),
+  name: "Synthetic reviewed part",
+  slug: "synthetic-reviewed-part",
+  sku: "QA-PART",
+  brand: null,
+  manufacturerPartNumber: null,
+  description: null,
+  priceKobo: "100000",
+  compareAtPriceKobo: null,
+  currency: "NGN",
+  category: { id: id(3), name: "Parts", slug: "parts", description: null },
+  images: [],
+  availability: [],
+  compatibilities: [
+    {
+      id: id(4),
+      make: "QA make",
+      model: "QA model",
+      yearFrom: 2018,
+      yearTo: 2020,
+      notes: null,
+    },
+  ],
+};
 for (const width of [390, 1440]) {
   test(`catalogue fitment guidance follows vehicle choices at ${width}px`, async ({
     page,
@@ -35,7 +61,27 @@ for (const width of [390, 1440]) {
               },
             });
       if (request.method() === "GET" && path.startsWith("/api/v1/public/catalog/"))
-        return route.continue();
+        return route.fulfill({
+          json: {
+            success: true,
+            message: "Isolated catalogue fixture",
+            meta: { requestId: "catalogue-fitment" },
+            data: path.endsWith("/products/discovery")
+              ? {
+                  items: [
+                    product,
+                    {
+                      ...product,
+                      id: id(5),
+                      name: "Synthetic unknown part",
+                      compatibilities: [],
+                    },
+                  ],
+                  totalMatches: 2,
+                }
+              : { items: [] },
+          },
+        });
       if (!["GET", "HEAD", "OPTIONS"].includes(request.method())) {
         unexpectedWrites.push(path);
         return route.abort();
@@ -47,10 +93,22 @@ for (const width of [390, 1440]) {
     });
 
     await page.goto("/parts");
-    const card = page.locator(".shop-product-card").first();
+    // A fresh client search avoids using the server's real catalogue seed.
+    await page
+      .getByRole("searchbox", { name: "Search products", exact: true })
+      .fill("Synthetic first");
+    const card = page
+      .locator(".shop-product-card")
+      .filter({ hasText: "Synthetic reviewed part" });
+    const unknown = page
+      .locator(".shop-product-card")
+      .filter({ hasText: "Synthetic unknown part" });
+    await expect(unknown).toContainText("Compatibility has not been confirmed.");
+    await expect(unknown).not.toContainText("Reviewed application listed");
+    await expect(card).toContainText("Reviewed application listed");
     await expect(card).toBeVisible();
     await expect(card).toContainText(
-      "Choose your vehicle or ask our team to verify suitability.",
+      "Select your vehicle and technical details to confirm fitment.",
     );
     await page.getByRole("radio", { name: "By vehicle" }).check();
     await expect(
@@ -60,20 +118,26 @@ for (const width of [390, 1440]) {
 
     makesAvailable = false;
     await page.reload();
+    await page
+      .getByRole("searchbox", { name: "Search products", exact: true })
+      .fill("Synthetic second");
     await page.getByRole("radio", { name: "By vehicle" }).check();
     await expect(page.locator(".parts-finder-unavailable")).toContainText("Ask our team");
     await expect(card).toContainText(
-      "Ask our team to verify suitability for your vehicle.",
+      "Ask our team to confirm fitment for your vehicle and technical details.",
     );
-    await expect(card).not.toContainText("Choose your vehicle");
+    await expect(card).not.toContainText("Select your vehicle");
     await page.screenshot({ path: info.outputPath(`catalogue-empty-${width}.png`) });
 
     makesError = true;
     await page.reload();
+    await page
+      .getByRole("searchbox", { name: "Search products", exact: true })
+      .fill("Synthetic third");
     await expect(card).toContainText(
-      "Ask our team to verify suitability for your vehicle.",
+      "Ask our team to confirm fitment for your vehicle and technical details.",
     );
-    await expect(card).not.toContainText("Choose your vehicle");
+    await expect(card).not.toContainText("Select your vehicle");
     expect(pageErrors).toEqual([]);
     expect(unexpectedWrites).toEqual([]);
     expect(

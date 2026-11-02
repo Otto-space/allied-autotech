@@ -162,7 +162,7 @@ async function fixture(page: Page) {
   return state;
 }
 async function chooseCar(page: Page) {
-  await page.getByRole("button", { name: "Find parts for my car", exact: true }).click();
+  await page.getByRole("radio", { name: "By vehicle", exact: true }).check();
   const make = page.getByRole("combobox", { name: "Vehicle make", exact: true });
   await make.fill("Toy");
   await page.getByRole("option", { name: "Toyota", exact: true }).click();
@@ -229,22 +229,22 @@ for (const width of [1440, 390])
       .getByRole("link", { name: "Request the right part", exact: true })
       .click();
     await expect(page).toHaveURL(/\/contact\?parts=1/);
-    await expect(page.getByLabel("Subject", { exact: true })).toHaveValue(
-      "Parts verification: Toyota Corolla 2018",
-    );
-    await expect(page.getByLabel("Your message", { exact: true })).toHaveValue(
-      /Engine code: 2ZR-FE/,
-    );
-    await expect(page.getByLabel("Your message", { exact: true })).toHaveValue(
-      /Collection only/,
-    );
+    await expect(
+      page.getByLabel("Requested part or product", { exact: true }),
+    ).toHaveValue("Part compatibility enquiry: automotive product");
+    await expect(
+      page.getByLabel("Additional notes (optional)", { exact: true }),
+    ).toHaveValue(/Engine code: 2ZR-FE/);
+    await expect(
+      page.getByLabel("Additional notes (optional)", { exact: true }),
+    ).toHaveValue(/Workshop collection only/);
     await page.getByLabel("Your name", { exact: true }).fill("Synthetic Parts Customer");
     await page
       .getByLabel("Email address", { exact: true })
       .fill("parts-test@example.test");
-    await expect(page.getByLabel("Handling branch", { exact: true })).toHaveValue(
-      "Port Harcourt test branch",
-    );
+    await expect(
+      page.getByRole("status", { name: "Handling branch", exact: true }),
+    ).toHaveText("Port Harcourt test branch");
     await page.getByRole("button", { name: "Review enquiry", exact: true }).click();
     expect(state.writes).toHaveLength(0);
     await page
@@ -270,11 +270,13 @@ test("unavailable catalogue reads can retry and changing make clears dependent s
   const state = await fixture(page);
   state.makeFailure = true;
   await page.goto("/parts");
-  await page.getByRole("button", { name: "Find parts for my car", exact: true }).click();
-  await page.getByRole("combobox", { name: "Vehicle make", exact: true }).click();
-  await expect(page.getByRole("button", { name: "Retry make options" })).toBeVisible();
+  await page.getByRole("radio", { name: "By vehicle", exact: true }).check();
+  await expect(
+    page.getByRole("button", { name: "Retry vehicle choices", exact: true }),
+  ).toBeVisible();
   state.makeFailure = false;
-  await page.getByRole("button", { name: "Retry make options" }).click();
+  await page.getByRole("button", { name: "Retry vehicle choices", exact: true }).click();
+  await page.getByRole("combobox", { name: "Vehicle make", exact: true }).click();
   await page.getByRole("option", { name: "Toyota", exact: true }).click();
   await page.getByRole("combobox", { name: "Vehicle model", exact: true }).click();
   await page.getByRole("option", { name: "Corolla", exact: true }).click();

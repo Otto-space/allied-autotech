@@ -17,7 +17,7 @@ the prior release baseline; exact-master CI and both public alias identities now
 | 12–13          | Booking summaries/calendar                                               | Existing recorded-event summaries and preferred/confirmed distinction retained. Saturday 18:00 Africa/Lagos already approved. All 46 customer-booking fixture cases passed. Added confirmed today/tomorrow wording in Nigeria time, a full later date and expandable canonical references. Both 320/1440 hosted state/contrast checks and clipboard success/manual fallback passed; no capacity or slot data invented.                                                                                                                                                                                                                |
 | 15–17          | Policy inventory/enforcement and launch readiness                        | Existing services-commerce readiness and delivery handoff are baseline. Current effective policy metadata inspected read-only; exact pending decisions are listed below. Preserve browse/enquiry, payment and independent approval safeguards.                                                                                                                                                                                                                                                                                                                                                                                        |
 | 18–19          | Responsive/accessibility/verification                                    | Local Edge/Playwright fixtures; Browser host unavailable. Computer Use stopped because it could not determine current Chrome URL confidently. Authorised live fitment inspection was completed before a later URL-verification stop. Physical mobile keyboard, native zoom and real-role production acceptance not yet established.                                                                                                                                                                                                                                                                                                   |
-| Publication | All completed runtime source | Frontend/backend 59068ee4 published after exact-master CI, ten final hosted checks, fifteen additional finance workspace cases and four live public checks. Both aliases and all backend digests verified. Invoice identity support is complete; actual owner/accountant details remain pending. Evidence: docs/INVOICE_IDENTIFIER_SUPPORT_20261102.md. |
+| Publication    | All completed runtime source                                             | Frontend/backend 59068ee4 published after exact-master CI, ten final hosted checks, fifteen additional finance workspace cases and four live public checks. Both aliases and all backend digests verified. Invoice identity support is complete; actual owner/accountant details remain pending. Evidence: docs/INVOICE_IDENTIFIER_SUPPORT_20261102.md.                                                                                                                                                                                                                                                                               |
 
 ## Current checks and known failures
 
@@ -220,7 +220,7 @@ backend/docs/finance-review-20261101.md; no financial policy or rounding is chan
 ## Final booking wording release — 1 November 2026
 
 Source 36f4c51d670f0cfdc065be95ae2cf77e43082ab3 is live as
- dpl_4ok1PujUWyktVb4xPxxLGzMyvHkq on both domains. Exact-source checks:
+dpl_4ok1PujUWyktVb4xPxxLGzMyvHkq on both domains. Exact-source checks:
 frontend 41346242439, backend 41346242451, secrets 41346242418 all passed.
 Frontend CI: 1,312 passing units / 12 existing skips; build/type/lint/format pass.
 Production dependency audit reported zero; development-inclusive install reported
@@ -290,7 +290,6 @@ Three hosted baseline workflows passed (uncertain stock movement, unknown job re
 long mobile work order). New assertions verify readable stock/reference options,
 review facts and draft work status. Final CI/hosted verification and release pending.
 
-
 ## Stock/workshop final evidence — 2 November 2026
 
 Frontend 518dd13ff281618765725e762825646eaced35df is live on apex/www as
@@ -299,8 +298,7 @@ and deployment 36b4283f-63fc-401b-abbe-03b8bf9ccf2c remain unchanged.
 Stock movement choices/history and work-order summaries/reviews reuse readable
 labels. Exact request codes, idempotency, version checks and reviews are preserved.
 
-Exact-master CI passed: frontend 41391577799, backend 41391610306, secrets
-41391577851. Frontend: 1,312 units passed, 12 existing skips; build/type/lint/format
+Exact-master CI passed: frontend 41391577799, backend 41391610306, secrets 41391577851. Frontend: 1,312 units passed, 12 existing skips; build/type/lint/format
 passed. Earlier 67a9f203 CI failed only quality-register formatting, corrected in
 518dd13f. Local scoped lint/format and 24 progress units passed. Three hosted
 baselines passed; final nine hosted stock/workshop cases passed, including uncertain
@@ -343,3 +341,17 @@ Provider receipts use stock-wording; the resumed safety receipts use
 stock-wording-resume-post-health to preserve the 1 November evidence. The prior
 failed CI was a terminal formatting failure, not restarted as an observation timeout.
 Native-device, unsampled real-role and service SSR limitations remain as recorded.
+
+## Connected customer fitment verification — 2 November
+
+Eleven hosted cases passed on the published 59068ee4 frontend, covering the
+customer half of brief sections 10–11 and 19: saved-vehicle setup/default reuse,
+known-context transfer into parts search and reviewed enquiry, unknown details,
+dependent choices, failed reads, session changes and late responses. Catalogue
+coverage explicitly distinguishes reviewed applications from unknown compatibility
+at 390/1440px. Current source uses By vehicle and contextual product-enquiry fields;
+the older tests still expected a removed button and generic contact fields. Those
+selectors and obsolete copy assertions were corrected without changing runtime.
+The complete writes and privacy assertions remain. Final report:
+`%TEMP%/aat-fitment-connected-final-20261102.json` (11 passed, no skips/retries).
+This extends synthetic hosted evidence, not real-role or physical-device acceptance.

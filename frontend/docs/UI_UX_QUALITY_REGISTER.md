@@ -1,3 +1,34 @@
+### 2 November 2026: Connected customer fitment acceptance refreshed
+
+Eleven hosted Playwright cases passed against https://alliedautotech.com at
+390/1440px and default desktop: catalogue choices available/empty/failed,
+reviewed versus unconfirmed application guidance, technical configuration and
+Back/refresh, contextual enquiry review/submission, dependent-choice retry,
+saved-car editing/default reuse, off-page defaults, failed ownership preflight,
+unknown-specification preservation, session loss and late-response suppression.
+Account data and submissions were intercepted synthetic fixtures; this is not
+real-account, backend-policy or physical-device acceptance. No real message was sent.
+
+Two obsolete suites were corrected to current By vehicle, contextual enquiry
+and Retry vehicle choices controls. Catalogue assertions now use explicit
+reviewed and unknown products, instead of assuming the first live product has a
+particular compatibility state. Payload, review-before-write, privacy, accessibility,
+no-overflow and stale-response assertions remain. Initial runs failed on obsolete
+copy/control selectors (3 failures, then 2 passes/3 failures); those are not passes.
+Final run: 11 passed, no retries or skips. Scoped lint, TypeScript and whitespace checks passed before reconciliation.
+Evidence: `%TEMP%/aat-fitment-connected-final-20261102.json`; screenshots and
+retained preceding failure traces are in the corresponding task directories.
+
+Runtime remains 59068ee4, already published on both domains; this batch changes
+only tests and records. Follow-up b797e3b7 CI is green for all three workflows.
+The broader brief remains open; fresh authorised fitment, physical-device and
+external financial/operational acceptance remain explicitly unverified. Disk
+reserve passed at 24.66 GiB free; no Docker resources or dependencies were created.
+
+Reconciled with concurrent master fee9d908 without changing its runtime.
+Its Home/workshop release still requires its recorded acceptance gates; the
+eleven cases above prove the existing published runtime, not that newer candidate.
+
 ### 2 November 2026: Home workshop restoration in progress
 
 The full owner brief, all original photographs and authorised workbook were inspected.
