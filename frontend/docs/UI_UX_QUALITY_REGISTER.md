@@ -1,3 +1,20 @@
+### 2 November 2026: Payment customer search published
+
+Frontend c44d7d68 is live on both domains as dpl_A1QVEcajpqZYnHTiE4pC5GL47Cy6.
+Payments can now be filtered by customer name/email, with paging, preserved selection,
+reload, retry and manual-reference fallback. Existing payment permissions and actions
+are unchanged. Exact-master CI 41398690245 / 41398690430 / 41398690011 passed;
+1,312 units passed, 12 existing skips. Six final hosted journeys, four expanded-search
+width/accessibility checks and four live public checks passed. Retained broader
+payment evidence covers 42 distinct passes; private-evidence storage fixture remains
+unverified and fails identically on the prior release. Full failures, changed files,
+screenshots and limits: docs/PAYMENT_CUSTOMER_SEARCH_RELEASE_20261102.md.
+Backend f0402b67 unchanged; read-only production safety refreshed 06:17 UTC,
+temporary access removed. C: 25.40 GiB free; Docker/other worktree resources retained.
+Owner currently has no fitment sign-in access; no repeated sign-in request until
+that changes. Remaining: broader requirement/state audit, invoice identifier support
+and the already recorded financial/operational approvals and external acceptance.
+
 ### 2 November 2026: Form clarity published
 
 Frontend dfd69bd1 is live on both domains as dpl_Acehf69pBzE1vxdycA3GXq7MmoCs.

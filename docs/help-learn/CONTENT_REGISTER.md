@@ -197,3 +197,5 @@ Nine hosted synthetic workflow checks passed; no production stock action occurre
 2 November: Form clarity published as dfd69bd1. Existing guide v13 targets, eligibility and flags preserved. Six final hosted interaction checks passed; see docs/FORM_CLARITY_RELEASE_20261102.md for evidence and acceptance limits.
 
 2 November: Payment customer search uses existing authorised directory read contracts. No existing learning definition describes this filter field; no semantic guide target, role eligibility or policy changed. Payment review/approval instructions remain unchanged. Hosted acceptance pending.
+
+2 November: Payment customer search published as c44d7d68. Existing guide v13 semantic targets and eligibility remain unchanged. Six final hosted journeys and four expanded-search accessibility/width checks passed; see docs/PAYMENT_CUSTOMER_SEARCH_RELEASE_20261102.md.
