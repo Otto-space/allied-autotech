@@ -1,13 +1,27 @@
-### 2 November 2026: Appointment dates/countdown and optional alerts in verification
+### 2 November 2026: Appointment date/countdown and optional alerts published
 
-The next explicit brief requirements are implemented locally: Nigeria-time date
-indicators, confirmed-future-only countdown in booking details/current care, and
-a dismissible optional invitation to existing browser notification settings. No
-auto permission, subscription, status transition, business-row write or gate change.
-Managed-workforce invitation waits for verified access. Current care precedes the
-optional invitation. Service-request v14 and acceptance/checkpoints are updated.
-Final browser, exact-source CI and compatible publication remain required.
-Report: docs/APPOINTMENT_ALERTS_20261102.md. Broader objective stays active.
+Runtime c53530c4 is verified on apex/www as dpl_2Vzushd5TSdpqSNDVBt2cEhchVyE.
+Backend 5a65ebbf-72b9-4941-8020-f55d94200e68 is ACTIVE 16/16, four matching
+digests, readiness 200 and eight fresh workers. Optional account/tab invitations
+open existing settings without auto permission or registration; managed Staff
+wait for current verified scope. Customer booking/next-booking dates use Nigeria
+time, confirmed-future/current-only countdowns, explicit pending/unknown states
+and expiry without a status change. Current care precedes the optional invitation.
+
+Exact-source checks pass: frontend 41474953127 (1,339 units / 12 existing skips),
+backend 41475182946 and secrets 41474953145. Ten packaged, 71 held + six push +
+two contrast and 28 actual-route browser cases pass. Anonymous service-request v14
+works on both domains; private guidance remains 404. Fresh backup, same-day
+populated restore revalidation, strict-TLS schema/privileges/workers and removal
+of temporary trusted-source access pass. No migration, business-row, price, grant
+or feature-flag change. Four superseded task-only local image refs were removed;
+current/rollback/data/caches retained, C: 25.65 GiB free.
+
+Full results, retained failures and safe synthetic before/after screenshots:
+docs/APPOINTMENT_ALERTS_20261102.md. Real account/device/provider acceptance is
+still separate and unavailable here. The full goal remains active. Next: explicit
+vehicle View/Edit and shared table patterns, wider authoring/copy and the verified
+narrow mobile dashboard search. No new owner decision is needed for this batch.
 
 ### 2 November 2026: Public search and dashboard focus published
 

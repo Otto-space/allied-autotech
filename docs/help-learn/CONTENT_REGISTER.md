@@ -1,3 +1,11 @@
+Publication update: service-request v14 and its customer date/countdown/optional
+alert UI are live from runtime c53530c4, frontend dpl_2Vzushd5TSdpqSNDVBt2cEhchVyE
+and ACTIVE backend 5a65ebbf-72b9-4941-8020-f55d94200e68. Anonymous article reads
+verify v14 on apex/www and private guidance stays 404. Eligibility, guide targets
+and all activation flags remain unchanged. No provider delivery or real signed-in
+acceptance is inferred. Earlier source-only text is historical; see
+docs/APPOINTMENT_ALERTS_20261102.md.
+
 ## 2 November 2026 appointment and browser-alert checkpoint
 
 Service-request v14 retains the public gate and /services destination. It explains
