@@ -37,3 +37,7 @@ locally when needed. Price, branch, review, current-version, uncertainty and
 committed-listing checks remain authoritative. Eligibility and /admin/vehicles
 are unchanged. Version 1 publication above is historical; version 2 awaits this
 batch release. See docs/RECORD_AUTHORING_20261102.md for results and limitations.
+
+Version 2 publication: runtime 9be4e66b and its matching ACTIVE backend are live.
+All three exact-source gates and isolated learning HTTP acceptance pass; fresh
+actual-account acceptance remains unavailable. See docs/RECORD_AUTHORING_20261102.md.

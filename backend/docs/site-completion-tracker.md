@@ -1,4 +1,31 @@
-### 2 November 2026: Record authoring and launch wording in verification
+### 2 November 2026: Record authoring published; engineering scope verified
+
+Runtime 9be4e66bb10716fd0066b9de26275f1ddcf88c55 is published on apex/www as
+frontend dpl_4VjxHa2jJ9rULegr61vrZCweC9WV. Matching backend
+3f6e7873-4d49-4ca1-8e7c-14571ea95584 is ACTIVE 16/16 with four verified
+digests, readiness 200 and eight fresh workers. No schema, business-row, price,
+grant or feature-flag change.
+
+Exact-source frontend 41486816169, backend 41486665455 and secrets 41486665465
+pass. Ten packaged, 69 final held and 19 deployed-route browser cases pass.
+Private vehicle-operations v2/public vehicle-enquiry v5 preserve eligibility;
+actual anonymous v5 and private 404 are verified on both domains. Pre/post
+TLS/schema/privileges/workers, fresh backup and restored temporary-source rules
+pass; same-day populated restore is reused only for unchanged schema/scripts.
+
+Explicit View/Edit, laptop section navigation, shared record/copy/status patterns,
+phone search and Staff date/countdown indicators are released. Inspection Help
+reflects the enabled enquiries release. Existing hero, service imagery/prices,
+favourites, filters, owner-only controls and financial gates remain intact.
+Report, retained failures, actual evidence classes and safe before/after pictures:
+docs/RECORD_AUTHORING_20261102.md. The four requested engineering batches are
+implemented and verified within those classes. This does not close broader Item 6
+or authorise commerce/booking/AI/provider activation. Real-role acceptance is
+unavailable; actual devices/delivery/financial-provider acceptance and genuine
+operator content remain separate. No repeated owner sign-in request or new policy
+approval is needed for this implementation. Preserve the settled queue.
+
+### 2 November 2026: Record authoring review checkpoint (superseded)
 
 Explicit stock View/Edit and laptop sections, shared records-table/copy/status
 patterns, full-width mobile dashboard search and Staff appointment timing are
@@ -6,8 +33,9 @@ implemented over c53530c4. Inspection Help now follows the current release.
 Local role/state/regression checks are recorded in docs/RECORD_AUTHORING_20261102.md.
 Private vehicle-operations v2 and public vehicle-enquiry v5 preserve eligibility;
 no schema, business-row, price, permission or feature-flag change. Exact-source
-CI, held candidate acceptance and compatible publication remain pending. The
-full goal stays active; actual accounts/device/provider acceptance remain separate.
+CI, held candidate acceptance and compatible publication were pending at this
+checkpoint and are completed in the published entry above. Actual account/device/
+provider acceptance remains separate.
 
 ### 2 November 2026: Appointment date/countdown and optional alerts published
 
@@ -107,7 +135,7 @@ Full ledger and safe screenshots: frontend/docs/HERO_OVERLAY_20261102.md.
 ### 2 November 2026: Shared release public acceptance complete; authoring access pending
 
 Published runtime 6f3cf203 is verified on apex/www as frontend
- dpl_7HctXP7eYBDvCc9i7TnQsiG9hYgP, with ACTIVE backend
+dpl_7HctXP7eYBDvCc9i7TnQsiG9hYgP, with ACTIVE backend
 1597c138-919c-4470-b991-0add596837f9. Exact-source frontend 41425787830,
 backend 41425787658 and secret 41425787671 checks passed. The owning release
 completed the protected 87-migration rollout, populated restore preservation,
@@ -117,7 +145,7 @@ release report and its protected receipts. No duplicate deployment was created.
 Our final public privacy acceptance passed four cases: 320/1440 on apex/www,
 actual released UI with synthetic API interception and zero AI writes. Final safe
 screenshots were inspected. Independent unmocked public catalogue reads using
- destinationsVersion=2 returned
+destinationsVersion=2 returned
 privacy-and-allie v2 with scheduled-cleanup wording on both domains. Public access
 to privacy-work returned 404. The default legacy catalogue intentionally omits
 new destinations; its omission was investigated rather than called a defect.
@@ -232,8 +260,7 @@ production-build, physical-device or real-operation acceptance claim.
 
 Temporary preview stopped; C: reserve passed at 24.20 GiB. No Docker resources
 were created or deleted. Newer independent master fixes were preserved after the
-run. b06da47f passed frontend 41424046471, backend 41424151992 and secrets
-41424046514. Another agent's held 1ff4a13c candidate is building; no competing
+run. b06da47f passed frontend 41424046471, backend 41424151992 and secrets 41424046514. Another agent's held 1ff4a13c candidate is building; no competing
 production rollout was started. Both public aliases still serve d9473ad9 and the
 backend remains ACTIVE dea3489e with no pending deployment at this check.
 Privacy hosted acceptance and coordinated publication remain outstanding.
@@ -323,10 +350,9 @@ release is separate and remains recorded below; other releases stay with their a
 ### 2 November 2026: Collapsed invoice filter recovery published
 
 Frontend d9473ad9cfd5643b771ed693a7c54853db672974 is live as
- dpl_626aFaqfA3CNdPtKC5f25Dv3SdPL on apex and www; both identities verified.
+dpl_626aFaqfA3CNdPtKC5f25Dv3SdPL on apex and www; both identities verified.
 Exact-master checks passed: Frontend 41415052847 (1,319 passing units, 12 existing
-skips; production build/types/lint/format), Backend safety 41415052703 and secrets
-41415052449. Held-candidate browser checks: 26 passed, zero skipped/flaky/unexpected.
+skips; production build/types/lint/format), Backend safety 41415052703 and secrets 41415052449. Held-candidate browser checks: 26 passed, zero skipped/flaky/unexpected.
 All four new source-filter cases then passed on the actual public route at 320px
 and 1440px with intercepted synthetic records. Actual /parts responded 200 on both
 domains; www resolved to apex. Safe candidate screenshots were visually inspected.
@@ -385,7 +411,7 @@ remains b72eddd8 until the release gates pass. No policy or permission changed.
 ### 2 November 2026: Invoice search and fitment dismissal published
 
 Source b72eddd86106bf54a741b65cfa5eb578f92fc5e4 is published as
- dpl_DqdBns92iwTfuX9qfHYgi2B4erKN on apex and www; both identities verified.
+dpl_DqdBns92iwTfuX9qfHYgi2B4erKN on apex and www; both identities verified.
 Exact-master Frontend 41411747513, Backend safety 41411865203 and repository
 secrets 41411747468 passed. The held production candidate passed 22 synthetic
 browser cases with no skipped, flaky or unexpected results. Two additional

@@ -1,3 +1,10 @@
+Publication: vehicle-operations v2 and vehicle-enquiry v5 are live from runtime
+9be4e66b with matching ACTIVE backend 3f6e7873-4d49-4ca1-8e7c-14571ea95584.
+Anonymous v5 and private 404 pass on both domains; isolated authenticated HTTP
+checks verify Admin/Super Admin v2 and unchanged private eligibility. No guide
+target/permission/flag changed. Earlier pending statements are historical.
+See docs/RECORD_AUTHORING_20261102.md.
+
 ## 2 November 2026 record actions and launch wording checkpoint
 
 Private vehicle-operations v2 adds explicit View details / Edit details and the

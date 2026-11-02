@@ -1,4 +1,31 @@
-### 2 November 2026: Record authoring and launch wording in verification
+### 2 November 2026: Record authoring published; engineering scope verified
+
+Runtime 9be4e66bb10716fd0066b9de26275f1ddcf88c55 is published on apex/www as
+frontend dpl_4VjxHa2jJ9rULegr61vrZCweC9WV. Matching backend
+3f6e7873-4d49-4ca1-8e7c-14571ea95584 is ACTIVE 16/16 with four verified
+digests, readiness 200 and eight fresh workers. No schema, business-row, price,
+grant or feature-flag change.
+
+Exact-source frontend 41486816169, backend 41486665455 and secrets 41486665465
+pass. Ten packaged, 69 final held and 19 deployed-route browser cases pass.
+Private vehicle-operations v2/public vehicle-enquiry v5 preserve eligibility;
+actual anonymous v5 and private 404 are verified on both domains. Pre/post
+TLS/schema/privileges/workers, fresh backup and restored temporary-source rules
+pass; same-day populated restore is reused only for unchanged schema/scripts.
+
+Explicit View/Edit, laptop section navigation, shared record/copy/status patterns,
+phone search and Staff date/countdown indicators are released. Inspection Help
+reflects the enabled enquiries release. Existing hero, service imagery/prices,
+favourites, filters, owner-only controls and financial gates remain intact.
+Report, retained failures, actual evidence classes and safe before/after pictures:
+docs/RECORD_AUTHORING_20261102.md. The four requested engineering batches are
+implemented and verified within those classes. This does not close broader Item 6
+or authorise commerce/booking/AI/provider activation. Real-role acceptance is
+unavailable; actual devices/delivery/financial-provider acceptance and genuine
+operator content remain separate. No repeated owner sign-in request or new policy
+approval is needed for this implementation. Preserve the settled queue.
+
+### 2 November 2026: Record authoring review checkpoint (superseded)
 
 Explicit stock View/Edit and laptop sections, shared records-table/copy/status
 patterns, full-width mobile dashboard search and Staff appointment timing are
@@ -6,62 +33,44 @@ implemented over c53530c4. Inspection Help now follows the current release.
 Local role/state/regression checks are recorded in docs/RECORD_AUTHORING_20261102.md.
 Private vehicle-operations v2 and public vehicle-enquiry v5 preserve eligibility;
 no schema, business-row, price, permission or feature-flag change. Exact-source
-CI, held candidate acceptance and compatible publication remain pending. The
-full goal stays active; actual accounts/device/provider acceptance remain separate.
+CI, held candidate acceptance and compatible publication were pending at this
+checkpoint and are completed in the published entry above. Actual account/device/
+provider acceptance remains separate.
 
-### 2 November 2026: Broader site-completion objective in progress
+### 2 November 2026: Requested engineering scope and acceptance ledger
 
-Three bounded batches are published. Current runtime c53530c4, frontend
-dpl_2Vzushd5TSdpqSNDVBt2cEhchVyE and ACTIVE backend
-5a65ebbf-72b9-4941-8020-f55d94200e68 are verified below. The complete supplied
-objective and existing repository records define the working scope. The attachment
-directory contains only its objective; no further document is required from the
-owner to continue explicit independent requirements. Preserve the published hero
-and Admin vehicle-operations repair and all owner/financial boundaries.
+Four bounded batches are published; earlier in-progress notes below are historical.
+Current runtime/frontend/backend are identified above. No additional attachment is
+required. Implementation is complete for the explicit supplied requirements;
+operational activation and evidence limits remain visible.
 
-| Full objective requirement                                                 | Current evidence / next verification                                                                                                                                         | Status                             |
-| -------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
-| Inspect instructions, current source/runtime and completed changes         | Brief, current AGENTS/directive/tracker; anonymous alias identity reads                                                                                                      | Verified baseline                  |
-| Remove internal public description notes; preserve prices/history          | Public API confirms three legacy arithmetic paragraphs; Public list/discovery/detail clean; administrator source retained; isolated and live checks passed                   | Published / verified               |
-| Repair Home/catalogue/detail service imagery and fallbacks                 | Approved central adapter published; complete portrait in detail, landscape tyre cards; 9 hosted + 11 public checks passed                                                    | Published / verified               |
-| Truthful booking/purchasing/Help/dashboard language; remove contradictions | Reconcile launch mode and current route/state coverage, inspect rendered journeys                                                                                            | Pending                            |
-| Simplify repeated conditions without deleting important facts              | Preserve financial/operational conditions; evaluate affected journeys                                                                                                        | Pending                            |
-| Identify missing genuine product facts for operator                        | Published Engine Oil Filter has known price/condition/type/in-stock indicator; missing verified identity, description, photos/classification/compatibility evidence recorded | Verified / operator follow-up      |
-| Customer/Admin/Super Admin/assigned Staff journeys                         | Existing fixture and prior role evidence are historical; fresh authorised acceptance not yet available                                                                       | Pending / access-limited           |
-| Vehicle stock/edit/fitment/inventory/enquiries/complaints/bookings         | Inspect current components and registry before selecting verified defects                                                                                                    | Pending                            |
-| Explicit View/Edit details, laptop vehicle steps                           | Preserve completed operations repair; inspect current affordances/rendered states                                                                                            | Pending                            |
-| Shared records-table patterns, badges/pagination/actions/copy              | Inspect corrected customer table and equivalent consumers                                                                                                                    | Pending                            |
-| Public navigation search                                                   | Native GET search, real catalogue destinations, invalid recovery and no-JavaScript paths pass at 320-1440px                                                                  | Published / verified               |
-| Accessible branded dashboard-search focus                                  | Shared branded focus passes four synthetic role sessions, expanded/collapsed sidebar; real-account acceptance unavailable                                                    | Published / fixture verified       |
-| Optional browser notification invitation using existing settings           | Optional account/tab invitation and existing settings released; four roles plus current managed Staff verified; real delivery untested                                       | Published / fixture verified       |
-| Calendar/date indicators and booking details                               | Shared Nigeria-time date card in customer detail/next booking; requested/unknown semantics preserved; staff authoring still to inspect                                       | Published customer / wider pending |
-| Countdown only for confirmed appointments                                  | Confirmed future/current data only; expiry/focus/clock/stale-data cases pass; no status change or live announcement                                                          | Published / affected verified      |
-| Consistent photographic proportions/reliable media fallback                | Approved service photo proportions/fallbacks and hosted responsive byte counts verified; product/vehicle consumers retain separate review                                    | Published / wider pending          |
-| Preserve carousel/favourites/filters/radii                                 | 20 exact-artifact hosted hero regressions pass; existing catalogue filters/favourites implementation unchanged                                                               | Verified for affected batch        |
-| Mobile-first layouts; tablet/laptop sidebar states; content language       | Affected flows 320-1536 verified; public 320px capture shows existing narrow header search with all controls present                                                         | Partly verified / header pending   |
-| Operational/financial boundaries; approved policy reconciliation           | Existing launch restrictions retained; no real transactions, grants or fabricated data                                                                                       | Invariant                          |
-| Required checks, state interactions, safe records, final report/readiness  | Three batches pass exact-source CI and scoped hosted/public checks; remaining full-objective requirements retain their separate status                                       | Batches verified / full pending    |
+| Capability                                | Implementation and verification                                                                                                       | Launch readiness                                                                        |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| Public service copy                       | Three exact legacy paragraphs excluded from public projection; admin history/commercial fields retained                               | Published; anonymous live reads pass                                                    |
+| Home/About/service photographs            | Approved authentic mapping, whole team, appropriate crops, shared proportions/fallbacks                                               | Published; final 29 hero/service checks pass                                            |
+| Carousel and controls                     | Three actual loops, keyboard/manual/hover behavior, visibility/offscreen/slow/failed/no-JS/reflow                                     | Published; browser evidence, not physical Safari                                        |
+| Authorised workbook prices                | Existing records inspected; three unambiguous jobs; exact kobo and package scopes preserved, no second discount                       | Published; genuine workbook gaps remain recorded                                        |
+| Public search                             | Native GET Services/Shop/Vehicles search, invalid/no-JS recovery                                                                      | Published; earlier live and held evidence retained                                      |
+| Dashboard search                          | Branded focus plus full-width phone field with all account controls                                                                   | Published; four synthetic roles, 320/600/1024                                           |
+| Browser alert invitation                  | Optional existing settings, account/tab dismissal, no automatic permission/subscription                                               | Published; real device binding/delivery unverified                                      |
+| Appointment dates/countdown               | Customer/Admin/Staff Nigeria-time calendar; only current confirmed future data counts down, expiry changes no status                  | Published; synthetic current/stale/requested/expiry checks                              |
+| Vehicle stock/edit/price                  | Explicit View/Edit, header editor action, horizontal laptop links and shared copy/status; prior Admin repair preserved                | Published; isolated HTTP/role fixtures, fresh real-role acceptance unavailable          |
+| Fitment evidence/review                   | Existing deliberate selection, evidence retention and independent review preserved                                                    | Hosted synthetic Staff/reviewer/history pass; actual compatibility approval is separate |
+| Product/inventory records                 | Shared named regions and SKU/reference copy, touch/mouse access; filters/paging/review preserved                                      | Published; local/held synthetic tests pass                                              |
+| Enquiry/complaint/booking records         | Shared table scrolling, existing scope/status/paging/actions preserved                                                                | Published; affected responsive/Axe and authoring regressions pass                       |
+| Truthful launch wording                   | Inspection Help conditional on enabled mode; enquiry/no reservation/confirmation and read-only history semantics                      | Published; anonymous Help/contact/product journeys pass                                 |
+| Repeated conditions                       | Preserve meaningful finance/stock/confirmation limits; concise current-mode explanation                                               | Reviewed affected flows; no blanket deletion of conditions                              |
+| Genuine product facts                     | Oil Filter missing photo/description/brand/reference/classification/verified fitment identified for operator                          | Content follow-up; nothing fabricated                                                   |
+| Favourites/filters/radii                  | Existing contracts and component styles preserved; live-route synthetic favourite refresh/removal and local filter/review checks pass | Affected regressions verified                                                           |
+| Mobile/tablet/laptop/accessibility        | Phone first, touch and keyboard, sidebar states, readable reflow, scoped Axe and focus/error/disabled/recovery tests                  | Sampled browser evidence; full screen reader/native phones unverified                   |
+| Booking/purchasing operational acceptance | Existing request/confirm, stock/capacity, collection-only policy and financial/provider requirements preserved                        | Gated; no checkout/deposit/reservation/provider activation                              |
+| Policy and permissions                    | No grants, owner/independent finance changes, guessed product compatibility or fabricated policies                                    | Invariant; existing owner/accountant/provider decisions retained                        |
+| Release and evidence                      | Exact-source gates, ten packaged, 69 held, 19 deployed-route cases; backend safety/aliases and safe screenshots                       | Engineering release verified; whole site not declared ready                             |
 
-Published first batch: 2c6f58d0, frontend dpl_2tmoL1nPgoL4R8pxQ6g5boYiaBzf and
-ACTIVE backend 9e7d8b5c-82a1-4660-be23-4fca2a9b6828. All exact-source gates,
-29 held browser cases, 11 public cases, 10 packaged checks and fresh pre/post
-safety checks pass. Report and safe before/after screenshots:
-[Public service presentation](../../docs/PUBLIC_SERVICE_PRESENTATION_20261102.md).
-Second batch: prior search runtime 27bf3559. Exact-source
-frontend 41465551617, backend 41465551589 and secrets 41465551925 pass; 44 held
-browser checks and 10 packaged checks pass. Public alias acceptance is recorded in
-[Search and dashboard focus](../../docs/PUBLIC_SEARCH_DASHBOARD_FOCUS_20261102.md).
-Third batch: c53530c4, current frontend/backend above. All three exact-source gates
-pass; 71 held + 6 push + 2 contrast and 28 actual-route cases pass. Calendar/date
-and confirmed-only countdown cover customer booking detail/next booking; optional
-alerts use existing settings. [Release and safe evidence](../../docs/APPOINTMENT_ALERTS_20261102.md).
-Next: vehicle View/Edit affordances, shared records tables, authoring/wording
-review and the verified narrow 320px dashboard search when all controls load.
-Real-account, physical-device and provider acceptance limits remain separate.
-
-The full goal remains active across bounded batches. Physical devices, real-role
-acceptance, merchant sandbox and business activation are separate evidence classes;
-source or intercepted tests do not prove them. Do not call the entire site ready.
+Reports: [Service copy/imagery](../../docs/PUBLIC_SERVICE_PRESENTATION_20261102.md),
+[Search/focus](../../docs/PUBLIC_SEARCH_DASHBOARD_FOCUS_20261102.md),
+[Appointments/alerts](../../docs/APPOINTMENT_ALERTS_20261102.md),
+[Record authoring/readiness](../../docs/RECORD_AUTHORING_20261102.md).
 
 ### 2 November 2026: Photographic hero published and verified
 

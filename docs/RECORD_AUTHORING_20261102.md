@@ -1,8 +1,10 @@
 # Record authoring and launch wording - 2 November 2026
 
-This batch extends the verified c53530c4 runtime. Publication is pending the exact
-source checks, held frontend acceptance and compatible backend rollout. No database
-schema, business row, price, role grant or feature flag is changed.
+Runtime 9be4e66bb10716fd0066b9de26275f1ddcf88c55 is published on apex/www as
+frontend dpl_4VjxHa2jJ9rULegr61vrZCweC9WV. Matching backend
+3f6e7873-4d49-4ca1-8e7c-14571ea95584 is ACTIVE 16/16 with four verified
+digests, readiness 200 and eight fresh workers. No schema, business-row, price,
+grant or feature-flag change.
 
 ## Implemented
 
@@ -54,7 +56,7 @@ semantic destinations and help/commerce/provider flags are unchanged.
 - Initial added copy checks incorrectly required touch sizing in a mouse context
   (4 failed). Corrected tests explicitly emulate touch at 320px and mouse at
   1440px, retaining the existing 44px coarse / 36px fine-pointer design.
-- Focused backend learning units: 13 passed. Frontend Help/stock units: 9 passed.
+- Focused backend learning units: 14 passed across four files after the CI correction. Frontend Help/stock units: 9 passed.
   Final four table cases pass with touch at 320px and mouse at 1440px.
   Frontend TypeScript, scoped ESLint, formatting and diff checks pass.
 
@@ -84,3 +86,86 @@ accountant/provider prerequisites; this batch adds no owner decision.
 
 The wider objective remains tracked in the quality register. A green build alone
 does not establish operational acceptance or whole-site launch readiness.
+
+## Published verification and safety
+
+All three exact-source GitHub checks passed: frontend 41486816169 (1,339 units
+passed / 12 existing fixture-gated skips, types/lint/format/build and zero production
+audit findings), backend 41486665455 and secrets 41486665465. The backend gate
+includes 11 real authenticated learning HTTP tests in a new isolated CI database;
+v2/v5 eligibility and private/public boundaries pass. Initial backend run
+41485653492 failed an obsolete v4/date assertion; the corrected test retains the
+owner-disclosure/reservation checks and adds conditional action wording. Runtime
+source did not change between f8bec03d and 9be4e66b. Installation logs separately
+report development-inclusive audit findings (frontend 22; backend 9); these are
+not the zero production-audit result. No dependency was changed in this batch.
+
+Ten final packaged-image/database checks passed, including isolated migration
+replay and restore. The four exact-source images were pushed, reviewed and used
+without changing the application spec beyond four digests. Production predeploy
+remains read-only. Fresh production backup/hash, strict-TLS target identity,
+87-migration db:check and runtime least-privilege checks passed. The same-day
+populated restore rehearsal at 09:33 UTC was revalidated for unchanged Prisma
+and safety scripts; it preserved original row hashes in a separate _ci database.
+Managed off-device backup/PITR evidence is retained. A fresh managed-provider
+restore was not performed in this batch. Temporary trusted-source access was
+removed after each pre/post check, preserving concurrent rules.
+
+Final held artifact: 27 new journeys + 13 authoring regressions + 29 hero/service
+cases passed, all with zero skips/flaky/unexpected results. The earlier f8bec03d
+artifact independently passed 27+13 but was superseded, not promoted. Initial final
+artifact run had 26 passes / one Staff phone focus failure. The cause is unproven:
+three traced repetitions, a complete 27-case rerun and the deployed Staff case
+passed unchanged. The original failure is retained; no assertion was relaxed.
+
+Actual deployed routes: 17 apex cases and 2 www journeys passed. The 17 include
+three role-fixture stock/editor checks, phone search, Help/contact/product actions,
+favourite reload/removal, authoritative service prices and imagery, no-JavaScript
+content, three real-time carousel loops, hover/manual/keyboard behavior and slow/
+failed-image recovery. Operational identities and mutation responses are synthetic
+interception on the real build; public catalogue/Help/hero reads are separate
+anonymous live evidence. www redirects to apex; both deployment identities match.
+Anonymous vehicle-enquiry reads return v5 on both domains and private vehicle
+operations returns 404. Browser plugin unavailable; installed Edge/Playwright used.
+
+Evidence is in C:/Users/PC/AppData/Local/Temp/site-completion-20261102. Core reports:
+authoring-local.json, authoring-shared.json, authoring-preserve.json,
+authoring-recovery.json, authoring-tables-final.json, authoring-hosted.json,
+authoring-preserve-hosted.json, authoring-hero-services.json, authoring-focus-check.json,
+authoring-public.json, authoring-www.json and authoring-guidance-live.json. Protected
+backup/provider/image/worker receipts remain outside Git. Only four superseded
+never-published task image references were removed without force. Current and
+rollback releases, warm cache, data volumes, backups and other worktrees remain.
+Local preview was stopped after local QA; no duplicate dependency installation.
+
+## Safe before and after evidence
+
+These account/record screenshots contain synthetic fixtures, not customer data.
+
+[Before stock and narrow search, 320px](C:/Users/PC/AppData/Local/Temp/site-completion-20261102/authoring-before/authoring-before-before-authoring-320/stock-320.png)
+
+[After explicit actions and full-width search, 320px](C:/Users/PC/AppData/Local/Temp/site-completion-20261102/authoring-public/authoring-affordances-ADMI-42bea-itable-destination-at-320px/stock-ADMIN-320.png)
+
+[Before detail, 1440px](C:/Users/PC/AppData/Local/Temp/site-completion-20261102/authoring-before/authoring-before-before-authoring-1440/detail-1440.png)
+
+[After header action and horizontal sections, 1280px](C:/Users/PC/AppData/Local/Temp/site-completion-20261102/authoring-hosted-final/authoring-affordances-ADMI-53e59-table-destination-at-1280px/editor-ADMIN-1280.png)
+
+[Shared inventory table, 1440px](C:/Users/PC/AppData/Local/Temp/site-completion-20261102/authoring-hosted-final/authoring-affordances-Inve-59a3f-s-and-SKU-copying-at-1440px/records-inventory-1440.png)
+
+Original Home/About asset mapping, workbook inspection, quantities, package
+boundaries and photographs remain documented in frontend/docs/HOME_WORKSHOP_20261102.md
+and frontend/docs/HERO_OVERLAY_20261102.md. The latter and
+docs/PUBLIC_SERVICE_PRESENTATION_20261102.md retain original public before/after
+photographs. Existing genuinely unresolved workbook details remain there: R20/R21
+boundaries, repeated row 9 description, four-tyre package equivalence, unnamed/
+unpriced jobs, AC markup choice, unknown durations and inclusion/warranty terms.
+They were not guessed, repriced or discounted twice.
+
+Completion cleanup removed eight task-created provider cookie/state/handshake files.
+No application session or owner credentials were copied. Docker finished with 125
+images, the same 14 containers/15 volumes and 11.97 GB of retained warm build cache.
+C: measured 25.66 GiB before image building and 25.48 GiB at completion. These are
+point-in-time preflights, not an OS quota or equivalent physical-reclamation claim.
+The four removed f8bec03d image references were never published; current 9be4e66b
+and prior successful rollback images remain. No source branch/worktree retirement
+was needed for this master batch; other active/dirty/missing worktrees are preserved.
