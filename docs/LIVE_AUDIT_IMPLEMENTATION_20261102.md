@@ -5,6 +5,94 @@ The current requirement ledger is frontend/docs/UI_UX_QUALITY_REGISTER.md; this
 report records a bounded implementation package, not a second backlog or a claim
 that the whole site is ready. Package start: 17:31 UTC; 60-minute review: 18:31 UTC.
 
+## Guest purchase ownership extension - verified source checkpoint
+
+Guest access foundation 076fe87c passes all exact-source gates: frontend
+41537902677 (1,353 passed / 12 existing skips), backend 41537902832 (including
+12 guest-access cases on its own new database) and secrets 41537902804. GitHub
+verifies its signature. This source is not published; current runtime stays 333c3a22.
+
+The next source extension separates guest ownership on orders, invoices and
+aftercare, binds invoices/aftercare to the same buyer as their source, makes guest
+ownership/quote-recipient fields immutable, hides the internal recipient projection
+and keeps genuine account ownership unchanged. Guest invoices use existing quantity,
+amount and document snapshots. Account APIs do not claim guest records by matching
+email. Financial request/approval authority and paid/allocated/ready separation remain.
+Final native guest-owner-native-6b6d27f640984af7a7629bf0305ad4b5 passes 28/28 across
+five suites, with all 89 migrations replayed, no drift/db:check and non-owner runtime
+privileges. Migration/finance/refund/document unit/API checks pass 57/57. Production
+and targeted test TypeScript, script TypeScript and repository lint pass. Exact-source
+CI for this extension is pending at this checkpoint; no shared database was written.
+
+Initial ownership runs retained failures: account-only invoice guard rejected guest
+sources; an incomplete new SQL variable binding then broke isolated invoice creation
+and was corrected; an added test was initially nested incorrectly and was relocated.
+The final transactional, lock-bounded migration and changed-byte/rename review gate
+checks pass. Both new migrations pin their first local LF format for portable checksums.
+The reviewed name/hash exception does not waive the new populated restore rehearsal,
+fresh backup, compatible recovery images or publication gates. Earlier schema-unchanged
+restore evidence cannot cover this change.
+
+Continue the full audit: shared guest checkout/payment/stock/discount/recovery,
+quote issuance/acceptance, public cart and guest cancellation/operator alerts still
+need integration. Parts-quotation expiry must enforce the recorded seven-day policy;
+custom 1-30 day expiry is a confirmed remaining implementation defect. Keep all
+commerce/booking/provider gates closed. Report: docs/LIVE_AUDIT_IMPLEMENTATION_20261102.md.
+
+Retained native attempts under %TEMP%/aat-full-audit-20261102:
+owner 6904ec303be1422c9622b079293e93d5 (24/26; original account-only guard),
+f07c3773cd4643f5abadb4aec3b9f759 (21/26; new variable-binding defect),
+f53c85be805c410a860fa33c548e0cff (27/27), 7a78cdc50ca2426d80b371f2765c5ce5
+(26/27; nested test), 462c20fcb84a44459b5ffa8f38fd539a (28/28), and final
+6b6d27f640984af7a7629bf0305ad4b5 (28/28 with transactional LF SQL/review gate).
+Successful task clusters removed their own data; failed clusters are stopped and
+retained for investigation. No retry was made against any of the three policy-blocked
+cleanup targets. The final receipt records source hashes and actual isolated target.
+A first guessed unit-test invocation matched no files; the actual discovered five
+suites pass all 57. No failing financial or ownership assertion was removed.
+
+## Guest purchase ownership preservation and rollout plan (source)
+
+Migration 20261102224000_purchase_guest_order_ownership has exact LF SHA-256
+3c0a545d0a2ab0f6cda2e2f09da368d755dd72f4cede4369b07d4c32aeeddd15. Its reviewed exception is name/hash bound; changed or renamed SQL remains
+blocked and ordinary target/history/fresh-backup/restore gates are unchanged.
+The DDL runs in one transaction with a ten-second lock timeout. It adds nullable
+guest ownership and indexes, expands customerId nullability on Order/Invoice/
+OrderAftercareRequest, and requires exactly one real buyer. No existing row,
+price, amount, permission, policy, applied migration or grant is rewritten.
+Existing foreign keys remain; guest references restrict deletion. Guest invoices
+are parts-order only. The invoice source guard retains all existing currency,
+tax, credit, total and pending-deposit-refund checks and adds exact guest identity.
+Guest order/invoice/aftercare ownership and quote recipient snapshots are immutable;
+aftercare ownership must match its original order. No account quotation is backfilled
+to a guest recipient, and that internal recipient is excluded from client projection.
+
+Before production: take/verify a fresh exact-target backup; restore populated data
+into a new isolated _ci database and compare original table/column values, row
+counts and hashes before/after the two forward migrations. Existing new owner
+columns must be NULL; new guest tables must be empty. Replay all 89 migrations
+on a separate empty isolated database; run db:check and affected account/guest,
+finance/capture/refund/quotation/aftercare tests. Verify strict TLS, separate
+runtime/migrator/backup identities, off-device backup/PITR/restore evidence and
+least privilege. Do not reuse the earlier unchanged-schema restore as proof.
+Prepare exact-CI-checked schema-compatible recovery images before rollout; older
+87-migration images fail history checks once 88/89 are applied. Never roll back
+schema or delete guest/business data. Rehearse recovery without creating an account
+for a guest. Commerce remains closed, so these migrations do not enable purchases.
+The complete guest API/UI/recovery journey must be verified before exposing it.
+
+Cancellation keeps existing financial authority. Guest proof cannot satisfy the
+HUMAN refund requester constraint or authorise a refund. Verified paid guest
+cancellations require an authorised real operator request and separate approval;
+the worker records a review alert instead of fabricating a User or system approval.
+Alert destination/resolution and the guest cancellation UI still need integration.
+
+A confirmed adjacent gap is retained for the next checkout package: PartsQuote.issue
+currently accepts custom one-to-thirty-day expiry although the recorded approved
+quotation policy is seven days with no shorter override. Enforce the server policy
+and update authoring/contracts/Help; this is implementation work, not a new owner
+policy question. Do not describe parts-quote seven-day enforcement as complete yet.
+
 ## Account-optional purchasing foundation - source checkpoint
 
 The approved account-optional purchase work has started with a separate PurchaseGuest

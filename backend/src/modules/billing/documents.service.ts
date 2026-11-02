@@ -146,6 +146,7 @@ export class FinancialDocumentsService {
             id: true,
             invoiceNumber: true,
             customerId: true,
+            guestId: true,
             orderId: true,
             bookingId: true,
             vehicleTransactionId: true,
@@ -191,7 +192,7 @@ export class FinancialDocumentsService {
             ? "BOOKING"
             : "VEHICLE_TRANSACTION";
         if (
-          snapshot.billTo.reference !== invoice.customerId ||
+          snapshot.billTo.reference !== (invoice.customerId ?? invoice.guestId) ||
           snapshot.source.id !== expectedSource ||
           snapshot.source.type !== expectedType
         )

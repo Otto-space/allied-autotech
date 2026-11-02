@@ -133,6 +133,7 @@ export class BillingService {
         data = {
           invoiceNumber: number(),
           customerId: source.customerId,
+          guestId: source.guestId,
           orderId: source.id,
           currency: source.currency,
           subtotalKobo: source.totalKobo - source.taxKobo,
@@ -214,7 +215,8 @@ export class BillingService {
       await this.assertBranch(actor, branchId, transaction);
       data.policySnapshot = policySnapshot(finance);
       data.documentSnapshot = await buildInvoiceSnapshot(transaction, {
-        customerId: data.customerId,
+        customerId: data.customerId ?? null,
+        guestId: data.guestId ?? null,
         orderId: data.orderId ?? null,
         bookingId: data.bookingId ?? null,
         vehicleTransactionId: data.vehicleTransactionId ?? null,

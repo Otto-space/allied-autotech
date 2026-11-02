@@ -244,6 +244,7 @@ export class BillingRepository {
       select: {
         id: true,
         customerId: true,
+        guestId: true,
         branchId: true,
         status: true,
         currency: true,

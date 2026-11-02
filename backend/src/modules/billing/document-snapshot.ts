@@ -35,7 +35,8 @@ export function issuerFromPolicy(policy: unknown): InvoiceSnapshot["issuer"] {
 }
 
 type InvoiceSource = {
-  customerId: string;
+  customerId: string | null;
+  guestId?: string | null;
   orderId?: string | null;
   bookingId?: string | null;
   vehicleTransactionId?: string | null;
@@ -72,18 +73,27 @@ export async function buildInvoiceSnapshot(
   invoice: InvoiceSource,
   legacy = false,
 ): Promise<InvoiceSnapshot> {
-  const customer = await database.customerProfile.findUnique({
-    where: { id: invoice.customerId },
-    select: {
-      firstName: true,
-      lastName: true,
-      address: true,
-      city: true,
-      state: true,
-      country: true,
-    },
-  });
-  if (!customer) throw invoiceConflict("Invoice account is unavailable");
+  if (
+    Boolean(invoice.customerId) === Boolean(invoice.guestId) ||
+    (invoice.guestId &&
+      (!invoice.orderId || invoice.bookingId || invoice.vehicleTransactionId))
+  )
+    throw invoiceConflict("Invoice purchase ownership is inconsistent");
+  const customer = invoice.customerId
+    ? await database.customerProfile.findUnique({
+        where: { id: invoice.customerId },
+        select: {
+          firstName: true,
+          lastName: true,
+          address: true,
+          city: true,
+          state: true,
+          country: true,
+        },
+      })
+    : null;
+  if (invoice.customerId && !customer)
+    throw invoiceConflict("Invoice account is unavailable");
   const reference = invoice.orderId ?? invoice.bookingId ?? invoice.vehicleTransactionId;
   if (!reference) throw invoiceConflict("Invoice source is unavailable");
   const snapshot: InvoiceSnapshot = {
@@ -92,13 +102,17 @@ export async function buildInvoiceSnapshot(
     billTo: {
       name: legacy
         ? "Account holder"
-        : `${customer.firstName} ${customer.lastName}`.trim(),
+        : customer
+          ? `${customer.firstName} ${customer.lastName}`.trim()
+          : "",
       address: legacy
         ? null
-        : [customer.address, customer.city, customer.state, customer.country]
-            .filter(Boolean)
-            .join(", ") || null,
-      reference: invoice.customerId,
+        : customer
+          ? [customer.address, customer.city, customer.state, customer.country]
+              .filter(Boolean)
+              .join(", ") || null
+          : null,
+      reference: invoice.customerId ?? invoice.guestId!,
     },
     source: {
       type: invoice.orderId
@@ -120,6 +134,7 @@ export async function buildInvoiceSnapshot(
       where: { id: invoice.orderId },
       select: {
         customerId: true,
+        guestId: true,
         orderNumber: true,
         customerName: true,
         discountAmountKobo: true,
@@ -136,7 +151,11 @@ export async function buildInvoiceSnapshot(
         },
       },
     });
-    if (!order || order.customerId !== invoice.customerId)
+    if (
+      !order ||
+      order.customerId !== invoice.customerId ||
+      (order.guestId ?? null) !== (invoice.guestId ?? null)
+    )
       throw invoiceConflict("Invoice source is unavailable");
     snapshot.billTo.name = order.customerName;
     snapshot.source.reference = order.orderNumber;
@@ -150,6 +169,7 @@ export async function buildInvoiceSnapshot(
       subtotalKobo: item.subtotalKobo.toString(),
     }));
   } else if (invoice.bookingId) {
+    if (!invoice.customerId) throw invoiceConflict("Invoice account is unavailable");
     const quote = await database.serviceQuote.findFirst({
       where: {
         bookingId: invoice.bookingId,

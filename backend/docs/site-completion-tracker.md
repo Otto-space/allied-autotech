@@ -1,3 +1,37 @@
+### 2 November 2026: Guest order/invoice ownership prepared (source only)
+
+Guest access foundation 076fe87c passes all exact-source gates: frontend
+41537902677 (1,353 passed / 12 existing skips), backend 41537902832 (including
+12 guest-access cases on its own new database) and secrets 41537902804. GitHub
+verifies its signature. This source is not published; current runtime stays 333c3a22.
+
+The next source extension separates guest ownership on orders, invoices and
+aftercare, binds invoices/aftercare to the same buyer as their source, makes guest
+ownership/quote-recipient fields immutable, hides the internal recipient projection
+and keeps genuine account ownership unchanged. Guest invoices use existing quantity,
+amount and document snapshots. Account APIs do not claim guest records by matching
+email. Financial request/approval authority and paid/allocated/ready separation remain.
+Final native guest-owner-native-6b6d27f640984af7a7629bf0305ad4b5 passes 28/28 across
+five suites, with all 89 migrations replayed, no drift/db:check and non-owner runtime
+privileges. Migration/finance/refund/document unit/API checks pass 57/57. Production
+and targeted test TypeScript, script TypeScript and repository lint pass. Exact-source
+CI for this extension is pending at this checkpoint; no shared database was written.
+
+Initial ownership runs retained failures: account-only invoice guard rejected guest
+sources; an incomplete new SQL variable binding then broke isolated invoice creation
+and was corrected; an added test was initially nested incorrectly and was relocated.
+The final transactional, lock-bounded migration and changed-byte/rename review gate
+checks pass. Both new migrations pin their first local LF format for portable checksums.
+The reviewed name/hash exception does not waive the new populated restore rehearsal,
+fresh backup, compatible recovery images or publication gates. Earlier schema-unchanged
+restore evidence cannot cover this change.
+
+Continue the full audit: shared guest checkout/payment/stock/discount/recovery,
+quote issuance/acceptance, public cart and guest cancellation/operator alerts still
+need integration. Parts-quotation expiry must enforce the recorded seven-day policy;
+custom 1-30 day expiry is a confirmed remaining implementation defect. Keep all
+commerce/booking/provider gates closed. Report: docs/LIVE_AUDIT_IMPLEMENTATION_20261102.md.
+
 ### 2 November 2026: Guest purchase access foundation (source only)
 
 The approved account-optional purchase work has started with a separate PurchaseGuest

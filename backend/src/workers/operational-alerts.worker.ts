@@ -28,10 +28,27 @@ export class OperationalAlertsWorker {
       select: { id: true, customer: { select: { userId: true } } },
       take: 100,
     });
-    for (const order of cancelledPaid)
-      await this.database.$transaction((tx) =>
-        requestFreeCancellationRefund(tx, order.id, order.customer.userId),
-      );
+    for (const order of cancelledPaid) {
+      const requesterId = order.customer?.userId;
+      if (requesterId)
+        await this.database.$transaction((tx) =>
+          requestFreeCancellationRefund(tx, order.id, requesterId),
+        );
+      else
+        // HUMAN refunds require a real operator requester and separate approval.
+        // Guest proof must never manufacture that operator or authorise a refund.
+        await this.database.operationalAlert.upsert({
+          where: { key: `guest-cancellation-refund:${order.id}` },
+          update: { resolvedAt: null },
+          create: {
+            key: `guest-cancellation-refund:${order.id}`,
+            category: "GUEST_ORDER_REFUND_REVIEW",
+            resourceId: order.id,
+            message:
+              "A cancelled guest order has a verified payment. An authorised operator must request the full pre-confirmation refund for separate approval. No automatic refund is authorised.",
+          },
+        });
+    }
     const disputeScan = await readOperationalScan(this.database, "disputes");
     const disputes = await this.database.paymentDispute.findMany({
       where: { resolvedAt: null, AND: operationalScanBoundary(disputeScan) },

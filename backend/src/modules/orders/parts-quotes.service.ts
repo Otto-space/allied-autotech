@@ -35,6 +35,7 @@ export function partsQuoteView(quote: PartsQuote) {
     idempotencyKeyHash: _key,
     requestHash: _hash,
     createdByUserId: _creator,
+    guestEmail: _guestRecipient,
     policySnapshot: _policy,
     ...view
   } = quote;

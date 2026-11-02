@@ -1487,11 +1487,14 @@ model ProductFavourite {
 // Guest purchase identity is deliberately separate from User/CustomerProfile.
 // Email proof cannot authenticate an account or grant its historical records.
 model PurchaseGuest {
-  id         String                 @id @default(uuid()) @db.Uuid
-  email      String                 @unique @db.Citext
-  verifiedAt DateTime
-  createdAt  DateTime               @default(now())
-  sessions   PurchaseGuestSession[]
+  id                String                  @id @default(uuid()) @db.Uuid
+  email             String                  @unique @db.Citext
+  verifiedAt        DateTime
+  createdAt         DateTime                @default(now())
+  sessions          PurchaseGuestSession[]
+  orders            Order[]
+  invoices          Invoice[]
+  aftercareRequests OrderAftercareRequest[]
 }
 
 model PurchaseGuestChallenge {
@@ -1554,7 +1557,8 @@ model Order {
   taxKobo                      BigInt            @default(0)
   policySnapshot               Json?
   id                           String            @id @default(uuid()) @db.Uuid
-  customerId                   String            @db.Uuid
+  customerId                   String?           @db.Uuid
+  guestId                      String?           @db.Uuid
   branchId                     String?           @db.Uuid
   orderNumber                  String            @unique @db.VarChar(40)
   status                       OrderStatus       @default(PENDING)
@@ -1585,7 +1589,8 @@ model Order {
   cancelledAt                  DateTime?
   completedAt                  DateTime?
 
-  customer                            CustomerProfile         @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  customer                            CustomerProfile?        @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  guest                               PurchaseGuest?          @relation(fields: [guestId], references: [id], onDelete: Restrict)
   branch                              Branch?                 @relation(fields: [branchId], references: [id], onDelete: Restrict)
   items                               OrderItem[]
   payments                            Payment[]
@@ -1595,6 +1600,8 @@ model Order {
   complaints                          Complaint[]
   owner_OrderAftercareRequest_orderId OrderAftercareRequest[] @relation("Owner_OrderAftercareRequest_orderId")
 
+  @@index([guestId, createdAt])
+  @@index([guestId, id], map: "Order_guest_directory_idx")
   @@index([customerId, createdAt])
   @@index([branchId, status, createdAt])
   @@index([status, createdAt])
@@ -2618,7 +2625,8 @@ model Invoice {
   documentSnapshot     Json?
   id                   String        @id @default(uuid()) @db.Uuid
   invoiceNumber        String        @unique @db.VarChar(50)
-  customerId           String        @db.Uuid
+  customerId           String?       @db.Uuid
+  guestId              String?       @db.Uuid
   orderId              String?       @unique @db.Uuid
   bookingId            String?       @unique @db.Uuid
   vehicleTransactionId String?       @unique @db.Uuid
@@ -2636,12 +2644,14 @@ model Invoice {
   createdAt            DateTime      @default(now())
   updatedAt            DateTime      @updatedAt
 
-  customer           CustomerProfile     @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  customer           CustomerProfile?    @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  guest              PurchaseGuest?      @relation(fields: [guestId], references: [id], onDelete: Restrict)
   order              Order?              @relation(fields: [orderId], references: [id], onDelete: Restrict)
   booking            Booking?            @relation(fields: [bookingId], references: [id], onDelete: Restrict)
   vehicleTransaction VehicleTransaction? @relation(fields: [vehicleTransactionId], references: [id], onDelete: Restrict)
   payments           Payment[]
 
+  @@index([guestId, createdAt])
   @@index([customerId, createdAt])
   @@index([status])
 }
@@ -3013,28 +3023,31 @@ model RetentionHold {
 }
 
 model OrderAftercareRequest {
-  id                 String          @id @default(uuid()) @db.Uuid
-  orderId            String          @db.Uuid
-  customerId         String          @db.Uuid
-  kind               String          @db.VarChar(24)
-  status             String          @default("REQUESTED") @db.VarChar(32)
-  reason             String          @db.VarChar(2000)
-  reviewReason       String          @db.VarChar(1000)
-  requestedAt        DateTime        @default(now())
+  id                 String           @id @default(uuid()) @db.Uuid
+  orderId            String           @db.Uuid
+  customerId         String?          @db.Uuid
+  guestId            String?          @db.Uuid
+  kind               String           @db.VarChar(24)
+  status             String           @default("REQUESTED") @db.VarChar(32)
+  reason             String           @db.VarChar(2000)
+  reviewReason       String           @db.VarChar(1000)
+  requestedAt        DateTime         @default(now())
   items              Json
   receivedAt         DateTime?
   inspectedAt        DateTime?
-  inspectedByUserId  String?         @db.Uuid
-  inspectionNote     String?         @db.VarChar(2000)
+  inspectedByUserId  String?          @db.Uuid
+  inspectionNote     String?          @db.VarChar(2000)
   goodCondition      Boolean?
   approvedFeeKobo    BigInt?
-  reviewedByUserId   String?         @db.Uuid
+  reviewedByUserId   String?          @db.Uuid
   reviewedAt         DateTime?
-  reviewNote         String?         @db.VarChar(2000)
+  reviewNote         String?          @db.VarChar(2000)
   policySnapshot     Json
   refundDueAt        DateTime?
-  refundClockStatus  String          @default("ANCHOR_AND_BANK_CALENDAR_PENDING") @db.VarChar(80)
-  customerIdRelation CustomerProfile @relation("Owner_OrderAftercareRequest_customerId", fields: [customerId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  refundClockStatus  String           @default("ANCHOR_AND_BANK_CALENDAR_PENDING") @db.VarChar(80)
+  customerIdRelation CustomerProfile? @relation("Owner_OrderAftercareRequest_customerId", fields: [customerId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+
+  guest PurchaseGuest? @relation(fields: [guestId], references: [id], onDelete: Restrict)
 
   inspectedByUserIdRelation User? @relation("Owner_OrderAftercareRequest_inspectedByUserId", fields: [inspectedByUserId], references: [id], onDelete: Restrict, onUpdate: NoAction)
 
@@ -3204,6 +3217,7 @@ model ProductCompatibilityHistory {
 
 // Issued commercial snapshots are immutable; revisions create new rows.
 model PartsQuote {
+  guestEmail         String?     @db.Citext
   id                 String      @id @default(uuid()) @db.Uuid
   enquiryId          String      @db.Uuid
   productId          String      @db.Uuid
@@ -3232,5 +3246,6 @@ model PartsQuote {
   order              Order?      @relation(fields: [orderId], references: [id], onDelete: Restrict)
 
   @@unique([enquiryId, revision])
+  @@index([guestEmail, createdAt])
   @@index([status, expiresAt])
 }
