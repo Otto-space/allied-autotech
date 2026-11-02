@@ -1,3 +1,26 @@
+### 2 November 2026: Guest purchase access foundation (source only)
+
+The approved account-optional purchase work has started with a separate PurchaseGuest
+identity, browser-bound encrypted single-use email proof, expiring opaque sessions,
+explicit read/write CSRF checks, rotation/revocation and bounded expired-state cleanup.
+No public route is mounted and no guest checkout/payment is claimed available.
+User/CustomerProfile and commercial rows are unchanged. A new additive migration is
+prepared, client regenerated, and a fresh isolated PostgreSQL replay passes all 88
+migrations, no drift/db:check and non-owner/no-DDL/no-TRUNCATE runtime checks.
+Twelve guest service/worker checks plus four existing identity/runtime HTTP checks
+pass (16/16); email uses an injected fake transport only. Five identity primitive
+units, production TypeScript, repository lint/secret guard and changed-file format
+checks pass. The first run passed 14/15; a nonexistent MFA field in one new fixture
+was corrected to the real active-factor model. Failure evidence is retained.
+
+This foundation is not a complete guest journey and has not been published. Current
+public runtime remains 333c3a22 with 87 production migrations and transaction gates
+closed. Next: guest-owned orders/invoices/aftercare, shared checkout/payment pricing
+and reconciliation, public cart/recovery UI and cross-owner lifecycle tests. A new
+populated restore rehearsal and reviewed forward rollout are mandatory before any
+schema publication; the earlier unchanged-schema restore receipt cannot cover this.
+Full audit remains active; no additional owner decision or sign-in is requested.
+
 ### 2 November 2026, 21:58 UTC: Runtime capability and Help repair published
 
 Runtime 333c3a22dde455274044331e30608f9b2cb2eef4 is published on apex/www as

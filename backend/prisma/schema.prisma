@@ -1484,6 +1484,44 @@ model ProductFavourite {
   @@index([productId])
 }
 
+// Guest purchase identity is deliberately separate from User/CustomerProfile.
+// Email proof cannot authenticate an account or grant its historical records.
+model PurchaseGuest {
+  id         String                 @id @default(uuid()) @db.Uuid
+  email      String                 @unique @db.Citext
+  verifiedAt DateTime
+  createdAt  DateTime               @default(now())
+  sessions   PurchaseGuestSession[]
+}
+
+model PurchaseGuestChallenge {
+  id                 String    @id @default(uuid()) @db.Uuid
+  email              String    @db.Citext
+  tokenHash          String    @unique @db.Char(64)
+  browserBindingHash String    @db.Char(64)
+  expiresAt          DateTime
+  consumedAt         DateTime?
+  createdAt          DateTime  @default(now())
+
+  @@index([email, createdAt])
+  @@index([expiresAt])
+}
+
+model PurchaseGuestSession {
+  id            String        @id @default(uuid()) @db.Uuid
+  guestId       String        @db.Uuid
+  tokenHash     String        @unique @db.Char(64)
+  csrfTokenHash String        @db.Char(64)
+  expiresAt     DateTime
+  idleExpiresAt DateTime
+  revokedAt     DateTime?
+  createdAt     DateTime      @default(now())
+  guest         PurchaseGuest @relation(fields: [guestId], references: [id], onDelete: Restrict)
+
+  @@index([guestId, revokedAt])
+  @@index([expiresAt])
+}
+
 model Cart {
   id         String   @id @default(uuid()) @db.Uuid
   customerId String   @unique @db.Uuid

@@ -1,6 +1,15 @@
 import { renderBrandEmail } from "../../common/email/brand-template.js";
 import type { IdentityEmailPayload } from "./identity.types.js";
 export function renderIdentityEmail(payload: IdentityEmailPayload) {
+  if (payload.template === "purchase-guest-access")
+    return renderBrandEmail({
+      title: "Your private Allied AutoTech purchase link",
+      eyebrow: "Purchase access",
+      message:
+        "Use this link in the browser where you requested it to continue without creating an account. It gives access only to guest purchases, never to a customer account.",
+      action: { label: "Continue to purchase access", url: payload.link },
+      note: "This link expires in 15 minutes and works once. Opening it does not place an order or make a payment. If you did not request it, ignore this email. Never forward your private link.",
+    });
   if (payload.template === "verify-email")
     return renderBrandEmail({
       title: "Verify your Allied AutoTech email",

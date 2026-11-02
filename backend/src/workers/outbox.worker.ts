@@ -62,6 +62,7 @@ export class IdentityOutboxWorker {
           ${identityEventTypes.verificationEmailRequested},
           ${identityEventTypes.passwordResetEmailRequested},
           ${identityEventTypes.privilegedInvitationEmailRequested}
+          , ${identityEventTypes.purchaseGuestAccessRequested}
         )
         ORDER BY "createdAt" ASC
         FOR UPDATE SKIP LOCKED
@@ -115,7 +116,30 @@ export class IdentityOutboxWorker {
         LIMIT ${boundedBatchSize}
       )
     `;
-    return throttleCount + challengeCount + invitationCount;
+    const purchaseProofCount = await this.database.$executeRaw`
+      DELETE FROM "PurchaseGuestChallenge"
+      WHERE "id" IN (
+        SELECT "id" FROM "PurchaseGuestChallenge"
+        WHERE "expiresAt" <= (CURRENT_TIMESTAMP AT TIME ZONE 'UTC') - INTERVAL '30 days'
+        ORDER BY "expiresAt" ASC LIMIT ${boundedBatchSize}
+      )
+    `;
+    const purchaseSessionCount = await this.database.$executeRaw`
+      DELETE FROM "PurchaseGuestSession"
+      WHERE "id" IN (
+        SELECT "id" FROM "PurchaseGuestSession"
+        WHERE "expiresAt" <= (CURRENT_TIMESTAMP AT TIME ZONE 'UTC') - INTERVAL '30 days'
+        ORDER BY "expiresAt" ASC LIMIT ${boundedBatchSize}
+      )
+    `;
+    // Guest identities and financial records are outside authentication cleanup.
+    return (
+      throttleCount +
+      challengeCount +
+      invitationCount +
+      purchaseProofCount +
+      purchaseSessionCount
+    );
   }
 
   private async deliver(event: ClaimedEvent): Promise<void> {
@@ -127,7 +151,8 @@ export class IdentityOutboxWorker {
       if (
         (payload.template !== "verify-email" &&
           payload.template !== "reset-password" &&
-          payload.template !== "privileged-invitation") ||
+          payload.template !== "privileged-invitation" &&
+          payload.template !== "purchase-guest-access") ||
         typeof payload.to !== "string" ||
         typeof payload.link !== "string"
       ) {

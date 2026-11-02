@@ -18,7 +18,8 @@ export interface AuthenticatedSessionSnapshot {
 export type MfaEnrollmentSession = AuthenticatedSessionSnapshot;
 
 export interface IdentityEmailPayload {
-  template: "verify-email" | "reset-password" | "privileged-invitation";
+  template:
+    "verify-email" | "reset-password" | "privileged-invitation" | "purchase-guest-access";
   to: string;
   link: string;
 }

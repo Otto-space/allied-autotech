@@ -5,6 +5,44 @@ The current requirement ledger is frontend/docs/UI_UX_QUALITY_REGISTER.md; this
 report records a bounded implementation package, not a second backlog or a claim
 that the whole site is ready. Package start: 17:31 UTC; 60-minute review: 18:31 UTC.
 
+## Account-optional purchasing foundation - source checkpoint
+
+The approved account-optional purchase work has started with a separate PurchaseGuest
+identity, browser-bound encrypted single-use email proof, expiring opaque sessions,
+explicit read/write CSRF checks, rotation/revocation and bounded expired-state cleanup.
+No public route is mounted and no guest checkout/payment is claimed available.
+User/CustomerProfile and commercial rows are unchanged. A new additive migration is
+prepared, client regenerated, and a fresh isolated PostgreSQL replay passes all 88
+migrations, no drift/db:check and non-owner/no-DDL/no-TRUNCATE runtime checks.
+Twelve guest service/worker checks plus four existing identity/runtime HTTP checks
+pass (16/16); email uses an injected fake transport only. Five identity primitive
+units, production TypeScript, repository lint/secret guard and changed-file format
+checks pass. The first run passed 14/15; a nonexistent MFA field in one new fixture
+was corrected to the real active-factor model. Failure evidence is retained.
+
+This foundation is not a complete guest journey and has not been published. Current
+public runtime remains 333c3a22 with 87 production migrations and transaction gates
+closed. Next: guest-owned orders/invoices/aftercare, shared checkout/payment pricing
+and reconciliation, public cart/recovery UI and cross-owner lifecycle tests. A new
+populated restore rehearsal and reviewed forward rollout are mandatory before any
+schema publication; the earlier unchanged-schema restore receipt cannot cover this.
+Full audit remains active; no additional owner decision or sign-in is requested.
+
+Native receipts: guest-access-native-694480e213f44ce6bd923afe7b9816f8 (14/15;
+failed fixture, stopped), guest-access-native-346867537c5448f0a62885a7fd062fec
+(15/15), guest-access-native-3fb31f6291fa43ef894594491eabae8e (16/16 after
+cleanup coverage). Successful runs removed only their own synthetic data; source
+hashes and replay/check logs are retained. A later ad hoc test typecheck initially
+omitted the existing Express augmentation and exposed a JSON-envelope cast; the
+invocation and test-only cast were corrected. This is separate from the passing
+production TypeScript check. No test authentication assertion was removed.
+
+Automatic approval review additionally rejected cleanup of the stopped synthetic
+folder guest-access-native-694480e213f44ce6bd923afe7b9816f8/data, reporting only
+"blocked by policy". It is retained alongside the two previously blocked native
+folders; no alternate deletion method was tried. No application data was a cleanup
+target. Existing task/provider evidence, source, backups and other tasks remain.
+
 ## Published runtime capability and Help repair - 21:58 UTC
 
 Runtime capability and Help repair published

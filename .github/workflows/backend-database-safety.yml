@@ -77,6 +77,23 @@ jobs:
             -e EMAIL_DELIVERY_ENABLED=false -e SMS_DELIVERY_ENABLED=false \
             node:24.13.0 node node_modules/vitest/vitest.mjs run \
             tests/integration/admin-service-catalogue.test.ts tests/integration/service-discovery.test.ts --maxWorkers=1
+      - name: Verify isolated guest purchase access without customer-account access
+        env:
+          DB_NAME: allied_purchase_guest_access_ci
+          TEST_DB_NAME: allied_purchase_guest_access_ci
+        run: |
+          docker exec "${{ job.services.postgres.id }}" createdb --username=postgres allied_purchase_guest_access_ci
+          npm run test:migrations
+          npm run db:check
+          docker run --rm --network "container:${{ job.services.postgres.id }}" \
+            --mount "type=bind,source=$PWD,target=/workspace" --workdir /workspace \
+            -e NODE_ENV=test -e DEPLOYMENT_ENV=local -e DB_HOST=127.0.0.1 -e DB_PORT=5432 \
+            -e DB_NAME=allied_purchase_guest_access_ci -e TEST_DB_NAME=allied_purchase_guest_access_ci \
+            -e DB_USER=postgres -e DB_PASSWORD=isolated-ci-only-password -e DB_SSL_MODE=disable \
+            -e CONFIRM_EMPTY_MIGRATION_DATABASE=true -e RUN_DATABASE_TESTS=true \
+            -e EMAIL_DELIVERY_ENABLED=false -e SMS_DELIVERY_ENABLED=false \
+            node:24.13.0 node node_modules/vitest/vitest.mjs run \
+            tests/integration/purchase-guest-access.test.ts --maxWorkers=1
       - name: Verify administrator vehicle operations on a separate fresh database
         env:
           DB_NAME: allied_vehicle_operator_ci
