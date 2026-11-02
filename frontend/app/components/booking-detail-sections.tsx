@@ -1,11 +1,12 @@
 import { WorkflowProgress } from "./status-progress";
 import Link from "next/link";
-import { CalendarDays, CarFront, MapPin, NotebookPen } from "lucide-react";
+import { CarFront, MapPin, NotebookPen } from "lucide-react";
 import type { CustomerBookingDetail } from "@/lib/api/customer-booking-detail-schema";
 import { bookingLabel } from "@/lib/customer-booking-query";
 import { formatBusinessDate } from "@/lib/format/date";
 import { formatKobo } from "@/lib/format/money";
 import { upcomingAppointment } from "@/lib/booking-appointment";
+import { AppointmentTiming } from "./appointment-timing";
 import { BookingReference } from "./booking-reference";
 
 export type BookingQuote = CustomerBookingDetail["quotes"][number];
@@ -19,12 +20,13 @@ export const quoteOpen = (quote: BookingQuote, now: number) =>
 export function BookingAppointment({
   booking,
   now,
+  current = true,
 }: {
   booking: CustomerBookingDetail;
   now: number;
+  current?: boolean;
 }) {
   const reminder = upcomingAppointment(booking.status, booking.scheduledAt, now);
-  const requested = ["REQUESTED", "AWAITING_DEPOSIT"].includes(booking.status);
   return (
     <section className="booking-appointment" aria-labelledby="appointment-title">
       <div className="booking-section-heading">
@@ -34,6 +36,12 @@ export function BookingAppointment({
         </span>
       </div>
       {reminder && <p className="booking-appointment-reminder">{reminder}</p>}
+      <AppointmentTiming
+        status={booking.status}
+        scheduledAt={booking.scheduledAt}
+        now={now}
+        current={current}
+      />
       <BookingReference id={booking.id} />
       {booking.customerConcern && (
         <p className="booking-concern-description">{booking.customerConcern}</p>
@@ -45,22 +53,6 @@ export function BookingAppointment({
             <dd>{booking.requestedServiceCategoryName}</dd>
           </div>
         )}
-        <div>
-          <dt>
-            <CalendarDays aria-hidden="true" size={18} />
-            {requested
-              ? "Requested time"
-              : booking.status === "CONFIRMED"
-                ? "Confirmed appointment"
-                : "Appointment"}
-          </dt>
-          <dd>
-            {booking.scheduledAt
-              ? formatBusinessDate(booking.scheduledAt)
-              : "Time not assigned"}
-            {requested && <small>Awaiting workshop confirmation.</small>}
-          </dd>
-        </div>
         <div>
           <dt>
             <MapPin aria-hidden="true" size={18} />

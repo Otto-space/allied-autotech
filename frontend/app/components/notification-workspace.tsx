@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowLeft, Settings2 } from "lucide-react";
 import {
   AccountNotificationInbox,
@@ -16,6 +16,21 @@ export function NotificationWorkspace({
 }) {
   const [settings, setSettings] = useState(false);
   const [settingsVisited, setSettingsVisited] = useState(false);
+  useEffect(() => {
+    const openFromLink = () => {
+      if (window.location.hash !== "#browser-push-heading") return;
+      setSettingsVisited(true);
+      setSettings(true);
+    };
+    queueMicrotask(openFromLink);
+    window.addEventListener("hashchange", openFromLink);
+    return () => window.removeEventListener("hashchange", openFromLink);
+  }, []);
+  useEffect(() => {
+    if (settings && window.location.hash === "#browser-push-heading") {
+      document.getElementById("browser-push-heading")?.focus();
+    }
+  }, [settings]);
   return (
     <>
       <header className="cn-page-heading">

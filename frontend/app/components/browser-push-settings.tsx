@@ -1,5 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
+import Link from "next/link";
+import styles from "./browser-push-invitation.module.css";
 import { z } from "zod";
 import { apiRequest, ApiError, SESSION_CHANGED } from "@/lib/api/client";
 import { useResource } from "@/lib/api/use-resource";
@@ -18,9 +20,36 @@ async function endpointFingerprint(endpoint: string) {
     .map((byte) => byte.toString(16).padStart(2, "0"))
     .join("");
 }
-export function BrowserPushSettings({ role, userId }: { role: string; userId: string }) {
+export function BrowserPushSettings({
+  role,
+  userId,
+  invitationHref,
+}: {
+  role: string;
+  userId: string;
+  invitationHref?: string;
+}) {
   const base = `/${role === "CUSTOMER" ? "customers" : "staff"}/notifications/push`;
   const settings = useResource(base, parse);
+  const [dismissed, setDismissed] = useState<boolean | null>(null);
+  const dismissalKey = `allied:push-invitation:v1:${role}:${userId}`;
+  useEffect(() => {
+    if (!invitationHref) return;
+    let active = true;
+    queueMicrotask(() => {
+      let hidden = false;
+      try {
+        hidden = sessionStorage.getItem(dismissalKey) === "dismissed";
+      } catch {
+        /* In-memory dismissal still works. */
+      }
+      if (active) setDismissed(hidden);
+    });
+    return () => {
+      active = false;
+    };
+  }, [invitationHref, dismissalKey]);
+  const [deviceChecked, setDeviceChecked] = useState(false);
   const [supported, setSupported] = useState<boolean | null>(null);
   const [localFingerprint, setLocalFingerprint] = useState<string | null>(null);
   const [permission, setPermission] = useState<NotificationPermission>("default");
@@ -65,6 +94,7 @@ export function BrowserPushSettings({ role, userId }: { role: string; userId: st
               setError("Unable to check this browser’s notification settings.");
             }
           });
+        if (active && version === checkVersion) setDeviceChecked(true);
       }
     }
     void check();
@@ -74,6 +104,7 @@ export function BrowserPushSettings({ role, userId }: { role: string; userId: st
     const clear = () => {
       checkVersion++;
       setLocalFingerprint(null);
+      setDeviceChecked(false);
     };
     window.addEventListener(SESSION_CHANGED, clear);
     return () => {
@@ -188,9 +219,62 @@ export function BrowserPushSettings({ role, userId }: { role: string; userId: st
       setBusy(false);
     }
   }
+  if (invitationHref) {
+    if (
+      dismissed !== false ||
+      !deviceChecked ||
+      !supported ||
+      !online ||
+      permission === "denied" ||
+      enabled ||
+      error ||
+      settings.loading ||
+      settings.refreshing ||
+      settings.error ||
+      settings.refreshError ||
+      !settings.data?.available ||
+      !settings.data.publicKey
+    )
+      return null;
+    return (
+      <section className={styles.invitation} aria-labelledby="push-invitation-title">
+        <h2 id="push-invitation-title">Would you like browser alerts?</h2>
+        <p>
+          Get optional account updates on this device. Review settings to choose whether
+          to enable them. Your browser asks for permission only after you choose Enable.
+        </p>
+        <div className={styles.actions}>
+          <Link className="button secondary" href={invitationHref}>
+            Review notification settings
+          </Link>
+          <button
+            type="button"
+            className="button secondary"
+            onClick={() => {
+              setDismissed(true);
+              const heading = document.querySelector<HTMLElement>("main h1");
+              if (heading) {
+                heading.tabIndex = -1;
+                heading.focus();
+              }
+              try {
+                sessionStorage.setItem(dismissalKey, "dismissed");
+              } catch {
+                /* Keep the choice in memory. */
+              }
+            }}
+          >
+            Not now
+          </button>
+        </div>
+      </section>
+    );
+  }
   return (
     <section className="cn-browser-push" aria-labelledby="browser-push-heading">
-      <h3 id="browser-push-heading">Browser notifications</h3>
+      <h3 id="browser-push-heading" tabIndex={-1}>
+        Browser notifications
+      </h3>
       <p>
         Browser alerts use Web Push where supported. Delivery depends on this browser,
         your permission and your signed-in session. Message contents stay inside your

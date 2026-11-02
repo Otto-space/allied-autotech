@@ -216,6 +216,19 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         href: "/services",
         version: 3,
       });
+      const appointment = await read(null, "/public/learning/articles/service-request");
+      expect(appointment.status).toBe(200);
+      expect(appointment.body.data).toMatchObject({
+        id: "service-request",
+        version: 14,
+        href: "/services",
+      });
+      expect(appointment.body.data.steps.join(" ")).toContain(
+        "only for a confirmed future appointment",
+      );
+      expect(appointment.body.data.steps.join(" ")).toContain(
+        "No permission is requested by the invitation",
+      );
       expect(publicResult.headers["cache-control"]).toContain("no-store");
       expect(publicResult.headers.vary).toContain("Cookie");
       for (const id of [

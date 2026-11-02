@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AppointmentTiming } from "./appointment-timing";
 import { browseEnquiriesOnly, restrictedLaunchPage } from "@/lib/public-launch";
 import {
   CalendarDays,
@@ -26,7 +27,13 @@ function Action({ href, children }: { href: string; children: React.ReactNode })
     </Link>
   );
 }
-export function CustomerCareSummary({ care }: { care: CustomerCare }) {
+export function CustomerCareSummary({
+  care,
+  current = true,
+}: {
+  care: CustomerCare;
+  current?: boolean;
+}) {
   const booking = care.currentBooking;
   const vehicle = care.vehicle;
   const hasService = Boolean(booking || vehicle || care.nextBooking);
@@ -114,10 +121,11 @@ export function CustomerCareSummary({ care }: { care: CustomerCare }) {
                     <h2>Next booking</h2>
                     <h3>{care.nextBooking.serviceName}</h3>
                     <State value={care.nextBooking.status} />
-                    <p>{formatBusinessDate(care.nextBooking.scheduledAt)}</p>
-                    {care.nextBooking.status === "REQUESTED" && (
-                      <p>Requested time; awaiting confirmation.</p>
-                    )}
+                    <AppointmentTiming
+                      status={care.nextBooking.status}
+                      scheduledAt={care.nextBooking.scheduledAt}
+                      current={current}
+                    />
                     <Action href={`/dashboard/bookings/${care.nextBooking.id}`}>
                       View next booking
                     </Action>

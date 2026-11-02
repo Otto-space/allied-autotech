@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { BrowserPushSettings } from "./browser-push-settings";
 import { bookingReferenceLabel } from "@/lib/booking-appointment";
 import { useRef, useState, type ReactNode, type ComponentProps } from "react";
 import {
@@ -323,13 +324,28 @@ export function RoleOverview({
       {customerDesign && (
         <>
           {overviewFeedback}
-          {visible?.care && <CustomerCareSummary care={visible.care} />}
+          {visible?.care && (
+            <CustomerCareSummary
+              care={visible.care}
+              current={
+                !resource.loading && !resource.refreshing && !resource.refreshError
+              }
+            />
+          )}
           {!visible && !error && (
             <div className="care-loading" role="status">
               Loading your current vehicle care…
             </div>
           )}
         </>
+      )}
+      {session && (
+        <BrowserPushSettings
+          key={`${session.id}:${session.user.id}:${session.user.role}`}
+          role={session.user.role}
+          userId={session.user.id}
+          invitationHref={`${base}/notifications#browser-push-heading`}
+        />
       )}
       <OverviewHistory customer={customerDesign}>
         {customerDesign && (

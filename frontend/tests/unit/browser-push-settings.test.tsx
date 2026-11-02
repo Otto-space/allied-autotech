@@ -26,6 +26,7 @@ let unsubscribe: ReturnType<typeof vi.fn>;
 let failWrite: boolean;
 let storedFingerprint: string;
 beforeEach(() => {
+  sessionStorage.clear();
   subscribed = false;
   stored = false;
   permission = "default";
@@ -173,5 +174,77 @@ describe("honest current-browser push state", () => {
     expect(await screen.findByText(/Background push is not configured/)).toBeTruthy();
     expect(prompt).not.toHaveBeenCalled();
     expect(register).not.toHaveBeenCalled();
+  });
+});
+
+describe("optional browser-alert invitation", () => {
+  const invitation = () => (
+    <BrowserPushSettings
+      role="CUSTOMER"
+      userId="fixture-user"
+      invitationHref="/dashboard/notifications#browser-push-heading"
+    />
+  );
+  it("links to existing settings, never prompts and respects Not now across remounts", async () => {
+    const view = render(invitation());
+    expect(
+      (
+        await screen.findByRole("link", { name: "Review notification settings" })
+      ).getAttribute("href"),
+    ).toBe("/dashboard/notifications#browser-push-heading");
+    fireEvent.click(screen.getByRole("button", { name: "Not now" }));
+    expect(
+      screen.queryByRole("link", { name: "Review notification settings" }),
+    ).toBeNull();
+    view.unmount();
+    render(invitation());
+    await act(async () => {});
+    expect(
+      screen.queryByRole("link", { name: "Review notification settings" }),
+    ).toBeNull();
+    expect(prompt).not.toHaveBeenCalled();
+    expect(register).not.toHaveBeenCalled();
+    expect(
+      vi.mocked(apiRequest).mock.calls.every(([, options]) => !options?.method),
+    ).toBe(true);
+  });
+  it("does not invite blocked or unconfigured browsers", async () => {
+    permission = "denied";
+    const view = render(invitation());
+    await act(async () => {});
+    expect(screen.queryByRole("button", { name: "Not now" })).toBeNull();
+    view.unmount();
+    permission = "default";
+    vi.mocked(apiRequest).mockResolvedValue(
+      response({ available: false, publicKey: null, enabled: false }),
+    );
+    render(invitation());
+    await act(async () => {});
+    expect(screen.queryByRole("button", { name: "Not now" })).toBeNull();
+    expect(prompt).not.toHaveBeenCalled();
+  });
+  it("does not invite an already verified signed-in device", async () => {
+    stored = true;
+    subscribed = true;
+    permission = "granted";
+    render(invitation());
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 30));
+    });
+    expect(
+      screen.queryByRole("link", { name: "Review notification settings" }),
+    ).toBeNull();
+    expect(prompt).not.toHaveBeenCalled();
+  });
+  it("discards invitation state immediately when the session changes", async () => {
+    render(invitation());
+    await screen.findByRole("link", { name: "Review notification settings" });
+    act(() => {
+      window.dispatchEvent(new Event("fixture-session-changed"));
+    });
+    expect(
+      screen.queryByRole("link", { name: "Review notification settings" }),
+    ).toBeNull();
+    expect(prompt).not.toHaveBeenCalled();
   });
 });

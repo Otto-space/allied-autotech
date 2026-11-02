@@ -1,3 +1,14 @@
+### 2 November 2026: Appointment dates/countdown and optional alerts in verification
+
+The next explicit brief requirements are implemented locally: Nigeria-time date
+indicators, confirmed-future-only countdown in booking details/current care, and
+a dismissible optional invitation to existing browser notification settings. No
+auto permission, subscription, status transition, business-row write or gate change.
+Managed-workforce invitation waits for verified access. Current care precedes the
+optional invitation. Service-request v14 and acceptance/checkpoints are updated.
+Final browser, exact-source CI and compatible publication remain required.
+Report: docs/APPOINTMENT_ALERTS_20261102.md. Broader objective stays active.
+
 ### 2 November 2026: Public search and dashboard focus published
 
 Runtime 27bf3559 is live on apex/www as dpl_EDdQ6vkaD7AF6M9qkQnppBmdiBPE;

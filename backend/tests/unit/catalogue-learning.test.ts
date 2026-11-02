@@ -47,7 +47,12 @@ it("versions reversal guidance without granting live lookups or writes", () => {
 
 it("keeps concern guidance conditional on the real intake form and preserves pending confirmation", () => {
   const article = learningArticles.find((item) => item.id === "service-request")!;
-  expect(article.version).toBe(13);
+  expect(article.version).toBe(14);
+  expect(article.steps.join(" ")).toContain("only for a confirmed future appointment");
+  expect(article.steps.join(" ")).toContain(
+    "No permission is requested by the invitation",
+  );
+  expect(article.steps.join(" ")).toContain("alerts stop on sign-out or expiry");
   expect(article.steps.join(" ")).toContain(
     "group follows your draft through sign-in and review",
   );

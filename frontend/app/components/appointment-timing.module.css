@@ -1,0 +1,57 @@
+.timing {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-block: 1rem;
+  min-width: 0;
+}
+
+.calendar {
+  display: grid;
+  flex: 0 0 4.25rem;
+  overflow: hidden;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.5rem;
+  background: #fff;
+  color: #101820;
+  text-align: center;
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
+}
+
+.calendar span:first-child {
+  padding: 0.15rem 0.4rem;
+  color: #fff;
+  background: #d71920;
+  font-weight: 700;
+}
+
+.calendar strong {
+  font-size: 1.75rem;
+}
+
+.calendar span:last-child {
+  padding-bottom: 0.25rem;
+  font-size: 0.8rem;
+}
+
+.details {
+  min-width: 0;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.details .countdown {
+  margin: 0.25rem 0 0;
+  color: inherit;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.label {
+  display: block;
+  font-weight: 700;
+}
+.details small {
+  display: block;
+}

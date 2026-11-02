@@ -172,7 +172,7 @@ test("current-care detail links use owned records and distinguish requested time
       href,
     );
   await expect(page.locator(".customer-care-next")).toContainText(
-    "Requested time; awaiting confirmation.",
+    "Awaiting workshop confirmation.",
   );
   await expect(page.locator(".customer-care-secondary")).toContainText("Preferred date:");
   await expect(page.locator(".customer-care")).not.toContainText(

@@ -67,8 +67,18 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
   const mutation = useAccountMutation(reset);
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
-    const timer = window.setInterval(() => setNow(Date.now()), 30_000);
-    return () => window.clearInterval(timer);
+    const update = () => setNow(Date.now());
+    const visible = () => {
+      if (document.visibilityState === "visible") update();
+    };
+    const timer = window.setInterval(visible, 30_000);
+    window.addEventListener("focus", update);
+    document.addEventListener("visibilitychange", visible);
+    return () => {
+      window.clearInterval(timer);
+      window.removeEventListener("focus", update);
+      document.removeEventListener("visibilitychange", visible);
+    };
   }, []);
   const current = !booking.loading && !booking.error ? booking.data : undefined;
   const fresh =
@@ -280,7 +290,7 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
         <>
           <div className="booking-detail-grid">
             <div className="booking-detail-primary">
-              <BookingAppointment booking={current} now={now} />
+              <BookingAppointment booking={current} now={now} current={fresh} />
               <BookingDeposit booking={current} />
             </div>
             <BookingProgress booking={current} />

@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { useAccountSession } from "./dashboard-shell";
+import { BrowserPushSettings } from "./browser-push-settings";
 import { useSearchParams } from "next/navigation";
 import {
   workforceDestinationAllowed,
@@ -63,6 +65,7 @@ export function WorkforceOverview({
   access: WorkforceAccess;
   refreshAccess: () => void;
 }) {
+  const session = useAccountSession();
   const search = useSearchParams();
   const record = useResource("/staff/workforce/overview", parseWorkforceOverview);
   const mismatch = !!record.data && !sameWorkforceScope(access, record.data.access);
@@ -125,6 +128,14 @@ export function WorkforceOverview({
           )}
         </div>
       </header>
+      {active && session && session.user.id === active.userId && (
+        <BrowserPushSettings
+          key={`${session.id}:${session.user.id}:${session.user.role}`}
+          role={session.user.role}
+          userId={session.user.id}
+          invitationHref="/admin/notifications#browser-push-heading"
+        />
+      )}
       {search.get("workAccess") === "updated" && (
         <p className="notice" role="status">
           Your current responsibilities do not permit that page. You can continue with the

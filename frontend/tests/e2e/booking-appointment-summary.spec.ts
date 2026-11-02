@@ -19,6 +19,9 @@ for (const width of [320, 1440]) {
       /Your appointment is tomorrow at 10:00 am \(Nigeria time\)/i,
     );
     await expect(panel).toContainText("Confirmed appointment");
+    await expect(panel.getByRole("timer")).toHaveText("Starts in 10 hours, 30 minutes");
+    await expect(panel.getByRole("timer")).toHaveAttribute("aria-live", "off");
+    await expect(panel.locator("time[aria-hidden=true]")).toContainText("Nov");
     expect(
       (await new AxeBuilder({ page }).include(".booking-appointment").analyze())
         .violations,
@@ -49,6 +52,7 @@ for (const width of [320, 1440]) {
     await expect(panel).toContainText("Requested time");
     await expect(panel).not.toContainText("Your appointment is");
     await expect(panel).toContainText("Awaiting workshop confirmation.");
+    await expect(panel.getByRole("timer")).toHaveCount(0);
     state.record.status = "CONFIRMED";
     state.record.scheduledAt = "2026-11-02T10:00:00Z";
     await page.reload();
@@ -59,12 +63,14 @@ for (const width of [320, 1440]) {
     await page.clock.fastForward(90_000);
     await expect(panel).not.toContainText("Your appointment is");
     await expect(panel).toContainText("Confirmed");
+    await expect(panel.getByRole("timer")).toHaveCount(0);
     for (const status of ["CANCELLED", "COMPLETED"]) {
       state.record.status = status;
       state.record.scheduledAt = "2026-11-04T10:00:00Z";
       await page.reload();
       await expect(panel).toBeVisible();
       await expect(panel).not.toContainText("Your appointment is");
+      await expect(panel.getByRole("timer")).toHaveCount(0);
     }
     expect(state.writes).toHaveLength(0);
   });
