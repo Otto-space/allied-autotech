@@ -50,8 +50,10 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       expect(overview.body.data.counts).not.toHaveProperty("jobs");
       expect(overview.body.data.counts).not.toHaveProperty("payments");
       expect((await read(f.operations, "/staff/workforce/finance")).status).toBe(403);
-      expect((await read(f.operations, "/staff/payments")).status).toBe(403);
-      expect((await read(f.operations, "/staff/bookings")).status).toBe(403);
+      // Admin's full operational workspace is separate from these optional,
+      // assignment-scoped workforce projections and independent approvals.
+      expect((await read(f.operations, "/staff/payments")).status).toBe(200);
+      expect((await read(f.operations, "/staff/bookings")).status).toBe(200);
     });
     it("removes expired/revoked sources on the next request and preserves overlaps", async () => {
       const overlap = await f.assignment(f.operations.user.id, "CUSTOMER_SERVICE", true);
@@ -432,7 +434,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       expect((await accept(f.care)).status).toBe(401);
       const next = await f.session(f.care.user.id, "ADMIN");
       expect((await read(next, "/staff/workforce/access")).body.data.managed).toBe(true);
-      expect((await read(next, "/staff/payments")).status).toBe(403);
+      expect((await read(next, "/staff/payments")).status).toBe(200);
     });
     it("preserves customer ownership and suspends current sessions on the next request", async () => {
       expect((await read(f.customer, "/staff/workforce/jobs")).status).toBe(403);

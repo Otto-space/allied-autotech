@@ -60,9 +60,9 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       });
       const managedAdmin = await read(f.operations, "/auth/session");
       expect(managedAdmin.status).toBe(200);
-      expect(managedAdmin.body.data.workforceManaged).toBe(true);
+      expect(managedAdmin.body.data.workforceManaged).toBe(false);
       const overview = "/staff/overview?from=2026-10-01&to=2026-10-26";
-      expect((await read(f.operations, overview)).status).toBe(403);
+      expect((await read(f.operations, overview)).status).toBe(200);
       expect((await read(owner, overview)).status).toBe(200);
     });
 

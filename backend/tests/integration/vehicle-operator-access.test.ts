@@ -113,6 +113,15 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         const session = await request(app).get("/api/v1/auth/session").set(actor.headers);
         expect(session.status).toBe(200);
         expect(session.body.data.workforceManaged).toBe(false);
+        const profile = await request(app)
+          .get("/api/v1/staff/profile")
+          .set(actor.headers);
+        expect(profile.status).toBe(200);
+        expect(profile.body.data).toMatchObject({
+          id: actor.user.id,
+          role,
+          staffProfile: null,
+        });
         expect(
           await prisma.staffProfile.findUnique({ where: { userId: actor.user.id } }),
         ).toBeNull();
