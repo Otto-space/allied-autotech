@@ -105,3 +105,10 @@ wider wording/table consistency and role/device/provider acceptance still requir
 their own implementation or current-state verification. A mobile image-byte review
 will optimize static approved images through the existing image pipeline; no field
 performance claim is made here. Financial/operational activation stays gated.
+
+Bounded cleanup removed four verified task-only superseded befbbf9d local image
+references after confirming no container consumers and preserving current/rollback
+images. Warm caches, other containers/volumes, source and all backups are retained.
+Measured C: free space remained 25.88 GiB before/after; no multi-gigabyte physical
+reclamation is claimed. Temporary provider cookie/state was removed. The read-only
+3103/5024 preview remains reserved for the next active implementation batch.
