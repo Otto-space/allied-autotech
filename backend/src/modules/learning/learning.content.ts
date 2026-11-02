@@ -261,21 +261,25 @@ export const learningArticles: LearningArticle[] = [
     "PrivacyRouter assertCapability, hold protection and WorkPrivacy review/recovery",
     "privacy deletion export erasure retention hold review personal data",
   ),
-  article(
-    "financial-policy-work",
-    "financial-policy",
-    "work",
-    "Review the financial policy workspace",
-    "FINANCE_POLICY_APPROVE is a separate owner-granted duty. Current, latest and scheduled versions may differ; merely holding Accountant responsibility is insufficient.",
-    [
-      "Open Financial policy and compare its current, latest and next scheduled versions. Use the recorded effective dates and evidence.",
-      "Use approved business details and evidence, review the exact change and expected version, then confirm only through the authorised form.",
-      "A version conflict requires refreshing and reviewing again. Policy publication does not itself collect money or enable unavailable checkout capabilities.",
-    ],
-    "/admin/finance-policy",
-    "readFinancePolicy and publishPolicy FINANCE branch, FinancePolicy current/version/review",
-    "financial policy finance VAT invoice terms effective scheduled approval version",
-  ),
+  {
+    ...article(
+      "financial-policy-work",
+      "financial-policy",
+      "work",
+      "Review the financial policy workspace",
+      "FINANCE_POLICY_APPROVE is a separate owner-granted duty. Current, latest and scheduled versions may differ; merely holding Accountant responsibility is insufficient.",
+      [
+        "Open Financial policy and compare its current, latest and next scheduled versions. Use the recorded effective dates and evidence.",
+        "Use owner/accountant-verified business details, Tax ID and CAC registration number. If identifiers or their applicability are unresolved, stop before approval; never substitute placeholders. Review the exact change, evidence and expected version before confirming through the authorised form.",
+        "A version conflict requires refreshing and reviewing again. Policy publication does not itself collect money or enable unavailable checkout capabilities.",
+      ],
+      "/admin/finance-policy",
+      "readFinancePolicy and publishPolicy FINANCE branch, FinancePolicy current/version/review",
+      "financial policy finance VAT invoice terms effective scheduled approval version",
+    ),
+    version: 4,
+    reviewedAt: "2026-11-02",
+  },
   {
     ...article(
       "parts-fitment",

@@ -370,9 +370,9 @@ test("payment preparation reviews and rechecks before posting the server target"
 });
 test("changed invoice blocks payment creation", async ({ page }) => {
   const state = await fixture(page);
-  state.changeOnReview = true;
   await visit(page);
   await page.getByRole("button", { name: "Prepare invoice payment" }).click();
+  state.changeOnReview = true;
   await page
     .getByRole("dialog")
     .getByRole("button", { name: "Create payment request" })
@@ -627,3 +627,45 @@ test("source-linked payment requests appear even without a direct invoice paymen
     page.getByRole("button", { name: "Download receipt", exact: true }),
   ).toHaveCount(0);
 });
+
+for (const width of [320, 1440])
+  test(`recorded invoice identifiers wrap without changing historic identity at ${width}px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 900 });
+    const state = await fixture(page);
+    const taxId = "TEST-TAX-" + "X".repeat(71);
+    state.document.issuer = {
+      ...state.document.issuer,
+      taxId,
+      cacNumber: "TEST-CAC-001",
+    };
+    await visit(page);
+    await expect(page.getByText(`Tax ID: ${taxId}`, { exact: true })).toBeVisible();
+    await expect(
+      page.getByText("CAC registration: TEST-CAC-001", { exact: true }),
+    ).toBeVisible();
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+    expect(
+      (
+        await new AxeBuilder({ page })
+          .include(".invoice-sheet")
+          .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
+          .analyze()
+      ).violations,
+    ).toEqual([]);
+    await page.screenshot({
+      path: `C:/Users/PC/.codex/visualizations/2026/10/27/01a17c67-8a90-7763-ab26-1dd4fbcc77ce/invoice-identifiers-${width}.png`,
+      fullPage: true,
+    });
+    delete state.document.issuer.taxId;
+    delete state.document.issuer.cacNumber;
+    await page.reload();
+    await expect(
+      page.getByRole("heading", { name: "AA-INV-2041", exact: true }),
+    ).toBeVisible();
+    await expect(page.getByText(/^Tax ID:/)).toHaveCount(0);
+    expect(state.writes).toEqual([]);
+  });

@@ -24,9 +24,12 @@ customer, stock, payment, invoice number or identifier is created by this docume
 Current finance schema fields: vatBasisPoints, pricesIncludeVat, rounding,
 discountTreatment, deliveryTaxable, invoiceName, invoiceAddress, paymentTerms and
 applicability. Publication also requires expectedVersion, effectiveAt, source and
-approvalEvidence. The strict schema currently has no dedicated Tax ID/CAC fields:
-verified identifiers need reviewed schema/snapshot/rendering support before use;
-do not hide them in approvalEvidence or relax validation to bypass this gap.
+approvalEvidence. The 2 November implementation adds invoiceTaxId and
+invoiceCacNumber to new approvals, with optional historical snapshot fields taxId
+and cacNumber. This support is pending release verification; it does not supply or
+approve actual identifiers. Missing identifiers and unresolved applicability must
+stop a new approval; do not hide them in approvalEvidence or enter placeholders.
+Historic versions remain readable and are not backfilled.
 Collection remains the supplied fulfillment method. Delivery-tax applicability
 must be resolved explicitly before any future delivery activation.
 

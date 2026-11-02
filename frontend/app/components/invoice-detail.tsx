@@ -331,6 +331,8 @@ function InvoiceSheet({ document }: { document: InvoiceDocument }) {
           Whatsapp
         </a>
       </address>
+      {document.issuer.taxId && <p>Tax ID: {document.issuer.taxId}</p>}
+      {document.issuer.cacNumber && <p>CAC registration: {document.issuer.cacNumber}</p>}
       <dl className="invoice-meta">
         <div>
           <dt>Issued</dt>

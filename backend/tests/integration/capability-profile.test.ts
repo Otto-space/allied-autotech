@@ -99,6 +99,8 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
           rounding: "HALF_UP_MINOR_UNIT",
           discountTreatment: "BEFORE_VAT",
           deliveryTaxable: false,
+          invoiceTaxId: "TEST-TAX-001",
+          invoiceCacNumber: "TEST-CAC-001",
           invoiceName: "Synthetic test company",
           invoiceAddress: "Synthetic test address only",
           paymentTerms: "Synthetic payment terms for testing only",
@@ -122,6 +124,21 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
             .send(body)
         ).status,
       ).toBe(403);
+      const beforeVersions = await prisma.businessPolicyVersion.count({
+        where: { key: "finance" },
+      });
+      for (const field of ["invoiceTaxId", "invoiceCacNumber"] as const) {
+        const missing = { ...body.settings };
+        delete (missing as Partial<typeof body.settings>)[field];
+        for (const invalid of [missing, { ...body.settings, [field]: "none" }]) {
+          expect((await post(staffSession, { ...body, settings: invalid })).status).toBe(
+            422,
+          );
+        }
+      }
+      expect(
+        await prisma.businessPolicyVersion.count({ where: { key: "finance" } }),
+      ).toBe(beforeVersions);
       const results = await Promise.all([post(staffSession), post(staffSession)]);
       expect(results.map((row) => row.status).sort()).toEqual([201, 409]);
       const saved = (await read(staffSession)).body.data[0];

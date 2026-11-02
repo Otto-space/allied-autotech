@@ -76494,6 +76494,18 @@
                               "type": "string",
                               "maxLength": 1000,
                               "description": "Payment Terms validated by this operation's strict request contract."
+                            },
+                            "taxId": {
+                              "type": "string",
+                              "minLength": 2,
+                              "maxLength": 80,
+                              "description": "Identifier of the tax resource; ownership is resolved server-side."
+                            },
+                            "cacNumber": {
+                              "type": "string",
+                              "minLength": 2,
+                              "maxLength": 80,
+                              "description": "Cac Number validated by this operation's strict request contract."
                             }
                           },
                           "required": [
@@ -76883,7 +76895,9 @@
                     "issuer": {
                       "name": "synthetic-name",
                       "address": "synthetic-address",
-                      "paymentTerms": "synthetic-paymentterms"
+                      "paymentTerms": "synthetic-paymentterms",
+                      "taxId": "synthetic-taxid",
+                      "cacNumber": "synthetic-cacnumber"
                     },
                     "billTo": {
                       "name": "synthetic-name",
@@ -77337,6 +77351,18 @@
                               "type": "string",
                               "maxLength": 1000,
                               "description": "Payment Terms validated by this operation's strict request contract."
+                            },
+                            "taxId": {
+                              "type": "string",
+                              "minLength": 2,
+                              "maxLength": 80,
+                              "description": "Identifier of the tax resource; ownership is resolved server-side."
+                            },
+                            "cacNumber": {
+                              "type": "string",
+                              "minLength": 2,
+                              "maxLength": 80,
+                              "description": "Cac Number validated by this operation's strict request contract."
                             }
                           },
                           "required": [
@@ -77704,7 +77730,9 @@
                     "issuer": {
                       "name": "synthetic-name",
                       "address": "synthetic-address",
-                      "paymentTerms": "synthetic-paymentterms"
+                      "paymentTerms": "synthetic-paymentterms",
+                      "taxId": "synthetic-taxid",
+                      "cacNumber": "synthetic-cacnumber"
                     },
                     "billTo": {
                       "name": "synthetic-name",
@@ -78149,6 +78177,18 @@
                               "type": "string",
                               "maxLength": 1000,
                               "description": "Payment Terms validated by this operation's strict request contract."
+                            },
+                            "taxId": {
+                              "type": "string",
+                              "minLength": 2,
+                              "maxLength": 80,
+                              "description": "Identifier of the tax resource; ownership is resolved server-side."
+                            },
+                            "cacNumber": {
+                              "type": "string",
+                              "minLength": 2,
+                              "maxLength": 80,
+                              "description": "Cac Number validated by this operation's strict request contract."
                             }
                           },
                           "required": [
@@ -78270,7 +78310,9 @@
                     "issuer": {
                       "name": "synthetic-name",
                       "address": "synthetic-address",
-                      "paymentTerms": "synthetic-paymentterms"
+                      "paymentTerms": "synthetic-paymentterms",
+                      "taxId": "synthetic-taxid",
+                      "cacNumber": "synthetic-cacnumber"
                     },
                     "customerReference": "00000000-0000-4000-8000-000000000001",
                     "amountKobo": "300000",
@@ -157225,6 +157267,18 @@
                             "maxLength": 1000,
                             "description": "Payment Terms validated by this operation's strict request contract."
                           },
+                          "invoiceTaxId": {
+                            "type": "string",
+                            "minLength": 2,
+                            "maxLength": 80,
+                            "description": "Identifier of the invoice tax resource; ownership is resolved server-side."
+                          },
+                          "invoiceCacNumber": {
+                            "type": "string",
+                            "minLength": 2,
+                            "maxLength": 80,
+                            "description": "Invoice Cac Number validated by this operation's strict request contract."
+                          },
                           "applicability": {
                             "type": "string",
                             "enum": [
@@ -157242,6 +157296,8 @@
                           "invoiceName",
                           "invoiceAddress",
                           "paymentTerms",
+                          "invoiceTaxId",
+                          "invoiceCacNumber",
                           "applicability"
                         ],
                         "additionalProperties": false,

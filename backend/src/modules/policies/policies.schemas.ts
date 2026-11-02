@@ -15,6 +15,25 @@ const metadata = {
   source: z.string().trim().min(10).max(500),
   approvalEvidence: z.string().trim().min(20).max(1000),
 };
+export const invoiceIdentifierSchema = z
+  .string()
+  .trim()
+  .min(2)
+  .max(80)
+  .refine(
+    (value) =>
+      [...value].every(
+        (character) =>
+          (character.codePointAt(0) ?? 0) > 31 && character.codePointAt(0) !== 127,
+      ),
+    "Use plain text without control characters",
+  )
+  .refine(
+    (value) =>
+      !/^(none|n\/?a|unknown|pending|awaiting verification|not applicable)$/i.test(value),
+    "Enter the verified identifier",
+  );
+
 export const financeSettingsSchema = z
   .object({
     vatBasisPoints: z.literal(750),
@@ -25,9 +44,17 @@ export const financeSettingsSchema = z
     invoiceName: z.string().trim().min(2).max(200),
     invoiceAddress: z.string().trim().min(10).max(500),
     paymentTerms: z.string().trim().min(10).max(1000),
+    invoiceTaxId: invoiceIdentifierSchema.optional(),
+    invoiceCacNumber: invoiceIdentifierSchema.optional(),
     applicability: z.literal("ALL_PRODUCTS_AND_SERVICES"),
   })
   .strict();
+// Historical policy versions remain readable; new approvals require verified identity.
+export const financeApprovalSettingsSchema = financeSettingsSchema.extend({
+  invoiceTaxId: invoiceIdentifierSchema,
+  invoiceCacNumber: invoiceIdentifierSchema,
+});
+
 const deliveryAreaText = (max: number) =>
   z
     .string()
@@ -220,7 +247,11 @@ export const publishPolicyBodySchema = z.discriminatedUnion("kind", [
     })
     .strict(),
   z
-    .object({ ...metadata, kind: z.literal("FINANCE"), settings: financeSettingsSchema })
+    .object({
+      ...metadata,
+      kind: z.literal("FINANCE"),
+      settings: financeApprovalSettingsSchema,
+    })
     .strict(),
   z
     .object({

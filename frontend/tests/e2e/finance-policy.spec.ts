@@ -44,6 +44,8 @@ async function fixture(
   await page.route("**/api/v1/**", async (route) => {
     const endpoint = new URL(route.request().url()).pathname.replace("/api/v1", "");
     const role = options.role ?? "STAFF";
+    if (endpoint === "/staff/notifications/summary")
+      return reply(route, { unreadCount: 0, groups: [], destinations: [] });
     if (endpoint === "/auth/session")
       return reply(route, {
         id: id(1),
@@ -151,6 +153,8 @@ async function fixture(
   return state;
 }
 async function fill(page: Page) {
+  await page.getByLabel("Verified Tax ID", { exact: true }).fill("TEST-TAX-001");
+  await page.getByLabel("Verified CAC registration number").fill("TEST-CAC-001");
   await page.getByLabel("Invoice business name").fill("Synthetic Automotive Company");
   await page
     .getByLabel("Invoice business address")
@@ -239,6 +243,8 @@ for (const role of ["STAFF", "ADMIN", "SUPER_ADMIN"])
           discountTreatment: "BEFORE_VAT",
           deliveryTaxable: false,
           invoiceName: "Synthetic Automotive Company",
+          invoiceTaxId: "TEST-TAX-001",
+          invoiceCacNumber: "TEST-CAC-001",
           invoiceAddress: "Synthetic address for testing only",
           paymentTerms: "Synthetic terms approved for this test only.",
           applicability: "ALL_PRODUCTS_AND_SERVICES",
@@ -396,3 +402,29 @@ test("financial review requires delivery treatment, written approval and a futur
   await expect(page.getByRole("dialog")).toHaveCount(0);
   expect(state.writes).toEqual([]);
 });
+
+for (const width of [320, 1440])
+  test(`missing invoice identifiers block approval and focus the field at ${width}px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 900 });
+    const state = await fixture(page);
+    await page.goto("/admin/finance-policy");
+    await fill(page);
+    await page.getByLabel("Verified Tax ID", { exact: true }).fill("");
+    await page.getByRole("button", { name: "Review financial approval" }).click();
+    await expect(page.getByLabel("Verified Tax ID", { exact: true })).toBeFocused();
+    await expect(page.getByLabel("Invoice business name")).toHaveValue(
+      "Synthetic Automotive Company",
+    );
+    expect(state.writes).toEqual([]);
+    await page.getByLabel("Verified Tax ID", { exact: true }).fill("TEST-TAX-001");
+    await page.getByLabel("Verified CAC registration number").fill("none");
+    await page.getByRole("button", { name: "Review financial approval" }).click();
+    await expect(page.getByLabel("Verified CAC registration number")).toBeFocused();
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+    expect(state.writes).toEqual([]);
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+  });

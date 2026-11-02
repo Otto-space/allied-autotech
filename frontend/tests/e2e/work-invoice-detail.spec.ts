@@ -322,3 +322,34 @@ for (const width of [320, 375, 430, 768, 1024, 1280, 1440])
       axe.violations.filter((v) => ["serious", "critical"].includes(v.impact ?? "")),
     ).toEqual([]);
   });
+
+for (const width of [320, 1440])
+  test(`staff invoice retains recorded identifiers at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    const state = await workInvoiceDetailFixture(page);
+    state.paperPatch = {
+      issuer: {
+        name: "Synthetic company",
+        address: "Synthetic workshop address",
+        paymentTerms: "",
+        taxId: "TEST-TAX-" + "X".repeat(71),
+        cacNumber: "TEST-CAC-001",
+      },
+    };
+    await page.goto(path);
+    const paper = page.getByRole("region", { name: "Invoice document preview" });
+    await expect(paper).toContainText("Tax ID: TEST-TAX-");
+    await expect(paper).toContainText("CAC registration: TEST-CAC-001");
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+    expect(
+      (
+        await new AxeBuilder({ page })
+          .include(".wid-paper")
+          .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
+          .analyze()
+      ).violations,
+    ).toEqual([]);
+    expect(state.writes).toHaveLength(0);
+  });

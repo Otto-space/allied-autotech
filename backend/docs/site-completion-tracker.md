@@ -1,3 +1,12 @@
+### 2 November 2026: Invoice identifiers in verification
+
+Controlled new finance approvals now require verified Tax ID and CAC details;
+historical JSON settings/snapshots remain readable and unchanged. Invoice/PDF
+rendering and versioned restricted guidance carry recorded identifiers. No real
+policy or transaction was published. Local evidence and remaining release gates:
+[Invoice identifier verification](../../docs/INVOICE_IDENTIFIER_SUPPORT_20261102.md).
+Owner cannot currently access fitment; fresh real-role acceptance remains pending.
+
 ### 2 November 2026: Payment customer search published
 
 Frontend c44d7d68 is live on both domains as dpl_A1QVEcajpqZYnHTiE4pC5GL47Cy6.

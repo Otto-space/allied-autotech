@@ -156,6 +156,9 @@ export function renderFinancialPdf(
         "https://wa.me/2348136075567",
       );
       y += issuerHeight + 18;
+      if (document.issuer.taxId) paragraph(`Tax ID: ${document.issuer.taxId}`, 9);
+      if (document.issuer.cacNumber)
+        paragraph(`CAC registration: ${document.issuer.cacNumber}`, 9);
       rule(y, red);
       y += 24;
       paragraph(

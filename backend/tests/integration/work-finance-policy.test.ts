@@ -41,6 +41,8 @@ describe.skipIf(!provisionedWorkspaceAcceptanceChecksEnabled)(
       discountTreatment: "BEFORE_VAT",
       applicability: "ALL_PRODUCTS_AND_SERVICES",
       deliveryTaxable: false,
+      invoiceTaxId: "TEST-TAX-001",
+      invoiceCacNumber: "TEST-CAC-001",
       invoiceName: "Synthetic finance test company",
       invoiceAddress: "Synthetic isolated test address only",
       paymentTerms: "Synthetic written terms for this isolated test only",
@@ -238,6 +240,26 @@ describe.skipIf(!provisionedWorkspaceAcceptanceChecksEnabled)(
         approvalEvidence:
           "Synthetic accounting evidence for all proposed finance settings",
       };
+      const beforeVersions = await prisma.businessPolicyVersion.count({
+        where: { key: "finance" },
+      });
+      for (const field of ["invoiceTaxId", "invoiceCacNumber"] as const) {
+        const missing = { ...settings };
+        delete (missing as Partial<typeof settings>)[field];
+        for (const invalid of [missing, { ...settings, [field]: "none" }]) {
+          expect(
+            (
+              await request(app)
+                .post("/api/v1/admin/policies")
+                .set(admin.headers)
+                .send({ ...body, settings: invalid })
+            ).status,
+          ).toBe(422);
+        }
+      }
+      expect(
+        await prisma.businessPolicyVersion.count({ where: { key: "finance" } }),
+      ).toBe(beforeVersions);
       expect(
         (await request(app).post("/api/v1/admin/policies").set(owner.headers).send(body))
           .status,

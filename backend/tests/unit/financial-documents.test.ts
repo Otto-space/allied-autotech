@@ -372,6 +372,11 @@ describe("financial document authority", () => {
   it("renders a real bounded PDF with bundled font, including multi-page lines", async () => {
     const pdf = await renderFinancialPdf({
       ...document,
+      issuer: {
+        ...document.issuer,
+        taxId: "TEST-TAX-" + "X".repeat(71),
+        cacNumber: "TEST-CAC-001",
+      },
       lines: Array.from({ length: 35 }, (_, i) => ({
         ...snapshot.lines[0]!,
         description: `Inspection line ${i + 1}: ${"Detailed automotive diagnostic checks. ".repeat(12)}`,

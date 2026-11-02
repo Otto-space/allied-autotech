@@ -14,6 +14,8 @@ export const invoiceSnapshotSchema = z.object({
     name: text(200),
     address: text(500),
     paymentTerms: z.string().max(1000),
+    taxId: z.string().min(2).max(80).optional(),
+    cacNumber: z.string().min(2).max(80).optional(),
   }),
   billTo: z.object({
     name: text(400),

@@ -16,6 +16,8 @@ export function StaffInvoicePaper({
         <div className="wid-issuer">
           <h2>{p.issuer.name}</h2>
           <p>{p.issuer.address}</p>
+          {p.issuer.taxId && <p>Tax ID: {p.issuer.taxId}</p>}
+          {p.issuer.cacNumber && <p>CAC registration: {p.issuer.cacNumber}</p>}
         </div>
         <div className="wid-paper-reference">
           <strong

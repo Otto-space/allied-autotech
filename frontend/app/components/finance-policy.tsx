@@ -3,7 +3,11 @@ import { useEffect, useRef, useState } from "react";
 import { apiRequest, ApiError } from "@/lib/api/client";
 import { parseOwnStaffProfile } from "@/lib/api/capability-schemas";
 import type { RequestBody } from "@/lib/api/contracts";
-import { financeSettingsSchema, type PolicyVersion } from "@/lib/api/policy-schemas";
+import {
+  financeSettingsSchema,
+  financeApprovalSettingsSchema,
+  type PolicyVersion,
+} from "@/lib/api/policy-schemas";
 import { useResource } from "@/lib/api/use-resource";
 import { lagosDateTime } from "@/lib/forms/vehicle-condition";
 import { formatBusinessDate } from "@/lib/format/date";
@@ -36,6 +40,13 @@ const invoiceFields = [
   { name: "invoiceName", label: "Invoice business name", min: 2, max: 200 },
   { name: "invoiceAddress", label: "Invoice business address", min: 10, max: 500 },
   { name: "paymentTerms", label: "Payment terms", min: 10, max: 1000 },
+  { name: "invoiceTaxId", label: "Verified Tax ID", min: 2, max: 80 },
+  {
+    name: "invoiceCacNumber",
+    label: "Verified CAC registration number",
+    min: 2,
+    max: 80,
+  },
 ] as const;
 function PolicyFacts({ row }: { row: PolicyVersion }) {
   const settings = financeSettingsSchema.safeParse(row.settings);
@@ -52,7 +63,7 @@ function PolicyFacts({ row }: { row: PolicyVersion }) {
         {invoiceFields.map(({ name, label }) => (
           <div key={name}>
             <dt>{label}</dt>
-            <dd>{settings.data[name]}</dd>
+            <dd>{settings.data[name] ?? "Not recorded in this version"}</dd>
           </div>
         ))}
       </dl>
@@ -322,7 +333,7 @@ function FinanceEditor({
       invalid("Choose the approved VAT treatment for delivery fees.", "deliveryTaxable");
       return;
     }
-    const settings = financeSettingsSchema.safeParse({
+    const settings = financeApprovalSettingsSchema.safeParse({
       vatBasisPoints: 750,
       pricesIncludeVat: false,
       rounding: "HALF_UP_MINOR_UNIT",
@@ -332,6 +343,8 @@ function FinanceEditor({
       invoiceName: String(form.get("invoiceName") ?? ""),
       invoiceAddress: String(form.get("invoiceAddress") ?? ""),
       paymentTerms: String(form.get("paymentTerms") ?? ""),
+      invoiceTaxId: String(form.get("invoiceTaxId") ?? ""),
+      invoiceCacNumber: String(form.get("invoiceCacNumber") ?? ""),
     });
     if (!settings.success) {
       const field = invoiceFields.find(
@@ -339,7 +352,9 @@ function FinanceEditor({
       );
       invalid(
         field
-          ? `${field.label} must contain ${field.min}–${field.max} characters.`
+          ? field.name === "invoiceTaxId" || field.name === "invoiceCacNumber"
+            ? `${field.label} must be a verified identifier of 2–80 characters, without placeholders or line breaks.`
+            : `${field.label} must contain ${field.min}–${field.max} characters.`
           : "Review the financial settings.",
         field?.name ?? "invoiceName",
       );
@@ -587,9 +602,17 @@ function FinanceEditor({
                   Form starts from the latest recorded version, which may be scheduled.
                   Refreshing retains your unsent draft.
                 </p>
+                <p>
+                  Use owner/accountant-verified Tax ID and CAC details. If either is
+                  awaiting verification or applicability is unresolved, do not publish a
+                  new approval. Never enter “none” or a placeholder.
+                </p>
                 <div className="finance-fields">
                   {invoiceFields.map(({ name, label, min, max }) => {
-                    const Field = name === "invoiceName" ? "input" : "textarea";
+                    const Field =
+                      name === "invoiceAddress" || name === "paymentTerms"
+                        ? "textarea"
+                        : "input";
                     return (
                       <div className="field" key={name}>
                         <label htmlFor={`finance-${name}`}>{label}</label>

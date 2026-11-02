@@ -5606,7 +5606,9 @@ Success: HTTP 200.
     "issuer": {
       "name": "synthetic-name",
       "address": "synthetic-address",
-      "paymentTerms": "synthetic-paymentterms"
+      "paymentTerms": "synthetic-paymentterms",
+      "taxId": "synthetic-taxid",
+      "cacNumber": "synthetic-cacnumber"
     },
     "billTo": {
       "name": "synthetic-name",
@@ -5717,7 +5719,9 @@ Success: HTTP 200.
     "issuer": {
       "name": "synthetic-name",
       "address": "synthetic-address",
-      "paymentTerms": "synthetic-paymentterms"
+      "paymentTerms": "synthetic-paymentterms",
+      "taxId": "synthetic-taxid",
+      "cacNumber": "synthetic-cacnumber"
     },
     "customerReference": "00000000-0000-4000-8000-000000000001",
     "amountKobo": "300000",
@@ -10540,7 +10544,9 @@ Success: HTTP 200.
     "issuer": {
       "name": "synthetic-name",
       "address": "synthetic-address",
-      "paymentTerms": "synthetic-paymentterms"
+      "paymentTerms": "synthetic-paymentterms",
+      "taxId": "synthetic-taxid",
+      "cacNumber": "synthetic-cacnumber"
     },
     "billTo": {
       "name": "synthetic-name",

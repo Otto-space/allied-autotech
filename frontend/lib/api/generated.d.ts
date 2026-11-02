@@ -63877,7 +63877,9 @@ export interface operations {
                      *         "issuer": {
                      *           "name": "synthetic-name",
                      *           "address": "synthetic-address",
-                     *           "paymentTerms": "synthetic-paymentterms"
+                     *           "paymentTerms": "synthetic-paymentterms",
+                     *           "taxId": "synthetic-taxid",
+                     *           "cacNumber": "synthetic-cacnumber"
                      *         },
                      *         "billTo": {
                      *           "name": "synthetic-name",
@@ -63963,6 +63965,10 @@ export interface operations {
                                 address: string;
                                 /** @description Payment Terms validated by this operation's strict request contract. */
                                 paymentTerms: string;
+                                /** @description Identifier of the tax resource; ownership is resolved server-side. */
+                                taxId?: string;
+                                /** @description Cac Number validated by this operation's strict request contract. */
+                                cacNumber?: string;
                             };
                             /** @description Bill To validated by this operation's strict request contract. */
                             billTo: {
@@ -64420,7 +64426,9 @@ export interface operations {
                      *         "issuer": {
                      *           "name": "synthetic-name",
                      *           "address": "synthetic-address",
-                     *           "paymentTerms": "synthetic-paymentterms"
+                     *           "paymentTerms": "synthetic-paymentterms",
+                     *           "taxId": "synthetic-taxid",
+                     *           "cacNumber": "synthetic-cacnumber"
                      *         },
                      *         "billTo": {
                      *           "name": "synthetic-name",
@@ -64503,6 +64511,10 @@ export interface operations {
                                 address: string;
                                 /** @description Payment Terms validated by this operation's strict request contract. */
                                 paymentTerms: string;
+                                /** @description Identifier of the tax resource; ownership is resolved server-side. */
+                                taxId?: string;
+                                /** @description Cac Number validated by this operation's strict request contract. */
+                                cacNumber?: string;
                             };
                             /** @description Bill To validated by this operation's strict request contract. */
                             billTo: {
@@ -64962,7 +64974,9 @@ export interface operations {
                      *         "issuer": {
                      *           "name": "synthetic-name",
                      *           "address": "synthetic-address",
-                     *           "paymentTerms": "synthetic-paymentterms"
+                     *           "paymentTerms": "synthetic-paymentterms",
+                     *           "taxId": "synthetic-taxid",
+                     *           "cacNumber": "synthetic-cacnumber"
                      *         },
                      *         "customerReference": "00000000-0000-4000-8000-000000000001",
                      *         "amountKobo": "300000",
@@ -65011,6 +65025,10 @@ export interface operations {
                                 address: string;
                                 /** @description Payment Terms validated by this operation's strict request contract. */
                                 paymentTerms: string;
+                                /** @description Identifier of the tax resource; ownership is resolved server-side. */
+                                taxId?: string;
+                                /** @description Cac Number validated by this operation's strict request contract. */
+                                cacNumber?: string;
                             };
                             /**
                              * Format: uuid
@@ -121174,6 +121192,10 @@ export interface operations {
                         invoiceAddress: string;
                         /** @description Payment Terms validated by this operation's strict request contract. */
                         paymentTerms: string;
+                        /** @description Identifier of the invoice tax resource; ownership is resolved server-side. */
+                        invoiceTaxId: string;
+                        /** @description Invoice Cac Number validated by this operation's strict request contract. */
+                        invoiceCacNumber: string;
                         /**
                          * @description Applicability validated by this operation's strict request contract.
                          * @enum {string}

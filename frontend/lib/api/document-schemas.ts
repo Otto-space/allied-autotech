@@ -16,6 +16,8 @@ export const invoiceDocumentSchema = z
       name: z.string().min(1).max(200),
       address: z.string().min(1).max(500),
       paymentTerms: z.string().max(1000),
+      taxId: z.string().min(2).max(80).optional(),
+      cacNumber: z.string().min(2).max(80).optional(),
     }),
     billTo: z.object({
       name: z.string().min(1).max(400),

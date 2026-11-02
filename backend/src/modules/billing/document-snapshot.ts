@@ -23,6 +23,10 @@ export function issuerFromPolicy(policy: unknown): InvoiceSnapshot["issuer"] {
         name: settings.invoiceName,
         address: settings.invoiceAddress,
         paymentTerms: settings.paymentTerms,
+        ...("invoiceTaxId" in settings ? { taxId: settings.invoiceTaxId } : {}),
+        ...("invoiceCacNumber" in settings
+          ? { cacNumber: settings.invoiceCacNumber }
+          : {}),
       });
       if (parsed.success) return parsed.data;
     }

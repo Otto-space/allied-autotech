@@ -16,6 +16,25 @@ export const policyVersionSchema = z.object({
 export type PolicyVersion = z.infer<typeof policyVersionSchema>;
 export const parsePolicyHistory = (value: unknown) =>
   z.array(policyVersionSchema).parse(value);
+export const invoiceIdentifierSchema = z
+  .string()
+  .trim()
+  .min(2)
+  .max(80)
+  .refine(
+    (value) =>
+      [...value].every(
+        (character) =>
+          (character.codePointAt(0) ?? 0) > 31 && character.codePointAt(0) !== 127,
+      ),
+    "Use plain text without control characters",
+  )
+  .refine(
+    (value) =>
+      !/^(none|n\/?a|unknown|pending|awaiting verification|not applicable)$/i.test(value),
+    "Enter the verified identifier",
+  );
+
 export const financeSettingsSchema = z.object({
   vatBasisPoints: z.literal(750),
   pricesIncludeVat: z.literal(false),
@@ -25,8 +44,16 @@ export const financeSettingsSchema = z.object({
   invoiceName: z.string().trim().min(2).max(200),
   invoiceAddress: z.string().trim().min(10).max(500),
   paymentTerms: z.string().trim().min(10).max(1000),
+  invoiceTaxId: invoiceIdentifierSchema.optional(),
+  invoiceCacNumber: invoiceIdentifierSchema.optional(),
   applicability: z.literal("ALL_PRODUCTS_AND_SERVICES"),
 });
+// Historical policy versions remain readable; new approvals require verified identity.
+export const financeApprovalSettingsSchema = financeSettingsSchema.extend({
+  invoiceTaxId: invoiceIdentifierSchema,
+  invoiceCacNumber: invoiceIdentifierSchema,
+});
+
 export const parseFinanceHistory = (value: unknown) => {
   const history = parsePolicyHistory(value);
   if (history.some((row) => row.key !== "finance"))
