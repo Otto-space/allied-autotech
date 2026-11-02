@@ -123,8 +123,19 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       });
       expect(stored.durationMinutes).toBeNull();
       expect(stored.priceKobo).toBe(800000n);
-      const slots = await request(app).get(`/api/v1/public/services/${stored.id}/slots`);
-      expect(slots.status).toBe(404);
+      const branch = await prisma.branch.create({
+        data: {
+          code: `UNKNOWN-${identity.slice(0, 8)}`,
+          name: "Synthetic duration-check workshop",
+          address: "Isolated test only",
+          city: "Port Harcourt",
+          state: "Rivers",
+        },
+      });
+      const slots = await request(app)
+        .get(`/api/v1/public/services/${stored.id}/slots`)
+        .query({ branchId: branch.id });
+      expect(slots.status, JSON.stringify(slots.body)).toBe(404);
       expect(await prisma.bookingSlot.count({ where: { serviceId: stored.id } })).toBe(0);
       for (const durationMinutes of [0, 14, 1441]) {
         const rejected = await request(app)
