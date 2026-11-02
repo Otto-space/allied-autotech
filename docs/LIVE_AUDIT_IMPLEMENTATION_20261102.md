@@ -5,6 +5,38 @@ The current requirement ledger is frontend/docs/UI_UX_QUALITY_REGISTER.md; this
 report records a bounded implementation package, not a second backlog or a claim
 that the whole site is ready. Package start: 17:31 UTC; 60-minute review: 18:31 UTC.
 
+## Held Help contract regression and recovery - 2 November 2026
+
+The 0c200511 source passed all exact-source CI (frontend 41523677037: 1,352 tests,
+12 existing skips; backend 41523676993; secrets 41523677601), native 46/46 and
+packaged 10/10. Its backend 191ab6b1-a48d-4374-84e4-e1f88e030d79 became ACTIVE
+16/16 at 21:07 UTC. The new v16 service guide had 13 steps, exceeding the existing
+frontend catalogue limit of 12. Final held main checks caught this: 46/49 pass;
+three service/contact/search cases fail when Help results cannot parse. Frontend
+candidate dpl_GmcX4zSa4XBrjf13kPgmtkEmEEmR was never assigned apex/www. The new
+backend guide also affected public Help catalogue loading on the old frontend.
+
+Restored only the four known compatible 022a8a06 backend digests; recovery deployment
+157e0b25-852e-479e-af13-a8ebbada3330 is ACTIVE 16/16 at 21:18 UTC. Readiness is
+200, public service-request v15 and the 12-step contract are restored. Three real
+anonymous service/contact/Help-search flows pass at 320/390/1440. Fresh read-only
+strict-TLS schema/least-privilege/eight-worker checks pass at 21:19:58 UTC; temporary
+firewall access was removed. Source/schema comparison, exact prior CI and the fresh
+21:04 backup/hash were verified before restoring images. No business records, prices,
+grants, flags or schema were changed. Existing service/enquiry pages stayed available.
+The prior image/guide/held-failure evidence is retained. Earlier pending source text
+below is historical; the complete audit goal is still active.
+
+The forward fix versions service-request to v17, preserving all conditions while
+combining availability instructions into the existing booking step. Every reviewed
+article must fit the established 12-step bound; backend response schemas and actual
+anonymous HTTP assertions now enforce it. The real server public projection passes
+the real frontend schema in a metadata-only check with zero database/provider calls.
+Public search retains valid public FAQs when optional Help & Learn fails, gives a
+partial-results retry message and continues rejecting non-public learning payloads.
+New phone/desktop rendered checks exercise the complete guide and optional-source
+failure/recovery with learning enabled. Exact-source release checks remain required.
+
 ## Runtime capability package - source checkpoint, 2 November 2026
 
 Package start 20:00 UTC; review target 21:00 UTC. Published runtime remains 022a8a06

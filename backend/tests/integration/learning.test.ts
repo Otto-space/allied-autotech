@@ -177,6 +177,9 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         "/public/learning/catalogue?destinationsVersion=2",
       );
       expect(publicResult.status).toBe(200);
+      expect(() =>
+        learningResponseSchemas.catalogue.parse(publicResult.body.data),
+      ).not.toThrow();
       expect(ids(publicResult)).toEqual([
         "privacy-and-allie",
         "business-contact",
@@ -220,7 +223,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       expect(appointment.status).toBe(200);
       expect(appointment.body.data).toMatchObject({
         id: "service-request",
-        version: 16,
+        version: 17,
         href: "/services",
       });
       expect(appointment.body.data.steps.join(" ")).toContain(

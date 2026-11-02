@@ -1,3 +1,14 @@
+## 2 November 2026 guide-bound recovery checkpoint
+
+Service-request v16 temporarily exceeded the established client limit and was withdrawn
+with the backend image recovery. Current public runtime 022a8a06 serves v15/home v4.
+Forward service-request v17 preserves the availability and booking conditions within
+12 steps; home v5 remains the pending runtime package. Response schemas, source units,
+real frontend/server metadata contract and authenticated HTTP assertions guard the
+bound. Eligibility, guide targets, flags and business records are unchanged. Optional
+learning failures must retain available public FAQ results. Publication is pending;
+see docs/LIVE_AUDIT_IMPLEMENTATION_20261102.md for actual held failures and recovery.
+
 ## 2 November 2026 runtime-availability guidance checkpoint (source)
 
 Public home-next-step v5 and service-request v16 explain current server availability,

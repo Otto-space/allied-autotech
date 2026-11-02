@@ -17,6 +17,31 @@ type Entry = {
   reference?: string;
   partNumber?: string;
 };
+type EntryBatch = { entries: Entry[]; partial: boolean };
+async function additionalHelp(): Promise<EntryBatch> {
+  if (!learningEnabled()) return { entries: [], partial: false };
+  try {
+    const catalogue = await publicData(
+      "/public/learning/catalogue?destinationsVersion=2",
+      (value) => {
+        const result = catalogueSchema.parse(value);
+        if (result.audience !== "public") throw Error("Public guidance unavailable");
+        return result;
+      },
+    );
+    return {
+      entries: catalogue.articles.map((article) => ({
+        title: article.title,
+        detail: article.summary,
+        href: `/learn?article=${article.id}`,
+      })),
+      partial: false,
+    };
+  } catch (error) {
+    unstable_rethrow(error);
+    return { entries: [], partial: true };
+  }
+}
 export async function SearchResults({
   query,
   helpOnly,
@@ -26,35 +51,29 @@ export async function SearchResults({
 }) {
   const faqs = getFaqs(await getPublicCapabilities());
   const params = new URLSearchParams({ search: query, limit: "5" });
-  const help = async (): Promise<Entry[]> => {
-    const entries: Entry[] = faqs.map((faq) => ({
-      title: faq.question,
-      detail: faq.answer,
-      href: `/help/${faq.id}`,
-    }));
-    if (learningEnabled()) {
-      const catalogue = await publicData(
-        "/public/learning/catalogue?destinationsVersion=2",
-        (value) => {
-          const result = catalogueSchema.parse(value);
-          if (result.audience !== "public") throw Error("Public guidance unavailable");
-          return result;
-        },
-      );
-      entries.push(
-        ...catalogue.articles.map((article) => ({
-          title: article.title,
-          detail: article.summary,
-          href: `/learn?article=${article.id}`,
-        })),
-      );
-    }
+  const help = async (): Promise<EntryBatch> => {
+    const additional = await additionalHelp();
+    const entries: Entry[] = [
+      ...faqs.map((faq) => ({
+        title: faq.question,
+        detail: faq.answer,
+        href: `/help/${faq.id}`,
+      })),
+      ...additional.entries,
+    ];
     const term = query.toLocaleLowerCase();
-    return entries.filter((entry) =>
-      `${entry.title} ${entry.detail}`.toLocaleLowerCase().includes(term),
-    );
+    return {
+      entries: entries.filter((entry) =>
+        `${entry.title} ${entry.detail}`.toLocaleLowerCase().includes(term),
+      ),
+      partial: additional.partial,
+    };
   };
-  const groups: { name: string; href: string; read: () => Promise<Entry[]> }[] = [
+  const groups: {
+    name: string;
+    href: string;
+    read: () => Promise<Entry[] | EntryBatch>;
+  }[] = [
     ...(!helpOnly
       ? [
           {
@@ -112,7 +131,12 @@ export async function SearchResults({
       : []),
     { name: "Help", href: `/help?q=${encodeURIComponent(query)}`, read: help },
   ];
-  const results = await Promise.allSettled(groups.map((group) => group.read()));
+  const results = await Promise.allSettled(
+    groups.map(async (group) => {
+      const result = await group.read();
+      return Array.isArray(result) ? { entries: result, partial: false } : result;
+    }),
+  );
   const normalize = (value: string) => value.normalize("NFKC").trim().toLocaleLowerCase();
   const term = normalize(query);
   const rank = (entry: Entry) =>
@@ -133,16 +157,23 @@ export async function SearchResults({
       {groups.map((group, index) => {
         const result = results[index];
         if (result.status === "rejected") unstable_rethrow(result.reason);
+        const additionalHelpUnavailable =
+          group.name === "Help" && result.status === "fulfilled" && result.value.partial;
         return (
           <section key={group.name} aria-label={`${group.name} search results`}>
             <h3>{group.name}</h3>
+            {group.name === "Help" && additionalHelpUnavailable && (
+              <p role="status">
+                More Help &amp; Learn results are temporarily unavailable. <RetrySearch />
+              </p>
+            )}
             {result.status === "rejected" ? (
               <p role="status">
                 {group.name} results are temporarily unavailable. <RetrySearch />
               </p>
-            ) : result.value.length ? (
+            ) : result.value.entries.length ? (
               <ul>
-                {[...result.value]
+                {[...result.value.entries]
                   .sort((a, b) => rank(a) - rank(b) || a.title.localeCompare(b.title))
                   .slice(0, 5)
                   .map((entry) => (
@@ -153,7 +184,11 @@ export async function SearchResults({
                   ))}
               </ul>
             ) : (
-              <p>No {group.name.toLowerCase()} results found.</p>
+              <p>
+                {group.name === "Help" && additionalHelpUnavailable
+                  ? "No matching FAQs found."
+                  : `No ${group.name.toLowerCase()} results found.`}
+              </p>
             )}
             <Link className="text-link" href={group.href}>
               View all {group.name.toLowerCase()} results

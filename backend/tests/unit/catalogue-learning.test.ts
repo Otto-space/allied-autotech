@@ -53,7 +53,7 @@ it("versions reversal guidance without granting live lookups or writes", () => {
 
 it("keeps concern guidance conditional on the real intake form and preserves pending confirmation", () => {
   const article = learningArticles.find((item) => item.id === "service-request")!;
-  expect(article.version).toBe(16);
+  expect(article.version).toBe(17);
   expect(article.steps.join(" ")).toContain("only for a confirmed future appointment");
   expect(article.steps.join(" ")).toContain("wait for the current availability check");
   expect(article.steps.join(" ")).toContain(
@@ -109,4 +109,23 @@ it("keeps category order and image instructions versioned and administrator-only
   expect(article.steps.join(" ")).toContain("Lower numbers appear first");
   expect(article.steps.join(" ")).toContain("Review and confirm the save");
   expect(article.steps.join(" ")).toContain("Existing groups keep their order");
+});
+
+it("keeps every reviewed article within the established client step bound without losing booking conditions", () => {
+  for (const article of learningArticles)
+    expect(article.steps.length, article.id).toBeLessThanOrEqual(12);
+  const service = learningArticles.find((article) => article.id === "service-request")!;
+  expect(service.steps).toHaveLength(12);
+  const text = service.steps.join(" ");
+  for (const condition of [
+    "wait for the current availability check",
+    "current availability check before submitting",
+    "does not submit or confirm your draft",
+    "staff",
+    "Declining keeps your existing appointment",
+    "No booking deposit is required",
+    "not reserve capacity",
+    "only for a confirmed future appointment",
+  ])
+    expect(text).toContain(condition);
 });

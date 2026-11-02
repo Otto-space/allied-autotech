@@ -13,7 +13,7 @@ const article = z.object({
   title: text,
   summary: text,
   prerequisites: text,
-  steps: z.array(text),
+  steps: z.array(text).max(12),
   outcome: text,
   recovery: text,
   keywords: text,

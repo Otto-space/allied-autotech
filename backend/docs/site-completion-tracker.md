@@ -1,3 +1,19 @@
+### 2 November 2026: Help contract recovery; runtime batch remains held
+
+Held source 0c200511 passed CI but final browser checks caught a 13-step public guide
+against the existing 12-step client contract. Apex/www were not assigned that frontend.
+The backend update had exposed the incompatible guide; its four images were restored
+to the previous verified 022a8a06 source. Recovery 157e0b25-852e-479e-af13-a8ebbada3330
+is ACTIVE 16/16, readiness 200; public guide v15 and 320/390/1440 service/contact/Help
+flows pass. Strict TLS/schema/least privilege/eight workers/firewall restoration pass.
+No schema, policy, business-row, price, permission or flag changes. Exact failure and
+recovery receipts are in docs/LIVE_AUDIT_IMPLEMENTATION_20261102.md.
+
+Forward source v17 preserves the guide content within 12 steps and enforces the shared
+bound; optional learning failures retain valid public FAQs and retry. This repair is
+in verification, not published. Keep the complete audit active and the existing ledger;
+account-optional purchasing remains the next engineering item after safe publication.
+
 ### 2 November 2026: Runtime capability convergence in verification
 
 The next source package derives public/Help/dashboard/form availability from the

@@ -55,7 +55,24 @@ it("does not render restricted learning returned by an incorrect public response
       contentVersion: 1,
       mode: "browse_enquiries",
       flags: { guides: false, practice: false, ai: false },
-      articles: [],
+      articles: [
+        {
+          id: "restricted-synthetic",
+          title: "Restricted operator instructions",
+          summary: "Private synthetic guidance",
+          prerequisites: "",
+          steps: [],
+          outcome: "",
+          recovery: "",
+          keywords: "inspection",
+          page: "work",
+          href: "/admin",
+          source: "Synthetic private source",
+          version: 1,
+          status: "published",
+          reviewedAt: "2026-11-02",
+        },
+      ],
       guides: [],
       scenarios: [],
     });
@@ -63,7 +80,10 @@ it("does not render restricted learning returned by an incorrect public response
   const html = renderToStaticMarkup(
     await SearchResults({ query: "inspection", helpOnly: true }),
   );
-  expect(html).toContain("Help results are temporarily unavailable");
+  expect(html).toContain("More Help &amp; Learn results are temporarily unavailable");
+  expect(html).toContain("Can I inspect a vehicle before buying?");
+  expect(html).not.toContain("Restricted operator instructions");
+  expect(html).not.toContain("Private synthetic guidance");
   expect(html).not.toContain("Services search results");
   expect(read).toHaveBeenCalledTimes(1);
 });
@@ -108,4 +128,16 @@ it("ranks a genuine manufacturer part number ahead of a title prefix and shows i
   );
   expect(html).toContain("Part no. AB-123");
   expect(html).toContain("Synthetic maker");
+});
+
+it("retains current public FAQs and retry when optional learning cannot be fetched", async () => {
+  vi.stubEnv("NEXT_PUBLIC_HELP_LEARN_ENABLED", "true");
+  read.mockRejectedValue(Error("Synthetic learning unavailable"));
+  const html = renderToStaticMarkup(
+    await SearchResults({ query: "inspect", helpOnly: true }),
+  );
+  expect(html).toContain("Can I inspect a vehicle before buying?");
+  expect(html).toContain("More Help &amp; Learn results are temporarily unavailable");
+  expect(html).toContain("Retry search</button>");
+  expect(html).not.toContain("No help results found");
 });

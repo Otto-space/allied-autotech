@@ -5089,6 +5089,7 @@
                                   "type": "string",
                                   "description": "Steps Item validated by this operation's strict request contract."
                                 },
+                                "maxItems": 12,
                                 "description": "Steps validated by this operation's strict request contract."
                               },
                               "outcome": {
@@ -5551,6 +5552,7 @@
                             "type": "string",
                             "description": "Steps Item validated by this operation's strict request contract."
                           },
+                          "maxItems": 12,
                           "description": "Steps validated by this operation's strict request contract."
                         },
                         "outcome": {
@@ -6536,6 +6538,7 @@
                                   "type": "string",
                                   "description": "Steps Item validated by this operation's strict request contract."
                                 },
+                                "maxItems": 12,
                                 "description": "Steps validated by this operation's strict request contract."
                               },
                               "outcome": {
@@ -7003,6 +7006,7 @@
                             "type": "string",
                             "description": "Steps Item validated by this operation's strict request contract."
                           },
+                          "maxItems": 12,
                           "description": "Steps validated by this operation's strict request contract."
                         },
                         "outcome": {
