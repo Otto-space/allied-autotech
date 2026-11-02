@@ -98,3 +98,38 @@ test("invoice customer search retries without changing the filter or writing rec
   await expect(page.getByRole("option", { name: /Amina Okafor ·/ })).toHaveCount(1);
   expect(invoices.writes).toHaveLength(0);
 });
+
+for (const width of [320, 1440]) {
+  for (const missingType of [false, true]) {
+    test(`collapsed invoice source correction remains reachable at ${width}px (${missingType ? "type" : "reference"})`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: 900 });
+      const invoices = await workInvoiceFixture(page);
+      await page.goto("/admin/invoices");
+      await page.getByRole("button", { name: "More filters", exact: true }).click();
+      if (!missingType)
+        await page.getByLabel("Source type", { exact: true }).selectOption("ORDER");
+      const draft = missingType ? "00000000-0000-4000-8000-000000191000" : "incomplete";
+      await page.getByLabel("Source reference", { exact: true }).fill(draft);
+      await page.getByRole("button", { name: "Fewer filters", exact: true }).click();
+      await expect(page.getByLabel("Source reference", { exact: true })).toBeHidden();
+      const reads = invoices.reads.length;
+      await page
+        .getByRole("button", { name: "Apply invoice filters", exact: true })
+        .click();
+      const correction = page.getByLabel(
+        missingType ? "Source type" : "Source reference",
+        { exact: true },
+      );
+      await expect(correction).toBeVisible();
+      await expect(correction).toBeFocused();
+      await expect(page.getByLabel("Source reference", { exact: true })).toHaveValue(
+        draft,
+      );
+      expect(invoices.reads).toHaveLength(reads);
+      expect(invoices.writes).toHaveLength(0);
+      await expect(page).not.toHaveURL(/sourceId=/);
+    });
+  }
+}

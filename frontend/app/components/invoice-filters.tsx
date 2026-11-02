@@ -1,5 +1,6 @@
 "use client";
 import { Controller, useForm } from "react-hook-form";
+import { useEffect, useRef } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import {
@@ -54,6 +55,13 @@ export function InvoiceFilters({
       shouldFocusError: false,
     }),
     errors = form.formState.errors;
+  const pendingFocus = useRef<keyof InvoiceFiltersValue | null>(null);
+  useEffect(() => {
+    if (open && pendingFocus.current) {
+      form.setFocus(pendingFocus.current);
+      pendingFocus.current = null;
+    }
+  }, [open, form]);
   function error(name: keyof InvoiceFiltersValue) {
     return (
       errors[name] && (
@@ -67,13 +75,19 @@ export function InvoiceFilters({
     <form
       className="wi-filters panel iv-filters"
       noValidate
-      onSubmit={form.handleSubmit(onApply, (v) => {
-        const field = (Object.keys(schema.shape) as (keyof InvoiceFiltersValue)[]).find(
-          (k) => v[k],
-        );
-        if (field === "customerId" && !open) onToggle();
-        if (field) form.setFocus(field);
-      })}
+      onSubmit={(event) =>
+        form.handleSubmit(onApply, (v) => {
+          const field = (Object.keys(schema.shape) as (keyof InvoiceFiltersValue)[]).find(
+            (k) => v[k],
+          );
+          if (field && field !== "invoiceNumber" && field !== "status" && !open) {
+            pendingFocus.current = field;
+            onToggle();
+            return;
+          }
+          if (field) form.setFocus(field);
+        })(event)
+      }
     >
       <fieldset disabled={disabled}>
         <legend className="sr-only">Find invoices</legend>

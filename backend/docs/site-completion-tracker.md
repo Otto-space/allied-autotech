@@ -1,3 +1,16 @@
+### 2 November 2026: Collapsed invoice source-filter recovery
+
+Actual public-route testing with synthetic records reproduced four failures: an
+invalid source reference or missing source type stayed hidden after collapsing
+advanced filters, at 320px and 1440px. The first exploratory run raced the URL
+transition; the corrected regression explicitly waits for the hidden state.
+Source now opens advanced filters for any invalid advanced field and defers focus
+until the panel is visible. Draft values and existing validation remain intact.
+Four regression cases require visible/focused corrections, preserved drafts and
+zero invoice reads/writes from invalid submission. Focused ESLint and TypeScript
+passed; exact-source CI and corrected hosted acceptance are pending. Production
+remains b72eddd8 until the release gates pass. No policy or permission changed.
+
 ### 2 November 2026: Invoice search and fitment dismissal published
 
 Source b72eddd86106bf54a741b65cfa5eb578f92fc5e4 is published as
