@@ -1,5 +1,5 @@
-﻿"use client";
-import { browseEnquiriesOnly, catalogueOnly } from "@/lib/public-launch";
+"use client";
+import { usePublicCapabilities } from "./public-capabilities";
 import { PublicEnquiryActions } from "./public-enquiry-actions";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -37,6 +37,7 @@ export function ProductActions(props: {
   enquiryHref?: string;
   returnHref?: string;
 }) {
+  const { catalogueOnly, checkoutEnabled } = usePublicCapabilities();
   return catalogueOnly() ? (
     <PublicEnquiryActions
       subject={props.productName ?? "this product"}
@@ -46,7 +47,7 @@ export function ProductActions(props: {
     <ProductPurchaseActions
       key={props.productId}
       {...props}
-      enquiriesOnly={browseEnquiriesOnly()}
+      enquiriesOnly={!checkoutEnabled}
     />
   );
 }

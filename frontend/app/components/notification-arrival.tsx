@@ -1,4 +1,5 @@
 "use client";
+import { usePublicCapabilities } from "./public-capabilities";
 import { useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useResource } from "@/lib/api/use-resource";
@@ -11,6 +12,8 @@ import { useNotificationAccess } from "@/lib/notifications/access-context";
 import { Feedback } from "./feedback";
 const parse = (value: unknown) => notificationSchema.parse(value);
 export function NotificationArrival({ role }: { role: string }) {
+  const release = usePublicCapabilities();
+
   const params = useSearchParams();
   const router = useRouter();
   const access = useNotificationAccess();
@@ -24,7 +27,7 @@ export function NotificationArrival({ role }: { role: string }) {
   const destination =
     item.data && !item.error
       ? role === "CUSTOMER"
-        ? customerNotificationDestination(item.data)
+        ? customerNotificationDestination(item.data, release)
         : staffNotificationDestination(item.data, access)
       : null;
   const href = destination?.href;

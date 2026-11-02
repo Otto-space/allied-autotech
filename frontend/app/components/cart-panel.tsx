@@ -1,4 +1,5 @@
 ﻿"use client";
+import { usePublicCapabilities } from "./public-capabilities";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -147,6 +148,7 @@ function CartLine({
 }
 
 export function CartPanel() {
+  const { checkoutEnabled } = usePublicCapabilities();
   const cart = useResource("/customers/cart", parseCart);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>();
@@ -170,7 +172,13 @@ export function CartPanel() {
     if (order) resultHeading.current?.focus({ preventScroll: true });
   }, [order]);
   const editsDisabled =
-    busy || uncertain || cartUncertain || cart.loading || !!cart.error || !!order;
+    !checkoutEnabled ||
+    busy ||
+    uncertain ||
+    cartUncertain ||
+    cart.loading ||
+    !!cart.error ||
+    !!order;
   const hasEdits = !!cart.data?.items.some((item) =>
     dirtyProducts.includes(item.product.id),
   );
@@ -213,6 +221,7 @@ export function CartPanel() {
   }
   async function submitCheckout(body?: CheckoutBody) {
     if (
+      !checkoutEnabled ||
       busy ||
       pending.current ||
       order ||

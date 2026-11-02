@@ -3,7 +3,7 @@ import Link from "next/link";
 import { SiteHeader } from "../../components/site-header";
 import { SiteFooter } from "../../components/site-footer";
 import { ConcernBooking } from "../../components/concern-booking";
-import { browseEnquiriesOnly } from "@/lib/public-launch";
+import { getPublicCapabilities } from "@/lib/api/public-capabilities-server";
 import "./request.css";
 export const metadata = {
   title: "Describe a vehicle concern | Allied AutoTech",
@@ -14,6 +14,7 @@ export default async function ConcernRequestPage({
 }: {
   searchParams: Promise<{ serviceGroup?: string }>;
 }) {
+  const { browseEnquiriesOnly } = await getPublicCapabilities();
   const query = await searchParams;
   const serviceGroup = z.uuid().safeParse(query.serviceGroup).data;
   const enquiryHref = serviceGroup

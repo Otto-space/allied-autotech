@@ -1,6 +1,6 @@
-﻿"use client";
+"use client";
 import Link from "next/link";
-import { browseEnquiriesOnly } from "@/lib/public-launch";
+import { usePublicCapabilities } from "./public-capabilities";
 import { BookingCalendar } from "./booking-calendar";
 import { useSearchParams } from "next/navigation";
 import {
@@ -29,6 +29,7 @@ const paymentLabels: Record<string, string> = {
   EXPIRED: "Expired",
 };
 export function BookingsPanel() {
+  const { browseEnquiriesOnly } = usePublicCapabilities();
   const search = useSearchParams();
   const { params, invalid, path } = customerBookingQuery(
     new URLSearchParams(search.toString()),

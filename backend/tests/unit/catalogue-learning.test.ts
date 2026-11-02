@@ -6,7 +6,7 @@ import {
 
 it("explains controllable workshop highlights without turning a discovery request into an appointment", () => {
   const home = learningArticles.find((item) => item.id === "home-next-step")!;
-  expect(home.version).toBe(4);
+  expect(home.version).toBe(5);
   expect(home.gate).toBe("public");
   const text = home.steps.join(" ");
   expect(text).toContain("Generic Lube Oil Service");
@@ -14,6 +14,9 @@ it("explains controllable workshop highlights without turning a discovery reques
   expect(text).toContain("does not reserve an appointment");
   expect(text).toContain("complete team photograph");
   expect(text).toContain("Search in the public header");
+  expect(text).toContain(
+    "Booking availability and checkout availability are checked separately",
+  );
   expect(text).toContain("does not establish availability or compatibility");
 });
 
@@ -50,8 +53,9 @@ it("versions reversal guidance without granting live lookups or writes", () => {
 
 it("keeps concern guidance conditional on the real intake form and preserves pending confirmation", () => {
   const article = learningArticles.find((item) => item.id === "service-request")!;
-  expect(article.version).toBe(15);
+  expect(article.version).toBe(16);
   expect(article.steps.join(" ")).toContain("only for a confirmed future appointment");
+  expect(article.steps.join(" ")).toContain("wait for the current availability check");
   expect(article.steps.join(" ")).toContain(
     "No permission is requested by the invitation",
   );

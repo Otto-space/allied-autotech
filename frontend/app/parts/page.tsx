@@ -10,7 +10,7 @@ import { Suspense } from "react";
 import { partsEnquiryHref } from "@/lib/parts-fitment";
 import { CatalogueEnquiryLink } from "../components/catalogue-enquiry-link";
 import { productApiPath } from "@/lib/product-discovery";
-import { browseEnquiriesOnly } from "@/lib/public-launch";
+import { getPublicCapabilities } from "@/lib/api/public-capabilities-server";
 import { SiteHeader } from "../components/site-header";
 import { SiteFooter } from "../components/site-footer";
 import { PartsCatalogue } from "../components/parts-catalogue";
@@ -48,12 +48,13 @@ export default async function PartsPage({
 }: {
   searchParams: SearchParameters;
 }) {
+  const { checkoutEnabled } = await getPublicCapabilities();
   const cataloguePath = await listingPath(searchParams);
   const enquiryHref = partsEnquiryHref(
     new URLSearchParams(cataloguePath.split("?")[1] ?? ""),
   );
   const initial = await loadPublicSeed(cataloguePath, parseProductDiscovery);
-  const enquiriesOnly = browseEnquiriesOnly();
+  const enquiriesOnly = !checkoutEnabled;
   return (
     <>
       <SiteHeader />

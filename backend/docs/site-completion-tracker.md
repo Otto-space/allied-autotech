@@ -1,3 +1,16 @@
+### 2 November 2026: Runtime capability convergence in verification
+
+The next source package derives public/Help/dashboard/form availability from the
+existing backend capability endpoint and actual write-guard mode, with separate finance
+and booking gates. Server page guards and stale/offline/error/retry handling preserve
+drafts and readable records; direct backend write guards remain authoritative. Public
+service-copy filtering also covers owned booking details and Allie knowledge without
+editing stored history or amounts. Home-next-step v5/service-request v16 preserve
+eligibility and flags. Source checks are recorded in docs/LIVE_AUDIT_IMPLEMENTATION_20261102.md;
+exact-source release/safety checks are pending. Published runtime remains 022a8a06.
+Account-optional purchasing is the next engineering item; full audit and operational
+acceptance remain open. No permission, policy, financial or activation expansion.
+
 ### 2 November 2026: Complete-audit batch published; full goal remains active
 
 Runtime 022a8a0609e377dcb2c794e6eb0e9f48ff90cf56 is on apex/www as frontend

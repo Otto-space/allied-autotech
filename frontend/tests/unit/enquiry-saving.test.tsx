@@ -1,6 +1,17 @@
 ﻿// @vitest-environment jsdom
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
+import { capabilityView } from "@/lib/public-capabilities";
+import { publicCapabilitiesFixture } from "../fixtures/public-capabilities";
+import type { PublicLaunchMode } from "@/lib/public-launch";
+vi.mock("@/app/components/public-capabilities", () => ({
+  usePublicCapabilities: () =>
+    capabilityView(
+      publicCapabilitiesFixture(
+        (process.env.NEXT_PUBLIC_PUBLIC_LAUNCH_MODE || "full") as PublicLaunchMode,
+      ),
+    ),
+}));
 import { ProductActions } from "@/app/components/product-actions";
 import { VehicleActions } from "@/app/components/vehicle-actions";
 import { apiRequest, ApiError, SESSION_CHANGED } from "@/lib/api/client";

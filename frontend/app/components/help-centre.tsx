@@ -1,4 +1,5 @@
-﻿"use client";
+"use client";
+import { usePublicCapabilities } from "./public-capabilities";
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
@@ -12,11 +13,11 @@ import {
   Search,
 } from "lucide-react";
 import { z } from "zod";
-import { business, faqs } from "@/lib/business";
+import { business, getFaqs } from "@/lib/business";
 import { resolveHelpAction, type HelpAccess } from "@/lib/help-actions";
 import { apiRequest, ApiError, SESSION_CHANGED } from "@/lib/api/client";
 
-const categories = ["All topics", ...new Set(faqs.map((faq) => faq.category))];
+const categories = ["All topics", ...new Set(getFaqs().map((faq) => faq.category))];
 const identity = z.object({
   user: z.object({
     id: z.uuid(),
@@ -33,7 +34,13 @@ function helpUrl(query: string, topic: string) {
   if (topic !== "All topics") params.set("topic", topic);
   return `/help${params.size ? `?${params}` : ""}`;
 }
-function TopicAction({ faq, access }: { faq: (typeof faqs)[number]; access: Access }) {
+function TopicAction({
+  faq,
+  access,
+}: {
+  faq: ReturnType<typeof getFaqs>[number];
+  access: Access;
+}) {
   const target = resolveHelpAction(faq, access);
   if (!target) return null;
   if ("notice" in target)
@@ -68,6 +75,9 @@ export function HelpCentre({
   initialQuery?: string;
   initialTopic?: string;
 }) {
+  const capabilities = usePublicCapabilities();
+  const faqs = getFaqs(capabilities);
+
   const [query, setQuery] = useState(initialQuery);
   const [category, setCategory] = useState(validTopic(initialTopic));
   const [access, setAccess] = useState<Access>("checking");

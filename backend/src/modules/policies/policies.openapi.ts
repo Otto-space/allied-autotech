@@ -142,9 +142,9 @@ export function registerOwnerPolicyOpenApi(registry: OpenAPIRegistry) {
     {
       method: "get",
       path: "/public/capabilities",
-      summary: "Read effective policy availability and server time",
+      summary: "Read current public release and effective policy availability",
       description:
-        "Informational only, not transaction authorization or a price quote. New orders are collection only; delivery remains disabled even when historical delivery policies exist. Missing finance is represented by null approvalStatus and disabled checkout; private local/staging draft finance follows the existing finance gate. No private policy provenance is exposed. Refresh on use; responses are no-store.",
+        "Informational only, not transaction authorization or a price quote. Release mode and enabled account, enquiry, booking and inspection actions come from the same runtime mode as the backend write guard. Checkout also requires full mode and the existing finance gate. New orders are collection only; delivery remains disabled even when historical delivery policies exist. Missing finance is represented by null approvalStatus and disabled checkout; private local/staging draft finance follows the existing finance gate. No private policy provenance is exposed. Refresh on use; responses are no-store.",
       data: publicCapabilitiesSchema,
     },
     {

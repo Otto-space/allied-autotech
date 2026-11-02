@@ -1,3 +1,4 @@
+import { publicServiceCopy } from "../service-operations/public-service-copy.js";
 import {
   serviceGroupKnowledgeRevision,
   retrieveServiceGroupKnowledge,
@@ -26,7 +27,7 @@ export async function publicKnowledgeRevision(tx: Prisma.TransactionClient) {
   return createHash("sha256")
     .update(
       JSON.stringify([
-        "public-knowledge-v4",
+        "public-knowledge-v5",
         row!.revision,
         await catalogueKnowledgeRevision(tx),
         await serviceGroupKnowledgeRevision(tx),
@@ -47,8 +48,8 @@ export function publicServiceSource(
       ? null
       : `${row.currency} ${row.priceKobo / 100n}.${(row.priceKobo % 100n).toString().padStart(2, "0")}`;
   const summary = [
-    row.shortDescription,
-    row.description,
+    publicServiceCopy(row.shortDescription),
+    publicServiceCopy(row.description),
     row.pricingType === "FIXED" && money !== null
       ? `Published service price: ${money}.`
       : "Quotation required; the price has not been agreed.",

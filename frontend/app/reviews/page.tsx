@@ -9,7 +9,7 @@ import { SiteHeader } from "../components/site-header";
 import { SiteFooter } from "../components/site-footer";
 import { PublicReviews } from "../components/public-reviews";
 import { ReviewAccountLink } from "./review-account-link";
-import { catalogueOnly } from "@/lib/public-launch";
+import { getPublicCapabilities } from "@/lib/api/public-capabilities-server";
 import "./reviews.css";
 export async function generateMetadata({
   searchParams,
@@ -29,6 +29,7 @@ export async function generateMetadata({
   return seed.error ? { ...metadata, robots: { index: false, follow: false } } : metadata;
 }
 export default async function Page() {
+  const { catalogueOnly } = await getPublicCapabilities();
   const initial = await loadPublicSeed(
     "/public/support/reviews?limit=20",
     parsePublicReviews,

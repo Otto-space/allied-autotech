@@ -1,3 +1,4 @@
+import { safeCapabilities } from "../policies/policies.service.js";
 import { randomUUID } from "node:crypto";
 import type { HandoffExcerpts } from "../support/support-handoff.schemas.js";
 import type { AuthenticatedActor } from "../../common/contracts/actor.js";
@@ -106,6 +107,14 @@ async function take(
   });
   return key;
 }
+async function currentAvailability(tx: Tx) {
+  const current = await safeCapabilities(tx);
+  return {
+    checkoutEnabled: current.checkoutEnabled,
+    bookingRequestsEnabled: current.release.bookingRequestsEnabled,
+    inspectionRequestsEnabled: current.release.inspectionRequestsEnabled,
+  };
+}
 async function resolveOwner(
   tx: Tx,
   proof: AllieOwnerProof,
@@ -124,6 +133,7 @@ async function resolveOwner(
       ),
       catalogue: {
         ...learningCatalogue(access),
+        availability: await currentAvailability(tx),
         knowledgeRevision: await publicKnowledgeRevision(tx),
       },
       audience: access.role === "CUSTOMER" ? "CUSTOMER" : "WORK",
@@ -152,6 +162,7 @@ async function resolveOwner(
     key: hashToken("assistant-owner", "guest:" + proof.token),
     catalogue: {
       ...learningCatalogue(publicLearningAccess),
+      availability: await currentAvailability(tx),
       knowledgeRevision: await publicKnowledgeRevision(tx),
     },
     audience: "PUBLIC",

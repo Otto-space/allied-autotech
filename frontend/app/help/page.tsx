@@ -6,7 +6,7 @@ import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { HelpCentre } from "../components/help-centre";
 import "./help.css";
-import { browseEnquiriesOnly, catalogueOnly } from "@/lib/public-launch";
+import { getPublicCapabilities } from "@/lib/api/public-capabilities-server";
 import { learningEnabled } from "@/lib/learning/contracts";
 import { CatalogueHelp } from "../components/catalogue-help";
 import { HelpLearningCard } from "../components/learning/help-learning-card";
@@ -15,6 +15,7 @@ export async function generateMetadata({
 }: {
   searchParams: SearchParameters;
 }): Promise<Metadata> {
+  const { browseEnquiriesOnly } = await getPublicCapabilities();
   return publicPageMetadata(
     "Help centre",
     browseEnquiriesOnly()
@@ -29,6 +30,7 @@ export default async function HelpPage({
 }: {
   searchParams: SearchParameters;
 }) {
+  const { catalogueOnly, browseEnquiriesOnly } = await getPublicCapabilities();
   const params = await searchParams;
   if (catalogueOnly()) return <CatalogueHelp />;
   const query = typeof params.q === "string" ? params.q.slice(0, 200) : "";

@@ -6,7 +6,7 @@ import { z } from "zod";
 import { apiRequest, ApiError } from "@/lib/api/client";
 import { useResource } from "@/lib/api/use-resource";
 import { useAccountMutation } from "@/lib/api/use-account-mutation";
-import { browseEnquiriesOnly, catalogueOnly } from "@/lib/public-launch";
+import { usePublicCapabilities } from "@/app/components/public-capabilities";
 import { formatKobo } from "@/lib/format/money";
 import { formatBusinessDate } from "@/lib/format/date";
 import type { SupportSource } from "@/lib/api/support-sources";
@@ -52,6 +52,7 @@ function QuotationPanel({
   userId: string;
   staff: boolean;
 }) {
+  const { checkoutEnabled, catalogueOnly } = usePublicCapabilities();
   const root = `/${staff ? "admin" : "customers"}/parts-quotes`;
   const parse = useCallback(
     (value: unknown) => {
@@ -80,7 +81,7 @@ function QuotationPanel({
     !records.error &&
     !records.refreshError;
   const disabled = !fresh || operation.busy || operation.sessionChanged;
-  const transactionClosed = browseEnquiriesOnly() || catalogueOnly();
+  const transactionClosed = !checkoutEnabled || catalogueOnly();
   const latest = records.data?.items[0];
   async function send(path: string, body: unknown, key: string) {
     const controller = operation.begin();

@@ -1,14 +1,32 @@
 // @vitest-environment jsdom
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
-import {
-  browseEnquiriesOnly,
-  publicLaunchMode,
-  restrictedLaunchPage,
-} from "@/lib/public-launch";
+import { publicLaunchMode, type PublicLaunchMode } from "@/lib/public-launch";
+import { capabilityView } from "@/lib/public-capabilities";
+import { publicCapabilitiesFixture } from "../fixtures/public-capabilities";
+import { PublicCapabilitiesProvider } from "@/app/components/public-capabilities";
+import type { ReactNode } from "react";
+const router = { refresh: vi.fn() };
+vi.mock("next/navigation", () => ({ useRouter: () => router }));
+const release = () =>
+  capabilityView(
+    publicCapabilitiesFixture(
+      (process.env.NEXT_PUBLIC_PUBLIC_LAUNCH_MODE || "full") as PublicLaunchMode,
+    ),
+  );
+const restrictedLaunchPage = (path: string) => release().restrictedLaunchPage(path);
+const browseEnquiriesOnly = () => release().browseEnquiriesOnly();
+const renderCurrent = (node: ReactNode) =>
+  render(
+    <PublicCapabilitiesProvider initial={release().snapshot}>
+      {node}
+    </PublicCapabilitiesProvider>,
+  );
+const dashboardNavigation = (...args: Parameters<typeof navigation>) =>
+  navigation(args[0], args[1], release());
 import { ProductActions } from "@/app/components/product-actions";
 import { VehicleActions } from "@/app/components/vehicle-actions";
-import { dashboardNavigation } from "@/lib/dashboard-navigation";
+import { dashboardNavigation as navigation } from "@/lib/dashboard-navigation";
 import { PublicEnquiryForm } from "@/app/components/public-enquiry-form";
 
 afterEach(() => {
@@ -30,7 +48,7 @@ it("closes customer entry points in catalogue mode while retaining staff access"
 });
 it("offers external contact without mounting an enquiry form in catalogue mode", () => {
   vi.stubEnv("NEXT_PUBLIC_PUBLIC_LAUNCH_MODE", "catalogue");
-  const { container } = render(<PublicEnquiryForm />);
+  const { container } = renderCurrent(<PublicEnquiryForm />);
   expect(container.querySelector("form")).toBeNull();
   expect(container.querySelector("input,textarea,select")).toBeNull();
   expect(
@@ -105,7 +123,9 @@ it("keeps existing orders visible while disabling new checkout in limited releas
 });
 it("renders product enquiries instead of a cart or purchase form", () => {
   vi.stubEnv("NEXT_PUBLIC_PUBLIC_LAUNCH_MODE", "browse_enquiries");
-  const { container } = render(<ProductActions productId="test-product" available />);
+  const { container } = renderCurrent(
+    <ProductActions productId="test-product" available />,
+  );
   expect(screen.getByRole("link", { name: "Send an enquiry" }).getAttribute("href")).toBe(
     "/contact#enquiry",
   );
@@ -114,7 +134,7 @@ it("renders product enquiries instead of a cart or purchase form", () => {
 });
 it("preserves vehicle content while replacing reservation and inspection actions", () => {
   vi.stubEnv("NEXT_PUBLIC_PUBLIC_LAUNCH_MODE", "browse_enquiries");
-  render(
+  renderCurrent(
     <VehicleActions
       listingId="test-listing"
       listingTitle="Owner vehicle"

@@ -8,8 +8,14 @@ export type AllieKnowledge = ReturnType<typeof learningCatalogue>["articles"][nu
   contentHash: string;
   refreshedAt: string;
 };
+export type AllieAvailability = {
+  checkoutEnabled: boolean;
+  bookingRequestsEnabled: boolean;
+  inspectionRequestsEnabled: boolean;
+};
 export type AllieCatalogue = ReturnType<typeof learningCatalogue> & {
   knowledgeRevision?: string;
+  availability?: AllieAvailability;
   knowledge?: AllieKnowledge[];
 };
 export const alliePageSchema = z.enum([
@@ -65,6 +71,7 @@ export type AllieAction = {
 export type AllieContext = {
   audience: AllieCatalogue["audience"];
   releaseMode: AllieCatalogue["mode"];
+  availability?: AllieAvailability;
   sourceSet: string;
   sources: AllieSource[];
   actions: AllieAction[];

@@ -1,3 +1,4 @@
+import { publicServiceCopy } from "./public-service-copy.js";
 import type {
   BookingAlternativeInput,
   BookingAlternativeResponseInput,
@@ -112,6 +113,7 @@ function jsonSafe(value: unknown): unknown {
 function customerSafeBooking<
   T extends {
     staffNotes: unknown;
+    service: null | { description: string | null; shortDescription: string | null };
     workOrder: null | { internalNotes: unknown };
     depositPayment: null | { settledAttemptId: unknown };
     quotes: Array<{ status: string; issuedAt: Date | null }>;
@@ -120,6 +122,14 @@ function customerSafeBooking<
   const { staffNotes: _staffNotes, workOrder, depositPayment, ...safe } = booking;
   return {
     ...safe,
+    service:
+      booking.service === null
+        ? null
+        : {
+            ...booking.service,
+            description: publicServiceCopy(booking.service.description),
+            shortDescription: publicServiceCopy(booking.service.shortDescription),
+          },
     quotes: booking.quotes.filter(
       (quote) => quote.status !== "DRAFT" && quote.issuedAt !== null,
     ),

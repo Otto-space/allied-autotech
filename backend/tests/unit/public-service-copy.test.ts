@@ -1,3 +1,5 @@
+import { publicServiceSource } from "../../src/modules/learning/allie.public-knowledge.js";
+import { randomUUID } from "node:crypto";
 import { describe, expect, it } from "vitest";
 import { publicServiceCopy } from "../../src/modules/service-operations/public-service-copy.js";
 
@@ -37,4 +39,33 @@ describe("customer service descriptions", () => {
       publicServiceCopy(`No additional discount is applied. Confirm materials. ${note}`),
     ).toBe("No additional discount is applied. Confirm materials.");
   });
+});
+
+it("projects Allie knowledge through the same public copy without changing source price or conditions", () => {
+  const description =
+    "Full diagnostics. Authorised service amount: NGN 8,000, already reflecting the workbook's 20% reduction from NGN 10,000. No additional discount is applied. Confirm included materials.";
+  const now = new Date("2026-11-02T12:00:00Z");
+  const row = {
+    id: randomUUID(),
+    name: "Synthetic diagnostics",
+    slug: "synthetic-diagnostics",
+    description,
+    shortDescription: description,
+    pricingType: "FIXED" as const,
+    priceKobo: 800000n,
+    currency: "NGN",
+    durationMinutes: null,
+    isActive: true,
+    version: 1,
+    createdAt: now,
+    updatedAt: now,
+  };
+  const result = publicServiceSource(row, now.toISOString())!;
+  expect(result.summary).toContain("Full diagnostics. Confirm included materials.");
+  expect(result.summary).toContain("NGN 8000.00");
+  expect(result.summary).not.toMatch(
+    /workbook|additional discount|Authorised service amount/,
+  );
+  expect(row.description).toBe(description);
+  expect(row.priceKobo).toBe(800000n);
 });

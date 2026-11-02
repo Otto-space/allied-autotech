@@ -2544,7 +2544,7 @@ Relevant errors: 400 The request is malformed.; 422 One or more request fields a
 ### GET `/public/capabilities`
 
 - Operation ID: `getPublicCapabilities`
-- Purpose: Informational only, not transaction authorization or a price quote. New orders are collection only; delivery remains disabled even when historical delivery policies exist. Missing finance is represented by null approvalStatus and disabled checkout; private local/staging draft finance follows the existing finance gate. No private policy provenance is exposed. Refresh on use; responses are no-store. Read effective policy availability and server time. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Informational only, not transaction authorization or a price quote. Release mode and enabled account, enquiry, booking and inspection actions come from the same runtime mode as the backend write guard. Checkout also requires full mode and the existing finance gate. New orders are collection only; delivery remains disabled even when historical delivery policies exist. Missing finance is represented by null approvalStatus and disabled checkout; private local/staging draft finance follows the existing finance gate. No private policy provenance is exposed. Refresh on use; responses are no-store. Read current public release and effective policy availability. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: PUBLIC
 - Authentication: None
 - CSRF: Not required
@@ -2555,9 +2555,16 @@ Success: HTTP 200.
 ```json
 {
   "success": true,
-  "message": "Read effective policy availability and server time",
+  "message": "Read current public release and effective policy availability",
   "data": {
     "scope": "POLICY_SUMMARY",
+    "release": {
+      "mode": "full",
+      "customerAccountsEnabled": true,
+      "enquiriesEnabled": true,
+      "bookingRequestsEnabled": true,
+      "inspectionRequestsEnabled": true
+    },
     "serverTime": "2030-01-15T10:00:00.000Z",
     "checkoutEnabled": true,
     "collection": {

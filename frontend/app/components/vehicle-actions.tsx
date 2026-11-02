@@ -1,5 +1,5 @@
 "use client";
-import { browseEnquiriesOnly, catalogueOnly } from "@/lib/public-launch";
+import { usePublicCapabilities } from "@/app/components/public-capabilities";
 import { PublicEnquiryActions } from "./public-enquiry-actions";
 import { vehicleEnquiryHref } from "@/lib/catalogue-enquiry";
 import Link from "next/link";
@@ -62,6 +62,7 @@ type VehicleActionsProps = {
 };
 
 export function VehicleActions(props: VehicleActionsProps) {
+  const { catalogueOnly, browseEnquiriesOnly } = usePublicCapabilities();
   if (catalogueOnly())
     return (
       <div className="vd-top-grid">

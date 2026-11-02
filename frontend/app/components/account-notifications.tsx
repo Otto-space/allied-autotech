@@ -1,4 +1,5 @@
 "use client";
+import { usePublicCapabilities } from "./public-capabilities";
 
 import { Suspense, useEffect, useRef, useState } from "react";
 import { BrowserPushSettings } from "./browser-push-settings";
@@ -272,6 +273,8 @@ export function AccountNotificationInbox({
   userId,
   role = "CUSTOMER",
 }: AccountNotificationProps) {
+  const release = usePublicCapabilities();
+
   const notificationAccess = useNotificationAccess();
   const base = `/${role === "CUSTOMER" ? "customers" : "staff"}/notifications`;
   const [filters, setFilters] = useState({ type: "", category: "", unreadOnly: false });
@@ -549,7 +552,7 @@ export function AccountNotificationInbox({
           {records.data?.items.map((item) => {
             const destination =
               role === "CUSTOMER"
-                ? customerNotificationDestination(item)
+                ? customerNotificationDestination(item, release)
                 : staffNotificationDestination(item, notificationAccess);
             return (
               <article

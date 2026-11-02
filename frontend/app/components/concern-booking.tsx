@@ -1,4 +1,5 @@
 "use client";
+import { usePublicCapabilities } from "./public-capabilities";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, type MouseEvent } from "react";
 import { z } from "zod";
@@ -49,6 +50,7 @@ export function ConcernBooking({
 }: {
   initialServiceGroup?: string;
 }) {
+  const { bookingRequestsEnabled } = usePublicCapabilities();
   const [serviceGroup, setServiceGroup] = useState(initialServiceGroup);
   const group = useResource(
     serviceGroup ? `/public/services/categories/${serviceGroup}` : null,
@@ -154,6 +156,7 @@ export function ConcernBooking({
     identity?.user.role === "CUSTOMER" &&
     (!identity.mfaRequired || !!identity.mfaVerifiedAt);
   const unavailable =
+    !bookingRequestsEnabled ||
     !policy.data ||
     !!policy.error ||
     !!policy.refreshError ||
@@ -235,6 +238,7 @@ export function ConcernBooking({
   }
   async function submit() {
     if (
+      !bookingRequestsEnabled ||
       !review ||
       !customer ||
       operation.busy ||
@@ -459,7 +463,11 @@ export function ConcernBooking({
               <h2 ref={heading} tabIndex={-1}>
                 Describe your concern
               </h2>
-              <fieldset disabled={operation.busy || identity === undefined}>
+              <fieldset
+                disabled={
+                  !bookingRequestsEnabled || operation.busy || identity === undefined
+                }
+              >
                 {serviceGroup && (
                   <div>
                     {verifiedGroup ? (

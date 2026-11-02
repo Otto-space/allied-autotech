@@ -1,15 +1,22 @@
+import { getPublicCapabilities } from "@/lib/api/public-capabilities-server";
 import Link from "next/link";
 import { unstable_rethrow } from "next/navigation";
 import { publicData } from "@/lib/api/public-server";
 import { parseServiceDiscovery } from "@/lib/api/public-schemas";
 import { parseProductDiscovery } from "@/lib/api/commerce-schemas";
 import { parseVehicleDiscovery } from "@/lib/api/vehicle-schemas";
-import { faqs } from "@/lib/business";
+import { getFaqs } from "@/lib/business";
 import { catalogueSchema, learningEnabled } from "@/lib/learning/contracts";
 import styles from "./search.module.css";
 import { RetrySearch } from "./retry-search";
 
-type Entry = { title: string; href: string; detail?: string; reference?: string };
+type Entry = {
+  title: string;
+  href: string;
+  detail?: string;
+  reference?: string;
+  partNumber?: string;
+};
 export async function SearchResults({
   query,
   helpOnly,
@@ -17,6 +24,7 @@ export async function SearchResults({
   query: string;
   helpOnly: boolean;
 }) {
+  const faqs = getFaqs(await getPublicCapabilities());
   const params = new URLSearchParams({ search: query, limit: "5" });
   const help = async (): Promise<Entry[]> => {
     const entries: Entry[] = faqs.map((faq) => ({
@@ -76,7 +84,16 @@ export async function SearchResults({
               ).items.map((row) => ({
                 title: row.name,
                 reference: row.sku,
-                detail: row.brand ?? undefined,
+                partNumber: row.manufacturerPartNumber ?? undefined,
+                detail:
+                  [
+                    row.brand,
+                    row.manufacturerPartNumber
+                      ? `Part no. ${row.manufacturerPartNumber}`
+                      : null,
+                  ]
+                    .filter(Boolean)
+                    .join(" ? ") || undefined,
                 href: `/parts/${row.id}`,
               })),
           },
@@ -96,11 +113,14 @@ export async function SearchResults({
     { name: "Help", href: `/help?q=${encodeURIComponent(query)}`, read: help },
   ];
   const results = await Promise.allSettled(groups.map((group) => group.read()));
-  const term = query.toLocaleLowerCase();
+  const normalize = (value: string) => value.normalize("NFKC").trim().toLocaleLowerCase();
+  const term = normalize(query);
   const rank = (entry: Entry) =>
-    [entry.title, entry.reference ?? ""].some((text) => text.toLocaleLowerCase() === term)
+    [entry.title, entry.reference ?? "", entry.partNumber ?? ""].some(
+      (text) => normalize(text) === term,
+    )
       ? 0
-      : entry.title.toLocaleLowerCase().startsWith(term)
+      : normalize(entry.title).startsWith(term)
         ? 1
         : 2;
   return (

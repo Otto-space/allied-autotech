@@ -7,7 +7,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowUpRight, ChevronDown, ChevronRight } from "lucide-react";
 import { business } from "@/lib/business";
-import { browseEnquiriesOnly } from "@/lib/public-launch";
+import { getPublicCapabilities } from "@/lib/api/public-capabilities-server";
 import { ServiceJourney } from "../components/brand-editorial";
 import { serviceApiPath } from "@/lib/service-discovery";
 import { SiteHeader } from "../components/site-header";
@@ -46,6 +46,7 @@ export default async function ServicesPage({
 }: {
   searchParams: SearchParameters;
 }) {
+  const { browseEnquiriesOnly } = await getPublicCapabilities();
   const initial = await loadPublicSeed(
     await listingPath(searchParams),
     parseServiceDiscovery,

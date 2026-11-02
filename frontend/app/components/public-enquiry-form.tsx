@@ -13,10 +13,11 @@ import { Feedback } from "./feedback";
 import { Check } from "lucide-react";
 import type { SupportKind } from "@/lib/api/support-schemas";
 import { SupportCreateForm } from "./support-create-form";
-import { catalogueOnly } from "@/lib/public-launch";
+import { usePublicCapabilities } from "@/app/components/public-capabilities";
 import { PublicEnquiryActions } from "./public-enquiry-actions";
 
 export function PublicEnquiryForm(props: Parameters<typeof EnabledPublicEnquiryForm>[0]) {
+  const { catalogueOnly } = usePublicCapabilities();
   if (catalogueOnly())
     return (
       <section
@@ -224,6 +225,7 @@ function EnabledPublicEnquiryForm({
   presentation?: "contact";
   labelledBy?: string;
 }) {
+  const { enquiriesEnabled } = usePublicCapabilities();
   const [kind, setKind] = useState<SupportKind>("enquiries");
   const [locked, setLocked] = useState<SupportKind[]>([]);
   return (
@@ -279,7 +281,7 @@ function EnabledPublicEnquiryForm({
         key={kind}
         kind={kind}
         publicMode
-        locked={submissionLocked || locked.includes(kind)}
+        locked={submissionLocked || locked.includes(kind) || !enquiriesEnabled}
         onUncertain={() => {
           setLocked((values) => (values.includes(kind) ? values : [...values, kind]));
           onSubmissionUncertain?.();

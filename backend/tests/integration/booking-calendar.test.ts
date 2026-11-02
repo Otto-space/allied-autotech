@@ -16,6 +16,12 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
     }, 30000);
     afterAll(() => prisma.$disconnect());
     it("uses a half-open Nigeria-time month, owned records only, safe projections and stable paging", async () => {
+      const description =
+        "Full vehicle health check with scan results. Authorised service amount: NGN 8,000, already reflecting the workbook's 20% reduction from NGN 10,000. No additional discount is applied. Confirm parts and warranty with the team.";
+      const storedService = await prisma.service.update({
+        where: { id: f.job1.serviceId! },
+        data: { description },
+      });
       const owner = await f.account(null, "CUSTOMER"),
         stranger = await f.account(null, "CUSTOMER");
       const make = (customerId: string, scheduledAt: string) =>
@@ -60,9 +66,19 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
           .set(owner.headers);
         expect(r.status).toBe(200);
         expect(JSON.stringify(r.body)).not.toContain("Never disclose");
+        for (const row of r.body.data.items) {
+          expect(row.service.description).toBe(
+            "Full vehicle health check with scan results. Confirm parts and warranty with the team.",
+          );
+          expect(row.service.priceKobo).toBe(storedService.priceKobo?.toString() ?? null);
+        }
         ids.push(...r.body.data.items.map((row: { id: string }) => row.id));
         cursor = r.body.data.nextCursor;
       } while (cursor);
+      expect(
+        (await prisma.service.findUniqueOrThrow({ where: { id: storedService.id } }))
+          .description,
+      ).toBe(description);
       expect(ids.sort()).toEqual([first.id, last.id, proposed.id].sort());
       expect(
         (await request(app).get("/api/v1/customers/bookings").query(query)).status,

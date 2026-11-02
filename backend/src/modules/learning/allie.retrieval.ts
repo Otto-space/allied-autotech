@@ -116,6 +116,7 @@ export function allieSourceSet(catalogue: AllieCatalogue) {
       JSON.stringify({
         audience: catalogue.audience,
         mode: catalogue.mode,
+        availability: catalogue.availability,
         flags: catalogue.flags,
         knowledgeRevision: catalogue.knowledgeRevision,
         articles: [...catalogue.articles].sort((a, b) => a.id.localeCompare(b.id)),
@@ -293,6 +294,7 @@ export function retrieveAllieContext(
   return {
     audience: catalogue.audience,
     releaseMode: catalogue.mode,
+    ...(catalogue.availability ? { availability: catalogue.availability } : {}),
     sourceSet,
     sources,
     actions,

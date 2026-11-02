@@ -1,6 +1,7 @@
+"use client";
 import Link from "next/link";
 import { AppointmentTiming } from "./appointment-timing";
-import { browseEnquiriesOnly, restrictedLaunchPage } from "@/lib/public-launch";
+import { usePublicCapabilities } from "@/app/components/public-capabilities";
 import {
   CalendarDays,
   CarFront,
@@ -19,6 +20,7 @@ function State({ value }: { value: string }) {
   return <span className="care-status">{label(value)}</span>;
 }
 function Action({ href, children }: { href: string; children: React.ReactNode }) {
+  const { browseEnquiriesOnly, restrictedLaunchPage } = usePublicCapabilities();
   if (browseEnquiriesOnly() && restrictedLaunchPage(href)) return null;
   return (
     <Link className="care-link" href={href}>
@@ -34,6 +36,7 @@ export function CustomerCareSummary({
   care: CustomerCare;
   current?: boolean;
 }) {
+  const { checkoutEnabled } = usePublicCapabilities();
   const booking = care.currentBooking;
   const vehicle = care.vehicle;
   const hasService = Boolean(booking || vehicle || care.nextBooking);
@@ -138,7 +141,7 @@ export function CustomerCareSummary({
             <section className="care-review">
               <h2>To review</h2>
               <p>
-                {browseEnquiriesOnly()
+                {!checkoutEnabled
                   ? "Recorded quote and payment information. Online payment is unavailable."
                   : "Latest issued quote and open payment request."}
               </p>

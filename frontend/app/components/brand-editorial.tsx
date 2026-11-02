@@ -1,4 +1,5 @@
-import { browseEnquiriesOnly } from "@/lib/public-launch";
+"use client";
+import { usePublicCapabilities } from "@/app/components/public-capabilities";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight, ChevronDown } from "lucide-react";
@@ -43,6 +44,7 @@ export function EditorialBanner({
 }
 
 export function ServiceJourney({ showStartLink = true }: { showStartLink?: boolean }) {
+  const { browseEnquiriesOnly } = usePublicCapabilities();
   const enquiriesOnly = browseEnquiriesOnly();
   return (
     <section

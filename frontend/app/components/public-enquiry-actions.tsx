@@ -1,7 +1,8 @@
+"use client";
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { business } from "@/lib/business";
-import { catalogueOnly } from "@/lib/public-launch";
+import { usePublicCapabilities } from "./public-capabilities";
 
 export function PublicEnquiryActions({
   subject,
@@ -14,6 +15,7 @@ export function PublicEnquiryActions({
   enquiryHref?: string;
   primaryAccessory?: ReactNode;
 }) {
+  const { catalogueOnly } = usePublicCapabilities();
   const draft = Array.from(
     message ?? `Hello Allied AutoTech, I would like more information about ${subject}.`,
   )

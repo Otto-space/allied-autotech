@@ -12,7 +12,7 @@ import {
 } from "@/lib/customer-garage";
 import type { CustomerVehicle } from "@/lib/api/vehicle-schemas";
 import { ActionButton, ActionLink } from "./action";
-import { catalogueOnly } from "@/lib/public-launch";
+import { usePublicCapabilities } from "@/app/components/public-capabilities";
 
 const sessionSchema = z.object({
   user: z.object({
@@ -31,6 +31,7 @@ export function SavedPartsVehicleSelector({
   onUse: (query: URLSearchParams) => void;
   returnTo?: string;
 }) {
+  const { catalogueOnly } = usePublicCapabilities();
   if (catalogueOnly()) return null;
   return <SavedVehicleAccount onUse={onUse} returnTo={returnTo} />;
 }

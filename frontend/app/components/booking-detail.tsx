@@ -1,5 +1,5 @@
-﻿"use client";
-import { browseEnquiriesOnly } from "@/lib/public-launch";
+"use client";
+import { usePublicCapabilities } from "./public-capabilities";
 import { NotificationRecordContext } from "./notification-record-context";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -37,6 +37,7 @@ type Decision = {
   quote?: BookingQuote;
 };
 export function BookingDetail({ bookingId }: { bookingId: string }) {
+  const { browseEnquiriesOnly } = usePublicCapabilities();
   const path = `/customers/bookings/${encodeURIComponent(bookingId)}`;
   const parse = useCallback(
     (value: unknown) => parseCustomerBookingDetail(value, bookingId),

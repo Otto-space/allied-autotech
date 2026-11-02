@@ -1,3 +1,5 @@
+import { publicCapabilitiesFixture } from "../fixtures/public-capabilities";
+import { capabilityView } from "@/lib/public-capabilities";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 afterEach(() => {
@@ -9,13 +11,16 @@ describe.each(["browse_enquiries", "catalogue", "full"])("Help in %s mode", (mod
   it("keeps parts, payment and visit guidance consistent with available actions", async () => {
     vi.stubEnv("NEXT_PUBLIC_PUBLIC_LAUNCH_MODE", mode);
     vi.resetModules();
-    const { faqs, answerFaq, business } = await import("@/lib/business");
-    const { helpArticleGuidance } = await import("@/lib/help-article-guidance");
+    const { getFaqs, answerFaq, business } = await import("@/lib/business");
+    const { getHelpArticleGuidance } = await import("@/lib/help-article-guidance");
+    const capabilities = capabilityView(publicCapabilitiesFixture(mode));
+    const faqs = getFaqs(capabilities);
+    const helpArticleGuidance = getHelpArticleGuidance(capabilities);
     const parts = faqs.find((item) => item.id === "shop-and-collection")!;
     const inspection = faqs.find((item) => item.id === "vehicle-inspections")!;
     expect(inspection.answer).toContain("does not");
     const payment = faqs.find((item) => item.id === "pending-payments")!;
-    expect(answerFaq("parts compatibility stock")).toBe(parts);
+    expect(answerFaq("parts compatibility stock", faqs)).toBe(parts);
     expect(parts.answer).toContain("unknown or needs verification");
     expect(parts.answer).toContain("does not reserve stock");
     expect(parts.answer).toContain("collection from the workshop");

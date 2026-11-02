@@ -1,3 +1,9 @@
+import { capabilityView } from "@/lib/public-capabilities";
+import { publicCapabilitiesFixture } from "../fixtures/public-capabilities";
+vi.mock("@/lib/api/public-capabilities-server", () => ({
+  getPublicCapabilities: async () =>
+    capabilityView(publicCapabilitiesFixture("browse_enquiries")),
+}));
 import { chromium, expect, type Browser } from "@playwright/test";
 import { describe, test, beforeAll, afterAll, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";

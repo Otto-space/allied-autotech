@@ -3684,3 +3684,18 @@ html {
     min-height: 44px;
   }
 }
+
+.capability-notice {
+  padding: 1rem;
+  background: #fff;
+  color: #141414;
+  border-bottom: 2px solid #b5121b;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+}
+.capability-notice p {
+  flex: 1 1 18rem;
+  margin: 0;
+}

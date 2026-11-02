@@ -1,4 +1,5 @@
-import { browseEnquiriesOnly } from "@/lib/public-launch";
+import { getPublicCapabilities } from "@/lib/api/public-capabilities-server";
+import { PublicCapabilitiesProvider } from "./components/public-capabilities";
 import { indexingEnabled } from "@/lib/seo";
 import type { Metadata } from "next";
 import { connection } from "next/server";
@@ -33,7 +34,8 @@ const nippo = localFont({
   display: "swap",
 });
 
-export function generateMetadata(): Metadata {
+export async function generateMetadata(): Promise<Metadata> {
+  const { browseEnquiriesOnly } = await getPublicCapabilities();
   return {
     title: {
       default: "Allied AutoTech",
@@ -48,6 +50,7 @@ export function generateMetadata(): Metadata {
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
   await connection();
+  const { snapshot } = await getPublicCapabilities();
 
   return (
     <html lang="en" className={`${quicksand.variable} ${nippo.variable}`}>
@@ -61,12 +64,14 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         />
       </head>
       <body>
-        {children}
-        <SupportWidget />
-        <LearningCompanion />
-        <ToastRegion />
-        <FormDrafts />
-        <ViewportNavigation />
+        <PublicCapabilitiesProvider initial={snapshot}>
+          {children}
+          <SupportWidget />
+          <LearningCompanion />
+          <ToastRegion />
+          <FormDrafts />
+          <ViewportNavigation />
+        </PublicCapabilitiesProvider>
       </body>
     </html>
   );

@@ -2,7 +2,23 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
 import { overviewFixture } from "../fixtures/overview";
-import { restrictedLaunchPage } from "@/lib/public-launch";
+import { capabilityView } from "@/lib/public-capabilities";
+import { publicCapabilitiesFixture } from "../fixtures/public-capabilities";
+import type { PublicLaunchMode } from "@/lib/public-launch";
+vi.mock("@/app/components/public-capabilities", () => ({
+  usePublicCapabilities: () =>
+    capabilityView(
+      publicCapabilitiesFixture(
+        (process.env.NEXT_PUBLIC_PUBLIC_LAUNCH_MODE || "full") as PublicLaunchMode,
+      ),
+    ),
+}));
+const restrictedLaunchPage = (path: string) =>
+  capabilityView(
+    publicCapabilitiesFixture(
+      (process.env.NEXT_PUBLIC_PUBLIC_LAUNCH_MODE || "full") as PublicLaunchMode,
+    ),
+  ).restrictedLaunchPage(path);
 const current = vi.hoisted(() => ({ role: "CUSTOMER", empty: false }));
 vi.mock("@/app/components/dashboard-shell", () => ({
   useAccountSession: () => ({ user: { role: current.role } }),

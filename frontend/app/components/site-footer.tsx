@@ -1,10 +1,12 @@
+"use client";
 import Link from "next/link";
 import { business } from "@/lib/business";
 import { Brand } from "./brand";
-import { catalogueOnly } from "@/lib/public-launch";
+import { usePublicCapabilities } from "@/app/components/public-capabilities";
 import { learningEnabled } from "@/lib/learning/contracts";
 
 export function SiteFooter() {
+  const { catalogueOnly } = usePublicCapabilities();
   return (
     <footer className="site-footer bg-ink text-white py-12 overflow-hidden relative">
       <div className="site-footer__inner grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-10 relative z-10">

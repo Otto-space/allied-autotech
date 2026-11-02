@@ -62,6 +62,8 @@ export async function ordersFixture(page: Page, role = "CUSTOMER") {
     held: undefined as (() => void) | undefined,
   };
   await page.route("**/api/v1/**", async (route) => {
+    if (new URL(route.request().url()).pathname === "/api/v1/public/capabilities")
+      return route.fallback();
     const url = new URL(route.request().url());
     const endpoint = url.pathname.replace("/api/v1", "");
     if (route.request().method() !== "GET") state.writes.push(endpoint);

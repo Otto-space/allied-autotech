@@ -1,5 +1,5 @@
 "use client";
-import { browseEnquiriesOnly } from "@/lib/public-launch";
+import { usePublicCapabilities } from "@/app/components/public-capabilities";
 import { NotificationRecordContext } from "./notification-record-context";
 import { WorkflowProgress } from "./status-progress";
 import Link from "next/link";
@@ -66,6 +66,7 @@ function readable(value: string) {
 }
 
 export function PaymentDetail({ paymentId }: { paymentId: string }) {
+  const { checkoutEnabled } = usePublicCapabilities();
   const parse = useCallback(
     (value: unknown) => {
       const record = parsePayment(value);
@@ -117,7 +118,7 @@ export function PaymentDetail({ paymentId }: { paymentId: string }) {
   const current = payment.data;
   const readBlocked =
     payment.loading || payment.refreshing || !!payment.error || !!payment.refreshError;
-  const disabled = browseEnquiriesOnly() || busy || manualActive || readBlocked;
+  const disabled = !checkoutEnabled || busy || manualActive || readBlocked;
   const pendingAttempt = !!current && hasPendingPaymentAttempt(current);
   const unavailable = current ? newPaymentAttemptUnavailable(current, now) : undefined;
   const deadlineUnavailable = current
@@ -513,7 +514,7 @@ export function PaymentDetail({ paymentId }: { paymentId: string }) {
               key={current.id}
               payment={current}
               eligible={!unavailable && !uncertain}
-              disabled={browseEnquiriesOnly() || busy || readBlocked}
+              disabled={!checkoutEnabled || busy || readBlocked}
               onActivity={setManualActive}
               onRefresh={payment.refresh}
               onRecorded={() => {

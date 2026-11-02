@@ -1,5 +1,5 @@
 "use client";
-import { browseEnquiriesOnly, catalogueOnly } from "@/lib/public-launch";
+import { usePublicCapabilities } from "@/app/components/public-capabilities";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -55,7 +55,13 @@ export function SiteHeader() {
 }
 
 function HeaderContent({ pathname }: { pathname: string }) {
-  const enquiryOnly = browseEnquiriesOnly();
+  const {
+    checkoutEnabled,
+    bookingRequestsEnabled,
+    customerAccountsEnabled,
+    catalogueOnly,
+  } = usePublicCapabilities();
+  const catalogue = catalogueOnly();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -166,7 +172,7 @@ function HeaderContent({ pathname }: { pathname: string }) {
   useEffect(() => {
     let active = true;
     // Public catalogue visitors do not need a session lookup or account controls.
-    if (catalogueOnly()) return;
+    if (catalogue) return;
     let pending: AbortController | null = null;
     let verified = false;
     let handlingUnauthorized = false;
@@ -265,7 +271,7 @@ function HeaderContent({ pathname }: { pathname: string }) {
       window.removeEventListener("online", changed);
       document.removeEventListener("visibilitychange", visible);
     };
-  }, []);
+  }, [catalogue]);
 
   const accountLink = catalogueOnly()
     ? { href: "/login", label: "Staff sign in", icon: LogIn }
@@ -321,7 +327,7 @@ function HeaderContent({ pathname }: { pathname: string }) {
             </nav>
 
             <div className="site-header__divider" />
-            {!enquiryOnly && (
+            {checkoutEnabled && (
               <Link
                 href="/dashboard/cart"
                 prefetch={false}
@@ -343,7 +349,9 @@ function HeaderContent({ pathname }: { pathname: string }) {
             <Link href="/services" className="header-book-button">
               <Wrench size={16} strokeWidth={2} />
 
-              <span>{enquiryOnly ? "Explore services" : "Book a Service"}</span>
+              <span>
+                {bookingRequestsEnabled ? "Request service" : "Explore services"}
+              </span>
 
               <ArrowUpRight size={16} className="header-book-button__arrow" />
             </Link>
@@ -454,7 +462,7 @@ function HeaderContent({ pathname }: { pathname: string }) {
           </nav>
 
           <div className="mobile-menu__account">
-            {!enquiryOnly && (
+            {checkoutEnabled && (
               <Link
                 href="/dashboard/cart"
                 className="mobile-account-link"
@@ -490,7 +498,7 @@ function HeaderContent({ pathname }: { pathname: string }) {
               <ChevronRight size={18} aria-hidden="true" />
             </Link>
 
-            {!session && !enquiryOnly && (
+            {!session && customerAccountsEnabled && (
               <Link
                 href="/register"
                 className="mobile-create-account"
@@ -508,7 +516,9 @@ function HeaderContent({ pathname }: { pathname: string }) {
           >
             <span className="mobile-book-button__copy">
               <small>Need vehicle care?</small>
-              <strong>{enquiryOnly ? "Explore services" : "Book a Service"}</strong>
+              <strong>
+                {bookingRequestsEnabled ? "Request service" : "Explore services"}
+              </strong>
             </span>
 
             <span className="mobile-book-button__icon">

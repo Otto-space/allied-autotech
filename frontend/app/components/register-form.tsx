@@ -1,4 +1,5 @@
 "use client";
+import { usePublicCapabilities } from "./public-capabilities";
 import Link from "next/link";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { ArrowRight, Eye, EyeOff, LoaderCircle, Mail } from "lucide-react";
@@ -23,6 +24,7 @@ const details = [
   { name: "email", label: "Email address", autocomplete: "email", max: 254 },
 ] as const;
 export function RegisterForm() {
+  const { customerAccountsEnabled } = usePublicCapabilities();
   const ready = useSyncExternalStore(subscribe, clientReady, serverReady);
   const [accepted, setAccepted] = useState(false),
     [error, setError] = useState<string>(),
@@ -76,7 +78,7 @@ export function RegisterForm() {
   }, [accepted]);
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (pending.current || accepted) return;
+    if (!customerAccountsEnabled || pending.current || accepted) return;
     const fields = new FormData(event.currentTarget),
       parsed = registrationFields.safeParse(Object.fromEntries(fields));
     setErrors({});
@@ -269,7 +271,14 @@ export function RegisterForm() {
           )}
         </div>
         <IntakePrivacyNote account />
-        <button className="button login-submit" disabled={busy} type="submit">
+        {!customerAccountsEnabled && (
+          <p role="status">Account creation is temporarily unavailable.</p>
+        )}
+        <button
+          className="button login-submit"
+          disabled={busy || !customerAccountsEnabled}
+          type="submit"
+        >
           {busy ? (
             <>
               <LoaderCircle className="login-spinner" size={18} aria-hidden="true" />

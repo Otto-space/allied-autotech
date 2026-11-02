@@ -1,5 +1,5 @@
 "use client";
-import { browseEnquiriesOnly } from "@/lib/public-launch";
+import { usePublicCapabilities } from "@/app/components/public-capabilities";
 import { NotificationRecordContext } from "./notification-record-context";
 import { WorkflowProgress } from "./status-progress";
 import Link from "next/link";
@@ -57,6 +57,7 @@ const paymentLabels: Record<PaymentRecord["status"], string> = {
 };
 
 export function OrderDetail({ orderId }: { orderId: string }) {
+  const { checkoutEnabled } = usePublicCapabilities();
   const parse = useCallback(
     (value: unknown) => {
       const result = parseOrder(value);
@@ -111,7 +112,7 @@ export function OrderDetail({ orderId }: { orderId: string }) {
 
   const current = !order.error && order.data?.id === orderId ? order.data : undefined;
   const disabled =
-    browseEnquiriesOnly() ||
+    !checkoutEnabled ||
     busy ||
     !!uncertain ||
     order.loading ||

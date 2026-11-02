@@ -7,7 +7,7 @@ import {
 } from "@/lib/parts-fitment";
 import { ProductFitmentCheck } from "../../components/product-fitment-check";
 import { packVolumeLabel, productTypeLabel } from "@/lib/product-family";
-import { browseEnquiriesOnly } from "@/lib/public-launch";
+import { getPublicCapabilities } from "@/lib/api/public-capabilities-server";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { productAvailability } from "@/lib/product-availability";
@@ -142,6 +142,7 @@ export default async function ProductPage({
   params: Promise<{ productId: string }>;
   searchParams: SearchParameters;
 }) {
+  const { checkoutEnabled } = await getPublicCapabilities();
   const product = await getProduct((await params).productId);
   const selectedQuery = normalizeProductQuery(
     new URLSearchParams(
@@ -151,7 +152,7 @@ export default async function ProductPage({
     ),
   ).params;
   const available = product.availability.some((item) => item.inStock);
-  const enquiriesOnly = browseEnquiriesOnly();
+  const enquiriesOnly = !checkoutEnabled;
   const compare =
     product.compareAtPriceKobo &&
     BigInt(product.compareAtPriceKobo) > BigInt(product.priceKobo)

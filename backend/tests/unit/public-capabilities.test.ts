@@ -12,6 +12,7 @@ import {
 import { publicCapabilitiesSchema } from "../../src/modules/policies/policies.schemas.js";
 
 const originalEnvironment = env.DEPLOYMENT_ENV;
+const originalMode = env.PUBLIC_LAUNCH_MODE;
 const now = new Date("2026-09-24T12:00:00Z");
 const address =
   "133 Stadium Road, beside Kilimanjaro Pizza Jungle Restaurant, Port Harcourt, Rivers State, Nigeria";
@@ -50,6 +51,7 @@ function policy(
 }
 afterEach(() => {
   env.DEPLOYMENT_ENV = originalEnvironment;
+  env.PUBLIC_LAUNCH_MODE = originalMode;
   vi.restoreAllMocks();
 });
 
@@ -140,6 +142,41 @@ describe("public policy availability summary", () => {
       }
     },
   );
+  it.each(["full", "browse_enquiries", "catalogue"] as const)(
+    "reports the actual %s runtime and never advertises limited-mode checkout",
+    async (mode) => {
+      env.PUBLIC_LAUNCH_MODE = mode;
+      env.DEPLOYMENT_ENV = "production";
+      vi.spyOn(prisma.businessPolicyVersion, "findFirst").mockResolvedValue(
+        policy("finance", "APPROVED"),
+      );
+      const summary = await safeCapabilities(prisma, now);
+      expect(summary.release).toEqual({
+        mode,
+        customerAccountsEnabled: mode !== "catalogue",
+        enquiriesEnabled: mode !== "catalogue",
+        bookingRequestsEnabled: mode === "full",
+        inspectionRequestsEnabled: mode === "full",
+      });
+      expect(summary.checkoutEnabled).toBe(mode === "full");
+      expect(summary.vehicleDeposits.enabled).toBe(mode === "full");
+      expect((await publicFulfillmentOptions(prisma, now)).checkoutEnabled).toBe(
+        mode === "full",
+      );
+    },
+  );
+  it("does not fabricate enabled availability when policy reads fail", async () => {
+    vi.spyOn(prisma.businessPolicyVersion, "findFirst").mockRejectedValue(
+      Error("Synthetic database read failure"),
+    );
+    const response = await request(
+      createApp({ checkReadiness: async () => undefined }),
+    ).get("/api/v1/public/capabilities");
+    expect(response.status).toBe(500);
+    expect(response.body.success).toBe(false);
+    expect(response.body).not.toHaveProperty("data");
+    expect(JSON.stringify(response.body)).not.toContain("Synthetic database");
+  });
   it("returns a no-store public API projection without authorizing missing policies", async () => {
     vi.spyOn(prisma.businessPolicyVersion, "findFirst").mockResolvedValue(null);
     const app = createApp({ checkReadiness: async () => undefined });

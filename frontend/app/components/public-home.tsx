@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowUpRight, CarFront, ChevronDown, Package, Wrench } from "lucide-react";
-import { faqs } from "@/lib/business";
+import { getFaqs } from "@/lib/business";
 import { loadPublicSeed } from "@/lib/api/public-seed-server";
 import { parseProducts } from "@/lib/api/commerce-schemas";
 import { parseListings } from "@/lib/api/vehicle-schemas";
@@ -16,11 +16,14 @@ import { HomeReviewsPreview } from "./home-reviews-preview";
 import { ContactInvitation } from "./brand-editorial";
 import { vehicleEnquiryHref } from "@/lib/catalogue-enquiry";
 import { learningEnabled } from "@/lib/learning/contracts";
-import { browseEnquiriesOnly } from "@/lib/public-launch";
+import { getPublicCapabilities } from "@/lib/api/public-capabilities-server";
 import { LearningEntry } from "./learning/learning-entry";
 import "../home.css";
 
 export async function PublicHome() {
+  const capabilities = await getPublicCapabilities();
+  const { browseEnquiriesOnly } = capabilities;
+  const faqs = getFaqs(capabilities);
   const [products, vehicles, reviews, services] = await Promise.all([
     loadPublicSeed("/public/catalog/products?limit=4", parseProducts),
     loadPublicSeed("/public/vehicles?limit=2", parseListings),

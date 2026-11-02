@@ -123,6 +123,13 @@ export const publicFulfillmentOptionsSchema = z.object({
 // Informational policy gates only; never authorizes a particular transaction.
 export const publicCapabilitiesSchema = z.object({
   scope: z.literal("POLICY_SUMMARY"),
+  release: z.object({
+    mode: z.enum(["full", "browse_enquiries", "catalogue"]),
+    customerAccountsEnabled: z.boolean(),
+    enquiriesEnabled: z.boolean(),
+    bookingRequestsEnabled: z.boolean(),
+    inspectionRequestsEnabled: z.boolean(),
+  }),
   serverTime: z.iso.datetime(),
   checkoutEnabled: z.boolean(),
   collection: publicFulfillmentOptionsSchema.shape.collection,

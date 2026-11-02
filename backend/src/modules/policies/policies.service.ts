@@ -95,6 +95,13 @@ export async function safeCapabilities(
   return {
     scope: "POLICY_SUMMARY" as const,
     serverTime: fulfillment.serverTime,
+    release: {
+      mode: env.PUBLIC_LAUNCH_MODE,
+      customerAccountsEnabled: env.PUBLIC_LAUNCH_MODE !== "catalogue",
+      enquiriesEnabled: env.PUBLIC_LAUNCH_MODE !== "catalogue",
+      bookingRequestsEnabled: env.PUBLIC_LAUNCH_MODE === "full",
+      inspectionRequestsEnabled: env.PUBLIC_LAUNCH_MODE === "full",
+    },
     checkoutEnabled: fulfillment.checkoutEnabled,
     collection: fulfillment.collection,
     delivery: { enabled: fulfillment.delivery.enabled },
@@ -143,6 +150,7 @@ function fulfillmentAvailability(
   now: Date,
 ) {
   const checkoutEnabled =
+    env.PUBLIC_LAUNCH_MODE === "full" &&
     !!finance &&
     (env.DEPLOYMENT_ENV !== "production" || finance.approvalStatus === "APPROVED");
   return {

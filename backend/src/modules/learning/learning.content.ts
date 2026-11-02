@@ -185,6 +185,7 @@ export const learningArticles: LearningArticle[] = [
       "Choose your next step with Allied AutoTech",
       "Start with Services for vehicle care, Shop for products and compatibility, or Vehicles for listings and requirements enquiries. The team confirms availability and arrangements separately.",
       [
+        "Online actions follow current server availability. If availability cannot be checked, keep your draft, use Check availability again, or contact the team. Opening a direct link does not enable a closed action. Booking availability and checkout availability are checked separately.",
         "Use Search in the public header to search services, products, vehicles and public Help together. Choose a result or View all to refine that catalogue. You can also choose a single catalogue or Help. Search never reads private dashboard records and does not establish availability or compatibility.",
         "Home highlights comprehensive diagnostics, four-wheel alignment and Generic Lube Oil Service. Open the published service to see its current price, or ask the team about scope and pricing. An enquiry does not reserve an appointment.",
         "Use the hero’s Previous, Next and slide controls to explore workshop highlights. Pause stops rotation; keyboard focus also stops it until you explicitly choose Play. Reduced-motion preferences start the slideshow paused.",
@@ -197,7 +198,7 @@ export const learningArticles: LearningArticle[] = [
       "Home customer routes, catalogue availability contract and approved enquiries launch",
       "home homepage search start services shop products vehicles enquiry",
     ),
-    version: 4,
+    version: 5,
     reviewedAt: "2026-11-02",
   },
   article(
@@ -356,6 +357,7 @@ export const learningArticles: LearningArticle[] = [
         "Open Services and choose the relevant service. A service group describes a broad area of work; it is not an individual priced service. An active group may have no individual services listed yet. Open the group, read its description and choose Ask a question. The selected main service is stored as a structured reference, separately from your editable message; this is not a priced service or confirmed visit. When Allie is available, it can explain the published group description and link you to that group; it cannot confirm a price or appointment from the group alone.",
         "Prepare the vehicle details and the issue you have noticed. When offered, load your saved vehicle and contact details. Add a vehicle or edit contact details in the booking form; these explicit saves update your account and do not submit the booking. Review the request separately afterward.",
         "If your booking form offers a concern request, describe the problem instead of choosing a service. Vehicle concern means the team has not classified it yet; no service price or confirmed time is implied. When Request a visit is available from a service group, that group follows your draft through sign-in and review. The saved request keeps the original group name even if the catalogue changes later. Check Requested service group in your booking details.",
+        "An availability check does not submit or confirm your draft. After switching tabs or reconnecting, wait for the current availability check before submitting; the server still verifies every write.",
         "Use the enquiry/contact path when online booking is unavailable. When the service page offers booking, choose a branch and an offered time or enter your preferred Lagos time within the published booking window.",
         "When signing in from the booking review, this tab can keep your anonymous draft for 15 minutes. Review it again after sign-in; it is never sent automatically. Logout or an account change clears it.",
         "Review the service, vehicle details, requested time and price before submitting from your customer account. Quotation-required services have no agreed price yet. No booking deposit is required.",
@@ -370,7 +372,7 @@ export const learningArticles: LearningArticle[] = [
       "Public launch mode, ServiceDetail, BookingDetail and ServiceOperationsService booking lifecycle",
       "booking appointment request garage quotation quote",
     ),
-    version: 15,
+    version: 16,
     reviewedAt: "2026-11-02",
   },
   article(

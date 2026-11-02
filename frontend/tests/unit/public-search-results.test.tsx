@@ -1,3 +1,9 @@
+import { capabilityView } from "@/lib/public-capabilities";
+import { publicCapabilitiesFixture } from "../fixtures/public-capabilities";
+vi.mock("@/lib/api/public-capabilities-server", () => ({
+  getPublicCapabilities: async () =>
+    capabilityView(publicCapabilitiesFixture("browse_enquiries")),
+}));
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 const { read } = vi.hoisted(() => ({ read: vi.fn() }));
@@ -69,4 +75,37 @@ it("finds existing public FAQs without requiring an account or learning activati
   expect(html).toContain("Can I inspect a vehicle before buying?");
   expect(html).toContain('href="/help/');
   expect(read).not.toHaveBeenCalled();
+});
+
+it("ranks a genuine manufacturer part number ahead of a title prefix and shows its destination cue", async () => {
+  read.mockImplementation(async (path: string) =>
+    path.includes("/catalog/")
+      ? {
+          items: [
+            {
+              id: "prefix",
+              name: "AB-123 compatible kit",
+              sku: "STOCK-2",
+              manufacturerPartNumber: "OTHER",
+              brand: null,
+            },
+            {
+              id: "exact-mpn",
+              name: "Original filter",
+              sku: "STOCK-1",
+              manufacturerPartNumber: "AB-123",
+              brand: "Synthetic maker",
+            },
+          ],
+        }
+      : { items: [] },
+  );
+  const html = renderToStaticMarkup(
+    await SearchResults({ query: "ab-123", helpOnly: false }),
+  );
+  expect(html.indexOf('href="/parts/exact-mpn"')).toBeLessThan(
+    html.indexOf('href="/parts/prefix"'),
+  );
+  expect(html).toContain("Part no. AB-123");
+  expect(html).toContain("Synthetic maker");
 });

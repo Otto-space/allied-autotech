@@ -1,3 +1,12 @@
+## 2 November 2026 runtime-availability guidance checkpoint (source)
+
+Public home-next-step v5 and service-request v16 explain current server availability,
+separate booking/checkout gates, keeping drafts while checking and rechecking after
+switching tabs/reconnecting. The server still verifies every write. Eligibility,
+semantic guide targets and flags are unchanged. Isolated HTTP expectations advance
+to v5/v16; publication remains pending. No provider or optional AI call is made.
+See docs/LIVE_AUDIT_IMPLEMENTATION_20261102.md for the bounded package evidence.
+
 ## 2 November 2026 complete-audit publication update
 
 Runtime 022a8a06 publishes public home-next-step v4 and service-request v15.

@@ -5,6 +5,55 @@ The current requirement ledger is frontend/docs/UI_UX_QUALITY_REGISTER.md; this
 report records a bounded implementation package, not a second backlog or a claim
 that the whole site is ready. Package start: 17:31 UTC; 60-minute review: 18:31 UTC.
 
+## Runtime capability package - source checkpoint, 2 November 2026
+
+Package start 20:00 UTC; review target 21:00 UTC. Published runtime remains 022a8a06
+until the next verified compatible release. The full audit goal remains active.
+
+The existing anonymous /public/capabilities endpoint now combines the actual backend
+release mode with existing finance approval. It exposes account, enquiry, booking and
+inspection availability; collection-only checkout requires both full mode and the
+existing finance gate. Public search now ranks published manufacturer part numbers
+as well as names/SKUs and displays a recorded part-number cue. No policy, provider, permission or activation flag is changed.
+The same backend middleware continues to reject direct limited-mode transaction writes.
+
+Server-rendered public pages, Help/FAQ/search, customer records/navigation and client
+forms now use that current snapshot instead of build-time customer availability.
+Server pages/layouts guard cart, checkout, registration and catalogue-only customer
+routes; the authentication/CSP/client-forwarding proxy keeps its established checks
+without adding slow policy fetches. Client checks revalidate on focus/visibility,
+reconnect/pageshow and every 30 visible seconds, ignore older responses, fail closed,
+and offer retry without submitting or clearing drafts. Booking and finance availability
+stay separate. Existing readable records, permissions, favourites and session guards
+remain. Registration also refuses an unavailable direct form event. Allie receives
+current availability metadata and invalidates stored history when it changes; no AI
+provider is called or enabled for verification.
+
+The same existing verified public-service-copy projection now covers customer-owned
+booking service descriptions and Allie's public service knowledge. Stored authoring,
+audit history, commercial terms and exact amounts remain unchanged. Native tests check
+both the safe customer description and the unchanged saved source/amount.
+
+Focused frontend capability/Help/overview tests and recovered favourite/search/proxy
+units pass; initial whole-suite failures were missing explicit runtime fixtures or
+server-loader mocks after the dependency change. Initial new browser failures were an
+incorrect checkout-anchor expectation and an invalid synthetic response envelope without
+message; those were corrected. All ten final phone/tablet/laptop/native-no-JavaScript runtime cases pass, including
+finance-versus-booking, stale tabs, failure/retry and genuine offline/reconnect with
+unsent draft preservation. The no-JavaScript case initially expected a client-loaded
+selected-group panel; its correct server-rendered Describe a vehicle problem destination
+and disabled-payment guidance pass after correcting that assumption. The final complete browser run passes 10/10; exact-source release checks remain mandatory. Existing first-failure traces are
+retained; no assertion about authentication, draft content or write denial was removed.
+
+Public home-next-step v5 and service-request v16 document the availability/recheck flow;
+eligibility, semantic targets and all feature flags remain unchanged. Exact-source CI,
+isolated authenticated HTTP, packaged images, held/deployed checks and current release
+safety receipts are still pending at this source checkpoint. Full-mode browser cases
+use a separate loopback in-memory API with no database; role data is synthetic. Current
+production stays browsing/enquiries. Account-optional purchasing remains engineering
+work; real accounts/providers/devices and recorded financial/operational decisions
+remain separate acceptance items.
+
 ## Published audit batch - 2 November 2026, 19:42 UTC
 
 Runtime **022a8a0609e377dcb2c794e6eb0e9f48ff90cf56** is published on apex/www as

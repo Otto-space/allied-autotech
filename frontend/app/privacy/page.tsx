@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { business } from "@/lib/business";
 import { publicMetadata } from "@/lib/seo";
-import { catalogueOnly } from "@/lib/public-launch";
+import { getPublicCapabilities } from "@/lib/api/public-capabilities-server";
 import { SiteHeader } from "../components/site-header";
 import { SiteFooter } from "../components/site-footer";
 import "./privacy.css";
@@ -13,7 +13,8 @@ export const metadata: Metadata = publicMetadata(
   "/privacy",
 );
 
-export default function PrivacyPage() {
+export default async function PrivacyPage() {
+  const { catalogueOnly } = await getPublicCapabilities();
   const catalogue = catalogueOnly();
   return (
     <>

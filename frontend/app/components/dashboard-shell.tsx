@@ -1,5 +1,5 @@
 "use client";
-import { browseEnquiriesOnly } from "@/lib/public-launch";
+import { usePublicCapabilities } from "@/app/components/public-capabilities";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { LogOut, Menu, PanelLeftClose, PanelLeftOpen, UserRound, X } from "lucide-react";
@@ -64,6 +64,8 @@ export function DashboardShell({
   readonly children: React.ReactNode;
   audience?: "customer" | "staff";
 }) {
+  const release = usePublicCapabilities();
+  const { checkoutEnabled, bookingRequestsEnabled } = release;
   const router = useRouter();
   const pathname = usePathname();
   const [session, setSession] = useState<SessionState | null>(null);
@@ -177,7 +179,7 @@ export function DashboardShell({
       ? workforceNavigation(verifiedWorkforce)
       : []
     : session
-      ? dashboardNavigation(session.user.role, navigationCapabilities)
+      ? dashboardNavigation(session.user.role, navigationCapabilities, release)
       : [];
   const currentDestination = navigation
     .flatMap((group) => group.links.map((link) => ({ ...link, group: group.label })))
@@ -507,14 +509,17 @@ export function DashboardShell({
         </header>
         <main id="main" className="dashboard-content" key={session.user.id}>
           {session.user.role === "CUSTOMER" &&
-            browseEnquiriesOnly() &&
+            (!checkoutEnabled || !bookingRequestsEnabled) &&
             /^\/dashboard\/(orders|bookings|payments|invoices|inspections|vehicle-transactions)(\/|$)/.test(
               pathname,
             ) && (
               <p className="notice" role="status">
-                Your existing records remain available. New online transactions and
-                appointment changes are unavailable in this release. Contact Customer Care
-                for help with a record.
+                Your existing records remain available.{" "}
+                {!checkoutEnabled ? "New online payments are unavailable. " : ""}
+                {!bookingRequestsEnabled
+                  ? "New booking requests and appointment changes are unavailable. "
+                  : ""}
+                Contact Customer Care for help with a record.
               </p>
             )}
           {currentDestination &&

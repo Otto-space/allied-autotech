@@ -1,10 +1,12 @@
 "use client";
+import { usePublicCapabilities } from "./public-capabilities";
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { CircleHelp, MessageCircle, X } from "lucide-react";
-import { answerFaq, business, faqs } from "@/lib/business";
+import { answerFaq, business, getFaqs } from "@/lib/business";
 import { HelpAccountAction } from "./help-account-action";
+import { CAPABILITIES_CHANGED } from "./public-capabilities";
 import { SESSION_CHANGED } from "@/lib/api/client";
 import { learningEnabled } from "@/lib/learning/contracts";
 import { requestLearningOpen } from "./learning/learning-entry";
@@ -16,6 +18,8 @@ import {
   ASSISTANT_VISIBILITY,
 } from "@/lib/learning/search";
 export function SupportWidget() {
+  const capabilities = usePublicCapabilities();
+  const faqs = getFaqs(capabilities);
   const pathname = usePathname();
   const dialog = useRef<HTMLDialogElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
@@ -40,8 +44,13 @@ export function SupportWidget() {
       questionForm.current?.reset();
       setAnswer(undefined);
     }
+    const clearAnswer = () => setAnswer(undefined);
     window.addEventListener(SESSION_CHANGED, discard);
-    return () => window.removeEventListener(SESSION_CHANGED, discard);
+    window.addEventListener(CAPABILITIES_CHANGED, clearAnswer);
+    return () => {
+      window.removeEventListener(SESSION_CHANGED, discard);
+      window.removeEventListener(CAPABILITIES_CHANGED, clearAnswer);
+    };
   }, []);
   if (
     pathname.startsWith("/admin") ||
@@ -133,7 +142,10 @@ export function SupportWidget() {
           onSubmit={(event) => {
             event.preventDefault();
             setAnswer(
-              answerFaq(String(new FormData(event.currentTarget).get("question") ?? "")),
+              answerFaq(
+                String(new FormData(event.currentTarget).get("question") ?? ""),
+                faqs,
+              ),
             );
           }}
         >

@@ -1,9 +1,9 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { catalogueOnly } from "@/lib/public-launch";
+import { getPublicCapabilities } from "@/lib/api/public-capabilities-server";
 import { ArrowRight, ArrowUpRight, ChevronRight, Phone } from "lucide-react";
-import { business, faqs } from "@/lib/business";
-import { helpArticleGuidance } from "@/lib/help-article-guidance";
+import { business, getFaqs } from "@/lib/business";
+import { getHelpArticleGuidance } from "@/lib/help-article-guidance";
 import {
   indexingEnabled,
   publicPageMetadata,
@@ -18,6 +18,8 @@ import "./article.css";
 
 type Props = { params: Promise<{ slug: string }>; searchParams: SearchParameters };
 export async function generateMetadata({ params, searchParams }: Props) {
+  const capabilities = await getPublicCapabilities();
+  const faqs = getFaqs(capabilities);
   const { slug } = await params;
   const article = faqs.find((faq) => faq.id === slug);
   if (!article)
@@ -30,7 +32,9 @@ export async function generateMetadata({ params, searchParams }: Props) {
   );
 }
 export default async function HelpArticle({ params, searchParams }: Props) {
-  if (catalogueOnly()) redirect("/help");
+  if ((await getPublicCapabilities()).catalogueOnly()) redirect("/help");
+  const capabilities = await getPublicCapabilities();
+  const faqs = getFaqs(capabilities);
   const { slug } = await params;
   const article = faqs.find((faq) => faq.id === slug);
   if (!article) notFound();
@@ -40,7 +44,7 @@ export default async function HelpArticle({ params, searchParams }: Props) {
   const suggestions = related.length
     ? related
     : faqs.filter((faq) => faq.id !== slug).slice(0, 3);
-  const notes = helpArticleGuidance[article.id];
+  const notes = getHelpArticleGuidance(capabilities)[article.id];
   const origin = siteOrigin();
   const structured =
     indexingEnabled() && origin && !Object.keys(await searchParams).length

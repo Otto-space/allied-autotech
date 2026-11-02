@@ -6952,8 +6952,8 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Read effective policy availability and server time
-         * @description Informational only, not transaction authorization or a price quote. New orders are collection only; delivery remains disabled even when historical delivery policies exist. Missing finance is represented by null approvalStatus and disabled checkout; private local/staging draft finance follows the existing finance gate. No private policy provenance is exposed. Refresh on use; responses are no-store. Read effective policy availability and server time. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+         * Read current public release and effective policy availability
+         * @description Informational only, not transaction authorization or a price quote. Release mode and enabled account, enquiry, booking and inspection actions come from the same runtime mode as the backend write guard. Checkout also requires full mode and the existing finance gate. New orders are collection only; delivery remains disabled even when historical delivery policies exist. Missing finance is represented by null approvalStatus and disabled checkout; private local/staging draft finance follows the existing finance gate. No private policy provenance is exposed. Refresh on use; responses are no-store. Read current public release and effective policy availability. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
          */
         get: operations["getPublicCapabilities"];
         put?: never;
@@ -116793,7 +116793,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Success: Read effective policy availability and server time. */
+            /** @description Success: Read current public release and effective policy availability. */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -116802,9 +116802,16 @@ export interface operations {
                     /**
                      * @example {
                      *       "success": true,
-                     *       "message": "Read effective policy availability and server time",
+                     *       "message": "Read current public release and effective policy availability",
                      *       "data": {
                      *         "scope": "POLICY_SUMMARY",
+                     *         "release": {
+                     *           "mode": "full",
+                     *           "customerAccountsEnabled": true,
+                     *           "enquiriesEnabled": true,
+                     *           "bookingRequestsEnabled": true,
+                     *           "inspectionRequestsEnabled": true
+                     *         },
                      *         "serverTime": "2030-01-15T10:00:00.000Z",
                      *         "checkoutEnabled": true,
                      *         "collection": {
@@ -116851,6 +116858,22 @@ export interface operations {
                              * @enum {string}
                              */
                             scope: "POLICY_SUMMARY";
+                            /** @description Release validated by this operation's strict request contract. */
+                            release: {
+                                /**
+                                 * @description Mode validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                mode: "full" | "browse_enquiries" | "catalogue";
+                                /** @description Customer Accounts Enabled validated by this operation's strict request contract. */
+                                customerAccountsEnabled: boolean;
+                                /** @description Enquiries Enabled validated by this operation's strict request contract. */
+                                enquiriesEnabled: boolean;
+                                /** @description Booking Requests Enabled validated by this operation's strict request contract. */
+                                bookingRequestsEnabled: boolean;
+                                /** @description Inspection Requests Enabled validated by this operation's strict request contract. */
+                                inspectionRequestsEnabled: boolean;
+                            };
                             /**
                              * Format: date-time
                              * @description ISO 8601 timestamp interpreted and validated by the server.

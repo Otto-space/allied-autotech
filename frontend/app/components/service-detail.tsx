@@ -4,7 +4,7 @@ import {
   consumeBookingSignInDraft,
   clearBookingSignInDraft,
 } from "@/lib/forms/booking-sign-in-draft";
-import { browseEnquiriesOnly } from "@/lib/public-launch";
+import { usePublicCapabilities } from "@/app/components/public-capabilities";
 import Link from "next/link";
 import { ServicePhoto } from "./service-photo";
 import { servicePhotograph } from "@/lib/service-photography";
@@ -81,6 +81,7 @@ export function ServiceDetail({
   initialService: z.infer<typeof serviceSchema>;
   relatedServices?: ReactNode;
 }) {
+  const { mode, bookingRequestsEnabled } = usePublicCapabilities();
   const parseService = useCallback(
     (value: unknown) => {
       const parsed = serviceSchema.parse(value);
@@ -98,7 +99,7 @@ export function ServiceDetail({
   const current = service.data;
   const photograph = current ? servicePhotograph(current) : null;
   const listedFixed = current?.pricingType === "FIXED";
-  const bookable = !!current && !browseEnquiriesOnly();
+  const bookable = !!current && mode === "full";
   const offeredSlotsSupported =
     listedFixed && current?.priceKobo !== null && current?.durationMinutes !== null;
   const [access, setAccess] = useState<
@@ -380,6 +381,7 @@ export function ServiceDetail({
       (!!selectedSlot && !!slots.error));
   async function book() {
     if (
+      !bookingRequestsEnabled ||
       busy ||
       booking ||
       !current ||
@@ -466,7 +468,7 @@ export function ServiceDetail({
     }
   }
 
-  const locked = busy || uncertain;
+  const locked = !bookingRequestsEnabled || busy || uncertain;
   let formTitle = "Service enquiry";
   if (bookable && !enquiryMode) {
     if (booking) formTitle = "Your booking request";

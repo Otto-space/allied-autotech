@@ -2,7 +2,7 @@ import type {
   InboxNotification,
   NotificationSummary,
 } from "@/lib/api/notification-schemas";
-import { browseEnquiriesOnly, restrictedLaunchPage } from "@/lib/public-launch";
+import { capabilityView } from "@/lib/public-capabilities";
 
 // Resource identity, not notification type, determines the destination: a refund
 // notification can refer to a booking rather than a refund record.
@@ -131,9 +131,10 @@ export function customerNotificationDestination(
     InboxNotification,
     "resourceType" | "resourceId" | "category" | "supportMessageId" | "destination"
   >,
+  release = capabilityView(null),
 ) {
   const releaseDestination = (target: { href: string; label: string } | null) =>
-    target && browseEnquiriesOnly() && restrictedLaunchPage(target.href.split(/[?#]/)[0])
+    target && release.restrictedLaunchPage(target.href.split(/[?#]/)[0])
       ? { href: "/contact", label: "Contact about this update" }
       : target;
   if (item.destination !== undefined) return releaseDestination(item.destination);

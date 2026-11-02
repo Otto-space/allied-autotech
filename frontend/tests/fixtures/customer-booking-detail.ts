@@ -63,6 +63,8 @@ export async function bookingDetailFixture(page: Page, role = "CUSTOMER") {
     slotError: false,
   };
   await page.route("**/api/v1/**", async (route) => {
+    if (new URL(route.request().url()).pathname === "/api/v1/public/capabilities")
+      return route.fallback();
     const url = new URL(route.request().url()),
       endpoint = url.pathname.replace("/api/v1", "");
     let data: unknown = { items: [] };

@@ -26,7 +26,7 @@ import { useAccountSession } from "./dashboard-shell";
 import { OverviewActivity } from "./overview-activity";
 import { CustomerCareSummary } from "./customer-care-summary";
 
-import { browseEnquiriesOnly, restrictedLaunchPage } from "@/lib/public-launch";
+import { usePublicCapabilities } from "@/app/components/public-capabilities";
 
 function OverviewLink({
   href,
@@ -35,6 +35,7 @@ function OverviewLink({
   summaryWhenRestricted,
   ...props
 }: ComponentProps<typeof Link> & { summaryWhenRestricted?: "block" | "inline" }) {
+  const { browseEnquiriesOnly, restrictedLaunchPage } = usePublicCapabilities();
   if (browseEnquiriesOnly() && typeof href === "string" && restrictedLaunchPage(href)) {
     const Summary = summaryWhenRestricted === "block" ? "div" : "span";
     return summaryWhenRestricted ? (
@@ -189,6 +190,8 @@ export function RoleOverview({
   customerDesign?: boolean;
   workDesign?: boolean;
 }) {
+  const { browseEnquiriesOnly, checkoutEnabled, bookingRequestsEnabled } =
+    usePublicCapabilities();
   const session = useAccountSession();
   const customer = session?.user.role === "CUSTOMER";
   const administrator =
@@ -356,10 +359,11 @@ export function RoleOverview({
             </p>
           </div>
         )}
-        {customerDesign && limited && (
+        {customerDesign && (!bookingRequestsEnabled || !checkoutEnabled) && (
           <p className="overview-release-note">
-            Online booking, checkout and payment are unavailable. Existing summaries
-            remain readable;{" "}
+            {!bookingRequestsEnabled ? "Online booking is unavailable. " : ""}
+            {!checkoutEnabled ? "Online checkout and payment are unavailable. " : ""}
+            Existing summaries remain readable;{" "}
             <Link href="/dashboard/support">ask Customer Care about a record</Link>.
           </p>
         )}

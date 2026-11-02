@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { browseEnquiriesOnly } from "@/lib/public-launch";
+import { usePublicCapabilities } from "@/app/components/public-capabilities";
 import { useSearchParams } from "next/navigation";
 import { ArrowLeft, ArrowRight, ArrowUpRight, Check, Wrench, X } from "lucide-react";
 import type { PublicSeed } from "@/lib/api/public-seed";
@@ -23,6 +23,7 @@ export function ServicesCatalogue({
 }: {
   initial: PublicSeed<ReturnType<typeof parseServiceDiscovery>>;
 }) {
+  const { browseEnquiriesOnly } = usePublicCapabilities();
   const searchParams = useSearchParams();
   const { params, invalid } = normalizeServiceQuery(
     new URLSearchParams(searchParams.toString()),

@@ -1,4 +1,4 @@
-import { browseEnquiriesOnly, catalogueOnly } from "@/lib/public-launch";
+import { getPublicCapabilities } from "@/lib/api/public-capabilities-server";
 import { CatalogueContact } from "../components/catalogue-contact";
 import { publicPageMetadata, type SearchParameters } from "@/lib/seo";
 import type { Metadata } from "next";
@@ -39,7 +39,8 @@ const locationQuery = `${business.name}, ${business.address}`;
 const mapsLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(locationQuery)}`;
 const directionsLink = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(locationQuery)}`;
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const { catalogueOnly, browseEnquiriesOnly } = await getPublicCapabilities();
   if (catalogueOnly()) return <CatalogueContact />;
   const mapsKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY?.trim();
   const mapsEmbed = mapsKey

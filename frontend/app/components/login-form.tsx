@@ -1,7 +1,7 @@
 "use client";
 import { clearBookingSignInDraft } from "@/lib/forms/booking-sign-in-draft";
 import Link from "next/link";
-import { catalogueOnly } from "@/lib/public-launch";
+import { usePublicCapabilities } from "@/app/components/public-capabilities";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { ArrowRight, Eye, EyeOff, LoaderCircle, LockKeyhole } from "lucide-react";
@@ -22,6 +22,7 @@ const clientReady = () => true;
 const serverReady = () => false;
 
 export function LoginForm() {
+  const { catalogueOnly } = usePublicCapabilities();
   const ready = useSyncExternalStore(subscribeHydration, clientReady, serverReady);
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);

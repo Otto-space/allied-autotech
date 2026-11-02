@@ -1,6 +1,6 @@
-﻿"use client";
+"use client";
 import Link from "next/link";
-import { browseEnquiriesOnly } from "@/lib/public-launch";
+import { usePublicCapabilities } from "./public-capabilities";
 import { useSearchParams } from "next/navigation";
 import { ArrowLeft, ArrowRight, Package, ChevronRight, RefreshCw } from "lucide-react";
 import { useResource } from "@/lib/api/use-resource";
@@ -14,6 +14,7 @@ import { formatKobo } from "@/lib/format/money";
 import { formatBusinessDate } from "@/lib/format/date";
 
 export function OrdersPanel() {
+  const { checkoutEnabled } = usePublicCapabilities();
   const search = useSearchParams();
   const { params, invalid, path } = customerOrderQuery(
     new URLSearchParams(search.toString()),
@@ -271,7 +272,7 @@ export function OrdersPanel() {
                 ? "Return to the first page to check the current list."
                 : status
                   ? "Try a different status or reset your filters."
-                  : browseEnquiriesOnly()
+                  : !checkoutEnabled
                     ? "Browse parts and ask our team about suitability and collection. Online checkout is not available."
                     : "Browse parts and review your order at checkout."}
             </p>

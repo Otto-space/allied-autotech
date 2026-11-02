@@ -150404,12 +150404,12 @@
         "tags": [
           "Owner policy operations"
         ],
-        "summary": "Read effective policy availability and server time",
-        "description": "Informational only, not transaction authorization or a price quote. New orders are collection only; delivery remains disabled even when historical delivery policies exist. Missing finance is represented by null approvalStatus and disabled checkout; private local/staging draft finance follows the existing finance gate. No private policy provenance is exposed. Refresh on use; responses are no-store. Read effective policy availability and server time. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.",
+        "summary": "Read current public release and effective policy availability",
+        "description": "Informational only, not transaction authorization or a price quote. Release mode and enabled account, enquiry, booking and inspection actions come from the same runtime mode as the backend write guard. Checkout also requires full mode and the existing finance gate. New orders are collection only; delivery remains disabled even when historical delivery policies exist. Missing finance is represented by null approvalStatus and disabled checkout; private local/staging draft finance follows the existing finance gate. No private policy provenance is exposed. Refresh on use; responses are no-store. Read current public release and effective policy availability. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.",
         "security": [],
         "responses": {
           "200": {
-            "description": "Success: Read effective policy availability and server time.",
+            "description": "Success: Read current public release and effective policy availability.",
             "content": {
               "application/json": {
                 "schema": {
@@ -150432,6 +150432,44 @@
                             "POLICY_SUMMARY"
                           ],
                           "description": "Scope validated by this operation's strict request contract."
+                        },
+                        "release": {
+                          "type": "object",
+                          "properties": {
+                            "mode": {
+                              "type": "string",
+                              "enum": [
+                                "full",
+                                "browse_enquiries",
+                                "catalogue"
+                              ],
+                              "description": "Mode validated by this operation's strict request contract."
+                            },
+                            "customerAccountsEnabled": {
+                              "type": "boolean",
+                              "description": "Customer Accounts Enabled validated by this operation's strict request contract."
+                            },
+                            "enquiriesEnabled": {
+                              "type": "boolean",
+                              "description": "Enquiries Enabled validated by this operation's strict request contract."
+                            },
+                            "bookingRequestsEnabled": {
+                              "type": "boolean",
+                              "description": "Booking Requests Enabled validated by this operation's strict request contract."
+                            },
+                            "inspectionRequestsEnabled": {
+                              "type": "boolean",
+                              "description": "Inspection Requests Enabled validated by this operation's strict request contract."
+                            }
+                          },
+                          "required": [
+                            "mode",
+                            "customerAccountsEnabled",
+                            "enquiriesEnabled",
+                            "bookingRequestsEnabled",
+                            "inspectionRequestsEnabled"
+                          ],
+                          "description": "Release validated by this operation's strict request contract."
                         },
                         "serverTime": {
                           "type": "string",
@@ -150591,6 +150629,7 @@
                       },
                       "required": [
                         "scope",
+                        "release",
                         "serverTime",
                         "checkoutEnabled",
                         "collection",
@@ -150633,9 +150672,16 @@
                 },
                 "example": {
                   "success": true,
-                  "message": "Read effective policy availability and server time",
+                  "message": "Read current public release and effective policy availability",
                   "data": {
                     "scope": "POLICY_SUMMARY",
+                    "release": {
+                      "mode": "full",
+                      "customerAccountsEnabled": true,
+                      "enquiriesEnabled": true,
+                      "bookingRequestsEnabled": true,
+                      "inspectionRequestsEnabled": true
+                    },
                     "serverTime": "2030-01-15T10:00:00.000Z",
                     "checkoutEnabled": true,
                     "collection": {

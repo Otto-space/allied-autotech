@@ -3,7 +3,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { z } from "zod";
 import { apiRequest, ApiError, SESSION_CHANGED } from "@/lib/api/client";
 import { DRAFT_SAVED, DRAFT_STORAGE_FAILED, setDraftIdentity } from "@/lib/forms/drafts";
-import { catalogueOnly } from "@/lib/public-launch";
+import { usePublicCapabilities } from "@/app/components/public-capabilities";
 import type { CatalogueEnquiryContext } from "@/lib/catalogue-enquiry";
 import {
   chooseEnquiryContext,
@@ -27,6 +27,7 @@ export function CatalogueEnquiryDrafts({
   incoming: CatalogueEnquiryContext;
   children: (context: CatalogueEnquiryContext) => ReactNode;
 }) {
+  const { catalogueOnly } = usePublicCapabilities();
   if (catalogueOnly()) return children(incoming);
   return <VerifiedDraftScope incoming={incoming}>{children}</VerifiedDraftScope>;
 }

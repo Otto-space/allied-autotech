@@ -58,7 +58,7 @@ function output() {
     answer: "A name match does not confirm compatibility.",
     steps: ["Check the compatibility evidence in Parts."],
     caveat: null,
-    sourceIds: ["parts-fitment@v3"],
+    sourceIds: ["parts-fitment@v4"],
     actionIds: ["read:parts-fitment"],
   };
 }
@@ -275,7 +275,14 @@ describe("reviewed retrieval, follow-ups and current-source validation", () => {
     expect(selected.sources.map((source) => source.articleId)).not.toContain(
       "privileged-recovery",
     );
-    expect(selected.sources).toHaveLength(1); // Public security recovery remains eligible.
+    expect(selected.sources.length).toBeGreaterThan(0);
+    // More than one reviewed public article can be relevant; every source must
+    // still belong to the current public catalogue, regardless of claimed role.
+    expect(
+      selected.sources.every((source) =>
+        catalogue().articles.some((article) => article.id === source.articleId),
+      ),
+    ).toBe(true);
     expect(
       selected.sources.reduce((sum, source) => sum + source.passage.length, 0),
     ).toBeLessThanOrEqual(8000);
@@ -289,7 +296,7 @@ describe("reviewed retrieval, follow-ups and current-source validation", () => {
           {
             question: "Find a part",
             answer: "Check compatibility.",
-            sourceIds: ["parts-fitment@v3"],
+            sourceIds: ["parts-fitment@v4"],
           },
         ],
       };
@@ -351,7 +358,7 @@ describe("reviewed retrieval, follow-ups and current-source validation", () => {
     { answer: "Visit https://attacker.example" },
     { answer: "I have queued your message." },
     { answer: "My password is synthetic-secret." },
-    { sourceIds: ["parts-fitment@v3", "parts-fitment@v3"] },
+    { sourceIds: ["parts-fitment@v4", "parts-fitment@v4"] },
   ])(
     "rejects forged sources/actions, active output and unperformed success claims",
     (override) => {
@@ -517,4 +524,25 @@ it("retrieves reviewed business facts and invalidates them after a content edit"
   expect(
     retrieveAllieContext(changed, "Where are you?", "contact", previous).historyReset,
   ).toBe(true);
+});
+
+it("invalidates stored Allie history when current financial availability changes without a mode change", () => {
+  const before = catalogue();
+  before.mode = "full";
+  before.availability = {
+    checkoutEnabled: true,
+    bookingRequestsEnabled: true,
+    inspectionRequestsEnabled: true,
+  };
+  const after = structuredClone(before);
+  after.availability!.checkoutEnabled = false;
+  expect(allieSourceSet(after)).not.toBe(allieSourceSet(before));
+  const context = retrieveAllieContext(after, "Can I pay online?", "other", {
+    accessKey: before.accessKey,
+    sourceSet: allieSourceSet(before),
+    turns: [],
+  });
+  expect(context.historyReset).toBe(true);
+  expect(context.availability).toEqual(after.availability);
+  expect(context.releaseMode).toBe("full");
 });

@@ -10,7 +10,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import type { SessionState } from "./api/types";
-import { browseEnquiriesOnly, restrictedLaunchPage } from "./public-launch";
+import { capabilityView } from "./public-capabilities";
 
 type Role = SessionState["user"]["role"];
 export type DashboardDestination = {
@@ -226,24 +226,18 @@ const operationalGroups: DashboardGroup[] = [
 export function dashboardNavigation(
   role: Role,
   capabilities: readonly string[] = [],
+  release = capabilityView(null),
 ): DashboardGroup[] {
+  const { restrictedLaunchPage } = release;
   if (!["CUSTOMER", "STAFF", "ADMIN", "SUPER_ADMIN"].includes(role)) return [];
   return (role === "CUSTOMER" ? customerGroups : operationalGroups)
     .map((group) => ({
       ...group,
       label:
-        role === "CUSTOMER" && group.id === "shop"
-          ? browseEnquiriesOnly()
-            ? "Orders & saved items"
-            : "Orders & saved items"
-          : group.label,
+        role === "CUSTOMER" && group.id === "shop" ? "Orders & saved items" : group.label,
       links: group.links.filter(
         (link) =>
-          !(
-            role === "CUSTOMER" &&
-            browseEnquiriesOnly() &&
-            restrictedLaunchPage(link.href)
-          ) &&
+          !(role === "CUSTOMER" && restrictedLaunchPage(link.href)) &&
           (!link.roles ||
             link.roles.includes(role) ||
             (role === "STAFF" &&
