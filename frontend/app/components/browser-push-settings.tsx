@@ -220,6 +220,15 @@ export function BrowserPushSettings({
     }
   }
   if (invitationHref) {
+    if (dismissed === false && (message || error))
+      return (
+        <section className={styles.invitation} aria-label="Browser notification update">
+          <p role="status">{message || error}</p>
+          <Link className="button secondary" href={invitationHref}>
+            Review notification settings
+          </Link>
+        </section>
+      );
     if (
       dismissed !== false ||
       !deviceChecked ||
@@ -240,10 +249,18 @@ export function BrowserPushSettings({
       <section className={styles.invitation} aria-labelledby="push-invitation-title">
         <h2 id="push-invitation-title">Would you like browser alerts?</h2>
         <p>
-          Get optional account updates on this device. Review settings to choose whether
-          to enable them. Your browser asks for permission only after you choose Enable.
+          Get updates about your bookings and orders on this device. Your browser asks for
+          permission only after you choose Enable notifications.
         </p>
         <div className={styles.actions}>
+          <button
+            className="button"
+            type="button"
+            disabled={busy}
+            onClick={() => void enable()}
+          >
+            {busy ? "Enabling…" : "Enable notifications"}
+          </button>
           <Link className="button secondary" href={invitationHref}>
             Review notification settings
           </Link>

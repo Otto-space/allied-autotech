@@ -48,6 +48,11 @@ export function AppointmentTiming({
     current && (now !== undefined || clock !== null)
       ? appointmentCountdown(status, scheduledAt, now ?? clock!)
       : null;
+  const arrived =
+    current &&
+    status === "CONFIRMED" &&
+    (now !== undefined || clock !== null) &&
+    Date.parse(scheduledAt) <= (now ?? clock!);
   return (
     <div className={styles.timing}>
       <time className={styles.calendar} dateTime={scheduledAt} aria-hidden="true">
@@ -71,6 +76,9 @@ export function AppointmentTiming({
           <p className={styles.countdown} role="timer" aria-live="off">
             {countdown}
           </p>
+        )}
+        {arrived && (
+          <p>Appointment time has arrived. The workshop will update its status.</p>
         )}
       </div>
     </div>

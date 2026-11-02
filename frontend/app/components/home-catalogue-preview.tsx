@@ -115,7 +115,7 @@ export function HomePartsPreview({
               title: "Engine oils",
               image: "engine-oils",
               href: "/parts?family=ENGINE_OIL",
-              copy: "Explore recorded grades and ask about suitability.",
+              copy: "Browse engine oils and ask about suitability.",
             },
             {
               title: "Filters",
@@ -216,7 +216,7 @@ export function HomeVehiclesPreview({
               <p>
                 {empty
                   ? "Our online catalogue has no published listings yet. Tell us what you are looking for."
-                  : "Compare published details or share your requirements with our team."}
+                  : "Compare vehicle details or share your requirements with our team."}
               </p>
               {hasListings && (
                 <Link className="text-link" href="/vehicles">

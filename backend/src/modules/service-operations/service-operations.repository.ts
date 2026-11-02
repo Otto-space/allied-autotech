@@ -447,9 +447,24 @@ export class ServiceOperationsRepository {
   }
 
   listCustomerBookings(customerId: string, query: CustomerBookingListQuery) {
+    const range = {
+      ...(query.scheduledFrom ? { gte: new Date(query.scheduledFrom) } : {}),
+      ...(query.scheduledTo ? { lt: new Date(query.scheduledTo) } : {}),
+    };
     return this.database.booking.findMany({
       where: {
         customerId,
+        ...(query.scheduledFrom || query.scheduledTo
+          ? {
+              OR: [
+                { scheduledAt: range },
+                {
+                  status: { in: ["REQUESTED", "CONFIRMED"] },
+                  alternativeStartsAt: range,
+                },
+              ],
+            }
+          : {}),
         ...(query.status === undefined ? {} : { status: query.status }),
       },
       select: {

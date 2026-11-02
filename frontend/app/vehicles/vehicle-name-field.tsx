@@ -101,7 +101,7 @@ export function VehicleNameField({
           <>
             <small>
               {resource.data.items.length
-                ? `${resource.data.items.length} suggestion${resource.data.items.length === 1 ? "" : "s"} on this page. Choose a suggestion or enter the full name.`
+                ? `${resource.data.items.length} suggestion${resource.data.items.length === 1 ? "" : "s"} on this page.`
                 : "No matching suggestions. You can still enter the full name."}
             </small>
             {(cursor || resource.data.nextCursor) && (

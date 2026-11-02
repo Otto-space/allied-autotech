@@ -402,12 +402,16 @@ export function VehicleFilters({
                 className="vehicle-filter-group"
                 key={heading as string}
                 open={
-                  (!(heading as string).startsWith("More ") &&
-                    heading !== "Final assembly") ||
+                  ["Budget", "Make and model", "Condition"].includes(heading as string) ||
                   (keys as string[]).some((key) => !!values[key])
                 }
               >
-                <summary>{heading}</summary>
+                <summary>{heading === "Budget" ? "Budget (NGN)" : heading}</summary>
+                {heading === "Budget" && (
+                  <small id="vehicle-budget-hint">
+                    Leave either limit blank for no limit.
+                  </small>
+                )}
                 {heading === "Condition" && (
                   <p className="vehicle-filter-hint">
                     Choose the recorded use history when known.
@@ -576,7 +580,7 @@ export function VehicleFilters({
                             errors[key]
                               ? `filter-${key}-error`
                               : key.endsWith("Kobo")
-                                ? `filter-${key}-hint`
+                                ? "vehicle-budget-hint"
                                 : ["make", "model"].includes(key)
                                   ? `filter-${key}-hint`
                                   : undefined
@@ -587,14 +591,9 @@ export function VehicleFilters({
                           }}
                         />
                       )}
-                      {key.endsWith("Kobo") && (
-                        <small id={`filter-${key}-hint`}>
-                          Naira, for example 4500000. Leave blank for no limit.
-                        </small>
-                      )}
                       {["make", "model"].includes(key) && (
                         <small id={`filter-${key}-hint`}>
-                          Choose a suggestion or type a {key}.
+                          Choose a {key} or type its name.
                         </small>
                       )}
                       {errors[key] && (

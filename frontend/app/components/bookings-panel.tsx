@@ -1,5 +1,7 @@
 ﻿"use client";
 import Link from "next/link";
+import { browseEnquiriesOnly } from "@/lib/public-launch";
+import { BookingCalendar } from "./booking-calendar";
 import { useSearchParams } from "next/navigation";
 import {
   ArrowLeft,
@@ -82,11 +84,12 @@ export function BookingsPanel() {
       <header className="booking-list-heading">
         <div>
           <h1>Your bookings</h1>
-          <p>Appointments, deposit status, quotations and service progress.</p>
+          <p>Requests, appointments, quotations and service progress.</p>
         </div>
         <div className="booking-list-actions">
+          <BookingCalendar />
           <Link className="button" href="/services">
-            Book a service
+            {browseEnquiriesOnly() ? "Explore services" : "Request a visit"}
           </Link>
           <button
             className="button secondary"
@@ -303,7 +306,9 @@ export function BookingsPanel() {
                 ? "Return to the first page to check the current list."
                 : status
                   ? "Try a different status or reset your filters."
-                  : "Choose a service to request your first appointment."}
+                  : browseEnquiriesOnly()
+                    ? "Explore services and ask our team about a workshop visit. Your enquiry does not confirm an appointment."
+                    : "Choose a service to request your first appointment."}
             </p>
             {cursor ? (
               <button className="button secondary" onClick={firstPage}>

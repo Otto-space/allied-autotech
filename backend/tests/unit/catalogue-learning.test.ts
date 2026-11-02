@@ -6,7 +6,7 @@ import {
 
 it("explains controllable workshop highlights without turning a discovery request into an appointment", () => {
   const home = learningArticles.find((item) => item.id === "home-next-step")!;
-  expect(home.version).toBe(3);
+  expect(home.version).toBe(4);
   expect(home.gate).toBe("public");
   const text = home.steps.join(" ");
   expect(text).toContain("Generic Lube Oil Service");
@@ -50,7 +50,7 @@ it("versions reversal guidance without granting live lookups or writes", () => {
 
 it("keeps concern guidance conditional on the real intake form and preserves pending confirmation", () => {
   const article = learningArticles.find((item) => item.id === "service-request")!;
-  expect(article.version).toBe(14);
+  expect(article.version).toBe(15);
   expect(article.steps.join(" ")).toContain("only for a confirmed future appointment");
   expect(article.steps.join(" ")).toContain(
     "No permission is requested by the invitation",

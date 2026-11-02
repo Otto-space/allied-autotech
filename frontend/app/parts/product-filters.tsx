@@ -543,11 +543,6 @@ export function ProductFilters({
               <summary>More product details</summary>
               <div>{renderField("productType")}</div>
             </details>
-            <p className="product-fitment-note">
-              {values.family === "ENGINE_OIL"
-                ? "Grades and pack volumes describe the recorded product. They do not establish manufacturer approval or vehicle suitability."
-                : "Compatibility has not been confirmed. Ask our team to check your vehicle and required specifications."}
-            </p>
           </div>
           {!panel.desktop && filterActions}
         </form>

@@ -4843,7 +4843,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### GET `/customers/bookings`
 
 - Operation ID: `getCustomersBookings`
-- Purpose: List own bookings with previously issued quotations only. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Optional scheduledFrom (inclusive) and scheduledTo (exclusive) match the current/requested scheduled time or an active requested/confirmed booking's proposed alternative time. Results remain customer-owned, stably paged and exclude private staff notes. Date ranges do not confirm or reserve appointments. List own bookings with previously issued quotations only. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: CUSTOMER
 - Authentication: Opaque session cookie
 - CSRF: Not required
@@ -4856,6 +4856,8 @@ Parameters:
 | `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
 | `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
 | `status` | query | REQUESTED / AWAITING_DEPOSIT / CONFIRMED / IN_PROGRESS / COMPLETED / CANCELLED / NO_SHOW / EXPIRED | No | Status used to constrain this request. |
+| `scheduledFrom` | query | string (date-time) | No | Scheduled From used to constrain this request. |
+| `scheduledTo` | query | string (date-time) | No | Scheduled To used to constrain this request. |
 
 Success: HTTP 200.
 
@@ -9525,10 +9527,10 @@ Parameters:
 | `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
 | `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
 | `status` | query | REQUESTED / AWAITING_DEPOSIT / CONFIRMED / IN_PROGRESS / COMPLETED / CANCELLED / NO_SHOW / EXPIRED | No | Status used to constrain this request. |
-| `branchId` | query | string (uuid) | No | Branch Id used to constrain this request. |
-| `assignedStaffId` | query | string (uuid) | No | Assigned Staff Id used to constrain this request. |
 | `scheduledFrom` | query | string (date-time) | No | Scheduled From used to constrain this request. |
 | `scheduledTo` | query | string (date-time) | No | Scheduled To used to constrain this request. |
+| `branchId` | query | string (uuid) | No | Branch Id used to constrain this request. |
+| `assignedStaffId` | query | string (uuid) | No | Assigned Staff Id used to constrain this request. |
 
 Success: HTTP 200.
 

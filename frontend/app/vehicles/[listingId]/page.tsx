@@ -154,17 +154,11 @@ export default async function ListingPage({
   const label = (value: string | null | undefined) =>
     value ? vehicleLabel(value) : "Not listed";
   const specs = {
-    Year: vehicle.year,
-    Make: vehicle.make,
-    Model: vehicle.model,
-    Trim: vehicle.trim || "Not listed",
-    "Body type": label(vehicle.bodyType),
-    Mileage: mileageLabel(vehicle.mileageKm),
-    Transmission: label(vehicle.transmission),
-    "Fuel type": label(vehicle.fuelType),
     Condition: label(vehicle.condition),
-    "Final assembly country": label(vehicle.manufactureCountryCode),
-    Powertrain: label(vehicle.powertrain),
+    ...(vehicle.manufactureCountryCode
+      ? { "Final assembly country": label(vehicle.manufactureCountryCode) }
+      : {}),
+    ...(vehicle.powertrain ? { Powertrain: label(vehicle.powertrain) } : {}),
     ...(vehicle.engineCapacityCc == null
       ? {}
       : {
@@ -173,10 +167,12 @@ export default async function ListingPage({
     ...(vehicle.features?.length
       ? { "Recorded features": vehicle.features.join(", ") }
       : {}),
-    Colour: vehicle.color || "Not listed",
+    ...(vehicle.color ? { Colour: vehicle.color } : {}),
     ...(vehicle.engineCode ? { "Engine code": vehicle.engineCode } : {}),
     ...(vehicle.cylinders != null ? { Cylinders: vehicle.cylinders } : {}),
-    ...(vehicle.engineSize ? { "Engine size": vehicle.engineSize } : {}),
+    ...(vehicle.engineSize && vehicle.engineCapacityCc == null
+      ? { "Engine size": vehicle.engineSize }
+      : {}),
     ...(vehicle.driveType
       ? { "Drive type": vehicle.driveType === "FOUR_WD" ? "4WD" : vehicle.driveType }
       : {}),
@@ -259,7 +255,7 @@ export default async function ListingPage({
             </p>
             <h1>{presentation.title}</h1>
             {presentation.subtitle && <p>{presentation.subtitle}</p>}
-            <p>Published listing &middot; Confirm current availability with our team.</p>
+            <p>Confirm current availability with our team.</p>
             <p className="vd-mobile-price">
               {formatKobo(listing.priceKobo, { hideZeroDecimals: true })}
             </p>
@@ -291,7 +287,7 @@ export default async function ListingPage({
                   <div>
                     <dt>Condition report</dt>
                     <dd>
-                      {vehicle.conditionReports.length ? "Published" : "Not published"}
+                      {vehicle.conditionReports.length ? "Available" : "Not supplied"}
                     </dd>
                   </div>
                 </dl>
@@ -344,13 +340,13 @@ export default async function ListingPage({
                       </div>
                     ))}
                   </dl>
-                  <div className="vd-description">
-                    <h3>About this vehicle</h3>
+                  <details className="vd-description">
+                    <summary>About this vehicle</summary>
                     <p>
                       {listing.description ||
-                        "Ask our team for more information about this vehicle, or request an inspection to see it in person."}
+                        "Ask our team for more information and discuss an inspection. A visit requires separate confirmation."}
                     </p>
-                  </div>
+                  </details>
                 </div>
                 <section
                   className="vd-condition"

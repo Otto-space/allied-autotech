@@ -1,3 +1,16 @@
+### 2 November 2026: Full supplied audit is the active scope
+
+The complete owner audit has now been read and reconciled against deployed 9be4e66b.
+The authoritative requirement ledger is the Current full-audit requirement ledger in
+frontend/docs/UI_UX_QUALITY_REGISTER.md. Earlier engineering-completion statements
+refer only to earlier batches. Combined Help/catalogue search, a real customer month
+calendar, explicit optional Enable, public wording/filter/contact/detail improvements
+and an operator information checklist are in verification. Source-only work is not
+claimed published. Current gaps include runtime capability convergence, account-optional
+purchasing implementation, operational policy/provider and unavailable real-role/device
+acceptance. Preserve published Admin/Super Admin operations and owner-only controls.
+See docs/LIVE_AUDIT_IMPLEMENTATION_20261102.md for checks and retained failures.
+
 ### 2 November 2026: Record authoring published; engineering scope verified
 
 Runtime 9be4e66bb10716fd0066b9de26275f1ddcf88c55 is published on apex/www as

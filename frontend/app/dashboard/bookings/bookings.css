@@ -152,7 +152,7 @@
   overflow: hidden;
   background: white;
 }
-.customer-bookings table {
+.customer-bookings .booking-table table {
   width: 100%;
   min-width: 0;
   table-layout: fixed;
@@ -160,7 +160,7 @@
   margin: 0;
   font-size: 13px;
 }
-.customer-bookings th {
+.customer-bookings .booking-table th {
   text-align: left;
   padding: 14px 16px;
   font-weight: 600;
@@ -170,22 +170,22 @@
   text-transform: none;
   letter-spacing: 0;
 }
-.customer-bookings th:nth-child(1) {
+.customer-bookings .booking-table th:nth-child(1) {
   width: 25%;
 }
-.customer-bookings th:nth-child(2) {
+.customer-bookings .booking-table th:nth-child(2) {
   width: 26%;
 }
-.customer-bookings th:nth-child(3) {
+.customer-bookings .booking-table th:nth-child(3) {
   width: 16%;
 }
-.customer-bookings th:nth-child(4) {
+.customer-bookings .booking-table th:nth-child(4) {
   width: 18%;
 }
-.customer-bookings th:nth-child(5) {
+.customer-bookings .booking-table th:nth-child(5) {
   width: 15%;
 }
-.customer-bookings td {
+.customer-bookings .booking-table td {
   padding: 16px;
   vertical-align: middle;
   border-top: 1px solid #dce3e9;
@@ -193,7 +193,7 @@
   white-space: normal;
   overflow-wrap: anywhere;
 }
-.customer-bookings tbody tr:hover {
+.customer-bookings .booking-table tbody tr:hover {
   background: #f6f8fa;
 }
 .dashboard .dashboard-content .customer-bookings .booking-identity h3 {
@@ -202,11 +202,11 @@
   color: var(--ink);
   margin: 0 0 6px;
 }
-.customer-bookings td strong {
+.customer-bookings .booking-table td strong {
   font-size: 13px;
   font-weight: 600;
 }
-.customer-bookings small {
+.customer-bookings .booking-table small {
   display: block;
   color: #435563;
   font-size: 11px;
@@ -317,7 +317,7 @@
     flex-direction: column;
     gap: 16px;
   }
-  .customer-bookings thead {
+  .customer-bookings .booking-table thead {
     position: absolute;
     width: 1px;
     height: 1px;
@@ -326,20 +326,20 @@
     clip: rect(0, 0, 0, 0);
     white-space: nowrap;
   }
-  .customer-bookings :is(table, tbody) {
+  .customer-bookings .booking-table :is(table, tbody) {
     display: block;
   }
-  .customer-bookings tr {
+  .customer-bookings .booking-table tr {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 10px 20px;
     padding: 20px;
     border-bottom: 1px solid #cbd5df;
   }
-  .customer-bookings tr:last-child {
+  .customer-bookings .booking-table tr:last-child {
     border-bottom: 0;
   }
-  .customer-bookings td {
+  .customer-bookings .booking-table td {
     display: block;
     padding: 0;
     border: 0;
@@ -348,7 +348,7 @@
   .customer-bookings .booking-identity {
     grid-column: 1/-1;
   }
-  .customer-bookings td[data-label]::before {
+  .customer-bookings .booking-table td[data-label]::before {
     content: attr(data-label);
     display: block;
     color: #435563;
@@ -383,12 +383,12 @@
   .booking-filters .booking-reset {
     padding-inline: 0;
   }
-  .customer-bookings tr {
+  .customer-bookings .booking-table tr {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 12px 16px;
     padding: 18px;
   }
-  .customer-bookings td[data-label="Appointment"],
+  .customer-bookings .booking-table td[data-label="Appointment"],
   .customer-bookings .booking-row-action {
     grid-column: 1/-1;
   }

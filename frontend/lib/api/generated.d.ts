@@ -2569,7 +2569,7 @@ export interface paths {
         };
         /**
          * List own bookings with previously issued quotations only
-         * @description List own bookings with previously issued quotations only. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+         * @description Optional scheduledFrom (inclusive) and scheduledTo (exclusive) match the current/requested scheduled time or an active requested/confirmed booking's proposed alternative time. Results remain customer-owned, stably paged and exclude private staff notes. Date ranges do not confirm or reserve appointments. List own bookings with previously issued quotations only. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
          */
         get: operations["getCustomersBookings"];
         put?: never;
@@ -49777,6 +49777,16 @@ export interface operations {
                  * @example REQUESTED
                  */
                 status?: "REQUESTED" | "AWAITING_DEPOSIT" | "CONFIRMED" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED" | "NO_SHOW" | "EXPIRED";
+                /**
+                 * @description Scheduled From used to constrain this request.
+                 * @example 2030-01-15T10:00:00.000Z
+                 */
+                scheduledFrom?: string;
+                /**
+                 * @description Scheduled To used to constrain this request.
+                 * @example 2030-01-15T10:00:00.000Z
+                 */
+                scheduledTo?: string;
             };
             header?: never;
             path?: never;
@@ -51622,16 +51632,6 @@ export interface operations {
                  */
                 status?: "REQUESTED" | "AWAITING_DEPOSIT" | "CONFIRMED" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED" | "NO_SHOW" | "EXPIRED";
                 /**
-                 * @description Branch Id used to constrain this request.
-                 * @example 00000000-0000-4000-8000-000000000001
-                 */
-                branchId?: string;
-                /**
-                 * @description Assigned Staff Id used to constrain this request.
-                 * @example 00000000-0000-4000-8000-000000000001
-                 */
-                assignedStaffId?: string;
-                /**
                  * @description Scheduled From used to constrain this request.
                  * @example 2030-01-15T10:00:00.000Z
                  */
@@ -51641,6 +51641,16 @@ export interface operations {
                  * @example 2030-01-15T10:00:00.000Z
                  */
                 scheduledTo?: string;
+                /**
+                 * @description Branch Id used to constrain this request.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                branchId?: string;
+                /**
+                 * @description Assigned Staff Id used to constrain this request.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                assignedStaffId?: string;
             };
             header?: never;
             path?: never;

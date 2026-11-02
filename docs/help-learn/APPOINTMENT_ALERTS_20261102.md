@@ -1,3 +1,15 @@
+## 2 November complete-audit guidance checkpoint (source)
+
+Public home-next-step v4 describes combined services/products/vehicles/public-Help
+search. Public service-request v15 describes View calendar, Nigeria-time month/date
+selection, owned booking details, preferred/proposed versus confirmed times, and
+optional Enable notifications / Not now / settings. Enable alone may request browser
+permission; no automatic prompt or subscription is introduced. Existing public/private
+eligibility, guide targets, practice scope and flags are unchanged. Isolated learning
+HTTP expectations advance to v4/v15; calendar ownership/range tests are added separately.
+Publication and real provider/device/role acceptance remain pending. Current evidence:
+docs/LIVE_AUDIT_IMPLEMENTATION_20261102.md. Older v3/v14 receipts below are historical.
+
 Publication update: service-request v14 and its customer date/countdown/optional
 alert UI are live from runtime c53530c4, frontend dpl_2Vzushd5TSdpqSNDVBt2cEhchVyE
 and ACTIVE backend 5a65ebbf-72b9-4941-8020-f55d94200e68. Anonymous article reads

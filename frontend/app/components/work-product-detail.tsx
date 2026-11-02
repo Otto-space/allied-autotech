@@ -12,6 +12,7 @@ import { Feedback } from "./feedback";
 import { PublicMedia } from "./public-media";
 import { WorkProductEditor } from "./work-product-form";
 import { WorkProductMedia } from "./work-product-media";
+import { productInformationGaps } from "@/lib/admin/product-information-gaps";
 
 export function WorkProductDetail({ productId }: { productId: string }) {
   const session = useAccountSession();
@@ -151,6 +152,37 @@ function ProductRecord({ productId, owner }: { productId: string; owner: string 
       )}
       {record && (
         <>
+          {!blocked && productInformationGaps(record).length > 0 && (
+            <section className="notice" aria-label="Product information to complete">
+              <h2>Information to complete</h2>
+              <p>
+                Supply the actual product facts and evidence. Available stock does not
+                confirm vehicle suitability.
+              </p>
+              <ul>
+                {productInformationGaps(record).map((field) => (
+                  <li key={field}>{field}</li>
+                ))}
+              </ul>
+              <p>
+                This checklist does not approve compatibility or change publication rules.
+              </p>
+              <button
+                className="button secondary"
+                disabled={invalidView}
+                onClick={() => navigate("edit")}
+              >
+                Edit product information
+              </button>
+              <button
+                className="button secondary"
+                disabled={invalidView}
+                onClick={() => navigate("media")}
+              >
+                Review photographs and compatibility
+              </button>
+            </section>
+          )}
           <dl className="product-detail-summary">
             <div>
               <dt>Selling price</dt>

@@ -214,13 +214,13 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         id: "home-next-step",
         page: "home",
         href: "/services",
-        version: 3,
+        version: 4,
       });
       const appointment = await read(null, "/public/learning/articles/service-request");
       expect(appointment.status).toBe(200);
       expect(appointment.body.data).toMatchObject({
         id: "service-request",
-        version: 14,
+        version: 15,
         href: "/services",
       });
       expect(appointment.body.data.steps.join(" ")).toContain(

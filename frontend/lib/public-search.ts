@@ -3,9 +3,11 @@ import { normalizeProductQuery } from "./product-discovery";
 import { normalizeVehicleQuery } from "./vehicle-discovery";
 
 export const publicSearchScopes = [
+  { value: "all", label: "Everything", maxLength: 100 },
   { value: "services", label: "Services", maxLength: 100 },
   { value: "parts", label: "Shop", maxLength: 100 },
   { value: "vehicles", label: "Vehicles", maxLength: 100 },
+  { value: "help", label: "Help", maxLength: 100 },
 ] as const;
 type Scope = (typeof publicSearchScopes)[number]["value"];
 type SearchResult = {
@@ -23,7 +25,7 @@ export function resolvePublicSearch(input: {
 }): SearchResult {
   const scope: Scope = publicSearchScopes.some((item) => item.value === input.scope)
     ? (input.scope as Scope)
-    : "services";
+    : "all";
   const query = typeof input.search === "string" ? input.search.trim() : "";
   if (Array.isArray(input.scope) || (input.scope !== undefined && input.scope !== scope))
     return {
@@ -43,7 +45,7 @@ export function resolvePublicSearch(input: {
       error: "Enter what you would like to find.",
       invalidField: "search",
     };
-  if (scope === "services" && query.length < 2)
+  if ((scope === "services" || scope === "all") && query.length < 2)
     return {
       scope,
       query,
@@ -60,6 +62,7 @@ export function resolvePublicSearch(input: {
       error: `Use up to ${limit} characters without line breaks.`,
       invalidField: "search",
     };
+  if (scope === "all" || scope === "help") return { scope, query };
   const normalizer = {
     services: normalizeServiceQuery,
     parts: normalizeProductQuery,

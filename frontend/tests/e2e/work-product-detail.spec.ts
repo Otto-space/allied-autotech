@@ -7,6 +7,25 @@ const review = (page: Page) =>
 const confirm = (page: Page) =>
   page.getByRole("button", { name: "Confirm save", exact: true });
 
+test("operator sees missing real facts and explicit recovery actions without changing the product", async ({
+  page,
+}) => {
+  const { state } = await workProductsFixture(page);
+  await page.setViewportSize({ width: 320, height: 900 });
+  await page.goto(`/admin/products/${bookingId(1002)}`);
+  const checklist = page.getByRole("region", { name: "Product information to complete" });
+  await expect(checklist).toContainText("Genuine product photographs");
+  await expect(checklist).toContainText("Reviewed vehicle compatibility evidence");
+  await checklist
+    .getByRole("button", { name: "Edit product information", exact: true })
+    .click();
+  await expect(page).toHaveURL(/view=edit$/);
+  expect(state.writes).toEqual([]);
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+  ).toBe(true);
+});
+
 test("catalogue link opens a named direct record and independent read survives reload", async ({
   page,
 }) => {

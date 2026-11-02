@@ -353,7 +353,7 @@ function HeaderContent({ pathname }: { pathname: string }) {
             <Link
               href="/search"
               className="site-search-link"
-              aria-label="Search services, parts and vehicles"
+              aria-label="Search services, parts, vehicles and help"
             >
               <Search size={20} aria-hidden="true" />
               <span>Search</span>

@@ -79,7 +79,7 @@ export default async function VehiclesPage({
               ? "Tell us what you’re looking for"
               : "Explore vehicle listings"
           }
-          description="Compare published specifications and contact our team about a vehicle."
+          description="Compare vehicle details and contact our team about a vehicle."
         />
         <section
           className="public-wrap vehicle-inventory"

@@ -2,6 +2,13 @@ import { describe, expect, it } from "vitest";
 import { resolvePublicSearch } from "@/lib/public-search";
 
 describe("public catalogue search", () => {
+  it("keeps combined and Help searches on the public result surface", () => {
+    for (const scope of ["all", "help"])
+      expect(resolvePublicSearch({ scope, search: "inspection" })).toEqual({
+        scope,
+        query: "inspection",
+      });
+  });
   it("routes a literal phrase only to the selected public catalogue", () => {
     for (const scope of ["services", "parts", "vehicles"]) {
       const result = resolvePublicSearch({ scope, search: "  brake pads & filters  " });
@@ -34,7 +41,7 @@ describe("public catalogue search", () => {
       expect(result.query).toHaveLength(limit + 1);
       expect(result.error).toContain(String(limit));
     }
-    expect(resolvePublicSearch({})).toEqual({ scope: "services", query: "" });
+    expect(resolvePublicSearch({})).toEqual({ scope: "all", query: "" });
     expect(resolvePublicSearch({ search: "   " }).href).toBeUndefined();
   });
 });

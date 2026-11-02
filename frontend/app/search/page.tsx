@@ -6,10 +6,12 @@ import { SiteHeader } from "../components/site-header";
 import { SiteFooter } from "../components/site-footer";
 import { publicSearchScopes, resolvePublicSearch } from "@/lib/public-search";
 import styles from "./search.module.css";
+import { SearchResults } from "./search-results";
+import { PublicSearchForm } from "./search-form";
 
 export const metadata: Metadata = {
   title: "Search Allied AutoTech",
-  description: "Find published services, parts and vehicle listings.",
+  description: "Find services, parts, vehicle listings and help.",
   robots: { index: false, follow: true },
 };
 
@@ -20,6 +22,10 @@ export default async function SearchPage({
 }) {
   const result = resolvePublicSearch(await searchParams);
   if (result.href) redirect(result.href);
+  const results =
+    result.query && !result.error
+      ? await SearchResults({ query: result.query, helpOnly: result.scope === "help" })
+      : null;
   return (
     <>
       <SiteHeader />
@@ -30,14 +36,8 @@ export default async function SearchPage({
             <span aria-current="page">Search</span>
           </nav>
           <h1>What are you looking for?</h1>
-          <p>Search our published services, parts or vehicle listings.</p>
-          <form
-            action="/search"
-            method="get"
-            role="search"
-            aria-label="Search the catalogues"
-            className={styles.form}
-          >
+          <p>Search services, parts, vehicles and help.</p>
+          <PublicSearchForm className={styles.form}>
             <div>
               <label htmlFor="public-search-scope">Search in</label>
               <select
@@ -75,14 +75,15 @@ export default async function SearchPage({
               Search
             </button>
             <p id="public-search-hint" className={styles.hint}>
-              Results open in the selected catalogue, where you can refine your search.
+              Search everything together, or choose a catalogue to refine your results.
             </p>
             {result.error && (
               <p id="public-search-error" className={styles.error} role="alert">
                 {result.error}
               </p>
             )}
-          </form>
+          </PublicSearchForm>
+          {results}
           <p className={styles.help}>
             Not sure what your vehicle needs?{" "}
             <Link href="/contact#enquiry">

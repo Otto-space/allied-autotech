@@ -183,6 +183,8 @@ export function registerServiceOperationsOpenApi(registry: OpenAPIRegistry): voi
       method: "get",
       path: "/customers/bookings",
       summary: "List own bookings with previously issued quotations only",
+      description:
+        "Optional scheduledFrom (inclusive) and scheduledTo (exclusive) match the current/requested scheduled time or an active requested/confirmed booking's proposed alternative time. Results remain customer-owned, stably paged and exclude private staff notes. Date ranges do not confirm or reserve appointments.",
       query: customerBookingListQuerySchema,
       secured: true,
     },

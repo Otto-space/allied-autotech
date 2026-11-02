@@ -36,7 +36,7 @@ export function CatalogueBanner({
               sizes="(max-width: 700px) 90vw, 36vw"
             />
             {kind === "shop" && (
-              <figcaption>Automotive essentials — editorial image</figcaption>
+              <figcaption>Illustrative automotive essentials</figcaption>
             )}
           </figure>
         )}

@@ -119,33 +119,44 @@ const bookingStatus = z.enum([
   "NO_SHOW",
   "EXPIRED",
 ]);
+const bookingListFields = { ...pageFields, status: bookingStatus.optional() };
+const bookingRangeFields = {
+  scheduledFrom: dateTime.optional(),
+  scheduledTo: dateTime.optional(),
+};
+function validateBookingRange(
+  value: { scheduledFrom?: string | undefined; scheduledTo?: string | undefined },
+  context: z.RefinementCtx,
+) {
+  if (value.scheduledFrom === undefined || value.scheduledTo === undefined) return;
+  const from = new Date(value.scheduledFrom).getTime(),
+    to = new Date(value.scheduledTo).getTime();
+  if (to <= from)
+    context.addIssue({
+      code: "custom",
+      path: ["scheduledTo"],
+      message: "Must follow scheduledFrom",
+    });
+  if (to - from > 366 * 24 * 60 * 60 * 1000)
+    context.addIssue({
+      code: "custom",
+      path: ["scheduledTo"],
+      message: "Date range cannot exceed 366 days",
+    });
+}
 export const customerBookingListQuerySchema = z
-  .object({ ...pageFields, status: bookingStatus.optional() })
-  .strict();
-export const staffBookingListQuerySchema = customerBookingListQuerySchema
-  .extend({
+  .object({ ...bookingListFields, ...bookingRangeFields })
+  .strict()
+  .superRefine(validateBookingRange);
+export const staffBookingListQuerySchema = z
+  .object({
+    ...bookingListFields,
+    ...bookingRangeFields,
     branchId: uuid.optional(),
     assignedStaffId: uuid.optional(),
-    scheduledFrom: dateTime.optional(),
-    scheduledTo: dateTime.optional(),
   })
-  .superRefine((value, context) => {
-    if (value.scheduledFrom === undefined || value.scheduledTo === undefined) return;
-    const from = new Date(value.scheduledFrom).getTime();
-    const to = new Date(value.scheduledTo).getTime();
-    if (to <= from)
-      context.addIssue({
-        code: "custom",
-        path: ["scheduledTo"],
-        message: "Must follow scheduledFrom",
-      });
-    if (to - from > 366 * 24 * 60 * 60 * 1_000)
-      context.addIssue({
-        code: "custom",
-        path: ["scheduledTo"],
-        message: "Date range cannot exceed 366 days",
-      });
-  });
+  .strict()
+  .superRefine(validateBookingRange);
 export const bookingCreateBodySchema = z
   .object({
     slotId: uuid.optional(),

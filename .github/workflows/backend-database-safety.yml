@@ -218,7 +218,7 @@ jobs:
             -e EMAIL_DELIVERY_ENABLED=false -e SMS_DELIVERY_ENABLED=false \
             -e HELP_LEARN_ENABLED=true -e HELP_LEARN_GUIDES_ENABLED=true -e HELP_LEARN_PRACTICE_ENABLED=true \
             node:24.13.0 node node_modules/vitest/vitest.mjs run \
-            tests/integration/learning.test.ts --maxWorkers=1
+            tests/integration/learning.test.ts tests/integration/booking-calendar.test.ts --maxWorkers=1
       - name: Verify shared Care availability, lifecycle and durable recovery
         # Native loopback checks remain strict inside the disposable DB namespace.
         # Provider replies are injected fixtures; no external delivery is enabled.

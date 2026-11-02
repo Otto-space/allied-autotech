@@ -119,7 +119,7 @@ export default function ContactPage() {
               <MapPin size={20} aria-hidden="true" />
               <span>
                 <small>Visit</small>
-                <strong>{business.address}</strong>
+                <strong>Port Harcourt workshop</strong>
               </span>
             </ContactAnchor>
           </section>
@@ -138,10 +138,6 @@ export default function ContactPage() {
                 <p>{business.customerCareHours}</p>
                 <p>{business.customerCareResponse}</p>
                 <ContactAccountLink />
-                <p className="contact-next-step">
-                  Review your details before sending. Once your request is received, keep
-                  the reference so our team can follow up.
-                </p>
               </div>
               <div className="contact-form-panel">
                 <Suspense fallback={<p>Preparing enquiry form...</p>}>
@@ -199,8 +195,8 @@ export default function ContactPage() {
                 ) : (
                   <div className="contact-map-fallback">
                     <MapPin size={36} aria-hidden="true" />
-                    <h3>Find your way to Allied AutoTech.</h3>
-                    <p>{business.address}</p>
+                    <h3>Workshop location</h3>
+                    <p>Use Google Maps to plan your route.</p>
                     <a
                       className="text-link"
                       href={mapsLink}
@@ -244,7 +240,8 @@ export default function ContactPage() {
                   </summary>
                   <p>
                     An enquiry starts a conversation. It does not confirm an appointment,
-                    price or resolution. To request a service visit, use{" "}
+                    price or resolution. Explore services to discuss a visit with our
+                    team:{" "}
                     <Link href="/services">
                       {browseEnquiriesOnly() ? "Explore services" : "Book a Service"}
                     </Link>

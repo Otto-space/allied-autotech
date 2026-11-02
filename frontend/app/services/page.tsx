@@ -31,7 +31,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const metadata = await publicPageMetadata(
     "Vehicle services",
-    "Explore Allied AutoTech vehicle services in Port Harcourt. Review published services or ask about your vehicle.",
+    "Explore Allied AutoTech vehicle services in Port Harcourt. Explore our services or ask about your vehicle.",
     "/services",
     searchParams,
   );
@@ -68,7 +68,7 @@ export default async function ServicesPage({
         <CatalogueBanner
           kind="services"
           title="Find the service your vehicle needs"
-          description="Browse published services or tell the team what you have noticed about your vehicle."
+          description="Explore our services or tell the team what you have noticed about your vehicle."
         />
         <nav
           className="public-wrap services-discovery-paths"
@@ -76,7 +76,7 @@ export default async function ServicesPage({
         >
           <Link href="#service-catalogue">
             <strong>Browse a service</strong>
-            <span>Review published services and their details.</span>
+            <span>Compare services and their details.</span>
             <ArrowUpRight size={20} aria-hidden="true" />
           </Link>
           <Link href={browseEnquiriesOnly() ? "/contact#enquiry" : "/services/request"}>

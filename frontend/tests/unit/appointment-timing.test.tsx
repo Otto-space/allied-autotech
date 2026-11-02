@@ -86,6 +86,11 @@ it("updates the dashboard clock through expiry and clears its timer on unmount",
     await vi.advanceTimersByTimeAsync(30_000);
   });
   expect(screen.queryByRole("timer")).toBeNull();
+  expect(
+    screen.getByText(
+      "Appointment time has arrived. The workshop will update its status.",
+    ),
+  ).toBeTruthy();
   view.unmount();
   expect(vi.getTimerCount()).toBe(0);
 });

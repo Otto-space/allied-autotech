@@ -367,6 +367,12 @@
 .vd-description {
   margin-top: 28px;
 }
+.vd-description summary {
+  min-height: 44px;
+  padding-block: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
 .vehicle-detail .vd-description p,
 .vehicle-detail .vd-report-copy {
   margin: 0;

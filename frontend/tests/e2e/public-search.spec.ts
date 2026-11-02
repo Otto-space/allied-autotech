@@ -8,9 +8,10 @@ for (const width of [320, 390, 768, 1060, 1440]) {
   }, info) => {
     await page.setViewportSize({ width, height: 900 });
     await page.goto("/services");
-    const entry = page
-      .getByRole("banner")
-      .getByRole("link", { name: "Search services, parts and vehicles", exact: true });
+    const entry = page.getByRole("banner").getByRole("link", {
+      name: "Search services, parts, vehicles and help",
+      exact: true,
+    });
     await expect(entry).toBeVisible();
     const box = (await entry.boundingBox())!;
     expect(box.width).toBeGreaterThanOrEqual(44);
@@ -91,6 +92,10 @@ test("a catalogue search works with JavaScript disabled", async ({ browser }) =>
         .locator("main")
         .getByRole("heading", { name: "Engine Oil Filter", exact: true }),
     ).toBeVisible();
+    await page.goto("/search?scope=all&search=diagnostics");
+    await expect(
+      page.getByRole("region", { name: "Services search results" }),
+    ).toContainText("Comprehensive Vehicle Diagnostics");
   } finally {
     await context.close();
   }
@@ -101,11 +106,11 @@ test("the primary search action stays usable on a short phone", async ({ page })
   await page.goto("/search");
   await page.getByLabel("Search for", { exact: true }).fill("diagnostics");
   await page.getByRole("button", { name: "Search", exact: true }).click();
-  await expect.poll(() => new URL(page.url()).pathname).toBe("/services");
+  await expect.poll(() => new URL(page.url()).pathname).toBe("/search");
   await expect(
     page
       .locator("main")
-      .getByRole("heading", { name: "Comprehensive Vehicle Diagnostics", exact: true }),
+      .getByRole("link", { name: "Comprehensive Vehicle Diagnostics", exact: true }),
   ).toBeVisible();
 });
 
@@ -167,5 +172,47 @@ for (const role of ["CUSTOMER", "STAFF", "ADMIN", "SUPER_ADMIN"]) {
         await page.evaluate(() => document.documentElement.scrollWidth > innerWidth),
       ).toBe(false);
     }
+    await page.emulateMedia({ forcedColors: "active" });
+    await search.focus();
+    await expect(page.locator(".dashboard-search")).toHaveCSS("outline-style", "solid");
+    await expect(page.locator(".dashboard-search")).toHaveCSS("outline-width", "3px");
   });
 }
+
+test("combined search preserves the query through refresh and Back, and Escape returns to the previous page", async ({
+  page,
+}) => {
+  await page.goto("/services");
+  await page
+    .getByRole("banner")
+    .getByRole("link", { name: "Search services, parts, vehicles and help", exact: true })
+    .click();
+  const query = page.getByLabel("Search for", { exact: true });
+  await query.fill("diagnostics");
+  await query.press("Enter");
+  await expect(
+    page.getByRole("region", { name: "Services search results" }),
+  ).toContainText("Comprehensive Vehicle Diagnostics");
+  await page
+    .getByRole("region", { name: "Services search results" })
+    .getByRole("link", { name: "Comprehensive Vehicle Diagnostics", exact: true })
+    .click();
+  await expect(page).toHaveURL(/\/services\/[0-9a-f-]+$/);
+  await page.goBack();
+  await expect(query).toHaveValue("diagnostics");
+  await page.reload();
+  await expect(query).toHaveValue("diagnostics");
+  await expect(
+    page.getByRole("button", { name: "Close search", exact: true }),
+  ).toBeEnabled();
+  await query.press("Escape");
+  await expect(page).toHaveURL(/\/search$/);
+  await expect(page.getByRole("region", { name: "Services search results" })).toHaveCount(
+    0,
+  );
+  await expect(
+    page.getByRole("button", { name: "Close search", exact: true }),
+  ).toBeEnabled();
+  await query.press("Escape");
+  await expect(page).toHaveURL(/\/services$/);
+});

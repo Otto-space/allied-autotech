@@ -74,6 +74,23 @@ async function alertsFixture(page: Page, role = "CUSTOMER", supported = true) {
   return { state, notifications };
 }
 
+test("invitation prompts only after explicit Enable and explains a declined permission", async ({
+  page,
+}) => {
+  const { state, notifications } = await alertsFixture(page);
+  await page.goto("/dashboard");
+  const enable = page.getByRole("button", { name: "Enable notifications", exact: true });
+  await expect(enable).toBeVisible();
+  expect(await page.locator("html").getAttribute("data-push-prompts")).toBeNull();
+  await enable.click();
+  await expect(page.locator("html")).toHaveAttribute("data-push-prompts", "1");
+  await expect(
+    page.getByRole("region", { name: "Browser notification update" }),
+  ).toContainText("browser’s site settings");
+  expect(state.pushWrites).toEqual([]);
+  expect(notifications.writes).toEqual([]);
+});
+
 for (const role of ["CUSTOMER", "STAFF", "ADMIN", "SUPER_ADMIN"])
   for (const width of [320, 1440])
     test(`${role} optional invitation opens existing settings without prompting at ${width}px`, async ({

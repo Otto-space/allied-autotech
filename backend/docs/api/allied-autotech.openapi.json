@@ -58324,6 +58324,7 @@
     "/customers/bookings": {
       "get": {
         "summary": "List own bookings with previously issued quotations only",
+        "description": "Optional scheduledFrom (inclusive) and scheduledTo (exclusive) match the current/requested scheduled time or an active requested/confirmed booking's proposed alternative time. Results remain customer-owned, stably paged and exclude private staff notes. Date ranges do not confirm or reserve appointments. List own bookings with previously issued quotations only. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.",
         "tags": [
           "Service operations"
         ],
@@ -58379,6 +58380,30 @@
             "in": "query",
             "description": "Status used to constrain this request.",
             "example": "REQUESTED"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Scheduled From validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "scheduledFrom",
+            "in": "query",
+            "description": "Scheduled From used to constrain this request.",
+            "example": "2030-01-15T10:00:00.000Z"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Scheduled To validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "scheduledTo",
+            "in": "query",
+            "description": "Scheduled To used to constrain this request.",
+            "example": "2030-01-15T10:00:00.000Z"
           }
         ],
         "responses": {
@@ -58617,7 +58642,6 @@
           }
         },
         "operationId": "getCustomersBookings",
-        "description": "List own bookings with previously issued quotations only. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.",
         "x-access-boundary": "authenticated-customer",
         "x-required-roles": [
           "CUSTOMER"
@@ -60642,30 +60666,6 @@
           {
             "schema": {
               "type": "string",
-              "format": "uuid",
-              "description": "Identifier of the branch resource; ownership is resolved server-side."
-            },
-            "required": false,
-            "name": "branchId",
-            "in": "query",
-            "description": "Branch Id used to constrain this request.",
-            "example": "00000000-0000-4000-8000-000000000001"
-          },
-          {
-            "schema": {
-              "type": "string",
-              "format": "uuid",
-              "description": "Identifier of the assigned staff resource; ownership is resolved server-side."
-            },
-            "required": false,
-            "name": "assignedStaffId",
-            "in": "query",
-            "description": "Assigned Staff Id used to constrain this request.",
-            "example": "00000000-0000-4000-8000-000000000001"
-          },
-          {
-            "schema": {
-              "type": "string",
               "format": "date-time",
               "description": "Scheduled From validated by this operation's strict request contract."
             },
@@ -60686,6 +60686,30 @@
             "in": "query",
             "description": "Scheduled To used to constrain this request.",
             "example": "2030-01-15T10:00:00.000Z"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Identifier of the branch resource; ownership is resolved server-side."
+            },
+            "required": false,
+            "name": "branchId",
+            "in": "query",
+            "description": "Branch Id used to constrain this request.",
+            "example": "00000000-0000-4000-8000-000000000001"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Identifier of the assigned staff resource; ownership is resolved server-side."
+            },
+            "required": false,
+            "name": "assignedStaffId",
+            "in": "query",
+            "description": "Assigned Staff Id used to constrain this request.",
+            "example": "00000000-0000-4000-8000-000000000001"
           }
         ],
         "responses": {

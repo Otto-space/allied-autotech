@@ -80,6 +80,23 @@
   align-items: center;
   gap: 8px;
 }
+.results section {
+  padding-block: 20px;
+  border-top: 1px solid var(--line);
+}
+.results ul {
+  padding-left: 20px;
+}
+.results li {
+  margin-block: 16px;
+  overflow-wrap: anywhere;
+}
+.results li > a {
+  font-weight: 700;
+}
+.results p {
+  line-height: 1.6;
+}
 @media (max-width: 600px) {
   .page {
     padding-block: 28px 56px;

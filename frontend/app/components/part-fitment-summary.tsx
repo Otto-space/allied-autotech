@@ -18,14 +18,14 @@ export function PartFitmentSummary({
         ? "Needs verification"
         : status === "NOT_COMPATIBLE"
           ? "Not compatible"
-          : "Fitment unknown";
+          : "Compatibility not confirmed";
   return (
     <div className={`${styles.summary} ${styles[status]}`}>
       <strong>{label}</strong>
       <p role={unknownMessage && !decision?.message ? "status" : undefined}>
         {decision?.message ??
           unknownMessage ??
-          "Choose your vehicle to check approved fitment evidence. Make, model and year alone do not confirm suitability."}
+          "Choose your vehicle to check reviewed compatibility evidence. Make, model and year alone do not confirm suitability."}
       </p>
       {!!decision?.missingQualifiers.length && (
         <small>
