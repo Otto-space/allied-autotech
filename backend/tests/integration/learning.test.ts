@@ -214,7 +214,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         id: "home-next-step",
         page: "home",
         href: "/services",
-        version: 1,
+        version: 2,
       });
       expect(publicResult.headers["cache-control"]).toContain("no-store");
       expect(publicResult.headers.vary).toContain("Cookie");
@@ -418,11 +418,14 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         "corolla-fitment",
       );
       expect(ids(await read(null, "/public/learning/catalogue?q=product+photo"))).toEqual(
-        [],
+        ["home-next-step"],
       );
-      expect(ids(await read(f.care, "/learning/catalogue?q=product+photo"))).toEqual([]);
+      expect(ids(await read(f.care, "/learning/catalogue?q=product+photo"))).toEqual([
+        "home-next-step",
+      ]);
       const mediaOwner = await f.session(f.owner.id, "SUPER_ADMIN");
       expect(ids(await read(mediaOwner, "/learning/catalogue?q=product+photo"))).toEqual([
+        "home-next-step",
         "product-photos",
       ]);
       const article = learningArticles.find((a) => a.id === "parts-fitment")!;
