@@ -169,6 +169,7 @@ export function CustomerFilterPicker({
         <summary>Use a customer reference</summary>
         <label htmlFor={id}>Customer profile reference (optional)</label>
         <input
+          ref={referenceInput}
           id={id}
           value={value}
           disabled={disabled}

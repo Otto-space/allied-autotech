@@ -714,3 +714,20 @@ test("staff cannot use payment customer discovery", async ({ page }) => {
   await expect(page.getByText("Find a customer", { exact: true })).toHaveCount(0);
   expect(c.state.reads).toHaveLength(0);
 });
+
+test("invalid manual customer reference reopens its field and receives focus", async ({
+  page,
+}) => {
+  const f = await workPaymentFixture(page);
+  await page.goto("/admin/payments");
+  await page.getByText("Use a customer reference", { exact: true }).click();
+  await page.getByLabel("Customer profile reference (optional)").fill("invalid");
+  await page.getByText("Use a customer reference", { exact: true }).click();
+  await button(page, "Apply payment filters").click();
+  await expect(page.getByLabel("Customer profile reference (optional)")).toBeFocused();
+  await expect(page.getByLabel("Customer profile reference (optional)")).toHaveValue(
+    "invalid",
+  );
+  await expect(page).toHaveURL(/\/admin\/payments$/);
+  expect(f.payments.writes).toHaveLength(0);
+});
