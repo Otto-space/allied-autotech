@@ -7,6 +7,8 @@ it("does not read appointment slots for a priced service with an unconfirmed dur
     service: {
       findFirst: vi.fn().mockResolvedValue({
         id: crypto.randomUUID(),
+        description: null,
+        shortDescription: null,
         pricingType: "FIXED",
         priceKobo: 800000n,
         durationMinutes: null,
