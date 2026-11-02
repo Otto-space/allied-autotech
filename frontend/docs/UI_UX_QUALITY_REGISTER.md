@@ -1,7 +1,7 @@
 ### 1 November 2026: Readable booking detail published
 
 Frontend 36f4c51d670f0cfdc065be95ae2cf77e43082ab3 is promoted to apex/www as
- dpl_4ok1PujUWyktVb4xPxxLGzMyvHkq (www redirects apex). Backend f0402b67 /
+dpl_4ok1PujUWyktVb4xPxxLGzMyvHkq (www redirects apex). Backend f0402b67 /
 36b4283f-63fc-401b-abbe-03b8bf9ccf2c is unchanged. Exact-master frontend
 41346242439, backend 41346242451 and secret check 41346242418 passed.
 Booking status/review labels are readable; the staff summary now collapses the
