@@ -231,7 +231,10 @@ for (const phase of ["review", "confirm"])
     const { state } = await workVehicleCreateFixture(page);
     await open(page);
     await fill(page);
-    if (phase === "confirm") await button(page, "Review new vehicle").click();
+    if (phase === "confirm") {
+      await button(page, "Review new vehicle").click();
+      await expect(page.getByRole("dialog")).toBeVisible();
+    }
     state.branchMode = "inactive";
     await button(
       page,
@@ -250,6 +253,7 @@ test("a changed Staff assignment prevents an old branch draft from being submitt
   await open(page);
   await fill(page, true);
   await button(page, "Review new vehicle").click();
+  await expect(page.getByRole("dialog")).toBeVisible();
   stock.state.profileBranch = bookingId(103);
   await button(page, "Confirm change").click();
   await expect(page.getByRole("dialog")).toContainText("No vehicle request was sent");
@@ -262,6 +266,7 @@ test("unavailable recovery storage prevents POST", async ({ page }) => {
   await open(page);
   await fill(page);
   await button(page, "Review new vehicle").click();
+  await expect(page.getByRole("dialog")).toBeVisible();
   await page.evaluate(() => {
     const original = Storage.prototype.setItem;
     Storage.prototype.setItem = function (key, value) {
