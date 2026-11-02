@@ -1,3 +1,20 @@
+### 2 November 2026: Administrator operations and vehicle price repair in progress
+
+Owner selected full Admin operations with owner-only controls and independent
+financial approvals retained. Enrolled Admin sessions now use the operational
+dashboard and route boundary; Staff assignments stay scoped. Admin/Super Admin
+vehicle price history and document review use authenticated User actors without
+inventing employee profiles. Properly grouped NGN input normalizes exactly.
+
+Source-only: two forward migrations, generated Prisma, empty isolated replay and
+db:check (87 migrations), three actual isolated HTTP flows and 40 focused boundary
+checks passed. Frontend type check and 16 focused units passed. Original document
+constraint and fixture failures are retained. Hosted/production role acceptance,
+exact-source CI, populated restore rehearsal, fresh backup/protected migration and
+publication remain required. No real vehicle, asking price, role or grant changed.
+See backend/docs/vehicle-operator-access-20261102.md. The completed workshop Home
+release is separate and remains recorded below; other releases stay with their agent.
+
 ### 2 November 2026: Collapsed invoice filter recovery published
 
 Frontend d9473ad9cfd5643b771ed693a7c54853db672974 is live as

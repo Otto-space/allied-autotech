@@ -236,7 +236,7 @@ export function VehicleListingPrice({
         form.reset({ price: koboToInput(priceKobo), reason: "" });
       },
       description:
-        "This changes the listing price and records the reason in its history. It does not change negotiated purchase prices or confirm payment. Your account must have a staff profile.",
+        "This changes the listing price and records your account and reason in its history. It does not change negotiated purchase prices or confirm payment.",
       facts: [
         { label: "Current price", value: formatKobo(listing.priceKobo) },
         { label: "New price", value: formatKobo(priceKobo) },
@@ -287,10 +287,13 @@ export function VehicleListingPrice({
             aria-invalid={!!form.formState.errors.price}
             aria-describedby={
               form.formState.errors.price
-                ? `listing-price-${listing.id}-error`
-                : undefined
+                ? `listing-price-${listing.id}-hint listing-price-${listing.id}-error`
+                : `listing-price-${listing.id}-hint`
             }
           />
+          <p className="field-hint" id={`listing-price-${listing.id}-hint`}>
+            For example, 55000000.00 or 55,000,000.00. Review the amount before saving.
+          </p>
           {form.formState.errors.price && (
             <p
               role="alert"

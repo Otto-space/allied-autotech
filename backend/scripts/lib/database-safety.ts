@@ -86,7 +86,11 @@ export function assertNonDestructiveMigration(sql: string, migrationName?: strin
   // plan in docs/shop-vehicles-search-r2.md. No environment flag can approve SQL.
   // A changed byte or renamed migration must undergo a new review. All ordinary
   // migration history, target, backup and post-migration checks still apply.
+  // Vehicle actor attribution expands nullability only; see
+  // docs/vehicle-operator-access-20261102.md for preservation and rehearsal.
   const reviewed: Record<string, string> = {
+    "20261102090000_vehicle_operator_actor_history":
+      "f20ccbd5764db6c657fa73e73b7cfd7cb345f0c76e6370d6f59b95f9a7bb7e0c",
     "20261030190000_booking_concern_intake":
       "269654ebfa2f8b39453c4355e6d5a20aab9c4f2373168fe56db41958891eaa2b",
     "20261025132000_catalogue_word_search":

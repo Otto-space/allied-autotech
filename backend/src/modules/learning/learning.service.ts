@@ -50,8 +50,7 @@ export function learningEligible(access: LearningAccess, gate: LearningGate) {
   const can = (permission: string) => access.permissions.includes(permission);
   const independent = (permission: string) =>
     access.independentCapabilities?.includes(permission) ?? false;
-  const globalAdmin =
-    access.role === "SUPER_ADMIN" || (access.role === "ADMIN" && !access.managed);
+  const globalAdmin = access.role === "SUPER_ADMIN" || access.role === "ADMIN";
   const work = !["PUBLIC", "CUSTOMER"].includes(access.role) && access.verified;
   switch (gate) {
     case "public":
@@ -99,11 +98,10 @@ export function learningEligible(access: LearningAccess, gate: LearningGate) {
       return work && can("ORDERS_PREPARE") && can("BOOKINGS_READ");
     case "oversight":
       return work && access.position === "CEO_MD";
+    case "vehicle-admin":
+      return work && (access.role === "ADMIN" || access.role === "SUPER_ADMIN");
     case "admin":
-      return (
-        work &&
-        (access.role === "SUPER_ADMIN" || (access.role === "ADMIN" && !access.managed))
-      );
+      return work && globalAdmin;
     case "access":
       return work && (access.canManage || (access.role === "ADMIN" && !access.managed));
     case "owner":

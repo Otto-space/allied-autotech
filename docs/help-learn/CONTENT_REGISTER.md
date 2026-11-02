@@ -1,3 +1,13 @@
+## 2 November vehicle operations checkpoint
+
+Private vehicle-operations v1 uses a new server-side vehicle-admin eligibility gate
+matching current Admin/Super Admin vehicle role access, including managed accounts.
+It explains stock/draft/price review, User audit attribution, correct grouped NGN,
+version/uncertain-response recovery and preserved committed-listing safeguards.
+It grants no permission. Owner-only and independent finance gates are unchanged.
+Source-only until forward migrations, isolated/restore checks and release pass.
+See VEHICLE_OPERATIONS_20261102.md and backend/docs/vehicle-operator-access-20261102.md.
+
 # Versioned content and scenario register
 
 ## 2 November Home workshop checkpoint

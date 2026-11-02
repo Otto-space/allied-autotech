@@ -309,12 +309,12 @@ export class VehiclesService {
       if (["RESERVED", "SOLD", "ARCHIVED"].includes(listing.status))
         throw vehicleConflict("Committed listing prices cannot change");
       const staff = await this.repository.staff(actor.userId, transaction);
-      if (staff === null) throw vehicleForbidden();
+      if (staff === null && actor.role === "STAFF") throw vehicleForbidden();
       const next = BigInt(input.priceKobo);
       if (next === listing.priceKobo) throw vehicleConflict("Price is unchanged");
       await this.repository.addPriceHistory(
         id,
-        staff.id,
+        { userId: actor.userId, staffId: staff?.id ?? null },
         listing.priceKobo,
         next,
         input.reason,
@@ -476,15 +476,16 @@ export class VehiclesService {
       const vehicle = await this.repository.vehicle(vehicleId, transaction);
       const document = await this.repository.document(vehicleId, documentId, transaction);
       const staff = await this.repository.staff(actor.userId, transaction);
-      if (vehicle === null || document === null || staff === null)
-        throw vehicleNotFound();
+      if (vehicle === null || document === null) throw vehicleNotFound();
       await this.assertBranch(actor, vehicle.branchId, transaction);
+      if (staff === null && actor.role === "STAFF") throw vehicleForbidden();
       const now = new Date();
       const result = await transaction.vehicleDocument.updateMany({
         where: { id: documentId, vehicleId, version: input.expectedVersion },
         data: {
           verificationStatus: input.status,
-          reviewedByStaffId: staff.id,
+          reviewedByStaffId: staff?.id ?? null,
+          reviewedByUserId: actor.userId,
           verifiedAt: input.status === "VERIFIED" ? now : null,
           rejectionReason:
             input.status === "REJECTED" ? (input.rejectionReason ?? null) : null,

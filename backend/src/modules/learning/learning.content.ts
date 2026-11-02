@@ -17,6 +17,7 @@ export type LearningGate =
   | "operations"
   | "oversight"
   | "admin"
+  | "vehicle-admin"
   | "access"
   | "owner";
 export type LearningPage =
@@ -80,6 +81,27 @@ const article = (
   reviewedAt: gate === "public" || gate === "customer" ? "2026-10-26" : "2026-10-27",
 });
 export const learningArticles: LearningArticle[] = [
+  {
+    ...article(
+      "vehicle-operations",
+      "vehicle-admin",
+      "work",
+      "Maintain vehicle records and asking prices",
+      "Admin and Super Admin can maintain vehicle stock, draft listings and asking prices with current verified access. Owner-only controls and separate financial approvals remain restricted.",
+      [
+        "Open Vehicle stock, choose Add vehicle record and enter the actual branch, stock number and known vehicle details. Preserve unknown values and review before confirming. A stock record does not publish a listing.",
+        "Open the stock record to edit known details or create a draft listing with an initial asking price. Use ungrouped NGN or correctly grouped commas, such as 55000000.00 or 55,000,000.00. Review the exact amount before saving.",
+        "Use Manage asking price to enter a different amount and reason. Price history records your signed-in account; an employee profile is not required for Admin or Super Admin. Reserved, sold and archived listings retain their committed-price safeguards.",
+        "Document review records the reviewing account and the decision. Review the actual evidence; a role does not establish document authenticity. Publishing still requires the normal photo, branch, price and lifecycle checks.",
+        "If a record changed, reload and inspect its current version before editing again. For an uncertain response, inspect the recorded state and history before acknowledging it; do not retry automatically or guess a new price.",
+      ],
+      "/admin/vehicles",
+      "VehiclesService role/branch policy and User-attributed price/document audit",
+      "vehicle stock create edit draft listing asking price history administrator",
+    ),
+    version: 1,
+    reviewedAt: "2026-11-02",
+  },
   {
     ...article(
       "privacy-and-allie",

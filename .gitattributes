@@ -26,3 +26,5 @@ backend/prisma/migrations/20261025170000_support_delivery_notice_dismissal/migra
 backend/prisma/migrations/20261026180000_workforce_template_versions/migration.sql text eol=lf
 # Assistant transient state was first replayed with LF bytes; retain that checksum.
 backend/prisma/migrations/20261027003000_assistant_transient_state/migration.sql text eol=lf
+backend/prisma/migrations/20261102090000_vehicle_operator_actor_history/migration.sql text eol=lf
+backend/prisma/migrations/20261102091000_vehicle_document_user_reviewer/migration.sql text eol=lf

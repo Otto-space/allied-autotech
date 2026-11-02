@@ -46,8 +46,15 @@ describe("managed workforce personal notification boundary", () => {
           ),
         ).resolves.toBeUndefined();
     });
-    it(`${role} cannot use near-misses or legacy operational paths`, async () => {
+    it(`${role} retains the current role's operational boundary`, async () => {
       const db = database();
+      if (role === "ADMIN") {
+        for (const path of ["/staff/bookings", "/staff/vehicles", "/staff/payments"])
+          await expect(
+            enforceWorkforceBoundary(db, { ...actor, role }, `/api/v1${path}`),
+          ).resolves.toBeUndefined();
+        return;
+      }
       for (const path of [
         "/staff/notifications-admin",
         "/staff/notifications/export",

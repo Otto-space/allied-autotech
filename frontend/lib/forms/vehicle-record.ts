@@ -19,8 +19,17 @@ export const positiveNaira = z
   .string()
   .trim()
   .regex(
-    /^\d{1,14}(?:\.\d{1,2})?$/,
-    "Enter a positive NGN amount with up to two decimal places.",
+    /^(?:\d+|\d{1,3}(?:,\d{3})+)(?:\.\d{1,2})?$/,
+    "Enter an NGN amount such as 55000000.00 or 55,000,000.00.",
+  )
+  .transform((value) => value.replaceAll(",", ""))
+  .pipe(
+    z
+      .string()
+      .regex(
+        /^\d{1,14}(?:\.\d{1,2})?$/,
+        "Enter a positive NGN amount with up to two decimal places.",
+      ),
   )
   .refine(
     (value) => !/^0+(?:\.0+)?$/.test(value),

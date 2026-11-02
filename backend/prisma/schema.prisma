@@ -620,6 +620,8 @@ model User {
   refundsApproved                              Refund[]                          @relation("RefundApprover")
   anomaliesResolved                            PaymentAnomaly[]                  @relation("AnomalyResolver")
   vehicleStatusChanges                         VehicleTransactionStatusHistory[]
+  vehiclePriceChanges                          VehiclePriceHistory[]
+  vehicleDocumentReviews                       VehicleDocument[]
   vehicleTermsAcceptances                      VehicleTransaction[]              @relation("VehicleTermsAcceptedBy")
   idempotencyRecords                           IdempotencyRecord[]
   privilegedInvitationsSent                    PrivilegedInvitation[]            @relation("PrivilegedInvitationInviter")
@@ -2085,7 +2087,8 @@ model VehicleImage {
 model VehiclePriceHistory {
   id               String   @id @default(uuid()) @db.Uuid
   vehicleListingId String   @db.Uuid
-  changedByStaffId String   @db.Uuid
+  changedByStaffId String?  @db.Uuid
+  changedByUserId  String?  @db.Uuid
   oldPriceKobo     BigInt
   newPriceKobo     BigInt
   currency         String   @default("NGN") @db.Char(3)
@@ -2093,7 +2096,8 @@ model VehiclePriceHistory {
   createdAt        DateTime @default(now())
 
   listing        VehicleListing @relation(fields: [vehicleListingId], references: [id], onDelete: Restrict)
-  changedByStaff StaffProfile   @relation(fields: [changedByStaffId], references: [id], onDelete: Restrict)
+  changedByStaff StaffProfile?  @relation(fields: [changedByStaffId], references: [id], onDelete: Restrict)
+  changedByUser  User?          @relation(fields: [changedByUserId], references: [id], onDelete: Restrict)
 
   @@index([vehicleListingId, createdAt])
 }
@@ -2102,6 +2106,7 @@ model VehicleDocument {
   id                 String                     @id @default(uuid()) @db.Uuid
   vehicleId          String                     @db.Uuid
   reviewedByStaffId  String?                    @db.Uuid
+  reviewedByUserId   String?                    @db.Uuid
   type               VehicleDocumentType
   verificationStatus DocumentVerificationStatus @default(PENDING)
   objectKey          String                     @unique
@@ -2118,6 +2123,7 @@ model VehicleDocument {
 
   vehicle    Vehicle       @relation(fields: [vehicleId], references: [id], onDelete: Restrict)
   reviewedBy StaffProfile? @relation(fields: [reviewedByStaffId], references: [id], onDelete: Restrict)
+  reviewer   User?         @relation(fields: [reviewedByUserId], references: [id], onDelete: Restrict)
 
   @@index([vehicleId, type])
   @@index([verificationStatus])

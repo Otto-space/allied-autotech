@@ -545,7 +545,7 @@ export class VehiclesRepository {
   }
   addPriceHistory(
     listingId: string,
-    staffId: string,
+    actor: { userId: string; staffId: string | null },
     oldPriceKobo: bigint,
     newPriceKobo: bigint,
     reason: string,
@@ -554,7 +554,8 @@ export class VehiclesRepository {
     return client.vehiclePriceHistory.create({
       data: {
         vehicleListingId: listingId,
-        changedByStaffId: staffId,
+        changedByStaffId: actor.staffId,
+        changedByUserId: actor.userId,
         oldPriceKobo,
         newPriceKobo,
         currency: "NGN",

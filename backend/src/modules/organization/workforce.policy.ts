@@ -209,7 +209,9 @@ function isPersonalNotificationPath(path: string): boolean {
   );
 }
 
-// Enrolled accounts cannot reach broad legacy APIs, even if their identity is ADMIN.
+// Enrolled Staff accounts use their scoped workspaces. The owner's 2 November
+// policy gives Admin the full operational workspace; endpoint owner-only and
+// independent financial approval checks still apply separately.
 // New operational endpoints enforce actions, scopes and fields inside their transaction.
 export async function enforceWorkforceBoundary(
   tx: Pick<Prisma.TransactionClient, "workforceAccess"> &
@@ -218,7 +220,7 @@ export async function enforceWorkforceBoundary(
   originalUrl: string,
   method = "GET",
 ) {
-  if (actor.role === "CUSTOMER" || actor.role === "SUPER_ADMIN") return;
+  if (actor.role !== "STAFF") return;
   const access = await tx.workforceAccess.findUnique({
     where: { userId: actor.userId },
     select: { userId: true },
