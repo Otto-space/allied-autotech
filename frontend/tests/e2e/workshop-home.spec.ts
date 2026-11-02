@@ -363,6 +363,10 @@ for (const width of [320, 360, 390, 414, 768, 1024, 1440, 1920]) {
       ).toBe(true);
     }
     const team = page.locator(".home-team-photo img");
+    await team.scrollIntoViewIfNeeded();
+    await expect
+      .poll(() => team.evaluate((img) => (img as HTMLImageElement).naturalWidth))
+      .toBeGreaterThan(0);
     const ratio = await team.evaluate((img) => ({
       natural:
         (img as HTMLImageElement).naturalWidth / (img as HTMLImageElement).naturalHeight,
