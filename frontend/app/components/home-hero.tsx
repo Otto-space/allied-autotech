@@ -2,7 +2,14 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight, ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
-import { useEffect, useReducer, useRef, useState, useSyncExternalStore } from "react";
+import {
+  type CSSProperties,
+  useEffect,
+  useReducer,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import {
   HERO_IMAGE_TIMEOUT_MS,
   HERO_INTERVAL_MS,
@@ -20,10 +27,11 @@ const slides = [
     image: "diagnostics-at-work",
     alt: "Allied technician inspecting a vehicle with its bonnet open",
     title: "Comprehensive diagnostics. Clear next steps.",
-    copy: "A full vehicle health check, a PDF scan result and a conversation about what comes next.",
+    copy: "A full vehicle health check, a PDF scan result and clear advice on what comes next.",
     action: "Explore diagnostics",
     href: "/services?search=diagnostics",
-    position: "62% 50%",
+    position: "62% 46%",
+    mobilePosition: "76% 0%",
   },
   {
     image: "alignment-at-work",
@@ -33,6 +41,7 @@ const slides = [
     action: "Explore wheel care",
     href: "/services?search=alignment",
     position: "62% 50%",
+    mobilePosition: "58% 0%",
   },
   {
     image: "tyre-care-at-work",
@@ -42,6 +51,7 @@ const slides = [
     action: "Meet the team",
     href: "/about#team",
     position: "50% 50%",
+    mobilePosition: "12% 0%",
   },
 ] as const;
 
@@ -53,7 +63,6 @@ export function HomeHero() {
     serverSnapshot,
   );
   const [stopped, setStopped] = useState(false);
-  const [hovered, setHovered] = useState(false);
   const [visible, setVisible] = useState(true);
   const [inView, setInView] = useState(true);
   const [reduced, setReduced] = useState(false);
@@ -61,7 +70,8 @@ export function HomeHero() {
   const touch = useRef<{ x: number; y: number } | null>(null);
   const pointerStop = useRef<boolean | null>(null);
   const current = slides[state.current];
-  const rotating = enhanced && !stopped && !hovered && visible && inView;
+  const allFailed = state.failed.every(Boolean);
+  const rotating = enhanced && !stopped && visible && inView && !allFailed;
   useEffect(() => {
     const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
     const updateMotion = () => {
@@ -126,11 +136,7 @@ export function HomeHero() {
       data-rotating={rotating}
       data-waiting={!!state.pending}
       data-reduced-motion={reduced}
-      onMouseEnter={() => {
-        setHovered(true);
-        dispatch({ type: "cancel-auto" });
-      }}
-      onMouseLeave={() => setHovered(false)}
+      data-in-view={inView}
       onFocusCapture={() => {
         setStopped(true);
         dispatch({ type: "cancel-auto" });
@@ -169,13 +175,18 @@ export function HomeHero() {
                   src={`/images/workshop/owner/${slide.image}.webp`}
                   alt={slide.alt}
                   fill
-                  sizes="(max-width: 760px) 100vw, 58vw"
+                  sizes="100vw"
                   preload={index === 0}
                   loading={index === 0 ? undefined : "eager"}
                   className={styles.photo}
                   aria-hidden={index !== state.current}
                   data-current={index === state.current && !state.failed[index]}
-                  style={{ objectPosition: slide.position }}
+                  style={
+                    {
+                      "--photo-focus": slide.position,
+                      "--photo-mobile-focus": slide.mobilePosition,
+                    } as CSSProperties
+                  }
                   onLoad={async (event) => {
                     const img = event.currentTarget;
                     try {
@@ -194,12 +205,12 @@ export function HomeHero() {
           )}
         </div>
         <div className={styles.content}>
-          <p className={styles.eyebrow}>Allied AutoTech · Port Harcourt</p>
           <div className={styles.controls}>
             {enhanced && (
               <>
                 <button
                   type="button"
+                  disabled={allFailed}
                   onPointerDown={() => {
                     pointerStop.current = !stopped;
                   }}
@@ -219,13 +230,14 @@ export function HomeHero() {
                   ) : (
                     <Pause size={17} aria-hidden="true" />
                   )}
-                  <span>{stopped ? "Play" : "Pause"}</span>
+                  <span className="sr-only">{stopped ? "Play" : "Pause"}</span>
                 </button>
                 <div className={styles.pickers} role="group" aria-label="Choose a slide">
                   {slides.map((slide, index) => (
                     <button
                       key={slide.image}
                       type="button"
+                      disabled={allFailed}
                       aria-label={`Show slide ${index + 1}: ${slide.action}`}
                       aria-current={state.current === index ? "true" : undefined}
                       onClick={() => move(index < state.current ? -1 : 1, index)}
@@ -236,12 +248,18 @@ export function HomeHero() {
                 </div>
                 <button
                   type="button"
+                  disabled={allFailed}
                   aria-label="Previous slide"
                   onClick={() => move(-1)}
                 >
                   <ChevronLeft size={20} aria-hidden="true" />
                 </button>
-                <button type="button" aria-label="Next slide" onClick={() => move(1)}>
+                <button
+                  type="button"
+                  disabled={allFailed}
+                  aria-label="Next slide"
+                  onClick={() => move(1)}
+                >
                   <ChevronRight size={20} aria-hidden="true" />
                 </button>
               </>

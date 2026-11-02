@@ -3,7 +3,7 @@ import { StrictMode } from "react";
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { HomeHero } from "@/app/components/home-hero";
-import { heroReducer, initialHeroState } from "@/lib/hero-carousel";
+import { HERO_INTERVAL_MS, heroReducer, initialHeroState } from "@/lib/hero-carousel";
 
 let reduced = false;
 beforeEach(() => {
@@ -76,7 +76,7 @@ it("loops beyond three cycles with one timer in StrictMode and clears it on unmo
   });
   for (let i = 1; i <= 12; i++) {
     await act(async () => {
-      vi.advanceTimersByTime(6000);
+      vi.advanceTimersByTime(HERO_INTERVAL_MS);
     });
     expect(view.container.querySelector("section")?.getAttribute("data-slide")).toBe(
       String((i % 3) + 1),
@@ -85,11 +85,11 @@ it("loops beyond three cycles with one timer in StrictMode and clears it on unmo
   view.unmount();
   expect(vi.getTimerCount()).toBe(0);
 });
-it("keeps a manual/focus pause through hover exit and requires explicit Play", () => {
+it("keeps laptop hover rotating and preserves a manual/focus pause until explicit Play", () => {
   const view = render(<HomeHero />);
   const root = view.container.querySelector("section")!;
   fireEvent.mouseEnter(root);
-  expect(root.getAttribute("data-rotating")).toBe("false");
+  expect(root.getAttribute("data-rotating")).toBe("true");
   fireEvent.mouseLeave(root);
   expect(root.getAttribute("data-rotating")).toBe("true");
   fireEvent.pointerDown(screen.getByRole("button", { name: "Pause slideshow" }));
@@ -112,4 +112,16 @@ it("starts reduced motion paused while retaining controls and one heading", () =
   );
   expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
   expect(screen.getByRole("button", { name: "Next slide" })).toBeTruthy();
+});
+it("stops unavailable motion controls when every photo fails while preserving the discovery link", () => {
+  const view = render(<HomeHero />);
+  for (const img of view.container.querySelectorAll("img")) fireEvent.error(img);
+  expect(view.container.querySelector("section")?.getAttribute("data-rotating")).toBe(
+    "false",
+  );
+  for (const button of screen.getAllByRole("button"))
+    expect(button.hasAttribute("disabled")).toBe(true);
+  expect(
+    screen.getByRole("link", { name: "Explore diagnostics" }).getAttribute("href"),
+  ).toBe("/services?search=diagnostics");
 });

@@ -1,5 +1,6 @@
 import { test, expect, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
+import { HERO_INTERVAL_MS } from "@/lib/hero-carousel";
 const hero = (page: Page) => page.getByRole("region", { name: "Workshop highlights" });
 async function open(page: Page, waitUntil: "load" | "domcontentloaded" = "load") {
   const response = await page.goto("/", { waitUntil });
@@ -94,7 +95,7 @@ test("visibility suspension resets the interval without overriding manual pause"
     document.dispatchEvent(new Event("visibilitychange"));
   });
   const current = await hero(page).getAttribute("data-slide");
-  await page.waitForTimeout(6500);
+  await page.waitForTimeout(HERO_INTERVAL_MS + 500);
   await expect(hero(page)).toHaveAttribute("data-slide", current!);
   await page.evaluate(() => {
     Object.defineProperty(document, "visibilityState", {
@@ -109,7 +110,7 @@ test("visibility suspension resets the interval without overriding manual pause"
   await page.evaluate(() => {
     document.dispatchEvent(new Event("visibilitychange"));
   });
-  await page.waitForTimeout(6500);
+  await page.waitForTimeout(HERO_INTERVAL_MS + 500);
   await expect(hero(page)).toHaveAttribute("data-rotating", "false");
   await info.attach("visibility-limit", {
     body: "Visibility state is simulated, not a physical browser tab-switch test.",
@@ -117,9 +118,7 @@ test("visibility suspension resets the interval without overriding manual pause"
   });
 });
 
-test("all failed hero photos retain content and a stalled photo is skipped after the bounded wait", async ({
-  page,
-}) => {
+test("a stalled hero photo is skipped after the bounded wait", async ({ page }) => {
   test.setTimeout(50000);
   let requested = 0;
   await page.route("**/_next/image?*", async (route) => {
@@ -130,11 +129,23 @@ test("all failed hero photos retain content and a stalled photo is skipped after
     }
     return route.continue();
   });
+  const completedRequest = page.waitForResponse(
+    (response) =>
+      (new URL(response.url()).searchParams.get("url") ?? "").includes(
+        "alignment-at-work",
+      ),
+    { timeout: 30000 },
+  );
   await open(page);
   await expect(hero(page)).toHaveAttribute("data-slide", "3", { timeout: 19000 });
   await expect(hero(page).getByRole("link", { name: "Meet the team" })).toBeVisible();
   expect(requested).toBeLessThanOrEqual(2);
-  await page.unroute("**/_next/image?*");
+  // Finish the deliberately delayed request before this page/context is disposed.
+  await completedRequest;
+});
+test("all failed hero photos retain readable content and a working discovery link", async ({
+  page,
+}) => {
   await page.route("**/_next/image?*", (route) => {
     const asset = new URL(route.request().url()).searchParams.get("url") ?? "";
     return /diagnostics-at-work|alignment-at-work|tyre-care-at-work/.test(asset)
@@ -143,6 +154,8 @@ test("all failed hero photos retain content and a stalled photo is skipped after
   });
   await open(page);
   await expect(hero(page).getByText("Workshop photograph unavailable")).toBeVisible();
+  await expect(hero(page)).toHaveAttribute("data-rotating", "false");
+  await expect(hero(page).getByRole("button", { name: "Next slide" })).toBeDisabled();
   await expect(hero(page).getByRole("heading", { level: 1 })).toContainText(
     "Comprehensive diagnostics",
   );
@@ -202,7 +215,7 @@ test("three complete real-time autoplay loops keep images, copy and actions in s
     const now = Date.now();
     changes.push({ slide, elapsed: now - previous });
     previous = now;
-    if (step > 1) expect(changes.at(-1)!.elapsed).toBeGreaterThan(5400);
+    if (step > 1) expect(changes.at(-1)!.elapsed).toBeGreaterThan(HERO_INTERVAL_MS - 600);
     await expect(hero(page).locator('img[data-current="true"]')).toHaveCount(1);
     await expect(
       hero(page).getByRole("group", { name: `${slide} of 3`, exact: true }),
@@ -221,7 +234,7 @@ test("three complete real-time autoplay loops keep images, copy and actions in s
   });
 });
 
-test("hover, manual pause and keyboard focus retain distinct pause behaviour", async ({
+test("laptop hover keeps rotating while manual pause and keyboard focus remain persistent", async ({
   page,
 }) => {
   test.setTimeout(100000);
@@ -230,17 +243,15 @@ test("hover, manual pause and keyboard focus retain distinct pause behaviour", a
   for (let i = 0; i < 2; i++) {
     await hero(page).hover();
     const current = await hero(page).getAttribute("data-slide");
-    await page.waitForTimeout(6500);
-    await expect(hero(page)).toHaveAttribute("data-slide", current!);
-    await page.mouse.move(1, 1);
     await expect(hero(page)).not.toHaveAttribute("data-slide", current!, {
-      timeout: 8000,
+      timeout: HERO_INTERVAL_MS + 2500,
     });
+    await expect(hero(page)).toHaveAttribute("data-rotating", "true");
   }
   await hero(page).getByRole("button", { name: "Pause slideshow" }).click();
   await page.mouse.move(1, 1);
   const paused = await hero(page).getAttribute("data-slide");
-  await page.waitForTimeout(6500);
+  await page.waitForTimeout(HERO_INTERVAL_MS + 500);
   await expect(hero(page)).toHaveAttribute("data-slide", paused!);
   await hero(page).getByRole("button", { name: "Play slideshow" }).click();
   await page.mouse.move(1, 1);
@@ -251,7 +262,7 @@ test("hover, manual pause and keyboard focus retain distinct pause behaviour", a
     .getByRole("link", { name: "Allied AutoTech home", exact: true })
     .first()
     .focus();
-  await page.waitForTimeout(6500);
+  await page.waitForTimeout(HERO_INTERVAL_MS + 500);
   await expect(hero(page)).toHaveAttribute("data-slide", focused!);
   const play = hero(page).getByRole("button", { name: "Play slideshow" });
   await play.focus();
@@ -272,7 +283,7 @@ test("offscreen return resumes only an eligible carousel and revisits do not mul
   await decoded(page);
   await page.locator("footer").scrollIntoViewIfNeeded();
   const current = await hero(page).getAttribute("data-slide");
-  await page.waitForTimeout(6500);
+  await page.waitForTimeout(HERO_INTERVAL_MS + 500);
   await expect(hero(page)).toHaveAttribute("data-slide", current!);
   await page.evaluate(() => scrollTo(0, 0));
   await page.mouse.move(1, 1);
@@ -281,7 +292,7 @@ test("offscreen return resumes only an eligible carousel and revisits do not mul
   await page.mouse.move(1, 1);
   await page.locator("footer").scrollIntoViewIfNeeded();
   await page.evaluate(() => scrollTo(0, 0));
-  await page.waitForTimeout(6500);
+  await page.waitForTimeout(HERO_INTERVAL_MS + 500);
   await expect(hero(page)).toHaveAttribute("data-rotating", "false");
   for (let i = 0; i < 2; i++) {
     await page
@@ -356,10 +367,18 @@ for (const width of [320, 360, 390, 414, 768, 1024, 1440, 1920]) {
     await decoded(page);
     await expect(hero(page)).toHaveAttribute("data-rotating", "false");
     const first = await hero(page).boundingBox();
-    for (let i = 0; i < 6; i++)
+    for (let i = 0; i < 6; i++) {
       await hero(page).getByRole("button", { name: "Next slide" }).click();
+      await expect(hero(page)).toHaveAttribute("data-slide", String(((i + 1) % 3) + 1));
+      expect((await hero(page).boundingBox())!.height).toBeCloseTo(first!.height, 0);
+    }
     await expect(hero(page)).toHaveAttribute("data-slide", "1");
     expect((await hero(page).boundingBox())!.height).toBeCloseTo(first!.height, 0);
+    for (const control of await hero(page).getByRole("button").all()) {
+      const bounds = await control.boundingBox();
+      expect(bounds!.width).toBeGreaterThanOrEqual(44);
+      expect(bounds!.height).toBeGreaterThanOrEqual(44);
+    }
     for (const selector of [
       ".home-services",
       ".home-equipment-grid",
@@ -402,6 +421,40 @@ for (const width of [320, 360, 390, 414, 768, 1024, 1440, 1920]) {
     expect(errors).toEqual([]);
   });
 }
+
+for (const width of [320, 390])
+  test(`short ${width}px phone keeps hero actions clear of support and restores the normal bar`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 667 });
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await open(page);
+    await decoded(page);
+    const support = page.getByRole("navigation", {
+      name: "Customer support",
+      exact: true,
+    });
+    expect((await support.boundingBox())!.width).toBe(44);
+    for (const action of [
+      hero(page).getByRole("link"),
+      ...(await hero(page).getByRole("button").all()),
+    ]) {
+      await action.scrollIntoViewIfNeeded();
+      expect(
+        await action.evaluate((el) => {
+          const r = el.getBoundingClientRect();
+          return el.contains(
+            document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2),
+          );
+        }),
+      ).toBe(true);
+    }
+    await page.locator(".home-team-photo").scrollIntoViewIfNeeded();
+    await expect(hero(page)).toHaveAttribute("data-in-view", "false");
+    expect((await support.boundingBox())!.width).toBeGreaterThan(width * 0.8);
+    await page.goto("/about");
+    expect((await support.boundingBox())!.width).toBeGreaterThan(width * 0.8);
+  });
 
 test("no-JavaScript first slide retains real HTML, photo and discovery links", async ({
   browser,

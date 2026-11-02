@@ -1,4 +1,4 @@
-export const HERO_INTERVAL_MS = 6000;
+export const HERO_INTERVAL_MS = 7000;
 export const HERO_IMAGE_TIMEOUT_MS = 8000;
 export type HeroState = {
   current: number;

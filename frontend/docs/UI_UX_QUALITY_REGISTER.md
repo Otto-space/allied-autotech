@@ -1,3 +1,19 @@
+### 2 November 2026: Photographic hero overlay in verification
+
+The new objective focuses this package on the homepage hero. Full-width genuine
+workshop backgrounds, directional overlay, Quicksand headline and restrained
+44px controls replace the split layout. Diagnostics remains first; destinations
+and launch wording are preserved. The final owner instruction takes precedence:
+laptop hover continues autoplay, while focus/manual pause persists until Play.
+Seven-second timing, decoding/failure recovery and single-timer behavior remain.
+
+Six controller units, scoped lint/type checks, 42 conservative contrast samples,
+loading-state corrections and two short-phone support-clearance cases pass.
+Full local suite, exact-source CI, held production build and publication are pending.
+Other workflows and published Admin operations are outside this bounded change.
+Ledger: frontend/docs/HERO_OVERLAY_20261102.md. A separate referenced audit was
+not attached; its path was requested while explicit hero implementation continued.
+
 ### 2 November 2026: Shared release public acceptance complete; authoring access pending
 
 Published runtime 6f3cf203 is verified on apex/www as frontend

@@ -23,3 +23,9 @@ booking/permission boundaries, nullable-duration validation and slot rejection,
 canonical enquiry-topic parsing, and manual/focus/reduced-motion carousel controls.
 Actual results and publication state are maintained in
 `frontend/docs/HOME_WORKSHOP_20261102.md`.
+
+Hero overlay follow-up: carousel destinations, explicit Pause/Play, focus stop and
+reduced-motion instructions in home-next-step v2 remain accurate. It makes no
+hover-pause promise, so no article version, eligibility or feature flag changes.
+The owner now requests laptop hover to continue; visual/timing checks are in
+frontend/docs/HERO_OVERLAY_20261102.md.
