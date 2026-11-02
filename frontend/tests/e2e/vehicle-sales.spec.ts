@@ -175,9 +175,9 @@ test("vehicle negotiation sends exact kobo and cancellation follows the server l
     notes: "Isolated agreed-price record",
   });
   await expect(
-    page.getByRole("option", { name: "PAYMENT PENDING", exact: true }),
+    page.getByRole("option", { name: "Payment pending", exact: true }),
   ).toHaveCount(0);
-  await expect(page.getByRole("option", { name: "RESERVED", exact: true })).toHaveCount(
+  await expect(page.getByRole("option", { name: "Reserved", exact: true })).toHaveCount(
     0,
   );
   await page

@@ -10,6 +10,8 @@ import {
 } from "@/lib/admin/work-invoices";
 import { CursorPagination, useCursorPage } from "./cursor-pagination";
 import { Feedback } from "./feedback";
+import { RecordReferences } from "./record-references";
+import { CopyableValue } from "./copyable-value";
 export function InvoiceSourcePicker({
   kind,
   value,
@@ -87,11 +89,11 @@ export function InvoiceSourcePicker({
             pagination.reset();
           }}
           aria-describedby="invoice-source-search-hint"
-          placeholder="Record prefix or exact UUID"
+          placeholder="Record number, service or vehicle"
         />
         <p id="invoice-source-search-hint" className="field-hint">
-          Search by record, service or vehicle-title prefix (2+ characters), or exact
-          UUID.
+          Enter at least two characters from the start of a record number, service or
+          vehicle title. You can also paste the complete record reference.
         </p>
       </div>
       <div className="iv-source-choice">
@@ -127,8 +129,8 @@ export function InvoiceSourcePicker({
           </p>
         )}
         <p className="field-hint" id="invoice-source-hint">
-          Only sources without an invoice are listed. The server checks pricing and
-          eligibility at creation.
+          Only sources without an invoice are listed. Pricing and eligibility are checked
+          again when you create the draft.
         </p>
         {term.length === 1 && (
           <p role="status">Enter at least two characters to search.</p>
@@ -165,11 +167,13 @@ export function InvoiceSourcePicker({
           </p>
         )}
         {current && (
-          <p className="iv-source-current">
+          <div className="iv-source-current">
             <strong>Selected: {current.label}</strong>
-            <span>Reference: {current.id}</span>
+            <RecordReferences label="Source reference">
+              <CopyableValue value={current.id} label="Copy source reference" />
+            </RecordReferences>
             <span>{current.branch?.name ?? "Unassigned branch"}</span>
-          </p>
+          </div>
         )}
         {!busy && !sources.error && sources.data?.items.length === 0 && (
           <p>No eligible sources match this search on this page.</p>

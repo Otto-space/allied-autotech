@@ -1,4 +1,5 @@
 "use client";
+import { statusLabel } from "@/lib/status-progress";
 import { NotificationRecordContext } from "./notification-record-context";
 import { WorkflowProgress } from "./status-progress";
 import Link from "next/link";
@@ -795,7 +796,7 @@ function InvoiceWorkspace({
                         <li key={p.id}>
                           <div>
                             <h3>{p.paymentNumber}</h3>
-                            <p>{p.status.replaceAll("_", " ")}</p>
+                            <p>{statusLabel(p.status)}</p>
                             <span className="wid-reference">{p.id}</span>
                           </div>
                           <div>

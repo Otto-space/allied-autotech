@@ -1,4 +1,5 @@
 "use client";
+import { statusLabel } from "@/lib/status-progress";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { z } from "zod";
@@ -208,10 +209,10 @@ export function VehiclePaymentRequests({
                     </h3>
                     <p>
                       {vehiclePaymentPurposes[item.purpose as VehiclePaymentPurpose] ??
-                        item.purpose.replaceAll("_", " ")}
+                        statusLabel(item.purpose)}
                     </p>
                     <span className="status" data-status={item.status}>
-                      {item.status.replaceAll("_", " ")}
+                      {statusLabel(item.status)}
                     </span>
                   </div>
                   <strong>{formatKobo(item.amountKobo)}</strong>

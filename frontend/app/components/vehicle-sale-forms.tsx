@@ -1,4 +1,5 @@
 "use client";
+import { statusLabel } from "@/lib/status-progress";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -285,8 +286,8 @@ export function VehicleSaleStatusForm({ sale, disabled, onReview }: ReviewProps)
           : "This records purchase progress. It does not schedule an inspection appointment, extend a hold or confirm payment.",
       facts: [
         { label: "Transaction", value: sale.transactionNumber },
-        { label: "From", value: sale.status.replaceAll("_", " ") },
-        { label: "To", value: values.status.replaceAll("_", " ") },
+        { label: "From", value: statusLabel(sale.status) },
+        { label: "To", value: statusLabel(values.status) },
         ...(values.reason ? [{ label: "Reason", value: values.reason }] : []),
       ],
       submit: async () => {
@@ -337,7 +338,7 @@ export function VehicleSaleStatusForm({ sale, disabled, onReview }: ReviewProps)
             <select id="sale-next-status" {...form.register("status")}>
               {choices.map((value) => (
                 <option value={value} key={value}>
-                  {value.replaceAll("_", " ")}
+                  {statusLabel(value)}
                 </option>
               ))}
             </select>

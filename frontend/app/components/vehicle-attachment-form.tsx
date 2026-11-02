@@ -1,4 +1,5 @@
 "use client";
+import { statusLabel } from "@/lib/status-progress";
 import { useCallback, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -140,7 +141,7 @@ export function VehicleAttachmentForm({
               { label: "Primary photo", value: values.isPrimary ? "Yes" : "No" },
             ]
           : [
-              { label: "Document type", value: values.type.replaceAll("_", " ") },
+              { label: "Document type", value: statusLabel(values.type) },
               {
                 label: "Issued",
                 value: values.issuedAt
@@ -255,7 +256,7 @@ export function VehicleAttachmentForm({
               <select id={`${prefix}-type`} {...form.register("type")}>
                 {documentTypes.map((type) => (
                   <option key={type} value={type}>
-                    {type.replaceAll("_", " ")}
+                    {statusLabel(type)}
                   </option>
                 ))}
               </select>

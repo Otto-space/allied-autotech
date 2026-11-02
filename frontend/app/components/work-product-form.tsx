@@ -1,4 +1,5 @@
 "use client";
+import { statusLabel } from "@/lib/status-progress";
 import { useRef, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -256,7 +257,7 @@ function ProductForm({
         { label: "Condition", value: body.condition || "Not recorded" },
         {
           label: "Classification",
-          value: body.classification?.replaceAll("_", " ") || "Not recorded",
+          value: body.classification ? statusLabel(body.classification) : "Not recorded",
         },
         { label: "Product type", value: body.productType || "Not recorded" },
         { label: "Brand", value: body.brand || "Not provided" },

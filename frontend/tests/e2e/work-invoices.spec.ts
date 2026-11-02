@@ -310,3 +310,57 @@ for (const width of [320, 375, 430, 768, 1024, 1280, 1440])
       result.violations.filter((v) => ["serious", "critical"].includes(v.impact ?? "")),
     ).toEqual([]);
   });
+
+for (const clipboardAvailable of [true, false])
+  test(`selected invoice source reference supports keyboard disclosure and ${clipboardAvailable ? "copy" : "manual fallback"}`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 320, height: 900 });
+    await page.addInitScript((available) => {
+      Object.defineProperty(navigator, "clipboard", {
+        configurable: true,
+        value: {
+          writeText: async (value: string) => {
+            if (!available) throw new Error("Synthetic clipboard failure");
+            document.documentElement.dataset.copiedSource = value;
+          },
+        },
+      });
+    }, clipboardAvailable);
+    const f = await workInvoiceFixture(page);
+    await page.goto("/admin/invoices?create=1");
+    await page.getByLabel("Source record", { exact: true }).selectOption(id(195000));
+    const current = page.locator(".iv-source-current");
+    await expect(current).toContainText("ORD-2026-1300");
+    await expect(current.getByText(id(195000), { exact: true })).toBeHidden();
+    const disclosure = current.locator("summary");
+    await disclosure.focus();
+    await page.keyboard.press("Enter");
+    await expect(current.getByText(id(195000), { exact: true })).toBeVisible();
+    await current
+      .getByRole("button", { name: "Copy source reference", exact: true })
+      .click();
+    if (clipboardAvailable) {
+      await expect(current.getByRole("status")).toHaveText("Copied");
+      expect(
+        await page.evaluate(() => document.documentElement.dataset.copiedSource),
+      ).toBe(id(195000));
+    } else {
+      await expect(current.getByRole("status")).toContainText("Copy unavailable");
+      expect(await page.evaluate(() => window.getSelection()?.toString())).toBe(
+        id(195000),
+      );
+    }
+    expect(
+      (await new AxeBuilder({ page }).include(".iv-source-current").analyze()).violations,
+    ).toEqual([]);
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+    await disclosure.click();
+    await expect(current.getByText(id(195000), { exact: true })).toBeHidden();
+    await expect(page.getByLabel("Source record", { exact: true })).toHaveValue(
+      id(195000),
+    );
+    expect(f.writes).toHaveLength(0);
+  });

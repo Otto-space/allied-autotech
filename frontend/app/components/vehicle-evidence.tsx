@@ -1,4 +1,5 @@
 "use client";
+import { statusLabel } from "@/lib/status-progress";
 import type { StaffVehicle } from "@/lib/api/staff-vehicle-schemas";
 import { formatStockInstant as formatBusinessDate } from "@/lib/admin/work-vehicle-detail";
 import { StockImageGallery } from "./stock-image-gallery";
@@ -42,11 +43,9 @@ export function VehicleEvidence({
             key={document.id}
             aria-labelledby={`document-heading-${document.id}`}
           >
-            <h3 id={`document-heading-${document.id}`}>
-              {document.type.replaceAll("_", " ")}
-            </h3>
+            <h3 id={`document-heading-${document.id}`}>{statusLabel(document.type)}</h3>
             <p className="status" data-status={document.verificationStatus}>
-              {document.verificationStatus}
+              {statusLabel(document.verificationStatus)}
             </p>
             <dl className="totals">
               <dt>Attached</dt>

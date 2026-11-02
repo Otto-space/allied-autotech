@@ -357,7 +357,7 @@ test("lost document attachment responses reconcile saved records and lock unreso
       .getByRole("dialog")
       .getByRole("button", { name: "Close & review record" })
       .click();
-    await expect(section.locator(".status")).toHaveText("PENDING");
+    await expect(section.locator(".status")).toHaveText("Pending");
     expect(writes).toBe(attempt);
     if (attempt === 1) {
       await page
@@ -413,7 +413,7 @@ test("vehicle documents use their own review version and preserve concurrent ass
     }
   });
   await page.goto(`/admin/vehicles/${vehicle.id}`);
-  const section = page.getByRole("region", { name: "OWNERSHIP", exact: true });
+  const section = page.getByRole("region", { name: "Ownership", exact: true });
   await expect(section).toContainText("4,096 bytes");
   await expect(
     page.getByRole("region", { name: "Latest condition report" }),
@@ -441,7 +441,7 @@ test("vehicle documents use their own review version and preserve concurrent ass
   await section.getByRole("button", { name: "Review document assessment" }).click();
   expect(writes).toHaveLength(0);
   await page.getByRole("dialog").getByRole("button", { name: "Confirm change" }).click();
-  await expect(section.locator(".status")).toHaveText("REJECTED");
+  await expect(section.locator(".status")).toHaveText("Rejected");
   expect(writes[0]).toEqual({
     expectedVersion: 5,
     status: "REJECTED",
@@ -453,7 +453,7 @@ test("vehicle documents use their own review version and preserve concurrent ass
     .fill("Not sent when verified");
   await section.getByRole("button", { name: "Review document assessment" }).click();
   await page.getByRole("dialog").getByRole("button", { name: "Confirm change" }).click();
-  await expect(section.locator(".status")).toHaveText("VERIFIED");
+  await expect(section.locator(".status")).toHaveText("Verified");
   expect(writes[1]).toEqual({ expectedVersion: 6, status: "VERIFIED" });
 });
 
@@ -710,7 +710,7 @@ test("private document upload uses Lagos dates, pending review and authorized te
     fullPage: false,
   });
   await page.getByRole("dialog").getByRole("button", { name: "Confirm change" }).click();
-  await expect(section.locator(".status")).toHaveText("PENDING");
+  await expect(section.locator(".status")).toHaveText("Pending");
   expect(attached).toEqual({
     assetToken: ticket,
     type: "OWNERSHIP",

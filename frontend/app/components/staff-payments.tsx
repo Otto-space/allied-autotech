@@ -1,4 +1,5 @@
 "use client";
+import { statusLabel } from "@/lib/status-progress";
 import { NotificationRecordContext } from "./notification-record-context";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -791,7 +792,7 @@ function PaymentWorkspace({
             <Fact label="Refund reference" value={receipt.id} />
             <Fact label="Attempt reference" value={receipt.paymentAttemptId} />
             <Fact label="Requested amount" value={formatKobo(receipt.amountKobo)} />
-            <Fact label="Current status" value={receipt.status.replaceAll("_", " ")} />
+            <Fact label="Current status" value={statusLabel(receipt.status)} />
             <Fact label="Reason" value={receipt.reason} />
             <Fact label="Requested" value={formatStockInstant(receipt.requestedAt)} />
           </dl>
@@ -1177,10 +1178,10 @@ function PaymentCard({
                   <p>
                     {formatKobo(a.amountKobo)}{" "}
                     <span className="wp-status" data-status={a.status}>
-                      {a.status.replaceAll("_", " ")}
+                      {statusLabel(a.status)}
                     </span>{" "}
                     <span className="wp-status" data-status={a.verificationStatus}>
-                      {a.verificationStatus.replaceAll("_", " ")}
+                      {statusLabel(a.verificationStatus)}
                     </span>
                   </p>
                 </div>

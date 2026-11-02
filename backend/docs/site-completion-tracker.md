@@ -1,3 +1,12 @@
+### 2 November 2026: Form clarity verification pending
+
+Twelve existing form/detail components now use readable status and review labels.
+Invoice source selection retains its human label and branch, with the complete
+reference available through keyboard disclosure, copy and manual fallback.
+Payload enums, status styling hooks, source eligibility, permissions and financial
+activation gates are unchanged. Three hosted baseline cases passed; scoped ESLint
+and TypeScript passed. Two 320px reference interaction/accessibility tests added.
+Exact-master CI and final hosted acceptance are pending; this is not yet published.
 ### 2 November 2026: Stock and workshop wording published
 
 Frontend 518dd13ff281618765725e762825646eaced35df is live on apex/www as

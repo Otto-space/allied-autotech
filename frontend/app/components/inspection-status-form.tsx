@@ -1,4 +1,5 @@
 "use client";
+import { statusLabel } from "@/lib/status-progress";
 import { useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -142,7 +143,7 @@ export function InspectionStatusForm({
                       : "Not assigned"
                     : "Your staff profile",
             },
-            { label: "Next status", value: values.status.replaceAll("_", " ") },
+            { label: "Next status", value: statusLabel(values.status) },
             ...(schedule
               ? [
                   { label: "Start", value: formatBusinessDate(body.scheduledStartAt) },
@@ -194,7 +195,7 @@ export function InspectionStatusForm({
           <select id={`${prefix}-status`} {...form.register("status")}>
             {choices.map((choice) => (
               <option key={choice} value={choice}>
-                {choice.replaceAll("_", " ")}
+                {statusLabel(choice)}
               </option>
             ))}
           </select>

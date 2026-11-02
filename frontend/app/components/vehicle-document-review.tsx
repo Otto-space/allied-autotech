@@ -1,4 +1,5 @@
 "use client";
+import { statusLabel } from "@/lib/status-progress";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -73,8 +74,8 @@ export function VehicleDocumentReview({
           description:
             "Confirm your assessment of the private document. Your account must have a staff profile. This does not change its contents or publish it.",
           facts: [
-            { label: "Document type", value: document.type.replaceAll("_", " ") },
-            { label: "Assessment", value: values.status },
+            { label: "Document type", value: statusLabel(document.type) },
+            { label: "Assessment", value: statusLabel(values.status) },
             ...(values.status === "REJECTED"
               ? [{ label: "Reason", value: values.reason }]
               : []),

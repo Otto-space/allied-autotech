@@ -1,4 +1,5 @@
 "use client";
+import { statusLabel } from "@/lib/status-progress";
 import "./care-workspace.css";
 import Link from "next/link";
 import { useCallback } from "react";
@@ -387,7 +388,7 @@ function ActivityRecord({
         <dl>
           <div>
             <dt>Status</dt>
-            <dd>{r.status?.replaceAll("_", " ") || "Not applicable"}</dd>
+            <dd>{r.status ? statusLabel(r.status) : "Not applicable"}</dd>
           </div>
         </dl>
       )}

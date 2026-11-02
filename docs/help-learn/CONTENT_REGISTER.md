@@ -191,3 +191,5 @@ and transaction gates remain unchanged. This does not prove real operational acc
 Existing guidance, semantic targets, eligibility and flags unchanged. Stock quantities,
 payment distinctions and reviewed work-order milestones retain their contracts.
 Nine hosted synthetic workflow checks passed; no production stock action occurred.
+
+2 November 2026: Form clarity batch changes presentation only: invoice source references use existing disclosure/copy controls; known status labels are readable. Guide v13 semantic targets, eligibility, permissions and feature flags are unchanged. Hosted acceptance pending.

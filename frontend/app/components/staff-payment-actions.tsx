@@ -1,4 +1,5 @@
 "use client";
+import { statusLabel } from "@/lib/status-progress";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -37,7 +38,7 @@ function facts(payment: WorkPayment, attempt: WorkAttempt) {
     { label: "Provider", value: attempt.provider },
     {
       label: "Payment method",
-      value: attempt.method?.replaceAll("_", " ") ?? "Not recorded",
+      value: attempt.method ? statusLabel(attempt.method) : "Not recorded",
     },
     { label: "Attempt amount", value: formatKobo(attempt.amountKobo) },
     ...[
