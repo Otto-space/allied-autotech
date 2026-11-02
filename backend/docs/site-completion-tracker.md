@@ -4593,3 +4593,5 @@ movement choices/history and work-order summaries/reviews. Exact API values and
 financial/stock safeguards unchanged. Three hosted baselines passed; final checks
 pending. Two older booking assertions (No show/Completed) updated to the already
 published readable labels; no contract or permission was relaxed.
+
+2 November form-clarity verification: initial hosted inspection assertion expected uppercase display labels; corrected the assertion only. Production candidate remains held. Asset upload cases require their isolated storage allowlist and are explicitly excluded from hosted acceptance; document-review version/concurrency coverage remains included.

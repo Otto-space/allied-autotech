@@ -208,8 +208,8 @@ test("staff confirms and completes inspections with Lagos schedules and separate
   await expect(page.getByLabel("Branch filter")).toHaveCount(0);
   await page.getByText("Manage inspection progress", { exact: true }).click();
   await expect(page.getByLabel("Next inspection status").locator("option")).toHaveText([
-    "CONFIRMED",
-    "CANCELLED",
+    "Confirmed",
+    "Cancelled",
   ]);
   await page.getByRole("button", { name: "Review inspection change" }).click();
   await expect(page.getByLabel("Inspection ends (Lagos time)")).toBeFocused();
