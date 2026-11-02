@@ -1,3 +1,76 @@
+### 2 November 2026: Previously skipped service detail coverage completed locally
+
+The 70-case service SSR gap is now verified as 75 distinct passing cases after
+splitting two multi-viewport cases into independently timed cases. Source under
+test was 0736f246 with the scoped test corrections below. Next 16.4.3 development
+preview used only 127.0.0.1:3100 and an in-memory fixture at 127.0.0.1:5021;
+all submissions were intercepted. No database, real booking, message, payment,
+production feature flag or provider call changed. The original preview-start
+rejection is retained; this attempt was approved after explicit isolation review.
+
+Corrected stale test expectations to include the existing service-group context;
+made anonymous enquiry fixtures actually anonymous and changed role before the
+session-change event. Capture/launcher checks now run independently per viewport.
+Application guards and runtime behavior are unchanged. Metadata requires a local
+reserved .test canonical origin and indexing-enabled test configuration; this
+setting was process-local only. Scoped ESLint, formatting and diff checks passed.
+
+Evidence, not one clean run: initial report 51 passed/3 failed/16 not run; first
+focused correction 3 passed/3 failed/13 not run; remaining run 19 passed/2 timed
+out; unchanged two mobile image cases then passed. Distinct passing titles across
+all four reports total 75. Failed traces remain. Mobile image timeouts occurred
+in navigation/scrolling; their precise timing cause is not claimed resolved.
+Reports: %TEMP%/aat-mobile-service-gap[-final|-remaining|-images]-20261102.json.
+
+Coverage includes ten widths (320 to 1536), review/edit/receipt, exact request
+context, CSRF/idempotency, uncertain outcomes, account changes, MFA, sign-in draft
+recovery, no-slot preferred requests, field errors, policy/rate-limit recovery,
+keyboard/Axe checks, launcher hit-testing, missing/failed records, structured
+identity and portrait/landscape image framing. Synthetic review/receipt and image
+screenshots were inspected. This closes the local fixture gap; it is not a hosted
+production-build, physical-device or real-operation acceptance claim.
+
+Temporary preview stopped; C: reserve passed at 24.20 GiB. No Docker resources
+were created or deleted. Newer independent master fixes were preserved after the
+run. b06da47f passed frontend 41424046471, backend 41424151992 and secrets 41424046514. Another agent's held 1ff4a13c candidate is building; no competing
+production rollout was started. Both public aliases still serve d9473ad9 and the
+backend remains ACTIVE dea3489e with no pending deployment at this check.
+Privacy hosted acceptance and coordinated publication remain outstanding.
+
+### 2 November 2026: Latest integrated checks
+
+Release recheck: integrated source 0736f246 passed frontend run 41419703086 and
+secret run 41419509934. Backend run 41419509832 failed its new Admin-operations/
+owner-boundary step before reaching learning retrieval. The previously observed
+retrieval failures are therefore not proven resolved. No failed check was skipped
+and no release was promoted. Local preview was stopped after verification.
+
+### 2 November 2026: Privacy disclosure rendered locally; publication held
+
+Source 7e85858c: both Allie disclosure-to-Privacy-Notice browser journeys passed
+at 320px and 1440px (2 passed, no skips/retries). They verified the plain retention
+wording, 15-minute/one-hour limits, backup/provider deletion caveats, successful
+navigation, no horizontal page overflow and zero intercepted AI writes. Local
+Next 16.4.3 development preview reused existing dependencies; the API origin was
+an unused loopback port and browser requests were synthetic. This is not hosted
+production-build acceptance. Separate safe screenshots were visually inspected;
+Privacy Notice identity/title matched and both captures had zero pageerror events.
+Console-wide and physical-device acceptance are not inferred from that check.
+
+Exact-source backend CI 41419120858 passed the corrected privacy HTTP assertion
+and failed later on two vehicle-operations retrieval assertions. Frontend run
+41419120999 was cancelled. Those unrelated changes remain with their owning agent;
+no guard was weakened and no new production deployment was made. Remote master
+0736f246 has only subsequent workflow/integration-test changes. Apex still maps to
+dpl_626aFaqfA3CNdPtKC5f25Dv3SdPL. Fresh signed-in acceptance is unavailable per the
+owner's latest response; earlier read-only acceptance remains historical evidence.
+
+Evidence: %TEMP%/aat-privacy-clarity-local.json (2 passed),
+%TEMP%/aat-privacy-clarity-320.png and aat-privacy-clarity-1440.png.
+Held production rendering, passing exact-source checks and compatible backend
+publication remain required. Existing financial/operational activation decisions
+and all previously recorded device/role limits remain open.
+
 ### 2 November 2026: Privacy guidance v2 HTTP expectation corrected
 
 The reconciled 95a7f45c backend CI reached the real isolated learning HTTP checks:

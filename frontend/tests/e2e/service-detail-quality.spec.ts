@@ -646,6 +646,7 @@ test("request uses current policy, exact notes, CSRF and idempotency; confirmati
   expect(state.writes).toHaveLength(1);
   expect(state.writes[0].body).toEqual({
     slotId: slot.id,
+    serviceCategoryId: record.category.id,
     policyVersion: currentPolicy.version,
     customerNotes: "Check this vehicle.",
   });
@@ -1067,6 +1068,7 @@ test("an uncertain anonymous enquiry remains locked after account change", async
   page,
 }) => {
   const state = await fixture(page);
+  state.role = "anonymous";
   state.post = "unknown";
   await page.goto(`/services/${quoteService.id}`);
   await quoteDraft(page);
@@ -1076,6 +1078,7 @@ test("an uncertain anonymous enquiry remains locked after account change", async
     .getByRole("button", { name: "Send enquiry", exact: true })
     .click();
   await expect(page.getByText(/This submission has an unknown outcome/)).toBeVisible();
+  state.role = "CUSTOMER";
   await page.evaluate(() => {
     const c = new BroadcastChannel("aat-session");
     c.postMessage("changed");
@@ -1257,11 +1260,11 @@ test("invalid note characters focus the field without sending a booking", async 
   expect(state.writes).toHaveLength(0);
 });
 
-test("focused native-size form, context, review and recovery captures", async ({
-  page,
-}) => {
-  await fixture(page);
-  for (const width of [390, 1536]) {
+for (const width of [390, 1536]) {
+  test(`focused native-size form, context, review and recovery captures at ${width}px`, async ({
+    page,
+  }) => {
+    const state = await fixture(page);
     await page.setViewportSize({ width, height: 1024 });
     await page.goto(routePath);
     await prepare(page);
@@ -1294,6 +1297,7 @@ test("focused native-size form, context, review and recovery captures", async ({
       });
     }
     await page.setViewportSize({ width, height: 1024 });
+    state.role = "anonymous";
     await page.goto(`/services/${quoteService.id}`);
     await quoteDraft(page);
     const panel = page.locator(".sd-panel");
@@ -1331,12 +1335,14 @@ test("focused native-size form, context, review and recovery captures", async ({
       path: path.join(os.tmpdir(), `service-detail-${width}-missing.png`),
     });
     mode = "normal";
-  }
-});
+  });
+}
 
-test("floating support actions stay outside desktop form controls", async ({ page }) => {
-  await fixture(page);
-  for (const width of [900, 1024, 1280, 1440, 1536]) {
+for (const width of [900, 1024, 1280, 1440, 1536]) {
+  test(`floating support actions stay outside desktop form controls at ${width}px`, async ({
+    page,
+  }) => {
+    await fixture(page);
     await page.setViewportSize({ width, height: 900 });
     await page.goto(routePath);
     const control = page.getByRole("combobox", { name: "Workshop branch" });
@@ -1354,8 +1360,8 @@ test("floating support actions stay outside desktop form controls", async ({ pag
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
     ).toBe(true);
-  }
-});
+  });
+}
 for (const failure of ["missing", "down", "wrong"])
   test(`service ${failure} renders a useful recovery page with correct HTTP status`, async ({
     page,
@@ -1409,6 +1415,7 @@ for (const width of [390, 1440]) {
       expect(state.writes).toHaveLength(1);
       expect(state.writes[0].body).toEqual({
         serviceId: selectedService.id,
+        ...(!quotation ? { serviceCategoryId: record.category.id } : {}),
         branchId: branch.id,
         preferredAt: "2026-11-10T09:30:00.000Z",
         policyVersion: currentPolicy.version,
