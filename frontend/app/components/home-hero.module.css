@@ -173,16 +173,19 @@
     );
   }
   .layout {
+    display: grid;
+    grid-template-rows: minmax(290px, 1fr) 1fr;
     width: calc(100% - 40px);
     min-height: 650px;
-    padding-top: 290px;
+    padding-top: 0;
     padding-bottom: 24px;
-    align-items: flex-end;
+    align-items: start;
   }
   .photo {
     object-position: var(--photo-mobile-focus);
   }
   .content {
+    grid-row: 2;
     width: 100%;
   }
   .hero h1 {
@@ -191,12 +194,17 @@
   }
   .hero .copy {
     font-size: 16px;
-    min-height: 4.8em;
+    min-height: 3.2em;
     margin-block: 16px 22px;
   }
   .controls {
     margin-top: 24px;
     gap: 0;
+  }
+}
+@media (max-width: 375px) {
+  .hero .copy {
+    min-height: 4.8em;
   }
 }
 @media (prefers-reduced-motion: reduce) {
