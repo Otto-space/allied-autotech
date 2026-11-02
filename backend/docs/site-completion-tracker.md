@@ -1,3 +1,23 @@
+### 2 November 2026: Privacy wording passes held production-build acceptance
+
+Reused READY candidate dpl_4ELMasQqeXkWM1dAU1tqA8FRaxnS from source
+1ff4a13c20e92b2b128ffeea9a3a915641f75350; no duplicate deployment was created.
+Runtime source matches our test checkout (1610e37e) across frontend app/lib/config
+and backend src/schema. Candidate and test revisions are recorded separately.
+Both Allie disclosure-to-Privacy-Notice journeys passed at 320px/1440px (2 passed,
+zero unexpected/skipped/flaky), preserving retention, backup/provider caveats and
+zero intercepted AI writes. Safe final screenshots were visually inspected:
+breadcrumbs and heading visible, readable mobile/desktop layout, support controls
+present. Test uses a deployment-scoped provider cookie, no copied application
+session, synthetic API responses and no real messages or paid calls.
+
+Report: %TEMP%/aat-privacy-clarity-reused-hosted.json; screenshots in the matching
+-temp output directory. This establishes held frontend production-build acceptance,
+not backend privacy-guidance v2 publication or actual-domain acceptance. The other
+agent retains ownership of its migration/backend release. Our signed service test
+commit is local pending integration after that active release; no force push or
+concurrent deployment. Public aliases and backend still require fresh final checks.
+
 ### 2 November 2026: Previously skipped service detail coverage completed locally
 
 The 70-case service SSR gap is now verified as 75 distinct passing cases after
