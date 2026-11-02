@@ -1,3 +1,10 @@
+Publication update: home-next-step v3 is live from backend source 27bf3559,
+ACTIVE deployment a047b0c2-8d70-4281-b8a8-5e428a50008d. The anonymous article
+read returns version 3 and public search guidance; no feature flag or eligibility
+changed. Exact-source CI and isolated learning acceptance passed. Earlier
+source-only statements are historical. See
+docs/PUBLIC_SEARCH_DASHBOARD_FOCUS_20261102.md.
+
 # Home, workshop and service discovery — 2 November 2026
 
 The full owner brief of 1 November and all 15 original sources were inspected.

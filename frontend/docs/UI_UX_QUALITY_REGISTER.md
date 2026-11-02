@@ -1,45 +1,47 @@
-### 2 November 2026: Broader site-completion objective resumed
+### 2 November 2026: Broader site-completion objective in progress
 
-First public-content batch completed and released. Current package start: 14:16 UTC;
-target 60 minutes for public search, dashboard focus and responsive service images.
-Objective: attachment 34136d68-83e6-41f3-9002-26b6d609f71b/goal-objective.md,
-read completely. Its directory contains no separate audit. Existing repository
-records are being reconciled; the owner was asked which audit supplies the
-additional enhancement contracts. This does not block verified independent fixes.
-Current source 703f1a26 is clean at start. Both public aliases still identify hero
-runtime 485fb2c5 / dpl_8qztTisCborq3CBcEQNmvpmQfr2v. Preserve that release and
-the published Admin vehicle-operations repair; no new authority to change roles.
+Two public presentation/search batches are published. Current runtime 27bf3559,
+frontend dpl_EDdQ6vkaD7AF6M9qkQnppBmdiBPE and ACTIVE backend
+a047b0c2-8d70-4281-b8a8-5e428a50008d are verified below. The complete supplied
+objective and existing repository records define the working scope. The attachment
+directory contains only its objective; no further document is required from the
+owner to continue explicit independent requirements. Preserve the published hero
+and Admin vehicle-operations repair and all owner/financial boundaries.
 
-| Full objective requirement                                                 | Current evidence / next verification                                                                                                                       | Status                       |
-| -------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------- |
-| Inspect instructions, current source/runtime and completed changes         | Brief, current AGENTS/directive/tracker; anonymous alias identity reads                                                                                    | Verified baseline            |
-| Remove internal public description notes; preserve prices/history          | Public API confirms three legacy arithmetic paragraphs; Public list/discovery/detail clean; administrator source retained; isolated and live checks passed | Published / verified         |
-| Repair Home/catalogue/detail service imagery and fallbacks                 | Approved central adapter published; complete portrait in detail, landscape tyre cards; 9 hosted + 11 public checks passed                                  | Published / verified         |
-| Truthful booking/purchasing/Help/dashboard language; remove contradictions | Reconcile launch mode and current route/state coverage, inspect rendered journeys                                                                          | Pending                      |
-| Simplify repeated conditions without deleting important facts              | Preserve financial/operational conditions; evaluate affected journeys                                                                                      | Pending                      |
-| Identify missing genuine product facts for operator                        | Read actual published inventory and authoring models, never fabricate                                                                                      | Pending                      |
-| Customer/Admin/Super Admin/assigned Staff journeys                         | Existing fixture and prior role evidence are historical; fresh authorised acceptance not yet available                                                     | Pending / access-limited     |
-| Vehicle stock/edit/fitment/inventory/enquiries/complaints/bookings         | Inspect current components and registry before selecting verified defects                                                                                  | Pending                      |
-| Explicit View/Edit details, laptop vehicle steps                           | Preserve completed operations repair; inspect current affordances/rendered states                                                                          | Pending                      |
-| Shared records-table patterns, badges/pagination/actions/copy              | Inspect corrected customer table and equivalent consumers                                                                                                  | Pending                      |
-| Public navigation search                                                   | Native header entry and catalogue-search route in implementation                                                                                           | Pending                      |
-| Accessible branded dashboard-search focus                                  | Shared search wrapper now uses branded focus styling; rendered coverage pending                                                                            | Pending                      |
-| Optional browser notification invitation using existing settings           | Inspect permissions/preferences and audit contract; no auto prompt                                                                                         | Pending                      |
-| Calendar/date indicators and booking details                               | Existing appointment clarity release retained; inspect actual gaps                                                                                         | Pending                      |
-| Countdown only for confirmed appointments                                  | Existing absolute/today/tomorrow display is not countdown; inspect contract and status semantics                                                           | Pending                      |
-| Consistent photographic proportions/reliable media fallback                | Shared service renderer being updated; product/vehicle consumers still to inspect                                                                          | Implementing / wider pending |
-| Preserve carousel/favourites/filters/radii                                 | Hero runtime preserved; affected regression suite and source diff required                                                                                 | Pending final checks         |
-| Mobile-first layouts; tablet/laptop sidebar states; content language       | Render affected paths and update per-page coverage as each batch completes                                                                                 | Pending                      |
-| Operational/financial boundaries; approved policy reconciliation           | Existing launch restrictions retained; no real transactions, grants or fabricated data                                                                     | Invariant                    |
-| Required checks, state interactions, safe records, final report/readiness  | Focused checks underway; exact-source CI, hosted and release receipts still required                                                                       | Pending                      |
+| Full objective requirement                                                 | Current evidence / next verification                                                                                                                                         | Status                        |
+| -------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------- |
+| Inspect instructions, current source/runtime and completed changes         | Brief, current AGENTS/directive/tracker; anonymous alias identity reads                                                                                                      | Verified baseline             |
+| Remove internal public description notes; preserve prices/history          | Public API confirms three legacy arithmetic paragraphs; Public list/discovery/detail clean; administrator source retained; isolated and live checks passed                   | Published / verified          |
+| Repair Home/catalogue/detail service imagery and fallbacks                 | Approved central adapter published; complete portrait in detail, landscape tyre cards; 9 hosted + 11 public checks passed                                                    | Published / verified          |
+| Truthful booking/purchasing/Help/dashboard language; remove contradictions | Reconcile launch mode and current route/state coverage, inspect rendered journeys                                                                                            | Pending                       |
+| Simplify repeated conditions without deleting important facts              | Preserve financial/operational conditions; evaluate affected journeys                                                                                                        | Pending                       |
+| Identify missing genuine product facts for operator                        | Published Engine Oil Filter has known price/condition/type/in-stock indicator; missing verified identity, description, photos/classification/compatibility evidence recorded | Verified / operator follow-up |
+| Customer/Admin/Super Admin/assigned Staff journeys                         | Existing fixture and prior role evidence are historical; fresh authorised acceptance not yet available                                                                       | Pending / access-limited      |
+| Vehicle stock/edit/fitment/inventory/enquiries/complaints/bookings         | Inspect current components and registry before selecting verified defects                                                                                                    | Pending                       |
+| Explicit View/Edit details, laptop vehicle steps                           | Preserve completed operations repair; inspect current affordances/rendered states                                                                                            | Pending                       |
+| Shared records-table patterns, badges/pagination/actions/copy              | Inspect corrected customer table and equivalent consumers                                                                                                                    | Pending                       |
+| Public navigation search                                                   | Native GET search, real catalogue destinations, invalid recovery and no-JavaScript paths pass at 320-1440px                                                                  | Published / verified          |
+| Accessible branded dashboard-search focus                                  | Shared branded focus passes four synthetic role sessions, expanded/collapsed sidebar; real-account acceptance unavailable                                                    | Published / fixture verified  |
+| Optional browser notification invitation using existing settings           | Inspect permissions/preferences and audit contract; no auto prompt                                                                                                           | Pending                       |
+| Calendar/date indicators and booking details                               | Existing appointment clarity release retained; inspect actual gaps                                                                                                           | Pending                       |
+| Countdown only for confirmed appointments                                  | Existing absolute/today/tomorrow display is not countdown; inspect contract and status semantics                                                                             | Pending                       |
+| Consistent photographic proportions/reliable media fallback                | Approved service photo proportions/fallbacks and hosted responsive byte counts verified; product/vehicle consumers retain separate review                                    | Published / wider pending     |
+| Preserve carousel/favourites/filters/radii                                 | 20 exact-artifact hosted hero regressions pass; existing catalogue filters/favourites implementation unchanged                                                               | Verified for affected batch   |
+| Mobile-first layouts; tablet/laptop sidebar states; content language       | Render affected paths and update per-page coverage as each batch completes                                                                                                   | Pending                       |
+| Operational/financial boundaries; approved policy reconciliation           | Existing launch restrictions retained; no real transactions, grants or fabricated data                                                                                       | Invariant                     |
+| Required checks, state interactions, safe records, final report/readiness  | Both bounded batches pass exact-source CI, packaged and held/public checks; broader requirements still open                                                                  | Batch verified / full pending |
 
 Published first batch: 2c6f58d0, frontend dpl_2tmoL1nPgoL4R8pxQ6g5boYiaBzf and
 ACTIVE backend 9e7d8b5c-82a1-4660-be23-4fca2a9b6828. All exact-source gates,
 29 held browser cases, 11 public cases, 10 packaged checks and fresh pre/post
 safety checks pass. Report and safe before/after screenshots:
 [Public service presentation](../../docs/PUBLIC_SERVICE_PRESENTATION_20261102.md).
-Next: functional navigation search, branded dashboard focus and efficient static
-service-image delivery, followed by remaining table/appointment/notification work.
+Second batch: 27bf3559 with the current frontend/backend IDs above. Exact-source
+frontend 41465551617, backend 41465551589 and secrets 41465551925 pass; 44 held
+browser checks and 10 packaged checks pass. Public alias acceptance is recorded in
+[Search and dashboard focus](../../docs/PUBLIC_SEARCH_DASHBOARD_FOCUS_20261102.md).
+Next: notification invitation, confirmed-appointment countdown and authoring/table
+affordances, preserving real-role and physical-device acceptance limits.
 
 The full goal remains active across bounded batches. Physical devices, real-role
 acceptance, merchant sandbox and business activation are separate evidence classes;

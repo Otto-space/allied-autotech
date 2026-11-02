@@ -1,16 +1,27 @@
-### 2 November 2026: Search, dashboard focus and responsive image batch in verification
+### 2 November 2026: Public search and dashboard focus published
 
-Native public-header search and /search now route validated phrases to the existing
-Services/Shop/Vehicles catalogues, including no-JavaScript submission. Shared
-dashboard search uses branded visible focus. Approved static service photos use
-the existing responsive image pipeline; managed publication-aware media stays
-unchanged. Home guidance v3 and acceptance expectations are versioned together.
-Local coverage: 24 distinct rendered cases, focused units/types/lint/format pass.
-Exact-source CI, hosted image-byte confirmation and publication remain pending.
-No permissions, prices, operational/financial policy or feature flags changed.
-One real published product lacks brand, part number, description, photos,
-classification and compatibility evidence; report only genuine missing facts.
-Report: docs/PUBLIC_SEARCH_DASHBOARD_FOCUS_20261102.md. Full goal remains active.
+Runtime 27bf3559 is live on apex/www as dpl_EDdQ6vkaD7AF6M9qkQnppBmdiBPE;
+backend a047b0c2-8d70-4281-b8a8-5e428a50008d is ACTIVE 16/16, four matching
+digests, readiness 200 and eight fresh workers. Public native GET search works
+for Services/Shop/Vehicles including no JavaScript. Branded dashboard focus is
+verified in four synthetic roles with sidebar recovery. Static service photos
+retain approved framing and use responsive WebP; four mobile image responses
+total 53,022 bytes against 463,904 before in the stated profile. Home guidance v3
+is verified by an actual anonymous read.
+
+All three exact-source checks pass (frontend 41465551617: 1,328 units / 12 existing
+skips; backend 41465551589; secrets 41465551925). Ten packaged checks, 44 held,
+24 actual-domain cases and two www Search widths pass. Fresh backup, strict-TLS
+schema/least-privilege/workers and temporary-source removal pass. Same-day
+populated restore revalidated; schema/scripts unchanged. No migration, direct
+business-row edit, grant, commercial-field or feature-flag change.
+
+Report and safe screenshots: docs/PUBLIC_SEARCH_DASHBOARD_FOCUS_20261102.md.
+The full goal stays active in the quality register. Next: optional notification
+invitation, confirmed-appointment countdown and authoring/table affordances.
+The complete supplied objective and repository records are sufficient to continue
+explicit work; no additional document is required from the owner. Actual accounts,
+physical devices and provider acceptance remain distinct and unverified here.
 
 ### 2 November 2026: Public service descriptions and approved imagery published
 
