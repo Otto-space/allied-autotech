@@ -29,6 +29,7 @@ import { hardenOpenApiDocument } from "./harden-document.js";
 import { registerOverviewOpenApi } from "../modules/overview/overview.openapi.js";
 import { registerOwnerPolicyOpenApi } from "../modules/policies/policies.openapi.js";
 import { registerWorkforceOpenApi } from "../modules/organization/workforce.openapi.js";
+import { registerPurchaseOpenApi } from "../modules/orders/purchase.openapi.js";
 
 export interface OpenApiDocumentOptions {
   sessionCookieName: string;
@@ -51,6 +52,7 @@ export function createOpenApiDocument(options: OpenApiDocumentOptions) {
   registerServiceOperationsOpenApi(registry);
   registerServiceDiscoveryOpenApi(registry);
   registerOrdersOpenApi(registry);
+  registerPurchaseOpenApi(registry);
   registerPromotionsOpenApi(registry);
   registerBillingOpenApi(registry);
   registerVehiclesOpenApi(registry);

@@ -110,7 +110,13 @@ for (const [path, pathValue] of Object.entries(paths)) {
     if (
       secured &&
       mutationMethods.has(method) &&
-      !hasHeader(operationValue, "x-csrf-token")
+      !hasHeader(operationValue, "x-csrf-token") &&
+      !(
+        path === "/purchase/access/csrf" &&
+        method === "post" &&
+        operationValue["x-trusted-origin-required"] === true &&
+        operationValue["x-access-boundary"] === "verified-purchase-guest"
+      )
     )
       failures.push(`Cookie-authenticated mutation lacks CSRF header on ${label}`);
     if (

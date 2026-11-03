@@ -1,0 +1,179 @@
+import type { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
+import { z, type ZodType } from "zod";
+import {
+  customerOrderListQuerySchema,
+  guestCheckoutBodySchema,
+  orderIdempotencyHeadersSchema,
+  orderParamsSchema,
+} from "./orders.schemas.js";
+import {
+  purchaseAttemptParamsSchema,
+  purchaseCsrfHeadersSchema,
+  purchaseEmptySchema,
+  purchaseGatewaySchema,
+  purchasePaymentParamsSchema,
+  purchasePaymentSchema,
+  purchaseRequestSchema,
+  purchaseRevokeSchema,
+  purchaseVerifySchema,
+} from "./purchase.schemas.js";
+
+const response = z.object({
+  success: z.boolean(),
+  message: z.string(),
+  data: z.unknown().optional(),
+  meta: z.object({ requestId: z.string() }),
+});
+type Fields = NonNullable<
+  NonNullable<Parameters<OpenAPIRegistry["registerPath"]>[0]["request"]>["params"]
+>;
+type Path = {
+  method: "get" | "post" | "delete";
+  path: string;
+  summary: string;
+  body?: ZodType;
+  headers?: Fields;
+  params?: Fields;
+  query?: Fields;
+  status?: number;
+  public?: boolean;
+};
+
+export function registerPurchaseOpenApi(registry: OpenAPIRegistry): void {
+  registry.registerComponent("securitySchemes", "purchaseGuestCookie", {
+    type: "apiKey",
+    in: "cookie",
+    name: "__Host-aat_purchase",
+    description:
+      "Separate verified purchase access. Grants no customer-account, workforce or MFA permissions.",
+  });
+  const keyed = orderIdempotencyHeadersSchema.extend(purchaseCsrfHeadersSchema.shape);
+  const paths: Path[] = [
+    {
+      method: "post",
+      path: "/access/request",
+      summary:
+        "Request a browser-bound private purchase-access link without creating an account",
+      body: purchaseRequestSchema,
+      public: true,
+      status: 202,
+    },
+    {
+      method: "post",
+      path: "/access/verify",
+      summary: "Consume a single-use purchase proof in its requesting browser",
+      body: purchaseVerifySchema,
+      public: true,
+    },
+    {
+      method: "get",
+      path: "/access",
+      summary: "Read the current verified purchase access",
+    },
+    {
+      method: "post",
+      path: "/access/csrf",
+      summary:
+        "Rotate the purchase CSRF token using a current guest cookie and trusted origin",
+      body: purchaseEmptySchema,
+    },
+    {
+      method: "delete",
+      path: "/access",
+      summary:
+        "End this purchase access or revoke all purchase sessions for its verified buyer",
+      body: purchaseRevokeSchema,
+      headers: purchaseCsrfHeadersSchema,
+    },
+    {
+      method: "get",
+      path: "/orders/original-request",
+      summary:
+        "Recover an owned checkout receipt using its original retry key; absence is not proof of failure",
+      headers: orderIdempotencyHeadersSchema,
+    },
+    {
+      method: "get",
+      path: "/orders",
+      summary: "List only this verified guest's orders",
+      query: customerOrderListQuerySchema,
+    },
+    {
+      method: "get",
+      path: "/orders/{orderId}",
+      summary: "Read an owned guest order",
+      params: orderParamsSchema,
+    },
+    {
+      method: "post",
+      path: "/orders",
+      summary:
+        "Save a server-priced guest collection order without creating an account or charging it",
+      body: guestCheckoutBodySchema,
+      headers: keyed,
+      status: 201,
+    },
+    {
+      method: "post",
+      path: "/payments",
+      summary: "Prepare an exact payment for an owned guest order",
+      body: purchasePaymentSchema,
+      headers: keyed,
+      status: 201,
+    },
+    {
+      method: "get",
+      path: "/payments/{paymentId}",
+      summary:
+        "Read an owned guest payment without treating a callback as proof of payment",
+      params: purchasePaymentParamsSchema,
+    },
+    {
+      method: "post",
+      path: "/payments/{paymentId}/checkout",
+      summary: "Initialize or recover a guarded guest gateway checkout",
+      body: purchaseGatewaySchema,
+      headers: keyed,
+      params: purchasePaymentParamsSchema,
+    },
+    {
+      method: "post",
+      path: "/payments/{paymentId}/attempts/{attemptId}/verify",
+      summary:
+        "Verify an owned guest attempt through its configured provider and reconcile capture once",
+      body: purchaseEmptySchema,
+      headers: purchaseCsrfHeadersSchema,
+      params: purchaseAttemptParamsSchema,
+    },
+  ];
+  for (const entry of paths)
+    registry.registerPath({
+      method: entry.method,
+      path: `/purchase${entry.path}`,
+      tags: ["Purchase access"],
+      summary: entry.summary,
+      description:
+        "No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery and owned reads but reject new financial mutations. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct.",
+      security: entry.public ? [] : [{ purchaseGuestCookie: [] }],
+      request: {
+        query: entry.query ?? purchaseEmptySchema.removeDefault(),
+        ...(entry.params ? { params: entry.params } : {}),
+        ...(entry.headers ? { headers: entry.headers } : {}),
+        ...(entry.body
+          ? {
+              body: {
+                required: true,
+                content: { "application/json": { schema: entry.body } },
+              },
+            }
+          : {}),
+      },
+      responses: {
+        [entry.status ?? 200]: {
+          description: "Success",
+          content: { "application/json": { schema: response } },
+        },
+      },
+      "x-trusted-origin-required": entry.method !== "get",
+    });
+}

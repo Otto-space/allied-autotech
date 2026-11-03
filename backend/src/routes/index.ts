@@ -1,4 +1,5 @@
 import { partsQuotesRouter } from "../modules/orders/parts-quotes.routes.js";
+import { createPurchaseRouter } from "../modules/orders/purchase.routes.js";
 import { createCategoryMediaRouter } from "../modules/service-operations/category-media.routes.js";
 import { createFitmentRouter } from "../modules/fitment/fitment.routes.js";
 import { createLearningRouter } from "../modules/learning/learning.routes.js";
@@ -109,6 +110,7 @@ import { createDisputesRouter } from "../modules/payments/disputes.routes.js";
 export function createApiRouter(options: ApiRouterOptions): Router {
   const apiRouter = Router();
   apiRouter.use(publicLaunch(env.PUBLIC_LAUNCH_MODE));
+  apiRouter.use("/purchase", createPurchaseRouter());
   apiRouter.use(createLearningRouter());
   apiRouter.use(createWorkforceRouter());
   apiRouter.use(createPoliciesRouter());

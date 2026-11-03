@@ -66,6 +66,10 @@ function accessFor(
   boundary: string;
   roles: string[];
 } {
+  if (path.startsWith("/purchase/"))
+    return secured
+      ? { boundary: "verified-purchase-guest", roles: ["PURCHASE_GUEST"] }
+      : { boundary: "public-purchase-proof", roles: ["PUBLIC"] };
   if (path.startsWith("/public/")) return { boundary: "public", roles: ["PUBLIC"] };
   if (path === "/webhooks/resend")
     return { boundary: "provider-webhook", roles: ["EMAIL_PROVIDER"] };
@@ -566,7 +570,10 @@ export function hardenOpenApiDocument<T>(document: T): T {
       for (const parameter of parameters) {
         const name = String(parameter["name"] ?? "value");
         const location = String(parameter["in"] ?? "request");
-        parameter["description"] ??= parameterDescription(name, location);
+        parameter["description"] ??=
+          path.startsWith("/purchase/") && name.toLowerCase() === "x-csrf-token"
+            ? "Current guest CSRF token from POST /purchase/access/csrf; keep in memory only. Grants no account access."
+            : parameterDescription(name, location);
         if (isObject(parameter["schema"])) {
           annotateSchema(parameter["schema"], name);
           parameter["example"] = syntheticValue(name, parameter["schema"]);

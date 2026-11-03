@@ -31,7 +31,7 @@ import {
   orderStale,
 } from "./orders.errors.js";
 import { assertCustomer, assertOrderOperator } from "./orders.policy.js";
-import { OrdersRepository } from "./orders.repository.js";
+import { OrdersRepository, orderSelect } from "./orders.repository.js";
 import type {
   CheckoutInput,
   CustomerOrderCancelInput,
@@ -131,6 +131,61 @@ export class OrdersService {
       const order = await this.repository.guestOrder(id, access.guestId, transaction);
       if (!order) throw orderNotFound();
       return jsonSafe(customerOrderView(order));
+    });
+  }
+
+  async guestOrders(sessionToken: string, query: CustomerOrderListQuery) {
+    if (env.PUBLIC_LAUNCH_MODE === "catalogue") throw orderForbidden();
+    return this.database.$transaction(async (tx) => {
+      const access = await this.guestAccess.lockAccess(tx, sessionToken, {
+        kind: "read",
+      });
+      if (
+        query.cursor &&
+        !(await this.repository.guestOrder(query.cursor, access.guestId, tx))
+      )
+        throw orderNotFound();
+      const rows = await tx.order.findMany({
+        where: {
+          guestId: access.guestId,
+          customerId: null,
+          ...(query.status ? { status: query.status } : {}),
+        },
+        select: orderSelect,
+        orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+        take: query.limit + 1,
+        ...(query.cursor ? { cursor: { id: query.cursor }, skip: 1 } : {}),
+      });
+      return jsonSafe(page(rows.map(customerOrderView), query.limit));
+    });
+  }
+
+  async guestOriginalCheckout(sessionToken: string, rawKey: string) {
+    if (env.PUBLIC_LAUNCH_MODE === "catalogue") throw orderForbidden();
+    orderIdempotencyHeadersSchema.parse({ "idempotency-key": rawKey });
+    return this.database.$transaction(async (tx) => {
+      const access = await this.guestAccess.lockAccess(tx, sessionToken, {
+        kind: "read",
+      });
+      const receipt = await this.repository.idempotency(
+        `guest-order-checkout:${access.guestId}`,
+        hashToken("order-checkout-idempotency", `guest:${access.guestId}:${rawKey}`),
+        tx,
+      );
+      const body = receipt?.responseBody;
+      const orderId =
+        body && typeof body === "object" && !Array.isArray(body)
+          ? body["orderId"]
+          : undefined;
+      const order =
+        receipt?.status === "COMPLETED" && typeof orderId === "string"
+          ? await this.repository.guestOrder(orderId, access.guestId, tx)
+          : null;
+      // A missing receipt is a current observation, never proof a request failed.
+      return jsonSafe({
+        found: order !== null,
+        order: order ? customerOrderView(order) : null,
+      });
     });
   }
 

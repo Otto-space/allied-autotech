@@ -1,3 +1,12 @@
+## 3 November 2026: Guest API boundary (source)
+
+Separate purchase-access routes and owned history/payment recovery are implemented
+and locally verified. The public guest screens and quote/aftercare integration are
+unfinished and unpublished. Existing public learning remains capability-aware;
+no article, practice eligibility, permission or activation flag changes in this
+source packet. Customer-account/MFA and financial approval boundaries are preserved.
+The completion tracker records exact tests and remaining release/acceptance gates.
+
 ## 3 November 2026: Seven-day quotation guidance (source)
 
 Parts-fitment v5 explains the approved seven-day quotation validity, its saved

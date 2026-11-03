@@ -93,7 +93,7 @@ jobs:
             -e CONFIRM_EMPTY_MIGRATION_DATABASE=true -e RUN_DATABASE_TESTS=true \
             -e EMAIL_DELIVERY_ENABLED=false -e SMS_DELIVERY_ENABLED=false \
             node:24.13.0 node node_modules/vitest/vitest.mjs run \
-            tests/integration/purchase-guest-access.test.ts tests/integration/purchase-guest-ownership.test.ts tests/integration/purchase-guest-checkout.test.ts tests/integration/purchase-guest-payments.test.ts --maxWorkers=1
+            tests/integration/purchase-guest-access.test.ts tests/integration/purchase-guest-ownership.test.ts tests/integration/purchase-guest-checkout.test.ts tests/integration/purchase-guest-payments.test.ts tests/integration/purchase-guest-http.test.ts --maxWorkers=1
       - name: Verify administrator vehicle operations on a separate fresh database
         env:
           DB_NAME: allied_vehicle_operator_ci

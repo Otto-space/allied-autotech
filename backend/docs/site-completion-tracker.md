@@ -1,3 +1,32 @@
+### 3 November 2026: Guest HTTP ownership boundary verified (source only)
+
+Payment source 56cf0bd8 passes frontend 41572993041, backend 41572993099
+and secrets 41572993042. Published runtime remains 333c3a22 / 87 migrations.
+
+Guest API routes now use separate HttpOnly, SameSite cookies, single-use proof
+bound to the requesting browser, trusted origins, IP/recipient limits and in-memory
+CSRF. Account cookies, including MFA-pending sessions, cannot enter guest routes;
+normal account session issuance clears guest browser cookies. Owned order listing,
+original-key recovery, detail, payment preparation/initialization/verification are
+wired to the shared engines. A matching email never grants account-record access.
+Limited releases reject financial writes while retaining owned history and security
+recovery; catalogue mode closes guest routes. No activation flag is changed.
+
+Native guest-http-native-feeee3428b714c6594972f6a4d65b7c6 passes 50/50 across
+five suites, including all 12 new HTTP cases, actual account login/session regression
+and injected gateway ports. All 89 migrations replay, schema/db:check and runtime
+non-owner/no-DDL/no-TRUNCATE checks pass; its task data was removed after success.
+Public-launch/API/identity units pass 77/77 and the separate guest contract unit
+passes 1/1. API validation passes 425 paths; all 500 documented operations match
+mounted routes. Production/targeted-test TypeScript, repository lint, scoped format
+and secret checks pass. Canonical API/handbook/frontend types are regenerated.
+
+This is source and synthetic local evidence. Public guest cart, proof/review/recovery
+screens, guest quotations and aftercare remain implementation work. No production
+record, provider delivery or financial transaction was used. New populated restore,
+compatible recovery images, exact-source CI and publication remain required. Actual
+role/provider/device acceptance and recorded business decisions remain separate.
+
 ### 3 November 2026: Shared guest payment engine verified (source only)
 
 Checkout source c104fd5b passes frontend 41570496205, backend 41570496387

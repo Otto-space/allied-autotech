@@ -12,7 +12,7 @@ export function publicLaunch(mode: PublicLaunchMode): RequestHandler {
     const isWrite = !["GET", "HEAD", "OPTIONS"].includes(request.method);
     if (
       mode === "catalogue" &&
-      (/^\/customers(?:\/|$)/i.test(request.path) ||
+      (/^\/(?:customers|purchase)(?:\/|$)/i.test(request.path) ||
         /^\/auth\/register(?:\/|$)/i.test(request.path) ||
         (isWrite &&
           /^\/(?:public|webhooks)(?:\/|$)/i.test(request.path) &&
@@ -32,6 +32,7 @@ export function publicLaunch(mode: PublicLaunchMode): RequestHandler {
       mode === "browse_enquiries" &&
       isWrite &&
       (transactionPath.test(request.path) ||
+        /^\/purchase\/(?:orders|payments|parts-quotes)(?:\/|$)/i.test(request.path) ||
         /^\/public\/booking-response(?:\/|$)/i.test(request.path))
     ) {
       next(

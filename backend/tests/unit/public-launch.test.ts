@@ -26,6 +26,9 @@ describe("public browsing/enquiries launch boundary", () => {
     "/customers/vehicle-inspections",
     "/public/booking-response/confirm",
     "/CUSTOMERS/ORDERS/checkout",
+    "/purchase/orders",
+    "/purchase/payments/record/checkout",
+    "/purchase/parts-quotes/record/accept",
   ])("rejects direct transaction requests: %s", async (path) => {
     const result = await request(fixture("browse_enquiries")).post(`/api/v1${path}`);
     expect(result.status).toBe(403);
@@ -46,6 +49,9 @@ describe("public browsing/enquiries launch boundary", () => {
     "/auth/login",
     "/auth/register",
     "/auth/email/verify",
+    "/purchase/access/request",
+    "/purchase/access/verify",
+    "/purchase/access/csrf",
     "/admin/services",
     "/staff/vehicles",
     "/webhooks/paystack",
@@ -83,6 +89,8 @@ describe("catalogue launch has no public customer intake", () => {
     "/public/booking-response/confirm",
     "/auth/register",
     "/AUTH/REGISTER/",
+    "/purchase/access/request",
+    "/purchase/orders",
     "/customers/support/enquiries",
     "/customers/profile",
     "/customers/orders/checkout",
