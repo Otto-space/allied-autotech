@@ -1,3 +1,31 @@
+3 November 22:09 UTC exact-source verification follow-up: signed 7e92d780 is
+verified by GitHub. Backend run 41726701704 and Secrets run 41726701665 pass.
+Backend passes 97-migration replay/db:check, types/scripts/lint, 60 safety cases,
+65 source/money/API cases, eight reminder concurrency, 184 booking/resource/finance
+cases (four separately provisioned-workspace cases not run), 82 purchase, 90 guest,
+41 Admin/owner-control cases and all later workflow stages, including final 113
+Care/Allie cases. No test file was removed to obtain these results.
+
+Frontend run 41726701652 passes lint/types, 1,476 units (12 existing skips) and
+production build, but fails the final document format check. One standalone
+numeric run ID followed by a period was interpreted as a list in the merged
+quality register. Prettier joined it into its intended paragraph; the document
+format recheck now passes. This run never executed the browser stage, so it is not
+rendered acceptance. A new exact-source check must pass before any release claim.
+
+All 521 existing OpenAPI request/security contracts and their shared components
+are unchanged from d9cf9d09; the sole added path is the owner resource-reference
+lookup. Prisma schema/migration bytes are unchanged. Remaining work still includes
+actual resource configuration/acceptance, public offered-time resource filtering,
+ongoing-work adjustments, and the full ledger. Inspection confirms D11 actual
+arrival history is missing: attendanceConfirmedAt records the customer's RSVP,
+not physical attendance. D16 currently permits CONFIRMED to NO_SHOW without a grace
+check or required evidence. The next implementation must pair actual arrival/wait/
+left history with a configurable delegated attendance check and staff-verified
+missed action; a countdown or RSVP cannot substitute for physical attendance.
+No record, price, live setting, data grant or deployment changed. Last reserve
+check read 20.84 GiB; no local build, dependency installation or Docker write ran.
+
 3 November 21:59 UTC merged-source check: backend types/lint pass. Seven
 focused files produced 47 passes and one stale service-request v23 assertion after
 the concurrent v24 started-work correction. The assertion now expects v24 while
@@ -63,8 +91,7 @@ D03/D11-D17 and original audit requirements remain in scope.
 
 3 November 21:44 UTC bounded D02 result: signed master
 d9cf9d093fc8e71f16883bbf2cc2b353da187447 is verified by GitHub and passes all
-three exact-source gates: Frontend 41722772458, Backend 41722772291 and Secrets
-41722772221. Frontend passes 1,458 units (12 existing skips), production lint,
+three exact-source gates: Frontend 41722772458, Backend 41722772291 and Secrets 41722772221. Frontend passes 1,458 units (12 existing skips), production lint,
 types/build/format and 71/71 Chromium cases: zero skips, failures or flaky cases.
 Backend passes 97-migration isolated replay/db:check, compiler/scripts/lint,
 60 safety cases, 64 early source/money/API cases, eight reminder concurrency,
