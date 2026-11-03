@@ -1,5 +1,14 @@
 # Complete live audit implementation - 2 November 2026
 
+Latest package checkpoint, 3 November 14:28 UTC: source 1a9c6039 passes backend
+41653132527, including 90-migration replay/db:check and 52/52 focused review cases.
+Owned customer/guest request and Admin/MFA decision endpoints are implemented;
+the aggregate-hold regression preserves the existing one-active-reference rule.
+Frontend ef3b4ff1 passes 41651475005 with 13/13 runtime browser cases; its frontend
+tree is unchanged in 1a9c6039. Safe synthetic mobile/laptop action screenshots in
+artifact 13235328482 inspected. These are source/CI fixtures, not actual-role,
+provider, physical-device or published purchasing acceptance. Full goal stays active.
+
 Current D01 checkpoint: signed source 8aec5020 passed frontend 41638126292,
 backend 41637103255 and secrets 41637103251, unpublished. Later rendered testing
 found and repaired full-mode booking links that ignored the independent switch.
@@ -30,10 +39,10 @@ and technical/provider/actual-role acceptance remain distinct.
 
 | ID | Current instruction | Current implementation evidence/status |
 | --- | --- | --- |
-| D01 | Appointment requests and parts purchases approved independently | Independent switches/HTTP guards/capability/parser implemented in this working batch;103backend/20frontend units and backend types pass. Browser verification incomplete; no activation. |
+| D01 | Appointment requests and parts purchases approved independently | Independent server switches/HTTP guards/capability/parser and shared entry points implemented. Full frontend checks and 13/13 hosted runtime browser cases pass at 320/768/1440, including independent module states and recovery. Unpublished; no activation. |
 | D02 | VAT-exclusive7.5%after discounts; nearest-kobo | Existing integer snapshots/VAT; percentage-discount truncation and exact rule publication need reconciliation. Tie/allocation remains unspecified. |
 | D03 | Materials first; workmanship after work/before collection | Current workflows require payment before order confirmation; service staged money/balance handling needs implementation. |
-| D04 | Final suitability and availability before full parts payment | Foundation replay/db:check and 48 focused cases pass on 1140cba0. Requirements/decision mutations and owned customer/guest/Admin entry points added; newer-source CI pending. Payment gating, provider revalidation, review/acceptance UI, fulfilment, Help and complete journey tests still required; published pay-first behaviour has not yet changed. |
+| D04 | Final suitability and availability before full parts payment | Replay/db:check and 52 focused cases pass on 1a9c6039. Requirements/decision mutations and owned customer/guest/Admin entry points implemented, with aggregate stock holds and private-proof filtering. Payment gating, provider revalidation, review/acceptance UI, fulfilment, Help and complete journey tests still required; published pay-first behaviour has not yet changed. |
 | D05 | Normal workshopMon-Sat08:00-18:00 | Reconcile actual capacity configuration; do not infer Sunday/holidays. |
 | D06 | Three actual specialists; two machines; one alignment specialist | Existing capacity structures need actual resource/qualification reconciliation and collision tests; no fake Staff. |
 | D07 | Editable duration, buffers/resources and booking override | Existing nullable duration is partial; remaining authoring/snapshots/capacity integration required. |

@@ -1,3 +1,32 @@
+### 3 November, 14:28 UTC: review API package verified; full objective active
+
+Application source 1a9c6039 passes backend 41653132527 and secrets 41653132637.
+Backend includes empty 90-migration replay/schema comparison, db:check, compilers,
+lint and all affected workflow gates. Focused review stage: 52/52 passed (29 new
+units, 13 existing fitment units, ten isolated PostgreSQL cases), no skipped cases.
+The multi-line case now proves one aggregate hold, complete quantity coverage,
+release/reapproval and preservation of another order. Pricing/history protections
+remain; failed fixture attempts were corrected without relaxing those protections.
+
+Frontend source ef3b4ff1 passes 41651475005: full production checks and 13/13
+runtime browser cases. Current frontend files are unchanged since that commit;
+this is not an exact-master full release gate or publication. Earlier frontend
+run 41647690436's safe artifact 13235328482 was inspected at 320/1440, including
+the independently closed/open booking action. Fixtures are explicitly synthetic.
+
+Local route/spec validation passes 514 operations/438 paths. Worktree is recoverable;
+no application/production records, prices, permissions, live flags or migrations
+were changed by this package. Migration 90 is source/isolated-CI evidence only.
+Latest C: reading 21.20 GiB; use hosted heavy checks while normal local build
+headroom is unavailable. No cleanup deletion or new local preview was performed.
+
+NEXT: enforce the approved review/acceptance revision at account/guest intent and
+provider-initialisation boundaries, revise checkout/fulfilment, build review and
+acceptance screens, and update Help/learning. Verified captures must still be
+recorded if suitability changes after a provider URL was issued. D03 staged service
+charges and remaining D02/D05-D17 stay in scope. Do not activate or publish an
+incomplete purchasing journey, or claim real-role/provider/device acceptance.
+
 ### 3 November: pre-payment review foundation - not yet a complete journey
 
 Current source package connects owned customer and verified-guest specification
