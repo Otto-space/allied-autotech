@@ -1,5 +1,14 @@
 ### 3 November: pre-payment review foundation - not yet a complete journey
 
+Verified foundation checkpoint: source 1140cba0 passes backend 41648120501,
+including empty migration replay/db:check and all 48 focused cases (42 unit,
+six real isolated PostgreSQL cases). Frontend 2e5e431d passes 41647690436,
+including 13 browser cases with screenshots scrolled to the affected action.
+The next mutation-helper source 0b326895 stopped at TypeScript because its new
+hash-purpose names were not registered. Reuse existing order inventory/reservation
+purposes with review-specific payload prefixes; do not weaken token typing.
+No new helper or complete journey acceptance is inferred from the earlier pass.
+
 Hosted frontend source fca5acc9 passes 41646191320: 1,370 unit tests pass,
 12 existing skips; all 13 production-build browser cases pass with no skipped,
 unexpected or flaky browser cases. Safe synthetic artifact 13235113763 retained.

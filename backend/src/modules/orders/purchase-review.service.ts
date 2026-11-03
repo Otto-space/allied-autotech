@@ -234,8 +234,8 @@ export async function decidePurchaseReview(
           reservedBefore: inventory.reserved,
           reservedAfter: inventory.reserved + quantity,
           idempotencyKey: hashToken(
-            "purchase-review-inventory",
-            `${review.id}:${inventory.id}`,
+            "order-inventory",
+            `review:${review.id}:${inventory.id}`,
           ),
           requestHash: orderFingerprint({ reviewId: review.id, quantity }),
           referenceType: "ORDER",
@@ -254,7 +254,10 @@ export async function decidePurchaseReview(
           customerId: order.customerId,
           quantity: item.quantity,
           expiresAt,
-          idempotencyKey: hashToken("purchase-review-hold", `${review.id}:${item.id}`),
+          idempotencyKey: hashToken(
+            "order-reservation",
+            `review:${review.id}:${item.id}`,
+          ),
           requestHash: orderFingerprint({
             reviewId: review.id,
             orderItemId: item.id,
