@@ -61,9 +61,11 @@ for (const mode of ["range", "scope", "branch", "finance"])
     );
     state.overviewMode = mode;
     await page.goto("/admin");
-    await expect(page.getByRole("main").getByRole("alert")).toContainText(
-      "could not be verified",
-    );
+    await expect(
+      page.getByRole("main").getByRole("alert").filter({
+        hasText: "The overview could not be verified",
+      }),
+    ).toContainText("could not be verified");
     await expect(page.locator(".overview-metric")).toHaveCount(0);
     state.overviewMode = "normal";
     await page.getByRole("button", { name: "Retry overview" }).click();

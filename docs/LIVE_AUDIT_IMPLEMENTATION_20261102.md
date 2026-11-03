@@ -1,5 +1,56 @@
 # Complete live audit implementation - 2 November 2026
 
+### 3 November 2026: Aftercare source gates and populated recovery rehearsal pass
+
+Signed source 80cba6c2 passes exact-master frontend 41599139743 (1,360 passed,
+12 existing skips), backend 41599139699 and secrets 41599139710. Backend CI includes
+87 guest purchase tests across eight suites, including ten cancellation/aftercare
+cases. Current production remains frontend 333c3a22 and backend c65d74ac / schema 87;
+all transaction and appointment activation gates remain unchanged.
+
+Held production-environment candidate dpl_mwjYYx8gDGjP821a59ABjSuGwpz9 passes
+87/87 affected browser cases in one final run (5.8 minutes; no skips/flaky cases).
+This covers guest and account aftercare, Admin/Super Admin/operational Staff fixture
+boundaries, work order changes/recovery and overview states across sampled phone,
+tablet and laptop widths. The earlier held run passed 85/87: two generic alert
+selectors matched both permission and overview notices. The corrected test scopes
+the overview alert while preserving the assertion that unverified metrics stay
+hidden; its focused four-case run and final complete 87-case run pass. The initial
+87-case JSON was overwritten by that focused run; retained console and failure
+artifacts record the initial result. Final JSON is aftercare-held-final.json.
+Synthetic 320/1366 aftercare screenshots from that run were inspected. These are
+hosted fixtures, not actual-account, provider or physical-device acceptance.
+
+A fresh strict-TLS production backup was verified using its separate backup role;
+source migration history/checksums matched, and temporary firewall access was
+removed while preserving concurrent rules. Populated rehearsal in a newly created
+isolated _ci database passes the guarded 87 -> 89 migration, schema/history checks,
+all original business/audit/financial column fingerprints and row counts, existing
+account ownership, empty guest tables, new constraints/triggers and a separate
+non-owner/no-DDL/no-TRUNCATE runtime role. Receipt:
+guest-production-rehearsal-80cba6c2.json in the protected release directory. The first
+assertion counted raw migration-history rows as successful migrations and stopped
+before migration: production has 87 successes plus one retained rolled-back record.
+The same task-created restore was resumed, without restoring over it or altering
+history; final history has 89 successes. Production received no data/schema writes.
+The populated clone and its controlled local test server remain preserved.
+
+The prepared CI receipt initially serialized a PowerShell array wrapper; the guard
+rejected it before any provider/database mutation. The independently captured v2
+receipt requires all three actual successful master runs and is used by the rehearsal.
+A temporary deployment-review token appeared in tool output; it was immediately
+revoked. Its replacement was kept private, used only for this held deployment, and
+revoked after testing; the two task-created credential files were removed. Application
+authentication and Deployment Protection were not disabled or broadened.
+
+Next: commit the scoped assertion/evidence checkpoint, check that source, prepare
+compatible backend/recovery images and packaged checks, apply only the reviewed
+forward migrations with a fresh verified backup, verify backend readiness/privileges/
+workers and both public aliases, then reconcile the complete requirement ledger.
+The held application and rehearsed database inputs must be compared with the final
+source before evidence is reused. Real-role/provider/device and owner financial,
+workshop-capacity and activation decisions remain separate; no whole-site readiness.
+
 ### 3 November 2026: Guest aftercare and operator refund handoff (source)
 
 Guests can inspect their own cancellation/return requests, review exact quantities

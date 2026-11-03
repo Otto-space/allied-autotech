@@ -1,3 +1,18 @@
+### 3 November 2026: Held aftercare regression acceptance and recovery gates
+
+Signed source 80cba6c2 passes all three exact-source CI gates (frontend 1,360 passed,
+12 existing skips). Its held candidate passes the complete affected 87-case browser
+run with no skips/flaky cases. Synthetic 320/1366 captures were inspected; other
+sampled phone/tablet/laptop widths, keyboard focus, loading/error/denied states,
+draft/recovery and role boundaries in fixtures pass. The initial held
+85/87 failure was an ambiguous alert selector; four focused cases and the final
+87-case run pass with an overview-specific assertion, keeping both legitimate notices.
+Fresh populated 87 -> 89 recovery rehearsal and runtime privilege checks pass;
+production schema remains 87. Both custom domains remain on the published 333c3a22
+frontend. Temporary held review access was revoked and its credential files removed.
+See the current completion tracker for exact receipts, failed attempts and remaining
+packaging, guarded migration, publication and actual-role/provider/device limits.
+
 ### 3 November 2026: Guest aftercare checkpoint (unpublished)
 
 Guest cancellation/review, original-request recovery, operator payment destinations

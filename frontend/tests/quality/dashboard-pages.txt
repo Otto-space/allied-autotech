@@ -1,5 +1,9 @@
 # Current-launch dashboard/workforce samples; run from frontend with --test-list tests/quality/dashboard-pages.txt.
 # Restricted customer transaction routes are checked separately without enabling them.
+purchase-operator-handoff.spec.ts > guest cancellation alert names its authorised order destination
+purchase-operator-handoff.spec.ts > administrator order exposes the existing payment/refund workspace at 320px
+purchase-operator-handoff.spec.ts > administrator order exposes the existing payment/refund workspace at 1366px
+purchase-operator-handoff.spec.ts > operational Staff cannot acquire finance actions from returned payment metadata
 admin-security-quality.spec.ts > work account security fits 320px
 admin-security-quality.spec.ts > work account security fits 1440px
 customer-care-detail-quality.spec.ts > conversation fits 320px with readable owned breadcrumb

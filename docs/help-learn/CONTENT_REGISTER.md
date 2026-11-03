@@ -1,5 +1,12 @@
 ## 3 November 2026: Guest aftercare and operator refund guidance (source)
 
+The final held aftercare/account/operator/overview browser run passes 87/87.
+Exact-source 80cba6c2 CI passes all three gates and the populated 87 -> 89 restore
+rehearsal preserves original records and permissions. Publication remains pending;
+production is still parts-fitment v4 and financial-aftercare v3. Private temporary
+review access was revoked after testing. Actual roles/providers/devices remain
+separate acceptance. No learning eligibility, guide target or activation flag changed.
+
 Parts-fitment v8 explains free cancellation before confirmation, reviewed later
 cancellation/returns, separate refund payment and original-action recovery.
 Financial-aftercare advances from v3 to v4 with the existing Administrator alert
