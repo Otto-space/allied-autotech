@@ -29,7 +29,9 @@ describe.each(["browse_enquiries", "catalogue", "full"])("Help in %s mode", (mod
       expect(inspection.answer).toContain("Use the inspection request option");
       expect(payment.href).toBe("/dashboard/payments");
       expect(helpArticleGuidance[payment.id][0]).toBe("Your order or payment reference");
-      expect(parts.answer).toContain("Review quantities and the total at checkout");
+      expect(parts.answer).toContain("An account is optional");
+      expect(parts.answer).toContain("private email access or your customer account");
+      expect(parts.answer).toContain("Review quantities and the total before payment");
     } else {
       expect(inspection.answer).toContain("Send a vehicle enquiry");
       expect(inspection.answer).not.toContain("Use the inspection request option");
