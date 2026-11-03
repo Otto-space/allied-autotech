@@ -19,7 +19,7 @@ export function orderPaymentUnavailable(order: CustomerOrder, now = Date.now()) 
   }
   const review = order.purchaseReviews?.[0];
   if (!review || review.status !== "APPROVED" || !review.decidedAt)
-    return "Final compatibility and availability review is required before payment.";
+    return "We’ll check suitability and availability, then let you know when you can pay.";
   if (
     !order.paymentDueAt ||
     !review.expiresAt ||

@@ -151,7 +151,7 @@ async function fixture(kind: PaymentCreateInput["targetType"] = "ORDER") {
         totalKobo: 10000n,
         issuedAt: new Date(),
         acceptedAt: new Date(),
-        expiresAt: purchaseReview?.expiresAt ?? expiresAt,
+        expiresAt,
       },
     });
     const invoice = await prisma.invoice.create({
@@ -248,7 +248,7 @@ async function fixture(kind: PaymentCreateInput["targetType"] = "ORDER") {
         idempotencyKeyHash: randomUUID().replaceAll("-", "").padEnd(64, "0"),
         purpose: input.purpose,
         amountKobo: 10000n,
-        expiresAt,
+        expiresAt: purchaseReview?.expiresAt ?? expiresAt,
         ...(purchaseReview
           ? {
               policySnapshot: {

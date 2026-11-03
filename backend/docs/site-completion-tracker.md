@@ -1,3 +1,33 @@
+### 3 November owner clarification: automatic verified purchases, review for exceptions
+
+The owner explicitly approved automatic pre-payment checks instead of a fresh
+human decision for every order. Existing approved suitability evidence plus
+current reservable branch stock allows immediate payment. Missing vehicle/spec
+information, uncertain fitment or unconfirmed supplier supply needs staff review.
+Repeat purchases must reuse explicitly chosen verified details and recheck current
+evidence/stock; do not assume the last vehicle is the current vehicle.
+
+Source now automatically decides eligible account/guest specification submissions
+and genuinely universal accessory checkout, using the same fitment, financial
+fingerprint and aggregate stock-hold logic. Migration 91 records AUTOMATIC decisions
+with no invented human approver; historical decisions remain HUMAN. Migration 90
+is unchanged. Provider capture accounting/recovery is preserved. Pending-customer
+wording follows the owner's requested next step. Parts Help is version 10.
+
+Unfinished: mobile customer specification/acceptance and staff exception forms,
+explicit repeat-purchase reuse controls, checkout vehicle selection, review-ready
+notification evidence, rendered payment states and exact-source full acceptance.
+The automatic source is not deployed or activated. New replay/database results
+are pending. D02/D03/D05-D17 and full audit acceptance remain in scope.
+
+Previous source 4c376fc6 passed frontend 41660535204 and secrets 41660534546;
+backend 41660534996 passed all 54 focused review cases but failed guest fixture
+versions and direct adapter-abort retry. Source 8a63d830 fixes these and passed
+that guest stage, then exposed later fixture expiry/initialization mistakes in
+41662553588. Those fixtures now bind actual review expiry without changing guards.
+Local retry tests pass 12/12; frontend order-payment cases pass 13/13. Current
+automatic source still requires isolated replay/regression and browser results.
+
 ### 3 November, 14:30 UTC package: payment-before-fulfilment boundary in progress
 
 Target 15:30 UTC. Current source changes initial checkout into an unpaid review

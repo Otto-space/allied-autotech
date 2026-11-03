@@ -1619,6 +1619,7 @@ model OrderPurchaseReview {
   orderId             String   @db.Uuid
   revision            Int
   status              String   @default("REQUESTED") @db.VarChar(16)
+  decisionMode        String   @default("HUMAN") @db.VarChar(16)
   requirements        Json
   decidedByUserId     String?  @db.Uuid
   reason              String?  @db.VarChar(2000)

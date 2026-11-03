@@ -73,7 +73,7 @@ describe("order payment boundaries", () => {
   it("requires a current final approval and matching offer expiry", () => {
     const now = Date.parse("2026-10-08T09:59:59Z");
     expect(orderPaymentUnavailable({ ...order, purchaseReviews: [] }, now)).toMatch(
-      /review is required/,
+      /check suitability and availability/,
     );
     for (const status of ["REQUESTED", "DECLINED"] as const)
       expect(
@@ -81,7 +81,7 @@ describe("order payment boundaries", () => {
           { ...order, purchaseReviews: [{ ...order.purchaseReviews[0]!, status }] },
           now,
         ),
-      ).toMatch(/review is required/);
+      ).toMatch(/check suitability and availability/);
     expect(
       orderPaymentUnavailable(
         {

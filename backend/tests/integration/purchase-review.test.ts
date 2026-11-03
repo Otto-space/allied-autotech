@@ -14,6 +14,7 @@ import {
   recordPurchaseRequirements,
   decidePurchaseReview,
   assertReviewCanChange,
+  tryAutomaticPurchaseReview,
 } from "../../src/modules/orders/purchase-review.service.js";
 import { lockPurchaseReviewOrder } from "../../src/modules/orders/purchase-review.repository.js";
 import { purchaseRequirementsSchema } from "../../src/modules/orders/purchase-review.schemas.js";
@@ -165,6 +166,57 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       prisma.$transaction((tx) => assertReviewedPurchasePayable(tx, id), {
         isolationLevel: "Serializable",
       });
+    it.each(["verified", "missing-evidence", "no-stock"] as const)(
+      "automatically checks %s without attributing a new human approval",
+      async (state) => {
+        const f = await fixture();
+        await prisma.inventoryReservation.update({
+          where: { id: f.reservation.id },
+          data: { status: "RELEASED", releasedAt: new Date() },
+        });
+        await prisma.inventory.update({
+          where: { id: f.inventory.id },
+          data: { reserved: 0, quantity: state === "no-stock" ? 0 : 1 },
+        });
+        await prisma.order.update({
+          where: { id: f.order.id },
+          data: { paymentDueAt: null },
+        });
+        if (state === "missing-evidence")
+          await prisma.productCompatibility.update({
+            where: { id: f.rule.id },
+            data: { reviewStatus: "RETIRED", version: { increment: 1 } },
+          });
+        const automatic = await prisma.$transaction(
+          (tx) =>
+            tryAutomaticPurchaseReview(tx, f.order.id, {
+              requestId: randomUUID(),
+              ipAddress: null,
+              userAgent: null,
+            }),
+          { isolationLevel: "Serializable" },
+        );
+        expect(automatic).toBe(state === "verified");
+        const review = await prisma.orderPurchaseReview.findUniqueOrThrow({
+          where: { id: f.review.id },
+        });
+        expect(review.decidedByUserId).toBeNull();
+        expect(review.status).toBe(state === "verified" ? "APPROVED" : "REQUESTED");
+        const inventory = await prisma.inventory.findUniqueOrThrow({
+          where: { id: f.inventory.id },
+        });
+        expect(inventory.reserved).toBe(state === "verified" ? 1 : 0);
+        if (state === "verified") {
+          expect(review.decisionMode).toBe("AUTOMATIC");
+          expect((await payable(f.order.id)).order.paidAt).toBeNull();
+        } else {
+          expect(
+            (await prisma.order.findUniqueOrThrow({ where: { id: f.order.id } }))
+              .paymentDueAt,
+          ).toBeNull();
+        }
+      },
+    );
     it("blocks payment before a final decision and allows only the evidenced held offer", async () => {
       const f = await fixture();
       await expect(payable(f.order.id)).rejects.toThrow(/review is required/);
@@ -180,6 +232,42 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         (await prisma.inventory.findUniqueOrThrow({ where: { id: f.inventory.id } }))
           .quantity,
       ).toBe(1);
+    });
+    it("makes an evidenced universal accessory payable during actual account checkout", async () => {
+      const f = await fixture();
+      await prisma.inventory.update({
+        where: { id: f.inventory.id },
+        data: { quantity: 2 },
+      });
+      await prisma.cart.create({
+        data: {
+          customerId: f.buyer.customerId,
+          items: { create: { productId: f.product.id, quantity: 1 } },
+        },
+      });
+      const app = createApp({ checkReadiness: async () => undefined, rateLimit: 10000 });
+      const response = await request(app)
+        .post("/api/v1/customers/orders/checkout")
+        .set("Origin", env.FRONTEND_URL)
+        .set("Cookie", f.buyer.cookie)
+        .set("x-csrf-token", f.buyer.csrf)
+        .set("Idempotency-Key", randomUUID())
+        .send({ branchId: f.order.branchId, fulfillmentMethod: "COLLECTION" });
+      expect(response.status, JSON.stringify(response.body)).toBe(201);
+      const saved = response.body.data.order;
+      expect(saved.purchaseReviews[0].status).toBe("APPROVED");
+      expect(saved.paidAt).toBeNull();
+      const checked = await payable(saved.id);
+      expect(checked.order.totalKobo).toBe(10750n);
+      expect(checked.order.items[0]!.quantity).toBe(1);
+      const origin = await prisma.orderPurchaseReview.findFirstOrThrow({
+        where: { orderId: saved.id },
+      });
+      expect(origin).toMatchObject({ decisionMode: "AUTOMATIC", decidedByUserId: null });
+      expect(
+        (await prisma.inventory.findUniqueOrThrow({ where: { id: f.inventory.id } }))
+          .reserved,
+      ).toBe(2);
     });
     it("retains decided evidence and rejects update, deletion and null-filled approval", async () => {
       const f = await fixture();
@@ -330,7 +418,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         where: { id: f.inventory.id },
       });
       expect(inventory.quantity).toBe(1);
-      expect(inventory.reserved).toBe(1);
+      expect(inventory.reserved).toBe(3);
       await expect(
         prisma.$transaction(
           async (tx) =>
@@ -407,6 +495,10 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         (await prisma.inventory.findUniqueOrThrow({ where: { id: f.inventory.id } }))
           .reserved,
       ).toBe(1);
+      await prisma.productCompatibility.update({
+        where: { id: f.rule.id },
+        data: { reviewStatus: "RETIRED", version: { increment: 1 } },
+      });
       const submitted = await request(app)
         .post(path)
         .set("Origin", env.FRONTEND_URL)
@@ -466,6 +558,10 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
           context,
         ),
       ).rejects.toMatchObject({ statusCode: 403 });
+      await prisma.productCompatibility.update({
+        where: { id: f.rule.id },
+        data: { reviewStatus: "APPROVED", version: { increment: 1 } },
+      });
       await orders.decidePurchaseReview(actor, f.order.id, decision, context);
       const safe = await request(app)
         .get(`/api/v1/customers/orders/${f.order.id}`)
@@ -564,26 +660,16 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
           .map((entry) => [entry.reservedBefore, entry.reservedAfter])
           .sort((a, b) => a[0]! - b[0]!),
       ).toEqual([[3, 1]]);
-      await prisma.$transaction(
-        async (tx) =>
-          decidePurchaseReview(
-            tx,
-            await lockPurchaseReviewOrder(tx, current.id),
-            {
-              expectedVersion: 1,
-              expectedRevision: 1,
-              decision: "APPROVED",
-              reason: "Synthetic approval of both configured lines with one stock hold",
-              availability: current.items.map((item) => ({
-                orderItemId: item.id,
-                evidence: { kind: "BRANCH_STOCK" },
-              })),
-            },
-            f.approval.decidedByUserId,
-            { requestId: randomUUID(), ipAddress: null, userAgent: null },
-          ),
-        { isolationLevel: "Serializable" },
-      );
+      const automatic = await prisma.orderPurchaseReview.findFirstOrThrow({
+        where: { orderId: current.id },
+        orderBy: { revision: "desc" },
+      });
+      expect(automatic).toMatchObject({
+        status: "APPROVED",
+        decisionMode: "AUTOMATIC",
+        decidedByUserId: null,
+      });
+      expect(result.body.data.purchaseReviews[0].status).toBe("APPROVED");
       const holds = await prisma.inventoryReservation.findMany({
         where: { referenceType: "ORDER", referenceId: current.id, status: "ACTIVE" },
       });

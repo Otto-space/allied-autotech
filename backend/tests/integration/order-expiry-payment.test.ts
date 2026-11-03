@@ -244,7 +244,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         const f = await fixture("unpaid");
         await prisma.order.update({
           where: { id: f.order.id },
-          data: { paymentDueAt: new Date(Date.now() + 3600000) },
+          data: { paymentDueAt: f.review.expiresAt },
         });
         const payments = new PaymentsService(prisma);
         const paymentId =

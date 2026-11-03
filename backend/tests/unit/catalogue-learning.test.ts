@@ -23,8 +23,12 @@ it("explains controllable workshop highlights without turning a discovery reques
 it("versions catalogue instructions without changing public guide targets or write permissions", () => {
   const parts = learningArticles.find((item) => item.id === "parts-fitment")!;
   const vehicles = learningArticles.find((item) => item.id === "vehicle-enquiry")!;
-  expect([parts.version, vehicles.version]).toEqual([9, 5]);
-  expect(parts.steps.join(" ")).toContain("reviewed before payment becomes available");
+  expect([parts.version, vehicles.version]).toEqual([10, 5]);
+  expect(parts.steps.join(" ")).toContain("payment without another staff approval");
+  expect(parts.steps.join(" ")).toContain(
+    "stock quantity alone does not establish suitability",
+  );
+  expect(parts.steps.join(" ")).toContain("need staff review before payment");
   expect(parts.steps.join(" ")).toContain("Verified payment is separate from allocation");
   expect(parts.steps.join(" ")).not.toContain(
     "Payment does not confirm final compatibility",

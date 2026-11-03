@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { AppError } from "../../common/errors/app-error.js";
 import type { Prisma } from "../../generated/prisma/client.js";
 import type { RequestSecurityContext } from "../../common/contracts/request-security.js";
 import { hashToken } from "../../common/security/session-tokens.js";
@@ -13,6 +14,7 @@ import {
 } from "./purchase-review.engine.js";
 import {
   loadPurchaseFitment,
+  lockPurchaseReviewOrder,
   type PurchaseReviewOrder,
 } from "./purchase-review.repository.js";
 import {
@@ -118,9 +120,15 @@ export async function decidePurchaseReview(
   tx: Prisma.TransactionClient,
   order: PurchaseReviewOrder,
   input: PurchaseReviewDecision,
-  actorUserId: string,
+  actorUserId: string | null,
   context: RequestSecurityContext,
+  decisionMode: "HUMAN" | "AUTOMATIC" = "HUMAN",
 ) {
+  if (
+    (decisionMode === "HUMAN") !== (actorUserId !== null) ||
+    (decisionMode === "AUTOMATIC" && input.decision !== "APPROVED")
+  )
+    throw orderConflict("A decision must retain its actual human or automatic origin.");
   await assertReviewCanChange(tx, order);
   if (order.version !== input.expectedVersion) throw orderStale();
   const review = await tx.orderPurchaseReview.findFirst({
@@ -293,6 +301,7 @@ export async function decidePurchaseReview(
       status: input.decision,
       reason: input.reason,
       decidedByUserId: actorUserId,
+      decisionMode,
       decidedAt: now,
       ...approval,
     },
@@ -316,9 +325,101 @@ export async function decidePurchaseReview(
       purchaseReviewId: review.id,
       revision: review.revision,
       status: input.decision,
+      decisionMode,
       reason: input.reason,
     },
     context,
   });
   return decided;
+}
+
+/** Reuse approved technical evidence; never manufacture a human approval.
+ * Caller owns/locks the order in a serializable transaction. Uncertain fitment
+ * or insufficient branch stock leaves the saved request available for staff.
+ */
+export async function tryAutomaticPurchaseReview(
+  tx: Prisma.TransactionClient,
+  orderId: string,
+  context: RequestSecurityContext,
+) {
+  const order = await lockPurchaseReviewOrder(tx, orderId);
+  const review = await tx.orderPurchaseReview.findFirst({
+    where: { orderId },
+    orderBy: { revision: "desc" },
+  });
+  if (!review || review.status !== "REQUESTED") return false;
+  const requirements = purchaseRequirementsSchema.parse(review.requirements);
+  try {
+    await loadPurchaseFitment(tx, order, requirements);
+  } catch (error) {
+    // Validation conflicts do not abort PostgreSQL. Database/unknown failures
+    // must propagate so transaction retry and error handling remain effective.
+    if (error instanceof AppError && error.statusCode === 409) return false;
+    throw error;
+  }
+  const needed = new Map<string, number>();
+  for (const item of order.items)
+    needed.set(item.productId, (needed.get(item.productId) ?? 0) + item.quantity);
+  const inventories = await new OrdersRepository().lockInventories(
+    order.branchId!,
+    [...needed.keys()].sort(),
+    tx,
+  );
+  for (const [productId, quantity] of needed) {
+    const stock = inventories.find((entry) => entry.productId === productId);
+    if (!stock || !stock.branch.isActive || stock.quantity - stock.reserved < quantity)
+      return false;
+  }
+  await decidePurchaseReview(
+    tx,
+    order,
+    {
+      expectedVersion: order.version,
+      expectedRevision: review.revision,
+      decision: "APPROVED",
+      reason:
+        "Automatic match against current approved suitability evidence and reserved branch stock",
+      availability: order.items.map((item) => ({
+        orderItemId: item.id,
+        evidence: { kind: "BRANCH_STOCK" as const },
+      })),
+    },
+    null,
+    context,
+    "AUTOMATIC",
+  );
+  return true;
+}
+
+export async function tryAutomaticNewPurchase(
+  tx: Prisma.TransactionClient,
+  orderId: string,
+  actorUserId: string | null,
+  context: RequestSecurityContext,
+) {
+  const order = await lockPurchaseReviewOrder(tx, orderId);
+  const requirements = {
+    lines: order.items.map((item) => ({ orderItemId: item.id, selection: null })),
+  };
+  // No vehicle selection is assumed. Only approved genuinely universal accessories
+  // qualify here; vehicle-specific parts use the buyer's supplied configuration.
+  try {
+    await loadPurchaseFitment(tx, order, requirements);
+  } catch (error) {
+    if (error instanceof AppError && error.statusCode === 409) return false;
+    throw error;
+  }
+  await recordPurchaseRequirements(
+    tx,
+    order,
+    {
+      ...requirements,
+      expectedVersion: order.version,
+      expectedRevision: 0,
+      reason: "Automatic checkout check against approved universal suitability evidence",
+    },
+    actorUserId,
+    context,
+  );
+  return tryAutomaticPurchaseReview(tx, orderId, context);
 }

@@ -188,6 +188,11 @@ export async function reviewFixtureOrderForPayment(
     where: { id: orderId },
     select: { version: true },
   });
+  const automatic = await prisma.orderPurchaseReview.findFirstOrThrow({
+    where: { orderId },
+    orderBy: { revision: "desc" },
+  });
+  if (automatic.status === "APPROVED") return automatic;
   await orders.decidePurchaseReview(
     {
       userId: owner.id,
