@@ -14,9 +14,7 @@
   margin-bottom: 40px;
 }
 .content h1 {
-  font:
-    700 clamp(30px, 4vw, 44px)/1.2 var(--font-quicksand),
-    sans-serif;
+  font: 500 clamp(30px, 4vw, 44px)/1.2 var(--font-heading);
   margin-bottom: 16px;
 }
 .content > p {

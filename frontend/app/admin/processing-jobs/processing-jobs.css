@@ -10,7 +10,7 @@
   font-size: 30px;
   line-height: 1.25;
   margin: 0 0 10px;
-  font-family: var(--font-quicksand), sans-serif;
+  font-family: var(--font-heading);
 }
 .work-jobs h2 {
   font-size: 20px;
@@ -258,7 +258,7 @@
   color: var(--wj-muted);
 }
 .wj-references dd {
-  font-family: ui-monospace, monospace;
+  font-family: var(--font-body);
   font-size: 12px;
   overflow-wrap: anywhere;
   margin: 4px 0 14px;
@@ -314,7 +314,7 @@
 }
 .wj-reference {
   overflow-wrap: anywhere;
-  font-family: ui-monospace, monospace;
+  font-family: var(--font-body);
   font-size: 12px;
 }
 .wj-recovery-inputs {

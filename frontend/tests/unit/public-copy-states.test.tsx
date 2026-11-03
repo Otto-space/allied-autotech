@@ -69,8 +69,11 @@ it("excludes known missing or invalid product media without claiming an empty ca
   };
   const view = render(<HomePartsPreview />);
   expect(view.container.querySelectorAll(".home-product-card")).toHaveLength(0);
-  expect(screen.queryByText(/No products are published/)).toBeNull();
-  expect(screen.getByText(/Find published products/)).toBeTruthy();
+  expect(screen.queryByText(/No products are currently listed online/)).toBeNull();
+  expect(screen.queryByText(/Find published products/)).toBeNull();
+  expect(
+    screen.getByRole("link", { name: "Browse engine oils" }).getAttribute("href"),
+  ).toBe("/parts?family=ENGINE_OIL");
 });
 
 it("retains authoritative unknown and out-of-stock states on eligible real-media products", () => {
@@ -100,11 +103,11 @@ it("retains authoritative unknown and out-of-stock states on eligible real-media
 
 it("distinguishes a successful empty product catalogue from a failed or pending read", () => {
   const view = render(<HomePartsPreview />);
-  expect(screen.getByText(/No products are published/)).toBeTruthy();
+  expect(screen.getByText(/No products are currently listed online/)).toBeTruthy();
   state.data = undefined;
   state.error = "Products temporarily unavailable";
   view.rerender(<HomePartsPreview />);
-  expect(screen.queryByText(/No products are published/)).toBeNull();
+  expect(screen.queryByText(/No products are currently listed online/)).toBeNull();
   fireEvent.click(screen.getByRole("button", { name: "Retry products" }));
   expect(state.refresh).toHaveBeenCalledOnce();
   state.error = undefined;
@@ -117,6 +120,7 @@ it("distinguishes a successful empty product catalogue from a failed or pending 
 it("changes the vehicle enquiry panel only on verified successful empty data", () => {
   const view = render(<HomeVehiclesPreview />);
   expect(screen.getByRole("heading", { name: "Looking for a vehicle?" })).toBeTruthy();
+  expect(screen.getByText(/No vehicles are currently listed online/)).toBeTruthy();
   expect(
     screen.getByRole("link", { name: "Discuss a vehicle" }).getAttribute("href"),
   ).toBe("/contact?vehicle=1#enquiry");
@@ -128,18 +132,16 @@ it("changes the vehicle enquiry panel only on verified successful empty data", (
   state.loading = false;
   state.refreshError = "Vehicle refresh temporarily unavailable";
   view.rerender(<HomeVehiclesPreview />);
-  expect(screen.queryByText(/no published listings yet/)).toBeNull();
+  expect(screen.queryByText(/No vehicles are currently listed online/)).toBeNull();
   state.refreshError = undefined;
   state.error = "Vehicles temporarily unavailable";
   view.rerender(<HomeVehiclesPreview />);
-  expect(screen.queryByText(/no published listings yet/)).toBeNull();
+  expect(screen.queryByText(/No vehicles are currently listed online/)).toBeNull();
   expect(screen.getByRole("button", { name: "Retry vehicles" })).toBeTruthy();
   state.error = undefined;
   state.data = { items: [listing, { ...listing, id: id(75), title: "Second vehicle" }] };
   view.rerender(<HomeVehiclesPreview />);
-  expect(
-    screen.getByRole("heading", { name: "Explore our vehicle listings" }),
-  ).toBeTruthy();
+  expect(screen.getByRole("heading", { name: "Find your next vehicle" })).toBeTruthy();
   expect(view.container.querySelectorAll(".home-vehicle-card")).toHaveLength(2);
 });
 

@@ -100,8 +100,8 @@ it("keeps laptop hover rotating and preserves a manual/focus pause until explici
   expect(root.getAttribute("data-rotating")).toBe("false");
   fireEvent.click(screen.getByRole("button", { name: "Play slideshow" }));
   expect(root.getAttribute("data-rotating")).toBe("true");
-  fireEvent.focus(screen.getByRole("link", { name: "Explore diagnostics" }));
-  fireEvent.blur(screen.getByRole("link", { name: "Explore diagnostics" }));
+  fireEvent.focus(screen.getByRole("link", { name: "View diagnostics" }));
+  fireEvent.blur(screen.getByRole("link", { name: "View diagnostics" }));
   expect(root.getAttribute("data-rotating")).toBe("false");
 });
 it("starts reduced motion paused while retaining controls and one heading", () => {
@@ -122,6 +122,6 @@ it("stops unavailable motion controls when every photo fails while preserving th
   for (const button of screen.getAllByRole("button"))
     expect(button.hasAttribute("disabled")).toBe(true);
   expect(
-    screen.getByRole("link", { name: "Explore diagnostics" }).getAttribute("href"),
+    screen.getByRole("link", { name: "View diagnostics" }).getAttribute("href"),
   ).toBe("/services?search=diagnostics");
 });

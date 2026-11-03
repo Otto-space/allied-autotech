@@ -7,7 +7,7 @@ async function open(page: Page, waitUntil: "load" | "domcontentloaded" = "load")
   expect(response?.status()).toBe(200);
   await expect(page).toHaveTitle(/Allied AutoTech/);
   await expect(hero(page).getByRole("heading", { level: 1 })).toContainText(
-    "Comprehensive diagnostics",
+    "Understand your vehicle",
   );
   await expect(hero(page).getByRole("button", { name: /slideshow/ })).toBeVisible();
   await page.mouse.move(1, 1);
@@ -157,11 +157,9 @@ test("all failed hero photos retain readable content and a working discovery lin
   await expect(hero(page)).toHaveAttribute("data-rotating", "false");
   await expect(hero(page).getByRole("button", { name: "Next slide" })).toBeDisabled();
   await expect(hero(page).getByRole("heading", { level: 1 })).toContainText(
-    "Comprehensive diagnostics",
+    "Understand your vehicle",
   );
-  await expect(
-    hero(page).getByRole("link", { name: "Explore diagnostics" }),
-  ).toBeVisible();
+  await expect(hero(page).getByRole("link", { name: "View diagnostics" })).toBeVisible();
 });
 
 test("doubled text reflows without losing controls or service context", async ({
@@ -179,7 +177,7 @@ test("doubled text reflows without losing controls or service context", async ({
     }
   });
   for (const selector of [
-    '[aria-roledescription="carousel"]',
+    '[aria-label="Workshop highlights"]',
     ".home-services",
     ".home-bay",
     ".home-shop",
@@ -335,7 +333,7 @@ test("slow and failed slide requests retain a usable current slide with bounded 
     await expect(hero(page)).toHaveAttribute("data-waiting", "true", { timeout: 10000 });
     await expect(hero(page)).toHaveAttribute("data-slide", "1");
     await expect(
-      hero(page).getByRole("link", { name: "Explore diagnostics" }),
+      hero(page).getByRole("link", { name: "View diagnostics" }),
     ).toBeVisible();
     releaseImage();
     await expect(hero(page)).toHaveAttribute("data-slide", "2", { timeout: 7900 });
@@ -355,7 +353,7 @@ test("slow and failed slide requests retain a usable current slide with bounded 
   await expect(hero(page).getByRole("link", { name: "Meet the team" })).toBeVisible();
 });
 
-for (const width of [320, 360, 390, 414, 768, 1024, 1440, 1920]) {
+for (const width of [320, 360, 390, 430, 768, 1024, 1280, 1366, 1440]) {
   test(`authentic images, accessible controls and responsive layout at ${width}px`, async ({
     page,
   }, info) => {
@@ -366,6 +364,35 @@ for (const width of [320, 360, 390, 414, 768, 1024, 1440, 1920]) {
     await open(page);
     await decoded(page);
     await expect(hero(page)).toHaveAttribute("data-rotating", "false");
+    await page.evaluate(() => document.fonts.ready);
+    const composition = await hero(page).evaluate((root) => {
+      const heading = root.querySelector("h1")!;
+      const copy = root.querySelector('[data-active="true"] p')!;
+      const action = root.querySelector('[data-active="true"] a')!;
+      const image = root.querySelector("img")!;
+      return {
+        heading: heading.getBoundingClientRect().toJSON(),
+        action: action.getBoundingClientRect().toJSON(),
+        image: image.getBoundingClientRect().toJSON(),
+        headingFont: getComputedStyle(heading).fontFamily,
+        copyFont: getComputedStyle(copy).fontFamily,
+        actionFont: getComputedStyle(action).fontFamily,
+        background: getComputedStyle(root).backgroundImage,
+      };
+    });
+    expect(composition.headingFont.toLowerCase()).toContain("nippo");
+    expect(composition.copyFont.toLowerCase()).toContain("quicksand");
+    expect(composition.actionFont.toLowerCase()).toContain("quicksand");
+    expect(composition.background).toBe("none");
+    // The 1px frame border is excluded from the image's containing block.
+    expect(
+      Math.abs(composition.image.width / composition.image.height - 1.5),
+    ).toBeLessThan(0.01);
+    if (width < 880) {
+      expect(composition.action.bottom).toBeLessThan(composition.image.top);
+    } else {
+      expect(composition.heading.right).toBeLessThan(composition.image.left);
+    }
     const first = await hero(page).boundingBox();
     for (let i = 0; i < 6; i++) {
       await hero(page).getByRole("button", { name: "Next slide" }).click();
@@ -466,10 +493,10 @@ test("no-JavaScript first slide retains real HTML, photo and discovery links", a
   const page = await context.newPage();
   await page.goto("/");
   await expect(hero(page).getByRole("heading", { level: 1 })).toContainText(
-    "Comprehensive diagnostics",
+    "Understand your vehicle",
   );
   await expect(
-    hero(page).getByRole("link", { name: "Explore diagnostics" }),
+    hero(page).getByRole("link", { name: "View diagnostics" }),
   ).toHaveAttribute("href", "/services?search=diagnostics");
   await expect(hero(page).locator("img")).toHaveCount(1);
   await expect(hero(page).getByRole("button")).toHaveCount(0);

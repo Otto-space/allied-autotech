@@ -1,3 +1,12 @@
+### 3 November 2026: Home and aftercare integration checkpoint
+
+Preserve the concurrent signed/CI-green Home merge 3ddb55f7 while integrating the
+87-case aftercare acceptance and populated database recovery evidence. Only the two
+checkpoint documents conflicted; both entries remain below. Global typography and
+the separate Home media area need hosted acceptance on the combined source, including
+the affected dashboard regressions. Backend/migration/safety inputs are unchanged;
+no additional role, provider, physical-device or activation claim is made.
+
 ### 3 November 2026: Held aftercare regression acceptance and recovery gates
 
 Signed source 80cba6c2 passes all three exact-source CI gates (frontend 1,360 passed,
@@ -12,6 +21,28 @@ production schema remains 87. Both custom domains remain on the published 333c3a
 frontend. Temporary held review access was revoked and its credential files removed.
 See the current completion tracker for exact receipts, failed attempts and remaining
 packaging, guarded migration, publication and actual-role/provider/device limits.
+
+### 3 November 2026: Distinct Home photographs and semantic typography (local acceptance)
+
+Owner brief 6.4–6.6 implemented on isolated `codex/home-photo-composition-20261103`
+from `57d58e0d`, preserving other agents' dirty worktrees. Genuine photographs now
+have their own 3:2 area beside laptop copy and below mobile text/CTA. Home copy
+is shorter and destination-specific. Nippo heading / Quicksand interface tokens
+replace conflicting concrete overrides across public, auth, Help/Learn and role
+dashboard styles. No permissions, commerce capabilities, database or business
+records changed. Historical AI-image source informed hierarchy only.
+
+Local Edge acceptance passes 21 carousel cases across nine widths, 14 font cases
+across Customer/Staff/Admin/Super Admin and public/auth/dialog components, eight
+units, compiler and scoped lint. Final 390/1366 layout reruns pass 2/2 after copy
+cleanup. Separate empty/populated/503 fixture scenarios and product retry pass.
+Final all-slide phone/laptop and complete-page screenshots were inspected. Real
+optimizer response bitmap dimensions/bytes were measured; no quality increase or
+replacement image generation was needed. See HOME_PHOTO_COMPOSITION_20261103.md
+for history, copy diff, image pipeline and exact limits. Local Next is 16.3.8;
+exact-lock 16.4.3 CI, hosted acceptance and release integration remain gates.
+Physical-device, true browser zoom, full screen-reader and every protected page's
+real-role acceptance are not claimed. Restricted features remain unchanged.
 
 ### 3 November 2026: Guest aftercare checkpoint (unpublished)
 

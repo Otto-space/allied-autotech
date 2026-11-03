@@ -3,9 +3,7 @@
   overflow-wrap: anywhere;
 }
 .mfa-form h2 {
-  font:
-    700 19px/1.35 var(--font-quicksand),
-    sans-serif;
+  font: 500 19px/1.35 var(--font-heading);
   margin: 0 0 12px;
   overflow-wrap: anywhere;
 }
@@ -209,7 +207,7 @@
   line-height: 1.6;
 }
 .mfa-form #new-recovery-codes {
-  font-family: ui-monospace, monospace;
+  font-family: var(--font-body);
   font-size: 12px;
   line-height: 1.4;
 }

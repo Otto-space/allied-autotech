@@ -9,7 +9,7 @@ export function HomeSectionHeading({
   action,
 }: {
   title: string;
-  copy: string;
+  copy?: string;
   href: string;
   action: string;
 }) {
@@ -17,7 +17,7 @@ export function HomeSectionHeading({
     <div className="section-heading-row">
       <div className="section-heading">
         <h2>{title}</h2>
-        <p>{copy}</p>
+        {copy && <p>{copy}</p>}
       </div>
       <Link className="text-link" href={href}>
         {action} <ArrowUpRight size={17} aria-hidden="true" />
@@ -32,10 +32,9 @@ export function HomeWorkshop() {
       <section className="public-section">
         <div className="public-wrap">
           <HomeSectionHeading
-            title="Inside the workshop"
-            copy="Tools that support a focused investigation of your vehicle’s needs."
+            title="Our workshop equipment"
             href="/about#equipment"
-            action="View workshop equipment"
+            action="View all equipment"
           />
           <div className="home-feature-grid home-equipment-grid">
             {[
@@ -89,29 +88,11 @@ export function HomeWorkshop() {
             />
           </div>
           <div>
-            <p className="home-kicker">Access for inspection & maintenance</p>
-            <h2>Our vehicle service bay</h2>
+            <h2>Underneath the vehicle</h2>
             <p>
-              Our two-post lift provides access beneath a vehicle for inspection and
-              maintenance. The team assesses the vehicle and the work needed before
-              agreeing the next steps.
+              Our two-post lift gives the team access beneath your vehicle for checks and
+              maintenance.
             </p>
-            <dl className="home-care-principles">
-              <div>
-                <dt>Understand the concern</dt>
-                <dd>We listen and clarify the issue with you.</dd>
-              </div>
-              <div>
-                <dt>Discuss the work</dt>
-                <dd>
-                  We explain the findings and talk through the recommended next steps.
-                </dd>
-              </div>
-              <div>
-                <dt>Keep you informed</dt>
-                <dd>Clear communication before and after the work.</dd>
-              </div>
-            </dl>
             <Link className="text-link" href="/about#principles">
               Our workshop principles <ArrowUpRight size={17} aria-hidden="true" />
             </Link>
@@ -121,10 +102,9 @@ export function HomeWorkshop() {
       <section className="public-section">
         <div className="public-wrap">
           <HomeSectionHeading
-            title="The people behind your vehicle care"
-            copy="Meet the Allied team and see our workshop in use."
+            title="Meet the Allied team"
             href="/about#team"
-            action="Our team at work"
+            action="Meet the team"
           />
           <figure className="home-team-photo">
             <Image

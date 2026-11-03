@@ -46,11 +46,11 @@
   flex-shrink: 0;
 }
 .dashboard .dashboard-content .work-vehicle-detail h1 {
-  font-family: inherit;
+  font-family: var(--font-heading);
   font-size: 28px;
   line-height: 1.3;
   letter-spacing: -0.025em;
-  font-weight: 700;
+  font-weight: 500;
   margin: 0 0 8px;
   overflow-wrap: anywhere;
 }
@@ -112,18 +112,18 @@
 }
 .dashboard .dashboard-content .work-vehicle-detail .detail-section h2,
 .work-vehicle-detail .vd-state h2 {
-  font-family: inherit;
+  font-family: var(--font-heading);
   font-size: 16px;
   line-height: 1.4;
-  font-weight: 700;
+  font-weight: 500;
   letter-spacing: -0.02em;
   margin: 0 0 18px;
 }
 .dashboard .dashboard-content .work-vehicle-detail h3 {
-  font-family: inherit;
+  font-family: var(--font-heading);
   font-size: 14px;
   line-height: 1.5;
-  font-weight: 700;
+  font-weight: 500;
   margin: 0 0 10px;
 }
 .vd-facts {

@@ -65,9 +65,9 @@
 }
 :is(.shop-page, .vehicles-page)
   :is(.product-inventory-heading h2, .vehicle-inventory-heading h2) {
-  font-family: var(--font-quicksand), sans-serif;
+  font-family: var(--font-heading);
   font-size: clamp(22px, 2.2vw, 28px);
-  font-weight: 700;
+  font-weight: 500;
 }
 :is(.shop-page, .vehicles-page)
   :is(

@@ -1,3 +1,16 @@
+### 3 November 2026: Concurrent Home source integrated for the final release
+
+Remote master 3ddb55f7 landed during the aftercare evidence push; that push was
+rejected without overwriting work. Its valid signed merge passes frontend
+41612038781, backend 41612039019 and secrets 41612038797. The Home photograph,
+copy and semantic typography changes are preserved alongside the aftercare evidence
+and scoped overview assertion. Only the two checkpoint documents conflicted;
+both additions are retained below. Backend runtime, migrations, database-safety
+scripts, dependencies and checkout attributes are byte-identical to 80cba6c2.
+The populated recovery rehearsal remains relevant; combined exact-source CI,
+held Home/typography and affected dashboard regressions, packaging and publication
+remain required. No release or business activation is inferred from this merge.
+
 ### 3 November 2026: Aftercare source gates and populated recovery rehearsal pass
 
 Signed source 80cba6c2 passes exact-master frontend 41599139743 (1,360 passed,
@@ -48,6 +61,24 @@ workers and both public aliases, then reconcile the complete requirement ledger.
 The held application and rehearsed database inputs must be compared with the final
 source before evidence is reused. Real-role/provider/device and owner financial,
 workshop-capacity and activation decisions remain separate; no whole-site readiness.
+
+### 3 November 2026: Home media, typography and copy checkpoint
+
+Priority owner brief 6.4–6.6 implemented in isolated home-photo-20261103 worktree,
+branch codex/home-photo-composition-20261103 from master 57d58e0d. Other agents'
+Desktop and master dirty edits remain untouched. Genuine 3:2 photographs have a
+separate laptop/mobile media area; Home copy and semantic Nippo/Quicksand overrides
+are corrected. Carousel logic/capabilities/data/security are preserved.
+
+Local acceptance: 21/21 carousel, 14/14 role/public semantic-font cases, eight units,
+compiler, scoped lint; final 390/1366 layout checks 2/2; separate empty/populated/
+failed-read/retry fixture scenarios. All-slide phone/laptop and full-page screenshots
+were inspected, and physical delivered bitmap dimensions/bytes measured. No real
+inventory, message, database or provider write. See frontend/docs/
+HOME_PHOTO_COMPOSITION_20261103.md for history, copy diff and limits. Exact-lock CI,
+compatible integration and hosted publication gates remain. Local dependencies are
+reused (Next 16.3.8 versus lock 16.4.3); no duplicate install/build. Last bounded
+postflight: 22.37 GiB free. Existing other-agent aftercare work is not included.
 
 ### 3 November 2026: Guest aftercare verification checkpoint (unpublished)
 

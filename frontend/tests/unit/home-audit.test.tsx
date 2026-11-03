@@ -39,10 +39,10 @@ it("server-first diagnostics retains one heading and a real service discovery de
   render(<HomeHero />);
   expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
   expect(screen.getByRole("heading", { level: 1 }).textContent).toBe(
-    "Comprehensive diagnostics. Clear next steps.",
+    "Understand your vehicle’s condition.",
   );
   expect(
-    screen.getByRole("link", { name: "Explore diagnostics" }).getAttribute("href"),
+    screen.getByRole("link", { name: "View diagnostics" }).getAttribute("href"),
   ).toBe("/services?search=diagnostics");
   expect(screen.getByRole("button", { name: "Play slideshow" })).toBeTruthy();
 });

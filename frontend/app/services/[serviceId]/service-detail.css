@@ -162,7 +162,7 @@
   padding: 12px 0;
 }
 .service-detail :is(h2, h3) {
-  font-family: var(--font-quicksand), sans-serif;
+  font-family: var(--font-heading);
   text-transform: none;
   letter-spacing: normal;
 }

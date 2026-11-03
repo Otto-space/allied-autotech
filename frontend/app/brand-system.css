@@ -151,8 +151,8 @@
 .public-section-title,
 .public-site h1,
 .public-site h2 {
-  font-family: var(--font-nippo), var(--font-quicksand), sans-serif;
-  font-weight: 700;
+  font-family: var(--font-heading);
+  font-weight: 500;
   letter-spacing: -0.025em;
   text-wrap: balance;
 }
@@ -171,8 +171,8 @@
   line-height: 1.16;
 }
 .public-site h3 {
-  font-family: var(--font-quicksand), sans-serif;
-  font-weight: 700;
+  font-family: var(--font-heading);
+  font-weight: 500;
 }
 .public-site p {
   color: var(--text-secondary);
@@ -421,9 +421,7 @@
   margin: 0 0 9px;
 }
 .public-site .service-discovery__title {
-  font:
-    700 21px/1.35 var(--font-quicksand),
-    sans-serif;
+  font: 500 21px/1.35 var(--font-heading);
   margin-bottom: 12px;
   letter-spacing: -0.02em;
 }
@@ -565,9 +563,7 @@
   background: linear-gradient(0deg, #01121aef, transparent 90%);
 }
 .public-site .lifestyle-feature h3 {
-  font:
-    700 30px/1.2 var(--font-nippo),
-    sans-serif;
+  font: 500 30px/1.2 var(--font-heading);
   margin-bottom: 10px;
 }
 .public-site .lifestyle-feature p {
@@ -699,9 +695,7 @@
   border-radius: 6px;
 }
 .public-site .empty h2 {
-  font:
-    700 21px/1.4 var(--font-quicksand),
-    sans-serif;
+  font: 500 21px/1.4 var(--font-heading);
 }
 .public-site .field :is(input, select, textarea) {
   font-size: 14px;
@@ -721,9 +715,7 @@
   padding-bottom: 30px;
 }
 .public-site .detail-section h2 {
-  font:
-    700 23px/1.35 var(--font-quicksand),
-    sans-serif;
+  font: 500 23px/1.35 var(--font-heading);
 }
 .public-site .product-detail-grid h1 {
   font-size: clamp(30px, 3vw, 44px);
@@ -822,16 +814,16 @@
 .dashboard .dashboard-content h1 {
   font-size: clamp(24px, 2.2vw, 30px);
   line-height: 1.3;
-  font-weight: 700;
+  font-weight: 500;
   letter-spacing: -0.035em;
 }
 .dashboard .dashboard-content h2 {
-  font-family: var(--font-quicksand), sans-serif;
+  font-family: var(--font-heading);
   font-size: 20px;
   letter-spacing: -0.025em;
 }
 .dashboard .dashboard-content h3 {
-  font-family: var(--font-quicksand), sans-serif;
+  font-family: var(--font-heading);
   font-size: 17px;
 }
 .dashboard-breadcrumbs {
@@ -1091,9 +1083,7 @@
   max-width: 100%;
 }
 .auth-main h1 {
-  font:
-    700 28px/1.25 var(--font-quicksand),
-    sans-serif;
+  font: 500 28px/1.25 var(--font-heading);
   letter-spacing: -0.035em;
   margin: 0 0 12px;
 }
@@ -1501,7 +1491,7 @@
   border-top: 1px solid var(--line);
 }
 .help-next h2 {
-  font-family: var(--font-quicksand), sans-serif;
+  font-family: var(--font-heading);
   font-size: 24px;
 }
 .help-article {
