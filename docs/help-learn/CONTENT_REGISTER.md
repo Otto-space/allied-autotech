@@ -430,3 +430,5 @@ Nine hosted synthetic workflow checks passed; no production stock action occurre
 3 November: parts-fitment v10 follows the owner-approved automatic check path. Current approved suitability evidence plus reserved branch stock allows payment without a fresh human decision; unresolved fitment or supplier evidence needs staff review. Source only, no audience or live flag changes.
 
 3 November customer review package: parts-fitment v11 adds the account/guest order suitability panel, explicit previous-purchase vehicle reuse, fresh checking and order-status refresh. Eligibility, public guide targets and permissions remain unchanged. Source only.
+
+Parts-fitment v11 UI follow-up: supplier arrival estimates are visible before payment, with collection readiness kept separate. Internal sourcing references and technical approval provenance remain private; no eligibility or guide target changes.

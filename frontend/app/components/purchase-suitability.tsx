@@ -19,6 +19,7 @@ import { useResource } from "@/lib/api/use-resource";
 import { purchaseVehicleSelectionSchema } from "@/lib/api/purchase-review-schema";
 import { FitmentCataloguePicker } from "./fitment-catalogue-picker";
 import { Feedback } from "./feedback";
+import { formatBusinessDate } from "@/lib/format/date";
 import styles from "./purchase-suitability.module.css";
 
 type Draft = {
@@ -370,6 +371,17 @@ export function PurchaseSuitability({
           Checks completed. Review the payment section for the current payment window.
         </p>
       )}
+      {order.purchaseReviews[0]?.availability
+        ?.filter((line) => line.kind === "SUPPLIER")
+        .map((line) => (
+          <p key={line.orderItemId}>
+            {order.items.find((item) => item.id === line.orderItemId)?.productName ??
+              "Part"}
+            : supplier arrival estimate {formatBusinessDate(line.expectedFrom)} to{" "}
+            {formatBusinessDate(line.expectedTo)}. We’ll confirm readiness for collection
+            separately.
+          </p>
+        ))}
       <Feedback message={message} scrollToMessage />
       <Feedback message={success} tone="success" scrollToMessage />
       <button

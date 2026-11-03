@@ -1,3 +1,13 @@
+3 November 16:02 UTC UI follow-up: source ebc62510's frontend check stopped
+at two type errors indexing the shared dynamic qualifier shape. The schema now
+preserves those qualifier types at the source. New customer/staff detail reads
+also expose only supply kind and genuine supplier arrival estimates; private
+reviewer, evidence, supplier-reference and reservation fields remain excluded.
+Local backend projection 8/8, compiler and lint pass; customer/staff/payment
+fixture units pass 25/25. The next exact-source build and 19 runtime browser
+cases, including six new purchase cases, remain required. No live acceptance is
+claimed and no capability was activated.
+
 ### 3 November 15:32 UTC package: customer/staff review screens in progress
 
 Target 16:32 UTC. Current source 1f573fd4 passes all three exact-source workflows:

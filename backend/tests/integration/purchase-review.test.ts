@@ -570,6 +570,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       expect(safe.body.data.purchaseReviews[0]).toMatchObject({
         revision: 2,
         status: "APPROVED",
+        availability: [{ orderItemId: f.order.items[0]!.id, kind: "BRANCH_STOCK" }],
       });
       for (const key of [
         "decisionSnapshot",

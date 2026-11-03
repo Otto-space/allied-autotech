@@ -34,6 +34,7 @@ import {
 } from "./orders.errors.js";
 import { assertCustomer, assertOrderOperator } from "./orders.policy.js";
 import { OrdersRepository, orderSelect } from "./orders.repository.js";
+import { purchaseOfferReviews } from "./purchase-offer-view.js";
 import type {
   CheckoutInput,
   CustomerOrderCancelInput,
@@ -195,7 +196,11 @@ export class OrdersService {
         orderBy: [{ createdAt: "desc" }, { id: "desc" }],
         select: { id: true },
       });
-      return jsonSafe({ ...customerOrderView(order), paymentId: payment?.id ?? null });
+      return jsonSafe({
+        ...customerOrderView(order),
+        purchaseReviews: await purchaseOfferReviews(transaction, order.purchaseReviews),
+        paymentId: payment?.id ?? null,
+      });
     });
   }
 
@@ -710,7 +715,10 @@ export class OrdersService {
     if (profile === null) throw orderNotFound();
     const order = await this.repository.ownedOrder(id, profile.id);
     if (order === null) throw orderNotFound();
-    return jsonSafe(customerOrderView(order));
+    return jsonSafe({
+      ...customerOrderView(order),
+      purchaseReviews: await purchaseOfferReviews(this.database, order.purchaseReviews),
+    });
   }
   async staffOrders(actor: AuthenticatedActor, query: StaffOrderListQuery) {
     assertOrderOperator(actor);
@@ -750,6 +758,7 @@ export class OrdersService {
     );
     return jsonSafe({
       ...order,
+      purchaseReviews: await purchaseOfferReviews(this.database, order.purchaseReviews),
       allowedTransitions: await this.allowedTransitions(order),
       ...(actor.role === "ADMIN" || actor.role === "SUPER_ADMIN"
         ? {

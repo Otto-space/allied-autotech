@@ -61,6 +61,37 @@ afterEach(() => {
   vi.resetAllMocks();
 });
 describe("purchase suitability", () => {
+  it("shows the supplier arrival estimate before payment without treating it as collection readiness", () => {
+    const order = parseOrder(orderRecord(3));
+    order.purchaseReviews[0].availability = [
+      {
+        orderItemId: order.items[0].id,
+        kind: "SUPPLIER",
+        expectedFrom: "2026-11-05T07:00:00Z",
+        expectedTo: "2026-11-07T17:00:00Z",
+      },
+    ];
+    render(<PurchaseSuitability order={order} onSaved={vi.fn()} />);
+    expect(screen.getByText(/supplier arrival estimate/).textContent).toContain(
+      "readiness for collection separately",
+    );
+    expect(() =>
+      parseOrder({
+        ...order,
+        purchaseReviews: [
+          {
+            ...order.purchaseReviews[0],
+            availability: [
+              {
+                ...order.purchaseReviews[0].availability[0],
+                expectedFrom: "2026-11-10T07:00:00Z",
+              },
+            ],
+          },
+        ],
+      }),
+    ).toThrow();
+  });
   it("reuses configuration from approved matching products without copying price or approval", () => {
     const current = pending(),
       previous = parseOrder(orderRecord(1));
