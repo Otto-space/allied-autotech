@@ -1,3 +1,11 @@
+4 November CI follow-up: PR #16 is open for this integrated batch. Initial
+branch backend run 41737003721 stops at one old unknown-duration unit whose fake
+database lacked the new read-transaction adapter. The stub now invokes the read
+inside that adapter, while retaining the 404 and no-slot-read assertions. All
+66 early CI source/money/API cases pass locally and full backend lint passes.
+No runtime, schema, permission, financial or booking-window rule changed for this
+correction. New hosted exact-source checks remain required before merge/release.
+
 ### 4 November 2026: D06 resource-aware public offers — integrated source checkpoint
 
 Current source combines resource discovery with master 6432da3e, preserving the

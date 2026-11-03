@@ -46,3 +46,11 @@ Exact-source merged hosted checks and production publication are still pending.
 No new schema, real workshop data, grant, provider configuration or production
 publication. Actual owner resource configuration and real-role acceptance remain
 separate; D06 and the complete D01-D17 goal are not marked complete.
+
+4 November CI follow-up: PR #16 is open for this integrated batch. Initial
+branch backend run 41737003721 stops at one old unknown-duration unit whose fake
+database lacked the new read-transaction adapter. The stub now invokes the read
+inside that adapter, while retaining the 404 and no-slot-read assertions. All
+66 early CI source/money/API cases pass locally and full backend lint passes.
+No runtime, schema, permission, financial or booking-window rule changed for this
+correction. New hosted exact-source checks remain required before merge/release.
