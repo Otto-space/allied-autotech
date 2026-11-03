@@ -73,7 +73,9 @@ export function CustomerCareSummary({
       : "Recently added vehicle";
   const hasService = Boolean(booking || vehicle || care.nextBooking);
   const hasReview = Boolean(care.quote || care.payment);
-  const hasUpdates = Boolean(care.order || care.inspection || care.notification);
+  const hasAttention = Boolean(care.enquiry || care.invoice || care.collectionOrder);
+  const latestOrder = care.order?.id !== care.collectionOrder?.id ? care.order : null;
+  const hasUpdates = Boolean(latestOrder || care.inspection || care.notification);
   const dates = booking
     ? [
         ["Requested", booking.requestedAt],
@@ -83,7 +85,7 @@ export function CustomerCareSummary({
     : [];
   return (
     <section className="customer-care" aria-label="Current vehicle care">
-      {!hasService && !hasReview && !hasUpdates && (
+      {!hasService && !hasReview && !hasUpdates && !hasAttention && (
         <div className="care-empty">
           <h2>No service in progress</h2>
           <p>
@@ -91,6 +93,57 @@ export function CustomerCareSummary({
             appear here when recorded.
           </p>
         </div>
+      )}
+      {hasAttention && (
+        <section className="care-attention" aria-label="Your next steps">
+          <h2>Your next steps</h2>
+          <div className="care-attention-grid">
+            {care.collectionOrder && (
+              <section>
+                <h3>Ready for collection</h3>
+                <strong>{care.collectionOrder.orderNumber}</strong>
+                <p>
+                  Your order is marked ready. Check its details for collection
+                  instructions.
+                </p>
+                <Action href={`/dashboard/orders/${care.collectionOrder.id}`}>
+                  View collection order
+                </Action>
+              </section>
+            )}
+            {care.enquiry && (
+              <section>
+                <h3>Open enquiry</h3>
+                <strong>{care.enquiry.subject}</strong>
+                <State value={care.enquiry.status} />
+                <p>
+                  Updated {formatBusinessDate(care.enquiry.updatedAt)}. Open the
+                  conversation to check replies.
+                </p>
+                <Action href={`/dashboard/support/enquiries/${care.enquiry.id}`}>
+                  View enquiry
+                </Action>
+              </section>
+            )}
+            {care.invoice && (
+              <section>
+                <h3>Issued invoice</h3>
+                <strong>{care.invoice.invoiceNumber}</strong>
+                <p>
+                  Invoice total:{" "}
+                  {overviewMoney(care.invoice.totalKobo, care.invoice.currency)}
+                </p>
+                <p>
+                  Issued {formatBusinessDate(care.invoice.issuedAt)}. Check credits and
+                  confirmed payments in its details.
+                </p>
+                <Action href={`/dashboard/invoices/${care.invoice.id}`}>
+                  View invoice
+                </Action>
+              </section>
+            )}
+          </div>
+        </section>
       )}
       {(hasService || hasReview) && (
         <div className="care-primary-grid">
@@ -217,15 +270,15 @@ export function CustomerCareSummary({
       )}
       {hasUpdates && (
         <div className="customer-care-secondary">
-          {care.order && (
+          {latestOrder && (
             <section>
               <Package size={22} aria-hidden="true" />
               <div>
                 <h2>Latest order</h2>
-                <h3>{care.order.orderNumber}</h3>
-                <State value={care.order.status} />
-                <p>{label(care.order.fulfillmentMethod)}</p>
-                <Action href={`/dashboard/orders/${care.order.id}`}>View order</Action>
+                <h3>{latestOrder.orderNumber}</h3>
+                <State value={latestOrder.status} />
+                <p>{label(latestOrder.fulfillmentMethod)}</p>
+                <Action href={`/dashboard/orders/${latestOrder.id}`}>View order</Action>
               </div>
             </section>
           )}

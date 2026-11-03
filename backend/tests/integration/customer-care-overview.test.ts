@@ -428,11 +428,164 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       expect(cleared.body.data.care.defaultVehicle).toBeNull();
       expect(cleared.body.data.care.vehicle.id).toBe(recent.id);
     });
+    it("selects only owned actionable records independently of history and excludes terminal or foreign records", async () => {
+      const own = await account(),
+        stranger = await account();
+      const branch = await prisma.branch.create({
+        data: {
+          code: `ATT-${randomUUID().slice(0, 8)}`,
+          name: "Isolated attention",
+          address: "QA",
+          city: "QA",
+          state: "QA",
+        },
+      });
+      const old = new Date(Date.now() - 86400000),
+        now = new Date();
+      const createOrder = (customerId: string, ready = false, older = false) =>
+        prisma.order.create({
+          data: {
+            customerId,
+            branchId: branch.id,
+            orderNumber: `ATT-${randomUUID().slice(0, 20)}`,
+            status: ready ? "READY" : "PENDING",
+            readyAt: ready ? old : null,
+            fulfillmentMethod: "COLLECTION",
+            subtotalKobo: 9007199254740993n,
+            totalKobo: 9007199254740993n,
+            customerName: "PRIVATE BILLING NAME",
+            customerEmail: "private@example.test",
+            customerPhone: "+2348000000000",
+            createdAt: older ? old : now,
+          },
+        });
+      const ready = await createOrder(own.user.profile!.id, true, true);
+      const latest = await createOrder(own.user.profile!.id);
+      const foreignReady = await createOrder(stranger.user.profile!.id, true);
+      const open = await prisma.enquiry.create({
+        data: {
+          customerId: own.user.profile!.id,
+          type: "GENERAL",
+          status: "IN_PROGRESS",
+          subject: "Owned open question",
+          message: "PRIVATE CASE BODY",
+          name: "PRIVATE CONTACT",
+          email: own.user.email,
+          updatedAt: old,
+        },
+      });
+      await prisma.enquiry.createMany({
+        data: [
+          {
+            customerId: own.user.profile!.id,
+            type: "GENERAL",
+            status: "CLOSED",
+            subject: "CLOSED QUESTION",
+            message: "private",
+            name: "private",
+            email: own.user.email,
+            closedAt: now,
+          },
+          {
+            customerId: stranger.user.profile!.id,
+            type: "GENERAL",
+            status: "OPEN",
+            subject: "FOREIGN QUESTION",
+            message: "private",
+            name: "private",
+            email: stranger.user.email,
+          },
+        ],
+      });
+      const issued = await prisma.invoice.create({
+        data: {
+          customerId: own.user.profile!.id,
+          orderId: ready.id,
+          invoiceNumber: `INV-${randomUUID()}`,
+          status: "ISSUED",
+          issuedAt: old,
+          subtotalKobo: 9007199254740993n,
+          totalKobo: 9007199254740993n,
+        },
+      });
+      for (const status of ["DRAFT", "PAID", "VOID"] as const) {
+        const source = await createOrder(own.user.profile!.id);
+        await prisma.invoice.create({
+          data: {
+            customerId: own.user.profile!.id,
+            orderId: source.id,
+            invoiceNumber: `INV-${randomUUID()}`,
+            status,
+            issuedAt: status === "DRAFT" ? null : now,
+            paidAt: status === "PAID" ? now : null,
+            voidedAt: status === "VOID" ? now : null,
+            subtotalKobo: 9007199254740993n,
+            totalKobo: 9007199254740993n,
+          },
+        });
+      }
+      const foreignInvoice = await prisma.invoice.create({
+        data: {
+          customerId: stranger.user.profile!.id,
+          orderId: foreignReady.id,
+          invoiceNumber: `INV-${randomUUID()}`,
+          status: "ISSUED",
+          issuedAt: now,
+          subtotalKobo: 9007199254740993n,
+          totalKobo: 9007199254740993n,
+        },
+      });
+      const result = await request(app).get(endpoint).set("Cookie", own.cookie);
+      expect(result.status).toBe(200);
+      expect(result.headers["cache-control"]).toContain("no-store");
+      const care = customerCareSchema.parse(result.body.data.care);
+      expect(care.firstName).toBe("Care");
+      expect(care.enquiry).toMatchObject({
+        id: open.id,
+        subject: "Owned open question",
+        status: "IN_PROGRESS",
+      });
+      expect(care.invoice).toMatchObject({
+        id: issued.id,
+        totalKobo: "9007199254740993",
+      });
+      expect(care.collectionOrder).toMatchObject({
+        id: ready.id,
+        status: "READY",
+        fulfillmentMethod: "COLLECTION",
+      });
+      expect(care.order?.id).not.toBe(ready.id);
+      expect(latest.id).not.toBe(ready.id);
+      const serialized = JSON.stringify(care);
+      for (const excluded of [
+        "PRIVATE CASE BODY",
+        "PRIVATE BILLING NAME",
+        "PRIVATE CONTACT",
+        "CLOSED QUESTION",
+        "FOREIGN QUESTION",
+        foreignInvoice.id,
+        foreignReady.id,
+      ])
+        expect(serialized).not.toContain(excluded);
+      const other = await request(app).get(endpoint).set("Cookie", stranger.cookie);
+      expect(other.body.data.care.invoice.id).toBe(foreignInvoice.id);
+      expect(JSON.stringify(other.body.data.care)).not.toContain(issued.id);
+      await prisma.customerProfile.update({
+        where: { id: own.user.profile!.id },
+        data: { firstName: "not-a-name@example.test" },
+      });
+      const invalidName = await request(app).get(endpoint).set("Cookie", own.cookie);
+      expect(invalidName.body.data.care.firstName).toBeNull();
+    });
     it("returns explicit null previews for a new account and rejects scope overrides", async () => {
       const own = await account();
       const res = await request(app).get(endpoint).set("Cookie", own.cookie);
       expect(res.status).toBe(200);
       expect(customerCareSchema.parse(res.body.data.care)).toEqual({
+        firstName: "Care",
+        enquiry: null,
+        invoice: null,
+        collectionOrder: null,
         vehicle: null,
         vehicleSource: "NONE",
         defaultVehicle: null,
