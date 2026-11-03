@@ -933,6 +933,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       const send = (acceptedReview?: { id: string; revision: number }) =>
         request(app)
           .post("/api/v1/customers/payments")
+          .set("Origin", env.FRONTEND_URL)
           .set("Cookie", f.buyer.cookie)
           .set("x-csrf-token", f.buyer.csrf)
           .set("idempotency-key", key)

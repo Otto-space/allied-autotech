@@ -1,3 +1,13 @@
+3 November 18:02 UTC follow-up: source 29b7975d backend run 41689033316 passed
+migration replay, schema checks, compiler/lint and 81/82 focused purchase checks.
+The new account HTTP case lacked the required trusted Origin header and stopped at
+CSRF before reaching the offer check. The fixture now supplies the header; the
+guard is unchanged. Later database suites did not run and are not counted as passes.
+Inspected safe 079ca9ee phone/laptop cart and confirmed-state screenshots. They
+exposed touching guest payment/refresh buttons; the shared approved-offer wrapper
+now has explicit spacing and a rendered minimum-gap assertion at 320/1440. These
+latest corrections and the final screenshot comparison still require CI.
+
 ### 3 November 17:44 UTC package: displayed-offer payment binding
 
 Target 18:44 UTC. Account and guest payment creation now carry the identity and

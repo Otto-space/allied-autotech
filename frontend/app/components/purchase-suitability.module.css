@@ -8,6 +8,14 @@
 .panel h2 {
   margin-top: 0;
 }
+.approved {
+  margin-bottom: 12px;
+}
+.paymentLink {
+  min-height: 44px;
+  max-width: 100%;
+  white-space: normal;
+}
 .panel p,
 .item legend {
   overflow-wrap: anywhere;

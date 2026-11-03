@@ -367,12 +367,12 @@ export function PurchaseSuitability({
         team only when more information is needed.
       </p>
       {order.purchaseReviews[0]?.status === "APPROVED" && (
-        <div>
+        <div className={styles.approved}>
           <p>
             Checks completed. Review the payment section for the current payment window.
           </p>
           <a
-            className="button"
+            className={`button ${styles.paymentLink}`}
             href={guest ? "#purchase-next-step" : "#order-payment-title"}
           >
             View payment options

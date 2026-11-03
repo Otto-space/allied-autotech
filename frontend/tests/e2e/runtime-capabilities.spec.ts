@@ -98,6 +98,20 @@ for (const width of [320, 1440]) {
     await page
       .getByRole("region", { name: "Suitability and availability" })
       .scrollIntoViewIfNeeded();
+    const approvedPanel = page.getByRole("region", {
+      name: "Suitability and availability",
+    });
+    const paymentLink = await approvedPanel
+      .getByRole("link", { name: "View payment options" })
+      .boundingBox();
+    const refreshButton = await approvedPanel
+      .getByRole("button", { name: "Refresh order status" })
+      .boundingBox();
+    expect(paymentLink).not.toBeNull();
+    expect(refreshButton).not.toBeNull();
+    expect(
+      refreshButton!.y - paymentLink!.y - paymentLink!.height,
+    ).toBeGreaterThanOrEqual(8);
     await page.screenshot({ path: info.outputPath(`cart-vehicle-after-${width}.png`) });
     const paymentRequest = page.waitForRequest(
       (req) =>
