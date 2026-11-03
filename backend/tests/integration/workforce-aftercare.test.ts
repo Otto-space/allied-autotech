@@ -257,14 +257,14 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       ])
         expect(text).not.toContain(value);
     });
-    it("allows a scoped enrolled Admin decision while keeping legacy order access closed and customer history private", async () => {
+    it("preserves Admin operational order access while requiring scoped financial approval and private customer history", async () => {
       const who = await actor({ role: "ADMIN" }),
         v = await record();
       expect((await get(who, `/${v.row.id}`)).status).toBe(200);
       expect(
         (await request(app).get(`/api/v1/staff/orders/${v.order.id}`).set(who.headers))
           .status,
-      ).toBe(403);
+      ).toBe(200);
       expect((await send(who, v.row.id, await body(who, v.row.id))).status).toBe(200);
       const customer = await request(app)
         .get(`/api/v1/customers/orders/${v.order.id}/aftercare`)
