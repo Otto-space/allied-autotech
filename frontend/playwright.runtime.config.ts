@@ -13,6 +13,7 @@ export default defineConfig({
     "booking-timing.spec.ts",
     "service-timing.spec.ts",
     "slot-timing-review.spec.ts",
+    "workshop-resources.spec.ts",
   ],
   outputDir: "./test-results/runtime-capabilities",
   timeout: 90_000,

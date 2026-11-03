@@ -677,5 +677,23 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         admin = previousAdmin;
       }
     });
+    for (const status of ["IN_PROGRESS", "CONFIRMED"] as const)
+      it(`prevents customer cancellation after recorded work start, including legacy ${status} state`, async () => {
+        const v = await fixture(),
+          a = await v.book(v.a.id, v.w1.user.staffProfile!.id);
+        expect((await v.status(a.id, 0, "CONFIRMED")).status).toBe(200);
+        // Explicitly prepared synthetic legacy state; this is not evidence of physical work.
+        await prisma.booking.update({
+          where: { id: a.id },
+          data: { status, startedAt: new Date(), version: { increment: 1 } },
+        });
+        const before = await v.allocations(a.id);
+        expect((await v.cancel(a, 2)).status).toBe(409);
+        const after = await prisma.booking.findUniqueOrThrow({ where: { id: a.id } });
+        expect(after.status).toBe(status);
+        expect(after.version).toBe(2);
+        expect(after.cancelledAt).toBeNull();
+        expect(await v.allocations(a.id)).toEqual(before);
+      });
   },
 );
