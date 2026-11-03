@@ -52,3 +52,23 @@ it("rejects negative counts and excludes backend fields outside the display proj
   });
   expect(JSON.stringify(parsed)).not.toMatch(/INTERNAL_CODE|private-key|private-id/);
 });
+
+it("exposes only a valid guest refund order destination and keeps other alert resources private", () => {
+  const orderId = "ef000000-0000-4000-8000-000000000002";
+  const alerts = [
+    { category: "GUEST_ORDER_REFUND_REVIEW", resourceId: orderId },
+    { category: "PAYMENT_REVIEW", resourceId: orderId },
+    { category: "GUEST_ORDER_REFUND_REVIEW", resourceId: "../../private" },
+  ].map((alert, index) => ({
+    ...alert,
+    id: `ef000000-0000-4000-8000-00000000000${index + 3}`,
+    message: "Synthetic review required",
+    createdAt: worker.lastStartedAt,
+  }));
+  const parsed = parseOperationsOverview({ ...base, operationalAlerts: alerts });
+  expect(parsed.operationalAlerts?.map((alert) => alert.resourceId)).toEqual([
+    orderId,
+    undefined,
+    undefined,
+  ]);
+});

@@ -1,3 +1,46 @@
+### 3 November 2026: Guest aftercare verification checkpoint (unpublished)
+
+Current bounded batch is guest cancellation/aftercare and the existing operator
+refund-review handoff. Isolated guest-aftercare-native-4fa944118e0249f987a8787cc1ad6b39
+passes 71/71 tests across nine suites. All 89 migrations replay, schema/db:check
+and non-owner/no-DDL/no-TRUNCATE runtime checks pass; the guarded harness removed
+its successful task-created data. No shared database or external provider was used.
+This includes a late capture verified after cancellation: the order stays cancelled,
+the verified capture enters human refund review even when order paidAt is null,
+and a partial pre-confirmation refund is refused. Separate approval is preserved.
+Frontend TypeScript also passes. Source is not committed or published yet.
+
+Final guest/operator browser run passes 12/12 at 320/768/1366px, with synthetic
+screenshots inspected at 320/1366 and sampled Axe reporting zero violations. The
+earlier 11/12 assertion counted required CSRF bootstrap as a financial write; its
+correction retains the financial-write exclusion. Shared regression run planned 79
+cases but was stopped during another reserve incident: 41 logged passes, one label
+failure and 37 remaining unverified cases. The cancellation reason label is restored
+with separate quotation guidance; that rendered repair needs a rerun. The overview
+parser initially failed one private-field unit and now passes all 35 affected units:
+only a valid guest refund order ID becomes a link. Other alert resource IDs stay
+private. Scoped lint, backend types/lint, API 435 paths / 511 operations and secrets
+pass. Learning/quotation checks pass 14/14 after financial-aftercare advances from v3
+to v4 and parts-fitment to v8; guide targets, gates and flags remain unchanged.
+Remaining rendered regressions, final source checks, exact-source CI, fresh populated
+restore and publication remain pending. No provider, real-role or launch acceptance.
+
+Disk reserve interrupted verification at 14.4 GiB and later 16.8 GiB. Read-only
+cleanup review measured installers (~176 MiB), Playwright browsers (1.36 GiB) and
+cached one-off npm tools (~770 MiB); none of these existing files were deleted.
+Host space subsequently recovered independently to 23.99 GiB, passed the 20.75 GiB
+native-run preflight, and measured 24.03 GiB after the successful run. This is a
+point-in-time measurement, not a machine-wide guarantee. Later free-space dips to
+16.54 and 15.46 GiB interrupted the owned preview/lint and regression processes;
+those processes were stopped without touching other tasks. The page file grew from
+16,133 MiB to 19,094 MiB, explaining part but not all of the measured changes.
+Local Next output measured 1.56 GiB, below its earlier 1.67 GiB; no compiler-cache
+cleanup was attempted. Free space subsequently measured 22.38 GiB. Prefer a held
+frontend candidate for remaining browser regressions once exact-source CI passes,
+keeping public domains and backend/schema gates unchanged. Three previously
+policy-rejected temporary database cleanup targets remain untouched. Published
+runtime remains 333c3a22 / schema 87; transaction flags remain unchanged.
+
 ### 3 November 2026: Private guest invoices and receipts verified (source only)
 
 Quotation source 2ba96033 is signed/verified and passes frontend 41585900297

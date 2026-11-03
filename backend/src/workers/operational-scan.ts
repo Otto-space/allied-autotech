@@ -1,7 +1,8 @@
 import type { PrismaClient, WorkerScanCheckpoint } from "../generated/prisma/client.js";
 
 export const operationalScanLimit = 100;
-type ScanName = "disputes" | "refunds" | "payments" | "vehicle-holds";
+type ScanName =
+  "disputes" | "refunds" | "payments" | "vehicle-holds" | "guest-cancellation-refunds";
 
 export function readOperationalScan(database: PrismaClient, name: ScanName) {
   return database.workerScanCheckpoint.upsert({

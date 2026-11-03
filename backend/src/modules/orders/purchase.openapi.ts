@@ -1,8 +1,10 @@
 import type { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import { z, type ZodType } from "zod";
 import { invoiceParamsSchema } from "../billing/billing.schemas.js";
+import { aftercareHeaders, aftercarePartialBody } from "./order-aftercare.schemas.js";
 import {
   customerOrderListQuerySchema,
+  customerOrderCancelBodySchema,
   guestCheckoutBodySchema,
   orderIdempotencyHeadersSchema,
   orderParamsSchema,
@@ -23,6 +25,7 @@ import {
   purchaseQuoteDecisionSchema,
   purchaseQuoteListSchema,
   purchaseQuoteParamsSchema,
+  purchaseAftercareRecoverySchema,
 } from "./purchase.schemas.js";
 
 const response = z.object({
@@ -57,6 +60,40 @@ export function registerPurchaseOpenApi(registry: OpenAPIRegistry): void {
   });
   const keyed = orderIdempotencyHeadersSchema.extend(purchaseCsrfHeadersSchema.shape);
   const paths: Path[] = [
+    {
+      method: "get",
+      path: "/orders/{orderId}/aftercare/original-request",
+      summary:
+        "Recover an owned guest cancellation or aftercare action without resubmitting private request details",
+      params: orderParamsSchema,
+      query: purchaseAftercareRecoverySchema,
+      headers: aftercareHeaders,
+    },
+    {
+      method: "get",
+      path: "/orders/{orderId}/aftercare",
+      summary: "Read only the verified guest's customer-visible order requests",
+      params: orderParamsSchema,
+    },
+    {
+      method: "post",
+      path: "/orders/{orderId}/aftercare",
+      summary:
+        "Request scoped guest return or cancellation review without changing money or stock",
+      params: orderParamsSchema,
+      body: aftercarePartialBody,
+      headers: aftercareHeaders.extend(purchaseCsrfHeadersSchema.shape),
+      status: 201,
+    },
+    {
+      method: "post",
+      path: "/orders/{orderId}/cancel",
+      summary:
+        "Cancel an owned pending guest order with a version check; paid cancellations require separate human refund review",
+      params: orderParamsSchema,
+      body: customerOrderCancelBodySchema,
+      headers: aftercareHeaders.extend(purchaseCsrfHeadersSchema.shape),
+    },
     ...(["document", "download"] as const).flatMap((format): Path[] => [
       {
         method: "get",
@@ -202,7 +239,7 @@ export function registerPurchaseOpenApi(registry: OpenAPIRegistry): void {
       tags: ["Purchase access"],
       summary: entry.summary,
       description:
-        "No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery and owned reads but reject new financial mutations. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct.",
+        "No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery, owned reads, cancellation and aftercare review; new checkout/payment mutations remain closed. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Guests cannot approve returns or refunds or initiate money movement.",
       security: entry.public ? [] : [{ purchaseGuestCookie: [] }],
       request: {
         query: entry.query ?? purchaseEmptySchema.removeDefault(),

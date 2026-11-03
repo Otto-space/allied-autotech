@@ -1,5 +1,69 @@
 # Complete live audit implementation - 2 November 2026
 
+### 3 November 2026: Guest aftercare and operator refund handoff (source)
+
+Guests can inspect their own cancellation/return requests, review exact quantities
+and reasons, cancel a pending unconfirmed order and recover an uncertain action
+without inventing a customer account. Strict current guest ownership, trusted
+Origin/CSRF, current order versions and original keyed receipts remain authoritative.
+Uncertain browser state retains only a buyer/order-bound inert action key; private
+reasons stay out of browser storage. A lost receipt is not evidence of failure.
+Confirmed orders require a staff cancellation review. Reviewed requests and verified
+payment, refunds, allocation and collection readiness remain separate states.
+
+Cancelled paid guest orders enter a visible existing Administrator alert -> order
+-> payment workspace handoff. Operational Staff receive no new financial actions.
+Only a real permitted operator can request a HUMAN refund, and a different authorised
+operator must approve it. Cancellation before confirmation requires the full remaining
+verified capture; no guest/fake account acts as requester. A failed/cancelled refund
+request reopens review. A late capture verified after cancellation enters the same
+review even when Order.paidAt stays null; its history says Check payment outcome.
+Existing technical late-payment refund policy is preserved. No provider refund was
+called, no real record was changed and no launch flag or grant was enabled.
+
+Latest isolated native evidence guest-aftercare-native-4fa944118e0249f987a8787cc1ad6b39
+passes 71/71 across nine suites, including ten guest cases, existing payment/aftercare,
+privacy, refund controls, operational scans and learning/quotation units. All 89
+migrations replay; no drift, db:check and non-owner/no-DDL/no-TRUNCATE checks pass.
+Its guarded harness removed successful task-created data. Initial native fixtures
+used the wrong Audit model/actor field and expected 400 instead of strict 422;
+those test corrections retained application guards. Later guidance versions advance
+parts-fitment to v8 and financial-aftercare from v3 to v4; 14/14 focused learning/
+quotation units pass after that metadata correction. Eligibility and flags stay fixed.
+
+Final guest/operator browser run passes 12/12 (4.4 minutes) on installed Edge against
+the isolated 127.0.0.1:3103 preview. This is regular Playwright because the Browser
+plugin is unavailable. The earlier 11/12 run counted required CSRF bootstrap as a
+financial write; the corrected assertion still rejects other writes. Coverage includes
+320/768/1366 layouts, reviewed item quantities, Escape/focus, uncertain response/reload,
+original receipt without another POST, paid cancellation, confirmed review, limited
+capabilities, failed history/draft recovery, buyer switch and operator destinations.
+Sampled Axe reports zero violations; 320/1366 synthetic screenshots were inspected
+for wrapping and clipped controls. Retained files are under guest-aftercare-browser-
+accepted/ and its JSON receipt in the existing task evidence directory. A separate
+79-case shared regression run was stopped during another disk-reserve incident:
+41 cases logged passes, one failed, and the remaining 37 have no completion evidence.
+The failure expected the cancellation reason label, which earlier quotation work
+had replaced with a long combined label. The clear cancellation label is restored;
+quotation confirmation has its own helper and action-specific validation, with
+unchanged server rules. That repair and the remaining shared regressions need a
+fresh run. The final operator fixture also covers a verified payment reference
+while cancelled Order.paidAt is null; its final rerun is still required.
+
+Source checks: frontend TypeScript and scoped lint pass; backend production types
+and repository lint pass; OpenAPI validates 435 paths / 511 mounted operations plus
+four infrastructure routes. The overview unit regression initially passed 33/34:
+the added UUID field rejected unrelated private resource metadata. The parser now
+keeps a validated resource ID only for a guest refund order alert and strips other
+resources; all 35 affected frontend units pass, including the added boundary case.
+The accidental full frontend lint attempt was stopped during a second disk incident;
+it is not a pass. Remaining checks, exact-source CI, fresh populated restore, compatible
+images and publication remain outstanding. Current runtime stays 333c3a22/schema 87.
+Local reused Next 16.3.8 is fixture evidence, not exact-lock 16.4.3 release acceptance.
+Console Ninja log transport warnings are local extension noise, not provider or site
+delivery evidence. Actual-role, provider test-mode, native sharing, physical-device
+and full screen-reader acceptance remain unperformed; the overall site is not certified.
+
 ### 3 November 2026: Private guest invoices and receipts verified (source only)
 
 Quotation source 2ba96033 is signed/verified and passes frontend 41585900297
@@ -101,7 +165,7 @@ purchasing or whole-site launch readiness is claimed.
 Evidence: %TEMP%/aat-full-audit-20261102/guest-quote-browser-final.json (9/9),
 quotation-browser.json (7/7), and the native receipt named above. Final viewport
 captures are synthetic-guest-quotation-320.png and its 1366px equivalent under
- guest-quote-browser-final/. They do not demonstrate production accounts/providers.
+guest-quote-browser-final/. They do not demonstrate production accounts/providers.
 Retained failed attempts: one new assertion expected an ACTIVE reservation although
 existing final confirmation consumes it immediately; corrected to CONSUMED with
 quantity/reserved-stock checks. A newly added expiry test was initially nested and
@@ -154,7 +218,6 @@ receipt: guest-ui-native-ed8d3f410c2e47d48cae41c33ac8c00b/receipt.json; its task
 was removed after success. Actual before/after public screenshots remain in the
 previous published-release section and are separate from these guest fixtures.
 
-
 ### 3 November 2026: Guest HTTP ownership boundary verified (source only)
 
 Payment source 56cf0bd8 passes frontend 41572993041, backend 41572993099
@@ -183,7 +246,6 @@ screens, guest quotations and aftercare remain implementation work. No productio
 record, provider delivery or financial transaction was used. New populated restore,
 compatible recovery images, exact-source CI and publication remain required. Actual
 role/provider/device acceptance and recorded business decisions remain separate.
-
 
 ### 3 November 2026: Shared guest payment engine verified (source only)
 
@@ -215,7 +277,6 @@ Next: secure guest HTTP/cookie boundary, public cart/review/recovery UI, guest
 quotation acceptance and aftercare. Fresh populated restore, compatible recovery
 images, exact-source CI and publication are required before release. Real-role,
 provider test-mode and physical-device acceptance remain unperformed.
-
 
 The complete owner audit was read and reconciled with deployed runtime 9be4e66b.
 The current requirement ledger is frontend/docs/UI_UX_QUALITY_REGISTER.md; this

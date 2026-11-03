@@ -74497,13 +74497,1287 @@
         "x-idempotency-required": false
       }
     },
+    "/purchase/orders/{orderId}/aftercare/original-request": {
+      "get": {
+        "tags": [
+          "Purchase access"
+        ],
+        "summary": "Recover an owned guest cancellation or aftercare action without resubmitting private request details",
+        "description": "No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery, owned reads, cancellation and aftercare review; new checkout/payment mutations remain closed. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Guests cannot approve returns or refunds or initiate money movement. Recover an owned guest cancellation or aftercare action without resubmitting private request details. Access boundary: verified-purchase-guest. Requires the opaque session cookie. No CSRF token is required. Requires an Idempotency-Key; a key may only be replayed with the identical request.",
+        "security": [
+          {
+            "purchaseGuestCookie": []
+          }
+        ],
+        "x-trusted-origin-required": false,
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Identifier of the order resource; ownership is resolved server-side."
+            },
+            "required": true,
+            "name": "orderId",
+            "in": "path",
+            "description": "Identifier selecting the order resource.",
+            "example": "00000000-0000-4000-8000-000000000001"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "cancel",
+                "aftercare"
+              ],
+              "description": "Operation validated by this operation's strict request contract."
+            },
+            "required": true,
+            "name": "operation",
+            "in": "query",
+            "description": "Operation used to constrain this request.",
+            "example": "cancel"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^aftercare-v1\\.\\d{13}\\.[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "description": "Idempotency Key validated by this operation's strict request contract."
+            },
+            "required": true,
+            "name": "idempotency-key",
+            "in": "header",
+            "description": "Unique retry key for this logical mutation. Reuse it only with the identical request.",
+            "example": "synthetic-idempotency-key"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success: Recover an owned guest cancellation or aftercare action without resubmitting private request details.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "description": "Success validated by this operation's strict request contract."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                    },
+                    "data": {
+                      "type": "object",
+                      "description": "Authorized response projection for: Recover an owned guest cancellation or aftercare action without resubmitting private request details.",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "description": "Public or authorized resource identifier."
+                        },
+                        "status": {
+                          "type": "string",
+                          "description": "Current server-owned lifecycle state when applicable."
+                        }
+                      },
+                      "additionalProperties": true
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string",
+                          "description": "Identifier of the request resource; ownership is resolved server-side."
+                        }
+                      },
+                      "required": [
+                        "requestId"
+                      ],
+                      "description": "Meta validated by this operation's strict request contract."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "meta"
+                  ],
+                  "description": "Response validated by this operation's strict request contract."
+                },
+                "example": {
+                  "success": true,
+                  "message": "Recover an owned guest cancellation or aftercare action without resubmitting private request details",
+                  "data": {
+                    "id": "00000000-0000-4000-8000-000000000001",
+                    "status": "synthetic-status"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is malformed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request is malformed.",
+                  "error": {
+                    "code": "BAD_REQUEST"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "A valid session and required assurance are missing.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A valid session and required assurance are missing.",
+                  "error": {
+                    "code": "UNAUTHORIZED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The actor is not authorized for this resource or action.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The actor is not authorized for this resource or action.",
+                  "error": {
+                    "code": "FORBIDDEN"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource is not available.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The requested resource is not available.",
+                  "error": {
+                    "code": "NOT_FOUND"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "One or more request fields are invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "One or more request fields are invalid.",
+                  "error": {
+                    "code": "VALIDATION_FAILED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The route-specific request limit was exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The route-specific request limit was exceeded.",
+                  "error": {
+                    "code": "RATE_LIMITED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                  "error": {
+                    "code": "INTERNAL_ERROR"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                  "error": {
+                    "code": "DATABASE_UNAVAILABLE"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getPurchaseOrdersByOrderIdAftercareOriginalRequest",
+        "x-access-boundary": "verified-purchase-guest",
+        "x-required-roles": [
+          "PURCHASE_GUEST"
+        ],
+        "x-csrf-required": false,
+        "x-idempotency-required": true
+      }
+    },
+    "/purchase/orders/{orderId}/aftercare": {
+      "get": {
+        "tags": [
+          "Purchase access"
+        ],
+        "summary": "Read only the verified guest's customer-visible order requests",
+        "description": "No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery, owned reads, cancellation and aftercare review; new checkout/payment mutations remain closed. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Guests cannot approve returns or refunds or initiate money movement. Read only the verified guest's customer-visible order requests. Access boundary: verified-purchase-guest. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.",
+        "security": [
+          {
+            "purchaseGuestCookie": []
+          }
+        ],
+        "x-trusted-origin-required": false,
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Identifier of the order resource; ownership is resolved server-side."
+            },
+            "required": true,
+            "name": "orderId",
+            "in": "path",
+            "description": "Identifier selecting the order resource.",
+            "example": "00000000-0000-4000-8000-000000000001"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success: Read only the verified guest's customer-visible order requests.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "description": "Success validated by this operation's strict request contract."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                    },
+                    "data": {
+                      "type": "object",
+                      "description": "Authorized response projection for: Read only the verified guest's customer-visible order requests.",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "description": "Public or authorized resource identifier."
+                        },
+                        "status": {
+                          "type": "string",
+                          "description": "Current server-owned lifecycle state when applicable."
+                        }
+                      },
+                      "additionalProperties": true
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string",
+                          "description": "Identifier of the request resource; ownership is resolved server-side."
+                        }
+                      },
+                      "required": [
+                        "requestId"
+                      ],
+                      "description": "Meta validated by this operation's strict request contract."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "meta"
+                  ],
+                  "description": "Response validated by this operation's strict request contract."
+                },
+                "example": {
+                  "success": true,
+                  "message": "Read only the verified guest's customer-visible order requests",
+                  "data": {
+                    "id": "00000000-0000-4000-8000-000000000001",
+                    "status": "synthetic-status"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is malformed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request is malformed.",
+                  "error": {
+                    "code": "BAD_REQUEST"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "A valid session and required assurance are missing.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A valid session and required assurance are missing.",
+                  "error": {
+                    "code": "UNAUTHORIZED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The actor is not authorized for this resource or action.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The actor is not authorized for this resource or action.",
+                  "error": {
+                    "code": "FORBIDDEN"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource is not available.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The requested resource is not available.",
+                  "error": {
+                    "code": "NOT_FOUND"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "One or more request fields are invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "One or more request fields are invalid.",
+                  "error": {
+                    "code": "VALIDATION_FAILED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The route-specific request limit was exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The route-specific request limit was exceeded.",
+                  "error": {
+                    "code": "RATE_LIMITED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                  "error": {
+                    "code": "INTERNAL_ERROR"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                  "error": {
+                    "code": "DATABASE_UNAVAILABLE"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getPurchaseOrdersByOrderIdAftercare",
+        "x-access-boundary": "verified-purchase-guest",
+        "x-required-roles": [
+          "PURCHASE_GUEST"
+        ],
+        "x-csrf-required": false,
+        "x-idempotency-required": false
+      },
+      "post": {
+        "tags": [
+          "Purchase access"
+        ],
+        "summary": "Request scoped guest return or cancellation review without changing money or stock",
+        "description": "No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery, owned reads, cancellation and aftercare review; new checkout/payment mutations remain closed. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Guests cannot approve returns or refunds or initiate money movement. Request scoped guest return or cancellation review without changing money or stock. Access boundary: verified-purchase-guest. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.",
+        "security": [
+          {
+            "purchaseGuestCookie": []
+          }
+        ],
+        "x-trusted-origin-required": true,
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Identifier of the order resource; ownership is resolved server-side."
+            },
+            "required": true,
+            "name": "orderId",
+            "in": "path",
+            "description": "Identifier selecting the order resource.",
+            "example": "00000000-0000-4000-8000-000000000001"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^aftercare-v1\\.\\d{13}\\.[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "description": "Idempotency Key validated by this operation's strict request contract."
+            },
+            "required": true,
+            "name": "idempotency-key",
+            "in": "header",
+            "description": "Unique retry key for this logical mutation. Reuse it only with the identical request.",
+            "example": "synthetic-idempotency-key"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_-]{43}$",
+              "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+            },
+            "required": true,
+            "name": "x-csrf-token",
+            "in": "header",
+            "description": "Current guest CSRF token from POST /purchase/access/csrf; keep in memory only. Grants no account access.",
+            "example": "synthetic-token-value-not-a-real-secret"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "reason": {
+                    "type": "string",
+                    "minLength": 10,
+                    "maxLength": 2000,
+                    "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                  },
+                  "kind": {
+                    "type": "string",
+                    "enum": [
+                      "RETURN",
+                      "CANCELLATION"
+                    ],
+                    "description": "Kind validated by this operation's strict request contract."
+                  },
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "orderItemId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "description": "Identifier of the order item resource; ownership is resolved server-side."
+                        },
+                        "quantity": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 100000,
+                          "description": "Quantity validated by this operation's strict request contract."
+                        }
+                      },
+                      "required": [
+                        "orderItemId",
+                        "quantity"
+                      ],
+                      "additionalProperties": false,
+                      "description": "Items Item validated by this operation's strict request contract."
+                    },
+                    "minItems": 1,
+                    "maxItems": 100,
+                    "description": "Items validated by this operation's strict request contract."
+                  }
+                },
+                "required": [
+                  "reason",
+                  "kind",
+                  "items"
+                ],
+                "additionalProperties": false,
+                "description": "Request Body validated by this operation's strict request contract."
+              },
+              "example": {
+                "reason": "synthetic-reason",
+                "kind": "RETURN",
+                "items": [
+                  {
+                    "orderItemId": "00000000-0000-4000-8000-000000000001",
+                    "quantity": 1
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Success: Request scoped guest return or cancellation review without changing money or stock.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "description": "Success validated by this operation's strict request contract."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                    },
+                    "data": {
+                      "type": "object",
+                      "description": "Authorized response projection for: Request scoped guest return or cancellation review without changing money or stock.",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "description": "Public or authorized resource identifier."
+                        },
+                        "status": {
+                          "type": "string",
+                          "description": "Current server-owned lifecycle state when applicable."
+                        }
+                      },
+                      "additionalProperties": true
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string",
+                          "description": "Identifier of the request resource; ownership is resolved server-side."
+                        }
+                      },
+                      "required": [
+                        "requestId"
+                      ],
+                      "description": "Meta validated by this operation's strict request contract."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "meta"
+                  ],
+                  "description": "Response validated by this operation's strict request contract."
+                },
+                "example": {
+                  "success": true,
+                  "message": "Request scoped guest return or cancellation review without changing money or stock",
+                  "data": {
+                    "id": "00000000-0000-4000-8000-000000000001",
+                    "status": "synthetic-status"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is malformed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request is malformed.",
+                  "error": {
+                    "code": "BAD_REQUEST"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "A valid session and required assurance are missing.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A valid session and required assurance are missing.",
+                  "error": {
+                    "code": "UNAUTHORIZED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The actor is not authorized for this resource or action.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The actor is not authorized for this resource or action.",
+                  "error": {
+                    "code": "FORBIDDEN"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource is not available.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The requested resource is not available.",
+                  "error": {
+                    "code": "NOT_FOUND"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The request conflicts with current state or idempotency.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request conflicts with current state or idempotency.",
+                  "error": {
+                    "code": "CONFLICT"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "One or more request fields are invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "One or more request fields are invalid.",
+                  "error": {
+                    "code": "VALIDATION_FAILED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The route-specific request limit was exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The route-specific request limit was exceeded.",
+                  "error": {
+                    "code": "RATE_LIMITED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                  "error": {
+                    "code": "INTERNAL_ERROR"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                  "error": {
+                    "code": "DATABASE_UNAVAILABLE"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "postPurchaseOrdersByOrderIdAftercare",
+        "x-access-boundary": "verified-purchase-guest",
+        "x-required-roles": [
+          "PURCHASE_GUEST"
+        ],
+        "x-csrf-required": true,
+        "x-idempotency-required": true
+      }
+    },
+    "/purchase/orders/{orderId}/cancel": {
+      "post": {
+        "tags": [
+          "Purchase access"
+        ],
+        "summary": "Cancel an owned pending guest order with a version check; paid cancellations require separate human refund review",
+        "description": "No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery, owned reads, cancellation and aftercare review; new checkout/payment mutations remain closed. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Guests cannot approve returns or refunds or initiate money movement. Cancel an owned pending guest order with a version check; paid cancellations require separate human refund review. Access boundary: verified-purchase-guest. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.",
+        "security": [
+          {
+            "purchaseGuestCookie": []
+          }
+        ],
+        "x-trusted-origin-required": true,
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Identifier of the order resource; ownership is resolved server-side."
+            },
+            "required": true,
+            "name": "orderId",
+            "in": "path",
+            "description": "Identifier selecting the order resource.",
+            "example": "00000000-0000-4000-8000-000000000001"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^aftercare-v1\\.\\d{13}\\.[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "description": "Idempotency Key validated by this operation's strict request contract."
+            },
+            "required": true,
+            "name": "idempotency-key",
+            "in": "header",
+            "description": "Unique retry key for this logical mutation. Reuse it only with the identical request.",
+            "example": "synthetic-idempotency-key"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_-]{43}$",
+              "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+            },
+            "required": true,
+            "name": "x-csrf-token",
+            "in": "header",
+            "description": "Current guest CSRF token from POST /purchase/access/csrf; keep in memory only. Grants no account access.",
+            "example": "synthetic-token-value-not-a-real-secret"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "expectedVersion": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 2147483647,
+                    "description": "Last server version observed by the client; stale writes are rejected."
+                  },
+                  "reason": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 500,
+                    "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                  }
+                },
+                "required": [
+                  "expectedVersion",
+                  "reason"
+                ],
+                "additionalProperties": false,
+                "description": "Request Body validated by this operation's strict request contract."
+              },
+              "example": {
+                "expectedVersion": 0,
+                "reason": "synthetic-reason"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success: Cancel an owned pending guest order with a version check; paid cancellations require separate human refund review.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "description": "Success validated by this operation's strict request contract."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                    },
+                    "data": {
+                      "type": "object",
+                      "description": "Authorized response projection for: Cancel an owned pending guest order with a version check; paid cancellations require separate human refund review.",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "description": "Public or authorized resource identifier."
+                        },
+                        "status": {
+                          "type": "string",
+                          "description": "Current server-owned lifecycle state when applicable."
+                        }
+                      },
+                      "additionalProperties": true
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string",
+                          "description": "Identifier of the request resource; ownership is resolved server-side."
+                        }
+                      },
+                      "required": [
+                        "requestId"
+                      ],
+                      "description": "Meta validated by this operation's strict request contract."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "meta"
+                  ],
+                  "description": "Response validated by this operation's strict request contract."
+                },
+                "example": {
+                  "success": true,
+                  "message": "Cancel an owned pending guest order with a version check; paid cancellations require separate human refund review",
+                  "data": {
+                    "id": "00000000-0000-4000-8000-000000000001",
+                    "status": "synthetic-status"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is malformed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request is malformed.",
+                  "error": {
+                    "code": "BAD_REQUEST"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "A valid session and required assurance are missing.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A valid session and required assurance are missing.",
+                  "error": {
+                    "code": "UNAUTHORIZED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The actor is not authorized for this resource or action.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The actor is not authorized for this resource or action.",
+                  "error": {
+                    "code": "FORBIDDEN"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource is not available.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The requested resource is not available.",
+                  "error": {
+                    "code": "NOT_FOUND"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The request conflicts with current state or idempotency.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request conflicts with current state or idempotency.",
+                  "error": {
+                    "code": "CONFLICT"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "One or more request fields are invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "One or more request fields are invalid.",
+                  "error": {
+                    "code": "VALIDATION_FAILED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The route-specific request limit was exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The route-specific request limit was exceeded.",
+                  "error": {
+                    "code": "RATE_LIMITED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                  "error": {
+                    "code": "INTERNAL_ERROR"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                  "error": {
+                    "code": "DATABASE_UNAVAILABLE"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "postPurchaseOrdersByOrderIdCancel",
+        "x-access-boundary": "verified-purchase-guest",
+        "x-required-roles": [
+          "PURCHASE_GUEST"
+        ],
+        "x-csrf-required": true,
+        "x-idempotency-required": true
+      }
+    },
     "/purchase/invoices/{invoiceId}/document": {
       "get": {
         "tags": [
           "Purchase access"
         ],
         "summary": "Read an owned issued guest invoice as a document",
-        "description": "No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery and owned reads but reject new financial mutations. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Read an owned issued guest invoice as a document. Access boundary: verified-purchase-guest. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.",
+        "description": "No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery, owned reads, cancellation and aftercare review; new checkout/payment mutations remain closed. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Guests cannot approve returns or refunds or initiate money movement. Read an owned issued guest invoice as a document. Access boundary: verified-purchase-guest. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.",
         "security": [
           {
             "purchaseGuestCookie": []
@@ -74767,7 +76041,7 @@
           "Purchase access"
         ],
         "summary": "Read an owned verified settled guest payment receipt as a document",
-        "description": "No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery and owned reads but reject new financial mutations. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Read an owned verified settled guest payment receipt as a document. Access boundary: verified-purchase-guest. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.",
+        "description": "No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery, owned reads, cancellation and aftercare review; new checkout/payment mutations remain closed. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Guests cannot approve returns or refunds or initiate money movement. Read an owned verified settled guest payment receipt as a document. Access boundary: verified-purchase-guest. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.",
         "security": [
           {
             "purchaseGuestCookie": []
@@ -75031,7 +76305,7 @@
           "Purchase access"
         ],
         "summary": "Read an owned issued guest invoice as a private PDF",
-        "description": "No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery and owned reads but reject new financial mutations. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Read an owned issued guest invoice as a private PDF. Access boundary: verified-purchase-guest. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.",
+        "description": "No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery, owned reads, cancellation and aftercare review; new checkout/payment mutations remain closed. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Guests cannot approve returns or refunds or initiate money movement. Read an owned issued guest invoice as a private PDF. Access boundary: verified-purchase-guest. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.",
         "security": [
           {
             "purchaseGuestCookie": []
@@ -75240,7 +76514,7 @@
           "Purchase access"
         ],
         "summary": "Read an owned verified settled guest payment receipt as a private PDF",
-        "description": "No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery and owned reads but reject new financial mutations. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Read an owned verified settled guest payment receipt as a private PDF. Access boundary: verified-purchase-guest. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.",
+        "description": "No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery, owned reads, cancellation and aftercare review; new checkout/payment mutations remain closed. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Guests cannot approve returns or refunds or initiate money movement. Read an owned verified settled guest payment receipt as a private PDF. Access boundary: verified-purchase-guest. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.",
         "security": [
           {
             "purchaseGuestCookie": []
@@ -75449,7 +76723,7 @@
           "Purchase access"
         ],
         "summary": "List only explicit guest-directed quotations for the verified purchase recipient",
-        "description": "No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery and owned reads but reject new financial mutations. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. List only explicit guest-directed quotations for the verified purchase recipient. Access boundary: verified-purchase-guest. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.",
+        "description": "No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery, owned reads, cancellation and aftercare review; new checkout/payment mutations remain closed. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Guests cannot approve returns or refunds or initiate money movement. List only explicit guest-directed quotations for the verified purchase recipient. Access boundary: verified-purchase-guest. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.",
         "security": [
           {
             "purchaseGuestCookie": []
@@ -75734,7 +77008,7 @@
           "Purchase access"
         ],
         "summary": "Decline an owned current guest quotation",
-        "description": "No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery and owned reads but reject new financial mutations. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Decline an owned current guest quotation. Access boundary: verified-purchase-guest. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.",
+        "description": "No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery, owned reads, cancellation and aftercare review; new checkout/payment mutations remain closed. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Guests cannot approve returns or refunds or initiate money movement. Decline an owned current guest quotation. Access boundary: verified-purchase-guest. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.",
         "security": [
           {
             "purchaseGuestCookie": []
@@ -76055,7 +77329,7 @@
           "Purchase access"
         ],
         "summary": "Accept a guest quotation through the shared exact-price collection checkout without creating an account",
-        "description": "No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery and owned reads but reject new financial mutations. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Accept a guest quotation through the shared exact-price collection checkout without creating an account. Access boundary: verified-purchase-guest. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.",
+        "description": "No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery, owned reads, cancellation and aftercare review; new checkout/payment mutations remain closed. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Guests cannot approve returns or refunds or initiate money movement. Accept a guest quotation through the shared exact-price collection checkout without creating an account. Access boundary: verified-purchase-guest. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.",
         "security": [
           {
             "purchaseGuestCookie": []
@@ -76418,7 +77692,7 @@
           "Purchase access"
         ],
         "summary": "Request a browser-bound private purchase-access link without creating an account",
-        "description": "No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery and owned reads but reject new financial mutations. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Request a browser-bound private purchase-access link without creating an account. Access boundary: public-purchase-proof. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.",
+        "description": "No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery, owned reads, cancellation and aftercare review; new checkout/payment mutations remain closed. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Guests cannot approve returns or refunds or initiate money movement. Request a browser-bound private purchase-access link without creating an account. Access boundary: public-purchase-proof. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.",
         "security": [],
         "x-trusted-origin-required": true,
         "requestBody": {
@@ -76650,7 +77924,7 @@
           "Purchase access"
         ],
         "summary": "Consume a single-use purchase proof in its requesting browser",
-        "description": "No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery and owned reads but reject new financial mutations. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Consume a single-use purchase proof in its requesting browser. Access boundary: public-purchase-proof. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.",
+        "description": "No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery, owned reads, cancellation and aftercare review; new checkout/payment mutations remain closed. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Guests cannot approve returns or refunds or initiate money movement. Consume a single-use purchase proof in its requesting browser. Access boundary: public-purchase-proof. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.",
         "security": [],
         "x-trusted-origin-required": true,
         "requestBody": {
@@ -76881,7 +78155,7 @@
           "Purchase access"
         ],
         "summary": "Read the current verified purchase access",
-        "description": "No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery and owned reads but reject new financial mutations. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Read the current verified purchase access. Access boundary: verified-purchase-guest. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.",
+        "description": "No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery, owned reads, cancellation and aftercare review; new checkout/payment mutations remain closed. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Guests cannot approve returns or refunds or initiate money movement. Read the current verified purchase access. Access boundary: verified-purchase-guest. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.",
         "security": [
           {
             "purchaseGuestCookie": []
@@ -77109,7 +78383,7 @@
           "Purchase access"
         ],
         "summary": "End this purchase access or revoke all purchase sessions for its verified buyer",
-        "description": "No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery and owned reads but reject new financial mutations. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. End this purchase access or revoke all purchase sessions for its verified buyer. Access boundary: verified-purchase-guest. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.",
+        "description": "No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery, owned reads, cancellation and aftercare review; new checkout/payment mutations remain closed. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Guests cannot approve returns or refunds or initiate money movement. End this purchase access or revoke all purchase sessions for its verified buyer. Access boundary: verified-purchase-guest. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.",
         "security": [
           {
             "purchaseGuestCookie": []
@@ -77379,7 +78653,7 @@
           "Purchase access"
         ],
         "summary": "Rotate the purchase CSRF token using a current guest cookie and trusted origin",
-        "description": "No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery and owned reads but reject new financial mutations. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Rotate the purchase CSRF token using a current guest cookie and trusted origin. Access boundary: verified-purchase-guest. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.",
+        "description": "No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery, owned reads, cancellation and aftercare review; new checkout/payment mutations remain closed. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Guests cannot approve returns or refunds or initiate money movement. Rotate the purchase CSRF token using a current guest cookie and trusted origin. Access boundary: verified-purchase-guest. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.",
         "security": [
           {
             "purchaseGuestCookie": []
@@ -77644,7 +78918,7 @@
           "Purchase access"
         ],
         "summary": "Recover an owned checkout receipt using its original retry key; absence is not proof of failure",
-        "description": "No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery and owned reads but reject new financial mutations. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Recover an owned checkout receipt using its original retry key; absence is not proof of failure. Access boundary: verified-purchase-guest. Requires the opaque session cookie. No CSRF token is required. Requires an Idempotency-Key; a key may only be replayed with the identical request.",
+        "description": "No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery, owned reads, cancellation and aftercare review; new checkout/payment mutations remain closed. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Guests cannot approve returns or refunds or initiate money movement. Recover an owned checkout receipt using its original retry key; absence is not proof of failure. Access boundary: verified-purchase-guest. Requires the opaque session cookie. No CSRF token is required. Requires an Idempotency-Key; a key may only be replayed with the identical request.",
         "security": [
           {
             "purchaseGuestCookie": []
@@ -77890,7 +79164,7 @@
           "Purchase access"
         ],
         "summary": "List only this verified guest's orders",
-        "description": "No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery and owned reads but reject new financial mutations. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. List only this verified guest's orders. Access boundary: verified-purchase-guest. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.",
+        "description": "No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery, owned reads, cancellation and aftercare review; new checkout/payment mutations remain closed. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Guests cannot approve returns or refunds or initiate money movement. List only this verified guest's orders. Access boundary: verified-purchase-guest. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.",
         "security": [
           {
             "purchaseGuestCookie": []
@@ -78192,7 +79466,7 @@
           "Purchase access"
         ],
         "summary": "Save a server-priced guest collection order without creating an account or charging it",
-        "description": "No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery and owned reads but reject new financial mutations. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Save a server-priced guest collection order without creating an account or charging it. Access boundary: verified-purchase-guest. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.",
+        "description": "No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery, owned reads, cancellation and aftercare review; new checkout/payment mutations remain closed. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Guests cannot approve returns or refunds or initiate money movement. Save a server-priced guest collection order without creating an account or charging it. Access boundary: verified-purchase-guest. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.",
         "security": [
           {
             "purchaseGuestCookie": []
@@ -78574,7 +79848,7 @@
           "Purchase access"
         ],
         "summary": "Read an owned guest order",
-        "description": "No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery and owned reads but reject new financial mutations. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Read an owned guest order. Access boundary: verified-purchase-guest. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.",
+        "description": "No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery, owned reads, cancellation and aftercare review; new checkout/payment mutations remain closed. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Guests cannot approve returns or refunds or initiate money movement. Read an owned guest order. Access boundary: verified-purchase-guest. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.",
         "security": [
           {
             "purchaseGuestCookie": []
@@ -78838,7 +80112,7 @@
           "Purchase access"
         ],
         "summary": "Prepare an exact payment for an owned guest order",
-        "description": "No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery and owned reads but reject new financial mutations. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Prepare an exact payment for an owned guest order. Access boundary: verified-purchase-guest. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.",
+        "description": "No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery, owned reads, cancellation and aftercare review; new checkout/payment mutations remain closed. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Guests cannot approve returns or refunds or initiate money movement. Prepare an exact payment for an owned guest order. Access boundary: verified-purchase-guest. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.",
         "security": [
           {
             "purchaseGuestCookie": []
@@ -79141,7 +80415,7 @@
           "Purchase access"
         ],
         "summary": "Read an owned guest payment without treating a callback as proof of payment",
-        "description": "No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery and owned reads but reject new financial mutations. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Read an owned guest payment without treating a callback as proof of payment. Access boundary: verified-purchase-guest. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.",
+        "description": "No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery, owned reads, cancellation and aftercare review; new checkout/payment mutations remain closed. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Guests cannot approve returns or refunds or initiate money movement. Read an owned guest payment without treating a callback as proof of payment. Access boundary: verified-purchase-guest. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.",
         "security": [
           {
             "purchaseGuestCookie": []
@@ -79405,7 +80679,7 @@
           "Purchase access"
         ],
         "summary": "Initialize or recover a guarded guest gateway checkout",
-        "description": "No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery and owned reads but reject new financial mutations. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Initialize or recover a guarded guest gateway checkout. Access boundary: verified-purchase-guest. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.",
+        "description": "No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery, owned reads, cancellation and aftercare review; new checkout/payment mutations remain closed. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Guests cannot approve returns or refunds or initiate money movement. Initialize or recover a guarded guest gateway checkout. Access boundary: verified-purchase-guest. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.",
         "security": [
           {
             "purchaseGuestCookie": []
@@ -79743,7 +81017,7 @@
           "Purchase access"
         ],
         "summary": "Verify an owned guest attempt through its configured provider and reconcile capture once",
-        "description": "No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery and owned reads but reject new financial mutations. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Verify an owned guest attempt through its configured provider and reconcile capture once. Access boundary: verified-purchase-guest. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.",
+        "description": "No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery, owned reads, cancellation and aftercare review; new checkout/payment mutations remain closed. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Guests cannot approve returns or refunds or initiate money movement. Verify an owned guest attempt through its configured provider and reconcile capture once. Access boundary: verified-purchase-guest. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.",
         "security": [
           {
             "purchaseGuestCookie": []
@@ -168130,9 +169404,20 @@
                             "description": "Refund Clock Status validated by this operation's strict request contract."
                           },
                           "customerId": {
-                            "type": "string",
+                            "type": [
+                              "string",
+                              "null"
+                            ],
                             "format": "uuid",
                             "description": "Identifier of the customer resource; ownership is resolved server-side."
+                          },
+                          "guestId": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "format": "uuid",
+                            "description": "Identifier of the guest resource; ownership is resolved server-side."
                           },
                           "reviewReason": {
                             "type": "string",
@@ -168182,6 +169467,7 @@
                           "refundDueAt",
                           "refundClockStatus",
                           "customerId",
+                          "guestId",
                           "reviewReason",
                           "inspectedByUserId",
                           "inspectionNote",
@@ -168245,6 +169531,7 @@
                       "refundDueAt": "2030-01-15T10:00:00.000Z",
                       "refundClockStatus": "synthetic-refundclockstatus",
                       "customerId": "00000000-0000-4000-8000-000000000001",
+                      "guestId": "00000000-0000-4000-8000-000000000001",
                       "reviewReason": "synthetic-reviewreason",
                       "inspectedByUserId": "00000000-0000-4000-8000-000000000001",
                       "inspectionNote": "synthetic-inspectionnote",
@@ -168599,9 +169886,20 @@
                           "description": "Refund Clock Status validated by this operation's strict request contract."
                         },
                         "customerId": {
-                          "type": "string",
+                          "type": [
+                            "string",
+                            "null"
+                          ],
                           "format": "uuid",
                           "description": "Identifier of the customer resource; ownership is resolved server-side."
+                        },
+                        "guestId": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "format": "uuid",
+                          "description": "Identifier of the guest resource; ownership is resolved server-side."
                         },
                         "reviewReason": {
                           "type": "string",
@@ -168651,6 +169949,7 @@
                         "refundDueAt",
                         "refundClockStatus",
                         "customerId",
+                        "guestId",
                         "reviewReason",
                         "inspectedByUserId",
                         "inspectionNote",
@@ -168711,6 +170010,7 @@
                     "refundDueAt": "2030-01-15T10:00:00.000Z",
                     "refundClockStatus": "synthetic-refundclockstatus",
                     "customerId": "00000000-0000-4000-8000-000000000001",
+                    "guestId": "00000000-0000-4000-8000-000000000001",
                     "reviewReason": "synthetic-reviewreason",
                     "inspectedByUserId": "00000000-0000-4000-8000-000000000001",
                     "inspectionNote": "synthetic-inspectionnote",
@@ -169976,9 +171276,20 @@
                           "description": "Refund Clock Status validated by this operation's strict request contract."
                         },
                         "customerId": {
-                          "type": "string",
+                          "type": [
+                            "string",
+                            "null"
+                          ],
                           "format": "uuid",
                           "description": "Identifier of the customer resource; ownership is resolved server-side."
+                        },
+                        "guestId": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "format": "uuid",
+                          "description": "Identifier of the guest resource; ownership is resolved server-side."
                         },
                         "reviewReason": {
                           "type": "string",
@@ -170028,6 +171339,7 @@
                         "refundDueAt",
                         "refundClockStatus",
                         "customerId",
+                        "guestId",
                         "reviewReason",
                         "inspectedByUserId",
                         "inspectionNote",
@@ -170088,6 +171400,7 @@
                     "refundDueAt": "2030-01-15T10:00:00.000Z",
                     "refundClockStatus": "synthetic-refundclockstatus",
                     "customerId": "00000000-0000-4000-8000-000000000001",
+                    "guestId": "00000000-0000-4000-8000-000000000001",
                     "reviewReason": "synthetic-reviewreason",
                     "inspectedByUserId": "00000000-0000-4000-8000-000000000001",
                     "inspectionNote": "synthetic-inspectionnote",

@@ -32,3 +32,6 @@ export const purchaseQuoteListSchema = z
     limit: z.coerce.number().int().min(1).max(25).default(10),
   })
   .strict();
+export const purchaseAftercareRecoverySchema = z
+  .object({ operation: z.enum(["cancel", "aftercare"]) })
+  .strict();

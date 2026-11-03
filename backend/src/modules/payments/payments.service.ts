@@ -978,6 +978,22 @@ export class PaymentsService {
         )._sum.amountKobo ?? 0n;
       if (committed + input.amountKobo > attempt.amountKobo)
         throw paymentConflict("Refund total exceeds the captured amount");
+      if (attempt.payment.orderId) {
+        const cancelledGuestOrder = await tx.order.findFirst({
+          where: {
+            id: attempt.payment.orderId,
+            guestId: { not: null },
+            customerId: null,
+            status: "CANCELLED",
+            confirmedAt: null,
+          },
+          select: { id: true },
+        });
+        if (cancelledGuestOrder && input.amountKobo !== attempt.amountKobo - committed)
+          throw paymentConflict(
+            "Cancellation before confirmation is free. Request the full remaining verified amount; a separate operator must approve the refund.",
+          );
+      }
       const refundPolicy = await approvedPolicy(tx, "manual-refund");
       const refund = await tx.refund.create({
         select: refundQueueSelect,

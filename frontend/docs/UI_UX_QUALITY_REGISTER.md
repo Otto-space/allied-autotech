@@ -1,3 +1,22 @@
+### 3 November 2026: Guest aftercare checkpoint (unpublished)
+
+Guest cancellation/review, original-request recovery, operator payment destinations
+and shared account record presentation are implemented in the current working tree.
+The latest isolated backend run passes 71/71 across nine suites, including captures
+verified after cancellation; all 89 migrations and runtime privilege checks pass.
+Frontend TypeScript passes. Guest/operator browser evidence is now 12/12, including
+320/768/1366px and sampled Axe; 320/1366 screenshots were inspected. A separate
+79-case shared regression run was interrupted below the disk reserve, after 41
+logged passes and one reason-label failure; the other 37 remain unverified. The
+clear cancellation label is restored and quotation requirements use a separate
+helper; the repair still needs rendered verification. The overview parser now
+keeps only valid guest refund order destinations while stripping unrelated resource
+metadata; all 35 affected units pass after its initial 33/34 failure. Learning,
+content register and CI coverage are updated. Final source/CI and release checks,
+including the remaining rendered regressions, remain outstanding. No actual role,
+provider refund or physical-device acceptance is claimed. See the current completion
+tracker checkpoint for evidence, disk interruption and retained cleanup candidates.
+
 ### 3 November 2026: Private guest invoices and receipts verified (source only)
 
 Quotation source 2ba96033 is signed/verified and passes frontend 41585900297

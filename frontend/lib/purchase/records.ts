@@ -3,6 +3,9 @@ import { orderSchema } from "../api/commerce-schemas";
 import { paymentSchema } from "../api/payment-schemas";
 export const guestOrderSchema = orderSchema.extend({
   paymentId: z.uuid().nullable().optional(),
+  confirmedAt: z.iso.datetime({ offset: true }).nullable(),
+  fulfillmentEvidenceAt: z.iso.datetime({ offset: true }).nullable(),
+  fulfillmentEvidenceReference: z.string().nullable(),
 });
 export type GuestOrder = z.infer<typeof guestOrderSchema>;
 export const parseGuestOrder = (value: unknown) => guestOrderSchema.parse(value);
